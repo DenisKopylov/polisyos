@@ -127,7 +127,7 @@ class BoundsEngineMethod:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="bounds_engine",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

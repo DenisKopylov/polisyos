@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+import sqlite3
+import threading
 import time
+from datetime import UTC, datetime
+from typing import cast
 
-from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+import polisyos.runtime.http.services.control_worker as control_worker_module
+from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+from polisyos.runtime.http.services.control_plane_store import ControlJobRecord, ControlPlaneStore
 from polisyos.runtime.http.services.control_worker import ControlWorker
 
 
@@ -146,3 +152,129 @@ def test_control_worker_renews_job_lease_while_handler_runs(tmp_path) -> None:
     assert workers[0].worker_id == "ctrl-worker-test"
     assert workers[0].state == "idle"
     assert workers[0].metadata["last_job_id"] == "job_fixture_renewal"
+
+
+def test_control_plane_store_dead_letters_terminal_failures(tmp_path) -> None:
+    store = _make_store(tmp_path)
+    store.create_job(
+        job_id="job_fixture_failed",
+        kind="workflow_run",
+        run_id="R_fixture_failed",
+        pipeline_id="pipeline_fixture",
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by="tester",
+    )
+
+    store.fail_job(job_id="job_fixture_failed", error_message="permanent failure")
+
+    failed = store.get_job("job_fixture_failed")
+    assert failed is not None
+    assert failed.state == "failed"
+
+    dead_letters = store.list_dead_letter_jobs()
+    assert len(dead_letters) == 1
+    assert dead_letters[0].job_id == "job_fixture_failed"
+    assert dead_letters[0].run_id == "R_fixture_failed"
+    assert dead_letters[0].pipeline_id == "pipeline_fixture"
+    assert dead_letters[0].error_message == "permanent failure"
+    assert dead_letters[0].acknowledged_at is None
+
+    store.acknowledge_dead_letter_job(
+        job_id="job_fixture_failed",
+        acknowledged_by="operator@example.test",
+    )
+    assert store.list_dead_letter_jobs() == []
+    acknowledged = store.list_dead_letter_jobs(acknowledged=True)
+    assert acknowledged[0].acknowledged_by == "operator@example.test"
+
+
+def test_control_plane_sqlite_uses_wal_journaling(tmp_path) -> None:
+    db_path = tmp_path / "control-plane.sqlite3"
+    _ = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
+
+    with sqlite3.connect(db_path) as conn:
+        journal_mode = conn.execute("PRAGMA journal_mode").fetchone()[0]
+        synchronous = conn.execute("PRAGMA synchronous").fetchone()[0]
+
+    assert journal_mode.lower() == "wal"
+    assert synchronous in {1, 2}
+
+
+class _FlakyHeartbeatStore:
+    def __init__(self) -> None:
+        self.fail = threading.Event()
+
+    def heartbeat_worker(self, **_kwargs) -> None:
+        if self.fail.is_set():
+            raise RuntimeDependencyUnavailableError(
+                "control_plane_store",
+                detail="control_plane_store executor is unavailable",
+            )
+
+    def renew_job_lease(self, **_kwargs) -> None:
+        if self.fail.is_set():
+            raise RuntimeDependencyUnavailableError(
+                "control_plane_store",
+                detail="control_plane_store executor is unavailable",
+            )
+
+
+def test_control_worker_shutdown_suppresses_heartbeat_store_unavailable_logs(
+    monkeypatch,
+) -> None:
+    store = _FlakyHeartbeatStore()
+    warnings: list[tuple[object, ...]] = []
+    exceptions: list[tuple[object, ...]] = []
+    worker = ControlWorker(
+        store=cast("ControlPlaneStore", store),
+        handler=lambda _job: None,
+        lease_seconds=1,
+        worker_id="ctrl-worker-shutdown",
+    )
+    job = ControlJobRecord(
+        job_id="job_shutdown",
+        kind="workflow_run",
+        state="running",
+        run_id="R_shutdown",
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by="tester",
+        created_at=datetime.now(UTC),
+        started_at=datetime.now(UTC),
+        finished_at=None,
+        lease_owner=worker.worker_id,
+        lease_expires_at=None,
+        attempt=1,
+        error_message=None,
+        progress={},
+    )
+
+    def _handler(_job: ControlJobRecord) -> None:
+        store.fail.set()
+        worker._stop.set()
+        time.sleep(worker._heartbeat_interval_s + 0.05)
+
+    monkeypatch.setattr(worker, "_handler", _handler)
+    monkeypatch.setattr(
+        control_worker_module.logger,
+        "warning",
+        lambda *args, **kwargs: warnings.append(args),
+    )
+    monkeypatch.setattr(
+        control_worker_module.logger,
+        "exception",
+        lambda *args, **kwargs: exceptions.append(args),
+    )
+
+    worker._run_with_lease_heartbeat(job)
+
+    assert warnings == []
+    assert exceptions == []

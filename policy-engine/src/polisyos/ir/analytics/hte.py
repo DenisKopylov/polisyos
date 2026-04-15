@@ -2,10 +2,16 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir._validation import (
+    ensure_confidence_interval,
+    ensure_finite_numeric,
+    ensure_unique_ids,
+)
 from polisyos.ir.analytics.causal import CausalMethod
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
@@ -15,7 +21,7 @@ from polisyos.ir.refs import HTEResultRef, PolicyRecommendationRef
 class SubgroupEffect(BaseModel):
     """Estimated conditional treatment effect for one labeled subgroup."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     subgroup_id: str = Field(min_length=1)
     subgroup_label: str = Field(min_length=1)
@@ -33,21 +39,21 @@ class SubgroupEffect(BaseModel):
 
     @model_validator(mode="after")
     def _validate_ci(self) -> "SubgroupEffect":
-        if not math.isfinite(self.cate_mean):
-            raise ValueError("cate_mean must be finite")
-        if not math.isfinite(self.cate_std):
-            raise ValueError("cate_std must be finite")
-        if not math.isfinite(self.cate_ci_lower) or not math.isfinite(self.cate_ci_upper):
-            raise ValueError("CI bounds must be finite")
-        if self.cate_ci_lower > self.cate_ci_upper:
-            raise ValueError("cate_ci_lower must be <= cate_ci_upper")
+        ensure_finite_numeric(self.cate_mean, field_name="cate_mean")
+        ensure_finite_numeric(self.cate_std, field_name="cate_std")
+        ensure_confidence_interval(
+            (self.cate_ci_lower, self.cate_ci_upper),
+            label="cate_ci",
+            point_estimate=self.cate_mean,
+            point_label="cate_mean",
+        )
         return self
 
 
 class FeatureImportance(BaseModel):
     """Ranking signal for a feature used in heterogeneous-effect modeling."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     feature_name: str = Field(min_length=1)
     importance_score: float
@@ -57,15 +63,19 @@ class FeatureImportance(BaseModel):
 
     @model_validator(mode="after")
     def _validate_score(self) -> "FeatureImportance":
-        if not math.isfinite(self.importance_score):
-            raise ValueError("importance_score must be finite")
+        ensure_finite_numeric(self.importance_score, field_name="importance_score")
         return self
 
 
 class HTEResult(BaseModel):
-    """Canonical artifact for heterogeneous treatment effect estimation."""
+    """Canonical artifact for heterogeneous treatment effect estimation.
 
-    model_config = ConfigDict(extra="forbid")
+    The contract keeps list/dict containers for ABI compatibility, but derived
+    fields are normalized before instantiation rather than by mutating the
+    validated model.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
 
@@ -101,33 +111,103 @@ class HTEResult(BaseModel):
     cas_artifact_id: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_payload(cls, payload: Any) -> Any:
+        return cls.normalize_payload(payload)
+
+    @classmethod
+    def normalize_payload(cls, payload: Any) -> Any:
+        """Return an HTE payload with explicit derived defaults filled.
+
+        This helper is the supported normalization boundary for loaded legacy
+        payloads and construction helpers. Validators call it only to preserve
+        dual-read compatibility; business code should prefer
+        :meth:`from_estimates` when deriving fields such as ``n_samples``.
+        """
+        if not isinstance(payload, dict):
+            return payload
+        normalized = dict(payload)
+        cate_values = normalized.get("cate_values")
+        if (
+            isinstance(cate_values, Sequence)
+            and not isinstance(cate_values, (str, bytes, bytearray))
+            and normalized.get("n_samples", 0) in {None, 0, ""}
+        ):
+            normalized["n_samples"] = len(cate_values)
+        return normalized
+
+    @classmethod
+    def from_estimates(cls, **payload: Any) -> "HTEResult":
+        """Construct an HTE result after applying explicit derived defaults."""
+
+        return cls.model_validate(cls.normalize_payload(payload))
+
     @model_validator(mode="after")
     def _validate_shapes(self) -> "HTEResult":
-        if self.n_samples == 0 and self.cate_values:
-            self.n_samples = len(self.cate_values)
         if self.n_samples != len(self.cate_values):
             raise ValueError("n_samples must match cate_values length")
-
+        ensure_finite_numeric(self.ate, field_name="ate")
+        ensure_confidence_interval(
+            (self.ate_ci_lower, self.ate_ci_upper),
+            label="ate_ci",
+            point_estimate=self.ate,
+            point_label="ate",
+        )
+        for index, cate in enumerate(self.cate_values):
+            ensure_finite_numeric(cate, field_name=f"cate_values[{index}]")
         if self.cate_std_values and len(self.cate_std_values) != self.n_samples:
             raise ValueError("cate_std_values length must match n_samples")
         if self.cate_ci_lower_values and len(self.cate_ci_lower_values) != self.n_samples:
             raise ValueError("cate_ci_lower_values length must match n_samples")
         if self.cate_ci_upper_values and len(self.cate_ci_upper_values) != self.n_samples:
             raise ValueError("cate_ci_upper_values length must match n_samples")
-
-        if self.ate_ci_lower > self.ate_ci_upper:
-            raise ValueError("ate_ci_lower must be <= ate_ci_upper")
-        if not math.isfinite(self.ate):
-            raise ValueError("ate must be finite")
-        if not math.isfinite(self.ate_ci_lower) or not math.isfinite(self.ate_ci_upper):
-            raise ValueError("ATE CI bounds must be finite")
+        if bool(self.cate_ci_lower_values) != bool(self.cate_ci_upper_values):
+            raise ValueError(
+                "cate_ci_lower_values and cate_ci_upper_values must be provided together"
+            )
+        for index, cate_std in enumerate(self.cate_std_values):
+            ensure_finite_numeric(cate_std, field_name=f"cate_std_values[{index}]")
+        for index, (lower, upper) in enumerate(
+            zip(self.cate_ci_lower_values, self.cate_ci_upper_values, strict=False)
+        ):
+            ensure_confidence_interval(
+                (lower, upper),
+                label=f"cate_ci[{index}]",
+                point_estimate=self.cate_values[index],
+                point_label=f"cate_values[{index}]",
+            )
+        if self.n_treated + self.n_control > self.n_samples:
+            raise ValueError("n_treated + n_control cannot exceed n_samples")
+        if self.feature_names and len(self.feature_names) != self.n_features:
+            raise ValueError("feature_names length must match n_features")
+        if not self.feature_names and self.n_features != 0:
+            raise ValueError("n_features requires feature_names")
+        ensure_unique_ids(self.feature_names, key_fn=lambda item: item, label="feature_name")
+        ensure_unique_ids(
+            self.subgroup_effects,
+            key_fn=lambda item: item.subgroup_id,
+            label="subgroup_effect subgroup_id",
+        )
+        ensure_unique_ids(
+            self.feature_importances,
+            key_fn=lambda item: item.feature_name,
+            label="feature_importance feature_name",
+        )
+        ensure_unique_ids(
+            self.feature_importances,
+            key_fn=lambda item: item.importance_rank,
+            label="feature_importance importance_rank",
+        )
+        for metric_name, metric_value in self.model_fit_metrics.items():
+            ensure_finite_numeric(metric_value, field_name=f"model_fit_metrics.{metric_name}")
         return self
 
 
 class TargetingRule(BaseModel):
     """Operational rule for targeting treatment to high-value units."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     rule_id: str = Field(min_length=1)
     predicate: str = Field(min_length=1)
@@ -151,7 +231,7 @@ class TargetingRule(BaseModel):
 class PolicyRecommendation(BaseModel):
     """Budget-aware targeting recommendation derived from an HTE result."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
 
@@ -172,16 +252,71 @@ class PolicyRecommendation(BaseModel):
     cas_artifact_id: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_payload(cls, payload: Any) -> Any:
+        return cls.normalize_payload(payload)
+
+    @classmethod
+    def normalize_payload(cls, payload: Any) -> Any:
+        """Return a recommendation payload with explicit derived efficiency."""
+
+        if not isinstance(payload, dict):
+            return payload
+        normalized = dict(payload)
+        if normalized.get("targeting_efficiency") is not None:
+            return normalized
+        try:
+            total_cost = float(normalized.get("total_cost", 0.0) or 0.0)
+            total_effect = float(normalized.get("total_expected_effect", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            return normalized
+        if total_cost > 0.0:
+            normalized["targeting_efficiency"] = total_effect / total_cost
+        return normalized
+
+    @classmethod
+    def from_totals(cls, **payload: Any) -> "PolicyRecommendation":
+        """Construct a recommendation after applying explicit derived defaults."""
+
+        return cls.model_validate(cls.normalize_payload(payload))
+
     @model_validator(mode="after")
     def _validate_totals(self) -> "PolicyRecommendation":
-        if not math.isfinite(self.total_expected_effect):
-            raise ValueError("total_expected_effect must be finite")
-        if not math.isfinite(self.total_cost):
-            raise ValueError("total_cost must be finite")
+        ensure_finite_numeric(self.total_expected_effect, field_name="total_expected_effect")
+        ensure_finite_numeric(self.total_cost, field_name="total_cost")
         if self.n_targeted_units > self.n_total_units and self.n_total_units > 0:
             raise ValueError("n_targeted_units cannot exceed n_total_units")
-        if self.targeting_efficiency is None and self.total_cost > 0:
-            self.targeting_efficiency = self.total_expected_effect / self.total_cost
+        if self.targeting_efficiency is not None:
+            ensure_finite_numeric(self.targeting_efficiency, field_name="targeting_efficiency")
+        if self.total_cost == 0.0 and self.targeting_efficiency not in {None, 0.0}:
+            raise ValueError("targeting_efficiency must be None or 0.0 when total_cost is zero")
+        if self.total_cost > 0.0 and self.targeting_efficiency is not None:
+            expected_efficiency = self.total_expected_effect / self.total_cost
+            if not math.isclose(
+                self.targeting_efficiency,
+                expected_efficiency,
+                rel_tol=1.0e-12,
+                abs_tol=1.0e-12,
+            ):
+                raise ValueError(
+                    "targeting_efficiency must equal total_expected_effect / total_cost"
+                )
+        if (
+            self.budget_constraint is not None
+            and self.total_cost > self.budget_constraint + 1.0e-12
+        ):
+            raise ValueError("total_cost cannot exceed budget_constraint")
+        ensure_unique_ids(
+            self.targeting_rules,
+            key_fn=lambda item: item.rule_id,
+            label="targeting_rule rule_id",
+        )
+        ensure_unique_ids(
+            self.targeting_rules,
+            key_fn=lambda item: item.priority,
+            label="targeting_rule priority",
+        )
         return self
 
 

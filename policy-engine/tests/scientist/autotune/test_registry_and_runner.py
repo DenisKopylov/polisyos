@@ -17,7 +17,7 @@ from polisyos.scientist.autotune import (
     persist_benchmark_suite,
     persist_mutation_artifact,
 )
-from polisyos.scientist.autotune.models import load_model_artifact
+from polisyos.scientist.autotune.models import default_store, load_model_artifact
 from polisyos.scientist.autotune.runtime import (
     ChampionBackedRuntimeLoader,
     PydanticMutationCodec,
@@ -54,10 +54,53 @@ class PredictableDummyEvaluator:
         )
 
 
+def test_default_store_uses_storage_factory(tmp_path, monkeypatch) -> None:
+    seen: dict[str, object] = {}
+    expected_store = FileSystemCAS(tmp_path / ".polisyos")
+
+    def _fake_build_artifact_store(config):
+        seen["config"] = config
+        return expected_store
+
+    monkeypatch.setattr(
+        "polisyos.scientist.autotune.models.build_artifact_store",
+        _fake_build_artifact_store,
+    )
+
+    store = default_store(tmp_path / ".polisyos")
+
+    assert store is expected_store
+    assert seen["config"].backend == "filesystem"
+    assert seen["config"].root == str(tmp_path / ".polisyos")
+
+
+def test_autotune_persistence_helpers_accept_protocol_backed_store(tmp_path) -> None:
+    backing_store = FileSystemCAS(tmp_path / ".polisyos")
+
+    class _ArtifactStoreProxy:
+        def __init__(self, store: FileSystemCAS) -> None:
+            self._store = store
+
+        def get_bytes(self, artifact_id):
+            return self._store.get_bytes(artifact_id)
+
+        def put_json(self, obj, opts, *, canon_spec=None):
+            return self._store.put_json(obj, opts, canon_spec=canon_spec)
+
+    proxy = _ArtifactStoreProxy(backing_store)
+    ref = persist_mutation_artifact(proxy, DummyMutationConfig(value=5))
+    loaded = load_model_artifact(proxy, ref, DummyMutationConfig)
+
+    assert loaded.value == 5
+
+
 def test_search_loop_runner_promotes_and_runtime_loader_reads_champion(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / ".polisyos")
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
-    suite_ref = persist_benchmark_suite(store, BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"))
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+    )
     loader = ChampionBackedRuntimeLoader(
         loop_id="dummy_loop",
         model_cls=DummyMutationConfig,

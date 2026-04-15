@@ -16,12 +16,14 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
+from polisyos.fabric.safety import UnsafeDataPathError
 from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec, SchemaType, SchemaVersion
 from polisyos.fabric.connectors.reference.rest_json import (
     GenericRESTConnector,
     PaginationStrategy,
     _extract_nested,
 )
+import polisyos.fabric.connectors.reference.rest_json as rest_json_module
 from polisyos.fabric.connectors.testing import ConnectorTestHarness
 from polisyos.fabric.connectors.types import RateLimitError
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
@@ -102,6 +104,14 @@ class TestNestedExtraction:
         with pytest.raises(KeyError):
             _extract_nested({"data": []}, "missing")
 
+    def test_data_path_depth_is_bounded(self) -> None:
+        with pytest.raises(UnsafeDataPathError, match="depth"):
+            _extract_nested({"data": []}, "a.b.c.d.e.f.g.h.i")
+
+    def test_rejects_unsafe_path_token(self) -> None:
+        with pytest.raises(UnsafeDataPathError, match="Unsafe data_path token"):
+            _extract_nested({"data": []}, "data.__secret")
+
 
 class TestPaginationConfig:
     def test_page_number_default(self) -> None:
@@ -151,6 +161,14 @@ class TestConfigValidation:
         result = GenericRESTConnector.validate_config(config)
         assert not result.valid
 
+    def test_invalid_data_path(self) -> None:
+        config = ConnectionConfig(
+            url="http://x.com",
+            headers={"X-REST-DataPath": "data.__secret"},
+        )
+        result = GenericRESTConnector.validate_config(config)
+        assert not result.valid
+
 
 @pytest.mark.asyncio
 async def test_rate_limit_error_mapping() -> None:
@@ -177,6 +195,31 @@ async def test_rate_limit_error_mapping() -> None:
 
     with pytest.raises(RateLimitError):
         await connector._request_page_raw(handle, FakeSession(), "http://localhost", {})
+
+
+@pytest.mark.asyncio
+async def test_rest_json_reuses_one_session_per_handle(monkeypatch) -> None:
+    created = []
+
+    class FakeClientSession:
+        def __init__(self, *args, **kwargs):
+            self.closed = False
+            created.append(self)
+
+        async def close(self):
+            self.closed = True
+
+    monkeypatch.setattr(rest_json_module.aiohttp, "ClientSession", FakeClientSession)
+
+    connector = GenericRESTConnector()
+    handle = await connector.connect(ConnectionConfig(url="http://localhost"))
+    sessions = await asyncio.gather(*(connector._get_session(handle) for _ in range(10)))
+
+    assert len(created) == 1
+    assert len({id(session) for session in sessions}) == 1
+
+    await connector.disconnect(handle)
+    assert created[0].closed
 
 
 # =============================================================================
@@ -242,7 +285,7 @@ async def test_rest_pagination_with_rate_limit(monkeypatch) -> None:
     result = await connector.fetch(handle, FetchRequest(dataset_id="integration"))
     assert result.row_count == 3
     assert len(result.data) == 3
-    assert handle.state["rest_json"].get("retry_after") is not None
+    assert handle.get_state("rest_json")["retry_after"] is not None
 
     await connector.disconnect(handle)
     await runner.cleanup()

@@ -36,7 +36,7 @@ class CrossValidationEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="cross_validation",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -99,7 +99,7 @@ class WalkForwardEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="walk_forward",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -179,7 +179,7 @@ class CalibrationDiagnosticEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="calibration_diagnostic",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

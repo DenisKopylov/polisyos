@@ -4,11 +4,19 @@ import hashlib
 import logging
 from types import SimpleNamespace
 
+import polisyos.scientist.nodes.builtins.c6c_runtime_support as c6c_runtime_support
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.ir.analytics.cross_graph import (
+    CrossGraphEvidenceProfile,
+    CrossGraphEvidenceSummary,
+    EvidenceSourceKind,
+    EvidenceSourceState,
+    EvidenceSourceStatus,
+)
 from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
     StrategicSCM,
@@ -17,13 +25,6 @@ from polisyos.ir.analytics.strategic import (
     persist_strategic_payoff_table,
 )
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.ir.analytics.cross_graph import (
-    CrossGraphEvidenceProfile,
-    CrossGraphEvidenceSummary,
-    EvidenceSourceKind,
-    EvidenceSourceState,
-    EvidenceSourceStatus,
-)
 from polisyos.scientist.doe.stress_report import (
     StressTestReport,
     Vulnerability,
@@ -32,14 +33,14 @@ from polisyos.scientist.doe.stress_report import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.evidence_sources import EvidenceSourcesConfig
+from polisyos.scientist.kernel.budgets import ComputeBudget
 from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
     _SPEC,
     _merge_stress_test_reports,
     _persist_runtime_strategic_artifacts,
-    _resolve_replay_bundle_ref,
     _resolve_policy_runtime_source_statuses,
+    _resolve_replay_bundle_ref,
 )
-from polisyos.scientist.kernel.budgets import ComputeBudget
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_REPORT_REF
 
 
@@ -421,3 +422,78 @@ def test_runtime_strategic_helper_blocks_on_contract_payoff_mismatch(tmp_path) -
     assert output.strategic_response_summary["blocked_reason"] == (
         "strategic_contract_payoff_ref_mismatch"
     )
+
+
+def test_runtime_strategic_helper_invalid_input_records_degraded_path(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="runtime_strategic_invalid")
+    state = ExperimentState(
+        run_id="runtime_strategic_invalid",
+        params={
+            "strategic_scm": {"not": "a strategic contract"},
+            "strategic_payoff_tables": {},
+        },
+        artifacts_index={ARTIFACT_CAUSAL_REPORT_REF: _ref("c")},
+    )
+
+    output = _persist_runtime_strategic_artifacts(
+        ctx,
+        state,
+        candidate_ref=_ref("a"),
+        selection_vector_ref=_ref("b"),
+        selection_artifact=SimpleNamespace(simulation_results={"policy_value": 2.0}),
+        artifacts_index=dict(state.artifacts_index),
+    )
+
+    assert output.strategic_response_summary is not None
+    assert output.strategic_response_summary["blocked_reason"] == "strategic_runtime_invalid_input"
+    degraded = output.strategic_response_summary["degraded_path"]
+    assert degraded["component"] == "scientist.decision_runtime"
+    assert degraded["reason"] == "strategic_runtime_invalid_input"
+
+
+def test_runtime_strategic_helper_persistence_failure_records_degraded_path(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    ctx = _build_ctx(tmp_path, run_id="runtime_strategic_persistence_failure")
+    tables = _runtime_payoff_tables()
+    leader_ref = persist_strategic_payoff_table(ctx.store, tables["leader"])
+    follower_ref = persist_strategic_payoff_table(ctx.store, tables["follower"])
+    contract = _runtime_contract(
+        utility_refs={
+            "leader": leader_ref,
+            "follower": follower_ref,
+        }
+    )
+    state = ExperimentState(
+        run_id="runtime_strategic_persistence_failure",
+        params={
+            "strategic_scm": contract.model_dump(mode="json"),
+            "strategic_payoff_tables": {
+                agent: table.model_dump(mode="json") for agent, table in tables.items()
+            },
+        },
+        artifacts_index={ARTIFACT_CAUSAL_REPORT_REF: _ref("c")},
+    )
+
+    def _explode(*args, **kwargs):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(c6c_runtime_support, "persist_strategic_scm", _explode)
+
+    output = _persist_runtime_strategic_artifacts(
+        ctx,
+        state,
+        candidate_ref=_ref("a"),
+        selection_vector_ref=_ref("b"),
+        selection_artifact=SimpleNamespace(simulation_results={"policy_value": 2.0}),
+        artifacts_index=dict(state.artifacts_index),
+    )
+
+    assert output.strategic_response_summary is not None
+    assert output.strategic_response_summary["blocked_reason"] == (
+        "strategic_runtime_persistence_failed"
+    )
+    degraded = output.strategic_response_summary["degraded_path"]
+    assert degraded["component"] == "scientist.decision_runtime"
+    assert degraded["reason"] == "strategic_runtime_persistence_failed"

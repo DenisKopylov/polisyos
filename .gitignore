@@ -1,22 +1,10 @@
 
 # local datasets
 /data/
-policy-engine/data/
-!policy-engine/data/
-policy-engine/data/*
-!policy-engine/data/academic_gold/
-policy-engine/data/academic_gold/*
-!policy-engine/data/academic_gold/README.md
-!policy-engine/data/academic_gold/claim_gold.jsonl
-!policy-engine/data/academic_gold/claim_gold_split.json
-!policy-engine/data/dataset_catalog/
-policy-engine/data/dataset_catalog/*
-!policy-engine/data/dataset_catalog/metrics_map.yaml
-!policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml
-!policy-engine/data/dataset_catalog/seed_variable_alignments.yaml
-!policy-engine/data/lex_knowledge/
-policy-engine/data/lex_knowledge/*
-!policy-engine/data/lex_knowledge/entity_seeds.yaml
+policy-engine/data/**
+!policy-engine/data/**/
+!policy-engine/data/**/*.md
+/relevant_topics_domain_files/
 
 # local OS/editor/runtime artifacts
 .DS_Store
@@ -29,8 +17,17 @@ policy-engine/data/lex_knowledge/*
 __pycache__/
 *.py[cod]
 
-# CSV files
+# local data/table artifacts
 *.csv
+*.tsv
+*.parquet
+*.jsonl
+*.feather
+*.arrow
+*.orc
+*.xlsx
+*.xls
+*.ods
 
 # spec document
 scm-implementation-spec-v3.md
@@ -49,9 +46,19 @@ output/playwright/
 /output/
 
 # local run/test scratch artifacts
+/.tmp/
 /tmp/
 /runs/
 
 # local Claude desktop state
 .claude/settings*.json
 .claude/worktrees/
+**/.claude/launch.json
+
+# root-level validation scratch outputs
+/compileall.txt
+/import_gate.txt
+/ruff_stats.txt
+/stale_sources_missing_paths.txt
+/summary.json
+/test_collect.txt

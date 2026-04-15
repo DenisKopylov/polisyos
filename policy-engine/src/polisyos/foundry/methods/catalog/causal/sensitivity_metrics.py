@@ -576,7 +576,7 @@ class SensitivityMetrics:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="sensitivity_metrics",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

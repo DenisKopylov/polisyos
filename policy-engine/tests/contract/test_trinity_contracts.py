@@ -9,7 +9,7 @@ from decimal import Decimal
 
 import pytest
 import yaml
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.trinity import (
@@ -275,6 +275,17 @@ class TestProblemFrame:
             )
         assert "unknown stakeholder" in str(exc_info.value)
 
+    def test_constraint_slot_id_uses_slot_pattern_not_generic_id_pattern(self) -> None:
+        with pytest.raises(ValidationError) as exc_info:
+            ConstraintSpec(
+                constraint_id="budget_cap",
+                constraint_type=ConstraintType.HARD,
+                slot_id="fiscal-cost",
+                operator="<=",
+                value=100,
+            )
+        assert "slot_id" in str(exc_info.value)
+
     def test_normative_frame_rejects_duplicate_binding_ids(self) -> None:
         with pytest.raises(ValidationError) as exc_info:
             ProblemFrame(
@@ -396,6 +407,50 @@ class TestPolicySpec:
                 ],
             )
         assert "exceeds limit" in str(exc_info.value)
+
+    def test_selector_contains_requires_non_empty_list(self) -> None:
+        with pytest.raises(ValidationError) as exc_info:
+            SelectorPredicate(
+                kind="predicate",
+                field="sector",
+                operator="contains",
+                value="agriculture",
+            )
+        assert "requires a non-empty list" in str(exc_info.value)
+
+    def test_selector_field_depth_limit_is_enforced(self) -> None:
+        with pytest.raises(ValidationError) as exc_info:
+            SelectorPredicate(
+                kind="predicate",
+                field="a.b.c.d.e.f.g.h.i",
+                operator="==",
+                value="all",
+            )
+        assert "exceeds limit" in str(exc_info.value)
+
+    def test_nested_basemodel_params_reject_float_payloads(self) -> None:
+        class NestedParams(BaseModel):
+            rate: float
+
+        with pytest.raises(ValidationError) as exc_info:
+            PolicySpec(
+                policy_id="test_policy",
+                interventions=[
+                    InterventionSpec(
+                        intervention_id="int_1",
+                        kind="income_tax",
+                        target=SelectorPredicate(
+                            kind="predicate",
+                            field="income",
+                            operator=">",
+                            value=Decimal("10000"),
+                        ),
+                        schedule=ScheduleSpec(start_step=0, duration_steps=12),
+                        params={"config": NestedParams(rate=0.15)},
+                    )
+                ],
+            )
+        assert "float forbidden" in str(exc_info.value)
 
 
 # =============================================================================

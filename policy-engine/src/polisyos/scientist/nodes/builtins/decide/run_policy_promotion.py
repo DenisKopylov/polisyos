@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -22,14 +24,13 @@ from polisyos.scientist.autotune.models import (
 )
 from polisyos.scientist.autotune.registry import ChampionRegistry
 from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
     _parse_model,
-    _resolve_candidate,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     load_prior_knowledge_bundle_for_state,
@@ -39,10 +40,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+    ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
-    ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
 from polisyos.scientist.policy_design.objectives import (
@@ -54,20 +55,14 @@ from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
 )
-from polisyos.scientist.search.adversarial import (
-    PlatformMetaEvaluationReport,
-    load_platform_meta_evaluation_report,
-)
+from polisyos.scientist.search.adversarial import load_platform_meta_evaluation_report
 from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
 from polisyos.scientist.search.judge_stack import (
     PolicyPromotionCoordinator,
     PolicyPromotionResult,
     to_search_uncertainty_envelope,
 )
-from polisyos.scientist.search.promotion_evidence import (
-    PromotionEvidenceBundle,
-    load_promotion_evidence_bundle,
-)
+from polisyos.scientist.search.promotion_evidence import PromotionEvidenceBundle
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_policy_promotion@1.0.0"),
@@ -423,7 +418,7 @@ def _maybe_artifact_ref(value: Any) -> ArtifactRef | None:
     if isinstance(value, dict):
         try:
             return ArtifactRef.model_validate(value)
-        except Exception:
+        except (TypeError, ValidationError, ValueError):
             return None
     return None
 

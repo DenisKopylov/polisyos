@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Mapping
 
+from pydantic import ValidationError
+
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -12,11 +15,14 @@ from polisyos.core.contracts.foundry import (
     LoweredIR,
     LoweredIRRef,
     ParameterOverrideBundle,
-    ParameterOverrideBundleRef,
     ProgramGraph,
     ProgramGraphRef,
 )
-from polisyos.core.contracts.trinity import TrinityBundleRef
+from polisyos.foundry.methods.catalog.causal.strategic import (
+    build_strategic_response_bundle,
+    solve_strategic_response,
+    strategic_result_summary,
+)
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     load_abstraction_certificate,
@@ -45,6 +51,7 @@ from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
 from polisyos.lex.interventions import CompiledLexIntervention
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -56,10 +63,16 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.foundry.methods.catalog.causal.strategic import (
-    build_strategic_response_bundle,
-    solve_strategic_response,
-    strategic_result_summary,
+
+_module_logger = get_logger(__name__)
+_RUNTIME_SUPPORT_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
+_RUNTIME_SUPPORT_LOAD_ERRORS = (
+    AttributeError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
 )
 
 
@@ -80,6 +93,48 @@ class ParameterOverrideMaterialization:
     bundle_ref: ArtifactRef | None = None
     bundle: ParameterOverrideBundle | None = None
     warnings: tuple[str, ...] = ()
+
+
+def _runtime_support_degraded(
+    *,
+    operation: str,
+    reason: str,
+    exc: BaseException,
+    details: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    return emit_degraded_path(
+        component="scientist.decision_runtime",
+        operation=operation,
+        reason=reason,
+        exc=exc,
+        details=details,
+        log=_module_logger,
+    )
+
+
+def _context_run_id(ctx: ExecutionContext) -> str | None:
+    return getattr(ctx.run, "run_id", None)
+
+
+def _blocked_strategic_runtime_output(
+    *,
+    blocked_reason: str,
+    warning_prefix: str,
+    exc: BaseException,
+    details: Mapping[str, Any] | None = None,
+) -> StrategicRuntimeOutput:
+    envelope = _runtime_support_degraded(
+        operation="persist_runtime_strategic_artifacts",
+        reason=blocked_reason,
+        exc=exc,
+        details=details,
+    )
+    summary = build_blocked_strategic_summary(blocked_reason=blocked_reason)
+    summary["degraded_path"] = envelope
+    return StrategicRuntimeOutput(
+        strategic_response_summary=summary,
+        warnings=(f"{warning_prefix}:{exc}",),
+    )
 
 
 def maybe_materialize_policy_override_bundle(
@@ -184,10 +239,6 @@ def build_policy_parameter_override_bundle(
     interventions_by_id = {
         intervention.intervention_id: intervention
         for intervention in candidate.trinity_bundle.policy_spec.interventions
-    }
-    parameters_by_id = {
-        parameter.param_id: parameter
-        for parameter in candidate.trinity_bundle.policy_spec.parameters
     }
     schedule_by_param_id: dict[str, tuple[Any, str]] = {}
     for entry in candidate.parameter_schedule:
@@ -305,12 +356,12 @@ def persist_runtime_strategic_artifacts(
         macro_payoff_tables = (
             None if macro_payload is None else _coerce_runtime_payoff_tables(macro_payload)
         )
-    except Exception as exc:
-        return StrategicRuntimeOutput(
-            strategic_response_summary=build_blocked_strategic_summary(
-                blocked_reason="strategic_runtime_invalid_input",
-            ),
-            warnings=(f"strategic_runtime_invalid_input:{exc}",),
+    except _RUNTIME_SUPPORT_VALIDATION_ERRORS as exc:
+        return _blocked_strategic_runtime_output(
+            blocked_reason="strategic_runtime_invalid_input",
+            warning_prefix="strategic_runtime_invalid_input",
+            exc=exc,
+            details={"run_id": state.run_id},
         )
 
     try:
@@ -508,12 +559,12 @@ def persist_runtime_strategic_artifacts(
             strategic_response_summary=summary,
             warnings=tuple(str(item) for item in result.warnings),
         )
-    except Exception as exc:
-        return StrategicRuntimeOutput(
-            strategic_response_summary=build_blocked_strategic_summary(
-                blocked_reason="strategic_runtime_persistence_failed",
-            ),
-            warnings=(f"strategic_runtime_persistence_failed:{exc}",),
+    except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
+        return _blocked_strategic_runtime_output(
+            blocked_reason="strategic_runtime_persistence_failed",
+            warning_prefix="strategic_runtime_persistence_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
         )
 
 
@@ -587,7 +638,7 @@ def resolve_baseline_policy_value(payload: Any) -> float | None:
             continue
         try:
             return float(raw)
-        except Exception:
+        except (TypeError, ValueError):
             continue
     return None
 
@@ -603,7 +654,16 @@ def load_runtime_abstraction_certificate(
         return None
     try:
         return load_abstraction_certificate(ctx.store, ref)
-    except Exception:
+    except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
+        _runtime_support_degraded(
+            operation="load_runtime_abstraction_certificate",
+            reason="abstraction_certificate_unreadable",
+            exc=exc,
+            details={
+                "artifact_id": str(ref.artifact_id),
+                "run_id": _context_run_id(ctx),
+            },
+        )
         return None
 
 
@@ -705,7 +765,16 @@ def _compare_existing_payoff_refs(
     try:
         for agent, ref in refs.items():
             loaded_tables[agent] = load_strategic_payoff_table(ctx.store, ref)
-    except Exception:
+    except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
+        _runtime_support_degraded(
+            operation="compare_existing_payoff_refs",
+            reason="strategic_payoff_ref_unreadable",
+            exc=exc,
+            details={
+                "agents": sorted(str(agent) for agent in refs),
+                "run_id": _context_run_id(ctx),
+            },
+        )
         return "unreadable_ref"
     if set(loaded_tables) != set(raw_tables):
         return "mismatch"
@@ -727,7 +796,13 @@ def _load_lowered_ir(
         ref = LoweredIRRef.model_validate(raw_ref.model_dump(mode="json"))
         payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
         return LoweredIR.model_validate(payload)
-    except Exception:
+    except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
+        _runtime_support_degraded(
+            operation="load_lowered_ir",
+            reason="lowered_ir_unreadable",
+            exc=exc,
+            details={"run_id": state.run_id},
+        )
         return None
 
 
@@ -742,7 +817,13 @@ def _load_program_graph(
         ref = ProgramGraphRef.model_validate(raw_ref.model_dump(mode="json"))
         payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
         return ProgramGraph.model_validate(payload)
-    except Exception:
+    except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
+        _runtime_support_degraded(
+            operation="load_program_graph",
+            reason="program_graph_unreadable",
+            exc=exc,
+            details={"run_id": state.run_id},
+        )
         return None
 
 
@@ -753,7 +834,7 @@ def _coerce_candidate(payload: Any) -> PolicyCandidateSchema | None:
         return payload
     try:
         return PolicyCandidateSchema.model_validate(payload)
-    except Exception:
+    except _RUNTIME_SUPPORT_VALIDATION_ERRORS:
         return None
 
 
@@ -764,7 +845,7 @@ def _coerce_lex_bundle(payload: Any) -> LexPolicyBundleInput | None:
         return payload
     try:
         return LexPolicyBundleInput.model_validate(payload)
-    except Exception:
+    except _RUNTIME_SUPPORT_VALIDATION_ERRORS:
         return None
 
 
@@ -836,7 +917,7 @@ def _normalize_for_compare(value: Any) -> Any:
     if hasattr(value, "model_dump"):
         try:
             return value.model_dump(mode="json")
-        except Exception:
+        except (AttributeError, TypeError, ValidationError, ValueError):
             return repr(value)
     if isinstance(value, Mapping):
         return {

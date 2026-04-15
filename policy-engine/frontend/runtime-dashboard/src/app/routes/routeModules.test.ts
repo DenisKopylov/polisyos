@@ -58,6 +58,6 @@ describe("route modules", () => {
       runDetailRouteHandle.buildHref({ runId: "run-1", tab: "debug" }),
     ).toBe("/runs/run-1/debug");
     expect(runsRoutes).toHaveLength(4);
-    expect(runsRoutes[3]?.children).toHaveLength(8);
+    expect(runsRoutes[3]?.children).toHaveLength(9);
   });
 });

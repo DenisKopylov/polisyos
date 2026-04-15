@@ -9,11 +9,11 @@ from typing import Any
 from pydantic import ConfigDict, Field
 
 from .models import (
+    BenchmarkedEvaluator,
     BenchmarkEvaluation,
     BenchmarkSplit,
     BenchmarkSplitManifest,
     BenchmarkSuite,
-    BenchmarkedEvaluator,
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
@@ -35,7 +35,9 @@ class CheapStageTuningConfig(MutationArtifact):
     threshold: float = Field(default=0.5, ge=0.0, le=10.0)
 
 
-def build_baseline_cheap_stage_config(_context: dict[str, Any] | None = None) -> CheapStageTuningConfig:
+def build_baseline_cheap_stage_config(
+    _context: dict[str, Any] | None = None,
+) -> CheapStageTuningConfig:
     """Build baseline cheap stage config."""
     return CheapStageTuningConfig()
 
@@ -90,17 +92,34 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
         self._store = store
         self._registry = registry
 
-    def evaluate(self, candidate_ref, suite_ref, context: dict[str, Any]) -> BenchmarkEvaluation:
+    def evaluate(
+        self,
+        candidate_ref,
+        suite_ref,
+        context: dict[str, Any],
+    ) -> BenchmarkEvaluation:
         store = context.get("store") or self._store
         if store is None:
             raise ValueError("CheapStageBenchmarkEvaluator requires a CAS store")
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         candidate = load_model_artifact(store, candidate_ref, CheapStageTuningConfig)
         if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError("CheapStage benchmark suite requires dataset_path and split_manifest_path")
+            raise ValueError(
+                "CheapStage benchmark suite requires dataset_path and split_manifest_path",
+            )
         records = _read_jsonl(Path(suite.dataset_path))
         split_manifest = BenchmarkSplitManifest.model_validate_json(
             Path(suite.split_manifest_path).read_text(encoding="utf-8")
+        )
+        selection_records = _records_for_split(
+            records,
+            split_manifest=split_manifest,
+            split=BenchmarkSplit.SELECTION,
+        )
+        holdout_records = _records_for_split(
+            records,
+            split_manifest=split_manifest,
+            split=BenchmarkSplit.HOLDOUT,
         )
         champion_eval_rate = self._champion_stage_b_eval_rate(
             candidate_ref=candidate_ref,
@@ -110,12 +129,12 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
             context=context,
         )
         selection_metrics = _cheap_stage_metrics(
-            [row for row in records if split_manifest.split_for(str(row["candidate_hash"])) == BenchmarkSplit.SELECTION],
+            selection_records,
             threshold=float(candidate.threshold),
             champion_eval_rate=champion_eval_rate,
         )
         holdout_metrics = _cheap_stage_metrics(
-            [row for row in records if split_manifest.split_for(str(row["candidate_hash"])) == BenchmarkSplit.HOLDOUT],
+            holdout_records,
             threshold=float(candidate.threshold),
             champion_eval_rate=champion_eval_rate,
         )
@@ -124,8 +143,12 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
         )
         guardrails = {
             "sample_count_sufficient": total_sample_count >= 200.0,
-            "true_positive_rate_floor": float(holdout_metrics.get("true_positive_rate", 0.0)) >= 0.80,
-            "stage_b_eval_rate_delta_ok": float(holdout_metrics.get("stage_b_eval_rate_delta", 0.0)) <= 0.15,
+            "true_positive_rate_floor": (
+                float(holdout_metrics.get("true_positive_rate", 0.0)) >= 0.80
+            ),
+            "stage_b_eval_rate_delta_ok": (
+                float(holdout_metrics.get("stage_b_eval_rate_delta", 0.0)) <= 0.15
+            ),
         }
         return BenchmarkEvaluation(
             loop_id=CHEAP_STAGE_LOOP_ID,
@@ -135,7 +158,9 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
             selection_metrics=selection_metrics,
             holdout_metrics=holdout_metrics,
             sample_counts={
-                BenchmarkSplit.SELECTION.value: int(selection_metrics.get("sample_count", 0.0)),
+                BenchmarkSplit.SELECTION.value: int(
+                    selection_metrics.get("sample_count", 0.0),
+                ),
                 BenchmarkSplit.HOLDOUT.value: int(holdout_metrics.get("sample_count", 0.0)),
             },
             guardrails=guardrails,
@@ -153,22 +178,27 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
     ) -> float:
         registry = context.get("registry") or self._registry
         store = context.get("store") or self._store
+        holdout_records = _records_for_split(
+            records,
+            split_manifest=split_manifest,
+            split=BenchmarkSplit.HOLDOUT,
+        )
         if registry is None or store is None:
             return _cheap_stage_metrics(
-                [row for row in records if split_manifest.split_for(str(row["candidate_hash"])) == BenchmarkSplit.HOLDOUT],
+                holdout_records,
                 threshold=0.5,
                 champion_eval_rate=None,
             )["stage_b_eval_rate"]
         champion = registry.get(CHEAP_STAGE_LOOP_ID)
         if champion is None or champion.candidate_ref.artifact_id == candidate_ref.artifact_id:
             return _cheap_stage_metrics(
-                [row for row in records if split_manifest.split_for(str(row["candidate_hash"])) == BenchmarkSplit.HOLDOUT],
+                holdout_records,
                 threshold=0.5,
                 champion_eval_rate=None,
             )["stage_b_eval_rate"]
         cfg = load_model_artifact(store, champion.candidate_ref, CheapStageTuningConfig)
         return _cheap_stage_metrics(
-            [row for row in records if split_manifest.split_for(str(row["candidate_hash"])) == BenchmarkSplit.HOLDOUT],
+            holdout_records,
             threshold=float(cfg.threshold),
             champion_eval_rate=None,
         )["stage_b_eval_rate"]
@@ -195,7 +225,15 @@ def write_correlation_dataset(
     holdout_fraction: float = 0.2,
 ) -> BenchmarkSuite:
     """Write correlation dataset helper."""
-    root = (output_dir or (default_cas_root() / "autotune" / CHEAP_STAGE_LOOP_ID / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"))).resolve()
+    root = (
+        output_dir
+        or (
+            default_cas_root()
+            / "autotune"
+            / CHEAP_STAGE_LOOP_ID
+            / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        )
+    ).resolve()
     root.mkdir(parents=True, exist_ok=True)
     dataset_path = root / "correlation_records.jsonl"
     split_path = root / "split_manifest.json"
@@ -204,7 +242,10 @@ def write_correlation_dataset(
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
     total = len(records)
     holdout_count = max(1, int(round(total * holdout_fraction))) if total else 0
-    selection_ids = [str(row["candidate_hash"]) for row in records[: max(0, total - holdout_count)]]
+    selection_ids = [
+        str(row["candidate_hash"])
+        for row in records[: max(0, total - holdout_count)]
+    ]
     holdout_ids = [str(row["candidate_hash"]) for row in records[max(0, total - holdout_count) :]]
     split_manifest = BenchmarkSplitManifest(
         suite_id=suite_id,
@@ -251,6 +292,19 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _records_for_split(
+    records: list[dict[str, Any]],
+    *,
+    split_manifest: BenchmarkSplitManifest,
+    split: BenchmarkSplit,
+) -> list[dict[str, Any]]:
+    return [
+        row
+        for row in records
+        if split_manifest.split_for(str(row["candidate_hash"])) == split
+    ]
+
+
 def _cheap_stage_metrics(
     records: list[dict[str, Any]],
     *,
@@ -294,8 +348,15 @@ def _spearman(x: list[float], y: list[float]) -> float:
     def rank(values: list[float]) -> list[float]:
         sorted_idx = sorted(range(n), key=lambda idx: values[idx])
         ranks = [0.0] * n
-        for rank_value, idx in enumerate(sorted_idx):
-            ranks[idx] = rank_value + 1
+        start = 0
+        while start < n:
+            end = start + 1
+            while end < n and values[sorted_idx[end]] == values[sorted_idx[start]]:
+                end += 1
+            avg_rank = (start + 1 + end) / 2.0
+            for idx in sorted_idx[start:end]:
+                ranks[idx] = avg_rank
+            start = end
         return ranks
 
     rx = rank(x)

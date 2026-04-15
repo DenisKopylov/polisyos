@@ -1,11 +1,12 @@
 """Public simulate run distributional analysis module API."""
 from __future__ import annotations
 
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
+from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
@@ -26,9 +27,9 @@ from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CouplingDiagnostics,
     DiscreteDistributionSummary,
-    DistributionBin,
     DistributionalEffectBundle,
     DistributionalJustification,
+    DistributionBin,
     OTCouplingSummary,
     QuantileShiftEntry,
     QuantileShiftSummary,
@@ -46,6 +47,7 @@ from polisyos.ir.analytics.distributional import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
@@ -61,6 +63,9 @@ _BASE_CAUSAL_ASSUMPTIONS = [
     "sinkhorn_regularized_discrete_measure_approximation",
 ]
 _GEOGRAPHY_MIN_GROUP_SIZE = 10
+_DISTRIBUTIONAL_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_DISTRIBUTIONAL_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
+_DISTRIBUTIONAL_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_distributional_analysis@1.0.0"),
@@ -128,7 +133,7 @@ class RunDistributionalAnalysisNode:
         try:
             sim_payload = from_canonical_bytes(ctx.store.get_bytes(sim_result_ref.artifact_id))
             sim_result = SimulationResult.model_validate(sim_payload)
-        except Exception as exc:
+        except _DISTRIBUTIONAL_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="skip",
                 state=state,
@@ -153,7 +158,7 @@ class RunDistributionalAnalysisNode:
         try:
             baseline_state = load_state_snapshot(ctx.store, snapshot_ref=baseline_ref)
             simulated_state = load_state_snapshot(ctx.store, snapshot_ref=sim_result.state_snapshot_ref)
-        except Exception as exc:
+        except _DISTRIBUTIONAL_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="skip",
                 state=state,
@@ -248,7 +253,7 @@ class RunDistributionalAnalysisNode:
             )
             bundle_ref = persist_distributional_effect_bundle(ctx.store, bundle, inputs=artifact_inputs)
             report_ref = persist_distributional_report(ctx.store, report, inputs=artifact_inputs)
-        except Exception as exc:
+        except _DISTRIBUTIONAL_EXECUTION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -260,7 +265,7 @@ class RunDistributionalAnalysisNode:
                 ),
             )
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=("artifacts_index",)).state
         new_state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF] = report_ref
         new_state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF] = bundle_ref
         return NodeOutcome(
@@ -670,7 +675,7 @@ def _resolve_baseline_snapshot_ref(
     if explicit is not None:
         try:
             return StateSnapshotRef.model_validate(explicit.model_dump())
-        except Exception:
+        except _DISTRIBUTIONAL_VALIDATION_ERRORS:
             return None
 
     input_bindings_ref = state.inputs.get(INPUT_INPUT_BINDINGS_REF)
@@ -679,7 +684,7 @@ def _resolve_baseline_snapshot_ref(
             payload = from_canonical_bytes(ctx.store.get_bytes(input_bindings_ref.artifact_id))
             bindings = FoundryInputBindings.model_validate(payload)
             return bindings.bound_state_snapshot_ref
-        except Exception:
+        except _DISTRIBUTIONAL_LOAD_ERRORS:
             return None
 
     data_snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
@@ -688,7 +693,7 @@ def _resolve_baseline_snapshot_ref(
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref.artifact_id))
         snapshot = DataSnapshot.model_validate(payload)
-    except Exception:
+    except _DISTRIBUTIONAL_LOAD_ERRORS:
         return None
     if snapshot.data_ref.kind != "foundry.state_snapshot":
         return None
@@ -732,7 +737,7 @@ def _build_aligned_geography_breakdown(
             incomes_after[retained_mask],
             primary_metric="regional_income_change_pct",
         )
-    except Exception:
+    except _DISTRIBUTIONAL_EXECUTION_ERRORS:
         return None
 
 

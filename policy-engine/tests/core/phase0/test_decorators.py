@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import contextmanager
 
 import pytest
 
+import polisyos.core.observability.decorators as decorators_module
 from polisyos.core.observability import traced
 
 
@@ -85,3 +87,39 @@ class TestTracedDecorator:
         span = spans[0]
 
         assert span.status.status_code.name == "ERROR"
+
+    def test_tracer_factory_override_avoids_global_lookup(self, monkeypatch):
+        """Decorator should honor injected tracer factories instead of global access."""
+
+        class _FakeSpan:
+            def set_attribute(self, _name: str, _value: object) -> None:
+                return None
+
+            def set_status(self, _status: object) -> None:
+                return None
+
+            def record_exception(self, _exc: BaseException) -> None:
+                return None
+
+        class _FakeTracer:
+            def __init__(self) -> None:
+                self.started_spans: list[str] = []
+
+            @contextmanager
+            def start_as_current_span(self, name: str, *, attributes=None, kind=None):
+                _ = attributes, kind
+                self.started_spans.append(name)
+                yield _FakeSpan()
+
+        def _fail_get_tracer():
+            raise AssertionError("global tracer lookup should not run when tracer_factory is provided")
+
+        monkeypatch.setattr(decorators_module, "get_tracer", _fail_get_tracer)
+        tracer = _FakeTracer()
+
+        @traced(name="custom.trace", tracer_factory=lambda: tracer)
+        def traced_function() -> str:
+            return "ok"
+
+        assert traced_function() == "ok"
+        assert tracer.started_spans == ["custom.trace"]

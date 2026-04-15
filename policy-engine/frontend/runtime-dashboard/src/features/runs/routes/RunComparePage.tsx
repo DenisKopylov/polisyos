@@ -18,6 +18,10 @@ import {
   exportCsv,
   exportJson,
 } from "@/shared/ui";
+import {
+  RunComparisonVisual,
+  type RunComparisonMetric,
+} from "@/features/runs/components/RunComparisonVisual";
 
 export default function RunComparePage() {
   const { t } = useI18n();
@@ -62,7 +66,7 @@ export default function RunComparePage() {
         render: (row: (typeof comparisonRows)[number]) => row.delta,
       },
     ],
-    [comparisonRows, t],
+    [t],
   );
 
   const isLoading =
@@ -188,6 +192,27 @@ export default function RunComparePage() {
             columns={comparisonColumns}
           />
         </Card>
+
+        {/* Visual comparison */}
+        {comparisonRows.length > 0 && (
+          <RunComparisonVisual
+            baseRunId={baseRunId!}
+            targetRunId={targetRunId!}
+            metrics={comparisonRows
+              .filter(
+                (r): r is typeof r & { base: string; target: string } =>
+                  !isNaN(Number(r.base)) && !isNaN(Number(r.target)),
+              )
+              .map(
+                (r): RunComparisonMetric => ({
+                  key: r.label,
+                  label: r.label,
+                  base: Number(r.base),
+                  target: Number(r.target),
+                }),
+              )}
+          />
+        )}
       </AsyncSection>
     </div>
   );

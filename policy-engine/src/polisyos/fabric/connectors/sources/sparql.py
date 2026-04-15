@@ -24,6 +24,12 @@ import aiohttp
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
+from polisyos.fabric.safety import (
+    UnsafeFilterExpressionError,
+    escape_sparql_literal,
+    validate_sparql_iri_token,
+    validate_sparql_variable_name,
+)
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
@@ -53,6 +59,7 @@ from polisyos.ir.connectors import (
 
 _MAX_LIMIT = 100000
 _DEFAULT_TIMEOUT_HINT = 30  # seconds
+_PLACEHOLDER_RE = re.compile(r"\{\{(?:(literal|iri|var):)?([A-Za-z_][A-Za-z0-9_]*)\}\}")
 
 
 class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
@@ -124,14 +131,19 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
     def _get_default_graph(config: ConnectionConfig) -> str | None:
         return config.headers.get("X-SPARQL-DefaultGraph") or None
 
+    @staticmethod
+    def _allow_inline_query(config: ConnectionConfig) -> bool:
+        raw = config.headers.get("X-SPARQL-AllowInlineQuery", "")
+        return raw.strip().lower() in {"1", "true", "yes", "on"}
+
     # ------------------------------------------------------------------
     # Connect
     # ------------------------------------------------------------------
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
         handle = await super().connect(config)
-        handle.state["sparql_templates"] = self._get_query_templates(config)
-        handle.state["sparql_default_graph"] = self._get_default_graph(config)
+        handle.set_state("sparql_templates", self._get_query_templates(config))
+        handle.set_state("sparql_default_graph", self._get_default_graph(config))
         return handle
 
     # ------------------------------------------------------------------
@@ -174,7 +186,7 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
         self,
         handle: ConnectionHandle,
     ) -> AsyncIterator[DatasetDescriptor]:
-        templates = handle.state.get("sparql_templates", {})
+        templates = handle.get_state("sparql_templates", {})
         for name, query in templates.items():
             yield DatasetDescriptor(
                 dataset_id=name,
@@ -197,7 +209,7 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
 
         query = self._resolve_query(handle, request)
         query = self._apply_guardrails(query)
-        default_graph = handle.state.get("sparql_default_graph")
+        default_graph = handle.get_state("sparql_default_graph")
 
         started = time.monotonic()
         session = await self._get_session(handle)
@@ -263,12 +275,21 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
 
     @staticmethod
     def _resolve_query(handle: ConnectionHandle, request: FetchRequest) -> str:
-        templates = handle.state.get("sparql_templates", {})
+        templates = handle.get_state("sparql_templates", {})
         query = templates.get(request.dataset_id)
 
         if query is None:
-            # If dataset_id looks like a SPARQL query, use it directly
-            if request.dataset_id.strip().upper().startswith(("SELECT", "ASK", "CONSTRUCT", "DESCRIBE")):
+            if (
+                handle.config.headers.get("X-SPARQL-AllowInlineQuery", "")
+                and SPARQLConnector._allow_inline_query(handle.config)
+                and request.dataset_id.strip().upper().startswith(
+                    ("SELECT", "ASK", "CONSTRUCT", "DESCRIBE")
+                )
+            ):
+                if request.filters:
+                    raise UnsafeFilterExpressionError(
+                        "Inline SPARQL queries do not support request-time filter substitution"
+                    )
                 query = request.dataset_id
             else:
                 raise FetchError(
@@ -277,13 +298,52 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
                     dataset_id=request.dataset_id,
                 )
 
-        # Apply parameter substitution from filters
-        for key, values in request.filters:
-            placeholder = f"{{{{{key}}}}}"
-            replacement = values[0] if values else ""
-            query = query.replace(placeholder, replacement)
+        filter_map = {str(key): tuple(values) for key, values in request.filters}
+        placeholders = list(_PLACEHOLDER_RE.finditer(query))
+        if not placeholders:
+            if filter_map:
+                unexpected = ", ".join(sorted(filter_map))
+                raise UnsafeFilterExpressionError(
+                    f"SPARQL template does not declare placeholders for filters: {unexpected}"
+                )
+            return query
 
-        return query
+        declared = {match.group(2) for match in placeholders}
+        unexpected = sorted(set(filter_map) - declared)
+        if unexpected:
+            raise UnsafeFilterExpressionError(
+                f"SPARQL template does not allow filters: {', '.join(unexpected)}"
+            )
+
+        missing = sorted(name for name in declared if name not in filter_map or not filter_map[name])
+        if missing:
+            raise UnsafeFilterExpressionError(
+                f"Missing SPARQL placeholder values: {', '.join(missing)}"
+            )
+
+        def _replace(match: re.Match[str]) -> str:
+            kind = match.group(1)
+            name = match.group(2)
+            values = tuple(str(value) for value in filter_map.get(name, ()))
+            if len(values) != 1:
+                raise UnsafeFilterExpressionError(
+                    f"SPARQL placeholder '{name}' expects exactly one value"
+                )
+            value = values[0]
+            if kind == "literal":
+                return escape_sparql_literal(value)
+            if kind == "iri":
+                return validate_sparql_iri_token(value, what=f"SPARQL placeholder '{name}'")
+            if kind == "var":
+                return validate_sparql_variable_name(
+                    value,
+                    what=f"SPARQL placeholder '{name}'",
+                )
+            raise UnsafeFilterExpressionError(
+                f"SPARQL placeholder '{{{{{name}}}}}' must declare an explicit kind"
+            )
+
+        return _PLACEHOLDER_RE.sub(_replace, query)
 
     @staticmethod
     def _apply_guardrails(query: str) -> str:

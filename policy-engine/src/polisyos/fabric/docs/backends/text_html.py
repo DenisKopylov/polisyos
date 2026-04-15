@@ -34,6 +34,9 @@ _BLOCK_TAGS = {
 }
 
 _HEADING_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6"}
+_HIDDEN_BLOCK_RE = re.compile(
+    r"(?is)<(?P<tag>script|style)\b[^>]*>.*?(?:</(?P=tag)\s*>|$)"
+)
 
 
 class _VisibleTextExtractor(HTMLParser):
@@ -117,8 +120,9 @@ def normalize_html_visible_text_v1(text: str) -> str:
     """Extract visible text using stdlib HTML parser."""
     if not isinstance(text, str):
         raise TypeError("text must be str")
+    sanitized = _HIDDEN_BLOCK_RE.sub("\n", text)
     parser = _VisibleTextExtractor()
-    parser.feed(text)
+    parser.feed(sanitized)
     parser.close()
     return parser.get_text()
 

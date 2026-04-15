@@ -36,7 +36,7 @@ class ComplexSurveyDesignEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="complex_survey",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

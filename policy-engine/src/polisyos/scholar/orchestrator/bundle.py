@@ -1,13 +1,12 @@
 """Builds and persists Scholar knowledge bundles plus their world-event side effects."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.contracts.scholar import (
     EnrichmentReportRef,
     FreshnessMetadata,
@@ -30,6 +29,11 @@ from polisyos.ir.world.event import (
 from polisyos.ir.world.ids import stable_world_id_from_canon
 from polisyos.scholar.types import EnrichmentReportV1, KnowledgeBundlePayloadV1
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
 _BUNDLE_SCHEMA = SchemaInfo(name="polisyos.scholar.KnowledgeBundlePayloadV1", version="1.0")
 _REPORT_SCHEMA = SchemaInfo(name="polisyos.scholar.EnrichmentReportV1", version="1.0")
 
@@ -48,7 +52,7 @@ def compute_bundle_id(
         "claim_ids": sorted(set(claim_ids)),
         "policy_ids_used": {key: policy_ids_used[key] for key in sorted(policy_ids_used)},
     }
-    return stable_world_id_from_canon(prefix="bundle", payload=payload)
+    return cast("str", stable_world_id_from_canon(prefix="bundle", payload=payload))
 
 
 def build_knowledge_bundle_payload(
@@ -67,6 +71,7 @@ def build_knowledge_bundle_payload(
     trust_assessment_artifact_ids_by_id: dict[str, str],
     quality_report_ids: list[str],
     quality_report_artifact_ids: list[str],
+    web_evidence: dict[str, Any] | None,
     policy_ids_used: dict[str, str],
     created_by: dict[str, str],
     summary: dict[str, int | str | bool],
@@ -92,11 +97,12 @@ def build_knowledge_bundle_payload(
         trust_assessment_artifact_ids_by_id=sorted_trust_artifacts,
         quality_report_ids=sorted(set(quality_report_ids)),
         quality_report_artifact_ids=sorted(set(quality_report_artifact_ids)),
+        web_evidence=web_evidence or {},
         policy_ids_used={key: policy_ids_used[key] for key in sorted(policy_ids_used)},
         created_by={key: created_by[key] for key in sorted(created_by)},
         summary={key: summary[key] for key in sorted(summary)},
         freshness=freshness
-        or FreshnessMetadata(created_at=datetime(1970, 1, 1, tzinfo=timezone.utc)),
+        or FreshnessMetadata(created_at=datetime(1970, 1, 1, tzinfo=UTC)),
     )
 
 
@@ -109,7 +115,7 @@ def _input_refs(artifact_ids: list[str]) -> list[InputRef]:
 
 def persist_bundle_and_event(
     *,
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     fact_log_root: Path,
     bundle_payload: KnowledgeBundlePayloadV1,
     report_payload: EnrichmentReportV1,
@@ -123,7 +129,7 @@ def persist_bundle_and_event(
     """Write the knowledge bundle, optional report, and corresponding world event to storage."""
     bundle_ref = cas.put_json(
         bundle_payload.model_dump(mode="python"),
-        opts=PutOptions(
+        opts=ArtifactWriteOptions(
             kind="scholar.knowledge_bundle",
             media_type="application/json",
             schema=_BUNDLE_SCHEMA,
@@ -137,7 +143,7 @@ def persist_bundle_and_event(
     if persist_report:
         report_artifact = cas.put_json(
             report.model_dump(mode="python"),
-            opts=PutOptions(
+            opts=ArtifactWriteOptions(
                 kind="scholar.enrichment_report",
                 media_type="application/json",
                 schema=_REPORT_SCHEMA,
@@ -152,22 +158,28 @@ def persist_bundle_and_event(
         report_ref = EnrichmentReportRef(artifact_id=report_artifact.artifact_id)
 
     inputs: list[WorldObjectRef] = [
-        WorldObjectRef(world_id=world_id) for world_id in sorted(set(doc_version_ids))
+        WorldObjectRef(world_id=world_id, artifact_id=None)
+        for world_id in sorted(set(doc_version_ids))
     ]
-    inputs.extend(WorldObjectRef(world_id=world_id) for world_id in sorted(set(claim_ids)))
     inputs.extend(
-        WorldObjectRef(world_id=world_id) for world_id in sorted(set(conflict_set_ids))
+        WorldObjectRef(world_id=world_id, artifact_id=None)
+        for world_id in sorted(set(claim_ids))
     )
     inputs.extend(
-        WorldObjectRef(artifact_id=artifact_id) for artifact_id in sorted(set(input_artifact_ids))
+        WorldObjectRef(world_id=world_id, artifact_id=None)
+        for world_id in sorted(set(conflict_set_ids))
+    )
+    inputs.extend(
+        WorldObjectRef(world_id=None, artifact_id=artifact_id)
+        for artifact_id in sorted(set(input_artifact_ids))
     )
 
     outputs: list[WorldObjectRef] = [
-        WorldObjectRef(world_id=bundle_payload.bundle_id),
-        WorldObjectRef(artifact_id=bundle_artifact_id),
+        WorldObjectRef(world_id=bundle_payload.bundle_id, artifact_id=None),
+        WorldObjectRef(world_id=None, artifact_id=bundle_artifact_id),
     ]
     if report_ref is not None:
-        outputs.append(WorldObjectRef(artifact_id=str(report_ref.artifact_id)))
+        outputs.append(WorldObjectRef(world_id=None, artifact_id=str(report_ref.artifact_id)))
     event = build_deterministic_world_event(
         event_kind=EventKind.KNOWLEDGE_BUNDLE_BUILD,
         agent_id="prov.agent.scholar",

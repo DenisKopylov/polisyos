@@ -18,6 +18,7 @@ from polisyos.fabric.connectors.contracts.contract import (
     FieldMapping,
 )
 from polisyos.fabric.connectors.contracts.contract_registry import (
+    ContractGovernanceError,
     ContractNotFoundError,
     ContractRegistry,
     ContractVersionError,
@@ -27,8 +28,22 @@ from polisyos.fabric.connectors.contracts.contract_registry import (
 from polisyos.fabric.connectors.contracts.evolution import (
     ChangeType,
     EvolutionReport,
+    MigrationOperation,
+    MigrationPlan,
     SchemaChange,
     SchemaEvolution,
+)
+from polisyos.fabric.connectors.contracts.governance import (
+    MigrationStatus,
+    SchemaApprovalMetadata,
+    SchemaRiskLevel,
+)
+from polisyos.fabric.connectors.contracts.governance_checks import (
+    ContractGovernanceEvaluation,
+    actual_version_bump,
+    evaluate_contract_governance,
+    format_impacted_surfaces,
+    impacted_downstream_surfaces,
 )
 from polisyos.fabric.connectors.contracts.inference import (
     CoercionResult,
@@ -88,16 +103,27 @@ __all__ = [
     # Evolution
     "ChangeType",
     "EvolutionReport",
+    "MigrationOperation",
+    "MigrationPlan",
     "SchemaChange",
     "SchemaEvolution",
+    "SchemaApprovalMetadata",
+    "SchemaRiskLevel",
+    "MigrationStatus",
     # Connector-level contracts
     "FieldMapping",
     "ConnectorSchemaContract",
     "ContractRegistry",
+    "ContractGovernanceError",
     "ContractNotFoundError",
     "ContractVersionError",
     "ContractViolationError",
     "build_contract_registry",
+    "ContractGovernanceEvaluation",
+    "actual_version_bump",
+    "evaluate_contract_governance",
+    "format_impacted_surfaces",
+    "impacted_downstream_surfaces",
     "ContractValidatingProxy",
     "SchemaValidationMode",
     # Registry

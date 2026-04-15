@@ -4,16 +4,34 @@
 
 ## 1. Обзор
 
-Точка входа для benchmark-раннера:
+Публичная compatibility-точка входа для benchmark-раннера:
 
 ```text
-benchmarks/run_all_benchmarks.sh
+tools/benchmarks/run_all.py
 ```
 
-Авторитетный каталог suite-ов:
+Каноническая implementation-точка входа:
+
+```text
+tools/research/benchmarks/run_all.py
+```
+
+CLI-эквивалент:
+
+```text
+polisyos-tools benchmarks run-all
+```
+
+Авторитетный benchmark-domain registry:
 
 ```text
 benchmarks/suite_registry.py
+```
+
+Совместимый tools-facing shim:
+
+```text
+tools/benchmarks/suite_registry.py
 ```
 
 Важный текущий нюанс:
@@ -65,13 +83,14 @@ benchmarks/suite_registry.py
 Из корня репозитория:
 
 ```bash
-bash benchmarks/run_all_benchmarks.sh
+uv run polisyos-tools benchmarks run-all
 ```
 
 Поведение по умолчанию из текущего shell script:
 
 - `BENCH_MODE=smoke`
-- JSON-отчёты пишутся в `benchmarks/_reports/`
+- JSON-отчёты по умолчанию пишутся в `tools/research/benchmarks/_reports/`
+  при запуске через canonical tools surface
 - `PYTHONPATH` включает `src` и корень репозитория
 
 Репрезентативный формат вывода в консоль:
@@ -104,8 +123,8 @@ bash benchmarks/run_all_benchmarks.sh
 Registry-driven selective run:
 
 ```bash
-bash benchmarks/run_all_benchmarks.sh --circuit symbolic
-bash benchmarks/run_all_benchmarks.sh --circuit temporal_gold --mode smoke
+uv run polisyos-tools benchmarks run-all --circuit symbolic
+uv run polisyos-tools benchmarks run-all --circuit temporal_gold --mode smoke
 ```
 
 Прямой запуск через `pytest` тоже полезен для части локальных сценариев:
@@ -152,7 +171,7 @@ pytest benchmarks/strategic/ -v
 
 ## 5. Как читать результаты
 
-Shell runner пишет per-suite JSON-файлы в `benchmarks/_reports/`.
+Canonical runner пишет per-suite JSON-файлы в `benchmarks/_reports/`.
 
 `benchmarks/reporting.py` строит более богатые report payloads, включая:
 
@@ -166,7 +185,10 @@ Shell runner пишет per-suite JSON-файлы в `benchmarks/_reports/`.
 - `comparator_runs`
 - `ablation_matrix`
 
-`benchmarks/build_release_summary.py` агрегирует их в release-level summary с полями вроде:
+`polisyos-tools benchmarks build-release-summary`
+(`tools/research/benchmarks/build_release_summary.py`, root wrapper
+`benchmarks/build_release_summary.py`) агрегирует их в release-level summary с
+полями вроде:
 
 - `contour_matrix`
 - `comparator_completeness`
@@ -208,7 +230,9 @@ SuiteSpec(
 
 ### Benchmark registry workflow
 
-Registry и `run_all_benchmarks.sh` — это canonical suite system для benchmark circuits и release summaries.
+Registry и `tools/research/benchmarks/run_all.py` — это canonical suite system
+для benchmark circuits и release summaries. `tools/benchmarks/run_all.py`
+остается public compatibility shim.
 
 ### Что есть в CI сейчас
 
@@ -222,7 +246,9 @@ Registry и `run_all_benchmarks.sh` — это canonical suite system для ben
 То есть:
 
 - benchmark registry и CI quality gates сейчас не являются одной и той же системой;
-- `run_all_benchmarks.sh` остаётся canonical entrypoint для benchmark circuits.
+- `polisyos-tools benchmarks run-all` остается canonical command boundary для benchmark circuits.
+- `tools/research/benchmarks/run_all.py` остается canonical implementation entrypoint.
+- `tools/benchmarks/run_all.py` и `benchmarks/run_all_benchmarks.sh` остаются compatibility shims.
 
 ## Советы
 

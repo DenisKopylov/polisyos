@@ -11,7 +11,7 @@ from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.runtime import (
     ArtifactContentPreview,
@@ -25,6 +25,7 @@ from .lineage import LineageService
 
 RedactionHook = Callable[[Any, PreviewMode], Any]
 _SENSITIVE_KIND_MARKERS = ("secret", "token", "credential", "password", "key_material")
+_REDACTED_PREVIEW = "[REDACTED]"
 logger = get_logger(__name__)
 
 
@@ -32,13 +33,13 @@ class ArtifactInspectorService:
     """Serve manifest/content/schema/lineage projections for one CAS artifact.
 
     The service never mutates CAS state. Missing artifacts and invalid artifact
-    references surface as the underlying `FileSystemCAS` exceptions so HTTP
+    references surface as the underlying `ArtifactStore` exceptions so HTTP
     route handlers can translate them into RFC 7807 responses.
     """
     def __init__(
         self,
         *,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         lineage_service: LineageService,
         default_max_preview_bytes: int = 64 * 1024,
         redaction_hooks: dict[str, RedactionHook] | None = None,
@@ -261,7 +262,7 @@ def _apply_redaction_hook(
 ) -> Any:
     lowered_kind = artifact_kind.lower()
     if any(marker in lowered_kind for marker in _SENSITIVE_KIND_MARKERS):
-        return "[REDACTED]"
+        return _REDACTED_PREVIEW
 
     hook = hooks.get(artifact_kind) or hooks.get("*")
     if hook is None:
@@ -269,7 +270,7 @@ def _apply_redaction_hook(
     try:
         return hook(preview, mode)
     except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
-        logger.debug(
+        logger.warning(
             "Redaction hook failed for kind=%s mode=%s: %s", artifact_kind, mode, exc
         )
-        return preview
+        return _REDACTED_PREVIEW

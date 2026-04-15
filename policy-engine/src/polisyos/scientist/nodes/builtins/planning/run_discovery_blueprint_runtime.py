@@ -1,22 +1,27 @@
 """Public planning run discovery blueprint runtime module API."""
 from __future__ import annotations
 
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import numpy as np
+from pydantic import ValidationError
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry.methods.catalog.causal.protocols import (
+    TabularCausalDiscoveryData,
+    TimeSeriesCausalData,
+)
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.transportability import SNode, SelectionDiagram
+from polisyos.ir.analytics.transportability import SelectionDiagram, SNode
 from polisyos.scientist.discovery.aggregator import EvidenceWeightedAggregator
 from polisyos.scientist.discovery.output import (
-    DiscoveryArtifactBuildInput,
     DiscoveryArtifactBuilder,
+    DiscoveryArtifactBuildInput,
     load_discovery_artifact_bundle,
 )
 from polisyos.scientist.discovery.portfolio import (
@@ -26,7 +31,6 @@ from polisyos.scientist.discovery.portfolio import (
 )
 from polisyos.scientist.discovery.prior_miner import PriorMiner, PriorMinerConfig
 from polisyos.scientist.discovery.priors import GraphPriorBuilder
-from polisyos.scientist.evidence_sources import normalize_evidence_sources_config
 from polisyos.scientist.discovery.schema import (
     ComputeFootprint,
     GraphHypothesis,
@@ -41,10 +45,7 @@ from polisyos.scientist.discovery.utility_judge import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.foundry.methods.catalog.causal.protocols import (
-    TabularCausalDiscoveryData,
-    TimeSeriesCausalData,
-)
+from polisyos.scientist.evidence_sources import normalize_evidence_sources_config
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF,
@@ -90,6 +91,15 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF}",
     ],
     produces=[ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF],
+)
+
+_DISCOVERY_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_DISCOVERY_RUNTIME_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
 )
 
 
@@ -303,7 +313,7 @@ def _resolve_causal_query(
     if isinstance(raw, dict):
         try:
             return CausalQuery.model_validate(raw)
-        except Exception as exc:
+        except _DISCOVERY_VALIDATION_ERRORS as exc:
             raise ValueError(f"Invalid discovery_query payload: {exc}") from exc
     if len(variable_names) < 2:
         raise ValueError("Discovery runtime requires at least two variables.")
@@ -327,7 +337,7 @@ def _resolve_selection_diagram(
             payload = dict(raw)
             payload["base_graph"] = base_graph.model_dump(mode="json")
             return SelectionDiagram.model_validate(payload)
-        except Exception:
+        except _DISCOVERY_VALIDATION_ERRORS:
             return None
 
     raw_source = state.params.get("discovery_source_context")
@@ -339,7 +349,7 @@ def _resolve_selection_diagram(
                 source_context=ContextProfile.model_validate(raw_source),
                 target_context=ContextProfile.model_validate(raw_target),
             )
-        except Exception:
+        except _DISCOVERY_VALIDATION_ERRORS:
             return None
     return None
 
@@ -359,7 +369,7 @@ def _resolve_s_nodes(
             continue
         try:
             s_nodes.append(SNode.model_validate(item))
-        except Exception:
+        except _DISCOVERY_VALIDATION_ERRORS:
             continue
     return s_nodes
 
@@ -376,7 +386,7 @@ def _load_shortlist_benchmark_reports(
         try:
             raw_text = Path(evidence_sources.benchmark_report_path).read_text(encoding="utf-8")
             raw = json.loads(raw_text)
-        except Exception:
+        except (OSError, ValueError):
             raw = None
 
     reports: dict[str, CausalEffectReport] = {}
@@ -404,7 +414,7 @@ def _load_shortlist_benchmark_reports(
             continue
         try:
             reports[hypothesis_id] = CausalEffectReport.model_validate(candidate_payload)
-        except Exception:
+        except _DISCOVERY_VALIDATION_ERRORS:
             continue
     return reports
 
@@ -428,7 +438,7 @@ def _measure_seed_reproducibility(
             )
             try:
                 report = run_discovery_method(discovery_state, hypothesis.method, params)
-            except Exception:
+            except _DISCOVERY_RUNTIME_ERRORS:
                 continue
             replay = graph_hypothesis_from_report(
                 report,

@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
-from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -37,7 +35,7 @@ class _FakeResponse:
     def content(self):
         parent = self
         class _Content:
-            async def iter_chunks(self_inner):
+            async def iter_chunks(self):
                 yield parent._raw, True
         return _Content()
 
@@ -69,14 +67,16 @@ async def test_parse_multiple_chunks():
 
 @pytest.mark.asyncio
 async def test_parse_error_midstream():
-    """Malformed JSON lines are silently skipped."""
+    """Malformed JSON lines surface a degraded parsing envelope."""
     good = {"choices": [{"delta": {"content": "ok"}, "finish_reason": None}]}
     raw = f"data: {json.dumps(good)}\ndata: {{broken json\ndata: [DONE]\n".encode()
     resp = _FakeResponse.__new__(_FakeResponse)
     resp._raw = raw
     chunks = [c async for c in parse_sse_stream(resp)]
-    assert len(chunks) == 1
+    assert len(chunks) == 2
     assert chunks[0].delta_content == "ok"
+    assert chunks[1].error_envelope is not None
+    assert chunks[1].error_envelope["reason"] == "json_decode_error"
 
 
 @pytest.mark.asyncio
@@ -123,7 +123,11 @@ def test_stream_accumulator():
     acc.feed(StreamChunk(delta_content="Hello "))
     acc.feed(StreamChunk(delta_content="world"))
     acc.feed(StreamChunk(finish_reason="stop"))
-    acc.feed(StreamChunk(usage_delta={"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8}))
+    acc.feed(
+        StreamChunk(
+            usage_delta={"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8}
+        )
+    )
     assert acc.content == "Hello world"
     assert acc.finish_reason == "stop"
     assert acc.total_tokens == 8

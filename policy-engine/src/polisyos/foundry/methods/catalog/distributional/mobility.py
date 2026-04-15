@@ -59,7 +59,7 @@ class MobilityMatrixEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="transition_matrix",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -160,7 +160,7 @@ class IntergenerationalElasticityEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="intergenerational_elasticity",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

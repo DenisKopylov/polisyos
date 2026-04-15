@@ -12,18 +12,20 @@ commands used for contributor setup.
 | `polisyos` | `polisyos.core.components.cli:main` | Core platform operations CLI | Components, Lex, Scientist, replay, signing, audit |
 | `polisyos-foundry` | `polisyos.foundry.methods.cli:main` | Foundry methods developer CLI | Scaffold, validate, catalog, compatibility checks |
 | `polisyos-causal-capabilities` | `polisyos.foundry.methods.catalog.causal.capabilities:main` | Emit causal capability contract JSON | No subcommands or `--help` mode |
+| `polisyos-tools` | `tools.cli:main` | Unified Policy Engine tooling CLI | Category-based entry point for repo-local engineering workflows |
 
 ## Repo-Local Workspace Commands
 
-These commands are not installed console scripts; they are repo-local entrypoints that must be run
-from `policy-engine/`:
+These commands are repo-local unified CLI entrypoints. On a clean checkout they
+can be invoked via `python3 -m tools.cli ...`; after bootstrap, the installed
+surface is `uv run polisyos-tools ...`.
 
 | Command | Purpose |
 |--------|---------|
-| `./scripts/bootstrap` | Install or verify contributor prerequisites |
-| `./scripts/doctor` | Validate Python, Node, `uv`, Playwright, lockfiles, generated contracts, and optional env surfaces |
-| `./scripts/verify` | Run the standard fast local gate |
-| `./scripts/ci-parity` | Run a heavier local validation pass that approximates the main CI jobs |
+| `python3 -m tools.cli workspace bootstrap` | Install or verify contributor prerequisites |
+| `python3 -m tools.cli workspace doctor` | Validate Python, Node, `uv`, Playwright, lockfiles, generated contracts, and optional env surfaces |
+| `python3 -m tools.cli workspace verify` | Run the standard fast local gate |
+| `python3 -m tools.cli workspace ci-parity` | Run a heavier local validation pass that approximates the main CI jobs |
 
 ## Invocation Notes
 

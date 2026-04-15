@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS ac_parameter_estimates (
     unit            VARCHAR,
     domain          VARCHAR,
     study_design    VARCHAR,
-    sample_size     INTEGER,
+    sample_size     BIGINT,
     country         VARCHAR,
     period_start    INTEGER,
     period_end      INTEGER,
@@ -266,7 +266,8 @@ CREATE INDEX IF NOT EXISTS idx_ac_claims_cause ON ac_causal_claims(cause);
 CREATE INDEX IF NOT EXISTS idx_ac_claims_effect ON ac_causal_claims(effect);
 CREATE INDEX IF NOT EXISTS idx_topic_sel_topic_rank ON ac_topic_selections(topic_id, rank);
 CREATE INDEX IF NOT EXISTS idx_topic_sel_work ON ac_topic_selections(work_id);
-CREATE INDEX IF NOT EXISTS idx_article_extractions_work_mode ON ac_article_extractions(work_id, extraction_mode);
+CREATE INDEX IF NOT EXISTS idx_article_extractions_work ON ac_article_extractions(work_id);
+CREATE INDEX IF NOT EXISTS idx_article_extractions_mode ON ac_article_extractions(extraction_mode);
 CREATE INDEX IF NOT EXISTS idx_boundary_work ON ac_boundary_conditions(work_id);
 CREATE INDEX IF NOT EXISTS idx_runs_pass_status ON ac_runs(pass_name, status);
 """

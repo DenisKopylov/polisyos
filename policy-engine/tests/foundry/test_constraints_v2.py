@@ -310,6 +310,25 @@ def test_weighted_mean_non_finite_weights_raise():
         check_constraints(constraints=[c], slot_registry=reg, state=state)
 
 
+def test_vector_constraint_quantile_rejects_invalid_parameter() -> None:
+    state = _make_state(**{"gov.balance": np.array([1.0, 2.0, 3.0])})
+    c = _scalar_constraint(
+        aggregation="quantile",
+        operator=">=",
+        expected=Decimal("0"),
+        quantile_param=1.5,
+    )
+    with pytest.raises(ValueError, match="quantile_param"):
+        check_constraints(constraints=[c], slot_registry=SLOT_REG, state=state)
+
+
+def test_vector_constraint_rejects_non_finite_state_values() -> None:
+    state = _make_state(**{"gov.balance": np.array([1.0, np.nan, 3.0])})
+    c = _scalar_constraint(aggregation="mean", operator=">=", expected=Decimal("0"))
+    with pytest.raises(ValueError, match="state values must be finite"):
+        check_constraints(constraints=[c], slot_registry=SLOT_REG, state=state)
+
+
 # ---------------------------------------------------------------------------
 # 8. Property test: aggregation monotonicity — min <= mean <= max
 # ---------------------------------------------------------------------------

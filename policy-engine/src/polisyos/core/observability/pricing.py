@@ -16,6 +16,14 @@ class LLMPrice:
 PRICING_DEFAULTS: dict[str, LLMPrice] = {
     "gpt-4o": LLMPrice(input_per_token_usd=2.5e-6, output_per_token_usd=10e-6),
     "gemini-pro": LLMPrice(input_per_token_usd=1e-6, output_per_token_usd=4e-6),
+    "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8": LLMPrice(
+        input_per_token_usd=6e-10,
+        output_per_token_usd=6e-10,
+    ),
+    "qwen3_235b_gonka": LLMPrice(
+        input_per_token_usd=6e-10,
+        output_per_token_usd=6e-10,
+    ),
     "default": LLMPrice(input_per_token_usd=1e-5, output_per_token_usd=3e-5),
 }
 
@@ -60,4 +68,3 @@ def estimate_llm_cost_usd(
     prompt_cost = max(prompt_tokens, 0) * price.input_per_token_usd
     completion_cost = max(completion_tokens, 0) * price.output_per_token_usd
     return prompt_cost + completion_cost
-

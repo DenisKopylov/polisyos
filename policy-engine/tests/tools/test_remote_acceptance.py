@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from tools.workspace import remote_acceptance
+from tools.devx.workspace import remote_acceptance
 
 
 def test_resolve_playwright_version_prefers_lockfile(tmp_path: Path) -> None:
@@ -110,6 +110,7 @@ def test_rsync_excludes_cover_local_caches() -> None:
     assert ".hypothesis/" in remote_acceptance.RSYNC_EXCLUDES
     assert ".polisyos/" in remote_acceptance.RSYNC_EXCLUDES
     assert "data/raw/" in remote_acceptance.RSYNC_EXCLUDES
+    assert "data/dataset_catalog/" not in remote_acceptance.RSYNC_EXCLUDES
     assert "/policy-engine/runs/" in remote_acceptance.RSYNC_EXCLUDES
     assert "runs/" not in remote_acceptance.RSYNC_EXCLUDES
 

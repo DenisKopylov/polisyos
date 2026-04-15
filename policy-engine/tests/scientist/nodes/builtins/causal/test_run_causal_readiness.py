@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import logging
+from unittest.mock import patch
+
+import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -198,3 +201,39 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
     assert len(bundle.strategic_results) == 1
     assert len(bundle.counterfactual_results) == 1
     assert len(bundle.interference_specs) == 1
+
+
+def test_run_causal_readiness_graph_assertion_is_not_swallowed(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_c4a_assert")
+    graph_ref = persist_causal_graph_model(ctx.store, _graph())
+    state = ExperimentState(
+        run_id="R_c4a_assert",
+        artifacts_index={
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: ArtifactRef.model_validate(
+                graph_ref.model_dump(mode="json")
+            )
+        },
+        params={
+            "transportability_check_bundle": {
+                "checks": [
+                    {
+                        "check_id": "same_regime",
+                        "family": "budget_flows",
+                        "treatment": "X",
+                        "outcome": "Y",
+                        "source_regime_id": "r1",
+                        "target_regime_id": "r1",
+                        "source_context": {"context_id": "UA"},
+                        "target_context": {"context_id": "UA"},
+                    }
+                ]
+            }
+        },
+    )
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.causal.run_causal_readiness.load_causal_graph_model",
+        side_effect=AssertionError("graph invariant"),
+    ):
+        with pytest.raises(AssertionError, match="graph invariant"):
+            RunCausalReadinessNode().execute(ctx, state)

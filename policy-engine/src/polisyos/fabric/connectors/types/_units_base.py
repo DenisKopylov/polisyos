@@ -1,7 +1,7 @@
 """Base unit definitions, standard units registry, and conversion factors."""
 from __future__ import annotations
 
-from decimal import Decimal
+from decimal import Decimal, localcontext
 from typing import NamedTuple
 
 from polisyos.fabric.connectors.types.dimensions import (
@@ -100,8 +100,8 @@ def _register_units() -> None:
         "g": BaseUnit("g", registry.MASS, Decimal("0.001"), ("gram", "grams"), "mass"),
         "mg": BaseUnit("mg", registry.MASS, Decimal("0.000001"), ("milligram", "milligrams"), "mass"),
         "t": BaseUnit("t", registry.MASS, Decimal("1000"), ("tonne", "tonnes", "metric_ton"), "mass"),
-        "lb": BaseUnit("lb", registry.MASS, Decimal("0.453592"), ("pound", "pounds", "lbs"), "mass"),
-        "oz": BaseUnit("oz", registry.MASS, Decimal("0.0283495"), ("ounce", "ounces"), "mass"),
+        "lb": BaseUnit("lb", registry.MASS, Decimal("0.45359237"), ("pound", "pounds", "lbs"), "mass"),
+        "oz": BaseUnit("oz", registry.MASS, Decimal("0.028349523125"), ("ounce", "ounces"), "mass"),
     })
 
     # Area units
@@ -152,9 +152,11 @@ def _register_units() -> None:
     })
 
     # Temperature (handled specially due to offset)
-    celsius_offset = Decimal("273.15")
-    fahrenheit_factor = Decimal("5") / Decimal("9")
-    fahrenheit_offset = celsius_offset - (Decimal("32") * fahrenheit_factor)
+    with localcontext() as ctx:
+        ctx.prec = max(ctx.prec, 50)
+        celsius_offset = Decimal("273.15")
+        fahrenheit_factor = Decimal("5") / Decimal("9")
+        fahrenheit_offset = celsius_offset - (Decimal("32") * fahrenheit_factor)
 
     STANDARD_UNITS.update({
         "K": BaseUnit("K", registry.TEMPERATURE, Decimal("1"), ("kelvin",), "temperature"),
@@ -226,8 +228,14 @@ class ConversionFactor(NamedTuple):
 
     def inverse(self) -> "ConversionFactor":
         """Get the inverse conversion factor."""
+        if self.multiplier == 0:
+            raise ZeroDivisionError("conversion multiplier cannot be zero")
+        with localcontext() as ctx:
+            ctx.prec = max(ctx.prec, 50)
+            inverse_multiplier = Decimal("1") / self.multiplier
+            inverse_offset = -(self.offset / self.multiplier)
         return ConversionFactor(
-            multiplier=Decimal("1") / self.multiplier,
-            offset=-self.offset / self.multiplier,
+            multiplier=inverse_multiplier,
+            offset=inverse_offset,
             requires_rate=self.requires_rate,
         )

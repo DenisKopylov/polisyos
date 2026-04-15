@@ -5,9 +5,10 @@ This reference is based on the committed Runtime API OpenAPI snapshot in `schema
 
 ## Contract Surface
 
-- Committed OpenAPI snapshot: 50 documented `GET`/`POST` operations.
-- Current route surface: 52 `GET`/`POST` handlers across runtime routes.
+- Committed OpenAPI snapshot: 53 documented `GET`/`POST` operations.
+- Current route surface: 56 `GET`/`POST` handlers across runtime routes.
 - Route-only operations not present in the committed snapshot:
+  - `GET /api/v1/artifacts/{artifact_id}/download`
   - `GET /api/v1/runs/live`
   - `GET /api/v1/runs/{run_id}/live`
 
@@ -22,7 +23,7 @@ The runtime HTTP layer is tenancy-aware, but the committed OpenAPI snapshot does
 
 - Production-style deployments are expected to front the API with bearer/JWT auth and inject request claims into `request.state`.
 - Runtime routes read resolved identity and access scope from request state, then enforce tenant access on run and artifact resources.
-- `GET /api/v1/auth/me` reflects the resolved identity. If no claims are present, it falls back to a fixture analyst identity for local/dev use.
+- `GET /api/v1/auth/me` reflects the resolved identity and fails closed when claims are absent or invalid. Fixture identity is allowed only behind an explicit development flag.
 - Service-to-service authorization uses SPIFFE peer identity plus JWT-derived user scope when available.
 - When OPA authorization is enabled in enforce mode and the sidecar is unreachable or returns an invalid shape, the authz client fails closed and returns deny-by-default.
 
@@ -33,7 +34,13 @@ The runtime HTTP layer is tenancy-aware, but the committed OpenAPI snapshot does
 | `Authorization: Bearer <token>` | Deployment-dependent | Recommended for any non-local environment |
 | `Content-Type: application/json` | For `POST` bodies | All documented `POST` endpoints accept JSON |
 | `Accept: application/json` | Usually | Live run streams use `text/event-stream` |
+| `X-Idempotency-Key: <key>` | Supported on side-effecting control `POST` routes | Reuse the same key only for the same logical mutation payload |
 | `X-Request-ID: <id>` | Optional | Preserved into `meta.request_id` when supplied |
+| `X-API-Version: <major>` | Response | Emitted on all `/api/v1/*` responses |
+| `X-API-Compatibility-Window: <window>` | Response | Compatibility/deprecation window for the current path major |
+| `Deprecation` / `Sunset` | Response | Present when a surface is deprecated |
+| `ETag` / `Last-Modified` / `Cache-Control` | Response | Present on immutable or cache-friendly artifact resources |
+| `X-SSE-Flow-Control` | Response | Communicates server-side stream pacing expectations on live endpoints |
 
 ## Response Envelope
 
@@ -80,7 +87,11 @@ Common status codes across the committed contract:
 | `401` | Missing or invalid authentication |
 | `403` | Tenant or capability access denied |
 | `404` | Run, artifact, job, or pipeline not found |
+| `406` | Requested media type is not supported for this artifact surface |
+| `409` | Idempotency key reuse conflicts with a different payload or current in-flight state |
+| `429` | Tenant or endpoint rate limit exceeded |
 | `422` | Pydantic/body validation failure |
+| `503` / `504` | Dependency timeout, circuit-breaker, or degraded runtime guard failure |
 | `500` | Internal server error |
 
 ## Pagination
@@ -113,6 +124,7 @@ Detailed reference: [Runs](runs.md)
 | Method | Path | Description | Source |
 |--------|------|-------------|--------|
 | `GET` | `/api/v1/runs` | List runs with cursor pagination and filters | OpenAPI |
+| `POST` | `/api/v1/runs/batch` | Return multiple run details in one request | OpenAPI |
 | `GET` | `/api/v1/runs/{run_id}` | Return full run details | OpenAPI |
 | `GET` | `/api/v1/runs/{run_id}/timeline` | Inspect run timeline events | OpenAPI |
 | `GET` | `/api/v1/runs/{run_id}/nodes` | Inspect node-level state records | OpenAPI |
@@ -167,6 +179,8 @@ Detailed reference: [Artifacts](artifacts.md)
 |--------|------|-------------|--------|
 | `GET` | `/api/v1/artifacts/{artifact_id}` | Return manifest metadata for an artifact | OpenAPI |
 | `GET` | `/api/v1/artifacts/{artifact_id}/content` | Return content preview or decoded payload | OpenAPI |
+| `POST` | `/api/v1/artifacts/batch` | Return multiple artifact manifests in one request | OpenAPI |
+| `GET` | `/api/v1/artifacts/{artifact_id}/download` | Download raw artifact bytes | Route-only |
 | `GET` | `/api/v1/artifacts/{artifact_id}/lineage` | Build lineage graph rooted at an artifact | OpenAPI |
 | `GET` | `/api/v1/artifacts/{artifact_id}/schema` | Return schema metadata for an artifact | OpenAPI |
 
@@ -185,3 +199,5 @@ Detailed reference: [Artifacts](artifacts.md)
 - [Runs](runs.md)
 - [Control](control.md)
 - [Artifacts](artifacts.md)
+- [Versioning Policy](versioning.md)
+- [Migration Guide](migration-guide.md)

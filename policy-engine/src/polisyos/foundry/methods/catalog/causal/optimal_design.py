@@ -746,7 +746,7 @@ class CausalExperimentDesigner:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="causal_experiment_designer",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("graph_json", SlotType.SCALAR, Unit("graph", "json")),

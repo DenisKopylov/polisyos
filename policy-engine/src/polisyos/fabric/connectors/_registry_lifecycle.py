@@ -85,13 +85,11 @@ class RegistryLifecycleMixin:
 
     def _bootstrap_contract_registry(self) -> None:
         try:
-            from polisyos.fabric.connectors.contracts import ContractRegistry
-            from polisyos.fabric.connectors.sources._contracts import ALL_SOURCE_CONTRACTS
+            from polisyos.fabric.connectors.sources._contracts import (
+                build_builtin_contract_registry,
+            )
 
-            registry = ContractRegistry()
-            for contract in ALL_SOURCE_CONTRACTS:
-                registry.register(contract, allow_breaking=True)
-            self._contract_registry = registry
+            self._contract_registry = build_builtin_contract_registry()
         except Exception as exc:
             logger.debug(
                 "Connector contract bootstrap skipped",
@@ -154,10 +152,10 @@ class RegistryLifecycleMixin:
         discovered_count = len(bridge_report.registered)
         error_count = len(bridge_report.errors) + len(discovery_report.errors)
 
-        # Fallback: if component discovery found no connectors (e.g. running
-        # from source without pip install), register builtin connectors directly.
-        if discovered_count == 0:
-            discovered_count = self._bootstrap_builtin_connectors_direct()
+        # Always reconcile direct-import builtins as a source-tree backstop.
+        # This fills gaps when the installed component entry points lag behind
+        # the local workspace while still allowing entry-point discovery to win.
+        discovered_count += self._bootstrap_builtin_connectors_direct()
 
         self._bootstrapped = True
         logger.info(
@@ -245,6 +243,62 @@ class RegistryLifecycleMixin:
     # Registration
     # =========================================================================
 
+    @staticmethod
+    def _has_running_loop() -> bool:
+        try:
+            asyncio.get_running_loop()
+            return True
+        except RuntimeError:
+            return False
+
+    @staticmethod
+    def _close_pools_sync(pools: list["ConnectionPool"]) -> None:
+        if not pools:
+            return
+        if RegistryLifecycleMixin._has_running_loop():
+            raise RuntimeError(
+                "ConnectorRegistry synchronous cleanup cannot close pools while an "
+                "event loop is running; use unregister_async() or shutdown_async()."
+            )
+
+        async def _close_all() -> None:
+            await asyncio.gather(*(pool.close_all() for pool in pools))
+
+        asyncio.run(_close_all())
+
+    async def _close_pools_async(self, pools: list["ConnectionPool"]) -> None:
+        if not pools:
+            return
+        await asyncio.gather(*(pool.close_all() for pool in pools))
+
+    def _pop_registered_connector_and_pools(
+        self,
+        connector_id: str,
+    ) -> tuple[str | None, list["ConnectionPool"]]:
+        try:
+            fqid = self._resolve_id(connector_id)
+        except ConnectorNotFoundError:
+            return None, []
+
+        pools_to_close: list["ConnectionPool"] = []
+
+        with self._instance_lock:
+            entry = self._connectors.unregister(fqid)
+            if entry is None:
+                return None, []
+
+            keys_to_remove = [key for key in self._connection_pools if key[0] == fqid]
+            for key in keys_to_remove:
+                pools_to_close.append(self._connection_pools.pop(key))
+
+            entry.instance = None
+            entry.loaded = False
+            self._cache_wrappers.pop(fqid, None)
+            self._contract_wrappers.pop(fqid, None)
+            logger.info("Unregistered connector", connector_id=fqid)
+
+        return fqid, pools_to_close
+
     def register(
         self,
         connector_class: type["SourceConnector"],
@@ -292,7 +346,17 @@ class RegistryLifecycleMixin:
             # Validate config if provided
             if config is not None:
                 validation = connector_class.validate_config(config)
-                if hasattr(validation, "valid") and not validation.valid:
+                from polisyos.fabric.connectors.types import ValidationResult
+
+                if not isinstance(validation, ValidationResult):
+                    raise ConnectorConfigError(
+                        connector_id=fqid,
+                        reason=(
+                            "validate_config() must return ValidationResult, "
+                            f"got {type(validation).__name__}"
+                        ),
+                    )
+                if not validation.valid:
                     errors = getattr(validation, "issues", [])
                     raise ConnectorConfigError(
                         connector_id=fqid,
@@ -332,39 +396,57 @@ class RegistryLifecycleMixin:
         Returns:
             True if connector was found and removed, False otherwise
         """
-        try:
-            fqid = self._resolve_id(connector_id)
-        except ConnectorNotFoundError:
-            return False
-
-        pools_to_close: list["ConnectionPool"] = []
-
-        with self._instance_lock:
-            entry = self._connectors.unregister(fqid)
-            if entry is None:
-                return False
-
-            # Close any associated connection pools
-            keys_to_remove = [key for key in self._connection_pools if key[0] == fqid]
-            for key in keys_to_remove:
-                pools_to_close.append(self._connection_pools.pop(key))
-
-            logger.info("Unregistered connector", connector_id=fqid)
-
-        if pools_to_close:
+        if self._has_running_loop():
             try:
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    for pool in pools_to_close:
-                        asyncio.create_task(pool.close_all())
-                else:
-                    loop.run_until_complete(
-                        asyncio.gather(*(pool.close_all() for pool in pools_to_close))
-                    )
-            except Exception as exc:
-                logger.debug("Ignored exception: %s", exc)
+                fqid = self._resolve_id(connector_id)
+            except ConnectorNotFoundError:
+                return False
+            with self._instance_lock:
+                has_pools = any(key[0] == fqid for key in self._connection_pools)
+            if has_pools:
+                raise RuntimeError(
+                    "ConnectorRegistry.unregister() cannot close pools while an "
+                    "event loop is running; use unregister_async()."
+                )
 
+        fqid, pools_to_close = self._pop_registered_connector_and_pools(connector_id)
+        if fqid is None:
+            return False
+        self._close_pools_sync(pools_to_close)
         return True
+
+    async def unregister_async(self, connector_id: str) -> bool:
+        """Async variant of unregister that deterministically drains owned pools."""
+        fqid, pools_to_close = self._pop_registered_connector_and_pools(connector_id)
+        if fqid is None:
+            return False
+        await self._close_pools_async(pools_to_close)
+        return True
+
+    async def shutdown_async(self) -> None:
+        """Unregister runtime wrappers and close all connection pools deterministically."""
+        with self._instance_lock:
+            pools_to_close = list(self._connection_pools.values())
+            self._connection_pools.clear()
+            self._cache_wrappers.clear()
+            self._contract_wrappers.clear()
+            self._schema_invalidation_callback_registered = False
+        await self._close_pools_async(pools_to_close)
+
+    def shutdown(self) -> None:
+        """Synchronous shutdown bridge for contexts without a running event loop."""
+        with self._instance_lock:
+            pools_to_close = list(self._connection_pools.values())
+            if pools_to_close and self._has_running_loop():
+                raise RuntimeError(
+                    "ConnectorRegistry.shutdown() cannot close pools while an event "
+                    "loop is running; use shutdown_async()."
+                )
+            self._connection_pools.clear()
+            self._cache_wrappers.clear()
+            self._contract_wrappers.clear()
+            self._schema_invalidation_callback_registered = False
+        self._close_pools_sync(pools_to_close)
 
     # =========================================================================
     # Wrappers (resilience, contract validation, SLO metrics)
@@ -380,9 +462,6 @@ class RegistryLifecycleMixin:
 
         Resilience is opt-in via metadata.resilience_config or connector.resilience_config.
         """
-        if getattr(connector, "_resilience_wrapped", False):
-            return connector
-
         config = getattr(connector, "resilience_config", None)
         if config is None:
             config = entry.metadata.resilience_config
@@ -393,12 +472,15 @@ class RegistryLifecycleMixin:
         try:
             from polisyos.fabric.connectors.resilience import apply_resilience
 
-            connector.fetch = apply_resilience(  # type: ignore[method-assign]
-                connector.fetch,
-                config=config,
-                cache_store=self._cache_store,
-            )
-            setattr(connector, "_resilience_wrapped", True)
+            with self._instance_lock:
+                if getattr(connector, "_resilience_wrapped", False):
+                    return connector
+                connector.fetch = apply_resilience(  # type: ignore[method-assign]
+                    connector.fetch,
+                    config=config,
+                    cache_store=self._cache_store,
+                )
+                setattr(connector, "_resilience_wrapped", True)
         except Exception as exc:
             logger.warning(
                 "Failed to apply resilience wrappers",
@@ -415,25 +497,25 @@ class RegistryLifecycleMixin:
         *,
         connector_id: str,
     ) -> "SourceConnector":
-        if getattr(connector, "_slo_request_wrapped", False):
-            return connector
-
         metrics = get_metrics()
-        original_fetch = connector.fetch
-
-        @wraps(original_fetch)
-        async def _wrapped_fetch(*args: Any, **kwargs: Any):
-            try:
-                result = await original_fetch(*args, **kwargs)
-            except Exception:
-                metrics.record_slo_connector_request("error", connector_id=connector_id)
-                raise
-            metrics.record_slo_connector_request("ok", connector_id=connector_id)
-            return result
-
         try:
-            connector.fetch = _wrapped_fetch  # type: ignore[method-assign]
-            setattr(connector, "_slo_request_wrapped", True)
+            with self._instance_lock:
+                if getattr(connector, "_slo_request_wrapped", False):
+                    return connector
+                original_fetch = connector.fetch
+
+                @wraps(original_fetch)
+                async def _wrapped_fetch(*args: Any, **kwargs: Any):
+                    try:
+                        result = await original_fetch(*args, **kwargs)
+                    except Exception:
+                        metrics.record_slo_connector_request("error", connector_id=connector_id)
+                        raise
+                    metrics.record_slo_connector_request("ok", connector_id=connector_id)
+                    return result
+
+                connector.fetch = _wrapped_fetch  # type: ignore[method-assign]
+                setattr(connector, "_slo_request_wrapped", True)
         except Exception as exc:
             logger.warning(
                 "Failed to wrap connector fetch with SLO metrics",

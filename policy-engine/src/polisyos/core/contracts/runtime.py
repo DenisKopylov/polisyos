@@ -607,6 +607,20 @@ class ArtifactSchemaView(BaseModel):
     top_level_keys: list[str] = Field(default_factory=list)
 
 
+class ArtifactBatchRequest(BaseModel):
+    """Batch artifact lookup request used to avoid client-side N+1 fetches."""
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_ids: list[str] = Field(default_factory=list, min_length=1, max_length=100)
+
+
+class RunsBatchRequest(BaseModel):
+    """Batch run lookup request used to avoid client-side N+1 fetches."""
+    model_config = ConfigDict(extra="forbid")
+
+    run_ids: list[str] = Field(default_factory=list, min_length=1, max_length=100)
+
+
 class RunFeedbackView(BaseModel):
     """Runtime view of monitoring, compare, and reissue artifacts attached to a run."""
     model_config = ConfigDict(extra="forbid")
@@ -755,6 +769,22 @@ class ArtifactSchemaResponse(BaseModel):
 
     meta: ApiMeta
     schema_view: ArtifactSchemaView = Field(alias="schema")
+
+
+class ArtifactBatchResponse(BaseModel):
+    """Response envelope returned by the artifact batch endpoint."""
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    artifacts: list[ArtifactManifestView] = Field(default_factory=list)
+
+
+class RunsBatchResponse(BaseModel):
+    """Response envelope returned by the run batch endpoint."""
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    runs: list[RunDetails] = Field(default_factory=list)
 
 
 class RunFeedbackResponse(BaseModel):

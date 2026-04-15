@@ -12,10 +12,10 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import {
   approvePromotionRequest,
+  invalidatePromotionDecisionQueries,
   rejectPromotionRequest,
 } from "@/api/hooks/usePromotionDecision";
 import { isRuntimeApiRequestError } from "@/api/http";
-import { queryKeys } from "@/api/queryKeys";
 import { useTelemetry } from "@/app/providers/TelemetryProvider";
 import {
   deleteOfflineQueueItem,
@@ -104,14 +104,12 @@ export function OfflineQueueProvider({ children }: PropsWithChildren) {
     setItems(await listOfflineQueueItems());
   }, []);
 
-  const invalidatePromotionCaches = useCallback(() => {
-    void queryClient.invalidateQueries({
-      queryKey: queryKeys.dataPromotionCandidates(),
-    });
-    void queryClient.invalidateQueries({
-      queryKey: queryKeys.dataIndexStats(),
-    });
-  }, [queryClient]);
+  const invalidatePromotionCaches = useCallback(
+    (runId?: string) => {
+      invalidatePromotionDecisionQueries(queryClient, runId);
+    },
+    [queryClient],
+  );
 
   const requestBackgroundSync = useCallback(async () => {
     if (
@@ -176,7 +174,7 @@ export function OfflineQueueProvider({ children }: PropsWithChildren) {
         try {
           await requestQueuedMutation(item);
           await deleteOfflineQueueItem(item.entityKey);
-          invalidatePromotionCaches();
+          invalidatePromotionCaches(item.payload.runId);
           logger.info({
             event: "offline.queue.flushed",
             message: `Flushed offline mutation ${item.kind}`,
@@ -240,7 +238,7 @@ export function OfflineQueueProvider({ children }: PropsWithChildren) {
             status: "failed",
             updatedAt: Date.now(),
           });
-          invalidatePromotionCaches();
+          invalidatePromotionCaches(item.payload.runId);
           track("offline.queue.failed", {
             entityKey: item.entityKey,
             kind: item.kind,

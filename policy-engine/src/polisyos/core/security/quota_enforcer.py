@@ -26,6 +26,10 @@ class QuotaExceededError(Exception):
         )
 
 
+class QuotaAccountingError(ValueError):
+    """Raised when quota accounting is updated through an untrusted mutation path."""
+
+
 class QuotaEnforcer:
     """Checks and records quota usage for a single tenant.
 
@@ -97,6 +101,10 @@ class QuotaEnforcer:
 
     def check_storage_delta(self, delta_bytes: int) -> None:
         """Pre-flight check: raises QuotaExceededError if adding *delta_bytes* would exceed limit in block mode."""
+        if delta_bytes < 0:
+            raise QuotaAccountingError(
+                "Negative storage deltas require the trusted release_storage() path"
+            )
         projected = self._state.storage_bytes_used + delta_bytes
         if projected > self._limits.max_storage_bytes:
             if self._limits.enforcement_mode == "block":
@@ -130,6 +138,10 @@ class QuotaEnforcer:
 
     def record_storage_delta(self, delta_bytes: int) -> None:
         """Record storage usage change and enforce limit."""
+        if delta_bytes < 0:
+            raise QuotaAccountingError(
+                "Negative storage deltas require the trusted release_storage() path"
+            )
         self._state.storage_bytes_used += delta_bytes
         if self._state.storage_bytes_used > self._limits.max_storage_bytes:
             if self._limits.enforcement_mode == "block":
@@ -144,6 +156,13 @@ class QuotaEnforcer:
                 self._state.storage_bytes_used,
                 self._limits.max_storage_bytes,
             )
+
+    def release_storage(self, released_bytes: int) -> None:
+        """Trusted path for reclaiming storage after verified deletion/compaction."""
+        if released_bytes < 0:
+            raise QuotaAccountingError("released_bytes must be non-negative")
+        self._state.storage_bytes_used = max(0, self._state.storage_bytes_used - released_bytes)
+        self._emit_audit("QUOTA_STORAGE_RELEASE")
 
     def check_node_count(self, current_count: int) -> None:
         """Check if node count exceeds per-run limit."""

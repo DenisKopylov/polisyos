@@ -17,6 +17,9 @@ policy artifacts до их передачи в runtime.
 - **Mock + LLM implementations** — тестовый и production-like execution modes.
 - **Multipass drafting** — staged drafter with optional RAG and verification hooks.
 - **Reflexion/memory** — short-term memory, failure cards, retry-aware critique loops.
+- **DAG-backed supervisor** — worker envelopes can declare `depends_on_task_ids`
+  and execute as bounded topological tiers.
+- **Tree reasoning** — offline-gated Tree-of-Thought and LATS/MCTS trajectory reports.
 - **Informed critic** — feasibility, norm loading, RAG and code verification integration.
 - **Lazy exports** — package deliberately избегает eager import chain.
 
@@ -29,12 +32,15 @@ policy artifacts до их передачи в runtime.
   `LLMCriticAgent` и mock-аналоги
 - Supporting tools: `RAGConfig`, `CASRAGIndex`, `CodeVerificationSandbox`,
   `DuckDBFeasibilityProbe`, `FailurePatternIndex`
+- Search/reasoning: `ReasoningPolicyGate`, `TreeOfThoughtPlanner`,
+  `LATSAgentSearch`, `ReasoningSearchReport`
 
 Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
 ## Текущее состояние
 
 - Последнее обновление: 2026-04-03
+  - WS-3C reasoning surface обновлён: 2026-04-12
 - Python modules: 45
 - Exports: 60
 - Public surface intentionally broad; imports остаются lazy для защиты от circular dependencies

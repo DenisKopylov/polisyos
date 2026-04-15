@@ -11,6 +11,7 @@ from polisyos.core.contracts.execution_plan import (
     MethodDagNode,
 )
 from polisyos.foundry.methods.base import parse_fqn
+from polisyos.foundry.methods.catalog_snapshot import build_method_capability_matrix
 from polisyos.foundry.methods.linker import check_linkable
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.selection_history import (
@@ -22,6 +23,18 @@ from polisyos.foundry.methods.selection_history import (
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
 _FIDELITY_ORDER = {"low": 0, "medium": 1, "high": 2}
+_TRUTHFULNESS_DEPTH = {
+    "heuristic_baseline": 0,
+    "structural_scoring": 1,
+    "frontier_trainable": 2,
+    "production_method": 3,
+}
+_TRUTHFULNESS_BONUS = {
+    "heuristic_baseline": -10.0,
+    "structural_scoring": -4.0,
+    "frontier_trainable": 6.0,
+    "production_method": 12.0,
+}
 
 COST_PER_MS: float = 0.001
 """Default cost per millisecond for VOI / budget calculations."""
@@ -89,6 +102,95 @@ class MethodSelectionCriteria:
             _normalize_tokens(self.preferred_data_modalities),
         )
         object.__setattr__(self, "exclude_fqns", _normalize_tokens(self.exclude_fqns))
+
+
+@dataclass(frozen=True, slots=True)
+class MethodAdvisorQuery:
+    """Structured query for the method advisor surface."""
+
+    criteria: MethodSelectionCriteria = field(default_factory=MethodSelectionCriteria)
+    data: DataCharacteristics | None = None
+    runtime_budget_ms: float | None = None
+    limit: int = 5
+    runnable_only: bool = True
+
+
+@dataclass(frozen=True, slots=True)
+class MethodAdvisorResult:
+    """Machine-readable advisor answer for planners, docs, and CLIs."""
+
+    query: MethodAdvisorQuery
+    recommended: tuple[MethodCatalogEntry, ...]
+    payload: tuple[dict[str, object], ...]
+    capability_matrix: tuple[dict[str, object], ...]
+    family_summary: tuple[dict[str, object], ...]
+
+
+def advise_methods(
+    catalog: MethodCatalogSnapshot,
+    query: MethodAdvisorQuery,
+    *,
+    history: SelectionHistoryStore | None = None,
+    runtime_predictor: RuntimePredictor | None = None,
+) -> MethodAdvisorResult:
+    """Answer “which methods apply to my problem?” with ranked code-facing artifacts."""
+    criteria = query.criteria
+    if query.runnable_only and not criteria.runnable_only:
+        criteria = MethodSelectionCriteria(
+            preferred_kind=criteria.preferred_kind,
+            preferred_family=criteria.preferred_family,
+            preferred_variant=criteria.preferred_variant,
+            family_prefixes=criteria.family_prefixes,
+            preferred_execution_backends=criteria.preferred_execution_backends,
+            required_data_modalities=criteria.required_data_modalities,
+            preferred_data_modalities=criteria.preferred_data_modalities,
+            preferred_determinism_tier=criteria.preferred_determinism_tier,
+            minimum_fidelity_tier=criteria.minimum_fidelity_tier,
+            runnable_only=True,
+            exclude_fqns=criteria.exclude_fqns,
+        )
+
+    recommended = tuple(
+        rank_method_catalog_entries(
+            catalog.entries,
+            criteria,
+            limit=query.limit,
+            data=query.data,
+            history=history,
+            runtime_predictor=runtime_predictor,
+            runtime_budget_ms=query.runtime_budget_ms,
+        )
+    )
+    payload = tuple(method_selection_payload(recommended))
+    capability_rows = build_method_capability_matrix(catalog, runnable_only=query.runnable_only)
+    capability_lookup = {row["fqn"]: row for row in capability_rows}
+    family_summary = tuple(
+        {
+            "family": family,
+            "count": len(entries),
+            "truthfulness_tiers": sorted({entry.truthfulness_tier for entry in entries}),
+            "deepest_truthfulness_tier": _deepest_truthfulness_tier(entries),
+            "catalog_depth_score": max(
+                (_truthfulness_depth_score(entry.truthfulness_tier) for entry in entries),
+                default=0,
+            ),
+            "frontier_method_count": sum(
+                1 for entry in entries if entry.truthfulness_tier == "frontier_trainable"
+            ),
+        }
+        for family, entries in sorted(_group_by_family(recommended).items())
+    )
+    return MethodAdvisorResult(
+        query=query,
+        recommended=recommended,
+        payload=payload,
+        capability_matrix=tuple(
+            capability_lookup[entry.fqn]
+            for entry in recommended
+            if entry.fqn in capability_lookup
+        ),
+        family_summary=family_summary,
+    )
 
 
 def rank_method_catalog_entries(
@@ -209,10 +311,14 @@ def method_selection_payload(entries: Sequence[MethodCatalogEntry]) -> list[dict
             "data_modalities": list(entry.data_modalities),
             "fidelity_tier": entry.fidelity_tier,
             "determinism_tier": entry.determinism_tier,
+            "truthfulness_tier": entry.truthfulness_tier,
+            "truthfulness_depth_score": _truthfulness_depth_score(entry.truthfulness_tier),
             "runnable": entry.runnable,
             "disabled_reasons": list(entry.disabled_reasons),
             "dependency_posture": dict(entry.dependency_posture),
         }
+        if entry.truthfulness_notes:
+            item["truthfulness_notes"] = entry.truthfulness_notes
         # Include rich semantic fields when non-empty to enrich LLM context
         if entry.description:
             item["description"] = entry.description
@@ -382,11 +488,34 @@ def authoring_catalog_payload(
         "snapshot_id": catalog.snapshot_id,
         "runnable_method_count": sum(1 for entry in catalog.entries if entry.runnable),
         "unavailable_method_count": len(unavailable),
+        "capability_matrix_rows": len(build_method_capability_matrix(catalog, runnable_only=False)),
         "recommended_families": families,
         "notable_unavailable_families": sorted(
             {entry.family for entry in unavailable[: max(1, int(limit_families))]}
         ),
     }
+
+
+def _group_by_family(entries: Sequence[MethodCatalogEntry]) -> dict[str, list[MethodCatalogEntry]]:
+    grouped: dict[str, list[MethodCatalogEntry]] = defaultdict(list)
+    for entry in entries:
+        grouped[entry.family].append(entry)
+    return grouped
+
+
+def _truthfulness_depth_score(truthfulness_tier: str | None) -> int:
+    return _TRUTHFULNESS_DEPTH.get(str(truthfulness_tier or "").strip(), 0)
+
+
+def _deepest_truthfulness_tier(entries: Sequence[MethodCatalogEntry]) -> str:
+    best = max(
+        entries,
+        key=lambda entry: (_truthfulness_depth_score(entry.truthfulness_tier), entry.truthfulness_tier),
+        default=None,
+    )
+    if best is None:
+        return "heuristic_baseline"
+    return best.truthfulness_tier
 
 
 def _score_entry(entry: MethodCatalogEntry, criteria: MethodSelectionCriteria) -> float:
@@ -431,6 +560,8 @@ def _score_entry(entry: MethodCatalogEntry, criteria: MethodSelectionCriteria) -
 
     if criteria.minimum_fidelity_tier is not None:
         score += float(_FIDELITY_ORDER.get(entry.fidelity_tier, 0))
+
+    score += _TRUTHFULNESS_BONUS.get(entry.truthfulness_tier, 0.0)
 
     if entry.runnable:
         score += 20.0
@@ -667,7 +798,10 @@ def compute_voi(
 __all__ = [
     "COST_PER_MS",
     "DataCharacteristics",
+    "MethodAdvisorQuery",
+    "MethodAdvisorResult",
     "MethodSelectionCriteria",
+    "advise_methods",
     "authoring_catalog_payload",
     "compute_voi",
     "method_selection_payload",

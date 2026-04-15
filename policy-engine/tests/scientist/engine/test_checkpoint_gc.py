@@ -5,13 +5,14 @@ from __future__ import annotations
 import os
 import time
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.checkpoint import (
-    CHECKPOINT_SCHEMA_VERSION,
+    CHECKPOINT_HISTORY_FILENAME,
     CheckpointGCPolicy,
     CheckpointHead,
     CheckpointSchemaError,
@@ -20,10 +21,9 @@ from polisyos.scientist.engine.checkpoint import (
     _validate_checkpoint_schema,
     acquire_run_lock,
     gc_checkpoints,
-    load_checkpoint_head,
+    load_checkpoint_history,
     update_checkpoint_head,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef
 
 
 def _make_ref(aid: str | None = None) -> ArtifactRef:
@@ -39,6 +39,7 @@ class TestCheckpointGCPolicy:
         p = CheckpointGCPolicy()
         assert p.max_checkpoints == 10
         assert p.max_age_hours == 72.0
+        assert p.max_incremental_chain == 6
 
     def test_extra_forbid(self) -> None:
         with pytest.raises(ValidationError):
@@ -68,6 +69,92 @@ class TestGCCheckpoints:
         policy = CheckpointGCPolicy(max_checkpoints=1)
         deleted = gc_checkpoints(tmp_path, policy=policy, current_head_ref=ref)
         assert deleted == 0
+
+    def test_history_is_written_alongside_head(self, tmp_path: Path) -> None:
+        ref = _make_ref()
+        update_checkpoint_head(
+            tmp_path,
+            run_id="r1",
+            checkpoint_ref=ref,
+            sequence_number=0,
+            node_alias="a",
+            writer_pid=os.getpid(),
+            writer_hostname="test",
+        )
+
+        history = load_checkpoint_history(tmp_path)
+        assert (tmp_path / CHECKPOINT_HISTORY_FILENAME).exists()
+        assert history is not None
+        assert len(history.entries) == 1
+        assert history.entries[0].checkpoint_ref.artifact_id == ref.artifact_id
+
+    def test_gc_prunes_old_history_by_count_and_age(self, tmp_path: Path) -> None:
+        refs = [_make_ref("sha256:" + char * 64) for char in ("a", "b", "c")]
+        for index, ref in enumerate(refs):
+            update_checkpoint_head(
+                tmp_path,
+                run_id="r1",
+                checkpoint_ref=ref,
+                sequence_number=index,
+                node_alias=f"step_{index}",
+                writer_pid=os.getpid(),
+                writer_hostname="test",
+            )
+
+        history = load_checkpoint_history(tmp_path)
+        assert history is not None
+        history.entries[0].updated_at = history.entries[0].updated_at.replace(year=2020)
+        history.entries[1].updated_at = history.entries[1].updated_at.replace(year=2021)
+        (tmp_path / CHECKPOINT_HISTORY_FILENAME).write_text(
+            history.model_dump_json(indent=2),
+            encoding="utf-8",
+        )
+
+        deleted = gc_checkpoints(
+            tmp_path,
+            policy=CheckpointGCPolicy(max_checkpoints=1, max_age_hours=1.0),
+            current_head_ref=refs[-1],
+        )
+        assert deleted == 2
+        trimmed = load_checkpoint_history(tmp_path)
+        assert trimmed is not None
+        assert [entry.sequence_number for entry in trimmed.entries] == [2]
+
+    def test_gc_keeps_incremental_ancestors_needed_by_head(self, tmp_path: Path) -> None:
+        base_ref = _make_ref("sha256:" + "a" * 64)
+        inc_ref = _make_ref("sha256:" + "b" * 64)
+        update_checkpoint_head(
+            tmp_path,
+            run_id="r1",
+            checkpoint_ref=base_ref,
+            sequence_number=0,
+            node_alias="step_0",
+            snapshot_mode="full",
+            writer_pid=os.getpid(),
+            writer_hostname="test",
+        )
+        update_checkpoint_head(
+            tmp_path,
+            run_id="r1",
+            checkpoint_ref=inc_ref,
+            sequence_number=1,
+            node_alias="step_1",
+            snapshot_mode="incremental",
+            base_checkpoint_ref=base_ref,
+            chain_depth=1,
+            writer_pid=os.getpid(),
+            writer_hostname="test",
+        )
+
+        deleted = gc_checkpoints(
+            tmp_path,
+            policy=CheckpointGCPolicy(max_checkpoints=1, max_age_hours=1.0),
+            current_head_ref=inc_ref,
+        )
+        assert deleted == 0
+        trimmed = load_checkpoint_history(tmp_path)
+        assert trimmed is not None
+        assert [entry.sequence_number for entry in trimmed.entries] == [0, 1]
 
 
 # ── Schema validation ────────────────────────────────────────────────

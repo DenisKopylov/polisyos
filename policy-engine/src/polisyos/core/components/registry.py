@@ -206,7 +206,7 @@ ConflictPolicy = DuplicateComponentIdPolicy
 def _is_exact_version(value: str) -> bool:
     try:
         _ = SemVer.parse(value)
-    except Exception:
+    except ValueError:
         return False
     return True
 

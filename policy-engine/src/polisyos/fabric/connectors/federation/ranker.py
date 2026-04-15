@@ -6,7 +6,7 @@ freshness, and latency to rank data sources for a given composition request.
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta, timezone
 
 from polisyos.common.logger import get_logger
 from polisyos.core.evaluation import WeightedScorer
@@ -15,7 +15,9 @@ from polisyos.fabric.connectors.federation.types import (
     RankedSource,
     RankingWeights,
 )
+from polisyos.fabric.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.fabric.connectors.quality.report import DataQualityReport
+from polisyos.fabric.temporal import utc_now
 from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
 
 logger = get_logger(__name__)
@@ -129,7 +131,10 @@ class SourceRanker:
             "freshness": freshness_score,
             "latency": latency_score,
         }
-        total_score = self._scorer.score(component_scores).score
+        total_score = ensure_probability(
+            self._scorer.score(component_scores).score,
+            what="source relevance score",
+        )
         return total_score, component_scores
 
     def _calculate_trust_score(self, connector: ConnectorMetadataSpec) -> float:
@@ -159,7 +164,14 @@ class SourceRanker:
 
         if completeness is None:
             return 0.5
-        return min(1.0, max(0.0, float(completeness)))
+        try:
+            return ensure_probability(
+                completeness,
+                what="source completeness score",
+                clamp=True,
+            )
+        except ValueError:
+            return 0.5
 
     def _calculate_freshness_score(
         self,
@@ -175,12 +187,19 @@ class SourceRanker:
         if last_updated is None and quality_report is not None:
             age_seconds = quality_report.freshness_status.data_age_seconds
             if age_seconds is not None:
-                last_updated = datetime.now(timezone.utc) - timedelta(seconds=age_seconds)
+                try:
+                    age_seconds = ensure_non_negative_finite(
+                        age_seconds,
+                        what="freshness data_age_seconds",
+                    )
+                except ValueError:
+                    return 0.5
+                last_updated = utc_now() - timedelta(seconds=age_seconds)
 
         if last_updated is None:
             return 0.5
 
-        now = datetime.now(timezone.utc)
+        now = utc_now()
         if last_updated.tzinfo is None:
             last_updated = last_updated.replace(tzinfo=timezone.utc)
 
@@ -188,7 +207,10 @@ class SourceRanker:
         if max_staleness is not None and age_hours > max_staleness.total_seconds() / 3600.0:
             return 0.0
 
-        return 0.5 ** (age_hours / 24.0)
+        return ensure_probability(
+            0.5 ** (age_hours / 24.0),
+            what="source freshness score",
+        )
 
     def _calculate_latency_score(
         self,
@@ -203,8 +225,12 @@ class SourceRanker:
         if latency_ms is None:
             return 0.5
 
-        latency_score = 1.0 / (1.0 + float(latency_ms) / 100.0)
-        return min(1.0, max(0.0, latency_score))
+        try:
+            latency_ms = ensure_non_negative_finite(latency_ms, what="latency_ms")
+        except ValueError:
+            return 0.5
+        latency_score = 1.0 / (1.0 + latency_ms / 100.0)
+        return ensure_probability(latency_score, what="source latency score")
 
     def _is_stale(
         self,
@@ -219,7 +245,7 @@ class SourceRanker:
             last_updated = quality_report.freshness_status.last_updated
         if last_updated is None:
             return False
-        now = datetime.now(timezone.utc)
+        now = utc_now()
         if last_updated.tzinfo is None:
             last_updated = last_updated.replace(tzinfo=timezone.utc)
         return (now - last_updated) > max_staleness

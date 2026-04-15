@@ -22,7 +22,11 @@ from polisyos.core.security.namespace import (
     namespaced_lock_key,
     namespaced_run_id,
 )
-from polisyos.core.security.quota_enforcer import QuotaEnforcer, QuotaExceededError
+from polisyos.core.security.quota_enforcer import (
+    QuotaAccountingError,
+    QuotaEnforcer,
+    QuotaExceededError,
+)
 from polisyos.core.security.tenant_quota import TenantQuotaLimits, TenantQuotaState
 
 
@@ -292,6 +296,20 @@ class TestQuotaEnforcementE2E:
         enforcer.record_storage_delta(90)
         with pytest.raises(QuotaExceededError):
             enforcer.check_storage_delta(20)
+
+    def test_negative_storage_delta_requires_trusted_release_path(self) -> None:
+        limits = TenantQuotaLimits(max_storage_bytes=100, enforcement_mode="block")
+        state = TenantQuotaState(tenant_id="t8", storage_bytes_used=50)
+        enforcer = QuotaEnforcer(limits, state)
+
+        with pytest.raises(QuotaAccountingError, match="trusted release_storage"):
+            enforcer.record_storage_delta(-10)
+
+        with pytest.raises(QuotaAccountingError, match="trusted release_storage"):
+            enforcer.check_storage_delta(-10)
+
+        enforcer.release_storage(15)
+        assert state.storage_bytes_used == 35
 
 
 # ---------------------------------------------------------------------------

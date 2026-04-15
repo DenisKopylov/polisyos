@@ -128,7 +128,7 @@ def _extract_scan_fields(value: object) -> tuple[str, int, dict[str, int]]:
 def _to_non_negative_int(value: object) -> int:
     try:
         return max(0, int(value))
-    except Exception:
+    except (OverflowError, TypeError, ValueError):
         return 0
 
 

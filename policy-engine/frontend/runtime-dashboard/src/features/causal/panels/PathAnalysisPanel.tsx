@@ -1,0 +1,188 @@
+import { useMemo, type CSSProperties } from "react";
+
+import { cn } from "@/lib/utils";
+import { Card } from "@/shared/ui/primitives";
+
+import type { CausalNodeData, CausalEdgeData } from "../types";
+import { NODE_COLORS } from "../types";
+
+export type CausalPath = {
+  id: string;
+  label: string;
+  type: "direct" | "indirect" | "backdoor" | "frontdoor";
+  nodeIds: string[];
+  edgeIds: string[];
+  totalEffect?: number;
+  blocked?: boolean;
+};
+
+type PathAnalysisPanelProps = {
+  nodes: CausalNodeData[];
+  edges: CausalEdgeData[];
+  paths: CausalPath[];
+  selectedPathId?: string | null;
+  onPathSelect?: (pathId: string | null) => void;
+  onClose: () => void;
+  className?: string;
+};
+
+const PATH_TYPE_CONFIG: Record<
+  CausalPath["type"],
+  { color: string; label: string }
+> = {
+  direct: { color: "var(--chart-primary)", label: "Direct" },
+  indirect: { color: "var(--chart-secondary)", label: "Indirect" },
+  backdoor: { color: "var(--chart-alert)", label: "Backdoor" },
+  frontdoor: { color: "var(--chart-success)", label: "Frontdoor" },
+};
+
+export function PathAnalysisPanel({
+  nodes,
+  edges,
+  paths,
+  selectedPathId,
+  onPathSelect,
+  onClose,
+  className,
+}: PathAnalysisPanelProps) {
+  const nodeMap = useMemo(
+    () => new Map(nodes.map((n) => [n.id, n])),
+    [nodes],
+  );
+  const edgeMap = useMemo(
+    () => new Map(edges.map((e) => [e.id, e])),
+    [edges],
+  );
+
+  const directTotal = paths
+    .filter((p) => p.type === "direct" && p.totalEffect != null)
+    .reduce((sum, p) => sum + (p.totalEffect ?? 0), 0);
+
+  const indirectTotal = paths
+    .filter((p) => p.type === "indirect" && p.totalEffect != null)
+    .reduce((sum, p) => sum + (p.totalEffect ?? 0), 0);
+
+  return (
+    <Card className={cn("w-80 space-y-4 overflow-y-auto", className)}>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-lg font-semibold">Path Analysis</h3>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-muted hover:text-inherit text-lg leading-none"
+          aria-label="Close panel"
+        >
+          {"\u00D7"}
+        </button>
+      </div>
+
+      {/* Effect decomposition */}
+      <div className="border-line rounded-xl border p-3">
+        <p className="text-muted mb-2 text-xs font-semibold uppercase">
+          Effect decomposition
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="text-muted text-xs">Direct</p>
+            <p className="font-mono text-lg font-bold text-[var(--chart-primary)]">
+              {directTotal.toFixed(4)}
+            </p>
+          </div>
+          <div>
+            <p className="text-muted text-xs">Indirect</p>
+            <p className="font-mono text-lg font-bold text-[var(--chart-secondary)]">
+              {indirectTotal.toFixed(4)}
+            </p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-muted text-xs">Total</p>
+            <p className="font-mono text-lg font-bold">
+              {(directTotal + indirectTotal).toFixed(4)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Path list */}
+      <div className="space-y-2">
+        <p className="text-muted text-xs font-semibold uppercase">
+          {paths.length} path{paths.length !== 1 ? "s" : ""}
+        </p>
+
+        {paths.map((path) => {
+          const config = PATH_TYPE_CONFIG[path.type];
+          const isSelected = selectedPathId === path.id;
+
+          return (
+            <button
+              key={path.id}
+              type="button"
+              className={cn(
+                "border-line w-full rounded-xl border p-3 text-start transition-colors",
+                isSelected
+                  ? "ring-2"
+                  : "hover:bg-surface/80",
+              )}
+              style={
+                isSelected
+                  ? ({
+                      "--tw-ring-color": config.color,
+                    } as CSSProperties)
+                  : undefined
+              }
+              onClick={() =>
+                onPathSelect?.(isSelected ? null : path.id)
+              }
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block size-2 rounded-full"
+                    style={{ background: config.color }}
+                  />
+                  <span className="text-xs font-semibold">{config.label}</span>
+                  {path.blocked && (
+                    <span className="text-muted text-xs">(blocked)</span>
+                  )}
+                </div>
+                {path.totalEffect != null && (
+                  <span
+                    className="font-mono text-xs font-bold"
+                    style={{ color: config.color }}
+                  >
+                    {path.totalEffect >= 0 ? "+" : ""}
+                    {path.totalEffect.toFixed(4)}
+                  </span>
+                )}
+              </div>
+
+              {/* Node chain */}
+              <div className="mt-1.5 flex flex-wrap items-center gap-1 text-xs">
+                {path.nodeIds.map((nid, i) => {
+                  const node = nodeMap.get(nid);
+                  return (
+                    <span key={nid} className="flex items-center gap-1">
+                      {i > 0 && (
+                        <span className="text-muted">{"\u2192"}</span>
+                      )}
+                      <span
+                        className="font-medium"
+                        style={{
+                          color: node
+                            ? NODE_COLORS[node.kind]
+                            : undefined,
+                        }}
+                      >
+                        {node?.label ?? nid}
+                      </span>
+                    </span>
+                  );
+                })}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}

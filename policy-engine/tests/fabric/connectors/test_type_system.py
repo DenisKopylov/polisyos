@@ -14,7 +14,7 @@ Test Categories:
 """
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from decimal import Decimal
 import warnings
 
@@ -27,18 +27,13 @@ import pytest
 from polisyos.fabric.connectors.types.dimensions import (
     Dimension,
     DimensionRegistry,
-    BaseDimension,
 )
 
 from polisyos.fabric.connectors.types.units import (
     Unit,
-    UnitRegistry,
-    ConversionFactor,
-    MetricPrefix,
     UnitParseError,
     UnitConversionError,
     get_unit_registry,
-    parse_unit,
 )
 
 from polisyos.fabric.connectors.types.temporal import (
@@ -47,17 +42,14 @@ from polisyos.fabric.connectors.types.temporal import (
     AggregationMethod,
     TemporalVariable,
     TimeInterval,
-    TemporalSemantics,
     StockFlowCombination,
     TemporalAggregationError,
-    validate_temporal_aggregation,
     infer_temporal_type,
 )
 
 from polisyos.fabric.connectors.types.coercion import (
     TypeCoercion,
     CoercionPolicy,
-    CoercionResult,
     CoercionError,
     PrecisionLossWarning,
     safe_cast,
@@ -458,6 +450,17 @@ class TestUnitConversion:
         """Verify 1 ratio = 100 percent."""
         assert Unit.parse("ratio").convert_to(Unit.parse("percent"), 1) == Decimal("100")
 
+    def test_ounce_conversion_uses_precise_factor(self):
+        """Verify ounce conversion uses exact international avoirdupois factor."""
+        result = Unit.parse("oz").convert_to(Unit.parse("g"), 1)
+        assert result == Decimal("28.349523125")
+
+    def test_affine_conversion_factor_inverse_round_trip(self):
+        """Verify affine conversion factors invert cleanly."""
+        factor = Unit.parse("degF").get_conversion_factor(Unit.parse("degC"))
+        result = factor.inverse().apply(Decimal("0"))
+        assert abs(result - Decimal("32")) < Decimal("1e-40")
+
     def test_velocity_kmh_to_ms(self):
         """Verify 36 km/h = 10 m/s."""
         result = Unit.parse("km/h").convert_to(Unit.parse("m/s"), 36)
@@ -505,6 +508,26 @@ class TestUnitRegistry:
 
         # Check inverse is also stored
         assert registry.get_exchange_rate("USD", "EUR") is not None
+
+    def test_exchange_rates_normalize_codes_and_preserve_precision(self):
+        registry = get_unit_registry()
+        registry.set_exchange_rate("eur", "usd", Decimal("1.234567890123456789"))
+
+        forward = registry.get_exchange_rate("EUR", "USD")
+        reverse = registry.get_exchange_rate("USD", "EUR")
+
+        assert forward == Decimal("1.234567890123456789")
+        assert reverse is not None
+        round_trip = Unit.parse("USD").convert_to(
+            Unit.parse("EUR"),
+            Unit.parse("EUR").convert_to(
+                Unit.parse("USD"),
+                Decimal("2"),
+                exchange_rates=registry.exchange_rates,
+            ),
+            exchange_rates=registry.exchange_rates,
+        )
+        assert abs(round_trip - Decimal("2")) < Decimal("1e-30")
 
     def test_convert_with_registry(self):
         """Test conversion using registry rates."""
@@ -782,6 +805,11 @@ class TestInferTemporalType:
         assert infer_temporal_type("threshold_limit") == TemporalType.PARAMETER
         assert infer_temporal_type("interest_rate") == TemporalType.PARAMETER
 
+    def test_keyword_matching_uses_tokens_not_substrings(self):
+        assert infer_temporal_type("discount_code") == TemporalType.DERIVED
+        assert infer_temporal_type("country_code") == TemporalType.DERIVED
+        assert infer_temporal_type("discount_rate") == TemporalType.PARAMETER
+
 
 # =============================================================================
 # SECTION 4: Type Coercion Tests
@@ -853,6 +881,14 @@ class TestTypeCoercion:
         result = safe_cast("3.14159", "float64")
         assert abs(result - 3.14159) < 1e-10
 
+    def test_string_to_float_supports_locale_decimal(self):
+        result = safe_cast("1.000,50", "float64")
+        assert result == 1000.5
+
+    def test_string_to_decimal_supports_scientific_notation(self):
+        result = safe_cast("1,23e3", "decimal")
+        assert result == Decimal("1.23E+3")
+
     def test_string_to_bool(self):
         """Test string to boolean conversion."""
         assert safe_cast("true", "boolean") is True
@@ -861,6 +897,10 @@ class TestTypeCoercion:
         assert safe_cast("no", "boolean") is False
         assert safe_cast("1", "boolean") is True
         assert safe_cast("0", "boolean") is False
+
+    def test_empty_string_to_bool_is_invalid(self):
+        with pytest.raises(CoercionError):
+            safe_cast("", "boolean")
 
     def test_string_to_date(self):
         """Test string to date conversion."""
@@ -875,7 +915,21 @@ class TestTypeCoercion:
     def test_string_to_datetime(self):
         """Test string to datetime conversion."""
         result = safe_cast("2024-01-15T10:30:00", "datetime")
-        assert result == datetime(2024, 1, 15, 10, 30, 0)
+        assert result == datetime(2024, 1, 15, 10, 30, 0, tzinfo=timezone.utc)
+
+    def test_unix_timestamp_to_datetime_is_utc(self):
+        result = safe_cast(0, "datetime")
+        assert result == datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+    def test_future_datetime_is_clamped_in_warn_mode(self):
+        result = TypeCoercion(policy=CoercionPolicy.WARN).coerce(
+            "2999-01-01T00:00:00Z",
+            "string",
+            "datetime",
+        )
+        assert result.success is True
+        assert result.value.tzinfo == timezone.utc
+        assert any("clock-skew tolerance" in warning for warning in result.warnings)
 
     def test_datetime_to_date_with_time(self):
         """Test datetime to date with non-zero time in strict mode."""

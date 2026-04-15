@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -18,6 +20,8 @@ class ModelProfile(BaseModel):
     base_url: str
     tags: list[str] = Field(default_factory=list)
     capabilities: list[str] = Field(default_factory=list)
+    preset_id: str | None = None
+    provider_plugins: list[dict[str, Any]] = Field(default_factory=list)
     input_cost_per_mtoken_usd: float | None = Field(default=None, ge=0.0)
     output_cost_per_mtoken_usd: float | None = Field(default=None, ge=0.0)
     enabled: bool = True

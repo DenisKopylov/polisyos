@@ -6,9 +6,8 @@ ranking sources, and determining the optimal fetch strategy.
 """
 from __future__ import annotations
 
-from datetime import datetime
-
 from polisyos.common.logger import get_logger
+from polisyos.fabric.temporal import utc_now
 from polisyos.fabric.connectors.base import FetchRequest
 from polisyos.fabric.connectors.contracts.registry import SchemaRegistry
 from polisyos.fabric.connectors.federation.ranker import SourceRanker
@@ -121,7 +120,7 @@ class FederationPlanner:
             fallback_sources=fallback_sources,
             can_parallelize=can_parallelize,
             estimated_cost_ms=estimated_cost,
-            planning_timestamp=datetime.utcnow(),
+            planning_timestamp=utc_now(),
         )
 
         logger.info(

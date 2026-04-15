@@ -60,8 +60,8 @@ def compare_historical_rows(
             notes=["manual_review_required:grain_not_derivable"],
         )
 
-    left_index = _index_rows(left_rows, key_fields)
-    right_index = _index_rows(right_rows, key_fields)
+    left_index, left_duplicates = _index_rows(left_rows, key_fields)
+    right_index, right_duplicates = _index_rows(right_rows, key_fields)
     all_keys = sorted(set(left_index) | set(right_index))
     changes: list[HistoricalSemanticRowDelta] = []
     numeric_fields = {
@@ -149,12 +149,31 @@ def compare_historical_rows(
         matched_rows / len(all_keys) if all_keys else 1.0
     )
     summary.schema_only = bool(schema_report.changes) and not changes
+    summary.duplicate_keys_left = len(left_duplicates)
+    summary.duplicate_keys_right = len(right_duplicates)
     summary.material_revision = bool(
         summary.row_added
         or summary.row_removed
         or summary.row_revised
         or summary.field_semantics_changed
     )
+    summary.manual_review_required = (
+        summary.manual_review_required
+        or bool(left_duplicates)
+        or bool(right_duplicates)
+    )
+
+    notes: list[str] = []
+    if left_duplicates:
+        notes.append(
+            "duplicate_keys:left:"
+            + ",".join(sorted(left_duplicates.keys())[:5])
+        )
+    if right_duplicates:
+        notes.append(
+            "duplicate_keys:right:"
+            + ",".join(sorted(right_duplicates.keys())[:5])
+        )
 
     return HistoricalSemanticDiffReport(
         left_schema_id=left_schema.schema_id,
@@ -164,7 +183,7 @@ def compare_historical_rows(
         key_fields=list(key_fields),
         summary=summary,
         changes=changes,
-        notes=[],
+        notes=notes,
     )
 
 
@@ -211,12 +230,20 @@ def _resolve_key_fields(left_schema: DataSchema, right_schema: DataSchema) -> tu
     return tuple(derived), False
 
 
-def _index_rows(rows: Sequence[Mapping[str, Any]], key_fields: Sequence[str]) -> dict[str, Mapping[str, Any]]:
+def _index_rows(
+    rows: Sequence[Mapping[str, Any]],
+    key_fields: Sequence[str],
+) -> tuple[dict[str, Mapping[str, Any]], dict[str, list[Mapping[str, Any]]]]:
     index: dict[str, Mapping[str, Any]] = {}
+    duplicates: dict[str, list[Mapping[str, Any]]] = {}
     for row in rows:
         row_key = _row_key(row, key_fields)
+        if row_key in index:
+            bucket = duplicates.setdefault(row_key, [index[row_key]])
+            bucket.append(row)
+            continue
         index[row_key] = row
-    return index
+    return index, duplicates
 
 
 def _row_key(row: Mapping[str, Any], key_fields: Sequence[str]) -> str:

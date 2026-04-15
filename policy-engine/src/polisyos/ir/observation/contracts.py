@@ -8,13 +8,13 @@ Use :class:`ObservationRecord` for atomic evidence rows and
 """
 from __future__ import annotations
 
-import math
 from datetime import date
 from enum import Enum
 from typing import Any
 
 from pydantic import Field, model_validator
 
+from polisyos.ir._validation import ensure_finite_numeric, ensure_interval_monotonicity
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.types import TimeFrequency
 
@@ -171,14 +171,16 @@ class ObservationRecord(KernelModel):
 
     @model_validator(mode="after")
     def validate_observation_record(self) -> "ObservationRecord":
-        if self.period_end < self.period_start:
-            raise ValueError("period_end must be >= period_start")
-        if not math.isfinite(self.observed_value):
-            raise ValueError("observed_value must be finite")
-        if not math.isfinite(self.coverage_estimate):
-            raise ValueError("coverage_estimate must be finite")
-        if not math.isfinite(self.trust_weight):
-            raise ValueError("trust_weight must be finite")
+        ensure_interval_monotonicity(
+            self.period_start,
+            self.period_end,
+            label="period",
+            start_name="period_start",
+            end_name="period_end",
+        )
+        ensure_finite_numeric(self.observed_value, field_name="observed_value")
+        ensure_finite_numeric(self.coverage_estimate, field_name="coverage_estimate")
+        ensure_finite_numeric(self.trust_weight, field_name="trust_weight")
 
         if self.identification_mode == IdentificationMode.PROXY_IDENTIFIED and not self.proxy_source_id:
             raise ValueError("proxy_source_id is required for proxy_identified observations")

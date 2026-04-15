@@ -53,15 +53,16 @@ graph LR
 
 ```bash
 git clone https://github.com/DenisKopylov/polisyos.git && cd polisyos/policy-engine
-./scripts/bootstrap
-./scripts/doctor
+python3 -m tools.cli workspace bootstrap
+python3 -m tools.cli workspace doctor
 uv run polisyos --version
 ```
 
 Contributor baseline зафиксирован как Python `3.14.x`, Node `22.x`, `uv 0.9.21` как
 канонический Python environment manager. Для fast local gate используйте
-`./scripts/verify`. Для более тяжёлой локальной проверки, близкой к CI,
-используйте `./scripts/ci-parity --skip-browser`.
+`python3 -m tools.cli workspace verify`. Для более тяжёлой локальной проверки,
+близкой к CI, используйте
+`python3 -m tools.cli workspace ci-parity --skip-browser`.
 
 The snippet below builds a trivial fiscal `ProblemFrame(problem_id="demo", domain=FISCAL)` plus one
 tax intervention, then calls Foundry `compile()` and `execute()` end to end:
@@ -102,23 +103,23 @@ print({"compiled": compiled.ok, "executed": executed.ok})
 ## Development Setup
 
 ```bash
-./scripts/bootstrap
-./scripts/doctor
-./scripts/verify --backend-only
+python3 -m tools.cli workspace bootstrap
+python3 -m tools.cli workspace doctor
+python3 -m tools.cli workspace verify --backend-only
 uv run --extra docs python -m mkdocs serve
 ```
 
 ## Contributor Command Map
 
 ```bash
-./scripts/bootstrap
-./scripts/doctor
-./scripts/verify
-./scripts/acceptance-audit
-python3 tools/architecture/guardrails.py check
-python3 tools/architecture/scaffold.py --help
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
+python3 -m tools.cli workspace bootstrap
+python3 -m tools.cli workspace doctor
+python3 -m tools.cli workspace verify
+python3 -m tools.cli workspace acceptance-audit
+uv run polisyos-tools architecture guardrails check
+uv run polisyos-tools architecture scaffold --help
+uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract
+uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ```
 
 ## If You Need to Change X, Start Here
@@ -127,13 +128,13 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --chec
 |---|---|
 | Public package facade / supported imports | `architecture/public_surface.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md` |
 | Generated contract artifact | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, then the source generator |
-| New connector | `python3 tools/architecture/scaffold.py connector --name MySource --type REST --dry-run`, `docs/connectors/CONTRIBUTING.md` |
-| New governance pass | `python3 tools/architecture/scaffold.py governance-pass --name my_pass --output ... --test-output ... --dry-run`, `docs/how-to/write-governance-pass.md` |
-| New runtime route | `python3 tools/architecture/scaffold.py runtime-route --name my_route --output ... --dry-run`, `src/polisyos/runtime/http/routes/README.md` |
-| New benchmark | `python3 tools/architecture/scaffold.py benchmark --suite causal --name my_case --output ... --dry-run`, `docs/how-to/run-benchmarks.md` |
-| New subsystem / major surface | `docs/reference/ratchet-policy.md`, `python3 tools/architecture/scaffold.py package-readme --module ... --output ... --dry-run` |
-| Repo-wide acceptance closeout | `docs/reference/operations/platform-acceptance-audit.md`, `./scripts/acceptance-audit` |
-| New ADR / runbook | `python3 tools/architecture/scaffold.py adr ...` or `python3 tools/architecture/scaffold.py runbook ...` |
+| New connector | `uv run polisyos-tools architecture scaffold connector --name MySource --type REST --dry-run`, `docs/connectors/CONTRIBUTING.md` |
+| New governance pass | `uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`, `docs/how-to/write-governance-pass.md` |
+| New runtime route | `uv run polisyos-tools architecture scaffold runtime-route --name my_route --output ... --dry-run`, `src/polisyos/runtime/http/routes/README.md` |
+| New benchmark | `uv run polisyos-tools architecture scaffold benchmark --suite causal --name my_case --output ... --dry-run`, `docs/how-to/run-benchmarks.md` |
+| New subsystem / major surface | `docs/reference/ratchet-policy.md`, `uv run polisyos-tools architecture scaffold package-readme --module ... --output ... --dry-run` |
+| Repo-wide acceptance closeout | `docs/reference/operations/platform-acceptance-audit.md`, `python3 -m tools.cli workspace acceptance-audit` |
+| New ADR / runbook | `uv run polisyos-tools architecture scaffold adr ...` or `uv run polisyos-tools architecture scaffold runbook ...` |
 
 ## Documentation
 

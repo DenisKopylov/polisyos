@@ -6,6 +6,7 @@ import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode, PreflightDiagnostic, PreflightReport
+from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
 from polisyos.scientist.autotune import (
     BenchmarkSplit,
@@ -200,6 +201,45 @@ def test_suggest_execution_plan_topology_mutations_for_removed_wrapper() -> None
     )
     assert any(
         mutation.kind is TopologyMutationKind.DROP_OPTIONAL_NODE
+        and mutation.node_id == "node_lp"
+        for mutation in mutations
+    )
+
+
+def test_suggest_execution_plan_topology_mutations_accepts_registry_provider(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    snapshot = build_method_catalog_snapshot(run_id="R_exec_autotune_provider")
+    config = ExecutionPlanSearchConfig(
+        method_dag=[
+            MethodDagNode(
+                node_id="node_lp",
+                method_fqn="optimization.resource_lp@1.0.0",
+                notes=["optional_leaf"],
+            )
+        ]
+    )
+    report = preflight_execution_plan(
+        ExecutionPlan(plan_id="plan_exec_autotune_provider", method_dag=list(config.method_dag)),
+        snapshot,
+    )
+    registry = MethodRegistry()
+
+    def _unexpected(cls, *args, **kwargs):
+        del cls, args, kwargs
+        raise AssertionError("global registry lookup should not be used")
+
+    monkeypatch.setattr(MethodRegistry, "get_instance", classmethod(_unexpected))
+
+    mutations = suggest_execution_plan_topology_mutations(
+        config,
+        preflight_report=report,
+        catalog=snapshot,
+        registry_provider=lambda: registry,
+    )
+
+    assert any(
+        mutation.kind is TopologyMutationKind.SWAP_METHOD
         and mutation.node_id == "node_lp"
         for mutation in mutations
     )

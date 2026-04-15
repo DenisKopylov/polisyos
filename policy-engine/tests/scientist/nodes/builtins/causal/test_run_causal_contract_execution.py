@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import logging
+from unittest.mock import patch
+
+import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -86,3 +89,18 @@ def test_run_causal_contract_execution_node_persists_aggregate_and_primary_refs(
     assert bundle.bounds_results[0].status == "ok"
     assert bundle.temporal_results[0].status == "ok"
     assert isinstance(outcome.state.artifacts_index[ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF], ArtifactRef)
+
+
+def test_run_causal_contract_execution_task_assertion_is_not_swallowed(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_c4b_assert")
+    state = ExperimentState(
+        run_id="R_c4b_assert",
+        params={"bounds_estimation_tasks": [{"task_id": "bounds_task"}]},
+    )
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution.BoundsEstimationTask.model_validate",
+        side_effect=AssertionError("task validator invariant"),
+    ):
+        with pytest.raises(AssertionError, match="task validator invariant"):
+            RunCausalContractExecutionNode().execute(ctx, state)

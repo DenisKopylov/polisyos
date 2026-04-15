@@ -144,6 +144,7 @@ describe("useRunDetailSummary", () => {
   it("exports stable tabs, legacy mappings, and helper builders", () => {
     expect(RUN_DETAIL_TABS).toEqual([
       "overview",
+      "causal",
       "governance",
       "evidence",
       "workflow",

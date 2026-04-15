@@ -10,7 +10,7 @@ Related reference: [Operations Reference](index.md), [Handoff and Platform Revie
 Run the repo-tracked automated portion from `policy-engine/`:
 
 ```bash
-./scripts/acceptance-audit \
+uv run polisyos-tools workspace acceptance-audit \
   --summary docs/archive/reports/platform-acceptance.md \
   --json-output docs/archive/reports/platform-acceptance.json
 ```
@@ -30,7 +30,7 @@ If you want the manual rehearsals to become blocking too, pass a filled evidence
 file:
 
 ```bash
-./scripts/acceptance-audit \
+uv run polisyos-tools workspace acceptance-audit \
   --manual-evidence /tmp/polisyos-platform-acceptance.toml \
   --require-manual-evidence \
   --summary docs/archive/reports/platform-acceptance.md
@@ -54,7 +54,7 @@ evidence = ["docs/archive/reports/platform-acceptance-manual.md"]
 
 If the local machine is not a good fit for heavyweight suites, you may rehearse
 the same path on a remote Linux runner. The repo-tracked helper lives at
-`./scripts/remote-acceptance` and keeps the acceptance semantics explicit:
+`polisyos-tools workspace remote-acceptance` and keeps the acceptance semantics explicit:
 iterate in an rsynced worktree, then record the final evidence from a committed
 clean checkout. The provisioned remote toolchain exports
 `POLISYOS_PYTEST_WORKERS=auto`, so the backend fast gate saturates the remote
@@ -66,10 +66,10 @@ Phase 7 closes the loop between setup, role onboarding, and platform policy:
 
 1. Confirm the host surface in [Environment Matrix](../environment-matrix.md).
 2. Run the canonical install path from [Installation](../../how-to/install.md):
-   `./scripts/bootstrap` -> `./scripts/doctor`.
+   `polisyos-tools workspace bootstrap` -> `polisyos-tools workspace doctor`.
 3. Pick the nearest role track from [Onboarding Tracks](../../how-to/onboarding/index.md).
-4. Run the scoped contributor gate with `./scripts/verify`.
-5. For cross-platform changes, finish with `./scripts/acceptance-audit`.
+4. Run the scoped contributor gate with `polisyos-tools workspace verify`.
+5. For cross-platform changes, finish with `polisyos-tools workspace acceptance-audit`.
 
 The platform is not considered integrated if any of those steps require chat
 archaeology or contradictory docs.
@@ -81,7 +81,7 @@ manual evidence TOML:
 
 | Evidence key | What to exercise | Minimum expectation |
 |---|---|---|
-| `clean_machine_bootstrap` | Fresh clone on a clean machine | `./scripts/bootstrap`, `./scripts/doctor`, `./scripts/verify` complete without ad hoc fixes |
+| `clean_machine_bootstrap` | Fresh clone on a clean machine | `polisyos-tools workspace bootstrap`, `polisyos-tools workspace doctor`, `polisyos-tools workspace verify` complete without ad hoc fixes |
 | `backend_walkthrough` | Backend contributor path | Follow `docs/how-to/onboarding/backend-engineer.md` and verify the backend-only fast gate |
 | `frontend_walkthrough` | Frontend contributor path | Follow `docs/how-to/onboarding/frontend-engineer.md` and verify the frontend-only fast gate |
 | `platform_walkthrough` | Platform contributor path | Follow `docs/how-to/onboarding/platform-ops-engineer.md` and exercise bootstrap / doctor / verify / observability entry points |

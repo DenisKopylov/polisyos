@@ -6,8 +6,17 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.errors import ErrorCategory, PolicyOSError
+
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import ArtifactStore
+
+
+class ReplayDiffInputError(PolicyOSError):
+    """Raised when replay diff inputs are missing or structurally invalid."""
+
+    default_stage = "scientist.replay.diff"
+    default_category = ErrorCategory.VALIDATION
 
 
 class DiffToleranceConfig(BaseModel):
@@ -67,6 +76,7 @@ def compute_replay_diff(
     Numbers use rtol/atol, strings use Levenshtein ratio.
     Lists of numbers can use KS-test for distribution comparison.
     """
+    _validate_diff_inputs(original=original, replayed=replayed)
     cfg = config or DiffToleranceConfig()
     diffs: list[FieldDiff] = []
 
@@ -90,6 +100,23 @@ def compute_replay_diff(
         structural_match=structural,
         tolerance_config=cfg,
     )
+
+
+def _validate_diff_inputs(
+    *,
+    original: dict[str, Any],
+    replayed: dict[str, Any],
+) -> None:
+    if not isinstance(original, dict) or not original:
+        raise ReplayDiffInputError(
+            "original replay payload must be a non-empty object",
+            code="empty_original",
+        )
+    if not isinstance(replayed, dict) or not replayed:
+        raise ReplayDiffInputError(
+            "replayed payload must be a non-empty object",
+            code="empty_replayed",
+        )
 
 
 def _compare_recursive(
@@ -259,7 +286,7 @@ def _compare_list_by_key(
             b_index[item[key_field]] = item
 
     matched_b_keys: set[Any] = set()
-    for i, item_a in enumerate(a):
+    for item_a in a:
         if not isinstance(item_a, dict) or key_field not in item_a:
             continue
         key_val = item_a[key_field]
@@ -362,14 +389,25 @@ def _string_similarity(a: str, b: str) -> float:
         return 0.0
     # Simple ratio based on longest common subsequence length
     max_len = max(len(a), len(b))
-    common = sum(1 for ca, cb in zip(a, b) if ca == cb)
+    common = sum(1 for ca, cb in zip(a, b, strict=False) if ca == cb)
     return common / max_len
 
 
 def _is_timestamp_field(path: str) -> bool:
     """Heuristic: detect timestamp-like field names."""
     lower = path.lower().rsplit(".", 1)[-1] if "." in path else path.lower()
-    return any(kw in lower for kw in ("timestamp", "created_at", "updated_at", "started_at", "ended_at", "_at", "_time"))
+    return any(
+        kw in lower
+        for kw in (
+            "timestamp",
+            "created_at",
+            "updated_at",
+            "started_at",
+            "ended_at",
+            "_at",
+            "_time",
+        )
+    )
 
 
 # ---------------------------------------------------------------------------

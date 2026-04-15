@@ -33,6 +33,7 @@ bundle manifests that Scientist and Foundry exchange.
 | Module | Focus | Top-level IR exports |
 |--------|-------|----------------------|
 | `polisyos.ir.observation.contracts` | Core record and panel contracts | `ObservationFamily`, `EntityScope`, `IdentificationMode`, `ObservationRecord`, `ObservationPanel` |
+| `polisyos.ir.observation.bridges` | External data-standard bridge contracts | `SdmxObservationBridge`, `DdiVariableBridge`, `FhirObservationBridge`, `CdiscDatasetBridge` |
 | `polisyos.ir.observation.governance` | Family-level governance defaults and alias registries | `GovernancePassAlias*`, `ObservationFamilyPolicy*`, `GovernancePassMappingRegistry` |
 | `polisyos.ir.observation.measurement` | Measurement-aware trust tiers, calendars, and routing | `MeasurementRegistry`, `MeasurementTrustTier`, `RegimeCalendar`, `SchemaRegimeRegistry`, `IdentificationModeRouter` |
 | `polisyos.ir.observation.bundles` | Persisted manifests and contract bundles | `BacktestPlanBundle`, `BoundsEstimationBundle`, `CausalPanelBundleManifest`, `StrategicResponseSpecsBundle`, `GovernancePassMappingBundle` |
@@ -44,6 +45,10 @@ bundle manifests that Scientist and Foundry exchange.
 ## Core Contracts
 
 ::: polisyos.ir.observation.contracts
+
+## Standards Bridges
+
+::: polisyos.ir.observation.bridges
 
 ## Governance And Family Policies
 

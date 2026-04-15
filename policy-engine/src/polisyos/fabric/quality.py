@@ -5,13 +5,48 @@ from dataclasses import dataclass, field, replace
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
 from polisyos.common.logger import get_logger
+from polisyos.core.observability import get_metrics
+from polisyos.fabric.finite import (
+    ensure_non_negative_finite,
+    ensure_probability,
+    is_finite_number,
+)
+from polisyos.fabric.safety import quote_sql_identifier, validate_sql_identifier
+from polisyos.fabric.temporal import parse_datetime_utc, utc_age, utc_now
 
 logger = get_logger(__name__)
+
+if TYPE_CHECKING:
+    from polisyos.fabric.connectors.quality.report import DataQualityReport
+
+
+def _compute_staleness_days(last_updated: datetime | None, *, context: str) -> int:
+    if last_updated is None:
+        return 0
+    age, warning = utc_age(
+        last_updated,
+        what=context,
+        clamp_future=True,
+    )
+    if warning:
+        logger.warning("Clamped future timestamp during quality calculation: %s", warning)
+    return max(int(age.total_seconds() // 86400), 0)
+
+
+def _quality_score_from_indicators(indicators: "QualityIndicators") -> float:
+    level = indicators.overall_level()
+    return {
+        QualityLevel.EXCELLENT: 1.0,
+        QualityLevel.GOOD: 0.8,
+        QualityLevel.ACCEPTABLE: 0.6,
+        QualityLevel.POOR: 0.3,
+        QualityLevel.UNUSABLE: 0.0,
+    }[level]
 
 
 @total_ordering
@@ -70,6 +105,31 @@ class QualityThresholds:
     min_row_count: int = 10
     schema_drift_penalty: int = 2
     outlier_ratio_warning: float = 0.05
+
+    def __post_init__(self) -> None:
+        probability_fields = (
+            "missingness_excellent",
+            "missingness_good",
+            "missingness_acceptable",
+            "missingness_poor",
+            "coverage_excellent",
+            "coverage_good",
+            "coverage_acceptable",
+            "coverage_poor",
+            "outlier_ratio_warning",
+        )
+        for field_name in probability_fields:
+            ensure_probability(getattr(self, field_name), what=f"threshold {field_name}")
+        for field_name in (
+            "staleness_excellent",
+            "staleness_good",
+            "staleness_acceptable",
+            "staleness_poor",
+            "min_row_count",
+            "schema_drift_penalty",
+        ):
+            if getattr(self, field_name) < 0:
+                raise ValueError(f"{field_name} must be >= 0")
 
     @classmethod
     def for_profile(cls, profile_level: str | Enum | None) -> "QualityThresholds":
@@ -137,8 +197,17 @@ class QualityIndicators:
     row_count: int
     schema_drift: bool = False
     outlier_ratio: float = 0.0
-    computed_at: datetime = field(default_factory=datetime.utcnow)
+    computed_at: datetime = field(default_factory=utc_now)
     computation_method: str = "pandas"
+
+    def __post_init__(self) -> None:
+        self.missingness = ensure_probability(self.missingness, what="missingness")
+        self.coverage = ensure_probability(self.coverage, what="coverage")
+        self.outlier_ratio = ensure_probability(self.outlier_ratio, what="outlier_ratio")
+        if self.staleness_days < 0:
+            raise ValueError("staleness_days must be >= 0")
+        if self.row_count < 0:
+            raise ValueError("row_count must be >= 0")
 
     def overall_level(
         self,
@@ -254,13 +323,25 @@ class QualityIndicators:
         elif report.freshness_status.cache_age_seconds:
             staleness_days = report.freshness_status.cache_age_seconds // 86400
 
-        missingness = max(0.0, min(1.0, 1.0 - report.completeness_score))
+        missingness = ensure_probability(
+            1.0 - ensure_probability(
+                report.completeness_score,
+                what="report completeness_score",
+            ),
+            what="report missingness",
+            clamp=True,
+        )
 
         coverage = 1.0
         schema_drift = False
 
         outlier_ratio = 0.0
-        if report.violations:
+        if getattr(report, "anomaly_report", None) is not None:
+            outlier_ratio = min(
+                1.0,
+                float(report.anomaly_report.overall_anomaly_rate),
+            )
+        elif report.violations:
             bounds_violations = [
                 v
                 for v in report.violations
@@ -300,9 +381,9 @@ class QualityIndicators:
         """Deserialize from JSON storage."""
         computed_at = data.get("computed_at")
         if computed_at:
-            parsed_time = datetime.fromisoformat(computed_at)
+            parsed_time = parse_datetime_utc(computed_at, what="quality computed_at")
         else:
-            parsed_time = datetime.utcnow()
+            parsed_time = utc_now()
         return cls(
             metric_id=data["metric_id"],
             missingness=float(data["missingness"]),
@@ -342,10 +423,20 @@ def compute_quality_indicators(
     if last_updated is None:
         staleness_days = 0
     else:
-        staleness_days = (datetime.utcnow() - last_updated).days
+        staleness_days = _compute_staleness_days(
+            last_updated,
+            context=f"{metric_id} last_updated",
+        )
 
-    if expected_row_count is not None and expected_row_count > 0:
-        coverage = min(1.0, row_count / expected_row_count)
+    if expected_row_count is not None:
+        expected_rows = ensure_non_negative_finite(
+            expected_row_count,
+            what="expected_row_count",
+        )
+    else:
+        expected_rows = 0.0
+    if expected_rows > 0:
+        coverage = min(1.0, row_count / expected_rows)
     else:
         coverage = 1.0
 
@@ -360,10 +451,13 @@ def compute_quality_indicators(
         total_numeric_values = 0
         for col in numeric_cols:
             values = df[col].dropna()
+            values = values[values.map(is_finite_number)]
             if len(values) > 4:
                 q1 = values.quantile(0.25)
                 q3 = values.quantile(0.75)
                 iqr = q3 - q1
+                if not all(is_finite_number(value) for value in (q1, q3, iqr)):
+                    continue
                 lower = q1 - 1.5 * iqr
                 upper = q3 + 1.5 * iqr
                 outlier_count += int(((values < lower) | (values > upper)).sum())
@@ -371,7 +465,7 @@ def compute_quality_indicators(
         if total_numeric_values > 0:
             outlier_ratio = outlier_count / total_numeric_values
 
-    return QualityIndicators(
+    indicators = QualityIndicators(
         metric_id=metric_id,
         missingness=missingness,
         staleness_days=staleness_days,
@@ -381,6 +475,13 @@ def compute_quality_indicators(
         outlier_ratio=outlier_ratio,
         computation_method="pandas",
     )
+    metrics = get_metrics()
+    if getattr(metrics, "record_fabric_quality_score", None):
+        metrics.record_fabric_quality_score(
+            metric_id=metric_id,
+            score=_quality_score_from_indicators(indicators),
+        )
+    return indicators
 
 
 def compute_quality_from_duckdb(
@@ -396,20 +497,33 @@ def compute_quality_from_duckdb(
     """
     import duckdb
 
-
+    safe_table_name = quote_sql_identifier(
+        table_name,
+        what="DuckDB table",
+        allow_dotted=True,
+    )
     conn = duckdb.connect(db_path, read_only=True)
     try:
-        row_count = conn.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
+        row_count_query = "SELECT COUNT(*) FROM " + safe_table_name
+        row_count = conn.execute(row_count_query).fetchone()[0]
 
-        columns_info = conn.execute(f"DESCRIBE {table_name}").fetchall()
-        column_names = [col[0] for col in columns_info]
+        columns_info = conn.execute(f"DESCRIBE {safe_table_name}").fetchall()
+        column_names = [
+            validate_sql_identifier(str(col[0]), what="DuckDB column")
+            for col in columns_info
+        ]
+        quoted_columns = [
+            quote_sql_identifier(column_name, what="DuckDB column")
+            for column_name in column_names
+        ]
 
         if row_count > 0 and len(column_names) > 0:
             null_checks = " + ".join(
-                [f"CASE WHEN {col} IS NULL THEN 1 ELSE 0 END" for col in column_names]
+                [f"CASE WHEN {col} IS NULL THEN 1 ELSE 0 END" for col in quoted_columns]
             )
+            null_count_query = "SELECT SUM(" + null_checks + ") FROM " + safe_table_name
             total_nulls = (
-                conn.execute(f"SELECT SUM({null_checks}) FROM {table_name}")
+                conn.execute(null_count_query)
                 .fetchone()[0]
                 or 0
             )
@@ -418,17 +532,24 @@ def compute_quality_from_duckdb(
         else:
             missingness = 1.0
 
-        if last_updated is not None:
-            staleness_days = (datetime.utcnow() - last_updated).days
-        else:
-            staleness_days = 0
+        staleness_days = _compute_staleness_days(
+            last_updated,
+            context=f"{metric_id} last_updated",
+        )
 
-        if expected_row_count is not None and expected_row_count > 0:
-            coverage = min(1.0, row_count / expected_row_count)
+        if expected_row_count is not None:
+            expected_rows = ensure_non_negative_finite(
+                expected_row_count,
+                what="expected_row_count",
+            )
+        else:
+            expected_rows = 0.0
+        if expected_rows > 0:
+            coverage = min(1.0, row_count / expected_rows)
         else:
             coverage = 1.0
 
-        return QualityIndicators(
+        indicators = QualityIndicators(
             metric_id=metric_id,
             missingness=float(missingness),
             staleness_days=staleness_days,
@@ -438,6 +559,13 @@ def compute_quality_from_duckdb(
             outlier_ratio=0.0,
             computation_method="duckdb",
         )
+        metrics = get_metrics()
+        if getattr(metrics, "record_fabric_quality_score", None):
+            metrics.record_fabric_quality_score(
+                metric_id=metric_id,
+                score=_quality_score_from_indicators(indicators),
+            )
+        return indicators
     finally:
         conn.close()
 

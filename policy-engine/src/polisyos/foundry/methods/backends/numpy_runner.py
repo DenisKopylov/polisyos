@@ -10,6 +10,7 @@ import numpy as np
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
     capture_versions,
     runtime_stack_for,
 )
@@ -77,6 +78,12 @@ class NumpyRunner(MethodRunner):
             base_packages=("numpy", "scipy", "statsmodels", "pandas"),
             runtime_stack=runtime_stack,
         )
+        posture = capture_backend_runtime_fingerprint(
+            ComputeBackend.NUMPY,
+            method_class=method_class,
+            seed=seed,
+            extra_versions=versions,
+        )
         fp_payload = {
             "backend": ComputeBackend.NUMPY.value,
             "seed": seed,
@@ -102,8 +109,9 @@ class NumpyRunner(MethodRunner):
                 note=(
                     "Statistical reproducibility within fixed dependency versions and seed."
                     if determinism_tier is DeterminismTier.STATISTICAL
-                    else "Deterministic within fixed dependency versions and seed."
+                    else posture.replay_semantics
                 ),
             ),
             slot_outputs=slot_outputs,
+            artifacts={"backend_runtime_fingerprint": posture.as_dict()},
         )

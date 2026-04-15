@@ -5,7 +5,7 @@ Method Execution Profiler for Foundry.
 
 - Wall-clock time (ms)
 - Peak memory (MB) via ``tracemalloc``
-- Number of JIT compilations (JAX only — detected by ``jax.monitoring``)
+- Number of JIT compilations when a supported JAX cache signal is available
 - Input and output array shapes
 
 The profiler is **non-invasive**: it never modifies the method or the
@@ -70,6 +70,8 @@ class MethodExecutionProfile:
         Peak additional memory allocated during the call (MB).
     n_jit_compilations:
         Number of JAX XLA compilations triggered (0 for non-JAX methods).
+    jit_signal_supported:
+        Whether JIT compilation counts are backed by a supported runtime signal.
     input_shapes:
         Mapping of input key → shape tuple for array inputs.
     output_shapes:
@@ -80,6 +82,7 @@ class MethodExecutionProfile:
     wall_time_ms: float
     peak_memory_mb: float
     n_jit_compilations: int = 0
+    jit_signal_supported: bool = False
     input_shapes: dict[str, tuple[int, ...]] = field(default_factory=dict)
     output_shapes: dict[str, tuple[int, ...]] = field(default_factory=dict)
 
@@ -95,7 +98,11 @@ class MethodExecutionProfile:
             f"| FQN | `{self.fqn}` |",
             f"| Wall time | {self.wall_time_ms:.2f} ms |",
             f"| Peak memory | {self.peak_memory_mb:.2f} MB |",
-            f"| JIT compilations | {self.n_jit_compilations} |",
+            (
+                f"| JIT compilations | {self.n_jit_compilations} |"
+                if self.jit_signal_supported
+                else f"| JIT compilations | unsupported ({self.n_jit_compilations}) |"
+            ),
         ]
         if self.input_shapes:
             shapes_str = ", ".join(f"{k}:{v}" for k, v in self.input_shapes.items())
@@ -193,7 +200,7 @@ class MethodProfiler:
         fqn = getattr(getattr(method_class, "signature", None), "fqn", method_class.__name__)
         input_shapes = _extract_shapes(state)
 
-        jit_before = _count_jax_compilations()
+        jit_before, jit_supported = _count_jax_compilations(method_class.pure_step)
 
         if self._tracemalloc:
             tracemalloc.start()
@@ -208,8 +215,8 @@ class MethodProfiler:
             tracemalloc.stop()
             peak_mb = peak_bytes / (1024 * 1024)
 
-        jit_after = _count_jax_compilations()
-        n_jit = max(0, jit_after - jit_before)
+        jit_after, _ = _count_jax_compilations(method_class.pure_step)
+        n_jit = max(0, jit_after - jit_before) if jit_supported else 0
 
         output_shapes = _extract_shapes(result) if isinstance(result, dict) else {}
 
@@ -218,6 +225,7 @@ class MethodProfiler:
             wall_time_ms=elapsed_ms,
             peak_memory_mb=peak_mb,
             n_jit_compilations=n_jit,
+            jit_signal_supported=jit_supported,
             input_shapes=input_shapes,
             output_shapes=output_shapes,
         )
@@ -253,17 +261,16 @@ def _extract_shapes(data: dict[str, Any]) -> dict[str, tuple[int, ...]]:
     return shapes
 
 
-def _count_jax_compilations() -> int:
+def _count_jax_compilations(callable_obj: Any) -> tuple[int, bool]:
     """
-    Return current JAX XLA compilation count.
+    Return current JAX compilation cache size for a callable.
 
-    Returns 0 if JAX is not installed or the counter is not accessible.
+    Returns ``(0, False)`` when no supported signal is available.
     """
     try:
-        import jax._src.monitoring as jax_monitoring  # type: ignore[import]
-        counter = jax_monitoring._event_counts.get(
-            "/jax/jit/compile_time_saved/num_traces_from_compilation", 0
-        )
-        return int(counter)
+        cache_size = getattr(callable_obj, "_cache_size", None)
+        if callable(cache_size):
+            return int(cache_size()), True
     except Exception:
-        return 0
+        pass
+    return 0, False

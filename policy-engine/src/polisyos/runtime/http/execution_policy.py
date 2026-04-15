@@ -6,7 +6,7 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, cast
 
 from polisyos.core.contracts.control import ExecutionProfile, PolicyFlags
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
@@ -172,7 +172,7 @@ class RuntimeExecutionPolicyResolver:
                 "invalid_execution_profile",
                 f"Unsupported execution profile: {value!r}",
             )
-        return normalized  # type: ignore[return-value]
+        return cast(ExecutionProfile, normalized)
 
     @classmethod
     def _profile_rank(cls, value: str | ExecutionProfile) -> int:

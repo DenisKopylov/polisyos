@@ -242,6 +242,19 @@ class TestSafeExpressionEvaluator:
             "has_budget_data and budget_deficit_pct <= 3.0"
         ) is True
 
+    def test_mixed_chained_comparison(self, context: dict) -> None:
+        evaluator = SafeExpressionEvaluator(context)
+        assert evaluator.evaluate("0 < z < y <= x") is True
+
+    def test_ast_cache_is_bounded(self, context: dict) -> None:
+        evaluator = SafeExpressionEvaluator(context, cache_maxsize=2)
+
+        evaluator.evaluate("x > 1")
+        evaluator.evaluate("y > 1")
+        evaluator.evaluate("z > 1")
+
+        assert len(evaluator._ast_cache) == 2  # noqa: SLF001 - cache policy regression test
+
 
 class TestEdgeCases:
     """Test error handling and edge cases."""

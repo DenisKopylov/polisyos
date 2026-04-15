@@ -1,9 +1,13 @@
 """Transform persisted trace JSONL into stable timeline API responses."""
 from __future__ import annotations
 
+import threading
+import time
+from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.runtime import (
@@ -24,8 +28,36 @@ class TimelineBuildResult:
     timeline: RunTimelineView
 
 
+@dataclass(frozen=True)
+class _TimelineCacheKey:
+    """File identity used to avoid rescanning unchanged JSONL traces."""
+
+    path: Path
+    mtime_ns: int
+    size: int
+
+
+@dataclass(frozen=True)
+class _TimelineCacheEntry:
+    """Cached timeline projection for one stable trace file version."""
+
+    result: TimelineBuildResult
+    built_at: float
+
+
 class TimelineService:
     """Read trace JSONL files and summarize node/event timing for one run."""
+    def __init__(
+        self,
+        *,
+        cache_max_entries: int = 128,
+        metrics: Any | None = None,
+    ) -> None:
+        self._cache_max_entries = max(int(cache_max_entries), 1)
+        self._metrics = metrics
+        self._cache: OrderedDict[_TimelineCacheKey, _TimelineCacheEntry] = OrderedDict()
+        self._lock = threading.RLock()
+
     def build_for_run(self, run: IndexedRunRecord) -> TimelineBuildResult:
         """Build a chronological timeline view for one indexed run.
 
@@ -43,6 +75,23 @@ class TimelineService:
             )
             return TimelineBuildResult(timeline=timeline)
 
+        cache_key = _timeline_cache_key(run.trace_path)
+        if cache_key is None:
+            timeline = RunTimelineView(
+                run_id=run.run_id,
+                source_kind=run.source_kind,
+                summary=RunTimelineSummary(run_id=run.run_id),
+                events=[],
+                notes=["trace_not_available_for_run_source"],
+            )
+            return TimelineBuildResult(timeline=timeline)
+
+        cached = self._get_cached_timeline(cache_key)
+        if cached is not None:
+            self._record_cache_event(operation="build", outcome="cache_hit")
+            return cached
+
+        self._record_cache_event(operation="build", outcome="cache_miss")
         events = _load_trace_events(run.trace_path)
         summary = _summarize_timeline(
             run.run_id,
@@ -56,7 +105,54 @@ class TimelineService:
             events=events,
             notes=[],
         )
-        return TimelineBuildResult(timeline=timeline)
+        result = TimelineBuildResult(timeline=timeline)
+        self._put_cached_timeline(cache_key, result)
+        return result
+
+    def _get_cached_timeline(self, key: _TimelineCacheKey) -> TimelineBuildResult | None:
+        with self._lock:
+            cached = self._cache.get(key)
+            if cached is None:
+                return None
+            self._cache.move_to_end(key)
+            self._record_cache_staleness(time.monotonic() - cached.built_at)
+            return cached.result
+
+    def _put_cached_timeline(self, key: _TimelineCacheKey, result: TimelineBuildResult) -> None:
+        with self._lock:
+            self._cache[key] = _TimelineCacheEntry(result=result, built_at=time.monotonic())
+            self._cache.move_to_end(key)
+            while len(self._cache) > self._cache_max_entries:
+                self._cache.popitem(last=False)
+                self._record_cache_event(operation="evict", outcome="capacity")
+            self._record_cache_rebuild(item_count=len(self._cache))
+
+    def _record_cache_event(self, *, operation: str, outcome: str) -> None:
+        recorder = getattr(self._metrics, "record_runtime_cache_event", None)
+        if callable(recorder):
+            recorder(cache_name="timeline_index", operation=operation, outcome=outcome)
+
+    def _record_cache_rebuild(self, *, item_count: int) -> None:
+        recorder = getattr(self._metrics, "record_runtime_cache_rebuild", None)
+        if callable(recorder):
+            recorder(cache_name="timeline_index", duration_seconds=0.0, item_count=item_count)
+
+    def _record_cache_staleness(self, staleness_seconds: float) -> None:
+        recorder = getattr(self._metrics, "set_runtime_cache_staleness", None)
+        if callable(recorder):
+            recorder(cache_name="timeline_index", staleness_seconds=staleness_seconds)
+
+
+def _timeline_cache_key(path: Path) -> _TimelineCacheKey | None:
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return None
+    return _TimelineCacheKey(
+        path=path.resolve(),
+        mtime_ns=int(stat.st_mtime_ns),
+        size=int(stat.st_size),
+    )
 
 
 def _load_trace_events(path: Path) -> list[RunTimelineEvent]:

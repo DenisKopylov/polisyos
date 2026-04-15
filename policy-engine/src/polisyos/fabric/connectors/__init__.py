@@ -62,6 +62,17 @@ from polisyos.fabric.connectors.discovery import (
     discover_connectors_from_modules,
     get_discovery_errors,
 )
+from polisyos.fabric.connectors.family_contracts import (
+    API_PROTOCOL_CONNECTOR_CONTRACT,
+    CONNECTOR_FAMILY_CONTRACTS,
+    DATABASE_CONNECTOR_CONTRACT,
+    FILE_CONNECTOR_CONTRACT,
+    OBJECT_STORAGE_CONNECTOR_CONTRACT,
+    SPATIAL_CONNECTOR_CONTRACT,
+    STREAM_CONNECTOR_CONTRACT,
+    ConnectorFamilyContract,
+    contract_for_family,
+)
 
 # Connection Pooling (Phase 2.2)
 from polisyos.fabric.connectors.pool import (
@@ -221,6 +232,16 @@ __all__ = [
     "discover_connectors",
     "discover_connectors_from_modules",
     "get_discovery_errors",
+    # === Family contracts (WS-5B) ===
+    "ConnectorFamilyContract",
+    "FILE_CONNECTOR_CONTRACT",
+    "OBJECT_STORAGE_CONNECTOR_CONTRACT",
+    "DATABASE_CONNECTOR_CONTRACT",
+    "API_PROTOCOL_CONNECTOR_CONTRACT",
+    "SPATIAL_CONNECTOR_CONTRACT",
+    "STREAM_CONNECTOR_CONTRACT",
+    "CONNECTOR_FAMILY_CONTRACTS",
+    "contract_for_family",
     # === Caching Layer (Phase 2.7) ===
     "ConnectorCacheStore",
     "CachingConnectorProxy",

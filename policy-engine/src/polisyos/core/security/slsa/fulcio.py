@@ -1,8 +1,6 @@
 """Public slsa fulcio module API."""
 from __future__ import annotations
 
-import base64
-import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Protocol
@@ -100,10 +98,10 @@ class FulcioClient:
             ).PublicFormat.SubjectPublicKeyInfo,
         )
         oidc_token = self._oidc.get_token()
+        claims = self._load_verified_oidc_claims(oidc_token)
 
         certs = self._request_fulcio_chain(public_key_pem=public_key_pem, oidc_token=oidc_token)
         signature = private_key.sign(payload, ECDSA(hashes.SHA256()))
-        claims = _decode_oidc_claims_unverified(oidc_token)
 
         certificate_pem = certs[0] if certs else ""
         chain = certs[1:] if len(certs) > 1 else []
@@ -118,6 +116,55 @@ class FulcioClient:
             oidc_subject=str(claims.get("sub") or self._config.oidc_subject_fallback),
             signed_at=_utc_now_iso(),
         )
+
+    def _load_verified_oidc_claims(self, oidc_token: str) -> dict[str, object]:
+        issuer = self._config.oidc_issuer.strip()
+        audience = self._config.oidc_client_id.strip()
+        if not issuer:
+            raise RuntimeError("Fulcio keyless signing requires POLISYOS_SLSA_OIDC_ISSUER")
+        if not audience:
+            raise RuntimeError("Fulcio keyless signing requires POLISYOS_SLSA_OIDC_CLIENT_ID")
+
+        try:
+            import jwt as pyjwt
+        except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency
+            raise RuntimeError("PyJWT is required for Fulcio OIDC token validation") from exc
+
+        jwks_client = pyjwt.PyJWKClient(
+            self._discover_oidc_jwks_uri(issuer),
+            cache_jwk_set=True,
+            lifespan=max(60, int(self._config.timeout_seconds * 10)),
+        )
+        try:
+            signing_key = jwks_client.get_signing_key_from_jwt(oidc_token)
+            payload = pyjwt.decode(
+                oidc_token,
+                signing_key.key,
+                algorithms=["RS256", "ES256", "EdDSA"],
+                audience=audience,
+                issuer=issuer,
+                options={"require": ["exp", "iat", "iss", "aud", "sub"]},
+            )
+        except pyjwt.ExpiredSignatureError as exc:
+            raise RuntimeError("OIDC token expired") from exc
+        except pyjwt.InvalidTokenError as exc:
+            raise RuntimeError(f"OIDC token validation failed: {exc}") from exc
+
+        if not isinstance(payload, dict):
+            raise RuntimeError("OIDC token payload must be a JSON object")
+        return payload
+
+    def _discover_oidc_jwks_uri(self, issuer: str) -> str:
+        response = httpx.get(
+            f"{issuer.rstrip('/')}/.well-known/openid-configuration",
+            timeout=self._config.timeout_seconds,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        jwks_uri = payload.get("jwks_uri")
+        if not isinstance(jwks_uri, str) or not jwks_uri.strip():
+            raise RuntimeError("OIDC discovery document does not include jwks_uri")
+        return jwks_uri.strip()
 
     def _request_fulcio_chain(self, *, public_key_pem: bytes, oidc_token: str) -> list[str]:
         response = httpx.post(
@@ -176,25 +223,6 @@ class FulcioClient:
             .sign(private_key=private_key, algorithm=hashes.SHA256())
         )
         return cert.public_bytes(Encoding.PEM)
-
-
-
-def _decode_oidc_claims_unverified(token: str) -> dict[str, object]:
-    parts = token.split(".")
-    if len(parts) != 3:
-        return {}
-    payload = parts[1]
-    payload += "=" * (-len(payload) % 4)
-    try:
-        decoded = base64.urlsafe_b64decode(payload.encode("utf-8")).decode("utf-8")
-        data = json.loads(decoded)
-        if isinstance(data, dict):
-            return data
-    except (UnicodeDecodeError, ValueError, TypeError):
-        return {}
-    return {}
-
-
 
 def _to_pem_if_needed(value: str) -> str:
     if "BEGIN CERTIFICATE" in value:

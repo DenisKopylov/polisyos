@@ -1,6 +1,7 @@
 """Bridge component-registry entries into lazy Foundry method registrations."""
 from __future__ import annotations
 
+import threading
 from dataclasses import dataclass, field
 
 from polisyos.core.components import ComponentKind, ComponentRegistry, HostAbi, validate_metadata
@@ -10,6 +11,7 @@ from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.resolution import ResolutionPolicy
 
 FOUNDRY_METHODS_API_VERSION = "3.5.0"
+_BOOTSTRAP_LOCK = threading.RLock()
 
 
 @dataclass(slots=True)
@@ -33,10 +35,13 @@ def bootstrap_method_registry_from_components(
     *,
     resolution_policy: ResolutionPolicy = ResolutionPolicy.LATEST,
     allow_dev_overrides: bool = True,
+    mutate_registry_default_policy: bool = False,
 ) -> ComponentsBridgeReport:
     """Load component-backed methods before discovery, snapshots, or CLI catalog listing."""
     method_registry = registry or MethodRegistry.get_instance()
-    method_registry.set_default_policy(resolution_policy)
+    if mutate_registry_default_policy:
+        with _BOOTSTRAP_LOCK:
+            method_registry.set_default_policy(resolution_policy)
 
     report = ComponentsBridgeReport()
     entries = components_index.query(kind=ComponentKind.FOUNDRY_METHOD)
@@ -84,7 +89,11 @@ def bootstrap_method_registry_from_components(
             continue
 
         signature = _extract_signature(method_cls)
-        metadata = _merge_metadata(method_cls=method_cls, component_tags=entry.metadata.tags, domains=entry.metadata.domains)
+        metadata = _merge_metadata(
+            method_cls=method_cls,
+            component_tags=entry.metadata.tags,
+            domains=entry.metadata.domains,
+        )
 
         if signature.fqn != component_id:
             report.errors.append(
@@ -97,15 +106,20 @@ def bootstrap_method_registry_from_components(
             )
             continue
 
-        override = allow_dev_overrides and str(getattr(entry.source, "source_type", "")) == "dev_scan"
+        override = (
+            allow_dev_overrides
+            and str(getattr(entry.source, "source_type", "")) == "dev_scan"
+        )
 
         try:
-            method_registry.register_lazy(
-                signature=signature,
-                metadata=metadata,
-                factory=lambda cls=method_cls: cls,
-                override=override,
-            )
+            with _BOOTSTRAP_LOCK:
+                method_registry.register_lazy(
+                    signature=signature,
+                    metadata=metadata,
+                    factory=lambda cls=method_cls: cls,
+                    override=override,
+                    import_target=(method_cls.__module__, method_cls.__qualname__),
+                )
             report.registered.append(signature.fqn)
         except Exception as exc:
             message = str(exc)

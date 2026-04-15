@@ -35,7 +35,11 @@ from benchmarks.comparators import (  # noqa: E402
     execute_comparator_suite,
 )
 from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkHarness  # noqa: E402
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import (  # noqa: E402
     BenchmarkMode,
     BenchmarkTier,
@@ -53,6 +57,26 @@ from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry  # no
 class SuitePreflightFailure(RuntimeError):
     """Raised when a suite cannot satisfy its validation prerequisites."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        preflight: dict[str, Any] | None = None,
+        overall_status: str = "error",
+        exit_code: int = 2,
+    ) -> None:
+        super().__init__(message)
+        self.preflight = preflight
+        self.overall_status = overall_status
+        self.exit_code = exit_code
+
+
+class SuiteSkipped(SuitePreflightFailure):
+    """Raised when a suite should be marked skipped instead of failed."""
+
+    def __init__(self, message: str, *, preflight: dict[str, Any] | None = None) -> None:
+        super().__init__(message, preflight=preflight, overall_status="skipped", exit_code=0)
+
 
 def main_for_suite(
     suite_id: str,
@@ -69,14 +93,24 @@ def main_for_suite(
     try:
         payload = build_suite_payload(suite_id, args.mode, quiet=args.quiet)
     except SuitePreflightFailure as exc:
-        print(str(exc))
-        return 2
+        payload = _suite_state_payload(
+            suite_id,
+            mode=args.mode,
+            overall_status=exc.overall_status,
+            reason=str(exc),
+            preflight=exc.preflight,
+        )
 
     output = json.dumps(payload, indent=2, sort_keys=True)
     if args.json:
         Path(args.json).write_text(output + "\n", encoding="utf-8")
     if not args.quiet:
         print(output)
+    status = str(payload.get("overall_status") or "").strip().lower()
+    if status == "error":
+        return 2
+    if status == "failed":
+        return 1
     blockers = payload.get("blockers", [])
     return 1 if blockers else 0
 
@@ -276,6 +310,130 @@ def _manifest_preflight_failure(suite_id: str, exc: Exception) -> SuitePreflight
     return SuitePreflightFailure(f"{suite_id} {visibility} manifest required: {exc}")
 
 
+def _suite_state_payload(
+    suite_id: str,
+    *,
+    mode: str,
+    overall_status: str,
+    reason: str,
+    preflight: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    spec = _spec(suite_id)
+    contour = spec.validation_contours[0]
+    resolved_preflight = preflight or build_preflight(
+        mode=mode,
+        benchmark_tier=(
+            BenchmarkTier.RESEARCH_ACCEPTANCE.value
+            if resolve_mode(mode) is BenchmarkMode.ACCEPTANCE
+            else BenchmarkTier.LOCAL_EVIDENCE.value
+        ),
+        validation_contour=contour,
+        visibility=_visibility_for_run(spec),
+        data_source="suite_preflight",
+        dataset_family=str(spec.family or spec.suite_id),
+        degraded_reasons=[reason],
+        comparator_profile="suite_scoped",
+        required_comparators=list(spec.required_comparators),
+    )
+    payload = {
+        "suite_id": suite_id,
+        "run_id": resolved_preflight.get("run_id"),
+        "mode": mode,
+        "benchmark_tier": resolved_preflight.get("benchmark_tier", "local_evidence"),
+        "validation_contour": resolved_preflight.get("validation_contour", contour),
+        "visibility": resolved_preflight.get("visibility", _visibility_for_run(spec)),
+        "core_circuits": [],
+        "sub_circuit": None,
+        "data_source": resolved_preflight.get("data_source"),
+        "estimator_profile": resolved_preflight.get("estimator_profile", "default"),
+        "dependency_status": resolved_preflight.get("dependency_status", {}),
+        "comparator_status": resolved_preflight.get("comparator_status", {}),
+        "degraded_reasons": list(_merge_reasons(resolved_preflight.get("degraded_reasons", []), (reason,))),
+        "dataset_family": resolved_preflight.get("dataset_family"),
+        "batch_id": resolved_preflight.get("batch_id"),
+        "n_total": 0,
+        "n_passed": 0,
+        "n_failed": 1 if overall_status == "failed" else 0,
+        "n_errors": 1 if overall_status == "error" else 0,
+        "n_skipped": 1 if overall_status == "skipped" else 0,
+        "n_over_budget": 0,
+        "pass_rate": 0.0,
+        "overall_status": overall_status,
+        "scores": {},
+        "cases": [],
+        "blockers": [],
+        "preflight": resolved_preflight,
+        "aggregate_metrics": {},
+        "standardized_metrics": {},
+        "method_groups": {},
+        "method_manifest": {},
+        "gate_method_set": [],
+        "flagship_presence": {},
+        "exploratory_methods": [],
+        "selection_manifest": {},
+        "overlap_diagnostics": {},
+        "calibration_metrics": {},
+        "prioritization_metrics": {},
+        "dataset_group_summaries": {},
+        "epistemic_metrics": {},
+        "governance_metrics": {},
+        "certificate_metrics": {},
+        "lineage_metrics": {},
+        "comparator_matrix": {},
+        "comparator_runs": {},
+        "ablation_matrix": {},
+        "leaderboard_tables": {},
+        "release_gate_results": {"checks": {}, "passes_all": False},
+        "benchmark_family": str(spec.family or spec.suite_id),
+        "proof_class": spec.proof_class,
+        "claim_profile_targets": list(spec.claim_profiles),
+        "workflow_levels": [],
+        "competitor_gap": {},
+        "literature_anchor": None,
+        "evidence_bundle_complete": False,
+        "public_claim_eligible": False,
+        "dataset_regime": None,
+        "baseline_snapshot_ref": None,
+        "regression_guard": {},
+        "failure_reason": reason,
+    }
+    return payload
+
+
+def _hidden_manifest_preflight(
+    suite_id: str,
+    *,
+    mode: str,
+    dataset_family: str,
+    reason: str,
+) -> dict[str, Any]:
+    spec = _spec(suite_id)
+    visibility = _visibility_for_run(spec)
+    env_var = manifest_env_var(str(spec.family or spec.suite_id), visibility)
+    raw_path = os.environ.get(env_var, "").strip()
+    manifest_path = Path(raw_path).expanduser() if raw_path else None
+    dependency_status = {
+        "manifest": {
+            "env_var": env_var,
+            "configured": bool(raw_path),
+            "path": str(manifest_path) if manifest_path else None,
+            "exists": bool(manifest_path and manifest_path.exists()),
+        }
+    }
+    return build_preflight(
+        mode=resolve_mode(mode).value,
+        benchmark_tier=resolve_tier(mode=resolve_mode(mode)).value,
+        validation_contour=spec.validation_contours[0],
+        visibility=visibility,
+        data_source="external_manifest_unavailable",
+        dependency_status=dependency_status,
+        degraded_reasons=[reason],
+        dataset_family=dataset_family,
+        comparator_profile="suite_scoped",
+        required_comparators=list(spec.required_comparators),
+    )
+
+
 def _suite_preflight_with_manifest(
     suite_id: str,
     *,
@@ -292,6 +450,22 @@ def _suite_preflight_with_manifest(
             tier=tier,
         )
     except Exception as exc:  # pragma: no cover - exercised via CLI smoke/acceptance tests
+        spec = _spec(suite_id)
+        if (
+            isinstance(exc, FileNotFoundError)
+            and _visibility_for_run(spec) in {"hidden_release", "prod_shadow"}
+            and not _smoke_placeholder_allowed(mode_enum, tier)
+        ):
+            reason = f"{suite_id} hidden manifest unavailable: {exc}"
+            raise SuiteSkipped(
+                reason,
+                preflight=_hidden_manifest_preflight(
+                    suite_id,
+                    mode=mode,
+                    dataset_family=dataset_family,
+                    reason=reason,
+                ),
+            ) from exc
         raise _manifest_preflight_failure(suite_id, exc) from exc
     spec = _spec(suite_id)
     required_labels = list(bundle.required_comparators) or list(spec.required_comparators)
@@ -373,7 +547,7 @@ def _build_preflight_for_suite(
     if gaps:
         lines = [f"{suite_id} acceptance preflight failed:"]
         lines.extend(f"  - {gap}" for gap in gaps)
-        raise SuitePreflightFailure("\n".join(lines))
+        raise SuitePreflightFailure("\n".join(lines), preflight=preflight)
     return preflight, mode_enum, tier, spec
 
 
@@ -1419,20 +1593,24 @@ def _concurrency_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
 
 def _augment_composition_payload(payload: dict[str, Any], *, suite_id: str, preflight: dict[str, Any]) -> dict[str, Any]:
     cases = payload.get("cases", [])
+    def _result_payload(case: dict[str, Any]) -> dict[str, Any]:
+        raw = case.get("result_payload")
+        return raw if isinstance(raw, dict) else {}
+
     invalid_cases = [
         case for case in cases
-        if str(case.get("result_payload", {}).get("composition_status", "")).lower() in {"broken", "deferred"}
+        if str(_result_payload(case).get("composition_status", "")).lower() in {"broken", "deferred"}
     ]
     valid_cases = [
         case for case in cases
-        if str(case.get("result_payload", {}).get("composition_status", "")).lower() == "ok"
+        if str(_result_payload(case).get("composition_status", "")).lower() == "ok"
     ]
     invalid_stitch_recall = _safe_rate(
-        sum(1 for case in invalid_cases if case.get("result_payload", {}).get("failure_cards")),
+        sum(1 for case in invalid_cases if _result_payload(case).get("failure_cards")),
         len(invalid_cases),
     )
     valid_stitch_precision = _safe_rate(
-        sum(1 for case in valid_cases if not case.get("result_payload", {}).get("failure_cards")),
+        sum(1 for case in valid_cases if not _result_payload(case).get("failure_cards")),
         len(valid_cases),
     )
     preservation_status_accuracy = payload.get("pass_rate", 0.0)
@@ -1445,8 +1623,8 @@ def _augment_composition_payload(payload: dict[str, Any], *, suite_id: str, pref
                 or "latent" in str(case.get("name", "")).lower()
             )
             and (
-                case.get("result_payload", {}).get("ontology_warnings")
-                or case.get("result_payload", {}).get("blocking_reasons")
+                _result_payload(case).get("ontology_warnings")
+                or _result_payload(case).get("blocking_reasons")
             )
         ),
         max(
@@ -1508,6 +1686,22 @@ def _augment_composition_payload(payload: dict[str, Any], *, suite_id: str, pref
     return payload
 
 
+def _composition_catalog_preflight(preflight: dict[str, Any]) -> None:
+    catalog_root = _BENCH_ROOT / "data" / "dataset_catalog"
+    required_files = (
+        catalog_root / "seed_variable_alignments.yaml",
+        catalog_root / "proxy_metric_alignments.yaml",
+        catalog_root / "metrics_map.yaml",
+    )
+    missing = [str(path) for path in required_files if not path.exists()]
+    if missing:
+        raise SuitePreflightFailure(
+            "composition alignment preflight failed:\n"
+            + "\n".join(f"  - required repo-tracked catalog missing: {path}" for path in missing),
+            preflight=preflight,
+        )
+
+
 def _composition_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, Any]:
     preflight, _mode, _tier, _spec_obj = _build_preflight_for_suite(
         suite_id,
@@ -1516,6 +1710,7 @@ def _composition_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
         data_source="curated_composition_fixtures",
         dataset_family="composition_alignment",
     )
+    _composition_catalog_preflight(preflight)
     from benchmarks.composition.compositional_causality_benchmark import (
         _aggregate_metrics,
         _case_details_builder,

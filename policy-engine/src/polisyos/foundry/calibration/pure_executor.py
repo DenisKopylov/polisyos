@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
-from typing import Any, Callable, Sequence
+from typing import Any, Callable, Collection, Sequence
 
 import equinox as eqx
 import jax
@@ -38,6 +38,8 @@ from polisyos.ir.kernel import (
     SlotScope,
 )
 from polisyos.ir.types import SelectorOperator
+
+PendingPatchRecord = tuple[str, dict[str, Any]]
 
 
 @dataclass
@@ -87,6 +89,7 @@ class StaticBundle:
     """Bundle immutable compile-time registries and prepared nodes for replay."""
 
     nodes: list[PreparedNode]
+    incoming_dependencies: dict[str, tuple[str, ...]]
     slot_registry: SlotRegistry
     mechanism_registry: MechanismTypeRegistry
     merge_registry: MergeRuleRegistry
@@ -151,6 +154,7 @@ def compile_program(
     if n_firms is None and base_state is not None:
         n_firms = int(base_state.firms.capital.shape[0])
 
+    max_steps = int(exec_plan.max_steps or 0)
     prepared: list[PreparedNode] = []
     trainables: list[TrainableHandle] = []
     selector_adapter = TypeAdapter(SelectorExpr)
@@ -189,7 +193,16 @@ def compile_program(
         payload: dict[str, Any] = {}
         if parameter_loader is not None:
             payload = parameter_loader(params_ref or node) or {}
-        schedule = ScheduleSpec.model_validate(payload.get("schedule", {}))
+        schedule_payload = payload.get("schedule")
+        if schedule_payload is None:
+            if max_steps <= 0:
+                raise ValueError(
+                    "compile_program requires exec_plan.max_steps > 0 when parameter_loader "
+                    f"does not provide schedule for node '{node_id}'"
+                )
+            schedule = ScheduleSpec(start_step=0, duration_steps=max_steps)
+        else:
+            schedule = ScheduleSpec.model_validate(schedule_payload)
         start, end = schedule_range(schedule)
         params = dict(payload.get("params", {}))
         priority = payload.get("priority")
@@ -274,6 +287,7 @@ def compile_program(
 
     return StaticBundle(
         nodes=prepared,
+        incoming_dependencies=_incoming_dependencies(program_graph),
         slot_registry=slot_registry,
         mechanism_registry=mechanism_registry,
         merge_registry=merge_registry,
@@ -327,7 +341,7 @@ def _selector_field_values(
         n_agents = getattr(state.agents, "size", None)
         if n_agents is None:
             n_agents = int(state.agents.income.shape[0])
-        return jnp.arange(int(n_agents)), SlotScope.PER_AGENT
+        return jnp.arange(n_agents), SlotScope.PER_AGENT
     if selector_field_registry is None:
         raise ValueError(f"Selector field '{field_id}' requires registry mapping")
     spec = selector_field_registry.fields.get(field_id)
@@ -443,22 +457,33 @@ def apply_nodes(
     t: jax.Array,
 ) -> tuple[GlobalState, jax.Array]:
     """Apply all active nodes for one step and merge emitted patches into state."""
-    base_state = state
+    visible_state = state
     cur_key = key
-    patch_records: dict[str, list[dict[str, Any]]] = {}
+    pending_records: tuple[PendingPatchRecord, ...] = ()
+    executed_mutating_nodes: tuple[str, ...] = ()
 
     for node in bundle.nodes:
+        if pending_records and _depends_on_executed_mutation(
+            node.node_id,
+            incoming_dependencies=bundle.incoming_dependencies,
+            executed_mutating_nodes=executed_mutating_nodes,
+        ):
+            visible_state, pending_records = _flush_pending_records(
+                visible_state,
+                pending_records,
+                bundle=bundle,
+            )
         active = (t >= node.start) & (t <= node.end)
         if node.selector is not None:
             mask, mask_scope = _evaluate_selector(
-                node.selector, base_state, selector_field_registry=bundle.selector_field_registry
+                node.selector, visible_state, selector_field_registry=bundle.selector_field_registry
             )
         else:
             mask = None
             mask_scope = None
         _, sub = jax.random.split(cur_key)
         patch_map, next_key = node.mechanism.emit_patches(
-            base_state,
+            visible_state,
             sub,
             target_mask=mask
             if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}
@@ -467,17 +492,74 @@ def apply_nodes(
         if patch_map is None:
             raise ValueError(f"Mechanism '{node.mechanism_type}' did not emit patches")
         cur_key = jax.lax.select(active, next_key, cur_key)
-        for slot_id, patches in patch_map.items():
-            patch_list = patches if isinstance(patches, list) else [patches]
-            for patch in patch_list:
-                record = dict(patch)
-                record["priority"] = node.priority
-                record["rank"] = float(node.rank)
-                record["active"] = active
-                patch_records.setdefault(slot_id, []).append(record)
+        pending_records = pending_records + _patch_map_to_pending_records(
+            patch_map,
+            node=node,
+            active=active,
+        )
+        executed_mutating_nodes = (*executed_mutating_nodes, node.node_id)
 
+    visible_state, _ = _flush_pending_records(
+        visible_state,
+        pending_records,
+        bundle=bundle,
+    )
+    return visible_state, cur_key
+
+
+def _patch_map_to_pending_records(
+    patch_map: dict[str, Any],
+    *,
+    node: PreparedNode,
+    active: jax.Array,
+) -> tuple[PendingPatchRecord, ...]:
+    records: list[PendingPatchRecord] = []
+    for slot_id, patches in patch_map.items():
+        patch_list = patches if isinstance(patches, list) else [patches]
+        for patch in patch_list:
+            record = dict(patch)
+            record["priority"] = node.priority
+            record["rank"] = float(node.rank)
+            record["active"] = active
+            records.append((slot_id, record))
+    return tuple(records)
+
+
+def _flush_pending_records(
+    state: GlobalState,
+    pending_records: tuple[PendingPatchRecord, ...],
+    *,
+    bundle: StaticBundle,
+) -> tuple[GlobalState, tuple[PendingPatchRecord, ...]]:
+    if not pending_records:
+        return state, ()
+    return (
+        _merge_patch_records_into_state(
+            state,
+            _group_pending_patch_records(pending_records),
+            bundle=bundle,
+        ),
+        (),
+    )
+
+
+def _group_pending_patch_records(
+    pending_records: tuple[PendingPatchRecord, ...],
+) -> dict[str, list[dict[str, Any]]]:
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for slot_id, record in pending_records:
+        grouped.setdefault(slot_id, []).append(record)
+    return grouped
+
+
+def _merge_patch_records_into_state(
+    state: GlobalState,
+    patch_records: dict[str, list[dict[str, Any]]],
+    *,
+    bundle: StaticBundle,
+) -> GlobalState:
     engine = JAXMergeEngine(bundle.slot_registry, bundle.merge_registry)
-    state = base_state
+    next_state = state
     for slot_id, records in sorted(patch_records.items()):
         slot_spec = bundle.slot_registry.slots.get(slot_id)
         if slot_spec is None or not slot_spec.state_path:
@@ -495,7 +577,7 @@ def apply_nodes(
             if updates:
                 rule = rule.model_copy(update=updates)
 
-        base_value = _get_state_path(base_state, slot_spec.state_path)
+        base_value = _get_state_path(next_state, slot_spec.state_path)
         if rule.kind == MergeRuleKind.SUM:
             deltas = []
             masks = []
@@ -553,9 +635,27 @@ def apply_nodes(
             new_value = engine.merge_error_jax(base_value, values, masks, slot_id)
         else:
             raise ValueError(f"Unsupported merge rule '{rule.kind}' for '{slot_id}'")
-        state = _set_state_path(state, slot_spec.state_path, new_value)
+        next_state = _set_state_path(next_state, slot_spec.state_path, new_value)
+    return next_state
 
-    return state, cur_key
+
+def _incoming_dependencies(program_graph: ProgramGraph) -> dict[str, tuple[str, ...]]:
+    incoming: dict[str, list[str]] = {}
+    for edge in program_graph.edges:
+        incoming.setdefault(edge.dst, []).append(edge.src)
+    return {node_id: tuple(sorted(srcs)) for node_id, srcs in incoming.items()}
+
+
+def _depends_on_executed_mutation(
+    node_id: str,
+    *,
+    incoming_dependencies: dict[str, tuple[str, ...]],
+    executed_mutating_nodes: Collection[str],
+) -> bool:
+    return any(
+        dependency in executed_mutating_nodes
+        for dependency in incoming_dependencies.get(node_id, ())
+    )
 
 
 def run_pure_scan(

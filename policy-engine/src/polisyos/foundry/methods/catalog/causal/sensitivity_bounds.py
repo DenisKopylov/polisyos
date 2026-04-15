@@ -136,7 +136,7 @@ class TanBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="tan_bounds",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -364,7 +364,7 @@ class IntersectionBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="intersection_bounds",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -554,7 +554,7 @@ class RosenbaumSharpBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="rosenbaum_sharp",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

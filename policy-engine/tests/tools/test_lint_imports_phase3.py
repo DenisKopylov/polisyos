@@ -1,0 +1,124 @@
+from __future__ import annotations
+
+import ast
+import json
+from pathlib import Path
+import textwrap
+
+from hypothesis import assume, given
+from hypothesis import strategies as st
+
+from tools.lint import lint_imports
+
+
+def _write_policy(path: Path, src_root: Path) -> None:
+    path.write_text(
+        textwrap.dedent(
+            f"""
+            [policy]
+            version = "1.0"
+            internal_prefix = "polisyos"
+            src_root = "{src_root.as_posix()}"
+
+            [roots]
+            known = ["ir", "foundry"]
+
+            [internal.allow]
+            ir = []
+            foundry = ["ir"]
+
+            [external.allow]
+            ir = []
+            foundry = []
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_lint_imports_emits_structured_json_and_sarif(tmp_path: Path) -> None:
+    src_root = tmp_path / "src"
+    module_path = src_root / "polisyos" / "ir" / "sample.py"
+    module_path.parent.mkdir(parents=True)
+    module_path.write_text("import pandas\n", encoding="utf-8")
+
+    policy = tmp_path / "import_policy.toml"
+    _write_policy(policy, src_root)
+
+    json_output = tmp_path / "report.json"
+    exit_code = lint_imports.main(
+        [
+            "--policy",
+            str(policy),
+            "--exceptions",
+            str(tmp_path / "missing_exceptions.toml"),
+            "--output-format",
+            "json",
+            "--output",
+            str(json_output),
+        ]
+    )
+
+    payload = json.loads(json_output.read_text(encoding="utf-8"))
+    assert exit_code == 1
+    assert payload["status"] == "failed"
+    assert payload["data"]["violation_count"] == 1
+    assert any(message["rule_id"] == "ARCH002" for message in payload["messages"])
+
+    sarif_output = tmp_path / "report.sarif"
+    lint_imports.main(
+        [
+            "--policy",
+            str(policy),
+            "--exceptions",
+            str(tmp_path / "missing_exceptions.toml"),
+            "--output-format",
+            "sarif",
+            "--output",
+            str(sarif_output),
+        ]
+    )
+    sarif_payload = json.loads(sarif_output.read_text(encoding="utf-8"))
+    assert sarif_payload["runs"][0]["results"][0]["ruleId"] == "ARCH002"
+
+
+_IDENTIFIER = st.from_regex(r"[a-z][a-z0-9_]{0,7}", fullmatch=True)
+
+
+@given(
+    current_parts=st.lists(_IDENTIFIER, min_size=2, max_size=5),
+    is_package=st.booleans(),
+    level=st.integers(min_value=1, max_value=5),
+    suffix_parts=st.lists(_IDENTIFIER, max_size=3),
+)
+def test_resolve_import_module_matches_relative_import_semantics(
+    current_parts: list[str],
+    is_package: bool,
+    level: int,
+    suffix_parts: list[str],
+) -> None:
+    package_parts = current_parts if is_package else current_parts[:-1]
+    assume(package_parts)
+    assume(level - 1 <= len(package_parts))
+
+    import_target = "." * level + ".".join(suffix_parts)
+    node = ast.parse(f"from {import_target} import target").body[0]
+    assert isinstance(node, ast.ImportFrom)
+
+    expected_parts = package_parts[: len(package_parts) - (level - 1)]
+    expected_parts.extend(suffix_parts)
+    expected = ".".join(expected_parts)
+
+    resolved = lint_imports.resolve_import_module(".".join(current_parts), is_package, node)
+
+    assert resolved == expected
+
+
+def test_resolve_import_module_rejects_overflowing_relative_import() -> None:
+    node = ast.parse("from ....foo import bar").body[0]
+    assert isinstance(node, ast.ImportFrom)
+
+    resolved = lint_imports.resolve_import_module("polisyos.ir.sample", False, node)
+
+    assert resolved is None

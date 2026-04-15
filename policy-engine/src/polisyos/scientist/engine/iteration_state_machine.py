@@ -9,6 +9,8 @@ from polisyos.core.contracts.execution_plan import (
     IterationState,
     StopReason,
 )
+from polisyos.core.errors import ErrorCategory
+from polisyos.scientist.engine.errors import EngineError
 
 TransitionEvent = str
 
@@ -18,18 +20,33 @@ _ALLOWED: dict[IterationLifecycleState, frozenset[TransitionEvent]] = {
     "preflight_failed": frozenset({"replan"}),
     "ready_to_run": frozenset({"start_execute"}),
     "executing": frozenset({"execute_done"}),
-    "evaluating": frozenset({"approve", "replan", "stop_budget", "stop_no_delta", "stop_guardrail"}),
+    "evaluating": frozenset(
+        {"approve", "replan", "stop_budget", "stop_no_delta", "stop_guardrail"},
+    ),
     "replanning": frozenset({"start_preflight"}),
     "approved": frozenset(),
     "stopped_budget": frozenset(),
     "stopped_no_delta": frozenset(),
     "stopped_guardrail": frozenset(),
 }
+_KNOWN_EVENTS = frozenset(
+    event
+    for allowed_events in _ALLOWED.values()
+    for event in allowed_events
+)
+
+
+class IterationTransitionError(EngineError):
+    """Raised when lifecycle transition inputs are invalid."""
+
+    default_stage = "scientist.engine.iteration_state_machine"
+    default_category = ErrorCategory.VALIDATION
 
 
 def can_transition(state: IterationLifecycleState, event: TransitionEvent) -> bool:
     """Can transition helper."""
-    return event in _ALLOWED.get(state, frozenset())
+    _validate_transition_inputs(state, event)
+    return event in _ALLOWED[state]
 
 
 def transition(
@@ -43,7 +60,11 @@ def transition(
     """Transition helper."""
     current = state.lifecycle_state
     if not can_transition(current, event):
-        raise ValueError(f"Invalid transition: state={current!r}, event={event!r}")
+        raise IterationTransitionError(
+            f"Invalid transition: state={current!r}, event={event!r}",
+            code="invalid_transition",
+            details={"state": current, "event": event},
+        )
     next_state = _next_state(current, event)
     now = datetime.now(timezone.utc)
     merged_notes = list(state.notes)
@@ -69,7 +90,13 @@ def derive_terminal_state_from_verdict(
         return "approved", "approved"
     if verdict == "STOP_BUDGET":
         return "stopped_budget", "budget_exhausted"
-    return "replanning", None
+    if verdict in {"REPLAN_DATA", "REPLAN_METHOD", "REPLAN_PARAMS"}:
+        return "replanning", None
+    raise IterationTransitionError(
+        f"Unsupported evaluator verdict: {verdict!r}",
+        code="unsupported_verdict",
+        details={"verdict": verdict},
+    )
 
 
 def _next_state(state: IterationLifecycleState, event: TransitionEvent) -> IterationLifecycleState:
@@ -95,11 +122,34 @@ def _next_state(state: IterationLifecycleState, event: TransitionEvent) -> Itera
         return "stopped_guardrail"
     if event == "replan_params":
         return "replanning"
-    return state
+    raise IterationTransitionError(
+        f"Unsupported transition event: {event!r}",
+        code="unsupported_event",
+        details={"state": state, "event": event},
+    )
+
+
+def _validate_transition_inputs(
+    state: IterationLifecycleState,
+    event: TransitionEvent,
+) -> None:
+    if state not in _ALLOWED:
+        raise IterationTransitionError(
+            f"Unsupported lifecycle state: {state!r}",
+            code="unsupported_state",
+            details={"state": state},
+        )
+    if event not in _KNOWN_EVENTS:
+        raise IterationTransitionError(
+            f"Unsupported transition event: {event!r}",
+            code="unsupported_event",
+            details={"state": state, "event": event},
+        )
 
 
 __all__ = [
     "TransitionEvent",
+    "IterationTransitionError",
     "can_transition",
     "transition",
     "derive_terminal_state_from_verdict",

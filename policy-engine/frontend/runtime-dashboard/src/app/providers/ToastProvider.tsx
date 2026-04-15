@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { useLiveAnnouncer } from "@/app/providers/LiveAnnouncerProvider";
+import { useOptionalI18n } from "@/i18n/LocaleProvider";
 import { Button } from "@/shared/ui";
 
 export type ToastTone = "error" | "info" | "success" | "warning";
@@ -43,6 +44,7 @@ const toneClassName: Record<ToastTone, string> = {
 export function ToastProvider({ children }: PropsWithChildren) {
   const [toasts, setToasts] = useState<ToastRecord[]>([]);
   const { announce } = useLiveAnnouncer();
+  const { t } = useOptionalI18n();
 
   const dismissToast = useCallback((id: string) => {
     setToasts((current) => current.filter((toast) => toast.id !== id));
@@ -94,7 +96,8 @@ export function ToastProvider({ children }: PropsWithChildren) {
     <ToastContext.Provider value={value}>
       {children}
       <div
-        aria-label="Notifications"
+        aria-label={t("common.notifications")}
+        role="region"
         className="pointer-events-none fixed top-4 right-4 z-50 flex w-full max-w-sm flex-col gap-3"
       >
         {toasts.map((toast) => (
@@ -116,7 +119,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
                 variant="ghost"
                 onClick={() => dismissToast(toast.id)}
               >
-                Close
+                {t("common.close")}
               </Button>
             </div>
           </section>

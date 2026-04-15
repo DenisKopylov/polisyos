@@ -12,13 +12,22 @@ from polisyos.core.contracts.execution_plan import (
     MethodCatalogSnapshot,
     MethodCatalogSnapshotRef,
 )
+from polisyos.core.observability.determinism import (
+    DeterminismTier,
+    parse_determinism_tier,
+)
 from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.backends.dispatch import (
     BackendNotAvailableError as MethodBackendNotAvailableError,
     MethodDispatcher,
 )
-from polisyos.foundry.methods.backends.runtime_fingerprint import runtime_stack_for, safe_version
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    BackendRuntimeFingerprint,
+    capture_backend_runtime_fingerprint,
+    runtime_stack_for,
+    safe_version,
+)
 from polisyos.foundry.methods.catalog.causal.capabilities import build_causal_capability_contract
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal_capabilities import (
@@ -44,6 +53,7 @@ def build_method_catalog_snapshot(
         entry = reg.get_entry(sig.fqn)
         method_cls = reg.get(sig.fqn)
         runtime_stack = runtime_stack_for(method_cls)
+        runtime_posture = _capture_entry_runtime_posture(sig.execution_backend, method_cls)
         tags: list[str] = []
         deprecations: list[str] = []
         incompatibilities: list[str] = []
@@ -56,13 +66,15 @@ def build_method_catalog_snapshot(
                 entry.metadata.optional_deps,
                 runtime_stack,
             )
-            backend_available = sig.execution_backend.value in available_backends
+            backend_available = sig.execution_backend.value in available_backends and runtime_posture.available
             disabled_reasons = list(_disabled_reasons_for(sig.execution_backend.value, backend_available))
             disabled_reasons.extend(dependency_posture["missing_required"])
         else:
             dependency_posture = _dependency_posture((), (), runtime_stack)
-            backend_available = sig.execution_backend.value in available_backends
+            backend_available = sig.execution_backend.value in available_backends and runtime_posture.available
             disabled_reasons = list(_disabled_reasons_for(sig.execution_backend.value, backend_available))
+        if not runtime_posture.available:
+            disabled_reasons.append(f"runtime_posture_unavailable:{sig.execution_backend.value}")
         requirements = _causal_requirements_for_method(sig.fqn)
         if contract is None or not requirements:
             causal_available = True if requirements else None
@@ -79,9 +91,17 @@ def build_method_catalog_snapshot(
             disabled_reasons.extend(causal_disabled_reasons)
         disabled_reasons = sorted(dict.fromkeys(reason for reason in disabled_reasons if reason))
         runnable = backend_available and not dependency_posture["missing_required"] and causal_available is not False
-        determinism_tier = None
+        shape_semantics = _shape_semantics(sig)
+        effect_semantics = _effect_semantics(sig, entry)
+        dependency_semantics = _dependency_semantics(sig, entry)
+        truthfulness_tier, truthfulness_notes = _truthfulness_profile(sig, entry)
+        declared_determinism_tier = None
         if entry is not None and entry.metadata.determinism_tier is not None:
-            determinism_tier = entry.metadata.determinism_tier.value
+            declared_determinism_tier = entry.metadata.determinism_tier.value
+        determinism_tier = _effective_determinism_tier(
+            declared_determinism_tier,
+            runtime_posture.determinism_tier,
+        )
         capability_matrix = {
             "kind": sig.kind.value,
             "execution_backend": sig.execution_backend.value,
@@ -92,12 +112,25 @@ def build_method_catalog_snapshot(
             "supports_vmap": bool(sig.supports_vmap),
             "supports_grad": bool(sig.supports_grad),
             "determinism_tier": determinism_tier,
+            "declared_determinism_tier": declared_determinism_tier,
+            "runtime_determinism_tier": (
+                None
+                if runtime_posture.determinism_tier is None
+                else runtime_posture.determinism_tier.value
+            ),
+            "replay_semantics": runtime_posture.replay_semantics,
+            "tolerance_budget": runtime_posture.tolerance_budget,
+            "runtime_posture": runtime_posture.as_dict(),
             "required_deps": list(entry.metadata.required_deps) if entry is not None else [],
             "optional_deps": list(entry.metadata.optional_deps) if entry is not None else [],
             "fallback_policy": entry.metadata.fallback_policy if entry is not None else "none",
             "side_effect_profile": (
                 entry.metadata.side_effect_profile.value if entry is not None else "none"
             ),
+            "truthfulness_tier": truthfulness_tier,
+            "effect_semantics": effect_semantics,
+            "shape_semantics": shape_semantics,
+            "dependency_semantics": dependency_semantics,
             "backend_available": backend_available,
             "runnable": runnable,
         }
@@ -165,6 +198,11 @@ def build_method_catalog_snapshot(
                 causal_capability_requirements=[item.value for item in requirements],
                 causal_available=causal_available,
                 causal_disabled_reasons=sorted(set(causal_disabled_reasons)),
+                truthfulness_tier=truthfulness_tier,
+                truthfulness_notes=truthfulness_notes,
+                effect_semantics=effect_semantics,
+                shape_semantics=shape_semantics,
+                dependency_semantics=dependency_semantics,
                 # Rich semantic metadata — sourced from MethodMetadata
                 description=str(entry.metadata.description) if entry is not None else "",
                 citations=list(entry.metadata.citations) if entry is not None else [],
@@ -213,6 +251,124 @@ def persist_method_catalog_snapshot(
         canon_spec=CanonSpec(forbid_floats=False),
     )
     return MethodCatalogSnapshotRef(artifact_id=payload_ref.artifact_id)
+
+
+def build_method_capability_matrix(
+    snapshot: MethodCatalogSnapshot,
+    *,
+    runnable_only: bool = False,
+) -> list[dict[str, Any]]:
+    """Expose the catalog capability matrix as a machine-readable row set."""
+    rows: list[dict[str, Any]] = []
+    for entry in snapshot.entries:
+        if runnable_only and not entry.runnable:
+            continue
+        rows.append(
+            {
+                "fqn": entry.fqn,
+                "namespace": entry.namespace,
+                "family": entry.family,
+                "variant": entry.variant,
+                **dict(entry.capability_matrix),
+                "truthfulness_tier": entry.truthfulness_tier,
+                "truthfulness_notes": entry.truthfulness_notes,
+            }
+        )
+    return rows
+
+
+def build_method_operator_evidence(
+    snapshot: MethodCatalogSnapshot,
+    *,
+    runnable_only: bool = False,
+    blocked_limit: int = 25,
+) -> dict[str, Any]:
+    """Build an operator-facing summary of applicability, replay, and degraded paths."""
+    rows = build_method_capability_matrix(snapshot, runnable_only=runnable_only)
+    runnable_rows = [row for row in rows if bool(row.get("runnable"))]
+    blocked_rows = [row for row in rows if not bool(row.get("runnable"))]
+
+    def _summarize(key: str) -> list[dict[str, Any]]:
+        summary: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            raw_value = row.get(key)
+            value = "-" if raw_value in (None, "") else str(raw_value)
+            bucket = summary.setdefault(
+                value,
+                {"value": value, "count": 0, "runnable_count": 0, "blocked_count": 0},
+            )
+            bucket["count"] += 1
+            if bool(row.get("runnable")):
+                bucket["runnable_count"] += 1
+            else:
+                bucket["blocked_count"] += 1
+        return sorted(
+            summary.values(),
+            key=lambda item: (-int(item["count"]), str(item["value"])),
+        )
+
+    replay_contracts: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        tier = str(row.get("determinism_tier") or "-")
+        replay_contracts.setdefault(
+            tier,
+            {
+                "determinism_tier": tier,
+                "replay_semantics": row.get("replay_semantics"),
+                "tolerance_budget": row.get("tolerance_budget"),
+            },
+        )
+
+    blocked_details = [
+        {
+            "fqn": row["fqn"],
+            "execution_backend": row.get("execution_backend"),
+            "truthfulness_tier": row.get("truthfulness_tier"),
+            "determinism_tier": row.get("determinism_tier"),
+            "disabled_reasons": list(
+                next(
+                    (
+                        entry.disabled_reasons
+                        for entry in snapshot.entries
+                        if entry.fqn == row["fqn"]
+                    ),
+                    (),
+                )
+            ),
+        }
+        for row in sorted(
+            blocked_rows,
+            key=lambda item: (
+                -len(
+                    next(
+                        (
+                            entry.disabled_reasons
+                            for entry in snapshot.entries
+                            if entry.fqn == item["fqn"]
+                        ),
+                        (),
+                    )
+                ),
+                str(item["fqn"]),
+            ),
+        )[:blocked_limit]
+    ]
+
+    return {
+        "snapshot_id": snapshot.snapshot_id,
+        "generated_at": snapshot.generated_at.isoformat(),
+        "method_count": len(rows),
+        "runnable_count": len(runnable_rows),
+        "blocked_count": len(blocked_rows),
+        "backend_summary": _summarize("execution_backend"),
+        "determinism_summary": _summarize("determinism_tier"),
+        "truthfulness_summary": _summarize("truthfulness_tier"),
+        "replay_contracts": sorted(
+            replay_contracts.values(),
+            key=lambda item: str(item["determinism_tier"]),
+        ),
+        "blocked_methods": blocked_details,
+    }
 
 
 def _jsonable(value: Any) -> Any:
@@ -284,7 +440,125 @@ def _disabled_reasons_for(execution_backend: str, backend_available: bool) -> tu
     return (f"execution_backend_unavailable:{execution_backend}",)
 
 
+def _capture_entry_runtime_posture(
+    execution_backend: ComputeBackend,
+    method_class: type,
+) -> BackendRuntimeFingerprint:
+    return capture_backend_runtime_fingerprint(
+        execution_backend,
+        method_class=method_class,
+    )
+
+
+def _effective_determinism_tier(
+    declared_tier: str | None,
+    runtime_tier: DeterminismTier | None,
+) -> str | None:
+    declared = parse_determinism_tier(declared_tier)
+    effective = _more_conservative_tier(declared, runtime_tier)
+    if effective is not None:
+        return effective.value
+    return declared_tier
+
+
+def _more_conservative_tier(
+    left: DeterminismTier | None,
+    right: DeterminismTier | None,
+) -> DeterminismTier | None:
+    if left is None:
+        return right
+    if right is None:
+        return left
+    order = {
+        DeterminismTier.STRICT_CPU: 0,
+        DeterminismTier.LIBRARY_DETERMINISTIC: 1,
+        DeterminismTier.BEST_EFFORT_GPU: 2,
+        DeterminismTier.STATISTICAL: 3,
+        DeterminismTier.NONDETERMINISTIC: 4,
+    }
+    return left if order[left] >= order[right] else right
+
+
+def _shape_semantics(sig: Any) -> dict[str, Any]:
+    def _slot_payload(slot: Any) -> dict[str, Any]:
+        return {
+            "name": slot.name,
+            "slot_type": slot.slot_type.name.lower(),
+            "rank": len(slot.shape),
+            "shape": [str(axis) for axis in slot.shape],
+        }
+
+    return {
+        "input_arity": len(sig.input_slots),
+        "output_arity": len(sig.output_slots),
+        "input_slots": [_slot_payload(slot) for slot in sorted(sig.input_slots, key=lambda item: item.name)],
+        "output_slots": [_slot_payload(slot) for slot in sorted(sig.output_slots, key=lambda item: item.name)],
+        "has_symbolic_dimensions": any(
+            not isinstance(axis, int)
+            for slot in tuple(sig.input_slots) + tuple(sig.output_slots)
+            for axis in slot.shape
+        ),
+    }
+
+
+def _effect_semantics(sig: Any, entry: Any) -> dict[str, Any]:
+    side_effect = entry.metadata.side_effect_profile.value if entry is not None else "none"
+    return {
+        "method_kind": sig.kind.value,
+        "side_effect_profile": side_effect,
+        "emits_patch": side_effect == "patch_emission",
+        "emits_artifact": side_effect == "artifact_emission",
+        "requires_training": side_effect == "training",
+    }
+
+
+def _dependency_semantics(sig: Any, entry: Any) -> dict[str, Any]:
+    metadata = entry.metadata if entry is not None else None
+    return {
+        "hard_requires": sorted(str(item) for item in sig.requires),
+        "conflicts_with": sorted(str(item) for item in sig.conflicts_with),
+        "recommended_prerequisites": list(getattr(metadata, "prerequisites", ())),
+        "diagnostic_checks": list(getattr(metadata, "diagnostic_checks", ())),
+    }
+
+
+def _truthfulness_profile(sig: Any, entry: Any) -> tuple[str, str]:
+    tags = {str(tag).strip().lower() for tag in getattr(entry.metadata, "tags", ())} if entry is not None else set()
+    text = " ".join(
+        [
+            sig.namespace.lower(),
+            sig.family.lower(),
+            sig.variant.lower(),
+            " ".join(sorted(tags)),
+            str(getattr(entry.metadata, "description", "")).lower() if entry is not None else "",
+        ]
+    )
+    if any(token in text for token in ("baseline", "heuristic", "proxy", "scorecard", "random_feature")):
+        return (
+            "heuristic_baseline",
+            "Fast baseline or proxy implementation; do not present as equivalent depth to trainable or production estimators.",
+        )
+    if any(token in text for token in ("discovery", "diagnostic", "identify", "mcda", "score", "ranking", "transport")):
+        return (
+            "structural_scoring",
+            "Primarily structural/scoring logic; useful for screening, diagnostics, or planning rather than final policy estimation.",
+        )
+    if (
+        entry is not None
+        and entry.metadata.side_effect_profile.value == "training"
+    ) or any(token in text for token in ("transformer", "neural", "deep", "trainable", "policy_learning")):
+        return (
+            "frontier_trainable",
+            "Frontier or trainable implementation with higher operational complexity and stronger runtime/dependency expectations.",
+        )
+    return (
+        "production_method",
+        "Production-oriented method surface with explicit ABI, dependency posture, and runtime capability reporting.",
+    )
+
+
 __all__ = [
     "build_method_catalog_snapshot",
+    "build_method_capability_matrix",
     "persist_method_catalog_snapshot",
 ]

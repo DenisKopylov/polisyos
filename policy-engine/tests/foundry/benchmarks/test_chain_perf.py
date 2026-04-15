@@ -27,29 +27,24 @@ pytestmark = pytest.mark.benchmark
 @pytest.fixture(scope="module")
 def sample_state():
     rng = np.random.default_rng(0)
-    n = 500
+    n_units = 125
+    n_periods = 4
     return {
-        "outcome": rng.standard_normal(n),
-        "treatment": (rng.standard_normal(n) > 0).astype(float),
-        "entity_id": np.repeat(np.arange(125), 4).astype(np.int64),
-        "time_id": np.tile(np.arange(4), 125).astype(np.int64),
-        "covariates": rng.standard_normal((n, 2)),
+        "outcome": rng.standard_normal((n_units, n_periods)),
+        "treatment": (rng.standard_normal(n_units) > 0).astype(float),
+        "time_treatment": 2,
     }
 
 
 @pytest.fixture(scope="module")
 def three_node_chain(module_registry):
     """Build a 3-node chain: DID → sensitivity → welfare (if registered)."""
-    try:
-        from polisyos.foundry.methods.composer import MethodComposer
+    from polisyos.foundry.methods.composer import MethodComposer
 
-        composer = MethodComposer(registry=module_registry)
-        composer.add("causal.did.standard@1.0.0", node_id="did")
-
-        chain = composer.build()
-        return chain
-    except Exception as e:
-        pytest.skip(f"Could not build 3-node chain: {e}")
+    composer = MethodComposer(registry=module_registry)
+    composer.add("causal.inference.did.standard@1.0.0", node_id="did")
+    chain = composer.build()
+    return chain
 
 
 class BenchmarkChainExecution:
@@ -89,14 +84,10 @@ class BenchmarkDispatcher:
         from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 
         fqn = "optimization.linear.resource_lp@1.0.0"
-        try:
-            entry = module_registry._store.get_by_fqn(fqn)
-            if entry is None:
-                pytest.skip(f"{fqn} not registered")
-            method_cls = entry.factory()
-            sig = entry.signature
-        except Exception as e:
-            pytest.skip(f"Cannot load {fqn}: {e}")
+        entry = module_registry._store.get_by_fqn(fqn)
+        assert entry is not None, f"{fqn} not registered"
+        method_cls = entry.factory()
+        sig = entry.signature
 
         dispatcher = MethodDispatcher.get_instance()
         state = {

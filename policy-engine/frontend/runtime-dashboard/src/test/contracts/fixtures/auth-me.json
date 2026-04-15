@@ -17,6 +17,7 @@
     "evidence.review",
     "evidence.view",
     "knowledge.view",
+    "mode.analyst",
     "platform.view",
     "runs.launch",
     "runs.review",

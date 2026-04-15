@@ -12,14 +12,32 @@ from typing import Any, Literal
 from pydantic import Field, model_validator
 
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
-from polisyos.ir.analytics.dynamic_regime import ContinuousTimeQuery, TemporalInterventionTrajectory
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir._validation import ensure_unique_ids
+from polisyos.ir.analytics.dynamic_regime import (
+    ContinuousTimeQuery,
+    TemporalInterventionTrajectory,
+)
+from polisyos.ir.artifacts import (
+    ArtifactStore,
+    ArtifactTaskBinding,
+    InputRef,
+    get_json_artifact,
+    put_json_artifact,
+)
+from polisyos.ir.artifacts.contracts import ArtifactID
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.governance.policy_spec import TemporalInterventionSequence
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
-from polisyos.ir.observation.bundles import BoundsEstimationBundle, DTRTreatmentSequenceBundleManifest
+from polisyos.ir.observation.bundles import (
+    BoundsEstimationBundle,
+    DTRTreatmentSequenceBundleManifest,
+)
 from polisyos.ir.observation.contract_compilers import BoundsEstimationInput
-from polisyos.ir.observation.contracts import IdentificationMode, ObservationFamily, StrategicResponseChannel
+from polisyos.ir.observation.contracts import (
+    IdentificationMode,
+    ObservationFamily,
+    StrategicResponseChannel,
+)
 from polisyos.ir.refs import (
     BoundsBundleRef,
     CausalExecutionBundleRef,
@@ -156,13 +174,61 @@ class CausalExecutionBundle(KernelModel):
 
     @model_validator(mode="after")
     def _validate_unique_ids(self) -> "CausalExecutionBundle":
-        bounds_ids = [item.task_id for item in self.bounds_results]
-        if len(bounds_ids) != len(set(bounds_ids)):
-            raise ValueError("bounds_results.task_id must be unique")
-        temporal_ids = [item.task_id for item in self.temporal_results]
-        if len(temporal_ids) != len(set(temporal_ids)):
-            raise ValueError("temporal_results.task_id must be unique")
+        ensure_unique_ids(
+            self.bounds_results,
+            key_fn=lambda item: item.task_id,
+            label="bounds_results.task_id",
+        )
+        ensure_unique_ids(
+            self.temporal_results,
+            key_fn=lambda item: item.task_id,
+            label="temporal_results.task_id",
+        )
         return self
+
+    def root_artifact_ids(self) -> tuple[ArtifactID, ...]:
+        """Return result artifacts that act as lineage roots for this execution bundle."""
+        root_ids: set[str] = set()
+        for entry in self.bounds_results:
+            if entry.bounds_bundle_ref is not None:
+                root_ids.add(str(entry.bounds_bundle_ref.artifact_id))
+        for entry in self.temporal_results:
+            if entry.dynamic_treatment_regime_ref is not None:
+                root_ids.add(str(entry.dynamic_treatment_regime_ref.artifact_id))
+            if entry.effect_trajectory_bundle_ref is not None:
+                root_ids.add(str(entry.effect_trajectory_bundle_ref.artifact_id))
+        return tuple(ArtifactID.model_validate(artifact_id) for artifact_id in sorted(root_ids))
+
+    def artifact_task_bindings(self) -> tuple[ArtifactTaskBinding, ...]:
+        """Map execution task ids onto the artifacts they produced."""
+        bindings: list[ArtifactTaskBinding] = []
+        for entry in sorted(self.bounds_results, key=lambda item: item.task_id):
+            produced: list[ArtifactID] = []
+            if entry.bounds_bundle_ref is not None:
+                produced.append(entry.bounds_bundle_ref.artifact_id)
+            bindings.append(
+                ArtifactTaskBinding(
+                    task_id=entry.task_id,
+                    task_kind="bounds_estimation",
+                    produced_artifact_ids=tuple(sorted(produced, key=str)),
+                    metadata={"status": entry.status, "family": entry.family.value},
+                )
+            )
+        for entry in sorted(self.temporal_results, key=lambda item: item.task_id):
+            produced = []
+            if entry.dynamic_treatment_regime_ref is not None:
+                produced.append(entry.dynamic_treatment_regime_ref.artifact_id)
+            if entry.effect_trajectory_bundle_ref is not None:
+                produced.append(entry.effect_trajectory_bundle_ref.artifact_id)
+            bindings.append(
+                ArtifactTaskBinding(
+                    task_id=entry.task_id,
+                    task_kind="temporal_dtr",
+                    produced_artifact_ids=tuple(sorted(produced, key=str)),
+                    metadata={"status": entry.status, "method": entry.dtr_method},
+                )
+            )
+        return tuple(bindings)
 
 
 def persist_causal_execution_bundle(

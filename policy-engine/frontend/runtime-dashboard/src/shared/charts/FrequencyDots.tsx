@@ -1,0 +1,70 @@
+import { cn } from "@/lib/utils";
+import { classifyConfidence, confidenceColor } from "./types";
+
+type FrequencyDotsProps = {
+  total?: number;
+  highlighted: number;
+  label?: string;
+  size?: "sm" | "md" | "lg";
+  className?: string;
+};
+
+const SIZE_MAP = {
+  sm: { dot: 6, gap: 2, cols: 20 },
+  md: { dot: 8, gap: 3, cols: 10 },
+  lg: { dot: 10, gap: 4, cols: 10 },
+} as const;
+
+export function FrequencyDots({
+  total = 100,
+  highlighted,
+  label,
+  size = "md",
+  className,
+}: FrequencyDotsProps) {
+  const clamped = Math.max(0, Math.min(total, Math.round(highlighted)));
+  const dims = SIZE_MAP[size];
+  const rows = Math.ceil(total / dims.cols);
+
+  const level = classifyConfidence(clamped / total);
+  const fillColor = confidenceColor(level);
+
+  const pct = Math.round((clamped / total) * 100);
+  const ariaLabel = `${clamped} out of ${total} (${pct}%)${label ? `. ${label}` : ""}`;
+
+  return (
+    <div
+      className={cn("inline-flex flex-col gap-2", className)}
+      role="img"
+      aria-label={ariaLabel}
+    >
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${dims.cols}, ${dims.dot}px)`,
+          gap: dims.gap,
+        }}
+      >
+        {Array.from({ length: total }, (_, i) => (
+          <div
+            key={i}
+            className="rounded-full"
+            style={{
+              width: dims.dot,
+              height: dims.dot,
+              backgroundColor:
+                i < clamped ? fillColor : "var(--line)",
+              opacity: i < clamped ? 1 : 0.4,
+            }}
+          />
+        ))}
+      </div>
+      {label && (
+        <p className="text-muted-foreground text-xs">
+          <span className="text-foreground font-semibold">{clamped}</span> out
+          of {total} — {label}
+        </p>
+      )}
+    </div>
+  );
+}

@@ -21,10 +21,14 @@ from polisyos.fabric.connectors.contracts import (
     GeoGranularity,
     InferenceConfig,
     InferenceResult,
+    MigrationPlan,
+    MigrationStatus,
     SchemaEvolution,
+    SchemaApprovalMetadata,
     SchemaHints,
     SchemaInference,
     SchemaNotFoundError,
+    SchemaRiskLevel,
     SchemaRegistry,
     SchemaType,
     SchemaVersion,
@@ -294,6 +298,21 @@ class TestFieldSpec:
                 bounds=(100.0, 0.0),
             )
 
+        for bad_bound in (float("nan"), float("inf"), float("-inf")):
+            with pytest.raises(ValueError, match="finite"):
+                FieldSpec(
+                    name="test",
+                    data_type=SchemaType.FLOAT64,
+                    bounds=(0.0, bad_bound),
+                )
+
+        with pytest.raises(ValueError, match="exactly two"):
+            FieldSpec(
+                name="test",
+                data_type=SchemaType.FLOAT64,
+                bounds=(0.0, 1.0, 2.0),
+            )
+
     def test_field_compatibility(self) -> None:
         """Test field compatibility checking."""
         field1 = FieldSpec(
@@ -468,6 +487,15 @@ class TestDataSchema:
                 ),
             )
 
+    def test_invalid_schema_ids_rejected(self) -> None:
+        for schema_id in ("test.", "test..bad", "test._bad", "test_.bad"):
+            with pytest.raises(ValueError):
+                DataSchema(
+                    schema_id=schema_id,
+                    version=SchemaVersion(1, 0, 0),
+                    fields=(FieldSpec(name="a", data_type=SchemaType.INT32),),
+                )
+
     def test_invalid_pk_reference_rejected(self) -> None:
         """Test that invalid primary key references are rejected."""
         with pytest.raises(ValueError, match="not found"):
@@ -560,6 +588,28 @@ class TestSchemaInference:
 
         pop_field = schema.get_field("population")
         assert pop_field.semantic_type == SemanticType.POPULATION
+
+    def test_infer_semantic_type_respects_ratio_and_identifier_ordering(self) -> None:
+        schema = infer_schema(
+            pd.DataFrame(
+                {
+                    "share": [0.0, 0.5, 1.0],
+                    "year": [2020, 2021, 2022],
+                    "postal_code": [10101, 10102, 10103],
+                    "record_id": [1, 2, 3],
+                }
+            )
+        )
+
+        assert schema.get_field("share").semantic_type == SemanticType.RATIO
+        assert schema.get_field("year").semantic_type == SemanticType.TEMPORAL
+        assert schema.get_field("postal_code").semantic_type == SemanticType.CODE
+        assert schema.get_field("record_id").semantic_type == SemanticType.IDENTIFIER
+
+    def test_infer_numeric_bounds_ignore_non_finite_values(self) -> None:
+        schema = infer_schema(pd.DataFrame({"value": [1.0, float("inf"), 2.0]}))
+        field = schema.get_field("value")
+        assert field.bounds == (1.0, 2.0)
 
     def test_infer_time_dimension(self, sample_dataframe: pd.DataFrame) -> None:
         """Test time dimension detection."""
@@ -733,6 +783,89 @@ class TestSchemaEvolution:
             c.change_type == ChangeType.FIELD_MADE_NULLABLE for c in report.changes
         )
 
+    def test_mixed_bounds_emit_relaxed_and_tightened_changes(
+        self, evolution: SchemaEvolution
+    ) -> None:
+        old = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(1, 0, 0),
+            fields=(FieldSpec(name="value", data_type=SchemaType.FLOAT64, bounds=(0, 10)),),
+        )
+        new = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(2, 0, 0),
+            fields=(FieldSpec(name="value", data_type=SchemaType.FLOAT64, bounds=(-5, 5)),),
+        )
+
+        report = evolution.compare(old, new)
+        change_types = {change.change_type for change in report.changes}
+
+        assert ChangeType.BOUNDS_RELAXED in change_types
+        assert ChangeType.BOUNDS_TIGHTENED in change_types
+        assert not report.is_compatible
+
+    def test_allowed_values_empty_set_is_constraint(
+        self, evolution: SchemaEvolution
+    ) -> None:
+        empty = FieldSpec(
+            name="status",
+            data_type=SchemaType.CATEGORY,
+            allowed_values=frozenset(),
+        )
+        with_value = FieldSpec(
+            name="status",
+            data_type=SchemaType.CATEGORY,
+            allowed_values=frozenset({"active"}),
+        )
+
+        assert empty.widen_to(with_value).allowed_values == frozenset({"active"})
+        assert empty.widen_to(empty).allowed_values == frozenset()
+
+        schema = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(1, 0, 0),
+            fields=(empty,),
+        )
+        assert validate_dataframe_against_schema(
+            pd.DataFrame({"status": ["active"]}),
+            schema,
+        )
+
+        old = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(1, 0, 0),
+            fields=(empty,),
+        )
+        new = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(1, 1, 0),
+            fields=(with_value,),
+        )
+        report = evolution.compare(old, new)
+        assert any(
+            change.change_type == ChangeType.ALLOWED_VALUES_EXPANDED
+            for change in report.changes
+        )
+
+    def test_precision_removal_is_relaxation(self, evolution: SchemaEvolution) -> None:
+        old = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(1, 0, 0),
+            fields=(FieldSpec(name="value", data_type=SchemaType.FLOAT64, precision=10),),
+        )
+        new = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(1, 1, 0),
+            fields=(FieldSpec(name="value", data_type=SchemaType.FLOAT64),),
+        )
+
+        report = evolution.compare(old, new)
+        assert report.is_compatible
+        assert any(
+            change.change_type == ChangeType.PRECISION_WIDENED
+            for change in report.changes
+        )
+
     def test_generate_migration_sql(self, evolution: SchemaEvolution) -> None:
         """Test SQL migration generation."""
         old = DataSchema(
@@ -754,6 +887,30 @@ class TestSchemaEvolution:
         assert len(sql) == 1
         assert "ADD COLUMN" in sql[0]
         assert "VARCHAR" in sql[0]
+
+    def test_build_migration_plan_marks_destructive_changes_unsafe(
+        self,
+        evolution: SchemaEvolution,
+    ) -> None:
+        old = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(1, 0, 0),
+            fields=(
+                FieldSpec(name="a", data_type=SchemaType.INT32),
+                FieldSpec(name="b", data_type=SchemaType.STRING),
+            ),
+        )
+        new = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(2, 0, 0),
+            fields=(FieldSpec(name="a", data_type=SchemaType.INT32),),
+        )
+
+        plan = evolution.build_migration_plan(old, new, "my_table")
+
+        assert isinstance(plan, MigrationPlan)
+        assert plan.safe_to_apply is False
+        assert any(operation.action == "drop_column" for operation in plan.operations)
 
 
 # =============================================================================
@@ -880,15 +1037,28 @@ class TestFileBackedSchemaRegistry:
         """Test that schemas persist across registry instances."""
         with tempfile.TemporaryDirectory() as tmpdir:
             base_dir = Path(tmpdir)
+            approval = SchemaApprovalMetadata(
+                owner="fabric-owner",
+                reviewer="fabric-reviewer",
+                risk_level=SchemaRiskLevel.HIGH,
+                migration_status=MigrationStatus.PLANNED,
+                downstream_impact_summary="world.claims, quality_reports",
+                migration_note="Add backfill for downstream views.",
+                adr_refs=("ADR-0053",),
+                approved_major_bump=True,
+            )
 
             registry1 = FileBackedSchemaRegistry(base_dir)
-            registry1.register(sample_schema)
+            registry1.register(sample_schema, approval=approval)
 
             registry2 = FileBackedSchemaRegistry(base_dir)
             loaded = registry2.get(sample_schema.schema_id)
+            registration = registry2.get_registration(sample_schema.schema_id)
 
             assert loaded.schema_id == sample_schema.schema_id
             assert loaded.content_hash == sample_schema.content_hash
+            assert registration.approval.owner == "fabric-owner"
+            assert registration.approval.adr_refs == ("ADR-0053",)
 
     def test_unregister(self, sample_schema: DataSchema) -> None:
         """Test unregistering removes files."""
@@ -904,6 +1074,18 @@ class TestFileBackedSchemaRegistry:
             registry.unregister(sample_schema.schema_id)
 
             assert not schema_dir.exists()
+
+    def test_startup_removes_orphan_tmp_files(self, sample_schema: DataSchema) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_dir = Path(tmpdir)
+            orphan = base_dir / ".schema.tmp"
+            orphan.write_text("{not-json", encoding="utf-8")
+
+            registry = FileBackedSchemaRegistry(base_dir)
+            registry.register(sample_schema)
+
+            assert not orphan.exists()
+            assert registry.get(sample_schema.schema_id).content_hash == sample_schema.content_hash
 
 
 # =============================================================================

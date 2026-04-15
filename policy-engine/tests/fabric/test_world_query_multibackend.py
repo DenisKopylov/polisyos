@@ -5,12 +5,14 @@ from typing import Any, Iterator, Sequence
 
 import pandas as pd
 
+from polisyos.fabric.security import RowAccessPolicy
 from polisyos.fabric.world_query import WorldQueryRequest, execute_world_query
 
 
 class FakeBackend:
     backend_kind = "postgres"
     placeholder = "%s"
+    tenant_scope_enforced = True
 
     def __init__(self) -> None:
         self.last_sql: str = ""
@@ -55,3 +57,21 @@ def test_execute_world_query_uses_backend_placeholder() -> None:
     assert "%s" in backend.last_sql
     assert "LIMIT %s" in backend.last_sql
     assert backend.last_params == ["subj-1", 10]
+
+
+def test_execute_world_query_injects_row_policy_filters() -> None:
+    backend = FakeBackend()
+    request = WorldQueryRequest(
+        table="world_facts",
+        columns=("fact_id",),
+        where={"subject_id": "subj-1"},
+        row_policy=RowAccessPolicy(tenant_id="tenant-a", enforced_filters={"source_id": "wdi"}),
+        tenant_column="tenant_id",
+        limit=10,
+    )
+
+    execute_world_query(backend, request)
+
+    assert "tenant_id = %s" in backend.last_sql
+    assert "source_id = %s" in backend.last_sql
+    assert backend.last_params == ["subj-1", "wdi", "tenant-a", 10]

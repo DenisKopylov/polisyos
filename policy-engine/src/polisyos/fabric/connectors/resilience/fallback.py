@@ -10,26 +10,31 @@ Implements fallback patterns when primary operations fail:
 from __future__ import annotations
 
 from abc import abstractmethod
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import wraps
-from typing import Any, Awaitable, Callable, Generic, Protocol, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast, runtime_checkable
 
 from opentelemetry import trace
-from opentelemetry.trace import Status, StatusCode
+from opentelemetry.trace import Status, StatusCode, Tracer
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.fabric.connectors.base import FetchResult, ResilienceInfo
 
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from polisyos.core.observability import MetricsRegistry
+
 logger = get_logger(__name__)
-tracer = trace.get_tracer(__name__)
+DEFAULT_TRACER = trace.get_tracer(__name__)
 
 T = TypeVar("T")
 DataT = TypeVar("DataT")
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _extract_request(args: tuple[Any, ...], kwargs: dict[str, Any]) -> Any | None:
@@ -50,7 +55,7 @@ def _extract_handle(args: tuple[Any, ...], kwargs: dict[str, Any]) -> Any | None
     return None
 
 
-def _annotate_fallback(result: DataT, strategy: str) -> DataT:
+def _annotate_fallback[ResultT](result: ResultT, strategy: str) -> ResultT:
     if isinstance(result, FetchResult):
         existing = result.resilience
         update = {
@@ -63,12 +68,41 @@ def _annotate_fallback(result: DataT, strategy: str) -> DataT:
             info = ResilienceInfo(**data)
         else:
             info = ResilienceInfo(**update)
-        return result.model_copy(update={"resilience": info})  # type: ignore[return-value]
+        return cast("ResultT", result.model_copy(update={"resilience": info}))
     return result
 
 
+def _fallback_diagnostic(strategy: str, error: Exception) -> dict[str, str]:
+    return {
+        "strategy": strategy,
+        "error_type": type(error).__name__,
+        "error_message": str(error),
+    }
+
+
+def _raise_with_fallback_diagnostics(
+    primary_error: Exception,
+    fallback_errors: list[dict[str, str]],
+    *,
+    cause: Exception | None = None,
+) -> None:
+    setattr(primary_error, "fallback_errors", tuple(fallback_errors))
+    note = (
+        "Fallback failures: "
+        + ", ".join(
+            f"{item['strategy']}[{item['error_type']}]: {item['error_message']}"
+            for item in fallback_errors
+        )
+    )
+    if hasattr(primary_error, "add_note"):
+        primary_error.add_note(note)
+    if cause is not None:
+        raise primary_error from cause
+    raise primary_error
+
+
 @runtime_checkable
-class FallbackStrategy(Protocol, Generic[DataT]):
+class FallbackStrategy[DataT](Protocol):
     """Protocol for fallback strategies."""
 
     @abstractmethod
@@ -82,7 +116,7 @@ class FallbackStrategy(Protocol, Generic[DataT]):
         ...
 
 
-class RaiseFallback(Generic[DataT]):
+class RaiseFallback[DataT]:
     """Fallback strategy that propagates the original error."""
 
     async def handle_failure(
@@ -100,7 +134,7 @@ class RaiseFallback(Generic[DataT]):
         raise error
 
 
-class MockFallback(Generic[DataT]):
+class MockFallback[DataT]:
     """Fallback strategy that returns mock/synthetic data."""
 
     def __init__(self, mock_data: DataT | None = None) -> None:
@@ -126,8 +160,10 @@ class MockFallback(Generic[DataT]):
             from polisyos.fabric.connectors.base import FetchResult
             from polisyos.ir.connectors import DataVersion, VersionStrategy
 
-            return _annotate_fallback(
-                FetchResult(  # type: ignore[return-value]
+            return cast(
+                "DataT",
+                _annotate_fallback(
+                    FetchResult(
                     data=[],
                     row_count=0,
                     schema_id="mock",
@@ -140,13 +176,14 @@ class MockFallback(Generic[DataT]):
                     fetched_at=_utc_now(),
                     completeness=0.0,
                 ),
-                type(self).__name__,
+                    type(self).__name__,
+                ),
             )
         except Exception:
             return None
 
 
-class CacheFallback(Generic[DataT]):
+class CacheFallback[DataT]:
     """Fallback strategy that returns stale data from cache."""
 
     def __init__(
@@ -209,19 +246,26 @@ class CacheFallback(Generic[DataT]):
             cache_age_seconds=age_seconds,
         )
 
-        return _annotate_fallback(result, type(self).__name__)
+        return cast("DataT", _annotate_fallback(result, type(self).__name__))
 
 
-class FallbackChain(Generic[DataT]):
+class FallbackChain[DataT]:
     """
     Chain of fallback strategies tried in order.
     """
 
-    def __init__(self, strategies: list[FallbackStrategy[DataT]]) -> None:
+    def __init__(
+        self,
+        strategies: list[FallbackStrategy[DataT]],
+        *,
+        metrics: MetricsRegistry | None = None,
+        tracer: Tracer | None = None,
+    ) -> None:
         if not strategies:
             raise ValueError("Fallback chain requires at least one strategy")
         self.strategies = strategies
-        self._metrics = get_metrics()
+        self._metrics = metrics or get_metrics()
+        self._tracer = tracer or DEFAULT_TRACER
 
         logger.debug(
             "Fallback chain initialized",
@@ -235,7 +279,7 @@ class FallbackChain(Generic[DataT]):
         *args: Any,
         **kwargs: Any,
     ) -> DataT:
-        with tracer.start_as_current_span(
+        with self._tracer.start_as_current_span(
             "connector.fallback.execute",
             attributes={
                 "fallback.strategy_count": len(self.strategies),
@@ -255,22 +299,24 @@ class FallbackChain(Generic[DataT]):
                 )
 
                 parent_span.record_exception(primary_error)
+                fallback_errors: list[dict[str, str]] = []
+                last_fallback_error: Exception | None = None
 
                 for idx, strategy in enumerate(self.strategies):
                     strategy_name = type(strategy).__name__
 
-                    if self._metrics and getattr(
-                        self._metrics, "connector_fallback_triggered_total", None
-                    ):
+                    fallback_triggered = getattr(
+                        self._metrics,
+                        "connector_fallback_triggered_total",
+                        None,
+                    )
+                    if fallback_triggered is not None:
                         labels = {
                             "strategy": strategy_name,
                         }
-                        self._metrics.connector_fallback_triggered_total.add(  # type: ignore[union-attr]
-                            1,
-                            labels,
-                        )
+                        fallback_triggered.add(1, labels)
 
-                    with tracer.start_as_current_span(
+                    with self._tracer.start_as_current_span(
                         f"connector.fallback.strategy_{idx}",
                         attributes={
                             "fallback.strategy": strategy_name,
@@ -278,30 +324,30 @@ class FallbackChain(Generic[DataT]):
                         },
                     ) as strategy_span:
                         try:
-                            result = await strategy.handle_failure(
+                            fallback_result = await strategy.handle_failure(
                                 primary_error,
                                 func,
                                 *args,
                                 **kwargs,
                             )
 
-                            if result is not None:
+                            if fallback_result is not None:
                                 logger.info(
                                     "Fallback succeeded",
                                     strategy=strategy_name,
                                     index=idx,
                                 )
 
-                                if self._metrics and getattr(
-                                    self._metrics, "connector_fallback_success_total", None
-                                ):
+                                fallback_success = getattr(
+                                    self._metrics,
+                                    "connector_fallback_success_total",
+                                    None,
+                                )
+                                if fallback_success is not None:
                                     labels = {
                                         "strategy": strategy_name,
                                     }
-                                    self._metrics.connector_fallback_success_total.add(  # type: ignore[union-attr]
-                                        1,
-                                        labels,
-                                    )
+                                    fallback_success.add(1, labels)
 
                                 strategy_span.set_status(Status(StatusCode.OK))
                                 parent_span.set_attribute(
@@ -310,7 +356,7 @@ class FallbackChain(Generic[DataT]):
                                 )
                                 parent_span.set_status(Status(StatusCode.OK))
 
-                                return result
+                                return fallback_result
 
                             logger.debug(
                                 "Fallback strategy returned None",
@@ -328,9 +374,10 @@ class FallbackChain(Generic[DataT]):
                                 Status(StatusCode.ERROR, str(fallback_error))
                             )
                             strategy_span.record_exception(fallback_error)
-
-                            if idx == len(self.strategies) - 1:
-                                raise
+                            fallback_errors.append(
+                                _fallback_diagnostic(strategy_name, fallback_error)
+                            )
+                            last_fallback_error = fallback_error
 
                 logger.error(
                     "All fallback strategies exhausted",
@@ -340,7 +387,12 @@ class FallbackChain(Generic[DataT]):
                 parent_span.set_status(
                     Status(StatusCode.ERROR, "All fallbacks exhausted")
                 )
-
+                if fallback_errors:
+                    _raise_with_fallback_diagnostics(
+                        primary_error,
+                        fallback_errors,
+                        cause=last_fallback_error,
+                    )
                 raise primary_error
 
 

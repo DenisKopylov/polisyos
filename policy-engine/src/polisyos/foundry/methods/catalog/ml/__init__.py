@@ -8,6 +8,12 @@ from ._registry_boot import register_ml_methods
 from .advanced import GaussianProcessEstimator, NeuralODEEstimator, QuantileForestEstimator
 from .clustering import KMeansEstimator
 from .decomposition import PCAEstimator
+from .frontier import (
+    FTTransformerEstimator,
+    GraphNeuralNetworkEstimator,
+    MaskedAutoencoderEmbeddingEstimator,
+    TabNetEstimator,
+)
 from .protocols import (
     ClusteringResult,
     EmbeddingResult,
@@ -40,7 +46,9 @@ __all__ = [
     "EmbeddingResult",
     "GaussianProcessEstimator",
     "GradientBoostingEstimator",
+    "GraphNeuralNetworkEstimator",
     "KMeansEstimator",
+    "MaskedAutoencoderEmbeddingEstimator",
     "NeuralODEEstimator",
     "PCAEstimator",
     "PredictionIntervalResult",
@@ -52,6 +60,8 @@ __all__ = [
     "SurvivalResult",
     "TabularData",
     "TabularTransformerEstimator",
+    "FTTransformerEstimator",
+    "TabNetEstimator",
     "ensure_ml_methods_registered",
     "register_ml_methods",
 ]

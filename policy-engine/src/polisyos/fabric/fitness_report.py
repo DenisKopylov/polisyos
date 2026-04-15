@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any, List
 
 from polisyos.common.logger import get_logger
+from polisyos.fabric.temporal import parse_datetime_utc, utc_now
 
 from .quality import QualityIndicators, QualityLevel, QualityThresholds
 
@@ -76,7 +77,8 @@ class DataFitnessReport:
     metrics: List[MetricFitness] = field(default_factory=list)
     overall_passed: bool = True
     summary: str = ""
-    computed_at: datetime = field(default_factory=datetime.utcnow)
+    computed_at: datetime = field(default_factory=utc_now)
+    diagnostics: List[dict[str, str]] = field(default_factory=list)
 
     total_metrics: int = 0
     passed_metrics: int = 0
@@ -179,42 +181,83 @@ class DataFitnessReport:
             "overall_passed": self.overall_passed,
             "summary": self.summary,
             "computed_at": self.computed_at.isoformat(),
+            "diagnostics": self.diagnostics,
             "total_metrics": self.total_metrics,
             "passed_metrics": self.passed_metrics,
             "failed_metrics": self.failed_metrics,
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "DataFitnessReport":
+    def from_dict(
+        cls,
+        data: dict[str, Any],
+        *,
+        strict: bool = False,
+    ) -> "DataFitnessReport":
         """Deserialize from JSON storage."""
         report = cls(
             run_id=data["run_id"],
             profile=data.get("profile", "mvp"),
             overall_passed=data.get("overall_passed", True),
             summary=data.get("summary", ""),
-            computed_at=datetime.fromisoformat(data["computed_at"]),
-            total_metrics=data.get("total_metrics", 0),
-            passed_metrics=data.get("passed_metrics", 0),
-            failed_metrics=data.get("failed_metrics", 0),
+            computed_at=parse_datetime_utc(data["computed_at"], what="computed_at"),
+            diagnostics=[
+                {
+                    "code": str(item.get("code", "report_diagnostic")),
+                    "message": str(item.get("message", "")),
+                    "metric_id": str(item.get("metric_id", "")),
+                }
+                for item in data.get("diagnostics", [])
+                if isinstance(item, dict)
+            ],
         )
 
+        metrics: list[MetricFitness] = []
         for metric in data.get("metrics", []):
             try:
                 indicators = QualityIndicators.from_dict(metric["indicators"])
                 level = QualityLevel(metric["level"])
-                fitness = MetricFitness(
-                    metric_id=metric["metric_id"],
-                    indicators=indicators,
-                    level=level,
-                    fail_reasons=metric.get("fail_reasons", []),
-                    profile_used=metric.get("profile_used", report.profile),
+                metrics.append(
+                    MetricFitness(
+                        metric_id=metric["metric_id"],
+                        indicators=indicators,
+                        level=level,
+                        fail_reasons=metric.get("fail_reasons", []),
+                        profile_used=metric.get("profile_used", report.profile),
+                    )
                 )
-                report.add_metric(fitness)
-            except Exception:
-                logger.debug(
+            except Exception as exc:
+                if strict:
+                    raise ValueError(
+                        "Failed to parse metric fitness entry for metric_id="
+                        f"{metric.get('metric_id', '<unknown>')}: {exc}"
+                    ) from exc
+                report.diagnostics.append(
+                    {
+                        "code": "metric_deserialize_failed",
+                        "metric_id": str(metric.get("metric_id", "<unknown>")),
+                        "message": str(exc),
+                    }
+                )
+                logger.warning(
                     "Failed to parse metric fitness entry for metric_id=%s",
                     metric.get("metric_id", "<unknown>"), exc_info=True,
                 )
-                continue
+        report.metrics = metrics
 
+        if report.diagnostics:
+            report.total_metrics = len(metrics)
+            report.passed_metrics = sum(1 for metric in metrics if metric.passed)
+            report.failed_metrics = report.total_metrics - report.passed_metrics
+            report.overall_passed = report.failed_metrics == 0
+        elif all(key in data for key in ("total_metrics", "passed_metrics", "failed_metrics")):
+            report.total_metrics = int(data.get("total_metrics", 0))
+            report.passed_metrics = int(data.get("passed_metrics", 0))
+            report.failed_metrics = int(data.get("failed_metrics", 0))
+            report.overall_passed = bool(data.get("overall_passed", report.failed_metrics == 0))
+        else:
+            report.total_metrics = len(metrics)
+            report.passed_metrics = sum(1 for metric in metrics if metric.passed)
+            report.failed_metrics = report.total_metrics - report.passed_metrics
+            report.overall_passed = report.failed_metrics == 0
         return report

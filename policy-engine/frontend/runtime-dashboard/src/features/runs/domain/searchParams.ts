@@ -5,7 +5,7 @@ import {
   parseSearchParamsWithSchema,
 } from "@/lib/searchParams";
 
-import type { RunDetailTab } from "@/features/runs/routes/useRunDetailSummary";
+import type { RunDetailTab } from "@/features/runs/domain/runDetailTabs";
 
 const runsListSearchSchema = z.object({
   cursor: z.string().trim().min(1).optional().catch(undefined),

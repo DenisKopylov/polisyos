@@ -1,11 +1,11 @@
 """Validate data-quality and evidence readiness signals before governed execution."""
 from __future__ import annotations
 
-import logging
 from typing import Any, List
 
-logger = logging.getLogger(__name__)
+from pydantic import ValidationError
 
+from polisyos.common.logger import get_logger
 from polisyos.core.governance.passes.base import (
     ComplianceIssue,
     IssueSeverity,
@@ -20,6 +20,18 @@ from polisyos.fabric.quality import (
     compute_quality_indicators,
     get_cached_quality_indicators,
 )
+from polisyos.scientist.error_semantics import emit_degraded_path
+
+_QUALITY_GATE_ERRORS = (
+    AttributeError,
+    KeyError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
+logger = get_logger(__name__)
 
 
 class QualityGatePass(ValidatorPass):
@@ -95,11 +107,15 @@ class QualityGatePass(ValidatorPass):
         metrics_to_check = self._get_metrics_to_check(evidence_bundle, ctx)
 
         for metric_id, metric_data in metrics_to_check.items():
-            indicators = self._get_or_compute_indicators(
+            indicators, degraded_issue = self._get_or_compute_indicators(
                 metric_id=metric_id,
                 metric_data=metric_data,
                 catalog_registry=catalog_registry,
+                pass_id=self.pass_id,
             )
+            if degraded_issue is not None:
+                issues.append(degraded_issue)
+                continue
 
             if indicators is None:
                 issues.append(
@@ -210,43 +226,56 @@ class QualityGatePass(ValidatorPass):
         metric_id: str,
         metric_data: dict[str, Any],
         catalog_registry: Any | None,
-    ) -> QualityIndicators | None:
+        pass_id: str,
+    ) -> tuple[QualityIndicators | None, ComplianceIssue | None]:
         indicators_payload = metric_data.get("indicators")
         if isinstance(indicators_payload, QualityIndicators):
-            return indicators_payload
+            return indicators_payload, None
         if isinstance(indicators_payload, dict):
             try:
-                return QualityIndicators.from_dict(indicators_payload)
-            except Exception:
-                logger.warning(
-                    "Failed to parse QualityIndicators for metric '%s'",
-                    metric_id,
-                    exc_info=True,
+                return QualityIndicators.from_dict(indicators_payload), None
+            except _QUALITY_GATE_ERRORS as exc:
+                return None, self._build_quality_issue(
+                    pass_id=pass_id,
+                    path=["evidence_bundle", "quality_indicators", metric_id],
+                    code="QUALITY_INDICATORS_INVALID",
+                    message=(
+                        f"Metric '{metric_id}' quality indicators are invalid and could not be parsed."
+                    ),
+                    suggestion="Rebuild the evidence bundle quality indicators payload.",
+                    exc=exc,
+                    operation="parse_quality_indicators",
+                    details={"metric_id": metric_id},
                 )
-                return None
 
         if catalog_registry is not None:
             cached = get_cached_quality_indicators(metric_id, catalog_registry)
             if cached is not None:
-                return cached
+                return cached, None
 
         source = metric_data.get("source")
         if isinstance(source, str) and source in {"explicit", "state", "evidence_bundle"}:
-            return None
+            return None, None
 
         if hasattr(source, "load_dataframe"):
             try:
                 df = source.load_dataframe()
-                return compute_quality_indicators(df=df, metric_id=metric_id)
-            except Exception:
-                logger.warning(
-                    "Failed to compute quality indicators for metric '%s'",
-                    metric_id,
-                    exc_info=True,
+                return compute_quality_indicators(df=df, metric_id=metric_id), None
+            except _QUALITY_GATE_ERRORS as exc:
+                return None, self._build_quality_issue(
+                    pass_id=pass_id,
+                    path=["metrics", metric_id],
+                    code="QUALITY_INDICATORS_COMPUTE_FAILED",
+                    message=(
+                        f"Metric '{metric_id}' quality indicators could not be computed."
+                    ),
+                    suggestion="Check upstream metric materialization and dataframe loading.",
+                    exc=exc,
+                    operation="compute_quality_indicators",
+                    details={"metric_id": metric_id},
                 )
-                return None
 
-        return None
+        return None, None
 
     def _validate_from_quality_report(
         self,
@@ -332,6 +361,10 @@ class QualityGatePass(ValidatorPass):
                     )
                 )
 
+        dataset_id = getattr(data_quality_report, "dataset_id", None)
+        if dataset_id is not None and not isinstance(dataset_id, (str, int)):
+            return None
+
         try:
             indicators = QualityIndicators.from_quality_report(data_quality_report)
             fitness = MetricFitness.from_indicators(
@@ -342,9 +375,49 @@ class QualityGatePass(ValidatorPass):
             report = ctx.state.get("data_fitness_report")
             if report:
                 report.add_metric(fitness)
-        except Exception:
-            logger.warning(
-                "Failed to build fitness from quality report",
-                exc_info=True,
+        except _QUALITY_GATE_ERRORS as exc:
+            issues.append(
+                self._build_quality_issue(
+                    pass_id=self.pass_id,
+                    path=["data", "quality"],
+                    code="QUALITY_FITNESS_DEGRADED",
+                    message=(
+                        "Quality fitness summary could not be derived from data_quality_report."
+                    ),
+                    suggestion="Rebuild the quality report with valid freshness and violation fields.",
+                    exc=exc,
+                    operation="build_quality_fitness",
+                    details={"profile": profile_level},
+                )
             )
             return None
+
+    def _build_quality_issue(
+        self,
+        *,
+        pass_id: str,
+        path: list[str | int],
+        code: str,
+        message: str,
+        suggestion: str,
+        exc: BaseException,
+        operation: str,
+        details: dict[str, Any] | None = None,
+    ) -> ComplianceIssue:
+        envelope = emit_degraded_path(
+            component="governance.quality_gate",
+            operation=operation,
+            reason="quality_gate_degraded",
+            exc=exc,
+            details=details,
+            log=logger,
+        )
+        return ComplianceIssue(
+            pass_id=pass_id,
+            path=path,
+            message=message,
+            severity=IssueSeverity.WARNING,
+            code=code,
+            suggestion=suggestion,
+            input_value=str(envelope),
+        )

@@ -5,10 +5,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import threading
 import time
+from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.control import (
@@ -25,9 +28,18 @@ from polisyos.core.contracts.control import (
 from polisyos.datasets.batch.source_registry import SourceSpec, load_source_registry
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolver
 from polisyos.fabric.catalog.source_bindings import SourceBinding
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 
 from .executor import ExecutePlanResult, FetchExecutor
 from .explore_lane import ExploreLaneDiscoverResult, ExploreLaneDiscovery, ExploreLaneLimits
+from .providers import RetrievalProviders, resolve_retrieval_providers
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
 
 logger = get_logger(__name__)
 
@@ -71,6 +83,59 @@ def _stable_id(prefix: str, *parts: str) -> str:
     return f"{prefix}_{digest}"
 
 
+def _optional_text(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if text.lower() in {"none", "null"}:
+        return None
+    return text
+
+
+def _coerce_int(value: object, *, default: int = 0) -> int:
+    try:
+        if isinstance(value, bool):
+            return int(value)
+        if isinstance(value, int):
+            return value
+        if isinstance(value, float):
+            return int(value)
+        if isinstance(value, str):
+            return int(value)
+    except (TypeError, ValueError):
+        pass
+    return default
+
+
+def _coerce_float(value: object, *, default: float = 0.0) -> float:
+    try:
+        if isinstance(value, bool):
+            return float(value)
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            return float(value)
+    except (TypeError, ValueError):
+        pass
+    return default
+
+
+def _coerce_filter_map(value: object) -> dict[str, list[str]]:
+    if not isinstance(value, dict):
+        return {}
+    normalized: dict[str, list[str]] = {}
+    for key, raw_values in value.items():
+        if not isinstance(key, str):
+            continue
+        if isinstance(raw_values, list):
+            normalized[key] = [str(item) for item in raw_values]
+        elif raw_values is not None:
+            normalized[key] = [str(raw_values)]
+    return normalized
+
+
 class RetrievalService:
     """High-level retrieval orchestrator for control API and NL pipeline."""
 
@@ -80,17 +145,52 @@ class RetrievalService:
         curated_dir: Path,
         cas_root: Path | None = None,
         dataset_catalog: object | None = None,
+        max_local_index_docs: int = 2_048,
+        max_promotion_candidates: int = 512,
+        registry: ConnectorRegistry | None = None,
+        profiles: SourceProfileRegistry | None = None,
+        tracer: PolicyOSTracer | None = None,
+        metrics: MetricsRegistry | None = None,
+        fastlane: FastLaneResolver | None = None,
+        executor: FetchExecutor | None = None,
+        explore: ExploreLaneDiscovery | None = None,
+        providers: RetrievalProviders | None = None,
     ) -> None:
-        self._fastlane = FastLaneResolver(curated_dir=curated_dir)
-        self._explore = ExploreLaneDiscovery()
-        self._executor = FetchExecutor(cas_root=cas_root)
+        resolved = providers or resolve_retrieval_providers(
+            registry=registry,
+            profiles=profiles,
+            tracer=tracer,
+            metrics=metrics,
+        )
+        resolved_registry = resolved.registry
+        resolved_profiles = resolved.profiles
+        resolved_tracer = resolved.tracer
+        resolved_metrics = resolved.metrics
+        self._fastlane = fastlane or FastLaneResolver(
+            curated_dir=curated_dir,
+            connector_registry=resolved_registry,
+        )
+        self._explore = explore or ExploreLaneDiscovery(
+            providers=resolved,
+        )
+        self._executor = executor or FetchExecutor(
+            cas_root=cas_root,
+            providers=resolved,
+        )
         self._dataset_catalog = dataset_catalog  # DatasetCatalogGraph (optional)
-        self._promotion_queue: dict[str, PromotionCandidate] = {}
-        self._local_index_docs: dict[str, dict[str, object]] = {}
+        self._registry = resolved_registry
+        self._profiles = resolved_profiles
+        self._tracer = resolved_tracer
+        self._metrics = resolved_metrics
+        self._promotion_queue: OrderedDict[str, PromotionCandidate] = OrderedDict()
+        self._local_index_docs: OrderedDict[str, dict[str, object]] = OrderedDict()
         self._index_size_bytes = 0
         self._docs_added_last_run = 0
         self._last_updated: datetime | None = None
         self._catalog_source_policies: dict[str, SourceSpec] | None = None
+        self._max_local_index_docs = max(1, max_local_index_docs)
+        self._max_promotion_candidates = max(1, max_promotion_candidates)
+        self._state_lock = threading.RLock()
 
     def _source_policy(self, source_name: str) -> SourceSpec | None:
         normalized = (source_name or "").strip()
@@ -118,7 +218,7 @@ class RetrievalService:
             return need.time_start, need.time_end, policy
         if policy.history_policy != "rolling_window" or policy.default_lookback_days is None:
             return None, None, policy
-        date_end = datetime.now(timezone.utc)
+        date_end = datetime.now(UTC)
         date_start = date_end - timedelta(days=int(policy.default_lookback_days))
         return date_start.isoformat(), date_end.isoformat(), policy
 
@@ -128,133 +228,157 @@ class RetrievalService:
         candidates: list[MetricCandidate] = []
         fetch_plans: list[FetchPlan] = []
         phase_metrics: list[dict[str, object]] = []
+        with self._tracer.start_as_current_span(
+            FABRIC_TRACE_NAMES["retrieval_resolve"],
+            attributes={
+                "retrieval.mode": request.mode,
+                "retrieval.need_count": len(request.data_needs),
+            },
+        ):
+            fastlane_enabled = _flag("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", default=True)
+            explore_enabled = _flag("POLISYOS_RETRIEVAL_EXPLORE_ENABLED", default=True)
 
-        fastlane_enabled = _flag("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", default=True)
-        explore_enabled = _flag("POLISYOS_RETRIEVAL_EXPLORE_ENABLED", default=True)
-
-        unresolved: list[DataNeed] = list(request.data_needs)
-        if request.mode in {"fastlane", "hybrid"} and fastlane_enabled:
-            phase_start = time.perf_counter()
-            fast = self._fastlane.resolve(request.data_needs)
-            candidates.extend(fast.candidates)
-            fetch_plans.extend(fast.fetch_plans)
-            warnings.extend(fast.warnings)
-            resolved_metrics = {plan.metric_id for plan in fast.fetch_plans}
-            unresolved = [need for need in request.data_needs if need.metric not in resolved_metrics]
-            phase_metrics.append(
-                {
-                    "phase": "resolve_fast_lane",
-                    "lane": "fastlane",
-                    "duration_ms": int((time.perf_counter() - phase_start) * 1000),
-                    "candidates_total": len(fast.candidates),
-                    "candidates_selected": len(fast.fetch_plans),
-                    "docs_fetched": 0,
-                }
-            )
-        elif request.mode in {"fastlane", "hybrid"} and not fastlane_enabled:
-            warnings.append("fastlane_disabled_by_feature_flag")
-
-        # --- Dataset catalog fallback (between FastLane and ExploreLane) ---
-        if unresolved and self._dataset_catalog is not None:
-            phase_start = time.perf_counter()
-            catalog_plans, catalog_candidates = self._resolve_via_catalog(unresolved)
-            fetch_plans.extend(catalog_plans)
-            candidates.extend(catalog_candidates)
-            resolved_metrics = {plan.metric_id for plan in fetch_plans}
-            unresolved = [need for need in unresolved if need.metric not in resolved_metrics]
-            phase_metrics.append(
-                {
-                    "phase": "resolve_dataset_catalog",
-                    "lane": "catalog",
-                    "duration_ms": int((time.perf_counter() - phase_start) * 1000),
-                    "candidates_total": len(catalog_candidates),
-                    "candidates_selected": len(catalog_plans),
-                    "docs_fetched": 0,
-                }
-            )
-
-        should_explore = (
-            request.mode == "explorelane"
-            or (
-                request.mode == "hybrid"
-                and request.allow_explore_fallback
-                and bool(unresolved)
-            )
-        )
-        if should_explore:
-            if not explore_enabled:
-                warnings.append("explorelane_disabled_by_feature_flag")
-            else:
+            unresolved: list[DataNeed] = list(request.data_needs)
+            if request.mode in {"fastlane", "hybrid"} and fastlane_enabled:
                 phase_start = time.perf_counter()
-                discover_outcome = self.discover(
-                    data_needs=request.data_needs if request.mode == "explorelane" else unresolved
-                )
-                warnings.extend(discover_outcome.warnings)
-                self._update_local_index(discover_outcome.candidates)
-                explore_plans = self._build_plans_from_discovery(
-                    candidates=discover_outcome.candidates,
-                    existing_metric_ids={plan.metric_id for plan in fetch_plans},
-                    data_needs=request.data_needs,
-                )
-                fetch_plans.extend(explore_plans)
-                candidates.extend(
-                    [
-                        MetricCandidate(
-                            candidate_id=item.candidate_id,
-                            metric_id=item.metric_id,
-                            connector_id=item.connector_id,
-                            dataset_id=item.dataset_id,
-                            profile_id=item.profile_id,
-                            source_lane="explorelane",
-                            confidence=item.confidence,
-                            rank=index + 1,
-                            trust_score=0.5,
-                            freshness_score=0.5,
-                            coverage_estimate=item.coverage_estimate,
-                            latency_estimate_ms=item.latency_estimate_ms,
-                            filters_template={},
-                            match_reason="explore_lane_discovery",
-                            metadata=item.metadata,
-                        )
-                        for index, item in enumerate(discover_outcome.candidates)
-                    ]
-                )
+                fast = self._fastlane.resolve(request.data_needs)
+                candidates.extend(fast.candidates)
+                fetch_plans.extend(fast.fetch_plans)
+                warnings.extend(fast.warnings)
+                resolved_metrics = {plan.metric_id for plan in fast.fetch_plans}
+                unresolved = [need for need in request.data_needs if need.metric not in resolved_metrics]
                 phase_metrics.append(
                     {
-                        "phase": "discover_explore_lane",
-                        "lane": "explorelane",
+                        "phase": "resolve_fast_lane",
+                        "lane": "fastlane",
                         "duration_ms": int((time.perf_counter() - phase_start) * 1000),
-                        "candidates_total": len(discover_outcome.candidates),
-                        "candidates_selected": len(explore_plans),
-                        "docs_fetched": discover_outcome.docs_fetched_total,
+                        "candidates_total": len(fast.candidates),
+                        "candidates_selected": len(fast.fetch_plans),
+                        "docs_fetched": 0,
+                        "route_breakdown": self._route_breakdown(fast.candidates),
+                    }
+                )
+            elif request.mode in {"fastlane", "hybrid"} and not fastlane_enabled:
+                warnings.append("fastlane_disabled_by_feature_flag")
+
+            if unresolved and self._dataset_catalog is not None:
+                phase_start = time.perf_counter()
+                catalog_plans, catalog_candidates = self._resolve_via_catalog(unresolved)
+                fetch_plans.extend(catalog_plans)
+                candidates.extend(catalog_candidates)
+                resolved_metrics = {plan.metric_id for plan in fetch_plans}
+                unresolved = [need for need in unresolved if need.metric not in resolved_metrics]
+                phase_metrics.append(
+                    {
+                        "phase": "resolve_dataset_catalog",
+                        "lane": "catalog",
+                        "duration_ms": int((time.perf_counter() - phase_start) * 1000),
+                        "candidates_total": len(catalog_candidates),
+                        "candidates_selected": len(catalog_plans),
+                        "docs_fetched": 0,
+                        "route_breakdown": self._route_breakdown(catalog_candidates),
                     }
                 )
 
-        if not fetch_plans:
-            warnings.append("no_fetch_plans_resolved")
+            should_explore = (
+                request.mode == "explorelane"
+                or (
+                    request.mode == "hybrid"
+                    and request.allow_explore_fallback
+                    and bool(unresolved)
+                )
+            )
+            if should_explore:
+                if not explore_enabled:
+                    warnings.append("explorelane_disabled_by_feature_flag")
+                else:
+                    phase_start = time.perf_counter()
+                    discover_outcome = self.discover(
+                        data_needs=request.data_needs if request.mode == "explorelane" else unresolved
+                    )
+                    warnings.extend(discover_outcome.warnings)
+                    self._update_local_index(discover_outcome.candidates)
+                    explore_plans = self._build_plans_from_discovery(
+                        candidates=discover_outcome.candidates,
+                        existing_metric_ids={plan.metric_id for plan in fetch_plans},
+                        data_needs=request.data_needs,
+                    )
+                    fetch_plans.extend(explore_plans)
+                    candidates.extend(
+                        [
+                            MetricCandidate(
+                                candidate_id=item.candidate_id,
+                                metric_id=item.metric_id,
+                                connector_id=item.connector_id,
+                                dataset_id=item.dataset_id,
+                                profile_id=item.profile_id,
+                                source_lane="explorelane",
+                                confidence=item.confidence,
+                                rank=index + 1,
+                                trust_score=0.5,
+                                freshness_score=0.5,
+                                coverage_estimate=item.coverage_estimate,
+                                latency_estimate_ms=item.latency_estimate_ms,
+                                filters_template={},
+                                match_reason="explore_lane_discovery",
+                                metadata=item.metadata,
+                            )
+                            for index, item in enumerate(discover_outcome.candidates)
+                        ]
+                    )
+                    phase_metrics.append(
+                        {
+                            "phase": "discover_explore_lane",
+                            "lane": "explorelane",
+                            "duration_ms": int((time.perf_counter() - phase_start) * 1000),
+                            "candidates_total": len(discover_outcome.candidates),
+                            "candidates_selected": len(explore_plans),
+                        "docs_fetched": discover_outcome.docs_fetched_total,
+                            "route_breakdown": self._route_breakdown(discover_outcome.candidates),
+                        }
+                    )
 
-        total_duration_ms = int((time.perf_counter() - started) * 1000)
-        telemetry = {
-            "mode": request.mode,
-            "lane_used": self._lane_used(fetch_plans),
-            "metadata_docs_fetched": sum(
-                int(item.get("docs_fetched", 0)) for item in phase_metrics if isinstance(item, dict)
-            ),
-            "local_index_size_bytes": self._index_size_bytes,
-            "local_index_docs_total": len(self._local_index_docs),
-            "candidates_filtered": max(0, len(candidates) - len(fetch_plans)),
-            "candidates_promoted": 0,
-            "duration_ms": total_duration_ms,
-            "phases": phase_metrics,
-            "warnings": list(warnings),
-        }
-        return ResolveOutcome(
-            mode=request.mode,
-            fetch_plans=fetch_plans,
-            candidates=candidates,
-            warnings=warnings,
-            telemetry=telemetry,
-        )
+            if not fetch_plans:
+                warnings.append("no_fetch_plans_resolved")
+
+            total_duration_ms = int((time.perf_counter() - started) * 1000)
+            with self._state_lock:
+                local_index_docs_total = len(self._local_index_docs)
+                local_index_size_bytes = self._index_size_bytes
+            telemetry = {
+                "mode": request.mode,
+                "lane_used": self._lane_used(fetch_plans),
+                "metadata_docs_fetched": sum(
+                    _coerce_int(item.get("docs_fetched", 0))
+                    for item in phase_metrics
+                    if isinstance(item, dict)
+                ),
+                "local_index_size_bytes": local_index_size_bytes,
+                "local_index_docs_total": local_index_docs_total,
+                "candidates_filtered": max(0, len(candidates) - len(fetch_plans)),
+                "candidates_promoted": 0,
+                "duration_ms": total_duration_ms,
+                "phases": phase_metrics,
+                "warnings": list(warnings),
+                "resolution_routes": {
+                    "candidates": self._route_breakdown(candidates),
+                    "selected": self._route_breakdown(fetch_plans),
+                },
+            }
+            if getattr(self._metrics, "record_fabric_query", None):
+                self._metrics.record_fabric_query(
+                    operation="resolve",
+                    duration_seconds=max(total_duration_ms / 1000.0, 0.0),
+                    row_count=len(fetch_plans),
+                    status="success" if fetch_plans else "empty",
+                )
+            return ResolveOutcome(
+                mode=request.mode,
+                fetch_plans=fetch_plans,
+                candidates=candidates,
+                warnings=warnings,
+                telemetry=telemetry,
+            )
 
     def discover(
         self,
@@ -266,6 +390,7 @@ class RetrievalService:
         time_budget_ms: int = 5_000,
         cost_budget_usd: float = 0.0,
     ) -> DiscoverOutcome:
+        started = time.perf_counter()
         limits = ExploreLaneLimits(
             max_sources_per_query=max_sources_per_query,
             max_discovery_calls_per_source=max_discovery_calls_per_source,
@@ -273,7 +398,18 @@ class RetrievalService:
             time_budget_ms=time_budget_ms,
             cost_budget_usd=cost_budget_usd,
         )
-        result: ExploreLaneDiscoverResult = self._explore.discover(data_needs, limits=limits)
+        with self._tracer.start_as_current_span(
+            FABRIC_TRACE_NAMES["retrieval_discover"],
+            attributes={"retrieval.need_count": len(data_needs)},
+        ):
+            result: ExploreLaneDiscoverResult = self._explore.discover(data_needs, limits=limits)
+        if getattr(self._metrics, "record_fabric_query", None):
+            self._metrics.record_fabric_query(
+                operation="discover",
+                duration_seconds=max(time.perf_counter() - started, 0.0),
+                row_count=len(result.candidates),
+                status="success",
+            )
         return DiscoverOutcome(
             candidates=result.candidates,
             docs_fetched_total=result.docs_fetched_total,
@@ -290,39 +426,54 @@ class RetrievalService:
         persist_payload: bool = False,
         allow_fallback: bool = True,
     ) -> ExecuteOutcome:
-        metrics = []
+        started = time.perf_counter()
+        data_metrics: list[Any] = []
         previews: list[ExecutePlanResult] = []
         promoted_count = 0
         fallback_triggered_count = 0
-
-        for plan in plans:
-            outcome = self._executor.execute(
-                plan,
-                persist_payload=persist_payload,
-                allow_fallback=allow_fallback,
-            )
-            previews.append(outcome)
-            if outcome.fallback_used:
-                fallback_triggered_count += 1
-            if outcome.metric is not None:
-                metrics.append(outcome.metric)
-                promoted_count += self._emit_promotion_candidate(
-                    plan=outcome.used_plan,
-                    completeness=outcome.metric.completeness,
+        with self._tracer.start_as_current_span(
+            FABRIC_TRACE_NAMES["retrieval_execute"],
+            attributes={"retrieval.plan_count": len(plans)},
+        ):
+            for plan in plans:
+                outcome = self._executor.execute(
+                    plan,
+                    persist_payload=persist_payload,
+                    allow_fallback=allow_fallback,
                 )
+                previews.append(outcome)
+                if outcome.fallback_used:
+                    fallback_triggered_count += 1
+                if outcome.metric is not None:
+                    data_metrics.append(outcome.metric)
+                    promoted_count += self._emit_promotion_candidate(
+                        plan=outcome.used_plan,
+                        completeness=outcome.metric.completeness,
+                    )
 
+        with self._state_lock:
+            index_docs_total = len(self._local_index_docs)
+            index_size_bytes = self._index_size_bytes
         data_context = DataContext(
-            metrics=metrics,
+            metrics=data_metrics,
             metadata_docs_fetched=0,
-            index_docs_total=len(self._local_index_docs),
-            index_size_bytes=self._index_size_bytes,
+            index_docs_total=index_docs_total,
+            index_size_bytes=index_size_bytes,
         )
-        return ExecuteOutcome(
+        execute_outcome = ExecuteOutcome(
             data_context=data_context,
             previews=previews,
             promoted_count=promoted_count,
             fallback_triggered_count=fallback_triggered_count,
         )
+        if getattr(self._metrics, "record_fabric_query", None):
+            self._metrics.record_fabric_query(
+                operation="execute_fetch_plans",
+                duration_seconds=max(time.perf_counter() - started, 0.0),
+                row_count=sum(metric.row_count for metric in data_metrics),
+                status="success" if previews else "empty",
+            )
+        return execute_outcome
 
     def search_catalog(
         self,
@@ -331,61 +482,74 @@ class RetrievalService:
         geography: str | None = None,
         limit: int = 25,
     ) -> list[MetricCandidate]:
-        return self._fastlane.search_catalog(metric_query=metric_query, geography=geography, limit=limit)
-
-    def get_index_stats(self) -> IndexStats:
-        source_coverage: dict[str, int] = {}
-        for row in self._local_index_docs.values():
-            source = str(row.get("connector_id") or "unknown")
-            source_coverage[source] = source_coverage.get(source, 0) + 1
-        return IndexStats(
-            index_docs_total=len(self._local_index_docs),
-            index_size_bytes=self._index_size_bytes,
-            indexed_sources=len(source_coverage),
-            docs_added_last_run=self._docs_added_last_run,
-            source_coverage=source_coverage,
-            last_updated=self._last_updated,
+        return cast(
+            "list[MetricCandidate]",
+            self._fastlane.search_catalog(
+                metric_query=metric_query,
+                geography=geography,
+                limit=limit,
+            ),
         )
 
+    def get_index_stats(self) -> IndexStats:
+        with self._state_lock:
+            source_coverage: dict[str, int] = {}
+            for row in self._local_index_docs.values():
+                source = str(row.get("connector_id") or "unknown")
+                source_coverage[source] = source_coverage.get(source, 0) + 1
+            return IndexStats(
+                index_docs_total=len(self._local_index_docs),
+                index_size_bytes=self._index_size_bytes,
+                indexed_sources=len(source_coverage),
+                docs_added_last_run=self._docs_added_last_run,
+                source_coverage=source_coverage,
+                last_updated=self._last_updated,
+            )
+
     def list_promotion_candidates(self) -> list[PromotionCandidate]:
-        values = list(self._promotion_queue.values())
-        values.sort(key=lambda item: item.created_at or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
+        with self._state_lock:
+            values = list(self._promotion_queue.values())
+        values.sort(key=lambda item: item.created_at or datetime.min.replace(tzinfo=UTC), reverse=True)
         return values
 
     def approve_promotion(self, promotion_id: str, *, reason: str | None = None) -> bool:
-        candidate = self._promotion_queue.get(promotion_id)
-        if candidate is None:
-            return False
-        if candidate.status == "approved":
-            return True
-        updated = candidate.model_copy(
-            update={
-                "status": "approved",
-                "metadata": {
-                    **candidate.metadata,
-                    "approval_reason": reason or "",
-                    "approved_at": datetime.now(timezone.utc).isoformat(),
-                },
-            }
-        )
-        self._promotion_queue[promotion_id] = updated
+        with self._state_lock:
+            candidate = self._promotion_queue.get(promotion_id)
+            if candidate is None:
+                return False
+            if candidate.status == "approved":
+                return True
+            updated = candidate.model_copy(
+                update={
+                    "status": "approved",
+                    "metadata": {
+                        **candidate.metadata,
+                        "approval_reason": reason or "",
+                            "approved_at": datetime.now(UTC).isoformat(),
+                    },
+                }
+            )
+            self._store_promotion_candidate_locked(updated)
         self._promote_binding(updated)
         return True
 
     def reject_promotion(self, promotion_id: str, *, reason: str | None = None) -> bool:
-        candidate = self._promotion_queue.get(promotion_id)
-        if candidate is None:
-            return False
-        self._promotion_queue[promotion_id] = candidate.model_copy(
-            update={
-                "status": "rejected",
-                "metadata": {
-                    **candidate.metadata,
-                    "rejection_reason": reason or "",
-                    "rejected_at": datetime.now(timezone.utc).isoformat(),
-                },
-            }
-        )
+        with self._state_lock:
+            candidate = self._promotion_queue.get(promotion_id)
+            if candidate is None:
+                return False
+            self._store_promotion_candidate_locked(
+                candidate.model_copy(
+                    update={
+                        "status": "rejected",
+                        "metadata": {
+                            **candidate.metadata,
+                            "rejection_reason": reason or "",
+                            "rejected_at": datetime.now(UTC).isoformat(),
+                        },
+                    }
+                )
+            )
         return True
 
     def _build_plans_from_discovery(
@@ -410,8 +574,13 @@ class RetrievalService:
                 FetchPlanFallback(
                     connector_id=item.connector_id,
                     dataset_id=item.dataset_id,
+                    metric_id=item.metric_id,
                     profile_id=item.profile_id,
                     filters={},
+                    metadata={
+                        "resolution_route": item.metadata.get("resolution_route", item.source_lane),
+                    "confidence": item.confidence,
+                    },
                 )
                 for item in rows[1:3]
             ]
@@ -429,30 +598,37 @@ class RetrievalService:
                     quality_min=need.quality_min,
                     source_lane="explorelane",
                     fallbacks=fallbacks,
-                    metadata={"discovered": True, "confidence": primary.confidence},
+                    metadata={
+                        "discovered": True,
+                        "confidence": primary.confidence,
+                        "resolution_route": primary.metadata.get("resolution_route", "explorelane"),
+                    },
                 )
             )
         return plans
 
     def _update_local_index(self, candidates: list[DiscoveryCandidate]) -> None:
         added = 0
-        for candidate in candidates:
-            key = f"{candidate.connector_id}:{candidate.dataset_id}"
-            if key not in self._local_index_docs:
-                added += 1
-            self._local_index_docs[key] = {
-                "connector_id": candidate.connector_id,
-                "dataset_id": candidate.dataset_id,
-                "metric_id": candidate.metric_id,
-                "confidence": candidate.confidence,
-                "profile_id": candidate.profile_id,
-                "updated_at": datetime.now(timezone.utc).isoformat(),
-            }
-        self._docs_added_last_run = added
-        self._index_size_bytes = len(
-            json.dumps(self._local_index_docs, ensure_ascii=True, sort_keys=True).encode("utf-8")
-        )
-        self._last_updated = datetime.now(timezone.utc)
+        now_iso = datetime.now(UTC).isoformat()
+        with self._state_lock:
+            for candidate in candidates:
+                key = f"{candidate.connector_id}:{candidate.dataset_id}"
+                if key not in self._local_index_docs:
+                    added += 1
+                else:
+                    self._local_index_docs.pop(key, None)
+                self._local_index_docs[key] = {
+                    "connector_id": candidate.connector_id,
+                    "dataset_id": candidate.dataset_id,
+                    "metric_id": candidate.metric_id,
+                    "confidence": candidate.confidence,
+                    "profile_id": candidate.profile_id,
+                    "updated_at": now_iso,
+                }
+            self._trim_ordered_dict_locked(self._local_index_docs, self._max_local_index_docs)
+            self._docs_added_last_run = added
+            self._recompute_index_size_locked()
+            self._last_updated = datetime.now(UTC)
 
     def _emit_promotion_candidate(self, *, plan: FetchPlan, completeness: float) -> int:
         if not _flag("POLISYOS_RETRIEVAL_PROMOTION_ENABLED", default=True):
@@ -462,29 +638,34 @@ class RetrievalService:
         if plan.source_lane != "explorelane":
             return 0
         promotion_id = _stable_id("promo", plan.metric_id, plan.connector_id, plan.dataset_id)
-        if promotion_id in self._promotion_queue:
-            return 0
-        candidate = PromotionCandidate(
-            promotion_id=promotion_id,
-            metric_id=plan.metric_id,
-            connector_id=plan.connector_id,
-            dataset_id=plan.dataset_id,
-            profile_id=plan.profile_id,
-            source_lane="explorelane",
-            confidence=float(plan.metadata.get("confidence", 0.8)) if isinstance(plan.metadata, dict) else 0.8,
-            signals=[
-                "resolved_successfully",
-                "fetch_successfully",
-                "quality_pass",
-            ],
-            status="pending",
-            created_at=datetime.now(timezone.utc),
-            metadata={
-                "quality_min": plan.quality_min,
-                "completeness": completeness,
-            },
-        )
-        self._promotion_queue[promotion_id] = candidate
+        with self._state_lock:
+            if promotion_id in self._promotion_queue:
+                return 0
+            candidate = PromotionCandidate(
+                promotion_id=promotion_id,
+                metric_id=plan.metric_id,
+                connector_id=plan.connector_id,
+                dataset_id=plan.dataset_id,
+                profile_id=plan.profile_id,
+                source_lane="explorelane",
+                confidence=(
+                    _coerce_float(plan.metadata.get("confidence", 0.8), default=0.8)
+                    if isinstance(plan.metadata, dict)
+                    else 0.8
+                ),
+                signals=[
+                    "resolved_successfully",
+                    "fetch_successfully",
+                    "quality_pass",
+                ],
+                status="pending",
+                created_at=datetime.now(UTC),
+                metadata={
+                    "quality_min": plan.quality_min,
+                    "completeness": completeness,
+                },
+            )
+            self._store_promotion_candidate_locked(candidate)
         return 1
 
     def _promote_binding(self, candidate: PromotionCandidate) -> None:
@@ -503,8 +684,24 @@ class RetrievalService:
             metadata={"promotion_id": candidate.promotion_id},
         )
         self._fastlane.binding_registry.upsert(binding)
+        self._fastlane.refresh_search_index()
         if _flag("POLISYOS_RETRIEVAL_PROMOTION_PERSIST", default=False):
             self._fastlane.binding_registry.persist()
+
+    def _recompute_index_size_locked(self) -> None:
+        self._index_size_bytes = len(
+            json.dumps(dict(self._local_index_docs), ensure_ascii=True, sort_keys=True).encode("utf-8")
+        )
+
+    @staticmethod
+    def _trim_ordered_dict_locked(mapping: OrderedDict[str, Any], max_items: int) -> None:
+        while len(mapping) > max_items:
+            mapping.popitem(last=False)
+
+    def _store_promotion_candidate_locked(self, candidate: PromotionCandidate) -> None:
+        self._promotion_queue.pop(candidate.promotion_id, None)
+        self._promotion_queue[candidate.promotion_id] = candidate
+        self._trim_ordered_dict_locked(self._promotion_queue, self._max_promotion_candidates)
 
     def _resolve_via_catalog(
         self,
@@ -537,10 +734,14 @@ class RetrievalService:
                             "catalog_dataset_id": str(getattr(binding, "catalog_dataset_id", "") or ""),
                             "distribution_id": str(getattr(binding, "distribution_id", "") or ""),
                             "connector_id": connector_id,
-                            "profile_id": str(getattr(binding, "profile_id", "") or ""),
+                            "profile_id": _optional_text(getattr(binding, "profile_id", None)),
                             "request_dataset_id": request_dataset_id,
-                            "default_filters": dict(getattr(binding, "default_filters", {}) or {}),
-                            "confidence": float(getattr(binding, "confidence", 0.0) or 0.0),
+                            "default_filters": _coerce_filter_map(
+                                getattr(binding, "default_filters", {}) or {}
+                            ),
+                            "confidence": _coerce_float(
+                                getattr(binding, "confidence", 0.0) or 0.0
+                            ),
                             "catalog_title": str(getattr(binding, "title", "") or ""),
                             "execution_tier": str(getattr(binding, "execution_tier", "catalog") or "catalog"),
                             "source": str(getattr(binding, "source", "") or ""),
@@ -570,10 +771,10 @@ class RetrievalService:
                             "catalog_dataset_id": target.catalog_dataset_id,
                             "distribution_id": target.distribution_id,
                             "connector_id": target.connector_id,
-                            "profile_id": target.profile_id,
+                            "profile_id": _optional_text(target.profile_id),
                             "request_dataset_id": target.request_dataset_id,
-                            "default_filters": target.default_filters,
-                            "confidence": max(0.05, result.similarity * 0.8),
+                            "default_filters": _coerce_filter_map(target.default_filters),
+                            "confidence": max(0.05, _coerce_float(result.similarity) * 0.8),
                             "catalog_title": result.title,
                             "execution_tier": getattr(result, "execution_tier", "catalog"),
                             "source": getattr(result, "source", ""),
@@ -604,21 +805,22 @@ class RetrievalService:
                     metric_id=need.metric,
                     connector_id=str(row["connector_id"]),
                     dataset_id=str(row["request_dataset_id"]),
-                    profile_id=str(row["profile_id"]) or None,
+                    profile_id=_optional_text(row["profile_id"]),
                     source_lane="catalog",
-                    confidence=max(0.05, min(1.0, float(row["confidence"]))),
+                    confidence=max(0.05, min(1.0, _coerce_float(row["confidence"]))),
                     rank=rank,
                     trust_score=0.7,
                     freshness_score=0.6,
                     coverage_estimate=0.75,
                     latency_estimate_ms=1500,
-                    filters_template=dict(row["default_filters"]),
+                    filters_template=_coerce_filter_map(row["default_filters"]),
                     match_reason="dataset_catalog_metric_binding",
                     metadata={
                         "catalog_dataset_id": row["catalog_dataset_id"],
                         "distribution_id": row["distribution_id"],
                         "catalog_title": row["catalog_title"],
                         "execution_tier": row["execution_tier"],
+                        "resolution_route": "catalog",
                     },
                 )
                 candidates.append(candidate)
@@ -627,8 +829,14 @@ class RetrievalService:
                         FetchPlanFallback(
                             connector_id=str(row["connector_id"]),
                             dataset_id=str(row["request_dataset_id"]),
-                            profile_id=str(row["profile_id"]) or None,
-                            filters=dict(row["default_filters"]),
+                            metric_id=need.metric,
+                            profile_id=_optional_text(row["profile_id"]),
+                            filters=_coerce_filter_map(row["default_filters"]),
+                            metadata={
+                                "resolution_route": "catalog",
+                                "catalog_dataset_id": row["catalog_dataset_id"],
+                                "distribution_id": row["distribution_id"],
+                            },
                         )
                     )
 
@@ -648,8 +856,8 @@ class RetrievalService:
                     metric_id=need.metric,
                     connector_id=str(primary["connector_id"]),
                     dataset_id=str(primary["request_dataset_id"]),
-                    profile_id=str(primary["profile_id"]) or None,
-                    filters=dict(primary["default_filters"]),
+                    profile_id=_optional_text(primary["profile_id"]),
+                    filters=_coerce_filter_map(primary["default_filters"]),
                     date_start=date_start,
                     date_end=date_end,
                     granularity=need.granularity,
@@ -666,6 +874,7 @@ class RetrievalService:
                         "history_policy": policy.history_policy if policy else "",
                         "default_lookback_days": policy.default_lookback_days if policy else None,
                         "manual_backfill_allowed": bool(policy.allow_manual_backfill) if policy else False,
+                        "resolution_route": "catalog",
                     },
                 )
             )
@@ -677,5 +886,19 @@ class RetrievalService:
             return "none"
         lanes = {plan.source_lane for plan in plans}
         if len(lanes) == 1:
-            return next(iter(lanes))
+            return str(next(iter(lanes)))
         return "hybrid"
+
+    @staticmethod
+    def _route_breakdown(items: Sequence[object]) -> dict[str, int]:
+        breakdown: dict[str, int] = {}
+        for item in items:
+            metadata = getattr(item, "metadata", None)
+            route = None
+            if isinstance(metadata, dict):
+                route = metadata.get("resolution_route")
+            if not route:
+                route = getattr(item, "source_lane", None) or "unknown"
+            route_name = str(route)
+            breakdown[route_name] = breakdown.get(route_name, 0) + 1
+        return dict(sorted(breakdown.items()))

@@ -6,6 +6,14 @@ from collections.abc import Iterable, Sequence
 import pandas as pd
 
 
+def _normalize_column_token(value: object) -> str:
+    return str(value).strip().casefold()
+
+
+def _canonical_column_name(value: object) -> str:
+    return str(value).strip().lower()
+
+
 def normalize_allowed_columns(columns: Iterable[str] | None) -> frozenset[str] | None:
     """Canonicalize authz-approved column names before request-time masking is applied."""
     if columns is None:
@@ -32,16 +40,27 @@ def apply_requested_column_guard(
     if not allowed:
         raise ValueError("No columns are authorized for this principal")
 
-    if len(requested) == 1 and requested[0] == "*":
-        return tuple(sorted(allowed))
+    allowed_by_token = {_normalize_column_token(column): column for column in allowed}
 
-    disallowed = [column for column in requested if column != "*" and column not in allowed]
+    if len(requested) == 1 and requested[0] == "*":
+        return tuple(sorted(_canonical_column_name(column) for column in allowed_by_token.values()))
+
+    disallowed = [
+        column
+        for column in requested
+        if column != "*" and _normalize_column_token(column) not in allowed_by_token
+    ]
     if disallowed:
         raise ValueError(f"Unauthorized columns requested: {sorted(disallowed)}")
 
     if "*" in requested:
-        return tuple(sorted(allowed))
-    return tuple(requested)
+        return tuple(sorted(_canonical_column_name(column) for column in allowed_by_token.values()))
+    return tuple(
+        _canonical_column_name(
+            allowed_by_token.get(_normalize_column_token(column), str(column).strip())
+        )
+        for column in requested
+    )
 
 
 def mask_dataframe_columns(
@@ -53,7 +72,10 @@ def mask_dataframe_columns(
 
     if allowed is None:
         return frame
-    keep = [column for column in frame.columns if column in allowed]
+    allowed_tokens = {_normalize_column_token(column) for column in allowed}
+    keep = [
+        column for column in frame.columns if _normalize_column_token(column) in allowed_tokens
+    ]
     return frame.loc[:, keep]
 
 

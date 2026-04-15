@@ -4,6 +4,9 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any, Literal
 
+from pydantic import ValidationError
+
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -17,8 +20,8 @@ from polisyos.core.contracts.lex import (
     IssueSeverity,
     LegalReportRef,
 )
-from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.core.contracts.scientist import (
+    GovernanceReportRef,
     SourceVerificationReportRef,
     VerifiedPolicyReportRef,
 )
@@ -29,7 +32,6 @@ from polisyos.ir.analytics.normative_arbitration import (
     NormativeArbitrationResult,
     load_normative_arbitration_result,
 )
-from polisyos.ir.refs import NormativeArbitrationResultRef
 from polisyos.ir.governance.gate import (
     GateContext,
     GateDecision,
@@ -37,9 +39,12 @@ from polisyos.ir.governance.gate import (
     GateRequest,
     GateVerdict,
 )
+from polisyos.ir.refs import NormativeArbitrationResultRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.governance.pass_registry import (
     build_governance_pipeline,
 )
@@ -53,13 +58,25 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
+    ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
+    ARTIFACT_VERIFIED_POLICY_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_CHANGE_PROPOSAL_REF,
     REPORT_GOVERNANCE_REPORT_REF,
     REPORT_LEGAL_REPORT_REF,
-    ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
-    ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+)
+
+logger = get_logger(__name__)
+
+_GOVERNANCE_HELPER_ERRORS = (
+    AttributeError,
+    KeyError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
 )
 
 _METADATA = ComponentMetadata(
@@ -136,7 +153,7 @@ class RunGovernanceNode:
         events: list[NodeEvent] = []
 
         protocol = HumanGateProtocol(ctx.run)
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
 
         require_human_gate = bool(new_state.params.get("require_human_gate"))
         raw_gate_decision = new_state.params.get("gate_decision")
@@ -321,7 +338,6 @@ def _create_gate_request(
 ) -> tuple[GateRequest, ArtifactRef | None]:
     iteration = _as_int(state.params.get("gate_iteration"))
     is_escalated = bool(state.params.get("gate_escalated"))
-    workflow_id = str(state.params.get("workflow_id", "scientist_default"))
     phase = str(state.params.get("phase", "POSTFLIGHT_GOV"))
     governance_profile_raw = state.params.get("governance_profile")
     governance_profile = (
@@ -469,7 +485,16 @@ def _policy_summary_from_state(
         return None
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
-    except Exception:
+    except _GOVERNANCE_HELPER_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_governance",
+            operation="policy_summary_from_state",
+            reason="trinity_bundle_load_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
     if not isinstance(payload, dict):
         return None
@@ -492,7 +517,16 @@ def _simulation_results_from_state(
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref.artifact_id))
         metrics = Metrics.model_validate(payload)
-    except Exception:
+    except _GOVERNANCE_HELPER_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_governance",
+            operation="simulation_results_from_state",
+            reason="metrics_preview_load_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
 
     preview: dict[str, Any] = {}
@@ -543,7 +577,16 @@ def _transport_summary_from_state(
 
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
-    except Exception:
+    except _GOVERNANCE_HELPER_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_governance",
+            operation="transport_summary_from_state",
+            reason="causal_report_load_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
     if not isinstance(payload, dict):
         return None
@@ -653,7 +696,7 @@ def _parse_gate_request(raw: Any) -> GateRequest | None:
     if isinstance(raw, dict):
         try:
             return GateRequest.model_validate(raw)
-        except Exception:
+        except _GOVERNANCE_HELPER_ERRORS:
             return None
     return None
 
@@ -663,7 +706,7 @@ def _parse_gate_request_ref(raw: Any) -> ArtifactRef | None:
         return None
     try:
         artifact_id = ArtifactID.model_validate(raw)
-    except Exception:
+    except _GOVERNANCE_HELPER_ERRORS:
         return None
     return ArtifactRef(
         artifact_id=artifact_id,
@@ -678,7 +721,7 @@ def _parse_typed_gate_decision(raw: Any) -> GateDecision | None:
     if isinstance(raw, dict):
         try:
             return GateDecision.model_validate(raw)
-        except Exception:
+        except _GOVERNANCE_HELPER_ERRORS:
             return None
     return None
 
@@ -696,7 +739,7 @@ def _parse_gate_decision(
         if "verdict" in raw:
             try:
                 return GateDecision.model_validate(raw)
-            except Exception:
+            except _GOVERNANCE_HELPER_ERRORS:
                 return None
         if "approved" in raw:
             approved = bool(raw.get("approved"))
@@ -768,7 +811,7 @@ def _resolve_validation_profile(
     if isinstance(raw, dict):
         try:
             return ValidationProfile.from_dict(raw)
-        except Exception:
+        except _GOVERNANCE_HELPER_ERRORS:
             return ValidationProfile.mvp()
     if isinstance(raw, str):
         token = raw.strip().lower()
@@ -820,7 +863,7 @@ def _coerce_report_ref(raw: Any, *, ref_cls: type[ArtifactRef]) -> ArtifactRef |
         payload = raw
     try:
         return ref_cls.model_validate(payload)
-    except Exception:
+    except _GOVERNANCE_HELPER_ERRORS:
         return None
 
 
@@ -872,7 +915,16 @@ def _load_normative_arbitration_result(
             ctx.store,
             NormativeArbitrationResultRef(artifact_id=ref.artifact_id),
         )
-    except Exception:
+    except _GOVERNANCE_HELPER_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_governance",
+            operation="load_normative_arbitration_result",
+            reason="normative_arbitration_load_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
 
 
@@ -901,7 +953,16 @@ def _extract_pii_scan_results(
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref.artifact_id))
         snapshot = DataSnapshot.model_validate(payload)
-    except Exception:
+    except _GOVERNANCE_HELPER_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_governance",
+            operation="extract_pii_scan_results",
+            reason="data_snapshot_load_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
 
     summary = snapshot.pii_scan_summary

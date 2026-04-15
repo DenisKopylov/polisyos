@@ -1,10 +1,16 @@
 """Public trace sink module API."""
 from __future__ import annotations
 
+import os
+import threading
 from pathlib import Path
 from typing import Protocol
 
+from polisyos.common.logger import get_logger
+
 from .record import TraceRecord
+
+logger = get_logger(__name__)
 
 
 class TraceSink(Protocol):
@@ -18,13 +24,16 @@ class JsonlTraceSink:
     def __init__(self, path: Path):
         self.path = path
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
 
     def emit(self, rec: TraceRecord) -> None:
         line = rec.model_dump_json(exclude_none=True)
-        with open(self.path, "a", encoding="utf-8") as f:
-            f.write(line)
-            f.write("\n")
-            f.flush()
+        with self._lock:
+            with open(self.path, "a", encoding="utf-8") as f:
+                f.write(line)
+                f.write("\n")
+                f.flush()
+                os.fsync(f.fileno())
 
 
 class CompositeTraceSink:
@@ -35,4 +44,7 @@ class CompositeTraceSink:
 
     def emit(self, rec: TraceRecord) -> None:
         for sink in self._sinks:
-            sink.emit(rec)
+            try:
+                sink.emit(rec)
+            except Exception as exc:  # noqa: BLE001 - isolate sink failures
+                logger.warning("Trace sink emit failed: %s", exc)

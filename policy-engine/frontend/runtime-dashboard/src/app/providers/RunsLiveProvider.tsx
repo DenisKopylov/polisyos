@@ -62,6 +62,8 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
   );
   const stateRef = useRef(initialRunsLiveState);
   const lastInvalidatedAtRef = useRef<number>(0);
+  const pathnameRef = useRef(location.pathname);
+  const isLoginPage = location.pathname.startsWith(LOGIN_PATH);
   const announceLiveStatus = useEffectEvent((message: string) => {
     announce(message, "polite");
   });
@@ -71,18 +73,22 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
   }, [state]);
 
   useEffect(() => {
+    pathnameRef.current = location.pathname;
+  }, [location.pathname]);
+
+  useEffect(() => {
     const liveDisabled =
       RUNS_LIVE_DISABLED ||
       disableLivePreference ||
       readRunsLiveDisabledPreference();
     if (
-      location.pathname.startsWith(LOGIN_PATH) ||
+      isLoginPage ||
       typeof window === "undefined" ||
       liveDisabled
     ) {
       if (liveDisabled) {
         track("runs.live.disabled", {
-          path: location.pathname,
+          path: pathnameRef.current,
           reason: RUNS_LIVE_DISABLED ? "env" : "storage",
         });
       }
@@ -143,7 +149,7 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
       track("runs.live.reconnect_scheduled", {
         cursor: stateRef.current.cursor,
         delayMs: delay,
-        path: location.pathname,
+        path: pathnameRef.current,
         retryAttempt,
       });
     };
@@ -162,7 +168,7 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
       }
       heartbeatTimer = window.setTimeout(() => {
         track("runs.live.heartbeat_timeout", {
-          path: location.pathname,
+          path: pathnameRef.current,
         });
         dispatch({ type: "heartbeat-timeout", now: Date.now() });
         subscription?.close();
@@ -177,7 +183,7 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
         return;
       }
       if (typeof EventSource === "undefined") {
-        track("runs.live.eventsource_unavailable", { path: location.pathname });
+        track("runs.live.eventsource_unavailable", { path: pathnameRef.current });
         startPolling();
         return;
       }
@@ -199,7 +205,7 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
             dispatch({ type: "stream-open" });
             armHeartbeat();
             announceLiveStatus("Live updates connected.");
-            track("runs.live.connected", { path: location.pathname });
+            track("runs.live.connected", { path: pathnameRef.current });
           },
           onMessage: (event) => {
             const parsedEvent = parseRunsLiveEvent({
@@ -240,7 +246,7 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
               return;
             }
             track("runs.live.error", {
-              path: location.pathname,
+              path: pathnameRef.current,
             });
             dispatch({ type: "stream-error", retryAttempt: retryAttempt + 1 });
             subscription?.close();
@@ -273,7 +279,7 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
       clearTimers();
       subscription?.close();
     };
-  }, [disableLivePreference, location.pathname, queryClient, track]);
+  }, [disableLivePreference, isLoginPage, queryClient, track]);
 
   const value = useMemo<RunsLiveContextValue>(
     () => ({

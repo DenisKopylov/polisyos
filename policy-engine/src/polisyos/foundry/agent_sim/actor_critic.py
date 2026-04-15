@@ -8,6 +8,13 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
+from polisyos.foundry._numeric import (
+    clip_probability,
+    safe_exp_from_log_std,
+    stable_normal_entropy,
+    stable_normal_log_prob,
+)
+
 
 class NormalizedMLP(eqx.Module):
     """Normalized MLP public type."""
@@ -214,8 +221,8 @@ class ActorCritic(eqx.Module):
                 log_std = jnp.broadcast_to(log_std, mean.shape)
             else:
                 log_std = jnp.broadcast_to(log_std, mean.shape)
-            std = jnp.exp(log_std)
-            return {"mean": mean, "log_std": log_std, "std": std}
+            clipped_log_std, std = safe_exp_from_log_std(log_std)
+            return {"mean": mean, "log_std": clipped_log_std, "std": std}
         return {"logits": action_output}
 
 
@@ -240,14 +247,11 @@ def compute_log_prob(
 ) -> jnp.ndarray:
     """Evaluate action log-probabilities under the actor's current policy distribution."""
     if action_type == "continuous":
-        mean = distribution["mean"]
-        std = distribution["std"]
-        var = std**2
-        log_prob = -0.5 * (
-            jnp.sum((actions - mean) ** 2 / var, axis=-1)
-            + jnp.sum(jnp.log(2.0 * jnp.pi * var), axis=-1)
+        return stable_normal_log_prob(
+            actions,
+            distribution["mean"],
+            distribution["log_std"],
         )
-        return log_prob
     logits = distribution["logits"]
     if actions.ndim > 1:
         actions = actions[:, 0]
@@ -262,7 +266,6 @@ def compute_entropy(
 ) -> jnp.ndarray:
     """Compute action-distribution entropy for continuous or categorical policies."""
     if action_type == "continuous":
-        log_std = distribution["log_std"]
-        return 0.5 * jnp.sum(1.0 + jnp.log(2.0 * jnp.pi) + 2.0 * log_std, axis=-1)
+        return stable_normal_entropy(distribution["log_std"])
     probs = jax.nn.softmax(distribution["logits"], axis=-1)
-    return -jnp.sum(probs * jnp.log(probs + 1e-8), axis=-1)
+    return -jnp.sum(probs * jnp.log(clip_probability(probs)), axis=-1)

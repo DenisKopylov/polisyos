@@ -114,6 +114,24 @@ def _claim_tie_key(claim: Claim) -> tuple[str, str, str]:
     return (claim.predicate_id, claim.value_text, claim.unit_id or "")
 
 
+def _primary_citation_fragment_id(
+    claim: Claim,
+    *,
+    warnings: list[tuple[str, str]] | None = None,
+) -> str:
+    for citation in claim.citations:
+        fragment_id = getattr(citation, "fragment_id", None)
+        if isinstance(fragment_id, str) and fragment_id:
+            return fragment_id
+    if warnings is not None:
+        _add_warning(
+            warnings,
+            code="missing_primary_citation",
+            msg=f"claim {claim.claim_id} is missing a usable primary citation",
+        )
+    return ""
+
+
 def _candidate_to_claim(
     candidate: ClaimCandidate,
     *,
@@ -355,7 +373,7 @@ def extract_claims_from_doc(
         claim_ref = persist_claim(cas, claim)
         claim_artifact_id = str(claim_ref.artifact_id)
         claim_artifact_ids.append(claim_artifact_id)
-        source_fragment_id = claim.citations[0].fragment_id
+        source_fragment_id = _primary_citation_fragment_id(claim, warnings=warnings)
         claim_entries.append(
             {
                 "claim_id": claim.claim_id,

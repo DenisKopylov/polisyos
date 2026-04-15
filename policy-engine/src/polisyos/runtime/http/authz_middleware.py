@@ -1,9 +1,15 @@
 """Authorization middleware with delegation verification and OPA policy checks."""
 from __future__ import annotations
 
+import asyncio
 import os
 from typing import Any, Callable
 
+from polisyos.fabric.connectors.resilience.circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitOpenError,
+)
 from polisyos.common.logger import get_logger
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.authz import AuthzInput, OPAClient
@@ -14,25 +20,30 @@ from polisyos.core.security.tenant_context import (
     set_current_access_scope,
 )
 from polisyos.runtime.http.errors import problem_response
+from polisyos.runtime.http.security import clear_request_auth_context
 
 logger = get_logger("polisyos.security.authz")
 
 
 try:  # pragma: no cover - optional runtime dependency
+    BaseHTTPMiddleware: Any
+    Request: Any
+    Response: Any
+    JSONResponse: Any | None
     from starlette.middleware.base import BaseHTTPMiddleware
     from starlette.requests import Request
     from starlette.responses import JSONResponse, Response
 except ModuleNotFoundError:  # pragma: no cover
-    BaseHTTPMiddleware = object  # type: ignore[assignment]
-    Request = Any  # type: ignore[assignment]
-    Response = Any  # type: ignore[assignment]
-    JSONResponse = None  # type: ignore[assignment]
+    BaseHTTPMiddleware = object
+    Request = Any
+    Response = Any
+    JSONResponse = None
 
 
 _PUBLIC_PATHS = frozenset({"/health", "/ready", "/metrics", "/auth/callback"})
 
 
-class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
+class AuthzMiddleware(BaseHTTPMiddleware):
     """Run per-request authorization checks against OPA sidecar."""
 
     def __init__(
@@ -61,6 +72,30 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         self._mtls_spiffe_header = mtls_spiffe_header.lower()
         self._trusted_delegators = trusted_delegators
         self._service_spiffe_id = service_spiffe_id or os.getenv("POLISYOS_SERVICE_SPIFFE_ID", "")
+        self._opa_timeout_seconds = max(
+            float(os.getenv("POLISYOS_RUNTIME_OPA_TIMEOUT_SECONDS", "1.5")),
+            0.1,
+        )
+        self._opa_breaker = CircuitBreaker(
+            circuit_id="runtime.opa",
+            config=CircuitBreakerConfig(
+                failure_threshold=max(
+                    int(os.getenv("POLISYOS_RUNTIME_OPA_BREAKER_FAILURE_THRESHOLD", "3")),
+                    1,
+                ),
+                success_threshold=1,
+                timeout_seconds=max(
+                    float(os.getenv("POLISYOS_RUNTIME_OPA_BREAKER_TIMEOUT_SECONDS", "30")),
+                    1.0,
+                ),
+                half_open_max_calls=1,
+                window_size_seconds=max(
+                    float(os.getenv("POLISYOS_RUNTIME_OPA_BREAKER_WINDOW_SECONDS", "60")),
+                    1.0,
+                ),
+                min_throughput=1,
+            ),
+        )
 
     async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
         path = str(getattr(request.url, "path", ""))
@@ -170,14 +205,55 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
             ),
         )
 
-        result = await self._opa.check(authz_input)
+        try:
+            result = await self._opa_breaker.execute(
+                lambda: asyncio.wait_for(
+                    self._opa.check(authz_input),
+                    timeout=self._opa_timeout_seconds,
+                )
+            )
+        except TimeoutError:
+            request_id = getattr(getattr(request, "state", object()), "request_id", None)
+            clear_request_auth_context(request.state)
+            return problem_response(
+                status_code=504,
+                code="authz_dependency_timeout",
+                detail="Authorization dependency timed out",
+                request_id=request_id,
+                instance=path,
+                error="authz_dependency_timeout",
+            )
+        except CircuitOpenError:
+            request_id = getattr(getattr(request, "state", object()), "request_id", None)
+            clear_request_auth_context(request.state)
+            return problem_response(
+                status_code=503,
+                code="authz_dependency_unavailable",
+                detail="Authorization dependency is temporarily unavailable",
+                request_id=request_id,
+                instance=path,
+                error="authz_dependency_unavailable",
+            )
         request.state.authz_decision = result.decision.value
         request.state.authz_policy = result.policy
         request.state.authz_reasons = list(result.reasons)
         request.state.authz_allowed_columns = _extract_allowed_columns(result.audit_entry)
+        if "OPA_UNREACHABLE" in result.reasons:
+            self._opa_breaker.record_failure()
+            request_id = getattr(getattr(request, "state", object()), "request_id", None)
+            clear_request_auth_context(request.state)
+            return problem_response(
+                status_code=503,
+                code="authz_dependency_unavailable",
+                detail="Authorization dependency is temporarily unavailable",
+                request_id=request_id,
+                instance=path,
+                error="authz_dependency_unavailable",
+            )
         if not result.is_allowed:
             if self._enforce and not self._shadow_mode:
                 request_id = getattr(getattr(request, "state", object()), "request_id", None)
+                clear_request_auth_context(request.state)
                 return problem_response(
                     status_code=403,
                     code="authorization_denied",
@@ -212,6 +288,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         payload = {"error": reason, "detail": detail}
         if self._enforce and not self._shadow_mode:
             request_id = getattr(getattr(request, "state", object()), "request_id", None)
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=403,
                 code=reason,

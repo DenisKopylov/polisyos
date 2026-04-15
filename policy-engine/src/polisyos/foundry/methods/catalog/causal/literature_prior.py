@@ -96,7 +96,7 @@ class BuildLiteraturePrior:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="build_literature_prior",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

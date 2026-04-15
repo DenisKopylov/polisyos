@@ -7,11 +7,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components._cli_store import build_cli_filesystem_cas
 
 __all__ = [
-    "_cmd_lex_normpack_build",
     "_cmd_lex_impact",
+    "_cmd_lex_normpack_build",
 ]
 
 
@@ -33,7 +33,7 @@ def _cmd_lex_normpack_build(args: Any) -> int:
     assemble_norm_pack = lex_api.assemble_norm_pack
     NormPackBuildRequest = lex_types.NormPackBuildRequest
 
-    cas = FileSystemCAS(Path(args.cas_root))
+    cas = build_cli_filesystem_cas(Path(args.cas_root))
     fact_log_root = Path(args.fact_log_root)
     request = NormPackBuildRequest(
         jurisdiction=args.jurisdiction,
@@ -75,7 +75,7 @@ def _cmd_lex_impact(args: Any) -> int:
         print("ERROR: --passes cannot be empty", file=sys.stderr)
         return 2
 
-    cas = FileSystemCAS(Path(args.cas_root))
+    cas = build_cli_filesystem_cas(Path(args.cas_root))
     try:
         old_pack = lex_sim_cli.load_norm_pack(cas, args.old_ref)
         new_pack = lex_sim_cli.load_norm_pack(cas, args.new_ref)

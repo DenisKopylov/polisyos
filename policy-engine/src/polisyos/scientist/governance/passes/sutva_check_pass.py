@@ -3,12 +3,18 @@ from __future__ import annotations
 
 from typing import Literal
 
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
 from polisyos.ir.analytics.causal import CausalEffectReport, load_causal_effect_report
+from polisyos.ir.refs import CausalEffectReportRef
+from polisyos.scientist.governance.passes._artifact_resolution import (
+    resolve_optional_artifact_model,
+)
 
 _SutvaRisk = Literal["high", "medium", "low"]
+logger = get_logger(__name__)
 
 
 class SutvaCheckPass(ValidatorPass):
@@ -50,17 +56,19 @@ class SutvaCheckPass(ValidatorPass):
         if ctx.profile.level is ProfileLevel.FAST:
             return []
 
-        treatment = _resolve_treatment(ctx)
-        report = _resolve_report(ctx)
+        report_resolution = _resolve_report(ctx)
+        report = report_resolution.value
+        treatment = _resolve_treatment(ctx, report=report)
         risk = _resolve_risk(treatment=treatment, report=report)
+        issues = list(report_resolution.issues)
         if risk is None or risk == "low":
-            return []
+            return issues
 
         path: list[str | int] = ["causal_report", "sutva_violation_risk"]
         if treatment:
             path = ["causal_query", "treatment"]
         scope_hint = f"Treatment '{treatment}'" if treatment else "Configured treatment"
-        return [
+        issues.append(
             ComplianceIssue(
                 pass_id=self.pass_id,
                 path=path,
@@ -75,17 +83,21 @@ class SutvaCheckPass(ValidatorPass):
                     "consider ABM bridge coverage when available."
                 ),
             )
-        ]
+        )
+        return issues
 
 
-def _resolve_treatment(ctx: PassContext) -> str | None:
+def _resolve_treatment(
+    ctx: PassContext,
+    *,
+    report: CausalEffectReport | None = None,
+) -> str | None:
     value = ctx.state.get("query_treatment")
     if isinstance(value, str):
         candidate = value.strip()
         if candidate:
             return candidate
 
-    report = _resolve_report(ctx)
     if report is None:
         return None
 
@@ -99,29 +111,25 @@ def _resolve_treatment(ctx: PassContext) -> str | None:
     return None
 
 
-def _resolve_report(ctx: PassContext) -> CausalEffectReport | None:
-    direct = ctx.state.get("causal_report")
-    if isinstance(direct, CausalEffectReport):
-        return direct
-    if isinstance(direct, dict):
-        try:
-            return CausalEffectReport.model_validate(direct)
-        except Exception:
-            return None
-
-    artifacts_index = ctx.state.get("artifacts_index")
-    if not isinstance(artifacts_index, dict):
-        return None
-    ref = artifacts_index.get("causal_report_ref")
-    if ref is None:
-        return None
-    store = ctx.state.get("_store")
-    if store is None:
-        return None
-    try:
-        return load_causal_effect_report(store, ref)
-    except Exception:
-        return None
+def _resolve_report(ctx: PassContext):
+    return resolve_optional_artifact_model(
+        ctx=ctx,
+        pass_id="sutva_check",
+        direct_key="causal_report",
+        ref_key="causal_report_ref",
+        model_cls=CausalEffectReport,
+        ref_model=CausalEffectReportRef,
+        load_model=load_causal_effect_report,
+        severity=IssueSeverity.WARNING,
+        code="SUTVA_CAUSAL_REPORT_INVALID",
+        message=(
+            "SUTVA check could not validate or load the causal report artifact."
+        ),
+        suggestion=(
+            "Rebuild the causal report artifact before running governance validation."
+        ),
+        log=logger,
+    )
 
 
 def _resolve_risk(

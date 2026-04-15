@@ -13,11 +13,15 @@ import { useTelemetry } from "@/app/providers/TelemetryProvider";
 import { RunsLiveProvider } from "@/app/providers/RunsLiveProvider";
 import { RuntimeApiProvider } from "@/app/providers/RuntimeApiProvider";
 import { RouteErrorElement } from "@/app/routes/RouteErrorElement";
+import { WorkspaceBoundary } from "@/app/routes/WorkspaceBoundary";
 import { artifactRoute } from "@/features/artifacts/routes.public";
 import { loginRoute } from "@/features/auth";
+import { clerkChatRoute } from "@/features/clerk";
 import { composerRoute } from "@/features/composer";
 import { dashboardRoute } from "@/features/dashboard";
+import { landingRoute } from "@/features/landing";
 import { evidenceRoute } from "@/features/evidence/routes.public";
+import { ModeAwareHome } from "@/app/routes/ModeAwareHome";
 import { lexRoute } from "@/features/lex";
 import { platformRoute } from "@/features/platform";
 import { resolveWorkspaceKey } from "@/app/workspaces";
@@ -79,11 +83,19 @@ function AppFrame() {
     }
 
     const frame = window.requestAnimationFrame(() => {
+      const activeElement = document.activeElement;
+      if (
+        activeElement instanceof HTMLElement &&
+        activeElement !== document.body &&
+        main.contains(activeElement)
+      ) {
+        return;
+      }
       main.focus({ preventScroll: true });
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [chromeless, routePath]);
+  }, [chromeless, location.pathname]);
 
   useEffect(() => {
     const nextLocation = navigation.location;
@@ -159,13 +171,23 @@ function AppProvidersRoute() {
 }
 
 export const APP_ROUTES: RouteObject[] = [
+  landingRoute,
   {
     path: "/",
     element: <AppProvidersRoute />,
     errorElement: <RouteErrorElement />,
     children: [
       loginRoute,
-      dashboardRoute,
+      {
+        index: true,
+        handle: dashboardRoute.handle,
+        element: (
+          <WorkspaceBoundary workspaceKey="commandCenter">
+            <ModeAwareHome />
+          </WorkspaceBoundary>
+        ),
+      },
+      clerkChatRoute,
       composerRoute,
       ...runsRoutes,
       artifactRoute,

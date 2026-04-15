@@ -828,7 +828,7 @@ class ParametricGFormula:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="parametric_g_formula",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=_dynamic_output_slots(),
@@ -1019,7 +1019,7 @@ class ICEGFormula:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ice_g_formula",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=_dynamic_output_slots(),
@@ -1189,7 +1189,7 @@ class LTMLEEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ltmle",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=_dynamic_output_slots(),

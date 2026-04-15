@@ -2,7 +2,42 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#fbf8f2" />
+    <script>
+      (() => {
+        const storageKey = "polisyos.runtime.theme";
+        const themeColors = {
+          light: "#fbf8f2",
+          dark: "#0b121a",
+        };
+        const isTheme = (value) =>
+          value === "light" || value === "dark" || value === "system";
+        const storedPreference = (() => {
+          try {
+            const value = window.localStorage.getItem(storageKey);
+            return isTheme(value) ? value : "system";
+          } catch {
+            return "system";
+          }
+        })();
+        const resolvedTheme =
+          storedPreference === "system"
+            ? window.matchMedia?.("(prefers-color-scheme: dark)")?.matches
+              ? "dark"
+              : "light"
+            : storedPreference;
+
+        document.documentElement.dataset.theme = resolvedTheme;
+        document.documentElement.style.colorScheme = resolvedTheme;
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute("content", themeColors[resolvedTheme]);
+      })();
+    </script>
     <title>PolicyOS Runtime Dashboard</title>
   </head>
   <body>

@@ -272,7 +272,7 @@ class HybridSCMFit:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gcm_fit",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

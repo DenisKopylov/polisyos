@@ -3,40 +3,190 @@ version: "1.0"
 cases:
   - id: bayesian_linreg_known_beta
     method_fqn: "bayesian.regression.linear_regression@1.0.0"
-    description: "Bayesian linear regression on y=2x+1 with noise"
-    skip_reason: "Requires TabularData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
-    tags: [regression, stochastic]
+    description: "Bayesian linear regression on a small deterministic tabular design"
+    seed: 0
+    input_data:
+      features:
+        - [0.0, 0.0]
+        - [1.0, 0.0]
+        - [0.0, 1.0]
+        - [1.0, 1.0]
+        - [2.0, 1.0]
+        - [2.0, 2.0]
+        - [3.0, 1.0]
+        - [3.0, 2.0]
+      target: [1.0, 2.7, 0.5, 2.2, 4.0, 3.5, 5.8, 5.0]
+      feature_names: ["x0", "x1"]
+    input_params:
+      num_warmup: 32
+      num_samples: 32
+      num_chains: 1
+      proposal_scale: 0.025
+    expected_output:
+      result:
+        method_name: "bayesian_linear_regression"
+        posterior_means:
+          intercept: 1.0230870561676961
+          coefficients_0: 1.767748721817261
+          coefficients_1: -0.5852952453566025
+          sigma: 0.10529317955478242
+        diagnostics:
+          num_warmup: 32.0
+          num_samples: 32.0
+          num_chains: 1.0
+    tolerances: {rtol: 0.08, atol: 0.08}
+    tags: [regression, stochastic, release_gate]
 
   - id: bayesian_hierarchical_simple
     method_fqn: "bayesian.regression.hierarchical@1.0.0"
     description: "Hierarchical model with 3 groups"
-    skip_reason: "Requires HierarchicalData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    seed: 42
+    input_data:
+      features:
+        - [0.0]
+        - [0.5]
+        - [1.0]
+        - [1.5]
+        - [2.0]
+        - [2.5]
+        - [3.0]
+        - [3.5]
+      target: [1.0, 2.0, 2.7, 3.75, 4.55, 5.5, 6.5, 7.2]
+      group_ids: ["a", "a", "b", "b", "c", "c", "a", "c"]
+      feature_names: ["x"]
+    input_params:
+      __seed__: 42
+      runtime_backend: "numpy"
+      num_warmup: 32
+      num_samples: 48
+      num_chains: 1
+      proposal_scale: 0.02
+      credible_mass: 0.9
+    expected_output:
+      result:
+        method_name: "bayesian_hierarchical_regression"
+        posterior_means:
+          global_intercept: 0.9917818367970183
+          coefficients: 1.7631019436890163
+          group_scale: 0.0960357139877581
+        diagnostics:
+          acceptance_rate: 0.55
+          credible_mass: 0.9
+          num_samples: 48.0
+        metadata:
+          partial_pooling: true
+          runtime_backend_used: "numpy"
+      prediction_result:
+        metrics:
+          rmse: 3.7067182069527362
+    tolerances: {rtol: 0.15, atol: 0.15}
     tags: [regression, stochastic]
 
   - id: gaussian_process_interpolation
-    method_fqn: "bayesian.gp.gaussian_process@1.0.0"
+    method_fqn: "bayesian.gp.gp_regression@1.0.0"
     description: "GP posterior mean at training points ≈ training values"
-    skip_reason: "Requires TabularData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    seed: 42
+    input_data:
+      features:
+        - [0.0]
+        - [0.5]
+        - [1.0]
+        - [1.5]
+        - [2.0]
+        - [2.5]
+      target: [0.0, 0.5, 1.0, 0.5, 0.0, -0.5]
+      feature_names: ["x"]
+    input_params:
+      __seed__: 42
+      kernel: "rbf"
+      lengthscale: 1.0
+      signal_variance: 1.0
+      noise_variance: 0.01
+      test_ratio: 0.33
+    expected_output:
+      result:
+        method_name: "gp_regression"
+        posterior_means:
+          mean: -0.10113553387350116
+          std: 0.3177780462316725
+        diagnostics:
+          credible_mass: 0.95
+          log_marginal_likelihood: -3.2670993864945217
+      prediction_result:
+        method_name: "gp_regression"
+        metrics:
+          rmse: 0.10113553387350116
+      n_train: 5
+      n_test: 1
+      kernel: "rbf"
+    tolerances: {rtol: 0.001, atol: 0.001}
     tags: [gp, stochastic]
 
   - id: mean_field_vi_simple
     method_fqn: "bayesian.variational.mean_field_vi@1.0.0"
     description: "MFVI on simple Gaussian model"
-    skip_reason: "Requires specific model spec — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    seed: 42
+    input_data:
+      features:
+        - [0.0]
+        - [0.5]
+        - [1.0]
+        - [1.5]
+        - [2.0]
+        - [2.5]
+        - [3.0]
+        - [3.5]
+      target: [1.0, 2.0, 2.7, 3.75, 4.55, 5.5, 6.5, 7.2]
+      feature_names: ["x"]
+    input_params:
+      prior_scale: 1.0
+      noise_variance: 0.1
+      max_iter: 200
+      tol: 1e-8
+    expected_output:
+      result:
+        method_name: "mean_field_vi"
+        posterior_means:
+          beta_0: 2.19017094017094
+        posterior_stds:
+          beta_0: 0.05337605126836239
+        diagnostics:
+          converged: 1.0
+          n_iter: 2.0
+      prediction_result:
+        metrics:
+          r_squared: 0.9242622609060821
+          rmse: 0.5641280993313983
+    tolerances: {rtol: 0.001, atol: 0.001}
     tags: [variational, stochastic]
 
   - id: bayesian_timeseries_ar1
     method_fqn: "bayesian.timeseries.autoregression@1.0.0"
     description: "Bayesian AR(1) on simple autoregressive data"
-    skip_reason: "Requires TimeSeriesData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    seed: 42
+    input_data:
+      endog: [0.0, 0.2, 0.35, 0.42, 0.38, 0.31, 0.28, 0.22, 0.18, 0.14, 0.12, 0.1]
+    input_params:
+      __seed__: 42
+      n_lags: 1
+      num_warmup: 32
+      num_samples: 48
+      num_chains: 1
+      proposal_scale: 0.02
+      credible_mass: 0.9
+    expected_output:
+      result:
+        method_name: "bayesian_autoregression"
+        posterior_means:
+          intercept: 0.13688920148247993
+          phi: 0.4384544010073029
+          sigma: 0.09403447173323333
+        diagnostics:
+          acceptance_rate: 0.85
+          n_lags: 1.0
+      prediction_result:
+        metrics:
+          rmse: 0.0765129393135756
+          r_squared: 0.46279249524438715
+    tolerances: {rtol: 0.1, atol: 0.1}
     tags: [timeseries, stochastic]

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.compile.link_trinity import LinkTrinityNode
 from polisyos.scientist.nodes.builtins.state_keys import (
-    INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_LINK_REPORT_REF,
 )
@@ -50,3 +50,37 @@ def test_link_missing_trinity_only(execution_context, minimal_state):
     outcome = LinkTrinityNode().execute(execution_context, minimal_state)
     assert outcome.status == "fail"
     assert outcome.error.code == "node.missing_input"
+
+
+def test_link_trinity_uses_branch_state_for_report_output(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+):
+    trinity_ref = artifact_ref_factory(kind="ir.trinity_bundle")
+    link_report_ref = artifact_ref_factory(kind="compiler.link_report")
+
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_TRINITY_BUNDLE_REF] = trinity_ref
+    observed: dict[str, tuple[str, ...]] = {}
+
+    def _spy_branch(base_state, *, write_paths=()):
+        observed["write_paths"] = tuple(write_paths)
+        return real_branch_state(base_state, write_paths=write_paths)
+
+    _mod = "polisyos.scientist.nodes.builtins.compile.link_trinity"
+    with (
+        patch(f"{_mod}.branch_state", _spy_branch),
+        patch(f"{_mod}.from_canonical_bytes", return_value={}),
+        patch(f"{_mod}.TrinityBundle.model_validate", return_value=MagicMock()),
+        patch(f"{_mod}.load_registry_bundle_content", return_value=MagicMock()),
+        patch(f"{_mod}.RegistryBundle", return_value=MagicMock()),
+        patch(f"{_mod}.link_trinity", return_value=(MagicMock(), MagicMock(ok=True))),
+        patch(f"{_mod}.put_link_report", return_value=link_report_ref),
+    ):
+        outcome = LinkTrinityNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert observed["write_paths"] == ("reports_index.link_report_ref",)
+    assert REPORT_LINK_REPORT_REF not in state.reports_index
+    assert outcome.state.reports_index[REPORT_LINK_REPORT_REF] == link_report_ref

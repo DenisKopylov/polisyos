@@ -29,6 +29,7 @@ from polisyos.ir.types import SelectorOperator
 
 from ._executor_models import get_state_path, load_tensor, set_state_path
 from .constraints_engine import check_constraints as evaluate_lowered_constraints
+from .methods.exceptions import SelectorCoercionError, SelectorEvaluationError
 
 __all__ = [
     "coerce_selector_scalar",
@@ -68,6 +69,29 @@ def coerce_selector_scalar(value: Any) -> Any:
     return value
 
 
+def _require_numeric_selector_value(
+    value: Any,
+    *,
+    operator: SelectorOperator,
+    field_id: str | None,
+) -> float:
+    if isinstance(value, bool):
+        raise SelectorCoercionError(
+            field_id,
+            "boolean value is not valid for numeric comparison",
+            operator=operator.value,
+            value=value,
+        )
+    if isinstance(value, (int, float)):
+        return float(value)
+    raise SelectorCoercionError(
+        field_id,
+        "value is not numeric for ordered comparison",
+        operator=operator.value,
+        value=value,
+    )
+
+
 def selector_field_values(
     state: Any,
     field_id: str,
@@ -81,16 +105,22 @@ def selector_field_values(
             n_agents = int(state.agents.income.shape[0])
         return jnp.arange(int(n_agents)), SlotScope.PER_AGENT
     if selector_field_registry is None:
-        raise ValueError(f"Selector field '{field_id}' requires registry mapping")
+        raise SelectorEvaluationError(field_id, "requires selector field registry")
     spec = selector_field_registry.fields.get(field_id)
     if spec is None:
-        raise ValueError(f"Unknown selector field '{field_id}'")
+        raise SelectorEvaluationError(field_id, "unknown selector field")
     if spec.state_path is None:
-        raise ValueError(f"Selector field '{field_id}' missing state_path")
+        raise SelectorEvaluationError(field_id, "missing state_path")
     return get_state_path(state, spec.state_path), spec.scope
 
 
-def apply_operator(values: jnp.ndarray, operator: SelectorOperator, value: Any) -> jnp.ndarray:
+def apply_operator(
+    values: jnp.ndarray,
+    operator: SelectorOperator,
+    value: Any,
+    *,
+    field_id: str | None = None,
+) -> jnp.ndarray:
     """Apply operator helper."""
     if isinstance(value, list):
         coerced = [coerce_selector_scalar(item) for item in value]
@@ -103,23 +133,55 @@ def apply_operator(values: jnp.ndarray, operator: SelectorOperator, value: Any) 
         if operator == SelectorOperator.NOT_IN:
             return ~jnp.isin(values, arr)
         if operator == SelectorOperator.BETWEEN and len(coerced) == 2:
-            return (values >= arr[0]) & (values <= arr[1])
+            lower = _require_numeric_selector_value(
+                coerced[0], operator=operator, field_id=field_id
+            )
+            upper = _require_numeric_selector_value(
+                coerced[1], operator=operator, field_id=field_id
+            )
+            return (values >= lower) & (values <= upper)
+        if operator == SelectorOperator.BETWEEN:
+            raise SelectorCoercionError(
+                field_id,
+                "BETWEEN expects exactly two values",
+                operator=operator.value,
+                value=value,
+            )
     if operator == SelectorOperator.EQUALS:
         return values == coerced
     if operator == SelectorOperator.NOT_EQUALS:
         return values != coerced
     if operator == SelectorOperator.GREATER_THAN:
-        return values > coerced
+        return values > _require_numeric_selector_value(
+            coerced, operator=operator, field_id=field_id
+        )
     if operator == SelectorOperator.LESS_THAN:
-        return values < coerced
+        return values < _require_numeric_selector_value(
+            coerced, operator=operator, field_id=field_id
+        )
     if operator == SelectorOperator.GREATER_EQUAL:
-        return values >= coerced
+        return values >= _require_numeric_selector_value(
+            coerced, operator=operator, field_id=field_id
+        )
     if operator == SelectorOperator.LESS_EQUAL:
-        return values <= coerced
+        return values <= _require_numeric_selector_value(
+            coerced, operator=operator, field_id=field_id
+        )
     if operator == SelectorOperator.CONTAINS:
         if isinstance(coerced, list):
             return jnp.isin(values, jnp.asarray(coerced))
-    raise ValueError(f"Unsupported selector operator/value: {operator}")
+        raise SelectorCoercionError(
+            field_id,
+            "CONTAINS expects a list value",
+            operator=operator.value,
+            value=value,
+        )
+    raise SelectorEvaluationError(
+        field_id,
+        "unsupported selector operator/value",
+        operator=operator.value,
+        value=value,
+    )
 
 
 def evaluate_selector(
@@ -135,7 +197,7 @@ def evaluate_selector(
         )
         if isinstance(node.value, str) and node.value.strip().lower() in {"all", "any"}:
             return jnp.ones_like(values, dtype=bool), scope
-        return apply_operator(values, node.operator, node.value), scope
+        return apply_operator(values, node.operator, node.value, field_id=node.field), scope
     if isinstance(node, SelectorNot):
         mask, scope = evaluate_selector(
             node.clause, state, selector_field_registry=selector_field_registry
@@ -151,11 +213,11 @@ def evaluate_selector(
             )
             masks.append(mask)
             scopes.add(scope)
-        if len(scopes) != 1:
-            raise ValueError("Selector mixes scopes; cannot evaluate")
-        scope = scopes.pop() if scopes else SlotScope.PER_AGENT
         if not masks:
-            return jnp.ones(1, dtype=bool), scope
+            raise SelectorEvaluationError(None, "selector has no clauses")
+        if len(scopes) != 1:
+            raise SelectorEvaluationError(None, "selector mixes scopes; cannot evaluate")
+        scope = scopes.pop()
         if isinstance(node, SelectorAll):
             combined = masks[0]
             for mask in masks[1:]:
@@ -165,7 +227,7 @@ def evaluate_selector(
         for mask in masks[1:]:
             combined = combined | mask
         return combined, scope
-    raise ValueError("Invalid selector expression")
+    raise SelectorEvaluationError(None, "invalid selector expression")
 
 
 # ---------------------------------------------------------------------------

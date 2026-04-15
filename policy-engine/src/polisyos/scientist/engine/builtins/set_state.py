@@ -8,6 +8,7 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState, JsonScalar
+from polisyos.scientist.engine.state_branching import branch_state
 
 _SET_STATE_METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_set_state@1.0.0"),
@@ -61,6 +62,6 @@ class SetStateNode:
                     message="set_state requires scalar param 'value'",
                 ),
             )
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=("params",)).state
         new_state.params[key] = value
         return NodeOutcome(status="ok", state=new_state)

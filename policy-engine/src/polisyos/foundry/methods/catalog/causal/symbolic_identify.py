@@ -292,7 +292,7 @@ class SymbolicIdentify:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="symbolic_identify",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -547,7 +547,7 @@ class SymbolicIdentifyV2:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="symbolic_identify",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

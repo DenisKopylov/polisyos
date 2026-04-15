@@ -4,11 +4,13 @@ import { createContext, useContext } from "react";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { useRunLiveUpdates } from "@/features/runs/live/useRunLiveUpdates";
 import {
-  type RunDetailSummary,
+  type RunInspectorSummary,
   useRunDetailSummary,
 } from "@/features/runs/routes/useRunDetailSummary";
 
-const RunInspectorContext = createContext<RunDetailSummary | null>(null);
+export type { RunInspectorSummary } from "@/features/runs/routes/useRunDetailSummary";
+
+const RunInspectorContext = createContext<RunInspectorSummary | null>(null);
 
 export function RunInspectorProvider({
   children,

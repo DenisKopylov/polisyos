@@ -610,8 +610,8 @@ describe("run detail surfaces", () => {
       "/runs/compare",
       <RunComparePage />,
     );
-    expect(screen.getByText("Decision score")).toBeInTheDocument();
-    expect(screen.getByText("Artifact refs")).toBeInTheDocument();
+    expect(screen.getAllByText("Decision score").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Artifact refs").length).toBeGreaterThan(0);
 
     renderRoute("/report", "/report", <RunReportPage />);
     expect(
@@ -633,7 +633,7 @@ describe("run detail surfaces", () => {
     renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
 
     expect(screen.getByTestId("run-tab-overview")).toBeInTheDocument();
-    expect(screen.getByText("Policy summary")).toBeInTheDocument();
+    expect(screen.getAllByText("Policy summary").length).toBeGreaterThan(0);
     expect(screen.getByText("Issue one")).toBeInTheDocument();
     expect(screen.getByText("Inflation")).toBeInTheDocument();
     expect(screen.getByText("start")).toBeInTheDocument();

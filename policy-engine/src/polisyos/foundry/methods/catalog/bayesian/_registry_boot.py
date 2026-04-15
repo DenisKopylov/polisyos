@@ -10,6 +10,16 @@ from .advanced import (
     BayesianNUTSRegressionEstimator,
     DirichletProcessMixtureEstimator,
 )
+from .frontier import (
+    AffineNormalizingFlowPosteriorAdapter,
+    BayesianBARTRegressorEstimator,
+    ExpectationPropagationGaussianEstimator,
+    FactorGraphBeliefPropagationEstimator,
+    SimulationBasedNLEEstimator,
+    SimulationBasedNPEEstimator,
+    SimulationBasedNREEstimator,
+    SVGDRegressionEstimator,
+)
 from .gp import GaussianProcessRegressionEstimator, SparseGPRegressionEstimator
 from .regression import BayesianLinearRegressionEstimator
 from .timeseries import BayesianAutoregressionEstimator
@@ -31,6 +41,14 @@ def register_bayesian_methods() -> Sequence[type]:
         SparseGPRegressionEstimator,
         MeanFieldVIEstimator,
         BBVIEstimator,
+        ExpectationPropagationGaussianEstimator,
+        SVGDRegressionEstimator,
+        AffineNormalizingFlowPosteriorAdapter,
+        FactorGraphBeliefPropagationEstimator,
+        SimulationBasedNPEEstimator,
+        SimulationBasedNLEEstimator,
+        SimulationBasedNREEstimator,
+        BayesianBARTRegressorEstimator,
     )
 
 

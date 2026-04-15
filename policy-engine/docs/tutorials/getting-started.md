@@ -4,7 +4,7 @@
 
 !!! info "Проверено на текущем дереве"
     Эта страница была проверена 2026-04-03 на macOS с Python 3.14 и Node 22.
-    Команды `./scripts/bootstrap`, `./scripts/doctor`, `uv run polisyos --version`,
+    Команды `polisyos-tools workspace bootstrap`, `polisyos-tools workspace doctor`, `uv run polisyos --version`,
     `from polisyos.ir import ProblemFrame` и
     `from polisyos.foundry import compile_program`
     были реально запущены в свежем окружении.
@@ -26,8 +26,8 @@
 ```bash
 git clone https://github.com/DenisKopylov/polisyos.git
 cd polisyos/policy-engine
-./scripts/bootstrap
-./scripts/doctor
+uv run polisyos-tools workspace bootstrap
+uv run polisyos-tools workspace doctor
 ```
 
 Если вам нужен только ручной editable install без contributor bootstrap path, используйте:

@@ -175,6 +175,103 @@ class TestEndToEndConnectorFlow:
         )
         assert artifact_manifest.kind == "fabric.evidence_bundle"
 
+    def test_run_connectors_ingestion_uses_injected_registry_and_store_factory(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from polisyos.fabric.ingestion import run_connectors_ingestion
+        from polisyos.core.artifacts.store import FileSystemCAS
+
+        class DummySpan:
+            def __enter__(self) -> "DummySpan":
+                return self
+
+            def __exit__(self, exc_type, exc, tb) -> bool:
+                return False
+
+            def set_attribute(self, key: str, value: object) -> None:
+                del key, value
+
+        class DummyTracer:
+            def __init__(self) -> None:
+                self.names: list[str] = []
+
+            def start_as_current_span(self, name: str, attributes=None):
+                del attributes
+                self.names.append(name)
+                return DummySpan()
+
+        class DummyMetrics:
+            def record_fabric_lineage_graph(self, **kwargs: object) -> None:
+                del kwargs
+
+        class DummyEntry:
+            def __init__(self, config: ConnectionConfig) -> None:
+                self.default_config = config
+
+        class DummyRegistry:
+            def __init__(self) -> None:
+                self._connector = MockIntegrationConnector()
+                self._entry = DummyEntry(ConnectionConfig(url="http://localhost:9999/mock"))
+
+            def get(self, connector_id: str):
+                del connector_id
+                return self._connector
+
+            def get_entry(self, connector_id: str):
+                del connector_id
+                return self._entry
+
+            async def get_connection(self, connector_id: str, config: ConnectionConfig):
+                return ConnectionHandle(connector_id=connector_id, config=config)
+
+            async def release_connection(self, connector_id: str, handle: ConnectionHandle):
+                del connector_id, handle
+                return None
+
+        cas_root = tmp_path / ".polisyos"
+        build_calls: list[Path] = []
+        manifest = {
+            "datasets": [
+                {
+                    "connector_id": "test.integration_mock",
+                    "dataset_id": "test.integration_mock.agents",
+                }
+            ]
+        }
+        tracer = DummyTracer()
+        metrics = DummyMetrics()
+
+        monkeypatch.setattr(
+            "polisyos.fabric.ingestion.get_tracer",
+            lambda: (_ for _ in ()).throw(AssertionError("global tracer should not be used")),
+        )
+        monkeypatch.setattr(
+            "polisyos.fabric.ingestion.get_metrics",
+            lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
+        )
+        monkeypatch.setattr(
+            "polisyos.fabric.ingestion.ConnectorRegistry.get_instance",
+            lambda: (_ for _ in ()).throw(AssertionError("global registry should not be used")),
+        )
+
+        evidence_ref = run_connectors_ingestion(
+            connector_manifest=manifest,
+            cas_root=cas_root,
+            source="integration_test",
+            license_name="MIT",
+            registry=DummyRegistry(),
+            tracer=tracer,
+            metrics=metrics,
+            store_factory=lambda root: build_calls.append(root) or FileSystemCAS(root),
+        )
+
+        assert evidence_ref is not None
+        assert build_calls == [cas_root]
+        assert tracer.names
+        assert tracer.names[0] == "fabric.data_plane.ingest"
+
 class TestLintConnectors:
     def test_detects_scientist_import(self, tmp_path: Path) -> None:
         sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools" / "lint"))

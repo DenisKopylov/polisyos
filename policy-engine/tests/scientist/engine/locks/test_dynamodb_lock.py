@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -11,10 +10,7 @@ import pytest
 boto3 = pytest.importorskip("boto3")
 
 from polisyos.scientist.engine.checkpoint import RunLockError
-from polisyos.scientist.engine.locks.dynamodb_lock import (
-    DynamoDBLockHandle,
-    DynamoDBRunLock,
-)
+from polisyos.scientist.engine.locks.dynamodb_lock import DynamoDBRunLock
 
 
 def _mock_table() -> MagicMock:
@@ -53,11 +49,23 @@ class TestDynamoDBLockAcquire:
         with pytest.raises(RunLockError, match="already locked"):
             lock.acquire(run_id="run-2", mode="run")
 
-    def test_acquire_force_overwrites(self) -> None:
+    def test_acquire_force_requires_owner_token(self) -> None:
         table = _mock_table()
         from botocore.exceptions import ClientError
 
-        # First call fails (conditional), second succeeds (force overwrite)
+        table.put_item.side_effect = ClientError(
+            {"Error": {"Code": "ConditionalCheckFailedException", "Message": ""}},
+            "PutItem",
+        )
+        lock = _make_lock(table)
+        with pytest.raises(RunLockError, match="requires owner_token"):
+            lock.acquire(run_id="run-3", mode="run", force=True)
+
+    def test_acquire_force_with_owner_token(self) -> None:
+        table = _mock_table()
+        from botocore.exceptions import ClientError
+
+        # First call fails (conditional), second succeeds with token provenance.
         table.put_item.side_effect = [
             ClientError(
                 {"Error": {"Code": "ConditionalCheckFailedException", "Message": ""}},
@@ -66,9 +74,18 @@ class TestDynamoDBLockAcquire:
             None,
         ]
         lock = _make_lock(table)
-        handle = lock.acquire(run_id="run-3", mode="run", force=True)
+        handle = lock.acquire(
+            run_id="run-3",
+            mode="run",
+            force=True,
+            owner_token="existing-token",
+        )
         assert handle.run_id == "run-3"
         assert table.put_item.call_count == 2
+        assert (
+            table.put_item.call_args.kwargs["ExpressionAttributeValues"][":owner_token"]
+            == "existing-token"
+        )
 
 
 class TestDynamoDBLockRelease:
@@ -102,3 +119,19 @@ class TestDynamoDBStaleDetection:
         table.get_item.return_value = {}
         lock = _make_lock(table)
         assert lock.detect_stale("run-7") is False
+
+    def test_detect_stale_runtime_probe_error_returns_false(self) -> None:
+        table = _mock_table()
+        table.get_item.side_effect = RuntimeError("ddb down")
+        lock = _make_lock(table)
+        assert lock.detect_stale("run-8") is False
+
+
+class TestDynamoDBHandleLiveness:
+    def test_is_alive_runtime_probe_error_returns_false(self) -> None:
+        table = _mock_table()
+        table.get_item.side_effect = RuntimeError("ddb down")
+        lock = _make_lock(table)
+        handle = lock.acquire(run_id="run-9", mode="run")
+
+        assert handle.is_alive() is False

@@ -51,8 +51,7 @@ def populated_registry():
 def sample_fqn(populated_registry):
     """First FQN in the registry — used for lookup benchmarks."""
     entries = populated_registry.list_all()
-    if not entries:
-        pytest.skip("No methods registered")
+    assert entries, "No methods registered"
     return entries[0].fqn
 
 
@@ -178,8 +177,7 @@ def test_plan_optimizer_is_fast(benchmark, populated_registry):
     from polisyos.foundry.methods.plan_optimizer import ExecutionPlanOptimizer
 
     entries = populated_registry.list_all()
-    if len(entries) < 2:
-        pytest.skip("Need ≥2 registered methods")
+    assert len(entries) >= 2, "Need ≥2 registered methods"
 
     fqn_a = entries[0].fqn
     fqn_b = entries[1].fqn

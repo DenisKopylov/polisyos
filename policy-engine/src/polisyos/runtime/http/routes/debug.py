@@ -1,6 +1,8 @@
 """Public routes debug module API."""
 from __future__ import annotations
 
+from typing import Any
+
 from polisyos.core.contracts.runtime import (
     GovernanceDebugResponse,
     NodeDebugResponse,
@@ -15,13 +17,17 @@ from polisyos.runtime.http.dependencies import (
     get_runtime_api_context,
     set_authz_resource,
 )
+from polisyos.runtime.http.errors import forbidden
 
 try:  # pragma: no cover - optional runtime dependency
+    APIRouter: Any | None
+    Depends: Any | None
+    Request: Any
     from fastapi import APIRouter, Depends, Request
 except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None  # type: ignore[assignment]
-    Depends = None  # type: ignore[assignment]
-    Request = None  # type: ignore[assignment]
+    APIRouter = None
+    Depends = None
+    Request = Any
 
 
 router = APIRouter(prefix="/api/v1/debug/runs", tags=["runtime-debug"]) if APIRouter else None
@@ -132,6 +138,11 @@ if router is not None:
     ) -> RunCompareResponse:
         left_run = ctx.run_index.get_run(left_run_id)
         right_run = ctx.run_index.get_run(right_run_id)
+        if left_run.details.tenant_id != right_run.details.tenant_id:
+            raise forbidden(
+                "Cross-tenant run comparison requires an explicit privileged capability",
+                code="cross_tenant_compare_forbidden",
+            )
         enforce_run_tenant_access(request, ctx=ctx, run=left_run)
         enforce_run_tenant_access(request, ctx=ctx, run=right_run)
         set_authz_resource(

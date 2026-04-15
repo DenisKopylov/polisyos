@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tools.ci import check_action_freshness
+from tools.quality.ci import check_action_freshness
 
 
 def test_discover_pinned_actions_reads_version_comments(tmp_path: Path) -> None:

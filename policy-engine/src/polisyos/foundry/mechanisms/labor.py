@@ -41,11 +41,16 @@ class LaborMarketMechanism(ComplexMechanism):
         firms = state.firms
         n_agents = agents.size
         n_firms = firms.size
+        if n_firms <= 0:
+            raise ValueError("LaborMarketMechanism requires at least one firm")
 
         active_mask = getattr(agents, "active", None)
-        employment_probs = jax.random.uniform(key, shape=(n_agents,))
+        employment_key, firm_key, next_key = jax.random.split(key, 3)
+        employment_probs = jax.random.uniform(employment_key, shape=(n_agents,))
         new_is_employed = employment_probs < self.employment_threshold
-        firm_choices = jax.random.randint(key, shape=(n_agents,), minval=0, maxval=n_firms)
+        firm_choices = jax.random.randint(
+            firm_key, shape=(n_agents,), minval=0, maxval=n_firms
+        )
         new_employer_ids = jnp.where(new_is_employed, firm_choices, -1)
 
         employed_firm_ids_safe = jnp.where(new_is_employed, new_employer_ids, 0)
@@ -73,7 +78,7 @@ class LaborMarketMechanism(ComplexMechanism):
             count_mask = count_mask & active_mask
         employed_firm_ids = jnp.where(count_mask, effective_employer_ids, 0)
         labor_counts = jax.ops.segment_sum(
-            jnp.ones_like(employed_firm_ids), employed_firm_ids, n_firms
+            count_mask.astype(jnp.int32), employed_firm_ids, n_firms
         )
 
         if self.debug_mode:
@@ -88,5 +93,5 @@ class LaborMarketMechanism(ComplexMechanism):
                 "agents.income": [{"delta": income_delta}],
                 "firms.labor_count": [{"value": labor_counts}],
             },
-            key,
+            next_key,
         )

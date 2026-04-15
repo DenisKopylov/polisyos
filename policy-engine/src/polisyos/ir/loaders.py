@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 from typing import Any, Mapping
 
+from pydantic import ValidationError
+
 from polisyos.ir.trinity import TrinityBundle
 
 
@@ -94,7 +96,7 @@ def load_trinity_bundle(
 
     try:
         return TrinityBundle.model_validate(mapping), None
-    except Exception as exc:
+    except ValidationError as exc:
         if auto_migrate:
             raise PolicyLoadError("Payload is not a valid TrinityBundle.") from exc
         raise PolicyLoadError("Unsupported policy payload for TrinityBundle loader") from exc

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 from polisyos.core.observability import get_metrics
 
@@ -34,3 +35,8 @@ class TestMetricsRegistry:
         metrics.record_validation_issue("blocker", "schema_pass", "type_error")
 
         # No exceptions = success
+
+    def test_get_metrics_is_thread_safe_singleton(self):
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            instances = list(pool.map(lambda _: get_metrics(), range(32)))
+        assert len({id(instance) for instance in instances}) == 1

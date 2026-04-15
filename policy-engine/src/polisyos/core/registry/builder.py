@@ -1,13 +1,11 @@
 """Materialize immutable registry bundle artifacts in CAS."""
 from __future__ import annotations
 
-from typing import Any
-
-from pydantic import BaseModel
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.ir.kernel import (
     DEFAULT_CONSTRAINT_REGISTRY,
     DEFAULT_MECHANISM_REGISTRY,
@@ -24,8 +22,13 @@ from polisyos.ir.kernel import (
     UnitsRegistry,
 )
 
+if TYPE_CHECKING:
+    from pydantic import BaseModel
 
-def _schema_info(name: str, obj: Any) -> SchemaInfo | None:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+
+def _schema_info(name: str, obj: object) -> SchemaInfo | None:
     version = getattr(obj, "schema_version", None)
     if version is None:
         return None
@@ -33,16 +36,16 @@ def _schema_info(name: str, obj: Any) -> SchemaInfo | None:
 
 
 def _put_registry(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
-    obj: BaseModel | dict[str, Any],
+    obj: BaseModel | dict[str, object],
     kind: str,
     schema_name: str,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     return store.put_json(
         obj,
-        PutOptions(
+        ArtifactWriteOptions(
             kind=kind,
             media_type="application/json",
             schema=_schema_info(schema_name, obj),
@@ -52,18 +55,18 @@ def _put_registry(
 
 
 def build_registry_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
     mechanism_registry: MechanismTypeRegistry,
-    constraint_registry: BaseModel | dict[str, Any],
+    constraint_registry: BaseModel | dict[str, object],
     selector_field_registry: SelectorFieldRegistry | None = None,
     metric_registry: MetricRegistry | None = None,
     units_registry: UnitsRegistry | None = None,
-    trust_registry: BaseModel | dict[str, Any] | None = None,
-    predicate_registry: BaseModel | dict[str, Any] | None = None,
-    privacy_registry: BaseModel | dict[str, Any] | None = None,
+    trust_registry: BaseModel | dict[str, object] | None = None,
+    predicate_registry: BaseModel | dict[str, object] | None = None,
+    privacy_registry: BaseModel | dict[str, object] | None = None,
 ) -> RegistryBundle:
     """Persist one composed registry snapshot and return its bundle references.
 
@@ -211,7 +214,7 @@ def build_registry_bundle(
     return RegistryBundle(bundle_ref=bundle_ref, **payload.model_dump())
 
 
-def build_default_registry_bundle(store: FileSystemCAS) -> RegistryBundle:
+def build_default_registry_bundle(store: ArtifactStore) -> RegistryBundle:
     """Persist the built-in IR kernel registries as one default bundle snapshot."""
     return build_registry_bundle(
         store,

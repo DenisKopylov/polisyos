@@ -82,7 +82,7 @@ class CommunityDetectionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="community_detection",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -161,7 +161,7 @@ class InputOutputNetworkEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="input_output_network",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -230,7 +230,7 @@ class NetworkDiffusionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="network_diffusion",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -306,7 +306,7 @@ class ContagionModelEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="contagion_model",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -400,7 +400,7 @@ class MultiplexNetworkEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="multiplex_network",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

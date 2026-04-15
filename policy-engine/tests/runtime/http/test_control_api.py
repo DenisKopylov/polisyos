@@ -624,7 +624,7 @@ class TestIngestStreamingWindowed:
     def test_ingest_streaming_windowed(self, runtime_api_env):
         client = runtime_api_env["client"]
         with patch(
-            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset",
+            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
             return_value=[
                 {
                     "chunk_index": 0,

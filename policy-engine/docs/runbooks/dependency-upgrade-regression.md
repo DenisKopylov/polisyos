@@ -9,7 +9,7 @@ Related how-to: [Installation](../how-to/install.md). Related reference:
 
 ## Symptom
 
-- `./scripts/doctor` или `./scripts/verify` внезапно падают после dependency
+- `polisyos-tools workspace doctor` или `polisyos-tools workspace verify` внезапно падают после dependency
   change;
 - backend или frontend тесты ломаются без изменения product logic;
 - появляются import/runtime/type errors, которых не было до bump;
@@ -46,7 +46,7 @@ Related how-to: [Installation](../how-to/install.md). Related reference:
 
    ```bash
    cd policy-engine
-   ./scripts/doctor
+   uv run polisyos-tools workspace doctor
    ```
 
 2. Покажите, что именно менялось в dependency surface:
@@ -65,8 +65,8 @@ Related how-to: [Installation](../how-to/install.md). Related reference:
 
    ```bash
    cd policy-engine
-   ./scripts/verify --backend-only
-   ./scripts/verify --frontend-only
+   uv run polisyos-tools workspace verify --backend-only
+   uv run polisyos-tools workspace verify --frontend-only
    ```
 
 4. Если failure contract-related, прогоните canonical checks отдельно:

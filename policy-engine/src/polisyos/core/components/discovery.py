@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import os
 import sys
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Sequence
+from typing import TYPE_CHECKING
 
+from polisyos.common.logger import get_logger
 from polisyos.core.discovery import (
     BaseDiscovery,
     DuplicatePolicy,
@@ -22,8 +24,22 @@ from polisyos.core.discovery import (
     load_module_from_file,
 )
 
-from .metadata import ComponentKind
+from .metadata import ComponentKind, ComponentMetadata
 from .protocols import Component
+
+if TYPE_CHECKING:
+    from types import ModuleType
+
+_DISCOVERY_BOUNDARY_ERRORS = (
+    AttributeError,
+    ImportError,
+    LookupError,
+    ModuleNotFoundError,
+    RuntimeError,
+    SyntaxError,
+    TypeError,
+    ValueError,
+)
 
 ENTRY_POINT_GROUP_IR_FRAGMENTS = "polisyos.ir_fragments"
 ENTRY_POINT_GROUP_FOUNDRY_METHODS = "polisyos.foundry_methods"
@@ -36,6 +52,7 @@ ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS = "polisyos.norm_pack_providers"
 
 LEGACY_ENTRY_POINT_GROUP = "polisyos.components"
 ENTRY_POINT_GROUP = LEGACY_ENTRY_POINT_GROUP  # backwards compatibility
+logger = get_logger(__name__)
 
 ENTRY_POINT_KIND_BY_GROUP: dict[str, ComponentKind] = {
     ENTRY_POINT_GROUP_IR_FRAGMENTS: ComponentKind.IR_FRAGMENT,
@@ -65,7 +82,7 @@ class DiscoverySourceInfo:
 @dataclass(slots=True)
 class DiscoveredComponent:
     """Pair a materialized component with metadata and source provenance."""
-    metadata: Any
+    metadata: ComponentMetadata
     component: Component
     source: DiscoverySourceInfo
 
@@ -230,7 +247,7 @@ def discover_entry_points(*, group: str = ENTRY_POINT_GROUP) -> list[Component]:
     return [item.component for item in report.components]
 
 
-def discover_dev_components(root: Path) -> list[Any]:
+def discover_dev_components(root: Path) -> list[ComponentMetadata]:
     """Scan one local root and return discovered metadata objects for legacy callers."""
     report = discover_components(
         groups=[],
@@ -317,7 +334,7 @@ def _discover_group(*, group: str, errors: list[DiscoveryError]) -> list[Discove
 
     try:
         group_eps = list_entry_points(group=group)
-    except Exception as exc:
+    except _DISCOVERY_BOUNDARY_ERRORS as exc:
         errors.append(
             DiscoveryError(
                 source="entry_point",
@@ -337,7 +354,7 @@ def _discover_group(*, group: str, errors: list[DiscoveryError]) -> list[Discove
         )
         try:
             loaded = ep.load()
-        except Exception as exc:
+        except _DISCOVERY_BOUNDARY_ERRORS as exc:
             errors.append(
                 DiscoveryError(
                     source="entry_point",
@@ -478,10 +495,10 @@ def _load_module_from_file(
     *,
     module_name: str,
     errors: list[DiscoveryError],
-) -> Any | None:
+) -> ModuleType | None:
     try:
         module = load_module_from_file(path, module_name=module_name)
-    except Exception as exc:
+    except _DISCOVERY_BOUNDARY_ERRORS as exc:
         errors.append(
             DiscoveryError(
                 source="dev_scan",
@@ -498,13 +515,14 @@ def _load_module_from_file(
     return module
 
 
-def _materialize_component(value: Any) -> Component | None:
+def _materialize_component(value: object) -> Component | None:
     if isinstance(value, Component):
         return value
     if callable(value):
         try:
             created = value()
-        except Exception:
+        except (AttributeError, ImportError, RuntimeError, TypeError, ValueError) as exc:
+            logger.warning("Component factory materialization failed: %s", exc)
             return None
         if isinstance(created, Component):
             return created

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -183,7 +183,7 @@ class ProvenanceCoreGraph:
     activities: dict[str, ProvenanceActivity] = field(default_factory=dict)
     agents: dict[str, ProvenanceAgent] = field(default_factory=dict)
     edges: list[ProvenanceEdge] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     metadata: dict[str, str] = field(default_factory=dict)
 
     # --- Node Registration (O(1) insertion) ---
@@ -301,6 +301,25 @@ class ProvenanceCoreGraph:
                 timestamp=timestamp,
             )
         )
+
+    def merge(self, other: "ProvenanceCoreGraph") -> None:
+        """Merge another provenance graph into this graph idempotently."""
+        for entity in other.entities.values():
+            self.add_entity(entity)
+        for activity in other.activities.values():
+            self.add_activity(activity)
+        for agent in other.agents.values():
+            self.add_agent(agent)
+
+        existing_edges = set(self.edges)
+        for edge in other.edges:
+            if edge in existing_edges:
+                continue
+            self.edges.append(edge)
+            existing_edges.add(edge)
+
+        for key, value in other.metadata.items():
+            self.metadata.setdefault(key, value)
 
     # --- Query Methods ---
 

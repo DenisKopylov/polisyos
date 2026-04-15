@@ -36,7 +36,7 @@ class CausalMediationEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="causal_mediation",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -140,7 +140,7 @@ class ControlledDirectEffectEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="controlled_direct_effect",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -244,7 +244,7 @@ class NaturalEffectEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="natural_effects",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),

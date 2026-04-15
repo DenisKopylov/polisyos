@@ -1032,7 +1032,7 @@ class UnifiedCausalDiscovery:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="unified_causal_discovery",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

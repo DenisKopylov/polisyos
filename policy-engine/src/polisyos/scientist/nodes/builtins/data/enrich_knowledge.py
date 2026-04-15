@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -26,6 +28,7 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.idempotency import NodeResultCache, compute_idempotency_key
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,
@@ -51,6 +54,16 @@ _SPEC = NodeSpec(
     state_writes=[f"inputs.{INPUT_KNOWLEDGE_BUNDLE_REF}"],
     produces=[INPUT_KNOWLEDGE_BUNDLE_REF],
 )
+
+_KNOWLEDGE_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_KNOWLEDGE_LOAD_ERRORS = (
+    TypeError,
+    ValueError,
+    ValidationError,
+    FileNotFoundError,
+    OSError,
+)
+_SCHOLAR_RUNTIME_ERRORS = (RuntimeError, TimeoutError, ConnectionError, OSError)
 
 
 @dataclass(frozen=True)
@@ -97,7 +110,7 @@ class EnrichKnowledgeNode:
             if not isinstance(payload, dict):
                 raise ValueError("research_intent_ref must point to JSON object payload")
             intent = ResearchIntent.model_validate(payload)
-        except Exception as exc:
+        except _KNOWLEDGE_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -113,7 +126,7 @@ class EnrichKnowledgeNode:
         if existing_ref is not None:
             try:
                 existing_bundle = self._load_bundle_payload(ctx, existing_ref)
-            except Exception:
+            except _KNOWLEDGE_LOAD_ERRORS:
                 existing_bundle = None
 
         if existing_ref is not None and existing_bundle is not None:
@@ -202,7 +215,7 @@ class EnrichKnowledgeNode:
                 freshness_store.record_refresh_attempt(state_key, now=refresh_time)
                 try:
                     refreshed_ref = ctx.scholar.enrich(ctx.store, intent)
-                except Exception:
+                except _SCHOLAR_RUNTIME_ERRORS:
                     refreshed_state = freshness_store.record_refresh_failure(
                         state_key,
                         cooldown_seconds=self.refresh_cooldown_seconds,
@@ -239,7 +252,7 @@ class EnrichKnowledgeNode:
 
         try:
             refreshed_ref = ctx.scholar.enrich(ctx.store, intent)
-        except Exception as exc:
+        except _SCHOLAR_RUNTIME_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -255,7 +268,10 @@ class EnrichKnowledgeNode:
         state: ExperimentState,
         bundle_ref: KnowledgeBundleRef,
     ) -> NodeOutcome:
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=(f"inputs.{INPUT_KNOWLEDGE_BUNDLE_REF}",),
+        ).state
         new_state.inputs[INPUT_KNOWLEDGE_BUNDLE_REF] = bundle_ref
         return NodeOutcome(
             status="ok",
@@ -280,7 +296,10 @@ class EnrichKnowledgeNode:
         code: str | None = None,
         message: str | None = None,
     ) -> NodeOutcome:
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=(f"inputs.{INPUT_KNOWLEDGE_BUNDLE_REF}",),
+        ).state
         new_state.inputs[INPUT_KNOWLEDGE_BUNDLE_REF] = bundle_ref
         effective_level = level or ("warn" if freshness.blocked_by_cooldown else "info")
         effective_code = code or (
@@ -321,7 +340,7 @@ class EnrichKnowledgeNode:
     ) -> KnowledgeBundleRef:
         try:
             refreshed_bundle = self._load_bundle_payload(ctx, refreshed_ref)
-        except Exception:
+        except _KNOWLEDGE_LOAD_ERRORS:
             return refreshed_ref
 
         merged_freshness = build_freshness_metadata(
@@ -352,7 +371,7 @@ class EnrichKnowledgeNode:
         if current is not None:
             try:
                 return KnowledgeBundleRef.model_validate(current.model_dump())
-            except Exception:
+            except _KNOWLEDGE_VALIDATION_ERRORS:
                 return None
 
         try:
@@ -366,7 +385,7 @@ class EnrichKnowledgeNode:
             if cached_ref is None:
                 return None
             return KnowledgeBundleRef.model_validate(cached_ref.model_dump())
-        except Exception:
+        except _KNOWLEDGE_LOAD_ERRORS:
             return None
 
     def _load_bundle_payload(

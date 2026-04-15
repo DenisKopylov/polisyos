@@ -14,6 +14,7 @@ from polisyos.core.contracts.scientist import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LEGAL_CANDIDATE_PACK_REF,
     ARTIFACT_LEGAL_SOURCE_PACK_REF,
@@ -24,9 +25,9 @@ from polisyos.scientist.policy_verified import (
     load_legal_candidate_pack,
     load_legal_source_pack,
     load_policy_request_frame,
+    load_source_verification_report,
     persist_legal_candidate_pack,
     persist_legal_source_pack,
-    load_source_verification_report,
     persist_source_verification_report,
 )
 from polisyos.scientist.policy_verified.service import recover_source_gaps
@@ -128,7 +129,7 @@ class RunSourceGapReviewNode:
                 InputRef(artifact_id=updated_source_ref.artifact_id, role="legal_source_pack"),
             ],
         )
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.legal_candidate_pack_ref = updated_candidate_ref
         new_state.artifacts_index[ARTIFACT_LEGAL_CANDIDATE_PACK_REF] = updated_candidate_ref
         new_state.legal_source_pack_ref = updated_source_ref

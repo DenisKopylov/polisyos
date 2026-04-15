@@ -51,7 +51,7 @@ test.describe("runtime-dashboard visual baselines", () => {
     await page.goto(`/runs/${FIXTURE_RUN_ID}/overview`);
     await expect(page.getByTestId("run-detail-page")).toBeVisible();
     await expect(
-      page.getByTestId("run-detail-page").locator("aside").first(),
+      page.getByTestId("run-detail-summary"),
     ).toHaveScreenshot("run-detail-summary.png", {
       animations: "disabled",
       caret: "hide",

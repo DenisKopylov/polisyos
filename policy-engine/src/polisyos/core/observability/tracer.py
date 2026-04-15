@@ -115,14 +115,16 @@ class PolicyOSTracer:
         return cls._instance
 
     def __init__(self) -> None:
+        # Re-establish instance attributes even if singleton state was reset
+        # while an existing object instance remained reachable.
+        if not hasattr(self, "_config"):
+            self._config: Optional[OTelConfig] = None
+            self._provider: Optional[TracerProvider] = None
+            self._tracer: Optional[Tracer] = None
+            self._propagator = TraceContextTextMapPropagator()
         # Guard against re-initialization
         if PolicyOSTracer._initialized:
             return
-
-        self._config: Optional[OTelConfig] = None
-        self._provider: Optional[TracerProvider] = None
-        self._tracer: Optional[Tracer] = None
-        self._propagator = TraceContextTextMapPropagator()
 
     def _ensure_initialized(self) -> None:
         """
@@ -384,6 +386,7 @@ class PolicyOSTracer:
 
 # Module-level singleton accessor
 _tracer_instance: Optional[PolicyOSTracer] = None
+_tracer_instance_lock = threading.Lock()
 
 
 def get_tracer() -> PolicyOSTracer:
@@ -393,8 +396,19 @@ def get_tracer() -> PolicyOSTracer:
     This is the recommended way to access the tracer.
     """
     global _tracer_instance
-    if _tracer_instance is None:
-        _tracer_instance = PolicyOSTracer()
+    if (
+        _tracer_instance is not None
+        and PolicyOSTracer._instance is not None
+        and _tracer_instance is PolicyOSTracer._instance
+    ):
+        return _tracer_instance
+    with _tracer_instance_lock:
+        if (
+            _tracer_instance is None
+            or PolicyOSTracer._instance is None
+            or _tracer_instance is not PolicyOSTracer._instance
+        ):
+            _tracer_instance = PolicyOSTracer()
     return _tracer_instance
 
 

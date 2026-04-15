@@ -570,7 +570,7 @@ class PathSpecificEffectEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="path_specific_effects",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),

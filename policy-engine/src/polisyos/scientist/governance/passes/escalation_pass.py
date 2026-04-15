@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any, List
+from typing import List
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
+from polisyos.scientist.governance.accountability import resolve_governance_threshold
 
 
 class EscalationPass(ValidatorPass):
@@ -48,7 +49,18 @@ class EscalationPass(ValidatorPass):
             except (ValueError, TypeError):
                 score = 0.0
 
-            if score >= self._human_review_threshold:
+            human_review_threshold = resolve_governance_threshold(
+                "require_human_review_above",
+                ctx.profile.thresholds,
+                fallback=self._human_review_threshold,
+            )
+            impact_threshold = resolve_governance_threshold(
+                "impact_threshold",
+                ctx.profile.thresholds,
+                fallback=self._impact_threshold,
+            )
+
+            if score >= human_review_threshold:
                 human_reviewed = bool(state.get("human_reviewed", False))
                 if not human_reviewed:
                     issues.append(
@@ -56,7 +68,7 @@ class EscalationPass(ValidatorPass):
                             pass_id=self.pass_id,
                             path=["state", "human_reviewed"],
                             message=(
-                                f"Impact score {score:.2f} >= {self._human_review_threshold} "
+                                f"Impact score {score:.2f} >= {human_review_threshold:.2f} "
                                 "requires human review"
                             ),
                             severity=IssueSeverity.BLOCKER,
@@ -65,7 +77,7 @@ class EscalationPass(ValidatorPass):
                         )
                     )
 
-            elif score >= self._impact_threshold:
+            elif score >= impact_threshold:
                 escalation_acknowledged = bool(state.get("escalation_acknowledged", False))
                 if not escalation_acknowledged:
                     issues.append(
@@ -73,7 +85,7 @@ class EscalationPass(ValidatorPass):
                             pass_id=self.pass_id,
                             path=["state", "escalation_acknowledged"],
                             message=(
-                                f"Impact score {score:.2f} >= {self._impact_threshold} "
+                                f"Impact score {score:.2f} >= {impact_threshold:.2f} "
                                 "requires escalation acknowledgement"
                             ),
                             severity=IssueSeverity.WARNING,

@@ -12,9 +12,9 @@ __pycache__/
 .DS_Store
 .benchmarks/
 # Data folders
-data/raw/*
-data/curated/*
-!data/raw/.gitkeep
+data/**
+!data/**/
+!data/**/*.md
 # Jupyter
 .ipynb_checkpoints
 # Databases files
@@ -29,6 +29,7 @@ data/curated/*
 .polisyos/
 .polisyos/keys/*.pem
 .polisyos/keys/**/private*.pem
+.polisyos-tools/
 
 # Application logs
 logs/
@@ -41,12 +42,16 @@ logs/
 # Benchmark outputs
 benchmarks/_reports/
 benchmark-results/
+tools/benchmarks/_reports/
 
 # Temporary directories
 .tmp/
 .tmp_*/
 tmp/
 .arch-freeze/
+
+# Local audit bundles
+*.polisyos-audit.tar.gz
 
 # Frontend build artifacts
 frontend/runtime-dashboard/node_modules/
@@ -67,8 +72,20 @@ stale_sources_missing_paths.txt
 
 # Documentation
 docs/*
+!docs/IMPLEMENTATION_GUIDE.md
 !docs/DOCUMENTATION_SOTA_PLAN.md
+!docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md
+!docs/UKRAINE_FUNDING_INTELLIGENCE_PLAN.md
+!docs/benchmarks/
+!docs/benchmarks/confidential-computing-overhead.md
 !docs/index.md
+!docs/key-rotation.md
+!docs/migration/
+!docs/migration/phase4_trinity_only.md
+!docs/quality/
+!docs/quality/Integration_Guide.md
+!docs/quality/Phase_2_6_Quality_System_Spec.md
+!docs/quality/README_Quality_System.md
 !docs/style-guide.md
 !docs/adr/
 !docs/adr/**
@@ -85,6 +102,10 @@ docs/archive/reports/**
 !docs/archive/reports/platform-release-canary.md
 !docs/archive/reports/platform-release-dry-run-notes.json
 !docs/archive/reports/platform-release-dry-run-notes.md
+!docs/archive/reports/core-runtime-closeout.json
+!docs/archive/reports/core-runtime-closeout.md
+!docs/archive/reports/core-runtime-long-soak.json
+!docs/archive/reports/core-runtime-long-soak.md
 !docs/connectors/
 !docs/connectors/**
 !docs/contracts/

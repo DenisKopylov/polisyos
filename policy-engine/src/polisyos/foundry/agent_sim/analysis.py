@@ -6,8 +6,10 @@ from typing import Sequence
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic, compute_entropy
+from polisyos.foundry.agent_sim.distributions import compute_ranks_hard
 from polisyos.foundry.agent_sim.state import GlobalState
 
 
@@ -36,11 +38,14 @@ class BehaviorAnalyzer:
 
         states_seq = list(states)
         if n_samples and len(states_seq) > n_samples:
-            idx = jax.random.choice(
-                rng_key, len(states_seq), (n_samples,), replace=False
+            del rng_key
+            sample_idx = np.linspace(
+                0,
+                len(states_seq) - 1,
+                num=n_samples,
+                dtype=np.int32,
             )
-            idx = jax.device_get(idx)
-            states_seq = [states_seq[int(i)] for i in idx]
+            states_seq = [states_seq[int(i)] for i in sample_idx]
 
         all_means = []
         all_stds = []
@@ -158,30 +163,35 @@ class BehaviorAnalyzer:
         initial_wealth = initial_state.agents.wealth
         final_wealth = final_state.agents.wealth
         active = initial_state.agents.active & final_state.agents.active
-        active_count = int(jnp.sum(active))
-        if active_count == 0:
-            return jnp.zeros((n_quantiles, n_quantiles))
+        n_active = jnp.sum(active.astype(jnp.int32))
 
-        initial_sorted = jnp.sort(initial_wealth[active])
-        final_sorted = jnp.sort(final_wealth[active])
+        def _no_active() -> jnp.ndarray:
+            return jnp.zeros((n_quantiles, n_quantiles), dtype=jnp.float32)
 
-        initial_q = jnp.searchsorted(initial_sorted, initial_wealth[active])
-        initial_q = initial_q * n_quantiles // active_count
-        final_q = jnp.searchsorted(final_sorted, final_wealth[active])
-        final_q = final_q * n_quantiles // active_count
+        def _with_active() -> jnp.ndarray:
+            initial_ranks = compute_ranks_hard(initial_wealth, active)
+            final_ranks = compute_ranks_hard(final_wealth, active)
+            initial_q = jnp.clip(
+                jnp.floor(initial_ranks * n_quantiles).astype(jnp.int32),
+                0,
+                n_quantiles - 1,
+            )
+            final_q = jnp.clip(
+                jnp.floor(final_ranks * n_quantiles).astype(jnp.int32),
+                0,
+                n_quantiles - 1,
+            )
+            flat_bins = initial_q * n_quantiles + final_q
+            counts = jnp.bincount(
+                flat_bins,
+                weights=active.astype(jnp.float32),
+                length=n_quantiles * n_quantiles,
+            )
+            matrix = counts.reshape((n_quantiles, n_quantiles)).astype(jnp.float32)
+            row_sums = jnp.sum(matrix, axis=1, keepdims=True)
+            return matrix / jnp.maximum(row_sums, 1.0)
 
-        initial_q = jnp.clip(initial_q, 0, n_quantiles - 1)
-        final_q = jnp.clip(final_q, 0, n_quantiles - 1)
-
-        matrix = jnp.zeros((n_quantiles, n_quantiles))
-        for i in range(n_quantiles):
-            for j in range(n_quantiles):
-                count = jnp.sum((initial_q == i) & (final_q == j))
-                matrix = matrix.at[i, j].set(count)
-
-        row_sums = jnp.sum(matrix, axis=1, keepdims=True)
-        matrix = matrix / jnp.maximum(row_sums, 1.0)
-        return matrix
+        return jax.lax.cond(n_active > 0, _with_active, _no_active)
 
     @staticmethod
     def compute_policy_sensitivity(

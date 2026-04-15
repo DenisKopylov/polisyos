@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
@@ -16,6 +18,7 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.transportability import TransportabilityStatus
 from polisyos.ir.refs import CausalEffectReportRef, CrossGraphEvidenceProfileRef
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 _EXTERNAL_SOURCE_TYPES: frozenset[str] = frozenset(
     {
@@ -90,7 +93,10 @@ def _issues_from_cross_graph_profile(
                 ComplianceIssue(
                     pass_id="transportability_required",
                     path=["cross_graph", assessment.need.need_id],
-                    message="Unified evidence profile marks this need as unsupported for transport.",
+                    message=(
+                        "Unified evidence profile marks this need as unsupported "
+                        "for transport."
+                    ),
                     severity=severity,
                     code="TRANSPORT_REQUIRED_MISSING",
                     suggestion="Run transportability check or obtain target-context evidence.",
@@ -109,7 +115,10 @@ def _issues_from_cross_graph_profile(
                 ComplianceIssue(
                     pass_id="transportability_required",
                     path=["cross_graph", assessment.need.need_id],
-                    message="Unified evidence profile requires transportability review before reuse.",
+                    message=(
+                        "Unified evidence profile requires transportability review "
+                        "before reuse."
+                    ),
                     severity=IssueSeverity.WARNING,
                     code="TRANSPORT_REQUIRED_MISSING",
                     suggestion="Run transportability check before using this estimate.",
@@ -155,7 +164,18 @@ def _resolve_report_value(ctx: PassContext, raw_value: Any) -> CausalEffectRepor
     if isinstance(raw_value, dict):
         try:
             return CausalEffectReport.model_validate(raw_value)
-        except Exception:
+        except (AttributeError, TypeError, ValidationError, ValueError) as exc:
+            emit_degraded_path(
+                component="governance.transportability_required_pass",
+                operation="resolve_report_value",
+                reason="report_parse_failed",
+                exc=exc,
+                details={
+                    "raw_value_keys": (
+                        sorted(raw_value) if isinstance(raw_value, dict) else None
+                    )
+                },
+            )
             return _load_report_from_ref(ctx, raw_value)
     if raw_value is None:
         return None
@@ -173,17 +193,37 @@ def _load_report_from_ref(ctx: PassContext, raw_ref: Any) -> CausalEffectReport 
     if hasattr(raw_ref, "model_dump"):
         try:
             ref_payload = raw_ref.model_dump(mode="json")
-        except Exception:
+        except (AttributeError, TypeError, ValidationError, ValueError) as exc:
+            emit_degraded_path(
+                component="governance.transportability_required_pass",
+                operation="load_report_from_ref",
+                reason="artifact_ref_serialize_failed",
+                exc=exc,
+            )
             return None
 
     try:
         ref = CausalEffectReportRef.model_validate(ref_payload)
-    except Exception:
+    except (AttributeError, TypeError, ValidationError, ValueError) as exc:
+        emit_degraded_path(
+            component="governance.transportability_required_pass",
+            operation="load_report_from_ref",
+            reason="artifact_ref_parse_failed",
+            exc=exc,
+            details={"ref_payload": ref_payload},
+        )
         return None
 
     try:
         return load_causal_effect_report(store, ref)
-    except Exception:
+    except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
+        emit_degraded_path(
+            component="governance.transportability_required_pass",
+            operation="load_report_from_ref",
+            reason="artifact_load_failed",
+            exc=exc,
+            details={"ref": ref.model_dump(mode="json")},
+        )
         return None
 
 
@@ -200,7 +240,14 @@ def _resolve_cross_graph_profile(ctx: PassContext) -> CrossGraphEvidenceProfile 
     try:
         ref = CrossGraphEvidenceProfileRef.model_validate(raw_ref)
         return load_cross_graph_evidence_profile(store, ref)
-    except Exception:
+    except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
+        emit_degraded_path(
+            component="governance.transportability_required_pass",
+            operation="resolve_cross_graph_profile",
+            reason="artifact_load_failed",
+            exc=exc,
+            details={"raw_ref": raw_ref},
+        )
         return None
 
 
@@ -275,7 +322,10 @@ def _issue_for_transport_result(
             message="External CausalEffectReport is only partially identified under transport.",
             severity=_severity_for_partial_transport(ctx),
             code="TRANSPORT_PARTIAL_IDENTIFICATION",
-            suggestion="Review partial-identification regions or add stronger target-context evidence.",
+            suggestion=(
+                "Review partial-identification regions or add stronger "
+                "target-context evidence."
+            ),
         )
     if transport.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED:
         return ComplianceIssue(
@@ -292,7 +342,10 @@ def _issue_for_transport_result(
         message="External CausalEffectReport is unsupported under transport assumptions.",
         severity=missing_severity,
         code="TRANSPORT_UNSUPPORTED",
-        suggestion="Do not reuse this estimate without target-context evidence or an approved degraded override.",
+        suggestion=(
+            "Do not reuse this estimate without target-context evidence or an "
+            "approved degraded override."
+        ),
     )
 
 

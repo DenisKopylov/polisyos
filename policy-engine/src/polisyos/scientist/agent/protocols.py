@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
@@ -89,7 +89,7 @@ class ProblemFrame:
     success_criteria: dict[str, Any] = field(default_factory=dict)
     assumptions: tuple[str, ...] = field(default_factory=tuple)
     context: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def __hash__(self) -> int:
         """Enable use as dict key based on frame_id."""
@@ -141,10 +141,13 @@ class DraftResult:
     interventions: list[dict[str, Any]] = field(default_factory=list)
     rationale: str = ""
     domain_references: list[str] = field(default_factory=list)
+    citations: list[dict[str, Any]] = field(default_factory=list)
+    claim_supports: list[dict[str, Any]] = field(default_factory=list)
+    grounding_notes: list[str] = field(default_factory=list)
     confidence: float = 0.0
     alternatives_considered: list[str] = field(default_factory=list)
     raw_llm_response: str | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass(frozen=True, slots=True)
@@ -177,8 +180,9 @@ class CritiqueReport:
     completeness_score: float = 0.0
     overall_quality: float = 0.0
     reflexion_hint: str = ""
+    citations: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def has_blockers(self) -> bool:

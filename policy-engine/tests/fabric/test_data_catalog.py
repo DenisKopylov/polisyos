@@ -28,7 +28,12 @@ from polisyos.fabric.catalog.registry import (
     ContractNotFoundError,
     DataContractRegistry,
 )
+from polisyos.fabric.catalog.semantic import (
+    SemanticEvaluationBenchmarkPack,
+    SemanticEvaluationCase,
+)
 from polisyos.fabric.catalog.search import MetricSearcher
+from polisyos.fabric.catalog.source_bindings import SourceBinding
 
 
 # =============================================================================
@@ -124,6 +129,11 @@ def contracts_file(sample_contracts: list[DataContract], tmp_path: Path) -> Path
     return tmp_path
 
 
+@pytest.fixture
+def semantic_benchmark_path() -> Path:
+    return Path(__file__).resolve().parents[1] / "fixtures" / "fabric_semantic_benchmark.json"
+
+
 # =============================================================================
 # Contract Validation Tests
 # =============================================================================
@@ -181,6 +191,28 @@ class TestDataContract:
                 source_system="test.duckdb",
                 valid_range=(100.0, 0.0),
             )
+
+        with pytest.raises(ValueError, match="finite"):
+            DataContract(
+                metric_id="test.metric",
+                display_name="Test",
+                description="Test",
+                dtype=DataType.FLOAT,
+                source_system="test.duckdb",
+                valid_range=(0.0, float("inf")),
+            )
+
+    def test_units_normalized_like_schema_fields(self) -> None:
+        contract = DataContract(
+            metric_id="test.metric",
+            display_name="Test",
+            description="Test",
+            dtype=DataType.FLOAT,
+            unit="USD / Person",
+            source_system="test.duckdb",
+        )
+
+        assert contract.unit == "usd_per_person"
 
     def test_contract_immutability(self) -> None:
         """Test that contracts are frozen (immutable)."""
@@ -431,6 +463,239 @@ class TestMetricSearcher:
         assert len(response.results) > 0
         deprecated_result = [result for result in response.results if result.is_deprecated]
         assert len(deprecated_result) > 0
+
+    def test_semantic_search_returns_explainable_candidate(
+        self, sample_contracts: list[DataContract]
+    ) -> None:
+        searcher = MetricSearcher(
+            sample_contracts,
+            bindings=[
+                SourceBinding(
+                    metric_id="us.macro.unemployment_rate",
+                    connector_id="ilo.ilostat",
+                    dataset_id="annual_unemployment",
+                    aliases=["labour market status"],
+                    tags=["labor", "employment"],
+                    metadata={"schema_version": "2026-01", "capability_snapshot": "timeseries"},
+                )
+            ],
+        )
+
+        response = searcher.search("percentage of labor force without employment")
+
+        assert response.best_match is not None
+        assert response.best_match.binding.metric_id == "us.macro.unemployment_rate"
+        assert response.best_match.route == "semantic"
+        assert any("Semantic rank" in item for item in response.best_match.explanations)
+        assert response.best_match.vector_metadata["embedding_model"] == "hashing-bow-v1"
+        assert response.plan_steps[1]["route"] == "semantic"
+        document = searcher.semantic_index.document("us.macro.unemployment_rate")
+        assert document is not None
+        enrichment = document.metadata["metadata_enrichment"]
+        assert "World Bank WDI" in enrichment["profile_display_names"] or enrichment["profile_display_names"] == []
+
+    def test_semantic_refresh_invalidates_on_contract_change(
+        self, sample_contracts: list[DataContract]
+    ) -> None:
+        searcher = MetricSearcher(sample_contracts)
+        before = searcher.semantic_index.document("us.macro.gdp_nominal")
+        assert before is not None
+
+        updated_contracts = [
+            contract.model_copy(update={"description": "Gross domestic product from expenditure accounts"})
+            if contract.metric_id == "us.macro.gdp_nominal"
+            else contract
+            for contract in sample_contracts
+        ]
+
+        changed = searcher.refresh_semantic_index(updated_contracts)
+        after = searcher.semantic_index.document("us.macro.gdp_nominal")
+
+        assert "us.macro.gdp_nominal" in changed
+        assert after is not None
+        assert before.vector_metadata.fingerprint != after.vector_metadata.fingerprint
+
+    def test_semantic_refresh_invalidates_on_binding_metadata_change(
+        self, sample_contracts: list[DataContract]
+    ) -> None:
+        bindings = [
+            SourceBinding(
+                metric_id="us.macro.gdp_nominal",
+                connector_id="worldbank.wdi",
+                dataset_id="NY.GDP.MKTP.CD",
+                profile_id="worldbank_wdi",
+                metadata={"schema_version": "2026-01", "capability_snapshot": "api_grouped"},
+            )
+        ]
+        searcher = MetricSearcher(sample_contracts, bindings=bindings)
+        before = searcher.semantic_index.document("us.macro.gdp_nominal")
+        assert before is not None
+
+        changed = searcher.refresh_semantic_index(
+            sample_contracts,
+            bindings=[
+                bindings[0].model_copy(
+                    update={
+                        "metadata": {
+                            "schema_version": "2026-02",
+                            "capability_snapshot": "bulk_file",
+                            "schema_description": "national accounts quarterly output",
+                        }
+                    }
+                )
+            ],
+        )
+        after = searcher.semantic_index.document("us.macro.gdp_nominal")
+
+        assert "us.macro.gdp_nominal" in changed
+        assert after is not None
+        assert before.vector_metadata.fingerprint != after.vector_metadata.fingerprint
+        enrichment = after.metadata["metadata_enrichment"]
+        assert "schema_description" in enrichment["binding_metadata_keys"]
+        assert "bulk_file" in enrichment["binding_metadata_values"]
+
+    def test_semantic_document_enrichment_includes_profile_capabilities(
+        self, sample_contracts: list[DataContract]
+    ) -> None:
+        searcher = MetricSearcher(
+            sample_contracts,
+            bindings=[
+                SourceBinding(
+                    metric_id="us.macro.gdp_nominal",
+                    connector_id="worldbank.wdi",
+                    dataset_id="NY.GDP.MKTP.CD",
+                    profile_id="worldbank_wdi",
+                    metadata={
+                        "schema_description": "world development indicators national accounts",
+                        "docs_excerpt": "official World Bank documentation for GDP indicators",
+                    },
+                )
+            ],
+        )
+
+        document = searcher.semantic_index.document("us.macro.gdp_nominal")
+
+        assert document is not None
+        assert "World Development Indicators" in document.text
+        enrichment = document.metadata["metadata_enrichment"]
+        assert "World Bank WDI" in enrichment["profile_display_names"]
+        assert "worldbank_wdi" in enrichment["profile_capabilities"]
+        assert "worldbank" in " ".join(enrichment["profile_capabilities"]["worldbank_wdi"]).lower()
+
+    @pytest.mark.parametrize(
+        ("query", "expected_metric_id"),
+        [
+            ("percentage of labor force without employment", "us.macro.unemployment_rate"),
+            ("gross domestic product adjusted for inflation", "us.macro.gdp_real"),
+            ("individual wage income", "agent.income.salary"),
+            ("current usd gross domestic product", "us.macro.gdp_nominal"),
+            ("monthly labor market unemployment", "us.macro.unemployment_rate"),
+        ],
+    )
+    def test_semantic_relevance_eval_set(
+        self,
+        sample_contracts: list[DataContract],
+        query: str,
+        expected_metric_id: str,
+    ) -> None:
+        searcher = MetricSearcher(sample_contracts)
+
+        response = searcher.search(query)
+
+        assert response.best_match is not None
+        assert response.best_match.binding.metric_id == expected_metric_id
+
+    def test_semantic_evaluation_harness_reports_false_positive_budget(
+        self, sample_contracts: list[DataContract]
+    ) -> None:
+        searcher = MetricSearcher(
+            sample_contracts,
+            bindings=[
+                SourceBinding(
+                    metric_id="us.macro.gdp_nominal",
+                    connector_id="worldbank.wdi",
+                    dataset_id="NY.GDP.MKTP.CD",
+                    profile_id="worldbank_wdi",
+                    metadata={"schema_description": "world development indicators gdp output"},
+                )
+            ],
+        )
+
+        report = searcher.semantic_index.evaluate(
+            [
+                SemanticEvaluationCase(
+                    query="gross domestic product in current usd",
+                    expected_metric_id="us.macro.gdp_nominal",
+                    max_rank=2,
+                ),
+                SemanticEvaluationCase(
+                    query="inflation adjusted gross domestic product",
+                    expected_metric_id="us.macro.gdp_real",
+                ),
+                SemanticEvaluationCase(
+                    query="labor force without work share",
+                    expected_metric_id="us.macro.unemployment_rate",
+                ),
+                SemanticEvaluationCase(
+                    query="agent level wage income",
+                    expected_metric_id="agent.income.salary",
+                ),
+                SemanticEvaluationCase(
+                    query="galactic warp drive dilithium",
+                    expected_metric_id=None,
+                    max_false_positive_score=0.15,
+                ),
+            ]
+        )
+
+        assert report.passed is True
+        assert report.passed_cases == 5
+        false_positive_case = report.outcomes[-1]
+        assert false_positive_case.matched_metric_id is None or false_positive_case.matched_score <= 0.15
+
+    def test_semantic_benchmark_pack_fixture_meets_thresholds(
+        self,
+        sample_contracts: list[DataContract],
+        semantic_benchmark_path: Path,
+    ) -> None:
+        benchmark = SemanticEvaluationBenchmarkPack.from_path(semantic_benchmark_path)
+        searcher = MetricSearcher(
+            sample_contracts,
+            bindings=[
+                SourceBinding(
+                    metric_id="us.macro.gdp_nominal",
+                    connector_id="worldbank.wdi",
+                    dataset_id="NY.GDP.MKTP.CD",
+                    profile_id="worldbank_wdi",
+                    metadata={
+                        "schema_description": "world development indicators nominal gdp output",
+                        "docs_excerpt": "official World Bank GDP indicator documentation",
+                    },
+                ),
+                SourceBinding(
+                    metric_id="us.macro.gdp_real",
+                    connector_id="worldbank.wdi",
+                    dataset_id="NY.GDP.MKTP.KD",
+                    profile_id="worldbank_wdi",
+                    metadata={
+                        "schema_description": "real gdp constant price national accounts",
+                    },
+                ),
+            ],
+        )
+
+        report = searcher.semantic_index.evaluate_benchmark(benchmark, limit=5)
+
+        assert benchmark.benchmark_id == "fabric.semantic_discovery.core"
+        assert report.benchmark_id == benchmark.benchmark_id
+        assert report.benchmark_version == benchmark.benchmark_version
+        assert report.total_cases >= 16
+        assert report.meets_thresholds(benchmark) is True
+        assert report.pass_rate >= benchmark.minimum_pass_rate
+        assert report.expected_recall >= benchmark.minimum_expected_recall
+        assert report.false_positive_failures <= benchmark.maximum_false_positive_failures
+        assert report.category_summary["relevance"]["total"] >= 10
+        assert report.category_summary["false_positive"]["passed"] == 3
 
 
 # =============================================================================

@@ -33,7 +33,7 @@ class TestRunStreamingWindowed:
         ]
 
         with patch(
-            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset",
+            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
             return_value=mock_chunks,
         ):
             result = run_streaming_windowed(
@@ -77,7 +77,7 @@ class TestRunStreamingWindowed:
         ]
 
         with patch(
-            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset",
+            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
             return_value=mock_chunks,
         ):
             result = run_streaming_windowed(
@@ -100,7 +100,7 @@ class TestRunStreamingWindowed:
         }
 
         with patch(
-            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset",
+            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
             return_value=[],
         ):
             result = run_streaming_windowed(
@@ -123,7 +123,7 @@ class TestRunStreamingWindowed:
         }
 
         with patch(
-            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset",
+            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
             return_value=[],
         ):
             result = run_streaming_windowed(
@@ -155,7 +155,7 @@ class TestRunStreamingWindowed:
         ]
 
         with patch(
-            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset",
+            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
             return_value=mock_chunks,
         ):
             result = run_streaming_windowed(
@@ -194,7 +194,7 @@ class TestRunStreamingWindowed:
             ]
 
         with patch(
-            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset",
+            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
             side_effect=side_effect,
         ):
             result = run_streaming_windowed(
@@ -228,7 +228,7 @@ class TestRunStreamingWindowed:
         ]
 
         with patch(
-            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset",
+            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
             return_value=mock_chunks,
         ):
             result = run_streaming_windowed(
@@ -244,6 +244,43 @@ class TestRunStreamingWindowed:
         assert result.evidence_bundle_ref is not None
         raw = store.get_bytes(result.evidence_bundle_ref.artifact_id)
         assert raw is not None
+
+    def test_poison_stream_messages_are_quarantined_without_losing_batch(self, tmp_path: Path):
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.data_plane.modes import run_streaming_windowed
+        from polisyos.fabric.data_plane.quarantine import list_quarantine_records
+
+        cas_root = tmp_path / ".polisyos"
+        manifest = {
+            "datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]
+        }
+
+        mock_chunks = [
+            {
+                "chunk_index": 0,
+                "row_count": 3,
+                "is_first": True,
+                "is_last": True,
+                "data": [{"x": 1.0}, "poison-message", {"x": 2.0}],
+            }
+        ]
+
+        with patch(
+            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
+            return_value=mock_chunks,
+        ):
+            result = run_streaming_windowed(
+                connector_manifest=manifest,
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+            )
+
+        assert result.datasets_fetched == 1
+        assert any("quarantined stream row" in warning for warning in result.warnings)
+        records = list_quarantine_records(FileSystemCAS(cas_root))
+        assert len(records) == 1
+        assert records[0][1].reason == "poison_stream_message"
 
 
 class TestExtractDatasets:

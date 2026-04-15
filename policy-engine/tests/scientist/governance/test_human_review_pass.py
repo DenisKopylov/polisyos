@@ -157,3 +157,20 @@ def test_human_review_with_edge_lag() -> None:
     assert len(issues) == 1
     item = ctx.state["human_review_request"]["items"][0]
     assert item["edge"] == "X->Y@lag=3"
+
+
+def test_human_review_invalid_graph_payload_emits_warning() -> None:
+    ctx = PassContext(
+        ir=None,
+        state={"causal_graph": {"invalid": True}},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_human_review_invalid",
+    )
+
+    issues = HumanReviewRequiredPass().validate(ctx)
+
+    assert len(issues) == 1
+    assert issues[0].code == "HUMAN_REVIEW_GRAPH_INVALID"
+    assert issues[0].severity == IssueSeverity.WARNING
+    assert "human_review_request" not in ctx.state

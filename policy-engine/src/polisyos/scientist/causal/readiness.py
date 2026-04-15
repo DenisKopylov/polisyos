@@ -33,12 +33,12 @@ from polisyos.ir.analytics.strategic import (
     persist_strategic_solve_artifacts,
 )
 from polisyos.ir.analytics.transportability import (
+    SelectionDiagram,
     SNode,
     SNodeOrigin,
-    SelectionDiagram,
-    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
     persist_transportability_result,
 )
 from polisyos.ir.artifacts import InputRef
@@ -63,6 +63,7 @@ from polisyos.ir.observation.measurement import (
     ShockCalendar,
 )
 from polisyos.ir.refs import ArtifactRefModel
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 
 def _artifact_input_ref(ref: ArtifactRefModel | None, *, role: str) -> InputRef | None:
@@ -615,13 +616,27 @@ class StrategicResponseRunner:
                         },
                     )
                 )
-            except Exception as exc:
+            except (AttributeError, TypeError, ValueError) as exc:
+                envelope = emit_degraded_path(
+                    component="causal.readiness",
+                    operation="run_strategic_response",
+                    reason="strategic_hook_invalid_input",
+                    exc=exc,
+                    details={
+                        "channel": channel,
+                        "intervention_kind": intervention_kind,
+                    },
+                )
                 entries.append(
                     self._blocked_entry(
                         channel=channel,
                         intervention_kind=intervention_kind,
                         reason="strategic_hook_invalid_input",
-                        summary={"error": str(exc), "fallback_mode": "blocked"},
+                        summary={
+                            "error": str(exc),
+                            "error_envelope": envelope,
+                            "fallback_mode": "blocked",
+                        },
                         warnings=["strategic_hook_invalid_input"],
                     )
                 )

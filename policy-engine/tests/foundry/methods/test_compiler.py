@@ -25,6 +25,7 @@ from polisyos.foundry.methods.compiler import (
     CompilationCache,
     CompiledMethod,
     MethodCompiler,
+    get_global_cache,
     reset_global_cache,
 )
 from polisyos.foundry.methods.composer import (
@@ -674,6 +675,46 @@ class TestCompilationCache:
         assert cache.stats["hits"] == 0
         assert cache.stats["misses"] == 0
 
+    def test_invalidate_all_advances_generation_and_blocks_stale_publication(self):
+        cache = CompilationCache()
+        spec = build_specialization(
+            method_fqn="test@1.0.0",
+            static_params={},
+            input_arrays={"x": jnp.zeros((10,))},
+        )
+        token = cache.current_token()
+        compiled = CompiledMethod(
+            method_fqn="test@1.0.0",
+            signature=MethodSignature(
+                name="test",
+                namespace="test",
+                version="1.0.0",
+                input_slots=frozenset(),
+                output_slots=frozenset(),
+                parameters=(),
+                fidelity=FidelityLevel.LOW,
+                complexity=ComplexityClass.O_1,
+            ),
+            specialization=spec,
+            step_fn=lambda s, p: s,
+            dynamic_defaults={},
+        )
+
+        assert cache.put(spec, compiled, token=token) is True
+        assert cache.invalidate_all() == 1
+        assert cache.put(spec, compiled, token=token) is False
+        assert cache.get(spec) is None
+        assert cache.stats["generation"] == token.generation + 1
+
+    def test_reset_global_cache_preserves_singleton_identity(self):
+        cache = get_global_cache()
+        generation = cache.stats["generation"]
+
+        reset_global_cache()
+
+        assert get_global_cache() is cache
+        assert cache.stats["generation"] == generation + 1
+
 
 # =============================================================================
 # MethodCompiler Tests
@@ -718,8 +759,39 @@ class TestMethodCompiler:
         )
 
         assert compiled1 is compiled2
-        assert compiler.cache_stats["hits"] == 1
-        assert compiler.cache_stats["misses"] == 1
+
+    def test_compile_retries_after_generation_invalidation(
+        self,
+        registry_with_methods: MethodRegistry,
+        sample_state: TaxState,
+    ):
+        class RacingCompiler(MethodCompiler):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.compile_calls = 0
+
+            def _compile_method(self, *args, **kwargs):
+                self.compile_calls += 1
+                if self.compile_calls == 1:
+                    self._cache.invalidate_all()
+                return super()._compile_method(*args, **kwargs)
+
+        compiler = RacingCompiler(
+            registry=registry_with_methods,
+            cache=CompilationCache(),
+        )
+
+        compiled = compiler.compile(
+            method_name="fiscal.taxation.flat_tax@1.0.0",
+            params={"threshold": 10000.0},
+            sample_inputs={"income": sample_state.income},
+            jit=False,
+        )
+
+        assert compiled.method_fqn == "fiscal.taxation.flat_tax@1.0.0"
+        assert compiler.compile_calls == 2
+        assert compiler.cache_stats["generation"] == 1
+        assert compiler.cache_stats["misses"] == 2
 
     def test_compile_cache_miss_different_static(
         self,

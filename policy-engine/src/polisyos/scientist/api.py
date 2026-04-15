@@ -8,36 +8,55 @@ OpenTelemetry metrics/tracing so downstream adapters can stay pure.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Mapping
-
-try:
-    from opentelemetry.trace import Status, StatusCode
-except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
-    class StatusCode(str, Enum):
-        OK = "OK"
-        ERROR = "ERROR"
-
-    class Status:  # type: ignore[override]
-        def __init__(self, status_code: StatusCode, description: str | None = None) -> None:
-            self.status_code = status_code
-            self.description = description
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.pricing import estimate_llm_cost_usd
 from polisyos.core.run.context import new_run_id
 
+Status: Any
+StatusCode: Any
+
+try:
+    from opentelemetry import trace as _otel_trace
+except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+    class _FallbackStatusCode(str, Enum):
+        OK = "OK"
+        ERROR = "ERROR"
+
+    class _FallbackStatus:
+        def __init__(
+            self,
+            status_code: _FallbackStatusCode,
+            description: str | None = None,
+        ) -> None:
+            self.status_code = status_code
+            self.description = description
+
+    Status = _FallbackStatus
+    StatusCode = _FallbackStatusCode
+else:
+    Status = _otel_trace.Status
+    StatusCode = _otel_trace.StatusCode
+
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.scientist.engine.metrics_protocol import EngineMetricsCollector
     from polisyos.scientist.engine.state import ExperimentState
+    from polisyos.scientist.workflows.builder import QuotaRegistry
 
 
-def _experiment_state_cls():
-    from polisyos.scientist.engine.state import ExperimentState
+def _experiment_state_cls() -> type[ExperimentState]:
+    from polisyos.scientist.engine.state import ExperimentState as _ExperimentState
 
-    return ExperimentState
+    return cast("type[ExperimentState]", _ExperimentState)
 
 
-def _prepare_initial_state(state: Mapping[str, Any] | "ExperimentState" | None) -> "ExperimentState":
+def _prepare_initial_state(state: Mapping[str, Any] | ExperimentState | None) -> ExperimentState:
     ExperimentState = _experiment_state_cls()
     if isinstance(state, ExperimentState):
         initial_state = state
@@ -49,11 +68,11 @@ def _prepare_initial_state(state: Mapping[str, Any] | "ExperimentState" | None) 
         initial_state = ExperimentState.model_validate(state or {"run_id": ""})
 
     if not initial_state.run_id:
-        payload: dict[str, Any] = {}
+        initial_payload: dict[str, Any] = {}
         if isinstance(state, Mapping):
-            payload.update(state)
-        payload["run_id"] = new_run_id()
-        initial_state = ExperimentState.model_validate(payload)
+            initial_payload.update(state)
+        initial_payload["run_id"] = new_run_id()
+        initial_state = ExperimentState.model_validate(initial_payload)
     return initial_state
 
 
@@ -75,7 +94,7 @@ def _as_int(value: Any) -> int | None:
         return None
 
 
-def _estimate_run_cost_usd(state: "ExperimentState") -> float | None:
+def _estimate_run_cost_usd(state: ExperimentState) -> float | None:
     params = state.params
 
     direct = _as_float(params.get("run_cost_usd"))
@@ -111,10 +130,12 @@ def _estimate_run_cost_usd(state: "ExperimentState") -> float | None:
     if prompt_tokens is None and completion_tokens is None:
         return None
 
-    return estimate_llm_cost_usd(
-        model=model,
-        prompt_tokens=prompt_tokens or 0,
-        completion_tokens=completion_tokens or 0,
+    return float(
+        estimate_llm_cost_usd(
+            model=model,
+            prompt_tokens=prompt_tokens or 0,
+            completion_tokens=completion_tokens or 0,
+        )
     )
 
 
@@ -137,7 +158,14 @@ def _resolve_observability() -> tuple[Any, Any]:
 
 
 def run_experiment(
-    state: Mapping[str, Any] | "ExperimentState" | None = None,
+    state: Mapping[str, Any] | ExperimentState | None = None,
+    *,
+    tracer: Any | None = None,
+    metrics: Any | None = None,
+    store: ArtifactStore | None = None,
+    store_factory: Callable[[], ArtifactStore] | None = None,
+    quota_registry: QuotaRegistry | None = None,
+    engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
 ) -> dict[str, Any]:
     """Execute the Scientist workflow selected by the initial state contract.
 
@@ -173,7 +201,14 @@ def run_experiment(
         )
         ```
     """
-    tracer, metrics = _resolve_observability()
+    resolved_tracer = tracer
+    resolved_metrics = metrics
+    if resolved_tracer is None or resolved_metrics is None:
+        default_tracer, default_metrics = _resolve_observability()
+        if resolved_tracer is None:
+            resolved_tracer = default_tracer
+        if resolved_metrics is None:
+            resolved_metrics = default_metrics
     ExperimentState = _experiment_state_cls()
 
     if isinstance(state, Mapping):
@@ -190,7 +225,10 @@ def run_experiment(
 
     workflow_id = resolve_workflow_id(initial_state)
 
-    with tracer.start_as_current_span(
+    if resolved_tracer is None or resolved_metrics is None:
+        raise RuntimeError("Scientist observability providers could not be resolved")
+
+    with resolved_tracer.start_as_current_span(
         "experiment.workflow",
         attributes={
             "polisyos.run_id": initial_state.run_id,
@@ -199,18 +237,26 @@ def run_experiment(
             "polisyos.workflow_id": workflow_id,
         },
     ) as root_span:
-        metrics.increment_active_runs()
+        resolved_metrics.increment_active_runs()
         try:
-            with metrics.time_slo_dag({"workflow_id": workflow_id}):
-                result = run_selected_workflow(initial_state)
+            with resolved_metrics.time_slo_dag({"workflow_id": workflow_id}):
+                result = run_selected_workflow(
+                    initial_state,
+                    store=store,
+                    store_factory=store_factory,
+                    tracer=resolved_tracer,
+                    metrics=resolved_metrics,
+                    quota_registry=quota_registry,
+                    engine_metrics_factory=engine_metrics_factory,
+                )
             final_state = result.state
             status = "success" if result.report.status == "ok" else "error"
-            metrics.record_workflow_run(status, "EXECUTE", "orchestrator")
-            metrics.record_slo_dag_run(status, workflow_id=workflow_id)
+            resolved_metrics.record_workflow_run(status, "EXECUTE", "orchestrator")
+            resolved_metrics.record_slo_dag_run(status, workflow_id=workflow_id)
 
             cost_usd = _estimate_run_cost_usd(final_state)
             if cost_usd is not None:
-                metrics.record_slo_run_cost(cost_usd, workflow_id=workflow_id)
+                resolved_metrics.record_slo_run_cost(cost_usd, workflow_id=workflow_id)
 
             if status == "success":
                 root_span.set_status(Status(StatusCode.OK))
@@ -218,15 +264,15 @@ def run_experiment(
                 root_span.set_status(
                     Status(StatusCode.ERROR, "Workflow report status indicates failure")
                 )
-            return final_state.model_dump()
+            return cast("dict[str, Any]", final_state.model_dump())
         except Exception as exc:
             root_span.set_status(Status(StatusCode.ERROR, str(exc)))
             root_span.record_exception(exc)
-            metrics.record_workflow_run("error", "UNKNOWN", "orchestrator")
-            metrics.record_slo_dag_run("error", workflow_id=workflow_id)
+            resolved_metrics.record_workflow_run("error", "UNKNOWN", "orchestrator")
+            resolved_metrics.record_slo_dag_run("error", workflow_id=workflow_id)
             raise
         finally:
-            metrics.decrement_active_runs()
+            resolved_metrics.decrement_active_runs()
 
 
 __all__ = ["run_experiment"]

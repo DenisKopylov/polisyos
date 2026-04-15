@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from typing import Any, ClassVar
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
 
+from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods import (
     ComplexityClass,
     ComputeBackend,
@@ -21,11 +23,20 @@ from polisyos.foundry.methods import (
     execute_heterogeneous_chain,
 )
 from polisyos.foundry.methods.backends.adapters import adapt_state
-from polisyos.foundry.methods.backends.bayesian_runner import BayesianRunner
+from polisyos.foundry.methods.backends.bayesian_runner import (
+    BayesianBackendUnavailableError,
+    BayesianRunner,
+    bayesian_backend_health,
+)
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.jax_runner import JaxRunner
 from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    BackendRuntimeFingerprint,
+    capture_backend_runtime_fingerprint,
+)
 from polisyos.foundry.methods.backends.solver_runner import SolverRunner
+from polisyos.foundry.methods.exceptions import BackendAdaptationError
 
 
 @pytest.fixture(autouse=True)
@@ -59,6 +70,25 @@ class _JaxIncrement:
     @staticmethod
     def pure_step(state: Any, params: dict[str, Any]) -> Any:
         return state + params["delta"]
+
+
+class _JaxRuntimeSeeded:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="jax_runtime_seeded",
+        namespace="tests.polyglot",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(),
+        parameters=(),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="jax runtime seeded")
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> Any:
+        draw = jax.random.uniform(params["__rng__"], shape=state.shape, dtype=state.dtype)
+        return state + draw + jnp.asarray(params["__seed__"], dtype=state.dtype)
 
 
 class _NumpyIncrement:
@@ -169,6 +199,7 @@ class _ConsumeSignal:
 
 
 class _BayesianEmitSignal:
+    method_variant: ClassVar[str] = "hmc"
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="bayesian_emit_signal",
         namespace="tests.polyglot",
@@ -183,7 +214,10 @@ class _BayesianEmitSignal:
                 )
             }
         ),
-        parameters=(ParameterSpec(name="delta", default=1.0),),
+        parameters=(
+            ParameterSpec(name="delta", default=1.0),
+            ParameterSpec(name="runtime_backend", default="auto"),
+        ),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_1,
         backend=ComputeBackend.BAYESIAN,
@@ -214,6 +248,30 @@ def test_adapters_roundtrip_between_jax_and_numpy():
     assert np.allclose(np.asarray(as_jax), np.asarray(arr))
 
 
+def test_to_numpy_fails_closed_when_device_leaves_leak(monkeypatch):
+    arr = jnp.array([1.0, 2.0], dtype=jnp.float32)
+
+    monkeypatch.setattr("jax.device_get", lambda value: value)
+
+    with pytest.raises(BackendAdaptationError):
+        adapt_state(
+            arr,
+            source_backend=ComputeBackend.JAX,
+            target_backend=ComputeBackend.NUMPY,
+        )
+
+
+def test_to_jax_rejects_object_dtype_host_arrays():
+    arr = np.array([{"value": 1.0}], dtype=object)
+
+    with pytest.raises(BackendAdaptationError, match="ndarray\\[object\\]"):
+        adapt_state(
+            arr,
+            source_backend=ComputeBackend.NUMPY,
+            target_backend=ComputeBackend.JAX,
+        )
+
+
 def test_numpy_runner_executes():
     method = _register_method(_NumpyIncrement)
     runner = NumpyRunner()
@@ -226,6 +284,8 @@ def test_numpy_runner_executes():
     )
     assert np.allclose(result.output, np.array([3.5, 4.5]))
     assert result.reproducibility.backend == ComputeBackend.NUMPY
+    assert result.artifacts["backend_runtime_fingerprint"]["backend"] == "numpy"
+    assert result.artifacts["backend_runtime_fingerprint"]["tolerance_budget"]["semantic_mode"] == "library_exact_cpu"
 
 
 def test_solver_runner_extracts_status():
@@ -256,6 +316,47 @@ def test_bayesian_runner_executes():
     assert result.output == 7.0
     assert result.slot_outputs["signal"] == 7.0
     assert result.reproducibility.backend == ComputeBackend.BAYESIAN
+    assert result.artifacts["bayesian_runtime_backend"] in {"numpy", "numpyro"}
+    assert "bayesian_backend_health" in result.artifacts
+    assert result.artifacts["backend_runtime_fingerprint"]["backend"] == "bayesian"
+
+
+def test_bayesian_runner_reports_backend_health_and_fail_closed_request():
+    method = _register_method(_BayesianEmitSignal)
+    health = bayesian_backend_health(method)
+
+    assert health.preferred_engine == "numpyro"
+    assert health.default_runtime in {"numpy", "numpyro"}
+    assert any(engine.engine == "numpy" and engine.available for engine in health.engines)
+
+    runner = BayesianRunner()
+    if health.default_runtime == "numpy":
+        with pytest.raises(BayesianBackendUnavailableError):
+            runner.execute(
+                method_class=method,
+                signature=method.signature,
+                state=2.0,
+                params={"delta": 1.0, "runtime_backend": "numpyro"},
+                seed=7,
+            )
+
+
+def test_bayesian_bart_health_requires_full_pymc_bart_stack(monkeypatch) -> None:
+    versions = {
+        "numpy": "2.0.0",
+        "pymc": "5.0.0",
+    }
+
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.backends.bayesian_runner.safe_version",
+        lambda package: versions.get(package),
+    )
+
+    bart_method = type("BartMethod", (), {"method_variant": "bart"})
+    health = bayesian_backend_health(bart_method)
+
+    assert health.default_runtime == "unavailable"
+    assert health.is_available is False
 
 
 def test_jax_runner_executes():
@@ -270,6 +371,60 @@ def test_jax_runner_executes():
     )
     assert np.allclose(np.asarray(result.output), np.array([3.0, 4.0]))
     assert result.reproducibility.backend == ComputeBackend.JAX
+
+
+def test_jax_runner_uses_runtime_posture_tier(monkeypatch):
+    method = _register_method(_JaxIncrement)
+    runner = JaxRunner()
+
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.backends.jax_runner.capture_backend_runtime_fingerprint",
+        lambda *args, **kwargs: BackendRuntimeFingerprint(
+            backend=ComputeBackend.JAX,
+            available=True,
+            determinism_tier=DeterminismTier.BEST_EFFORT_GPU,
+            execution_device="gpu:test",
+            runtime_stack=("jax", "jaxlib"),
+            library_versions={"jax": "1.0", "jaxlib": "1.0"},
+            seed=kwargs.get("seed"),
+        ),
+    )
+
+    result = runner.execute(
+        method_class=method,
+        signature=method.signature,
+        state=jnp.array([1.0, 2.0]),
+        params={"delta": 2.0},
+        seed=11,
+    )
+
+    assert result.reproducibility.determinism_tier == DeterminismTier.BEST_EFFORT_GPU
+    assert result.artifacts["backend_runtime_fingerprint"]["determinism_tier"] == "best_effort_gpu"
+
+
+def test_jax_runner_injects_runtime_seed_and_rng() -> None:
+    method = _register_method(_JaxRuntimeSeeded)
+    runner = JaxRunner()
+
+    result = runner.execute(
+        method_class=method,
+        signature=method.signature,
+        state=jnp.zeros((3,), dtype=jnp.float32),
+        params={},
+        seed=7,
+    )
+
+    expected = jax.random.uniform(jax.random.PRNGKey(7), shape=(3,), dtype=jnp.float32) + 7.0
+    assert np.allclose(np.asarray(result.output), np.asarray(expected))
+
+
+def test_backend_runtime_fingerprint_exposes_replay_contract() -> None:
+    posture = capture_backend_runtime_fingerprint(ComputeBackend.NUMPY)
+
+    assert posture.backend == ComputeBackend.NUMPY
+    assert posture.replay_semantics
+    assert posture.tolerance_budget["semantic_mode"] == "library_exact_cpu"
+    assert posture.as_dict()["fingerprint"]
 
 
 def test_execute_heterogeneous_chain_numpy_to_jax():

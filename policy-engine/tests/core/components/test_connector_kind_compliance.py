@@ -11,7 +11,11 @@ from polisyos.core.components import (
 )
 
 
-def _connector_metadata(*, capabilities: Capability, abi_targets: dict[str, str]) -> ComponentMetadata:
+def _connector_metadata(
+    *,
+    capabilities: Capability,
+    abi_targets: dict[str, str],
+) -> ComponentMetadata:
     return ComponentMetadata(
         component_id=ComponentId.parse("test.fabric.connector@1.0.0"),
         kind=ComponentKind.FABRIC_CONNECTOR,

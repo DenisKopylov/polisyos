@@ -3,7 +3,7 @@ Comprehensive tests for the Provenance subsystem.
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -47,7 +47,7 @@ class TestProvenanceEntity:
             entity_id="frozen-test",
             entity_type=EntityType.METRIC,
             label="Frozen",
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         with pytest.raises(Exception):
@@ -58,13 +58,13 @@ class TestProvenanceEntity:
             entity_id="hash-test",
             entity_type=EntityType.SNAPSHOT,
             label="Hashable",
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
         entity2 = ProvenanceEntity(
             entity_id="hash-test",
             entity_type=EntityType.SNAPSHOT,
             label="Different Label",
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         assert hash(entity1) == hash(entity2)
@@ -271,6 +271,25 @@ class TestProvoExport:
         assert any("rdf-syntax-ns#type" in line for line in lines)
         assert any("prov#used" in line for line in lines)
 
+    def test_nquads_escapes_labels_for_strict_rdf_parser(self) -> None:
+        rdflib = pytest.importorskip("rdflib")
+
+        graph = ProvenanceCoreGraph(graph_id="escape-test")
+        graph.add_entity(
+            ProvenanceEntity(
+                entity_id="e1",
+                entity_type=EntityType.DATASET,
+                label='Quoted "label"\nwith carriage\rreturn',
+                created_at=datetime(2025, 1, 1, 12, 0, 0),
+            )
+        )
+
+        nquads = export_to_provo_nquads(graph)
+        parsed = rdflib.Dataset()
+        parsed.parse(data=nquads, format="nquads")
+
+        assert len(parsed) > 0
+
     def test_prov_json_export(self, simple_graph: ProvenanceCoreGraph) -> None:
         prov_json = export_to_prov_json(simple_graph, run_id="R_test")
 
@@ -299,7 +318,7 @@ class TestProvenancePersistence:
                 entity_id="test-entity",
                 entity_type=EntityType.METRIC,
                 label="Test Metric",
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
         )
 
@@ -335,6 +354,44 @@ class TestProvenancePersistence:
         with pytest.raises(ValueError, match="integrity check failed"):
             load_provenance_graph(cas_store, tampered_ref)
 
+    def test_persist_provenance_graph_rejects_missing_stable_id(self, tmp_path: Path, monkeypatch) -> None:
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.evidence import EvidencePayloadError, persist_provenance_graph
+
+        cas_store = FileSystemCAS(tmp_path / ".polisyos")
+        graph = ProvenanceCoreGraph(graph_id="missing-stable-id")
+        monkeypatch.setattr(graph, "to_dict", lambda: {"graph_id": "missing-stable-id"})
+
+        with pytest.raises(EvidencePayloadError, match="stable_id"):
+            persist_provenance_graph(cas_store, graph)
+
+    def test_persist_provenance_graph_records_governance_manifest(self, tmp_path: Path) -> None:
+        from polisyos.core.artifacts.ids import ArtifactID
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.evidence import persist_provenance_graph
+        from polisyos.fabric.security import DataClassification
+
+        cas_store = FileSystemCAS(tmp_path / ".polisyos")
+        graph = ProvenanceCoreGraph(graph_id="governed-provenance")
+
+        ref = persist_provenance_graph(
+            cas_store,
+            graph,
+            classification=DataClassification.INTERNAL,
+            encrypted_at_rest=True,
+            encryption_key_reference="kms://fabric/evidence",
+        )
+
+        manifest = cas_store.get_manifest(ArtifactID.model_validate(ref.artifact_id))
+
+        assert manifest.governance is not None
+        assert manifest.governance.classification == "internal"
+        assert manifest.governance.retention is not None
+        assert manifest.governance.retention.scope == "evidence_bundle"
+        assert manifest.governance.encryption is not None
+        assert manifest.governance.encryption.mode == "envelope"
+        assert manifest.governance.encryption.verified is True
+
 
 class TestEvidenceBundleIntegration:
     """Tests for EvidenceBundle + Provenance integration."""
@@ -356,7 +413,7 @@ class TestEvidenceBundleIntegration:
                 entity_id="source",
                 entity_type=EntityType.DATASET,
                 label="Source",
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
         )
         prov_ref = persist_provenance_graph(cas_store, graph)
@@ -372,3 +429,21 @@ class TestEvidenceBundleIntegration:
 
         bundle_ref = persist_evidence_bundle(cas_store, bundle)
         assert bundle_ref.artifact_id is not None
+
+    def test_persist_evidence_bundle_fails_closed_without_required_encryption(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
+        from polisyos.fabric.security import ArtifactGovernanceError, DataClassification
+
+        cas_store = FileSystemCAS(tmp_path / ".polisyos")
+        bundle = build_evidence_bundle()
+
+        with pytest.raises(ArtifactGovernanceError, match="field-level encryption"):
+            persist_evidence_bundle(
+                cas_store,
+                bundle,
+                classification=DataClassification.REGULATED_PII,
+            )

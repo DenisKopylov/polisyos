@@ -5,6 +5,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.engine.convergence import (
@@ -12,8 +13,8 @@ from polisyos.scientist.engine.convergence import (
     ConvergenceDetector,
     ConvergenceState,
     ConvergenceStrategy,
+    ConvergenceValidationError,
 )
-
 
 # ---------------------------------------------------------------------------
 # Model validation
@@ -30,7 +31,7 @@ class TestConvergenceConfigModel:
         assert cfg.budget_key is None
 
     def test_extra_forbidden(self) -> None:
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             ConvergenceConfig(extra_field="bad")  # type: ignore[call-arg]
 
     def test_roundtrip(self) -> None:
@@ -93,7 +94,7 @@ class TestAbsoluteDelta:
             window_size=2,
         )
         d = ConvergenceDetector(cfg)
-        for i in range(4):
+        for _i in range(4):
             s = d.check(0.80)
             assert not s.converged  # below min_iterations
         s = d.check(0.80)
@@ -287,6 +288,15 @@ class TestBudgetPressure:
         assert s.converged
         assert "absolute_delta" in s.reason
 
+    def test_budget_key_requires_positive_limit(self) -> None:
+        budget = BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.00"))},
+        )
+        cfg = ConvergenceConfig(budget_key="run")
+
+        with pytest.raises(ConvergenceValidationError, match="positive limit"):
+            ConvergenceDetector(cfg, budget_state=budget)
+
 
 # ---------------------------------------------------------------------------
 # Reset
@@ -317,3 +327,9 @@ class TestHistoryTracking:
         s = d.check(0.3)
         assert s.history == [0.1, 0.2, 0.3]
         assert s.iteration == 3
+
+
+def test_non_finite_metric_is_rejected() -> None:
+    detector = ConvergenceDetector(ConvergenceConfig())
+    with pytest.raises(ConvergenceValidationError, match="finite"):
+        detector.check(float("nan"))

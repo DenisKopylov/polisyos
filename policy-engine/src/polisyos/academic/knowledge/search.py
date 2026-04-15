@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -28,16 +29,37 @@ class ScholarKnowledgeGraph:
         db_path: Path,
         index_dir: Path,
         *,
-        embedding_model: str = "intfloat/multilingual-e5-large",
+        embedding_model: str | None = None,
     ) -> None:
         self._db_path = Path(db_path)
         self._index_dir = Path(index_dir)
         self._store = ScholarKnowledgeStore(db_path, index_dir)
-        self._embedding_model_name = embedding_model
+        self._embedding_model_name = embedding_model or self._discover_embedding_model()
         self._embedder = None
+
+    def _discover_embedding_model(self) -> str:
+        for manifest_path in (
+            self._index_dir / "manifests" / "embed.json",
+            self._index_dir.parent / "manifests" / "embed.json",
+        ):
+            if not manifest_path.exists():
+                continue
+            try:
+                payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            metrics = payload.get("metrics")
+            if not isinstance(metrics, dict):
+                continue
+            embedding_model = str(metrics.get("embedding_model") or "").strip()
+            if embedding_model:
+                return embedding_model
+        return ""
 
     def _get_query_embedding(self, query: str) -> np.ndarray | None:
         try:
+            if not self._embedding_model_name:
+                return None
             if self._embedder is None:
                 from sentence_transformers import SentenceTransformer
 
@@ -67,9 +89,13 @@ class ScholarKnowledgeGraph:
         if vec is None:
             return text_results[:top_k]
 
-        vector_results = self._store.search_works_by_vector(
-            vec, top_k=top_k * 2, min_similarity=0.2,
-        )
+        try:
+            vector_results = self._store.search_works_by_vector(
+                vec, top_k=top_k * 2, min_similarity=0.2,
+            )
+        except Exception as exc:
+            logger.warning("Vector work search failed; falling back to text-only retrieval: %s", exc)
+            return text_results[:top_k]
 
         scores: dict[str, float] = {}
         result_map: dict[str, WorkSearchResult] = {}

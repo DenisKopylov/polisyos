@@ -466,7 +466,7 @@ class TVFairnessDecomposer:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="tv_fairness_decomposer",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
@@ -673,7 +673,7 @@ class PathSpecificFairnessEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="path_specific_fairness",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
@@ -915,7 +915,7 @@ class CounterfactualFairnessEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="counterfactual_fairness",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),

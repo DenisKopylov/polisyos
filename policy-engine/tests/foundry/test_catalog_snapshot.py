@@ -5,7 +5,10 @@ import importlib.util
 import pytest
 
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
+from polisyos.foundry.methods.catalog_snapshot import (
+    build_method_capability_matrix,
+    build_method_catalog_snapshot,
+)
 
 _Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
@@ -54,6 +57,10 @@ def test_method_catalog_snapshot_includes_non_causal_families() -> None:
     assert "ml.regression.elastic_net@1.0.0" in fqns
     assert "ml.regression.gaussian_process@1.0.0" in fqns
     assert "ml.deep.tabular_transformer@1.0.0" in fqns
+    assert "ml.deep.ft_transformer@1.0.0" in fqns
+    assert "ml.deep.tabnet@1.0.0" in fqns
+    assert "ml.graph.graph_conv@1.0.0" in fqns
+    assert "ml.self_supervised.masked_autoencoder@1.0.0" in fqns
     assert "microsim.static.static_microsim@1.0.0" in fqns
     assert "microsim.policy.tax_benefit_calculator@1.0.0" in fqns
     assert "spatial.autocorrelation.moran_i@1.0.0" in fqns
@@ -82,13 +89,22 @@ def test_method_catalog_snapshot_includes_non_causal_families() -> None:
     # Phase 0: Policy domain
     assert "policy.welfare.cost_benefit_analysis@1.0.0" in fqns
     assert "policy.welfare.atkinson_swf@1.0.0" in fqns
+    assert "policy.welfare.sufficient_statistics_welfare@1.0.0" in fqns
     assert "policy.mcda.topsis@1.0.0" in fqns
     assert "policy.evaluation.budget_impact@1.0.0" in fqns
+    assert "policy.evaluation.foundation_model_policy_analysis@1.0.0" in fqns
+    assert "policy.macro.fiscal_multiplier@1.0.0" in fqns
+    assert "policy.macro.krusell_smith_lite@1.0.0" in fqns
+    assert "policy.public_finance.optimal_linear_tax@1.0.0" in fqns
+    assert "policy.agent_sim.mean_field_equilibrium@1.0.0" in fqns
 
     # Phase 1: Causal expansion
     assert "causal.treatment_effects.aipw@1.0.0" in fqns
     assert "causal.treatment_effects.tmle@1.0.0" in fqns
     assert "causal.treatment_effects.ipw@1.0.0" in fqns
+    assert "causal.proximal.proximal_bridge@1.0.0" in fqns
+    assert "causal.distributional.unconditional_qte@1.0.0" in fqns
+    assert "causal.interference.network_cate@1.0.0" in fqns
     assert "causal.inference.did.callaway_santanna@1.0.0" in fqns
     assert "causal.inference.did.sun_abraham@1.0.0" in fqns
     assert "causal.bounds.manski@1.0.0" in fqns
@@ -153,3 +169,54 @@ def test_method_catalog_snapshot_exposes_v2_capability_matrix_fields() -> None:
     assert entry.capability_matrix["execution_backend"] == "numpy"
     assert entry.capability_matrix["required_deps"] == ["numpy"]
     assert entry.capability_matrix["runnable"] is True
+    assert entry.truthfulness_tier == "production_method"
+    assert entry.effect_semantics["method_kind"] == "pure"
+    assert entry.shape_semantics["input_arity"] >= 0
+    assert entry.dependency_semantics["hard_requires"] == []
+    assert entry.capability_matrix["declared_determinism_tier"] == "library_deterministic"
+    assert entry.capability_matrix["runtime_determinism_tier"] == "library_deterministic"
+    assert entry.capability_matrix["replay_semantics"]
+    assert entry.capability_matrix["tolerance_budget"]["semantic_mode"] == "library_exact_cpu"
+    assert entry.capability_matrix["runtime_posture"]["backend"] == "numpy"
+    assert entry.capability_matrix["runtime_posture"]["available"] is True
+    assert entry.capability_matrix["runtime_posture"]["fingerprint"]
+
+
+def test_method_catalog_snapshot_uses_conservative_effective_determinism_tier() -> None:
+    ensure_all_methods_registered()
+    snapshot = build_method_catalog_snapshot(run_id="R_catalog")
+
+    entry = next(
+        item for item in snapshot.entries if item.fqn == "bayesian.regression.linear_regression@1.0.0"
+    )
+
+    assert entry.capability_matrix["declared_determinism_tier"] == "statistical"
+    assert entry.capability_matrix["runtime_determinism_tier"] == "statistical"
+    assert entry.determinism_tier == "statistical"
+    assert entry.capability_matrix["replay_semantics"].startswith("Replay is seed-stable")
+
+
+def test_method_catalog_snapshot_marks_tabular_transformer_as_heuristic_baseline() -> None:
+    ensure_all_methods_registered()
+    snapshot = build_method_catalog_snapshot(run_id="R_catalog")
+
+    entry = next(
+        item for item in snapshot.entries if item.fqn == "ml.deep.tabular_transformer@1.0.0"
+    )
+
+    assert entry.truthfulness_tier == "heuristic_baseline"
+    assert "baseline" in entry.truthfulness_notes.lower()
+
+
+def test_method_capability_matrix_exports_truthfulness_and_semantics() -> None:
+    ensure_all_methods_registered()
+    snapshot = build_method_catalog_snapshot(run_id="R_catalog")
+
+    matrix = build_method_capability_matrix(snapshot, runnable_only=True)
+    row = next(
+        item for item in matrix if item["fqn"] == "survey.weighting.horvitz_thompson@1.0.0"
+    )
+
+    assert row["truthfulness_tier"] == "production_method"
+    assert row["effect_semantics"]["method_kind"] == "pure"
+    assert row["dependency_semantics"]["hard_requires"] == []

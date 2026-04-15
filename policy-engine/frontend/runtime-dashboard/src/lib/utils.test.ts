@@ -6,6 +6,8 @@ import {
   formatDuration,
   formatNumber,
   formatPercent,
+  formatRelativeTime,
+  formatTime,
 } from "@/lib/utils";
 
 describe("utils formatters", () => {
@@ -33,6 +35,15 @@ describe("utils formatters", () => {
     expect(formatDate(undefined, "en")).toBe("-");
     expect(formatDate("not-a-date", "en")).toBe("not-a-date");
     expect(formatDate("2026-03-09T12:00:00Z", "en")).toContain("2026");
+    expect(formatTime("not-a-date", "en")).toBe("not-a-date");
+    expect(formatTime("2026-03-09T12:34:00Z", "en")).toMatch(/\d/);
+    expect(
+      formatRelativeTime(
+        "2026-03-09T11:59:00Z",
+        "en",
+        "2026-03-09T12:00:00Z",
+      ),
+    ).toContain("minute");
 
     expect(formatDuration(null, "en")).toBe("-");
     expect(formatDuration(500, "en")).toBe("500 ms");

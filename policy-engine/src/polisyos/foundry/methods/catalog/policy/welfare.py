@@ -54,7 +54,7 @@ class CostBenefitAnalysisEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="cost_benefit_analysis",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -179,7 +179,7 @@ class CostEffectivenessEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="cost_effectiveness",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -274,7 +274,7 @@ class UtilitarianSWFEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="utilitarian_swf",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -335,7 +335,7 @@ class RawlsianSWFEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="rawlsian_swf",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -391,7 +391,7 @@ class AtkinsonSWFEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="atkinson_swf",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -461,7 +461,7 @@ class SenCapabilityEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="sen_capability",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

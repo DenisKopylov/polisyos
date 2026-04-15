@@ -259,7 +259,7 @@ class TimeSeriesEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="time_series",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -346,7 +346,7 @@ class ARIMAEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="arima",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -414,7 +414,7 @@ class VAREstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="var",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

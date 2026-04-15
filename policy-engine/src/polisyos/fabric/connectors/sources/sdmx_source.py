@@ -37,6 +37,7 @@ from polisyos.fabric.connectors.sources.http_base import (
     HTTPResilienceProfile,
 )
 from polisyos.fabric.connectors.sources.http_common import frame_completeness
+from polisyos.fabric.connectors.resilience import apply_resilience
 from polisyos.fabric.connectors.types import (
     DataChunk,
     DatasetDescriptor,
@@ -263,15 +264,24 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
     def _strip_internal_headers(headers: dict[str, str]) -> dict[str, str]:
         return {k: v for k, v in headers.items() if not k.startswith("X-SDMX-")}
 
-    def _build_auth_headers(self, config: ConnectionConfig) -> dict[str, str]:
-        headers = self._strip_internal_headers(config.headers)
+    def _build_auth_headers(
+        self,
+        config_or_handle: ConnectionConfig | ConnectionHandle,
+        headers: dict[str, str] | None = None,
+    ) -> dict[str, str]:
+        config = (
+            config_or_handle.config
+            if isinstance(config_or_handle, ConnectionHandle)
+            else config_or_handle
+        )
+        request_headers = self._strip_internal_headers(dict(headers or config.headers))
         if config.auth_method == "bearer":
             token = config.auth_credentials.get("token", "")
-            headers["Authorization"] = f"Bearer {token}"
+            request_headers["Authorization"] = f"Bearer {token}"
         elif config.auth_method == "api_key":
             key_name = config.auth_credentials.get("header", "X-API-Key")
-            headers[key_name] = config.auth_credentials.get("key", "")
-        return headers
+            request_headers[key_name] = config.auth_credentials.get("key", "")
+        return request_headers
 
     def _sdmx_data_headers(self, config: ConnectionConfig) -> dict[str, str]:
         headers = self._build_auth_headers(config)
@@ -291,7 +301,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
         handle = await super().connect(config)
-        handle.state["sdmx"] = self._parse_sdmx_config(config)
+        handle.set_state("sdmx", self._parse_sdmx_config(config))
+        handle.set_state("_sdmx_head_executor", None)
+        handle.set_state("_sdmx_head_executor_config", None)
         return handle
 
     # ------------------------------------------------------------------
@@ -299,7 +311,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
     # ------------------------------------------------------------------
 
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
-        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         base = self._base_url(handle)
         url = _join_url(base, cfg["dataflow_path"], cfg["agency"])
         started = time.monotonic()
@@ -327,7 +339,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         self,
         handle: ConnectionHandle,
     ) -> AsyncIterator[DatasetDescriptor]:
-        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         base = self._base_url(handle)
         detail = cfg["dataflow_detail"]
         url = _join_url(base, cfg["dataflow_path"], cfg["agency"])
@@ -479,7 +491,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         handle: ConnectionHandle,
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
-        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         filter_path = self._build_filter_path(request, cfg.get("dimension_order"))
         dataflow_key = request.dataset_id
 
@@ -589,7 +601,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         dataset_id: str,
         cached_version: DataVersion,
     ) -> FreshnessResult:
-        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         url = _join_url(
             self._base_url(handle),
             *_sdmx_path_parts(
@@ -651,7 +663,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         handle: ConnectionHandle,
         dataset_id: str,
     ) -> DatasetCapabilitySnapshot:
-        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         base = self._base_url(handle)
         url = _join_url(base, cfg["dataflow_path"], cfg["agency"], dataset_id)
         url = f"{url}?references=descendants&detail=referencepartial"
@@ -754,48 +766,68 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             req_headers = self._sdmx_structure_headers(handle.config)
         else:
             req_headers = self._sdmx_data_headers(handle.config)
+        body, headers, raw = await self._resilient_request_json(
+            handle,
+            url,
+            params={},
+            connector_id=self.connector_id,
+            headers=req_headers,
+        )
+        if not isinstance(body, dict):
+            raise FetchError(
+                message="SDMX response is not a JSON object",
+                connector_id=self.connector_id,
+            )
+        return body, headers, raw
 
-        session = await self._get_session(handle)
-        timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
+    def _head_executor(self, handle: ConnectionHandle) -> Any:
+        cached_key = handle.get_state("_sdmx_head_executor_config")
+        key = self._resilience_cache_key(handle)
+        cached = handle.get_state("_sdmx_head_executor")
+        if cached is not None and cached_key == key:
+            return cached
 
-        async with session.get(url, headers=req_headers, timeout=timeout) as resp:
-            headers = dict(resp.headers)
-            if resp.status == 429:
-                from polisyos.fabric.connectors.sources.http_common import (
-                    retry_after_seconds,
-                    safe_int,
-                )
+        async def _raw_head(
+            *,
+            handle: ConnectionHandle,  # noqa: ARG001
+            session: aiohttp.ClientSession,
+            url: str,
+            connector_id: str,
+            headers: dict[str, str] | None = None,
+        ) -> dict[str, str]:
+            timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
+            async with session.head(url, headers=headers, timeout=timeout) as resp:
+                response_headers = dict(resp.headers)
+                if resp.status == 429:
+                    from polisyos.fabric.connectors.sources.http_common import (
+                        retry_after_seconds,
+                        safe_int,
+                    )
 
-                retry_after = retry_after_seconds(headers)
-                raise RateLimitError(
-                    connector_id=self.connector_id,
-                    retry_after=int(retry_after) if retry_after is not None else None,
-                    limit_remaining=safe_int(headers.get("X-RateLimit-Remaining")) or 0,
-                )
-            if resp.status >= 400:
-                error = FetchError(
-                    message=f"SDMX fetch returned HTTP {resp.status}",
-                    connector_id=self.connector_id,
-                    request_params={"status_code": resp.status, "url": url},
-                )
-                error.status_code = resp.status  # type: ignore[attr-defined]
-                raise error
+                    retry_after = retry_after_seconds(response_headers)
+                    raise RateLimitError(
+                        connector_id=connector_id,
+                        retry_after=int(retry_after) if retry_after is not None else None,
+                        limit_remaining=safe_int(response_headers.get("X-RateLimit-Remaining"))
+                        or 0,
+                    )
+                if resp.status >= 400:
+                    error = FetchError(
+                        message=f"SDMX freshness probe returned HTTP {resp.status}",
+                        connector_id=connector_id,
+                        request_params={"status_code": resp.status, "url": url},
+                    )
+                    error.status_code = resp.status  # type: ignore[attr-defined]
+                    raise error
+                return response_headers
 
-            raw = await resp.read()
-            try:
-                body = _json.loads(raw)
-            except _json.JSONDecodeError as exc:
-                raise FetchError(
-                    message=f"SDMX JSON decode failed: {exc}",
-                    connector_id=self.connector_id,
-                    request_params={"url": url},
-                ) from exc
-            if not isinstance(body, dict):
-                raise FetchError(
-                    message="SDMX response is not a JSON object",
-                    connector_id=self.connector_id,
-                )
-            return body, headers, raw
+        wrapped = apply_resilience(
+            _raw_head,
+            config=self._resilience_config(handle),
+        )
+        handle.set_state("_sdmx_head_executor", wrapped)
+        handle.set_state("_sdmx_head_executor_config", key)
+        return wrapped
 
     async def _sdmx_request_head(
         self,
@@ -805,9 +837,14 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         """SDMX HEAD request for freshness checks."""
         req_headers = self._sdmx_data_headers(handle.config)
         session = await self._get_session(handle)
-        timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
-        async with session.head(url, headers=req_headers, timeout=timeout) as resp:
-            return dict(resp.headers)
+        executor = self._head_executor(handle)
+        return await executor(
+            handle=handle,
+            session=session,
+            url=url,
+            connector_id=self.connector_id,
+            headers=req_headers,
+        )
 
 
 __all__ = ["SDMXSourceConnector"]

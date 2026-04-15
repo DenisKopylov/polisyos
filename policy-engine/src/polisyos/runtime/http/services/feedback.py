@@ -1,12 +1,11 @@
 """Expose monitoring, compare, and reissue workflows for decision feedback."""
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.feedback import (
     DecisionCompareReport,
@@ -19,7 +18,10 @@ from polisyos.core.run.context import new_run_id
 from polisyos.scientist.feedback import DecisionFeedbackService
 from polisyos.scientist.nodes.builtins.state_keys import INPUT_PARAMETER_OVERRIDE_BUNDLE_REF
 
-from .run_index import IndexedRunRecord, RunIndexService
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+    from .run_index import IndexedRunRecord, RunIndexService
 
 
 @dataclass(frozen=True)
@@ -34,7 +36,7 @@ class PreparedReissue:
 
 class FeedbackService:
     """Bridge runtime run records with Scientist decision-feedback artifacts."""
-    def __init__(self, *, store: FileSystemCAS, run_index: RunIndexService) -> None:
+    def __init__(self, *, store: ArtifactStore, run_index: RunIndexService) -> None:
         self._store = store
         self._run_index = run_index
         self._feedback = DecisionFeedbackService(store)
@@ -218,12 +220,12 @@ class FeedbackService:
         packet_ref: str,
         packet_payload: Mapping[str, Any],
     ) -> dict[str, Any]:
-        return self._feedback._decision_validity.get_summary(  # noqa: SLF001
+        return self._feedback.get_decision_validity_summary(
             packet_ref,
             packet_payload=dict(packet_payload),
         )
 
-    def _load_optional_model(self, ref: str | None, model_cls):
+    def _load_optional_model(self, ref: str | None, model_cls: Any) -> Any | None:
         if ref is None:
             return None
         try:

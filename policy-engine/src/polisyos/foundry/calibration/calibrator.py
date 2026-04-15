@@ -993,13 +993,13 @@ class Calibrator:
                     damping=cfg.hessian.damping,
                     jitter_floor=cfg.hessian.rank_tol,
                 )
-            except Exception as exc:
+            except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:
                 return None, None, [f"Hessian computation failed: {exc}"]
 
             identifiability_report = None
             try:
                 identifiability_report = diagnose_identifiability(hessian_result)
-            except Exception as exc:  # pragma: no cover - defensive
+            except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - defensive
                 local_diagnostics.append(f"Identifiability diagnostics failed: {exc}")
             return hessian_result, identifiability_report, local_diagnostics
 
@@ -1338,14 +1338,14 @@ class Calibrator:
                         else float(condition),
                         non_identifiable=non_identifiable,
                     )
-                except Exception as exc:  # pragma: no cover - defensive
+                except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - defensive
                     diagnostics.append(f"Hessian computation failed: {exc}")
 
         identifiability_report = None
         if hessian_result is not None:
             try:
                 identifiability_report = diagnose_identifiability(hessian_result)
-            except Exception as exc:  # pragma: no cover - defensive
+            except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - defensive
                 diagnostics.append(f"Identifiability diagnostics failed: {exc}")
 
         fidelity_stats = _inspect_bundle_fidelity(bundle)
@@ -1388,9 +1388,9 @@ def _jax_platform() -> str:
         import jax.extend as jax_extend  # type: ignore[import-not-found]
 
         return str(jax_extend.backend.get_backend().platform)
-    except Exception:
+    except (ImportError, AttributeError, RuntimeError, TypeError, ValueError):
         try:
             # Старый/универсальный API
             return str(jax.default_backend())
-        except Exception:
+        except (AttributeError, RuntimeError, TypeError, ValueError):
             return "unknown"

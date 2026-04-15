@@ -108,7 +108,7 @@ export default function LineageGraph({
   return (
     <div className="bg-surface/80 border-line overflow-auto rounded-xl border p-2">
       <div className="relative" style={{ width, height }}>
-        <svg className="absolute top-0 left-0" width={width} height={height}>
+        <svg className="absolute top-0 left-0" width={width} height={height} role="img" aria-label={t("common.lineageGraph.ariaLabel")}>
           {edges.map((edge) => {
             const source = positions.get(edge.parent_artifact_id);
             const target = positions.get(edge.child_artifact_id);
@@ -170,11 +170,13 @@ export default function LineageGraph({
                   {node.status}
                 </span>
               </div>
-              <p className="text-muted mt-1 truncate text-[11px]">
+              <p className="mt-1 truncate text-[11px] text-[color:var(--chart-axis)]">
                 {node.kind ?? t("common.lineageGraph.unknownKind")}
               </p>
               <div className="mt-1 flex items-center justify-between">
-                <span className="text-muted text-[11px]">d={node.depth}</span>
+                <span className="text-[11px] text-[color:var(--chart-axis)]">
+                  d={node.depth}
+                </span>
                 <Link
                   className="text-[11px] font-semibold underline"
                   to={`/artifacts/${node.artifact_id}`}

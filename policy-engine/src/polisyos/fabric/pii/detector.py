@@ -45,7 +45,7 @@ _REGEX_RULES: tuple[tuple[PIIEntityType, re.Pattern[str], float], ...] = (
     (PIIEntityType.BENEFICIARY_ID, re.compile(r"\b(?:BEN|BENF|BNFCRY)[_-]?\d{5,12}\b", re.IGNORECASE), 0.9),
     (PIIEntityType.CASE_NUMBER, re.compile(r"\b(?:CASE|CS|REF)[_-]?\d{4,12}\b", re.IGNORECASE), 0.88),
     (PIIEntityType.NATIONAL_ID, re.compile(r"\b[A-Z0-9]{6,15}\b"), 0.6),
-    (PIIEntityType.CREDIT_CARD, re.compile(r"\b(?:\d[ -]*?){13,16}\b"), 0.8),
+    (PIIEntityType.CREDIT_CARD, re.compile(r"\b(?:\d[ -]*?){13,19}\b"), 0.8),
     (PIIEntityType.IBAN_CODE, re.compile(r"\b[A-Z]{2}[0-9A-Z]{13,32}\b"), 0.8),
     (PIIEntityType.IP_ADDRESS, re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"), 0.9),
 )
@@ -253,6 +253,11 @@ class PresidioDetector:
             if score < self._config.score_threshold:
                 continue
             for match in pattern.finditer(text):
+                matched_text = match.group(0)
+                if entity_type == PIIEntityType.CREDIT_CARD and not _is_valid_credit_card_candidate(
+                    matched_text
+                ):
+                    continue
                 entities.append(
                     PIIEntity(
                         entity_type=entity_type,
@@ -320,3 +325,21 @@ class PresidioDetector:
             sampled=sampled,
             sample_rate=sample_rate,
         )
+
+
+def _is_valid_credit_card_candidate(value: str) -> bool:
+    digits = "".join(ch for ch in value if ch.isdigit())
+    if len(digits) < 13 or len(digits) > 19:
+        return False
+    if len(set(digits)) == 1:
+        return False
+    checksum = 0
+    parity = len(digits) % 2
+    for idx, raw in enumerate(digits):
+        digit = int(raw)
+        if idx % 2 == parity:
+            digit *= 2
+            if digit > 9:
+                digit -= 9
+        checksum += digit
+    return checksum % 10 == 0

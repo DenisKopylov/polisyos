@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 from polisyos.core.governance.passes.base import IssueSeverity
-from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphDiagnostic,
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
-    EvidenceSourceKind,
-    EvidenceSourceState,
-    EvidenceSourceStatus,
     EvidenceNeed,
     EvidenceNeedAssessment,
     EvidenceNeedType,
+    EvidenceSourceKind,
+    EvidenceSourceState,
+    EvidenceSourceStatus,
     EvidenceStatus,
     LegalStatus,
     ObservabilityStatus,
@@ -205,3 +204,15 @@ class TestCrossGraphEvidencePass:
 
         issue = next(issue for issue in issues if issue.code == "CROSS_GRAPH_SOURCE_UNAVAILABLE")
         assert issue.severity is IssueSeverity.WARNING
+
+    def test_invalid_profile_payload_emits_explicit_issue(self, pass_context_factory, strict_profile):
+        ctx = pass_context_factory(
+            state={"cross_graph_evidence_profile": {"invalid": True}},
+            profile=strict_profile,
+        )
+
+        issues = CrossGraphEvidencePass().validate(ctx)
+
+        assert len(issues) == 1
+        assert issues[0].code == "CROSS_GRAPH_PROFILE_INVALID"
+        assert issues[0].severity is IssueSeverity.BLOCKER

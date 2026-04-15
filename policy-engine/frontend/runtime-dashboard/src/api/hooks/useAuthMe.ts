@@ -29,6 +29,7 @@ export const FALLBACK_AUTH_ME: AuthMePayload = {
     "evidence.review",
     "evidence.view",
     "knowledge.view",
+    "mode.analyst",
     "platform.view",
     "runs.launch",
     "runs.review",

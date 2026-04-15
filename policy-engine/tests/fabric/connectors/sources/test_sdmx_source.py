@@ -608,6 +608,46 @@ class TestFetch:
         assert result.row_count == 0
         assert result.data.empty
 
+    def test_fetch_retries_transient_server_errors(self, monkeypatch):
+        connector = SDMXSourceConnector()
+        fixture = _load_fixture("ecb_exr_response.json")
+        raw = json.dumps(fixture).encode("utf-8")
+        calls = {"count": 0}
+
+        async def _fake_request_json(
+            self,
+            session,
+            url,
+            *,
+            params,
+            connector_id,
+            headers=None,
+        ):  # noqa: ARG001
+            calls["count"] += 1
+            if calls["count"] < 3:
+                status_code = 500 if calls["count"] == 1 else 503
+                error = FetchError(
+                    message=f"HTTP {status_code}",
+                    connector_id=connector_id,
+                    request_params={"url": url},
+                )
+                error.status_code = status_code  # type: ignore[attr-defined]
+                raise error
+            return fixture, {"ETag": '"retry-etag"'}, raw
+
+        monkeypatch.setattr(SDMXSourceConnector, "_request_json", _fake_request_json)
+        monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
+
+        async def _exercise():
+            handle = await connector.connect(_ecb_config())
+            result = await connector.fetch(handle, FetchRequest(dataset_id="EXR"))
+            await connector.disconnect(handle)
+            return result
+
+        result = _run_async(_exercise())
+        assert result.row_count == 6
+        assert calls["count"] == 3
+
 
 # ---------------------------------------------------------------------------
 # List datasets (catalog browse)

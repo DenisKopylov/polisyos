@@ -467,7 +467,7 @@ class CausalBCF:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="causal_bcf",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

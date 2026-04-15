@@ -1,17 +1,22 @@
 """Adapts on-disk core run manifests and traces into runtime service records."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime
-from pathlib import Path
-from typing import Any
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.run.context import recover_pending_run_finalize
 from polisyos.core.run.manifest import RunManifest as CoreRunManifest
 from polisyos.core.trace.record import TraceRecord
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from datetime import datetime
+    from pathlib import Path
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts.protocol import ArtifactStore
 
 logger = get_logger(__name__)
 
@@ -42,10 +47,11 @@ class CoreRunAdapterResult:
 
 def load_core_run(
     *,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     run_dir: Path,
 ) -> CoreRunAdapterResult | None:
     """Load core run."""
+    recover_pending_run_finalize(store, run_dir)
     trace_path = run_dir / "trace.jsonl"
     if not trace_path.exists():
         return None
@@ -161,7 +167,7 @@ def _duration_ms(started_at: datetime | None, finished_at: datetime | None) -> i
     return max(int(delta.total_seconds() * 1000), 0)
 
 
-def _iter_trace_lines(path: Path):
+def _iter_trace_lines(path: Path) -> Iterator[str]:
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:
             stripped = line.strip()

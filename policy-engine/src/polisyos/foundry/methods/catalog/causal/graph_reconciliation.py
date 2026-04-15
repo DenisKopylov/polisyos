@@ -670,7 +670,7 @@ class ReconcileCausalGraph:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="reconcile_causal_graph",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -943,7 +943,7 @@ class ComposeSCMFragments:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="compose_scm_fragments",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

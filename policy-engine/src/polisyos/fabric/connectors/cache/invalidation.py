@@ -160,29 +160,39 @@ class InvalidationOrchestrator:
         for connector_id, dataset_id in self._cache.list_dataset_connectors():
             if not connector_id:
                 continue
+            handle: ConnectionHandle | None = None
             try:
                 connector = self._registry.get(connector_id)
-                handle = await self._registry.get_connection(connector_id)
             except Exception as exc:
-                logger.warning("Failed to acquire connector", connector_id=connector_id, error=str(exc))
+                logger.warning("Failed to resolve connector", connector_id=connector_id, error=str(exc))
                 continue
 
             cached_meta = self._cache.get_latest_metadata(dataset_id)
             cached_version = cached_meta.source_version if cached_meta else None
+            cached_signature = (
+                self._cache.get_source_signature(cached_meta.cache_key)
+                if cached_meta is not None
+                else None
+            )
 
             try:
+                handle = await self._registry.get_connection(connector_id)
                 event = await self._trigger.check_for_updates(
                     connector,
                     handle,
                     dataset_id,
                     cached_version,
-                    cached_metadata={"source_signature": None},
+                    cached_metadata={"source_signature": cached_signature} if cached_signature else None,
                 )
+            except Exception as exc:
+                logger.warning("Failed to acquire connector", connector_id=connector_id, error=str(exc))
+                continue
             finally:
-                try:
-                    await self._registry.release_connection(connector_id, handle)
-                except Exception as exc:
-                    logger.debug("Ignored exception: %s", exc)
+                if handle is not None:
+                    try:
+                        await self._registry.release_connection(connector_id, handle)
+                    except Exception as exc:
+                        logger.debug("Ignored exception: %s", exc)
 
             if event:
                 await self.invalidate_dataset(dataset_id, InvalidationStrategy.SOFT_MARK)

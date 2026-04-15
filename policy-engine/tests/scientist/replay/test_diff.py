@@ -7,7 +7,11 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from polisyos.scientist.replay.diff import DiffToleranceConfig, compute_replay_diff
+from polisyos.scientist.replay.diff import (
+    DiffToleranceConfig,
+    ReplayDiffInputError,
+    compute_replay_diff,
+)
 
 
 class TestIdenticalDicts:
@@ -16,6 +20,14 @@ class TestIdenticalDicts:
         result = compute_replay_diff(a, a)
         assert result.overall_similarity == 1.0
         assert len(result.field_diffs) == 0
+
+    def test_empty_original_is_rejected(self) -> None:
+        with pytest.raises(ReplayDiffInputError, match="original replay payload"):
+            compute_replay_diff({}, {"x": 1.0})
+
+    def test_empty_replayed_is_rejected(self) -> None:
+        with pytest.raises(ReplayDiffInputError, match="replayed payload"):
+            compute_replay_diff({"x": 1.0}, {})
 
 
 class TestNumericTolerance:

@@ -17,7 +17,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from polisyos.ir._validation import (
+    ensure_confidence_interval,
+    ensure_disjoint_sets,
+    ensure_finite_numeric,
+    ensure_unique_ids,
+)
 
 
 # ── PN / PS / PNS ─────────────────────────────────────────────────────────────
@@ -67,6 +74,24 @@ class PNResult(BaseModel):
 
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="after")
+    def validate_result(self) -> "PNResult":
+        ensure_finite_numeric(self.treatment_value, field_name="treatment_value")
+        ensure_finite_numeric(self.counterfactual_value, field_name="counterfactual_value")
+        if self.pn_ci is not None:
+            ensure_confidence_interval(
+                self.pn_ci,
+                label="pn_ci",
+                point_estimate=self.pn,
+                point_label="pn",
+            )
+        _validate_optional_bounds(
+            self.bounds_lower,
+            self.bounds_upper,
+            label="pn_bounds",
+        )
+        return self
+
 
 class PSResult(BaseModel):
     """Probability of Sufficiency result.
@@ -94,6 +119,24 @@ class PSResult(BaseModel):
     n_samples: int = 0
     computation_method: str = "simulation"
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_result(self) -> "PSResult":
+        ensure_finite_numeric(self.treatment_value, field_name="treatment_value")
+        ensure_finite_numeric(self.counterfactual_value, field_name="counterfactual_value")
+        if self.ps_ci is not None:
+            ensure_confidence_interval(
+                self.ps_ci,
+                label="ps_ci",
+                point_estimate=self.ps,
+                point_label="ps",
+            )
+        _validate_optional_bounds(
+            self.bounds_lower,
+            self.bounds_upper,
+            label="ps_bounds",
+        )
+        return self
 
 
 class PNSResult(BaseModel):
@@ -127,6 +170,28 @@ class PNSResult(BaseModel):
     n_samples: int = 0
     computation_method: str = "simulation"
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_result(self) -> "PNSResult":
+        ensure_finite_numeric(self.treatment_value, field_name="treatment_value")
+        ensure_finite_numeric(self.counterfactual_value, field_name="counterfactual_value")
+        if self.pns_ci is not None:
+            ensure_confidence_interval(
+                self.pns_ci,
+                label="pns_ci",
+                point_estimate=self.pns,
+                point_label="pns",
+            )
+        if self.pn is not None and self.pns > self.pn + 1.0e-12:
+            raise ValueError("pns must not exceed pn")
+        if self.ps is not None and self.pns > self.ps + 1.0e-12:
+            raise ValueError("pns must not exceed ps")
+        if self.pn is not None and self.ps is not None:
+            lower = max(0.0, self.pn + self.ps - 1.0)
+            upper = min(self.pn, self.ps)
+            if not (lower - 1.0e-12 <= self.pns <= upper + 1.0e-12):
+                raise ValueError("pns must satisfy Fréchet bounds implied by pn and ps")
+        return self
 
 
 class PNPSBounds(BaseModel):
@@ -176,6 +241,30 @@ class PNPSBounds(BaseModel):
 
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="after")
+    def validate_bounds(self) -> "PNPSBounds":
+        ensure_finite_numeric(self.p_y1_x1, field_name="p_y1_x1")
+        ensure_finite_numeric(self.p_y1_x0, field_name="p_y1_x0")
+        if self.p_x1 is not None:
+            ensure_finite_numeric(self.p_x1, field_name="p_x1")
+        ensure_confidence_interval((self.pn_lower, self.pn_upper), label="pn bounds")
+        ensure_confidence_interval((self.ps_lower, self.ps_upper), label="ps bounds")
+        ensure_confidence_interval((self.pns_lower, self.pns_upper), label="pns bounds")
+        monotone_compatible = self.p_y1_x1 >= self.p_y1_x0
+        if (
+            self.is_monotone_compatible is not None
+            and self.is_monotone_compatible != monotone_compatible
+        ):
+            raise ValueError("is_monotone_compatible must match p_y1_x1 >= p_y1_x0")
+        if self.monotone_pns is not None:
+            ensure_finite_numeric(self.monotone_pns, field_name="monotone_pns")
+            expected = max(0.0, self.p_y1_x1 - self.p_y1_x0)
+            if abs(self.monotone_pns - expected) > 1.0e-12:
+                raise ValueError("monotone_pns must equal max(0, p_y1_x1 - p_y1_x0)")
+            if not (self.pns_lower - 1.0e-12 <= self.monotone_pns <= self.pns_upper + 1.0e-12):
+                raise ValueError("monotone_pns must lie inside pns bounds")
+        return self
+
 
 # ── HP Actual Causality ────────────────────────────────────────────────────────
 
@@ -197,6 +286,17 @@ class ContingencySet(BaseModel):
 
     size: int = 0
     """Number of contingency variables (|W|)."""
+
+    @model_validator(mode="after")
+    def validate_contingency(self) -> "ContingencySet":
+        ensure_unique_ids(self.variables, key_fn=lambda item: item, label="contingency.variables")
+        if self.size != len(self.variables):
+            raise ValueError("contingency size must match variables length")
+        if set(self.values) != set(self.variables):
+            raise ValueError("contingency values keys must match variables exactly")
+        for variable, value in self.values.items():
+            ensure_finite_numeric(value, field_name=f"contingency.values.{variable}")
+        return self
 
 
 class HPResult(BaseModel):
@@ -278,6 +378,80 @@ class HPResult(BaseModel):
     """Human-readable explanation of the result."""
 
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_result(self) -> "HPResult":
+        ensure_finite_numeric(self.cause_value, field_name="cause_value")
+        ensure_finite_numeric(
+            self.counterfactual_cause_value,
+            field_name="counterfactual_cause_value",
+        )
+        ensure_finite_numeric(self.effect_value, field_name="effect_value")
+        if self.degree_of_blame is not None:
+            ensure_finite_numeric(self.degree_of_blame, field_name="degree_of_blame")
+        if self.blame_ci is not None:
+            ensure_confidence_interval(
+                self.blame_ci,
+                label="blame_ci",
+                point_estimate=self.degree_of_blame,
+                point_label="degree_of_blame",
+            )
+
+        expected_actual_cause = self.ac1_satisfied and self.ac2_satisfied and self.ac3_satisfied
+        if self.is_actual_cause != expected_actual_cause:
+            raise ValueError(
+                "is_actual_cause must equal ac1_satisfied and ac2_satisfied and ac3_satisfied"
+            )
+        if not self.is_actual_cause and self.degree_of_responsibility != 0.0:
+            raise ValueError("degree_of_responsibility must be 0 when is_actual_cause is false")
+
+        cause_vars = tuple(self.cause_variables or [self.cause_variable])
+        ensure_unique_ids(cause_vars, key_fn=lambda item: item, label="cause_variables")
+        if self.cause_variables is None:
+            if self.cause_values is not None or self.counterfactual_cause_values is not None:
+                raise ValueError("multi-variable cause maps require cause_variables")
+        else:
+            if self.cause_variable not in self.cause_variables:
+                raise ValueError("cause_variable must be included in cause_variables")
+            if self.cause_values is None or self.counterfactual_cause_values is None:
+                raise ValueError(
+                    "multi-variable causes require cause_values and counterfactual_cause_values"
+                )
+            if set(self.cause_values) != set(cause_vars):
+                raise ValueError("cause_values keys must match cause_variables exactly")
+            if set(self.counterfactual_cause_values) != set(cause_vars):
+                raise ValueError(
+                    "counterfactual_cause_values keys must match cause_variables exactly"
+                )
+            for variable, value in self.cause_values.items():
+                ensure_finite_numeric(value, field_name=f"cause_values.{variable}")
+            for variable, value in self.counterfactual_cause_values.items():
+                ensure_finite_numeric(value, field_name=f"counterfactual_cause_values.{variable}")
+
+        if self.ac2_satisfied and self.contingency is None:
+            raise ValueError("ac2_satisfied requires a contingency witness")
+        if not self.ac2_satisfied and self.contingency is not None:
+            raise ValueError("contingency witness requires ac2_satisfied")
+        if self.contingency is not None:
+            ensure_disjoint_sets(
+                cause_vars,
+                self.contingency.variables,
+                label="cause_variables and contingency.variables",
+            )
+        return self
+
+
+def _validate_optional_bounds(
+    lower: float | None,
+    upper: float | None,
+    *,
+    label: str,
+) -> None:
+    if lower is None and upper is None:
+        return
+    if lower is None or upper is None:
+        raise ValueError(f"{label} requires both lower and upper bounds")
+    ensure_confidence_interval((lower, upper), label=label)
 
 
 __all__ = [

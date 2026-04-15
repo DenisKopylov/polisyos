@@ -11,11 +11,12 @@ from __future__ import annotations
 
 from decimal import Decimal
 from enum import Enum
-from typing import Annotated, Literal, Sequence
+from typing import Annotated, Literal
 
 from pydantic import BeforeValidator, Field, model_validator
 
-from polisyos.ir.kernel.base import KernelModel, reject_float
+from polisyos.ir._validation import ensure_unique_ids
+from polisyos.ir.kernel.base import KernelModel, SLOT_ID_PATTERN, reject_float
 from polisyos.ir.kernel.numbers import DecimalValue, NonNegativeDecimal
 from polisyos.ir.kernel.values import (
     CountValue,
@@ -192,7 +193,7 @@ class ConstraintSpec(KernelModel):
     value: MoneyValue | RateValue | CountValue | DurationValue | DecimalValue | int | str | bool = (
         Field(..., description="Constraint value or threshold")
     )
-    slot_id: str | None = Field(None, pattern=ID_PATTERN, description="Slot this constrains")
+    slot_id: str | None = Field(None, pattern=SLOT_ID_PATTERN, description="Slot this constrains")
     operator: Literal["<", "<=", "==", "!=", ">=", ">"] | None = Field(
         None, description="Comparison operator (if applicable)"
     )
@@ -366,11 +367,27 @@ class ProblemFrame(KernelModel):
     def validate_problem_frame(self) -> "ProblemFrame":
         """Validate internal consistency of the problem frame."""
 
-        _validate_unique_ids(self.objectives, "objective_id")
-        _validate_unique_ids(self.kpis, "kpi_id")
-        _validate_unique_ids(self.success_criteria, "criterion_id")
-        _validate_unique_ids(self.hard_constraints + self.soft_constraints, "constraint_id")
-        _validate_unique_ids(self.stakeholders, "stakeholder_id")
+        ensure_unique_ids(
+            self.objectives,
+            key_fn=lambda item: item.objective_id,
+            label="objective_id",
+        )
+        ensure_unique_ids(self.kpis, key_fn=lambda item: item.kpi_id, label="kpi_id")
+        ensure_unique_ids(
+            self.success_criteria,
+            key_fn=lambda item: item.criterion_id,
+            label="criterion_id",
+        )
+        ensure_unique_ids(
+            self.hard_constraints + self.soft_constraints,
+            key_fn=lambda item: item.constraint_id,
+            label="constraint_id",
+        )
+        ensure_unique_ids(
+            self.stakeholders,
+            key_fn=lambda item: item.stakeholder_id,
+            label="stakeholder_id",
+        )
 
         kpi_ids = {kpi.kpi_id for kpi in self.kpis}
         for criterion in self.success_criteria:
@@ -399,14 +416,27 @@ class ProblemFrame(KernelModel):
         return self
 
     def _validate_normative_frame(self) -> None:
-        assert self.normative_frame is not None
+        if self.normative_frame is None:
+            raise ValueError("normative_frame must be present before validation")
         normative = self.normative_frame
         stakeholder_ids = {stakeholder.stakeholder_id for stakeholder in self.stakeholders}
         hard_constraint_ids = {constraint.constraint_id for constraint in self.hard_constraints}
 
-        _validate_unique_ids(normative.stakeholder_bindings, "binding_id")
-        _validate_unique_ids(normative.utility_terms, "term_id")
-        _validate_unique_ids(normative.rights_catalog, "right_id")
+        ensure_unique_ids(
+            normative.stakeholder_bindings,
+            key_fn=lambda item: item.binding_id,
+            label="binding_id",
+        )
+        ensure_unique_ids(
+            normative.utility_terms,
+            key_fn=lambda item: item.term_id,
+            label="term_id",
+        )
+        ensure_unique_ids(
+            normative.rights_catalog,
+            key_fn=lambda item: item.right_id,
+            label="right_id",
+        )
 
         if not normative.enabled_policies:
             raise ValueError("normative_frame.enabled_policies must not be empty")
@@ -454,14 +484,3 @@ class ProblemFrame(KernelModel):
                     "normative_frame.hard_constraint_refs references unknown hard constraint "
                     f"'{constraint_ref}'"
                 )
-
-
-def _validate_unique_ids(items: Sequence[KernelModel], attr: str) -> None:
-    """Validate that all items have unique values for the given attribute."""
-
-    seen: set[str] = set()
-    for item in items:
-        value = getattr(item, attr)
-        if value in seen:
-            raise ValueError(f"duplicate {attr}: {value}")
-        seen.add(value)

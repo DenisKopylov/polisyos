@@ -13,12 +13,27 @@ Governance in the IR layer splits into two concerns:
 | Module | Focus | Key exports |
 |--------|-------|-------------|
 | `polisyos.ir.governance.policy_spec` | Policy authoring and temporal interventions | `PolicySpec`, `PolicyInterventionSpec`, `MechanismBinding`, `ParameterSpec`, `TemporalInterventionSequence` |
+| `polisyos.ir.governance.temporal_logic` | LTL/CTL/MTL subset with explicit execution semantics | `TemporalPolicyConstraint`, `TemporalAtom`, `TemporalUnaryFormula`, `TemporalPathFormula` |
+| `polisyos.ir.governance.policy_composition` | Federal/state/local layering, overrides, and compatibility rules | `PolicyCompositionPlan`, `PolicyLayerSpec`, `PolicyOverrideRule`, `PolicyCompatibilityConstraint` |
+| `polisyos.ir.governance.game_design` | Extensive-form/Bayesian mechanism-design metadata | `MechanismDesignSpec`, `ExtensiveFormNode`, `BayesianTypeSpec`, `RepeatedGameMetadata` |
 | `polisyos.ir.observation.governance` | Observation-family governance aliases and pass routing | `GovernancePassAlias`, `GovernancePassAliasRegistry`, `GovernancePassAliasStatus`, `ObservationFamilyPolicy`, `GovernancePassMappingRegistry` |
 | `polisyos.ir.governance.gate` | Human or automated approval payloads | `GateContext`, `GateRequest`, `GateDecision`, `GateEvent`, `GateVerdict` |
 
 ## Policy Specification
 
 ::: polisyos.ir.governance.policy_spec
+
+## Temporal Logic And Compliance Constraints
+
+::: polisyos.ir.governance.temporal_logic
+
+## Multi-Level Policy Composition
+
+::: polisyos.ir.governance.policy_composition
+
+## Mechanism And Game Design
+
+::: polisyos.ir.governance.game_design
 
 ## Observation Governance
 

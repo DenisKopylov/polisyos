@@ -115,7 +115,7 @@ Critical alerts must be periodically proven alive.
 | Signal | Validation strategy |
 |---|---|
 | runtime availability alerts | synthetic `/health` and `/ready` checks against known-good deployment path |
-| contract/codegen drift | `./scripts/doctor` plus dedicated contract checks on clean workspace |
+| contract/codegen drift | `polisyos-tools workspace doctor` plus dedicated contract checks on clean workspace |
 | replay failures | known-good record/replay fixture path from `tests/fabric/data_plane/test_record_replay.py` |
 | docs publication | local `mkdocs build --strict` and green `Docs Pages` workflow from `main` |
 | security alerts | focused test fixtures for signing/SBOM plus staged verification against trusted keys |

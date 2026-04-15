@@ -24,12 +24,37 @@ If the artifact does not exist or is not visible to the current tenant:
 
 | Method | Path | Response body | Notes |
 |--------|------|---------------|-------|
+| `POST` | `/api/v1/artifacts/batch` | `ArtifactBatchResponse` | Bulk manifest lookup for dashboard/operator clients |
 | `GET` | `/api/v1/artifacts/{artifact_id}` | `ArtifactManifestResponse` | Manifest metadata and references |
 | `GET` | `/api/v1/artifacts/{artifact_id}/content` | `ArtifactContentResponse` | Content preview, text/JSON decode, or binary preview |
 | `GET` | `/api/v1/artifacts/{artifact_id}/lineage` | `ArtifactLineageResponse` | Rooted lineage graph |
 | `GET` | `/api/v1/artifacts/{artifact_id}/schema` | `ArtifactSchemaResponse` | Schema metadata and schema ref |
 
 Committed OpenAPI status codes: `200`, `400`, `401`, `403`, `404`, `422`, `500`.
+
+## `POST /api/v1/artifacts/batch`
+
+Return many artifact manifest views in one request so clients can avoid one-by-one metadata fetches.
+
+- Request body: `ArtifactBatchRequest`
+  - `artifact_ids`: ordered list of artifact identifiers
+- Response body: `ArtifactBatchResponse`
+  - `artifacts`: ordered list of `ArtifactManifestView`
+  - `meta`: `ApiMeta`
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  "http://localhost:8000/api/v1/artifacts/batch" \
+  -d '{"artifact_ids":["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]}'
+```
+
+```bash
+http POST :8000/api/v1/artifacts/batch \
+  "Authorization:Bearer $TOKEN" \
+  artifact_ids:='["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]'
+```
 
 ## `GET /api/v1/artifacts/{artifact_id}`
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import uuid
 from contextlib import contextmanager
-from typing import Any, Iterator, Protocol, Sequence, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import pandas as pd
 
@@ -12,12 +12,18 @@ from polisyos.core.security.exceptions import TenantIsolationError
 
 logger = get_logger("polisyos.security.db_backend")
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
 
-def _validate_tenant_id(tenant_id: str) -> None:
+
+def validate_tenant_id(tenant_id: str) -> None:
     try:
         uuid.UUID(tenant_id)
     except ValueError as exc:
         raise TenantIsolationError(f"Invalid tenant_id format: {tenant_id!r}") from exc
+
+
+_validate_tenant_id = validate_tenant_id
 
 
 @runtime_checkable
@@ -53,6 +59,7 @@ class PostgresBackend:
 
     backend_kind = "postgres"
     placeholder = "%s"
+    tenant_scope_enforced = True
 
     def __init__(self, dsn: str, *, fail_closed: bool = True) -> None:
         self._dsn = dsn
@@ -115,7 +122,7 @@ class PostgresBackend:
 
     @contextmanager
     def tenant_scope(self, tenant_id: str) -> Iterator[None]:
-        _validate_tenant_id(tenant_id)
+        validate_tenant_id(tenant_id)
         conn = self._ensure_conn()
 
         if self._fail_closed and not self._in_transaction:
@@ -148,6 +155,7 @@ class DuckDBLegacyBackend:
 
     backend_kind = "duckdb"
     placeholder = "?"
+    tenant_scope_enforced = False
 
     def __init__(self, simulation_db: Any) -> None:
         self._db = simulation_db
@@ -179,7 +187,7 @@ class DuckDBLegacyBackend:
 
     @contextmanager
     def tenant_scope(self, tenant_id: str) -> Iterator[None]:
-        _validate_tenant_id(tenant_id)
+        validate_tenant_id(tenant_id)
         yield
 
     def close(self) -> None:
@@ -188,6 +196,7 @@ class DuckDBLegacyBackend:
 
 __all__ = [
     "DatabaseBackend",
-    "PostgresBackend",
     "DuckDBLegacyBackend",
+    "PostgresBackend",
+    "validate_tenant_id",
 ]

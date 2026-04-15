@@ -27,12 +27,15 @@ class HessianResult:
 def _repair_eigenvalues(
     H: jnp.ndarray,
     eps: float = 1e-8,
+    damping: float = 0.0,
 ) -> tuple[jnp.ndarray, jnp.ndarray, int]:
-    """Symmetrize H, clip negative eigenvalues to *eps*, reconstruct.
+    """Symmetrize H, apply damping, clip non-positive eigenvalues, reconstruct.
 
     Returns (H_repaired, eigenvalues_clipped, n_repaired).
     """
     H_sym = 0.5 * (H + H.T)
+    if damping:
+        H_sym = H_sym + damping * jnp.eye(H_sym.shape[0], dtype=H_sym.dtype)
     eigvals, eigvecs = jnp.linalg.eigh(H_sym)
     n_repaired = int(jnp.sum(eigvals < eps))
     eigvals_clipped = jnp.maximum(eigvals, eps)
@@ -132,16 +135,26 @@ def compute_hessian(
     except Exception:
         H_raw = _finite_difference_hessian(loss_fn, jnp.asarray(flat_theta))
         strategy = "finite_diff"
+        if not bool(jnp.all(jnp.isfinite(H_raw))):
+            raise ValueError("Finite-difference Hessian contains non-finite values")
 
-    H_repaired, eigvals, n_repaired = _repair_eigenvalues(H_raw, eps=jitter_floor)
+    raw_eigvals = jnp.linalg.eigvalsh(0.5 * (H_raw + H_raw.T))
+    H_repaired, eigvals, n_repaired = _repair_eigenvalues(
+        H_raw,
+        eps=jitter_floor,
+        damping=damping,
+    )
 
-    # Covariance = inv(H_repaired) (already PD after repair)
-    n = flat_theta.shape[0]
-    eye = jnp.eye(n, dtype=H_repaired.dtype)
-    cov = jnp.linalg.inv(H_repaired + damping * eye)
+    cov = jnp.linalg.inv(H_repaired)
 
     std = jnp.sqrt(jnp.maximum(jnp.diag(cov), 0.0))
-    condition_number = float(eigvals[-1] / eigvals[0]) if eigvals[0] > 0 else float("inf")
+    if (
+        not bool(jnp.all(jnp.isfinite(raw_eigvals)))
+        or bool(jnp.any(raw_eigvals <= jitter_floor))
+    ):
+        condition_number = float("inf")
+    else:
+        condition_number = float(raw_eigvals[-1] / raw_eigvals[0])
 
     return HessianResult(
         hessian=np.asarray(H_repaired, dtype=float),

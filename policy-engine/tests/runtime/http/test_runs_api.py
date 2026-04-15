@@ -54,6 +54,21 @@ def test_list_runs_cursor_pagination(runtime_api_env) -> None:
     assert second_payload["page"]["count"] == 1
 
 
+def test_list_runs_applies_server_side_query_filter_before_pagination(runtime_api_env) -> None:
+    client = runtime_api_env["client"]
+
+    target_query = runtime_api_env["core_run_id"].lower()
+    response = client.get(f"/api/v1/runs?limit=20&q={target_query}")
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["page"]["total"] == 1
+    assert payload["page"]["count"] == 1
+    assert [item["run_id"] for item in payload["runs"]] == [
+        runtime_api_env["core_run_id"]
+    ]
+
+
 def test_evaluate_feedback_endpoint_persists_monitoring_report(runtime_api_env) -> None:
     client = runtime_api_env["client"]
     response = client.post(

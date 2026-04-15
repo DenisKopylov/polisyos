@@ -69,6 +69,7 @@ class TestStaticBundle:
         )
         bundle = StaticBundle(
             nodes=[node],
+            incoming_dependencies={},
             slot_registry=MagicMock(),
             mechanism_registry=MagicMock(),
             merge_registry=MagicMock(),
@@ -102,6 +103,7 @@ class TestExtractApplyTrainableValues:
         )
         bundle = StaticBundle(
             nodes=[node],
+            incoming_dependencies={},
             slot_registry=MagicMock(),
             mechanism_registry=MagicMock(),
             merge_registry=MagicMock(),
@@ -139,6 +141,7 @@ class TestExtractApplyTrainableValues:
         )
         bundle = StaticBundle(
             nodes=[node],
+            incoming_dependencies={},
             slot_registry=MagicMock(),
             mechanism_registry=MagicMock(),
             merge_registry=MagicMock(),

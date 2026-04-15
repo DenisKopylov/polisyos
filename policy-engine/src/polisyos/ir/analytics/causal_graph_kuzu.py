@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import csv
-import json
 import logging
 import shutil
 import tempfile
@@ -58,6 +57,9 @@ def ensure_causal_kuzu_schema(
         for statement in _iter_ddl_statements(ddl_text):
             conn.execute(statement)
     except Exception as exc:
+        # Optional Kuzu bindings surface adapter/database-specific exceptions
+        # that are not stable enough to type-match here, so normalize them once
+        # at this boundary.
         raise CausalGraphKuzuSchemaError(f"failed to apply causal kuzu DDL: {exc}") from exc
 
 
@@ -115,6 +117,8 @@ def materialize_causal_kuzu_from_graph(
     except CausalGraphKuzuError:
         raise
     except Exception as exc:
+        # Kuzu copy/query operations may raise backend-specific exceptions; keep
+        # the public IR API deterministic by re-wrapping them here.
         raise CausalGraphKuzuError(f"failed to materialize causal graph to kuzu: {exc}") from exc
     finally:
         if cleanup is not None:
@@ -127,8 +131,8 @@ def _export_graph_nodes_csv(graph: "CausalGraphModel", output_path: Path) -> Non
     with output_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=["name"])
         writer.writeheader()
-        for node in graph.nodes:
-            writer.writerow({"name": node})
+        for row in graph.kuzu_node_rows:
+            writer.writerow(row)
 
 
 def _export_graph_edges_csv(graph: "CausalGraphModel", output_path: Path) -> None:
@@ -149,21 +153,23 @@ def _export_graph_edges_csv(graph: "CausalGraphModel", output_path: Path) -> Non
             ],
         )
         writer.writeheader()
-        for edge in graph.edges:
+        for edge in graph.kuzu_edge_rows:
             writer.writerow(
                 {
-                    "FROM": edge.src,
-                    "TO": edge.dst,
-                    "mark_src": edge.mark_src.value,
-                    "mark_dst": edge.mark_dst.value,
-                    "lag": edge.lag if edge.lag is not None else "",
+                    "FROM": edge["src"],
+                    "TO": edge["dst"],
+                    "mark_src": edge["mark_src"],
+                    "mark_dst": edge["mark_dst"],
+                    "lag": edge["lag"] if edge["lag"] is not None else "",
                     "combined_confidence": (
-                        edge.combined_confidence if edge.combined_confidence is not None else ""
+                        edge["combined_confidence"]
+                        if edge["combined_confidence"] is not None
+                        else ""
                     ),
-                    "graph_type": graph.graph_type.value,
-                    "sources": json.dumps([source.value for source in edge.sources]),
-                    "evidence_refs": json.dumps(edge.evidence_refs),
-                    "metadata_json": json.dumps(edge.metadata, sort_keys=True),
+                    "graph_type": edge["graph_type"],
+                    "sources": edge["sources"],
+                    "evidence_refs": edge["evidence_refs"],
+                    "metadata_json": edge["metadata_json"],
                 }
             )
 
@@ -172,7 +178,7 @@ def _import_kuzu():
     try:
         import kuzu
 
-    except Exception as exc:
+    except (ImportError, OSError) as exc:
         raise CausalGraphKuzuNotAvailableError("kuzu not available") from exc
     return kuzu
 
@@ -199,6 +205,8 @@ def _copy_kuzu_table(conn, table_name: str, csv_path: Path) -> None:
     try:
         conn.execute(f"COPY {table_name} FROM {path_sql} (HEADER=true);")
     except Exception as exc:
+        # COPY propagates backend-specific exceptions from the optional Kuzu
+        # dependency, so convert them into one stable IR-facing error.
         raise CausalGraphKuzuError(
             f"failed to import {table_name} into Kuzu from {csv_path}: {exc}"
         ) from exc
@@ -224,7 +232,7 @@ def _remove_tmp_files(paths: list[Path]) -> None:
         try:
             if path.exists():
                 path.unlink()
-        except Exception as exc:
+        except OSError as exc:
             logger.debug("Ignored exception: %s", exc)
 
 

@@ -3,26 +3,18 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
 from polisyos.common.logger import get_logger
-
-logger = get_logger(__name__)
-
-try:  # pragma: no cover - optional dependency for local/dev environments
-    import jax
-    import jax.numpy as jnp
-except ModuleNotFoundError:  # pragma: no cover
-    jax = None  # type: ignore[assignment]
-    jnp = np  # type: ignore[assignment]
-
 from polisyos.common.serialization import to_python_data
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import ENTRY_POINT_GROUP_FOUNDRY_METHODS
 from polisyos.core.components.bootstrap import build_components_index
@@ -32,6 +24,57 @@ from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.governance.validation import ValidationIssue
 from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
+from polisyos.scientist.error_semantics import emit_degraded_path
+
+try:  # pragma: no cover - optional dependency for local/dev environments
+    import jax as _jax
+    import jax.numpy as _jnp
+except ModuleNotFoundError:  # pragma: no cover
+    jax: Any | None = None
+    jnp: Any = np
+else:  # pragma: no cover - exercised only when jax extra is installed
+    jax = _jax
+    jnp = _jnp
+
+logger = get_logger(__name__)
+_METHOD_REGISTRY_BOOTSTRAP_LOCK = threading.RLock()
+_RUNNER_DEGRADED_ERRORS = (
+    ArithmeticError,
+    AttributeError,
+    ImportError,
+    ModuleNotFoundError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+    from pathlib import Path
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+
+def _build_store(cas_root: Path) -> ArtifactStore:
+    return cast(
+        "ArtifactStore",
+        build_artifact_store(ArtifactStoreConfig(backend="filesystem", root=str(cas_root))),
+    )
+
+
+def _require_filesystem_store(store: ArtifactStore, *, operation: str) -> FileSystemCAS:
+    if isinstance(store, FileSystemCAS):
+        return store
+    raise TypeError(f"{operation} requires a filesystem-backed artifact store")
+
+
+def _get_method_registry() -> MethodRegistry:
+    return MethodRegistry.get_instance()
+
+
+def _get_method_dispatcher() -> MethodDispatcher:
+    return MethodDispatcher.get_instance()
 
 
 @dataclass
@@ -47,6 +90,42 @@ class MethodExecutionArtifacts:
     """Method execution artifacts public type."""
     result_ref: ArtifactRef
     evidence_ref: ArtifactRef
+
+
+@dataclass(frozen=True)
+class MethodRuntimeProviders:
+    """Injected runtime providers for method execution orchestration."""
+
+    registry_provider: Callable[[], MethodRegistry]
+    dispatcher_provider: Callable[[], MethodDispatcher]
+
+
+def resolve_method_runtime_providers(
+    *,
+    providers: MethodRuntimeProviders | None = None,
+    registry_provider: Callable[[], MethodRegistry] | None = None,
+    dispatcher_provider: Callable[[], MethodDispatcher] | None = None,
+) -> MethodRuntimeProviders:
+    """Resolve the effective method runtime providers for an execution path."""
+
+    if (
+        providers is not None
+        and registry_provider is None
+        and dispatcher_provider is None
+    ):
+        return providers
+    return MethodRuntimeProviders(
+        registry_provider=(
+            registry_provider
+            or (providers.registry_provider if providers is not None else None)
+            or _get_method_registry
+        ),
+        dispatcher_provider=(
+            dispatcher_provider
+            or (providers.dispatcher_provider if providers is not None else None)
+            or _get_method_dispatcher
+        ),
+    )
 
 
 class RunnerBackend:
@@ -68,6 +147,13 @@ class RunnerBackend:
 class LocalBackend(RunnerBackend):
     """Local execution using FileSystemCAS and Foundry executor."""
 
+    def __init__(
+        self,
+        *,
+        store_factory: Callable[[Path], ArtifactStore] | None = None,
+    ) -> None:
+        self._store_factory = store_factory or _build_store
+
     def run(
         self,
         *,
@@ -83,7 +169,10 @@ class LocalBackend(RunnerBackend):
             execute_program_graph,
         )
 
-        store = FileSystemCAS(cas_root)
+        store = _require_filesystem_store(
+            self._store_factory(cas_root),
+            operation="scientist.compute.LocalBackend.run",
+        )
         exec_artifacts = execute_program_graph(
             store,
             program_ref=program_ref,
@@ -116,6 +205,23 @@ class LocalBackend(RunnerBackend):
 class MethodBackend:
     """Backend for method-based jobs via foundry.methods dispatcher."""
 
+    def __init__(
+        self,
+        *,
+        store_factory: Callable[[Path], ArtifactStore] | None = None,
+        providers: MethodRuntimeProviders | None = None,
+        registry_provider: Callable[[], MethodRegistry] | None = None,
+        dispatcher_provider: Callable[[], MethodDispatcher] | None = None,
+    ) -> None:
+        self._store_factory = store_factory or _build_store
+        self._providers = resolve_method_runtime_providers(
+            providers=providers,
+            registry_provider=registry_provider,
+            dispatcher_provider=dispatcher_provider,
+        )
+        self._registry_provider = self._providers.registry_provider
+        self._dispatcher_provider = self._providers.dispatcher_provider
+
     def run(
         self,
         *,
@@ -127,27 +233,31 @@ class MethodBackend:
         seed: int,
         input_refs: Mapping[str, ArtifactRef] | None = None,
     ) -> ExecutionResult:
-        store = FileSystemCAS(cas_root)
-        registry = MethodRegistry.get_instance()
+        store = self._store_factory(cas_root)
+        registry = self._registry_provider()
         resolved_name = method_fqn
         if method_version and "@" not in method_fqn:
             resolved_name = f"{method_fqn}@{method_version}"
         try:
             method_class = registry.get(resolved_name, version=method_version)
         except MethodNotFoundError:
-            components_index, _ = build_components_index(
-                groups=[ENTRY_POINT_GROUP_FOUNDRY_METHODS],
-                include_dev_scan=False,
-            )
-            bootstrap_method_registry_from_components(
-                components_index,
-                registry,
-                resolution_policy=registry.get_default_policy(),
-            )
-            method_class = registry.get(resolved_name, version=method_version)
+            with _METHOD_REGISTRY_BOOTSTRAP_LOCK:
+                try:
+                    method_class = registry.get(resolved_name, version=method_version)
+                except MethodNotFoundError:
+                    components_index, _ = build_components_index(
+                        groups=[ENTRY_POINT_GROUP_FOUNDRY_METHODS],
+                        include_dev_scan=False,
+                    )
+                    bootstrap_method_registry_from_components(
+                        components_index,
+                        registry,
+                        resolution_policy=registry.get_default_policy(),
+                    )
+                    method_class = registry.get(resolved_name, version=method_version)
         signature = method_class.signature
 
-        dispatcher = MethodDispatcher.get_instance()
+        dispatcher = self._dispatcher_provider()
         method_result = dispatcher.dispatch(
             method_class=method_class,
             signature=signature,
@@ -163,7 +273,7 @@ class MethodBackend:
 
         result_ref = store.put_json(
             result_payload,
-            PutOptions(
+            ArtifactWriteOptions(
                 kind=f"scientist.method_result.{signature.namespace}",
                 media_type="application/json",
                 schema=SchemaInfo(
@@ -178,7 +288,7 @@ class MethodBackend:
         evidence_payload = {
             "method_fqn": signature.fqn,
             "backend": signature.backend.value,
-            "execution_backend": signature.execution_backend.value,
+            "execution_backend": getattr(signature, "execution_backend", signature.backend).value,
             "timing": {
                 "wall_time_ms": method_result.timing.wall_time_ms,
                 "cpu_time_ms": method_result.timing.cpu_time_ms,
@@ -204,7 +314,7 @@ class MethodBackend:
         }
         evidence_ref = store.put_json(
             evidence_payload,
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="scientist.method_evidence",
                 media_type="application/json",
                 schema=SchemaInfo(
@@ -226,24 +336,50 @@ class MethodBackend:
         )
 
 
-def resolve_backend(kind: str | None) -> RunnerBackend:
+def resolve_backend(
+    kind: str | None,
+    *,
+    store_factory: Callable[[Path], ArtifactStore] | None = None,
+) -> RunnerBackend:
     """Resolve backend."""
     backend_kind = (kind or os.getenv("POLISYOS_RUNNER_BACKEND") or "local").lower()
     if backend_kind != "local":
         raise ValueError(
             f"Unsupported runner backend '{backend_kind}'. Only 'local' is available."
         )
-    return LocalBackend()
+    return LocalBackend(store_factory=store_factory)
 
 
-def _issue_payload(loc: list[Any], message: str, error_type: str, input_value: Any = None) -> dict:
+def _issue_payload(
+    loc: list[Any],
+    message: str,
+    error_type: str,
+    input_value: Any = None,
+) -> dict[str, Any]:
     issue = ValidationIssue(
         loc=loc,
         message=message,
         error_type=error_type,
         input_value=input_value,
     )
-    return issue.model_dump()
+    return cast("dict[str, Any]", issue.model_dump())
+
+
+def _runner_degraded(
+    *,
+    operation: str,
+    reason: str,
+    exc: BaseException,
+    details: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return emit_degraded_path(
+        component="compute.runner",
+        operation=operation,
+        reason=reason,
+        exc=exc,
+        details=details,
+        log=logger,
+    )
 
 
 def _summarize_state(state: Any) -> dict[str, Any]:
@@ -253,21 +389,41 @@ def _summarize_state(state: Any) -> dict[str, Any]:
     try:
         summary["avg_income"] = float(jnp.mean(state.agents.income))
         summary["n_agents"] = int(state.agents.income.shape[0])
-    except Exception as exc:
-        logger.debug("Ignored exception: %s", exc)
+    except _RUNNER_DEGRADED_ERRORS as exc:
+        _runner_degraded(
+            operation="summarize_state",
+            reason="summary_field_unavailable",
+            exc=exc,
+            details={"field": "avg_income"},
+        )
     try:
         summary["gov_balance"] = float(state.government_balance)
-    except Exception as exc:
-        logger.debug("Ignored exception: %s", exc)
+    except _RUNNER_DEGRADED_ERRORS as exc:
+        _runner_degraded(
+            operation="summarize_state",
+            reason="summary_field_unavailable",
+            exc=exc,
+            details={"field": "gov_balance"},
+        )
     try:
         summary["step"] = int(state.step)
-    except Exception as exc:
-        logger.debug("Ignored exception: %s", exc)
+    except _RUNNER_DEGRADED_ERRORS as exc:
+        _runner_degraded(
+            operation="summarize_state",
+            reason="summary_field_unavailable",
+            exc=exc,
+            details={"field": "step"},
+        )
     return summary
 
 
-def _load_input_refs(cas_root: Path, input_refs: Mapping[str, ArtifactRef]) -> Any:
-    store = FileSystemCAS(cas_root)
+def _load_input_refs(
+    cas_root: Path,
+    input_refs: Mapping[str, ArtifactRef],
+    *,
+    store_factory: Callable[[Path], ArtifactStore] | None = None,
+) -> Any:
+    store = (store_factory or _build_store)(cas_root)
     loaded: dict[str, Any] = {}
     for slot_name, ref in input_refs.items():
         payload = store.get_bytes(ref.artifact_id)
@@ -283,6 +439,7 @@ def _run_legacy_job(
     registry_content: Any,
     base_state: Any,
     cas_root: Path | None,
+    store_factory: Callable[[Path], ArtifactStore] | None = None,
 ) -> JobResult:
     issues: list[dict[str, Any]] = []
     if cas_root is None:
@@ -296,17 +453,29 @@ def _run_legacy_job(
     if spec.program_ref is None:
         issues.append(_issue_payload(["job_spec", "program_ref"], "program_ref missing", "runtime"))
 
-    store = FileSystemCAS(cas_root) if cas_root is not None else None
+    store = (store_factory or _build_store)(cas_root) if cas_root is not None else None
     if base_state is None and store is not None and spec.state_snapshot_ref is not None:
         try:
             from polisyos.foundry.executor import load_state_snapshot
 
-
-            base_state = load_state_snapshot(store, snapshot_ref=spec.state_snapshot_ref)
-        except Exception as exc:
+            filesystem_store = _require_filesystem_store(
+                store,
+                operation="scientist.compute.run_job.load_state_snapshot",
+            )
+            base_state = load_state_snapshot(filesystem_store, snapshot_ref=spec.state_snapshot_ref)
+        except _RUNNER_DEGRADED_ERRORS as exc:
+            envelope = _runner_degraded(
+                operation="load_state_snapshot",
+                reason="artifact_load_failed",
+                exc=exc,
+                details={"artifact_ref": str(spec.state_snapshot_ref.artifact_id)},
+            )
             issues.append(
                 _issue_payload(
-                    ["state_snapshot_ref"], f"Failed to load snapshot: {exc}", "runtime"
+                    ["state_snapshot_ref"],
+                    f"Failed to load snapshot: {exc}",
+                    "runtime",
+                    input_value=envelope,
                 )
             )
 
@@ -318,38 +487,59 @@ def _run_legacy_job(
     if issues:
         return JobResult(job_key=job_key, issues=issues, warnings=["missing inputs for execution"])
 
+    resolved_cas_root = cas_root
+    program_ref = spec.program_ref
+    exec_plan_ref = spec.exec_plan_ref
+    if resolved_cas_root is None:
+        raise RuntimeError("cas_root must be present after validation")
+    if program_ref is None or exec_plan_ref is None:
+        raise RuntimeError("program_ref and exec_plan_ref must be present after validation")
+
     try:
         cpu_device = None
         prefer_cpu = False
         if jax is not None:
             try:
                 cpu_device = jax.devices("cpu")[0]
-            except Exception:
+            except _RUNNER_DEGRADED_ERRORS as exc:
+                _runner_degraded(
+                    operation="resolve_cpu_device",
+                    reason="device_probe_failed",
+                    exc=exc,
+                )
                 cpu_device = None
             try:
                 prefer_cpu = any(device.platform == "metal" for device in jax.devices())
-            except Exception:
+            except _RUNNER_DEGRADED_ERRORS as exc:
+                _runner_degraded(
+                    operation="detect_preferred_device",
+                    reason="device_probe_failed",
+                    exc=exc,
+                )
                 prefer_cpu = False
         if cpu_device is not None and prefer_cpu:
-            with jax.default_device(cpu_device):
+            jax_module = jax
+            if jax_module is None:
+                raise RuntimeError("jax runtime disappeared during backend execution")
+            with jax_module.default_device(cpu_device):
                 result = backend.run(
-                    cas_root=cas_root,
-                    program_ref=spec.program_ref,
-                    exec_plan_ref=spec.exec_plan_ref,
+                    cas_root=resolved_cas_root,
+                    program_ref=program_ref,
+                    exec_plan_ref=exec_plan_ref,
                     base_state=base_state,
                     registry_content=registry_content,
                     seed=spec.seed,
                 )
         else:
             result = backend.run(
-                cas_root=cas_root,
-                program_ref=spec.program_ref,
-                exec_plan_ref=spec.exec_plan_ref,
+                cas_root=resolved_cas_root,
+                program_ref=program_ref,
+                exec_plan_ref=exec_plan_ref,
                 base_state=base_state,
                 registry_content=registry_content,
                 seed=spec.seed,
             )
-    except Exception as exc:
+    except _RUNNER_DEGRADED_ERRORS as exc:
         error_type = "runtime"
         loc = ["runtime"]
         if str(exc).startswith("Constraint"):
@@ -403,7 +593,7 @@ def _run_legacy_job(
                 )
             summary_ref = store.put_json(
                 summary,
-                PutOptions(
+                ArtifactWriteOptions(
                     kind="scientist.simulation_results",
                     media_type="application/json",
                     schema=SchemaInfo(
@@ -438,6 +628,7 @@ def _run_method_job(
     method_state: Any,
     backend: MethodBackend,
     adapter_warnings: list[str] | None = None,
+    store_factory: Callable[[Path], ArtifactStore] | None = None,
 ) -> JobResult:
     issues: list[dict[str, Any]] = []
     if cas_root is None:
@@ -450,26 +641,50 @@ def _run_method_job(
     loaded_state = method_state
     if loaded_state is None and spec.input_refs and cas_root is not None:
         try:
-            loaded_state = _load_input_refs(cas_root, spec.input_refs)
-        except Exception as exc:
+            loaded_state = _load_input_refs(
+                cas_root,
+                spec.input_refs,
+                store_factory=store_factory,
+            )
+        except _RUNNER_DEGRADED_ERRORS as exc:
+            envelope = _runner_degraded(
+                operation="load_method_inputs",
+                reason="artifact_load_failed",
+                exc=exc,
+                details={"input_slots": sorted(spec.input_refs)},
+            )
             return JobResult(
                 job_key=job_key,
-                issues=[_issue_payload(["job_spec", "input_refs"], str(exc), "runtime")],
+                issues=[
+                    _issue_payload(
+                        ["job_spec", "input_refs"],
+                        str(exc),
+                        "runtime",
+                        input_value=envelope,
+                    )
+                ],
             )
     if loaded_state is None:
         loaded_state = {}
 
+    resolved_cas_root = cas_root
+    method_fqn = spec.method_fqn
+    if resolved_cas_root is None:
+        raise RuntimeError("cas_root must be present after validation")
+    if method_fqn is None:
+        raise RuntimeError("method_fqn must be present after validation")
+
     try:
         result = backend.run(
-            cas_root=cas_root,
-            method_fqn=spec.method_fqn,
+            cas_root=resolved_cas_root,
+            method_fqn=method_fqn,
             method_version=spec.method_version,
             input_state=loaded_state,
             method_params=spec.method_params,
             seed=spec.seed,
             input_refs=spec.input_refs,
         )
-    except Exception as exc:
+    except _RUNNER_DEGRADED_ERRORS as exc:
         return JobResult(
             job_key=job_key,
             issues=[_issue_payload(["method_runner"], str(exc), "runtime")],
@@ -478,9 +693,12 @@ def _run_method_job(
     artifacts = result.exec_artifacts
     warnings: list[str] = []
     warnings.extend(adapter_warnings or [])
-    if isinstance(result.final_state, dict):
-        if "warnings" in result.final_state and isinstance(result.final_state["warnings"], list):
-            warnings.extend(str(item) for item in result.final_state["warnings"])
+    if (
+        isinstance(result.final_state, dict)
+        and "warnings" in result.final_state
+        and isinstance(result.final_state["warnings"], list)
+    ):
+        warnings.extend(str(item) for item in result.final_state["warnings"])
 
     return JobResult(
         job_key=job_key,
@@ -500,6 +718,10 @@ def run_job(
     base_state: Any = None,
     cas_root: Path | None = None,
     method_state: Any = None,
+    store_factory: Callable[[Path], ArtifactStore] | None = None,
+    method_runtime_providers: MethodRuntimeProviders | None = None,
+    method_registry_provider: Callable[[], MethodRegistry] | None = None,
+    method_dispatcher_provider: Callable[[], MethodDispatcher] | None = None,
 ) -> JobResult:
     """
     Execute a job spec via either legacy program flow or method flow.
@@ -507,8 +729,21 @@ def run_job(
     job_key = JobKey.from_spec(spec)
 
     if spec.is_method_job:
-        adapter_warnings = _materialize_method_adapter(spec, cas_root=cas_root)
-        method_backend = backend if isinstance(backend, MethodBackend) else MethodBackend()
+        adapter_warnings = _materialize_method_adapter(
+            spec,
+            cas_root=cas_root,
+            store_factory=store_factory,
+        )
+        method_backend = (
+            backend
+            if isinstance(backend, MethodBackend)
+            else MethodBackend(
+                store_factory=store_factory,
+                providers=method_runtime_providers,
+                registry_provider=method_registry_provider,
+                dispatcher_provider=method_dispatcher_provider,
+            )
+        )
         return _run_method_job(
             spec,
             job_key=job_key,
@@ -516,9 +751,13 @@ def run_job(
             method_state=method_state,
             backend=method_backend,
             adapter_warnings=adapter_warnings,
+            store_factory=store_factory,
         )
 
-    legacy_backend = backend if backend is not None else resolve_backend(None)
+    legacy_backend = backend if backend is not None else resolve_backend(
+        None,
+        store_factory=store_factory,
+    )
     return _run_legacy_job(
         spec,
         job_key=job_key,
@@ -526,10 +765,16 @@ def run_job(
         registry_content=registry_content,
         base_state=base_state,
         cas_root=cas_root,
+        store_factory=store_factory,
     )
 
 
-def _materialize_method_adapter(spec: JobSpec, *, cas_root: Path | None) -> list[str]:
+def _materialize_method_adapter(
+    spec: JobSpec,
+    *,
+    cas_root: Path | None,
+    store_factory: Callable[[Path], ArtifactStore] | None = None,
+) -> list[str]:
     """
     Temporary bridge until all method runs execute through unified ProgramGraph.
 
@@ -539,7 +784,7 @@ def _materialize_method_adapter(spec: JobSpec, *, cas_root: Path | None) -> list
     if cas_root is None:
         return ["legacy_adapter_missing_cas_root"]
     try:
-        store = FileSystemCAS(cas_root)
+        store = (store_factory or _build_store)(cas_root)
         payload = {
             "adapter_version": "0.1.0",
             "job_kind": "method",
@@ -562,12 +807,18 @@ def _materialize_method_adapter(spec: JobSpec, *, cas_root: Path | None) -> list
         }
         ref = store.put_json(
             payload,
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="scientist.unified_dag_adapter",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.scientist.UnifiedDagAdapter", version="0.1.0"),
             ),
         )
         return [f"legacy_method_adapter_ref:{ref.artifact_id}"]
-    except Exception as exc:
-        return [f"legacy_method_adapter_failed:{exc}"]
+    except _RUNNER_DEGRADED_ERRORS as exc:
+        envelope = _runner_degraded(
+            operation="materialize_method_adapter",
+            reason="artifact_write_failed",
+            exc=exc,
+            details={"method_fqn": spec.method_fqn},
+        )
+        return [f"legacy_method_adapter_failed:{envelope['message']}"]

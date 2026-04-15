@@ -139,7 +139,7 @@ class OptimalPolicyLearner:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="policy_tree",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

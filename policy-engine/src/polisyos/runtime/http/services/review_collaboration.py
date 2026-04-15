@@ -13,10 +13,11 @@ from polisyos.common.logger import get_logger
 logger = get_logger(__name__)
 
 try:  # pragma: no cover - optional runtime dependency
+    WebSocket: Any
     from fastapi import WebSocket
 
 except ModuleNotFoundError:  # pragma: no cover
-    WebSocket = Any  # type: ignore[assignment]
+    WebSocket = Any
 
 
 ReviewChannel = Literal["review.cursor", "review.lock", "review.presence"]
@@ -85,8 +86,17 @@ class ReviewLockState:
 @dataclass(slots=True)
 class OutboundReviewMessage:
     """Outbound review message public type."""
+    channel: ReviewChannel
     payload: dict[str, Any]
-    recipients: list[WebSocket]
+    recipients: list["OutboundReviewRecipient"]
+    review_id: str
+
+
+@dataclass(slots=True)
+class OutboundReviewRecipient:
+    """A specific websocket recipient plus its registered collaboration session ID."""
+    session_id: str
+    websocket: WebSocket
 
 
 class ReviewCollaborationHub:
@@ -110,8 +120,10 @@ class ReviewCollaborationHub:
                 self._presence_sessions[session.review_id][session.session_id] = session
                 return [
                     OutboundReviewMessage(
+                        channel=session.channel,
                         payload=self._build_presence_snapshot_locked(session.review_id),
-                        recipients=self._recipients_locked(session.channel, session.review_id),
+                        recipients=self._recipient_entries_locked(session.channel, session.review_id),
+                        review_id=session.review_id,
                     )
                 ]
             if session.channel == "review.cursor":
@@ -126,15 +138,19 @@ class ReviewCollaborationHub:
                 )
                 return [
                     OutboundReviewMessage(
+                        channel=session.channel,
                         payload=self._build_cursor_snapshot_locked(session.review_id),
-                        recipients=[websocket],
+                        recipients=[OutboundReviewRecipient(session_id=session.session_id, websocket=websocket)],
+                        review_id=session.review_id,
                     )
                 ]
             self._clear_expired_lock_locked(session.review_id)
             return [
                 OutboundReviewMessage(
+                    channel=session.channel,
                     payload=self._build_lock_snapshot_locked(session.review_id),
-                    recipients=[websocket],
+                    recipients=[OutboundReviewRecipient(session_id=session.session_id, websocket=websocket)],
+                    review_id=session.review_id,
                 )
             ]
 
@@ -144,7 +160,10 @@ class ReviewCollaborationHub:
     ) -> list[OutboundReviewMessage]:
         messages: list[OutboundReviewMessage] = []
         async with self._guard:
-            self._subscribers[(session.channel, session.review_id)].pop(session.session_id, None)
+            subscribers = self._subscribers[(session.channel, session.review_id)]
+            subscribers.pop(session.session_id, None)
+            if not subscribers:
+                self._subscribers.pop((session.channel, session.review_id), None)
 
             if session.channel == "review.presence":
                 sessions = self._presence_sessions.get(session.review_id)
@@ -152,12 +171,14 @@ class ReviewCollaborationHub:
                     sessions.pop(session.session_id, None)
                     if not sessions:
                         self._presence_sessions.pop(session.review_id, None)
-                recipients = self._recipients_locked(session.channel, session.review_id)
+                recipients = self._recipient_entries_locked(session.channel, session.review_id)
                 if recipients:
                     messages.append(
                         OutboundReviewMessage(
+                            channel=session.channel,
                             payload=self._build_presence_snapshot_locked(session.review_id),
                             recipients=recipients,
+                            review_id=session.review_id,
                         )
                     )
 
@@ -167,22 +188,26 @@ class ReviewCollaborationHub:
                     cursors.pop(session.session_id, None)
                     if not cursors:
                         self._cursor_states.pop(session.review_id, None)
-                recipients = self._recipients_locked(session.channel, session.review_id)
+                recipients = self._recipient_entries_locked(session.channel, session.review_id)
                 if recipients:
                     messages.append(
                         OutboundReviewMessage(
+                            channel=session.channel,
                             payload=self._build_cursor_snapshot_locked(session.review_id),
                             recipients=recipients,
+                            review_id=session.review_id,
                         )
                     )
 
             elif self._release_lock_locked(session.review_id, session.session_id):
-                recipients = self._recipients_locked(session.channel, session.review_id)
+                recipients = self._recipient_entries_locked(session.channel, session.review_id)
                 if recipients:
                     messages.append(
                         OutboundReviewMessage(
+                            channel=session.channel,
                             payload=self._build_lock_snapshot_locked(session.review_id),
                             recipients=recipients,
+                            review_id=session.review_id,
                         )
                     )
 
@@ -222,8 +247,10 @@ class ReviewCollaborationHub:
                     return []
                 return [
                     OutboundReviewMessage(
+                        channel=session.channel,
                         payload=self._build_cursor_snapshot_locked(session.review_id),
-                        recipients=self._recipients_locked(session.channel, session.review_id),
+                        recipients=self._recipient_entries_locked(session.channel, session.review_id),
+                        review_id=session.review_id,
                     )
                 ]
 
@@ -231,20 +258,29 @@ class ReviewCollaborationHub:
 
             if message_type == "lock.release":
                 changed = self._release_lock_locked(session.review_id, session.session_id)
-                recipients = self._recipients_locked(session.channel, session.review_id)
+                recipients = self._recipient_entries_locked(session.channel, session.review_id)
                 if not recipients:
                     return []
                 if changed:
                     return [
                         OutboundReviewMessage(
+                            channel=session.channel,
                             payload=self._build_lock_snapshot_locked(session.review_id),
                             recipients=recipients,
+                            review_id=session.review_id,
                         )
                     ]
                 return [
                     OutboundReviewMessage(
+                        channel=session.channel,
                         payload=self._build_lock_snapshot_locked(session.review_id),
-                        recipients=[websocket],
+                        recipients=[
+                            OutboundReviewRecipient(
+                                session_id=session.session_id,
+                                websocket=websocket,
+                            )
+                        ],
+                        review_id=session.review_id,
                     )
                 ]
 
@@ -265,28 +301,66 @@ class ReviewCollaborationHub:
                 )
                 return [
                     OutboundReviewMessage(
+                        channel=session.channel,
                         payload=self._build_lock_snapshot_locked(session.review_id),
-                        recipients=self._recipients_locked(session.channel, session.review_id),
+                        recipients=self._recipient_entries_locked(session.channel, session.review_id),
+                        review_id=session.review_id,
                     )
                 ]
 
             return [
                 OutboundReviewMessage(
+                    channel=session.channel,
                     payload=self._build_lock_snapshot_locked(session.review_id),
-                    recipients=[websocket],
+                    recipients=[
+                        OutboundReviewRecipient(
+                            session_id=session.session_id,
+                            websocket=websocket,
+                        )
+                    ],
+                    review_id=session.review_id,
                 )
             ]
 
     async def dispatch(self, messages: list[OutboundReviewMessage]) -> None:
-        for message in messages:
+        pending = list(messages)
+        while pending:
+            message = pending.pop(0)
             if not message.recipients:
                 continue
-            for websocket in list(message.recipients):
+            failed_session_ids: list[str] = []
+            for recipient in list(message.recipients):
                 try:
-                    await websocket.send_json(message.payload)
+                    await recipient.websocket.send_json(message.payload)
                 except (AttributeError, RuntimeError, ValueError) as exc:
                     logger.debug("Failed to send review message: %s", exc)
-                    continue
+                    failed_session_ids.append(recipient.session_id)
+            if failed_session_ids:
+                pending.extend(
+                    await self._prune_failed_recipients(
+                        channel=message.channel,
+                        review_id=message.review_id,
+                        failed_session_ids=failed_session_ids,
+                    )
+                )
+
+    async def close(self) -> None:
+        """Close active sockets and clear in-memory collaboration state."""
+        async with self._guard:
+            recipients = [
+                websocket
+                for subscribers in self._subscribers.values()
+                for websocket in subscribers.values()
+            ]
+            self._subscribers.clear()
+            self._presence_sessions.clear()
+            self._cursor_states.clear()
+            self._locks.clear()
+        for websocket in recipients:
+            try:
+                await websocket.close(code=1012, reason="Runtime shutting down")
+            except (AttributeError, RuntimeError, ValueError):
+                continue
 
     @staticmethod
     def build_session(
@@ -325,8 +399,15 @@ class ReviewCollaborationHub:
         self._locks.pop(review_id, None)
         return True
 
-    def _recipients_locked(self, channel: ReviewChannel, review_id: str) -> list[WebSocket]:
-        return list(self._subscribers.get((channel, review_id), {}).values())
+    def _recipient_entries_locked(
+        self,
+        channel: ReviewChannel,
+        review_id: str,
+    ) -> list[OutboundReviewRecipient]:
+        return [
+            OutboundReviewRecipient(session_id=session_id, websocket=websocket)
+            for session_id, websocket in self._subscribers.get((channel, review_id), {}).items()
+        ]
 
     def _build_presence_snapshot_locked(self, review_id: str) -> dict[str, Any]:
         grouped: dict[str, dict[str, Any]] = {}
@@ -397,3 +478,75 @@ class ReviewCollaborationHub:
             "review_id": review_id,
             "type": "lock.snapshot",
         }
+
+    async def _prune_failed_recipients(
+        self,
+        *,
+        channel: ReviewChannel,
+        review_id: str,
+        failed_session_ids: list[str],
+    ) -> list[OutboundReviewMessage]:
+        failed = set(failed_session_ids)
+        if not failed:
+            return []
+
+        async with self._guard:
+            subscribers = self._subscribers.get((channel, review_id))
+            if subscribers is not None:
+                for session_id in failed:
+                    subscribers.pop(session_id, None)
+                if not subscribers:
+                    self._subscribers.pop((channel, review_id), None)
+
+            if channel == "review.presence":
+                sessions = self._presence_sessions.get(review_id)
+                if sessions is not None:
+                    for session_id in failed:
+                        sessions.pop(session_id, None)
+                    if not sessions:
+                        self._presence_sessions.pop(review_id, None)
+                recipients = self._recipient_entries_locked(channel, review_id)
+                if not recipients:
+                    return []
+                return [
+                    OutboundReviewMessage(
+                        channel=channel,
+                        payload=self._build_presence_snapshot_locked(review_id),
+                        recipients=recipients,
+                        review_id=review_id,
+                    )
+                ]
+
+            if channel == "review.cursor":
+                cursors = self._cursor_states.get(review_id)
+                if cursors is not None:
+                    for session_id in failed:
+                        cursors.pop(session_id, None)
+                    if not cursors:
+                        self._cursor_states.pop(review_id, None)
+                recipients = self._recipient_entries_locked(channel, review_id)
+                if not recipients:
+                    return []
+                return [
+                    OutboundReviewMessage(
+                        channel=channel,
+                        payload=self._build_cursor_snapshot_locked(review_id),
+                        recipients=recipients,
+                        review_id=review_id,
+                    )
+                ]
+
+            released = False
+            for session_id in failed:
+                released = self._release_lock_locked(review_id, session_id) or released
+            recipients = self._recipient_entries_locked(channel, review_id)
+            if not released or not recipients:
+                return []
+            return [
+                OutboundReviewMessage(
+                    channel=channel,
+                    payload=self._build_lock_snapshot_locked(review_id),
+                    recipients=recipients,
+                    review_id=review_id,
+                )
+            ]

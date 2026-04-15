@@ -30,7 +30,12 @@ class RunLockBackend(Protocol):
     """Backend that can acquire an exclusive run lock."""
 
     def acquire(
-        self, *, run_id: str, mode: str, force: bool = False
+        self,
+        *,
+        run_id: str,
+        mode: str,
+        force: bool = False,
+        owner_token: str | None = None,
     ) -> RunLockHandle:  # pragma: no cover - protocol
         ...
 

@@ -44,7 +44,9 @@ Usage:
 from __future__ import annotations
 
 import contextvars
+import logging
 import threading
+from collections import deque
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import cmp_to_key
@@ -78,14 +80,16 @@ except ImportError:  # pragma: no cover
     _STRUCTLOG_AVAILABLE = False
     _log = None  # type: ignore[assignment]
 
+_FALLBACK_LOG = logging.getLogger(__name__)
+
 
 def _registry_log(event: str, **kwargs: object) -> None:
     """Emit a structured log event if structlog is available."""
     if _STRUCTLOG_AVAILABLE and _log is not None:
         try:
             _log.info(event, **kwargs)
-        except Exception:
-            pass  # never let logging break the registry
+        except (RuntimeError, TypeError, ValueError) as exc:
+            _FALLBACK_LOG.debug("registry_structlog_failed event=%s error=%s", event, exc)
 
 
 # ---------------------------------------------------------------------------
@@ -117,9 +121,12 @@ class RegistryAuditLog:
     ``lazy_load`` call with caller information for post-mortem analysis.
     """
 
-    def __init__(self) -> None:
-        self._events: list[RegistryAuditEvent] = []
+    DEFAULT_MAX_EVENTS = 1024
+
+    def __init__(self, *, max_events: int = DEFAULT_MAX_EVENTS) -> None:
+        self._events: deque[RegistryAuditEvent] = deque(maxlen=max_events)
         self._lock = threading.Lock()
+        self._max_events = max_events
 
     def record(
         self,
@@ -174,6 +181,10 @@ class RegistryAuditLog:
         with self._lock:
             return len(self._events)
 
+    @property
+    def max_events(self) -> int:
+        return self._max_events
+
 
 # Process-wide audit log singleton
 _AUDIT_LOG = RegistryAuditLog()
@@ -194,6 +205,7 @@ from polisyos.foundry.methods.resolution import (
 
 __all__ = [
     "MethodEntry",
+    "RegistrySnapshotEntry",
     "MethodRegistry",
     "RegistrySnapshot",
     "RegistryAuditEvent",
@@ -205,6 +217,24 @@ __all__ = [
 ]
 
 MethodFactory = Callable[[], type[FoundryMethod]]
+
+
+def _normalize_import_target(
+    import_target: tuple[str, str] | str | None,
+) -> tuple[str | None, str | None]:
+    """Normalize persisted import target metadata for eager and lazy entries."""
+    if import_target is None:
+        return None, None
+    if isinstance(import_target, tuple):
+        module, qualname = import_target
+        return str(module), str(qualname)
+    if ":" in import_target:
+        module, qualname = import_target.split(":", 1)
+        return module or None, qualname or None
+    if "." in import_target:
+        module, qualname = import_target.rsplit(".", 1)
+        return module or None, qualname or None
+    return None, None
 
 
 @dataclass(slots=True)
@@ -230,12 +260,59 @@ class MethodEntry:
     factory: MethodFactory
     loaded: bool = False
     _cached_class: type[FoundryMethod] | None = field(default=None, repr=False)
+    import_module: str | None = None
+    import_qualname: str | None = None
     lifecycle_log: LifecycleLog = field(default_factory=LifecycleLog, repr=False)
+    load_lock: threading.Lock = field(
+        default_factory=threading.Lock,
+        repr=False,
+        compare=False,
+    )
 
     @property
     def fqn(self) -> str:
         """Convenience accessor for entry's FQN."""
         return self.signature.fqn
+
+    @property
+    def persistable_import_target(self) -> tuple[str, str] | None:
+        """Return the import target needed to restore this entry from cache."""
+        if self.import_module and self.import_qualname:
+            return self.import_module, self.import_qualname
+        if self._cached_class is not None:
+            return self._cached_class.__module__, self._cached_class.__qualname__
+        return None
+
+
+@dataclass(frozen=True, slots=True)
+class RegistrySnapshotEntry:
+    """Immutable registry snapshot row safe to hand to cache/docs code."""
+
+    signature: MethodSignature
+    metadata: MethodMetadata
+    loaded: bool
+    import_module: str | None = None
+    import_qualname: str | None = None
+
+    @property
+    def fqn(self) -> str:
+        return self.signature.fqn
+
+    @property
+    def persistable_import_target(self) -> tuple[str, str] | None:
+        if self.import_module and self.import_qualname:
+            return self.import_module, self.import_qualname
+        return None
+
+    @classmethod
+    def from_entry(cls, entry: MethodEntry) -> "RegistrySnapshotEntry":
+        return cls(
+            signature=entry.signature,
+            metadata=entry.metadata,
+            loaded=bool(entry.loaded),
+            import_module=entry.import_module,
+            import_qualname=entry.import_qualname,
+        )
 
 
 class _MethodEntryStore(BaseRegistry[str, MethodEntry]):
@@ -272,7 +349,7 @@ class RegistrySnapshot:
 
     __slots__ = ("_methods", "_timestamp")
 
-    def __init__(self, methods: Mapping[str, MethodEntry], timestamp: float) -> None:
+    def __init__(self, methods: Mapping[str, RegistrySnapshotEntry], timestamp: float) -> None:
         self._methods = dict(methods)
         self._timestamp = timestamp
 
@@ -291,6 +368,11 @@ class RegistrySnapshot:
         """Iterate over all signatures in deterministic order."""
         for fqn in sorted(self._methods.keys()):
             yield self._methods[fqn].signature
+
+    def entries(self) -> Iterator[RegistrySnapshotEntry]:
+        """Iterate over immutable snapshot entries in deterministic order."""
+        for fqn in sorted(self._methods.keys()):
+            yield self._methods[fqn]
 
 
 class MethodRegistry:
@@ -388,11 +470,13 @@ class MethodRegistry:
         """
         if not isinstance(policy, ResolutionPolicy):
             raise TypeError(f"Expected ResolutionPolicy, got {type(policy).__name__}")
-        self._default_policy = policy
+        with self._reg_lock:
+            self._default_policy = policy
 
     def get_default_policy(self) -> ResolutionPolicy:
         """Get the current default resolution policy."""
-        return self._default_policy
+        with self._reg_lock:
+            return self._default_policy
 
     # ---------------------------------------------------------------------
     # Registration
@@ -446,6 +530,8 @@ class MethodRegistry:
                 factory=lambda cls=method_class: cls,
                 loaded=True,
                 _cached_class=method_class,
+                import_module=method_class.__module__,
+                import_qualname=method_class.__qualname__,
                 lifecycle_log=log,
             )
 
@@ -474,6 +560,7 @@ class MethodRegistry:
         factory: MethodFactory,
         *,
         override: bool = False,
+        import_target: tuple[str, str] | str | None = None,
     ) -> str:
         """
         Register a method for lazy loading.
@@ -494,6 +581,7 @@ class MethodRegistry:
             raise TypeError(f"factory must be callable, got {type(factory).__name__}")
 
         fqn = signature.fqn
+        import_module, import_qualname = _normalize_import_target(import_target)
 
         with self._reg_lock:
             log = LifecycleLog()
@@ -504,6 +592,8 @@ class MethodRegistry:
                 factory=factory,
                 loaded=False,
                 _cached_class=None,
+                import_module=import_module,
+                import_qualname=import_qualname,
                 lifecycle_log=log,
             )
 
@@ -590,7 +680,7 @@ class MethodRegistry:
         - Short name lookup with version resolution
         - Base name (namespace.name) with version resolution
         """
-        policy = policy or self._default_policy
+        policy = policy or self.get_default_policy()
 
         if "@" in name:
             with self._reg_lock:
@@ -678,18 +768,22 @@ class MethodRegistry:
     def _load_entry(self, entry: MethodEntry) -> type[FoundryMethod]:
         """
         Load a method entry, triggering lazy loading if needed.
-
-        Uses double-checked locking for thread safety.
         """
-        if entry.loaded:
-            return entry._cached_class  # type: ignore[return-value]
-
-        with self._reg_lock:
+        with entry.load_lock:
             if not entry.loaded:
-                entry._cached_class = entry.factory()
-                entry.loaded = True
+                method_class = entry.factory()
+                with self._reg_lock:
+                    entry._cached_class = method_class
+                    entry.loaded = True
+                    self._touch_modified()
+                _AUDIT_LOG.record(
+                    "lazy_load",
+                    entry.fqn,
+                    backend=entry.signature.backend.value,
+                    lazy=True,
+                )
 
-        return entry._cached_class  # type: ignore[return-value]
+            return entry._cached_class  # type: ignore[return-value]
 
     # ---------------------------------------------------------------------
     # Queries
@@ -845,7 +939,10 @@ class MethodRegistry:
         """
         with self._reg_lock:
             return RegistrySnapshot(
-                methods=dict(self._entries.items()),
+                methods={
+                    fqn: RegistrySnapshotEntry.from_entry(entry)
+                    for fqn, entry in self._entries.items()
+                },
                 timestamp=self._last_modified,
             )
 

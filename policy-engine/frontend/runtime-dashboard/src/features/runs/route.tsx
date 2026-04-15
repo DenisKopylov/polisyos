@@ -22,7 +22,10 @@ import {
   type RunDetailLegacySearchParams,
   type RunsListSearchParams,
 } from "@/features/runs/domain/searchParams";
-import type { RunDetailTab } from "@/features/runs/routes/useRunDetailSummary";
+import {
+  RUN_DETAIL_TAB_REGISTRY,
+  type RunDetailTab,
+} from "@/features/runs/domain/runDetailTabs";
 
 const RunsListPage = lazy(() => import("@/features/runs/routes/RunsListPage"));
 const RunComparePage = lazy(
@@ -36,6 +39,9 @@ const RunReportPage = lazy(
 );
 const RunOverviewTab = lazy(
   () => import("@/features/runs/routes/tabs/OverviewTab"),
+);
+const RunCausalTab = lazy(
+  () => import("@/features/runs/routes/tabs/CausalTab"),
 );
 const RunGovernanceTab = lazy(
   () => import("@/features/runs/routes/tabs/GovernanceTab"),
@@ -53,6 +59,17 @@ const RunAgentsTab = lazy(
   () => import("@/features/runs/routes/tabs/AgentsTab"),
 );
 const RunDebugTab = lazy(() => import("@/features/runs/routes/tabs/DebugTab"));
+
+const RUN_TAB_COMPONENTS = {
+  agents: RunAgentsTab,
+  artifacts: RunArtifactsTab,
+  causal: RunCausalTab,
+  debug: RunDebugTab,
+  evidence: RunEvidenceTab,
+  governance: RunGovernanceTab,
+  overview: RunOverviewTab,
+  workflow: RunWorkflowTab,
+} satisfies Record<RunDetailTab, AppRouteModule["Component"]>;
 
 type RunRouteHrefInput = { runId: string };
 type RunTabRouteHrefInput = RunRouteHrefInput & { tab?: RunDetailTab };
@@ -107,18 +124,17 @@ export const runDetailLoader = createRunDetailLoader(
 );
 
 function createRunTabRoute(
-  routeId: string,
-  path: RunDetailTab,
+  tab: (typeof RUN_DETAIL_TAB_REGISTRY)[number],
   Component: AppRouteModule["Component"],
 ) {
   return {
-    path,
-    loader: createRunTabLoader(path),
+    path: tab.key,
+    loader: createRunTabLoader(tab.key),
     handle: {
       buildHref: (input?: RunRouteHrefInput) =>
-        buildRunDetailHref(input?.runId ?? "", path),
+        buildRunDetailHref(input?.runId ?? "", tab.key),
       parseSearch: parseRunDetailLegacySearchParams,
-      routeId,
+      routeId: tab.routeId,
       workspaceKey: "runsDecisions",
     },
     element: (
@@ -171,13 +187,9 @@ export const runsRoutes: RouteObject[] = [
     ),
     children: [
       { index: true, element: <Navigate replace to="overview" /> },
-      createRunTabRoute("runs.tab.overview", "overview", RunOverviewTab),
-      createRunTabRoute("runs.tab.governance", "governance", RunGovernanceTab),
-      createRunTabRoute("runs.tab.evidence", "evidence", RunEvidenceTab),
-      createRunTabRoute("runs.tab.workflow", "workflow", RunWorkflowTab),
-      createRunTabRoute("runs.tab.artifacts", "artifacts", RunArtifactsTab),
-      createRunTabRoute("runs.tab.agents", "agents", RunAgentsTab),
-      createRunTabRoute("runs.tab.debug", "debug", RunDebugTab),
+      ...RUN_DETAIL_TAB_REGISTRY.map((tab) =>
+        createRunTabRoute(tab, RUN_TAB_COMPONENTS[tab.key]),
+      ),
     ],
   },
 ];

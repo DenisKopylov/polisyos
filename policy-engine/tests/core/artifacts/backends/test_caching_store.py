@@ -1,15 +1,13 @@
 """Tests for CachingArtifactStore."""
 from __future__ import annotations
 
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-
+from polisyos.core.artifacts.store import PutOptions
 
 _FAKE_ID = "sha256:" + "aa" * 32
 
@@ -47,6 +45,24 @@ class TestCachingArtifactStore:
         assert result == b"remote-data"
         remote.get_bytes.assert_called_once_with(_FAKE_ID)
 
+    def test_get_bytes_cache_population_failure_can_raise(self):
+        """Cache population degradation is explicit when policy is `raise`."""
+        local = MagicMock()
+        remote = MagicMock()
+        local.get_bytes.side_effect = KeyError("not found")
+        local.put_bytes.side_effect = OSError("cache disk unavailable")
+        remote.get_bytes.return_value = b"remote-data"
+        remote.get_manifest.return_value = MagicMock(kind="test", media_type="text/plain")
+
+        store = CachingArtifactStore(
+            remote=remote,
+            local=local,
+            cache_population_failure_policy="raise",
+        )
+
+        with pytest.raises(OSError, match="cache disk unavailable"):
+            store.get_bytes(_FAKE_ID)
+
     def test_put_bytes_write_through(self):
         """Write-through: writes to both local and remote."""
         local = MagicMock()
@@ -56,7 +72,7 @@ class TestCachingArtifactStore:
 
         store = CachingArtifactStore(remote=remote, local=local, write_through=True)
         opts = PutOptions(kind="test", media_type="text/plain")
-        ref = store.put_bytes(b"data", opts)
+        store.put_bytes(b"data", opts)
 
         local.put_bytes.assert_called_once()
         remote.put_bytes.assert_called_once()

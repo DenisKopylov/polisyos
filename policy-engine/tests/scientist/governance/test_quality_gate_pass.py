@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 from polisyos.core.governance.passes.base import IssueSeverity
-from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.ir.connectors import QualityTier
 from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
 
@@ -162,3 +161,22 @@ class TestQualityGatePassWithEvidenceBundle:
             assert "QUALITY_UNUSABLE" in codes
             unusable = next(i for i in issues if i.code == "QUALITY_UNUSABLE")
             assert unusable.severity is IssueSeverity.BLOCKER
+
+    def test_invalid_indicator_payload_emits_explicit_issue(
+        self,
+        pass_context_factory,
+        strict_profile,
+    ):
+        evidence_bundle = MagicMock()
+        evidence_bundle.quality_indicators = {"metric_a": {"invalid": True}}
+        evidence_bundle.sources = []
+
+        ctx = pass_context_factory(
+            state={"evidence_bundle": evidence_bundle},
+            profile=strict_profile,
+        )
+
+        issues = QualityGatePass().validate(ctx)
+
+        explicit = next(issue for issue in issues if issue.code == "QUALITY_INDICATORS_INVALID")
+        assert explicit.severity is IssueSeverity.WARNING

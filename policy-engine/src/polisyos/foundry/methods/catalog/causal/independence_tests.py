@@ -166,7 +166,7 @@ class HSICIndependenceTest:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="hsic",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -295,7 +295,7 @@ class KCIConditionalTest:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="kci",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -438,7 +438,7 @@ class PartialCorrelationTest:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="partial_correlation",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

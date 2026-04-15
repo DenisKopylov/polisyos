@@ -14,6 +14,7 @@ from typing import Mapping
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.fabric.finite import ensure_probability, finite_or_none
 from polisyos.ir.kernel.units import UnitRef
 
 from ._schema_types import Additivity, SchemaType, SemanticType
@@ -22,6 +23,7 @@ __all__ = [
     "FIELD_NAME_PATTERN",
     "FieldSpec",
     "SchemaVersion",
+    "normalize_unit_id",
 ]
 
 
@@ -91,7 +93,7 @@ class SchemaVersion:
 FIELD_NAME_PATTERN = r"^[a-z][a-z0-9_]*$"
 
 
-def _normalize_unit_id(value: str) -> str:
+def normalize_unit_id(value: str) -> str:
     value = value.strip().lower()
     value = value.replace("/", "_per_")
     value = value.replace(" ", "_")
@@ -199,11 +201,27 @@ class FieldSpec(BaseModel):
         if isinstance(v, Mapping):
             return UnitRef.model_validate(v)
         if isinstance(v, str):
-            unit_id = _normalize_unit_id(v)
+            unit_id = normalize_unit_id(v)
             if not unit_id:
                 return None
             return UnitRef(unit_id=unit_id)
         raise TypeError("unit must be UnitRef or str")
+
+    @field_validator("bounds", mode="before")
+    @classmethod
+    def _coerce_bounds(cls, value: object) -> tuple[float | None, float | None]:
+        if value is None:
+            return (None, None)
+        if not isinstance(value, (list, tuple)) or len(value) != 2:
+            raise ValueError("bounds must contain exactly two values")
+        min_val = finite_or_none(value[0], what="bounds min")
+        max_val = finite_or_none(value[1], what="bounds max")
+        return (min_val, max_val)
+
+    @field_validator("expected_completeness", mode="after")
+    @classmethod
+    def _validate_expected_completeness(cls, value: float) -> float:
+        return ensure_probability(value, what="expected_completeness")
 
     @model_validator(mode="after")
     def validate_element_type(self) -> FieldSpec:
@@ -317,10 +335,8 @@ class FieldSpec(BaseModel):
             max_bound = max(vals) if vals else None
 
         merged_allowed = None
-        if self.allowed_values or other.allowed_values:
-            a = self.allowed_values or frozenset()
-            b = other.allowed_values or frozenset()
-            merged_allowed = a | b if (a and b) else None
+        if self.allowed_values is not None and other.allowed_values is not None:
+            merged_allowed = self.allowed_values | other.allowed_values
 
         return FieldSpec(
             name=self.name,

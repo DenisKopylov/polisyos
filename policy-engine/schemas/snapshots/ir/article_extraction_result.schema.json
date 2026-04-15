@@ -67,7 +67,7 @@
     },
     "CausalClaim": {
       "additionalProperties": false,
-      "description": "Causal claim public type.",
+      "description": "Causal claim public type.\n\nDerived aliases are resolved in a payload-normalization step so validated\ninstances are no longer mutated by validators.",
       "properties": {
         "cause_variable": {
           "title": "Cause Variable",
@@ -1148,7 +1148,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Primary IR contract for literature extraction pipeline.",
+  "description": "Primary IR contract for literature extraction pipeline.\n\nLegacy field mirrors (`year` / `publication_year`) stay supported, but they\nare synchronized before instantiation instead of via instance mutation.",
   "properties": {
     "boundary_conditions": {
       "items": {

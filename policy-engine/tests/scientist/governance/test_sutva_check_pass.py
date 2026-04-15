@@ -67,3 +67,19 @@ def test_sutva_check_uses_report_risk_when_present() -> None:
 
     assert len(issues) == 1
     assert issues[0].code == "SUTVA_VIOLATION_RISK"
+
+
+def test_sutva_check_invalid_report_payload_emits_warning() -> None:
+    ctx = PassContext(
+        ir=None,
+        state={"causal_report": {"invalid": True}},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_sutva_invalid",
+    )
+
+    issues = SutvaCheckPass().validate(ctx)
+
+    assert len(issues) == 1
+    assert issues[0].code == "SUTVA_CAUSAL_REPORT_INVALID"
+    assert issues[0].severity == IssueSeverity.WARNING

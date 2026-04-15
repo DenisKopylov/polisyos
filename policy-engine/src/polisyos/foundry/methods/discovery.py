@@ -18,6 +18,7 @@ import importlib
 import importlib.metadata
 import inspect
 import sys
+import threading
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -400,6 +401,7 @@ class FileSystemSource:
         self._exclude_patterns = (
             exclude_patterns if exclude_patterns is not None else self.DEFAULT_EXCLUDE_PATTERNS
         )
+        self._state_lock = threading.RLock()
         self._loaded_modules: set[str] = set()
         self._errors: list[DiscoveryError] = []
         self._prefix_map: dict[Path, str] = {}
@@ -411,10 +413,12 @@ class FileSystemSource:
 
     @property
     def errors(self) -> list[DiscoveryError]:
-        return list(self._errors)
+        with self._state_lock:
+            return list(self._errors)
 
     def discover(self) -> Iterator[type[FoundryMethod]]:
-        self._errors.clear()
+        with self._state_lock:
+            self._errors.clear()
         for base_path in self._paths:
             if not base_path.exists():
                 _logger.debug("Skipping non-existent path: %s", base_path)
@@ -501,11 +505,14 @@ class FileSystemSource:
     def _load_module(self, path: Path, base: Path) -> ModuleType | None:
         module_name, prefix, import_root = self._module_name_for(path, base)
 
-        if module_name in self._loaded_modules:
+        with self._state_lock:
+            already_loaded = module_name in self._loaded_modules
+        if already_loaded:
             existing = sys.modules.get(module_name)
             if existing is not None:
                 return existing
-            self._loaded_modules.discard(module_name)
+            with self._state_lock:
+                self._loaded_modules.discard(module_name)
 
         self._ensure_prefix_package(prefix, import_root)
 
@@ -513,10 +520,12 @@ class FileSystemSource:
             module = importlib.import_module(module_name)
         except Exception:
             sys.modules.pop(module_name, None)
-            self._loaded_modules.discard(module_name)
+            with self._state_lock:
+                self._loaded_modules.discard(module_name)
             raise
 
-        self._loaded_modules.add(module_name)
+        with self._state_lock:
+            self._loaded_modules.add(module_name)
         return module
 
     def _module_name_for(self, path: Path, base: Path) -> tuple[str, str, Path]:
@@ -543,8 +552,9 @@ class FileSystemSource:
 
     def _prefix_for_base(self, base: Path) -> str:
         key = base.resolve()
-        if key in self._prefix_map:
-            return self._prefix_map[key]
+        with self._state_lock:
+            if key in self._prefix_map:
+                return self._prefix_map[key]
 
         prefix = discovery_module_name(
             key,
@@ -552,16 +562,19 @@ class FileSystemSource:
             algorithm="sha1",
             digest_length=10,
         )
-        self._prefix_map[key] = prefix
+        with self._state_lock:
+            self._prefix_map[key] = prefix
         return prefix
 
     def _is_base_package(self, base: Path) -> bool:
         key = base.resolve()
-        if key in self._base_is_package:
-            return self._base_is_package[key]
+        with self._state_lock:
+            if key in self._base_is_package:
+                return self._base_is_package[key]
 
         is_pkg = (key / "__init__.py").exists()
-        self._base_is_package[key] = is_pkg
+        with self._state_lock:
+            self._base_is_package[key] = is_pkg
         return is_pkg
 
     def _import_root(self, base: Path) -> Path:

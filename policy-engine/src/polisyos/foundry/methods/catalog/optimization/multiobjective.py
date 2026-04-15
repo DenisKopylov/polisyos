@@ -46,7 +46,7 @@ class MultiObjectiveNSGA2Estimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="multiobjective_nsga2",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

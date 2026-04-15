@@ -156,6 +156,7 @@ describe("run query hooks", () => {
           cursor: null,
           from_ts: null,
           limit: RUNS_SAMPLE_LIMIT,
+          q: null,
           status: null,
           to_ts: null,
         },
@@ -168,6 +169,32 @@ describe("run query hooks", () => {
       runsQueryOptions({ cursor: "cursor-2", limit: RUNS_SAMPLE_LIMIT })
         .staleTime,
     ).toBe(30_000);
+  });
+
+  it("includes the query filter in the request and cache key", async () => {
+    const getSpy = mockRuntimeGetSuccess(runsPayload);
+    const filters = { limit: 25, q: "policy", status: "completed" };
+    const { result } = renderHook(() => useRuns(filters), {
+      wrapper: createQueryHookWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.data?.runs).toHaveLength(1);
+    });
+
+    expect(getSpy).toHaveBeenCalledWith("/api/v1/runs", {
+      params: {
+        query: {
+          cursor: null,
+          from_ts: null,
+          limit: 25,
+          q: "policy",
+          status: "completed",
+          to_ts: null,
+        },
+      },
+    });
+    expect(runsQueryOptions(filters).queryKey).toEqual(queryKeys.runs(filters));
   });
 
   it("loads run details and derives retry/refetch policy from run state", async () => {

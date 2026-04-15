@@ -2,13 +2,23 @@
 
 from __future__ import annotations
 
-import time
 import threading
-from dataclasses import dataclass, field
+import time
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from polisyos.scientist.error_semantics import emit_degraded_path
+
 from .gateway_client import GatewayLLMClient, GatewayLLMResponse
+
+_FALLBACK_ROUTER_RUNTIME_ERRORS = (
+    OSError,
+    RuntimeError,
+    TimeoutError,
+    TypeError,
+    ValueError,
+)
 
 
 class EndpointHealth(str, Enum):
@@ -29,6 +39,8 @@ class EndpointConfig:
     priority: int = 0  # lower = higher priority
     timeout_s: float = 60.0
     max_retries: int = 1
+    preset: str | None = None
+    default_plugins: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass
@@ -52,15 +64,13 @@ class _EndpointState:
         if self.consecutive_failures >= self.failure_threshold:
             self.health = EndpointHealth.UNHEALTHY
 
-    def is_available(self) -> bool:
+    def is_available(self, now: float | None = None) -> bool:
+        """Return availability without mutating health state."""
         if self.health == EndpointHealth.HEALTHY:
             return True
         if self.health == EndpointHealth.UNHEALTHY:
-            elapsed = time.monotonic() - self.last_failure_time
-            if elapsed >= self.recovery_timeout_s:
-                self.health = EndpointHealth.DEGRADED
-                return True
-            return False
+            elapsed = (now if now is not None else time.monotonic()) - self.last_failure_time
+            return elapsed >= self.recovery_timeout_s
         # DEGRADED — allow one probe request
         return True
 
@@ -117,24 +127,50 @@ class FallbackRouter:
                 max_retries=cfg.max_retries,
                 provider_hint=cfg.provider_hint,
                 extra_headers=self._extra_headers,
+                preset=cfg.preset,
+                default_plugins=[dict(plugin) for plugin in cfg.default_plugins],
             )
             try:
                 response = await client.generate(**kwargs)
                 with self._lock:
                     state.record_success()
                 return response
-            except Exception as exc:
+            except _FALLBACK_ROUTER_RUNTIME_ERRORS as exc:
                 last_error = exc
                 with self._lock:
                     state.record_failure()
+                emit_degraded_path(
+                    component="scientist.llm.fallback_router",
+                    operation="generate",
+                    reason="endpoint_request_failed",
+                    exc=exc,
+                    details={
+                        "endpoint_url": cfg.url,
+                        "provider_hint": cfg.provider_hint,
+                        "priority": cfg.priority,
+                    },
+                )
+            finally:
+                await client.aclose()
 
         raise RuntimeError(
             "All LLM endpoints exhausted"
         ) from last_error
 
+    async def aclose(self) -> None:
+        """No-op close hook for TracedLLMClient compatibility."""
+        return None
+
     def _available_endpoints(self) -> list[_EndpointState]:
         with self._lock:
-            return [s for s in self._states if s.is_available()]
+            now = time.monotonic()
+            available: list[_EndpointState] = []
+            for state in self._states:
+                if state.health == EndpointHealth.UNHEALTHY and state.is_available(now):
+                    state.health = EndpointHealth.DEGRADED
+                if state.is_available(now):
+                    available.append(state)
+            return available
 
     def endpoint_health(self) -> list[dict[str, Any]]:
         """Return current health status of all endpoints."""

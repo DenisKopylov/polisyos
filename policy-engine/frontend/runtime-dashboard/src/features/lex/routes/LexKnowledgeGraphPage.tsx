@@ -18,7 +18,7 @@ import {
 } from "@/features/lex/domain/searchParams";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { DEFAULT_LEX_OUTPUT_DIR } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import {
   ApiErrorAlert,
   Button,
@@ -28,8 +28,8 @@ import {
   exportJson,
 } from "@/shared/ui";
 
-const DEFAULT_CARDS = "data/data_lex/edrnpa_cards_2026-02-08.xml";
-const DEFAULT_TEXTS = "data/data_lex/edrnpa_texts_2026-02-08.xml";
+const DEFAULT_CARDS = "data/data_lex/edrnpa_cards_2026-04-05.xml";
+const DEFAULT_TEXTS = "data/data_lex/edrnpa_texts_2026-04-05.xml";
 
 export default function LexKnowledgeGraph() {
   const { t } = useI18n();
@@ -74,14 +74,19 @@ export default function LexKnowledgeGraph() {
     setStages((prev) => ({ ...prev, [stage]: !prev[stage] }));
   }
 
-  function updateShareState(next: Partial<LexSearchParams>) {
+  function updateShareState(
+    next: Partial<LexSearchParams>,
+    options?: { replace?: boolean },
+  ) {
     const href = buildLexHref({
       outputDir: next.outputDir ?? outputDir,
       pipelineId: next.pipelineId ?? activePipelineId ?? undefined,
       q: (next.q ?? searchQuery) || undefined,
       resume: (next.resume ?? resume) || undefined,
     });
-    setSearchParams(new URL(href, "http://localhost").searchParams);
+    setSearchParams(new URL(href, "http://localhost").searchParams, {
+      replace: options?.replace ?? false,
+    });
   }
 
   function handleTrigger() {
@@ -278,7 +283,7 @@ export default function LexKnowledgeGraph() {
                 onChange={(e) => {
                   const value = e.target.value;
                   setOutputDir(value);
-                  updateShareState({ outputDir: value });
+                  updateShareState({ outputDir: value }, { replace: true });
                 }}
                 aria-label={t("pages.lex.outputDirectory")}
                 className="border-line bg-surface w-full rounded-lg border px-3 py-1.5 font-mono text-xs"
@@ -340,7 +345,7 @@ export default function LexKnowledgeGraph() {
                   onChange={() => {
                     const next = !resume;
                     setResume(next);
-                    updateShareState({ resume: next });
+                    updateShareState({ resume: next }, { replace: true });
                   }}
                   className="accent-accent"
                 />
@@ -425,7 +430,7 @@ export default function LexKnowledgeGraph() {
                         <span key={stage} className="text-xs">
                           <span className="text-muted">{stage}:</span>{" "}
                           <span className="font-semibold">
-                            {count.toLocaleString()}
+                            {formatNumber(count)}
                           </span>
                         </span>
                       ),
@@ -466,19 +471,19 @@ export default function LexKnowledgeGraph() {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="border-line bg-surface rounded-xl border p-3 text-center">
                 <p className="text-2xl font-bold">
-                  {statsQuery.data.total_entities.toLocaleString()}
+                  {formatNumber(statsQuery.data.total_entities)}
                 </p>
                 <p className="text-muted text-xs">{t("pages.lex.entities")}</p>
               </div>
               <div className="border-line bg-surface rounded-xl border p-3 text-center">
                 <p className="text-2xl font-bold">
-                  {statsQuery.data.total_facts.toLocaleString()}
+                  {formatNumber(statsQuery.data.total_facts)}
                 </p>
                 <p className="text-muted text-xs">{t("pages.lex.facts")}</p>
               </div>
               <div className="border-line bg-surface rounded-xl border p-3 text-center">
                 <p className="text-2xl font-bold">
-                  {statsQuery.data.total_provisions.toLocaleString()}
+                  {formatNumber(statsQuery.data.total_provisions)}
                 </p>
                 <p className="text-muted text-xs">
                   {t("pages.lex.provisions")}
@@ -513,7 +518,7 @@ export default function LexKnowledgeGraph() {
                             {predicate.predicate}
                           </td>
                           <td className="px-2 py-1 text-right">
-                            {predicate.count.toLocaleString()}
+                            {formatNumber(predicate.count)}
                           </td>
                         </tr>
                       ))}
@@ -535,7 +540,7 @@ export default function LexKnowledgeGraph() {
                       className="bg-text/5 rounded-lg px-2 py-1 font-mono text-[10px]"
                     >
                       {entityType.entityType}:{" "}
-                      {entityType.count.toLocaleString()}
+                      {formatNumber(entityType.count)}
                     </span>
                   ))}
                 </div>
@@ -559,7 +564,7 @@ export default function LexKnowledgeGraph() {
               onChange={(e) => {
                 const value = e.target.value;
                 setSearchQuery(value);
-                updateShareState({ q: value });
+                updateShareState({ q: value }, { replace: true });
               }}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder={t("pages.lex.searchPlaceholder")}

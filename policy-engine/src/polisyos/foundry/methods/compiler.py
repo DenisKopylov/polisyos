@@ -91,22 +91,44 @@ class CacheEntry:
     access_count: int = 0
 
 
+@dataclass(frozen=True, slots=True)
+class CacheToken:
+    """Snapshot of the cache generation used to detect stale publications."""
+
+    generation: int
+
+
 class CompilationCache:
     """
     Thread-safe LRU cache for compiled methods.
+
+    The cache exposes generation tokens so callers can detect when a global
+    invalidation happened while compilation was still in-flight. This lets hot
+    reload publish a new generation without swapping out the process-global
+    cache object underneath concurrent compilers.
     """
 
     def __init__(self, max_size: int = 1000):
-        self._cache: OrderedDict[str, CacheEntry] = OrderedDict()
+        self._cache: OrderedDict[tuple[int, str], CacheEntry] = OrderedDict()
         self._max_size = max_size
         self._lock = threading.RLock()
         self._hits = 0
         self._misses = 0
         self._evictions = 0
+        self._generation = 0
 
-    def get(self, spec: Specialization) -> CompiledMethod | None:
-        key = spec.cache_key
+    def current_token(self) -> CacheToken:
         with self._lock:
+            return CacheToken(self._generation)
+
+    def get(
+        self,
+        spec: Specialization,
+        *,
+        token: CacheToken | None = None,
+    ) -> CompiledMethod | None:
+        with self._lock:
+            key = self._cache_key(spec, token)
             if key in self._cache:
                 self._hits += 1
                 entry = self._cache[key]
@@ -117,9 +139,19 @@ class CompilationCache:
             self._misses += 1
             return None
 
-    def put(self, spec: Specialization, compiled: CompiledMethod) -> None:
-        key = spec.cache_key
+    def put(
+        self,
+        spec: Specialization,
+        compiled: CompiledMethod,
+        *,
+        token: CacheToken | None = None,
+    ) -> bool:
         with self._lock:
+            generation = self._resolve_generation(token)
+            if generation != self._generation:
+                return False
+
+            key = (generation, spec.cache_key)
             if key in self._cache:
                 self._cache[key] = CacheEntry(
                     compiled=compiled,
@@ -127,7 +159,7 @@ class CompilationCache:
                     access_count=1,
                 )
                 self._cache.move_to_end(key)
-                return
+                return True
 
             while len(self._cache) >= self._max_size:
                 self._cache.popitem(last=False)
@@ -138,14 +170,25 @@ class CompilationCache:
                 last_access=time.monotonic(),
                 access_count=1,
             )
+            return True
 
-    def contains(self, spec: Specialization) -> bool:
+    def contains(
+        self,
+        spec: Specialization,
+        *,
+        token: CacheToken | None = None,
+    ) -> bool:
         with self._lock:
-            return spec.cache_key in self._cache
+            return self._cache_key(spec, token) in self._cache
 
-    def invalidate(self, spec: Specialization) -> bool:
+    def invalidate(
+        self,
+        spec: Specialization,
+        *,
+        token: CacheToken | None = None,
+    ) -> bool:
         with self._lock:
-            key = spec.cache_key
+            key = self._cache_key(spec, token)
             if key in self._cache:
                 del self._cache[key]
                 return True
@@ -155,6 +198,24 @@ class CompilationCache:
         with self._lock:
             count = len(self._cache)
             self._cache.clear()
+            return count
+
+    def invalidate_all(self, *, reset_stats: bool = False) -> int:
+        """
+        Advance the cache generation and drop all entries atomically.
+
+        Unlike swapping the global cache instance, generation invalidation
+        preserves object identity for concurrent readers while preventing stale
+        compilations from publishing into the new generation.
+        """
+        with self._lock:
+            count = len(self._cache)
+            self._cache.clear()
+            self._generation += 1
+            if reset_stats:
+                self._hits = 0
+                self._misses = 0
+                self._evictions = 0
             return count
 
     @property
@@ -168,6 +229,7 @@ class CompilationCache:
                 "hits": self._hits,
                 "misses": self._misses,
                 "evictions": self._evictions,
+                "generation": self._generation,
                 "hit_rate": round(hit_rate, 4),
             }
 
@@ -176,6 +238,16 @@ class CompilationCache:
             self._hits = 0
             self._misses = 0
             self._evictions = 0
+
+    def _cache_key(
+        self,
+        spec: Specialization,
+        token: CacheToken | None,
+    ) -> tuple[int, str]:
+        return self._resolve_generation(token), spec.cache_key
+
+    def _resolve_generation(self, token: CacheToken | None) -> int:
+        return self._generation if token is None else token.generation
 
 
 # =============================================================================
@@ -196,10 +268,10 @@ def get_global_cache(max_size: int = 1000) -> CompilationCache:
 
 
 def reset_global_cache() -> None:
-    """Reset the global compilation cache (for testing)."""
-    global _global_cache
+    """Reset the global compilation cache generation (for testing)."""
     with _global_cache_lock:
-        _global_cache = None
+        if _global_cache is not None:
+            _global_cache.invalidate_all(reset_stats=True)
 
 
 # =============================================================================
@@ -218,13 +290,16 @@ def _normalize_dynamic_value(value: Any) -> Any:
     return value
 
 
+_RUNTIME_PARAM_NAMES = frozenset({"__seed__", "__rng__"})
+
+
 def _resolve_params(
     signature: MethodSignature,
     params: Mapping[str, Any] | None,
 ) -> tuple[dict[str, Any], dict[str, Any], tuple[str, ...]]:
     params = params or {}
     known = {p.name for p in signature.parameters}
-    unknown = set(params.keys()) - known
+    unknown = set(params.keys()) - known - _RUNTIME_PARAM_NAMES
     if unknown:
         raise ParameterValidationError(
             param_name=",".join(sorted(unknown)),
@@ -292,89 +367,105 @@ class MethodCompiler:
         """
         if sample_inputs is None:
             sample_inputs = {}
+        attempts = 0
 
-        method_class = self._registry.get(method_name)
-        sig = method_class.signature
+        while True:
+            token = self._cache.current_token()
+            method_class = self._registry.get(method_name)
+            sig = method_class.signature
 
-        combined_params: dict[str, Any] = {}
-        if params:
-            combined_params.update(params)
-        if static_params:
-            combined_params.update(static_params)
-        if dynamic_params:
-            combined_params.update(dynamic_params)
+            combined_params: dict[str, Any] = {}
+            if params:
+                combined_params.update(params)
+            if static_params:
+                combined_params.update(static_params)
+            if dynamic_params:
+                combined_params.update(dynamic_params)
 
-        static_values, dynamic_defaults, dynamic_names = _resolve_params(sig, combined_params)
+            static_values, dynamic_defaults, dynamic_names = _resolve_params(sig, combined_params)
 
-        spec = build_specialization(
-            method_fqn=sig.fqn,
-            static_params=static_values,
-            input_arrays=sample_inputs,
-            backend=backend,
-            jit_enabled=jit,
-            vmap_axis=vmap_axis,
-            donate_argnums=donate_argnums,
-        )
-
-        cached = self._cache.get(spec)
-        if cached is not None:
-            return cached
-
-        key = spec.cache_key
-        with self._inflight_lock:
-            flight = self._inflight.get(key)
-            if flight is None:
-                flight = _InFlight(event=threading.Event())
-                self._inflight[key] = flight
-                leader = True
-            else:
-                leader = False
-
-        if not leader:
-            flight.event.wait()
-            cached = self._cache.get(spec)
-            if cached is not None:
-                return cached
-            if flight.error is not None:
-                raise CompilationError(sig.fqn, str(flight.error))
-            raise CompilationError(sig.fqn, "Compilation failed in another thread")
-
-        start_time = time.monotonic()
-        try:
-            compiled_step = self._compile_method(
-                method_class=method_class,
-                signature=sig,
-                specialization=spec,
-                static_params=dict(static_values),
-                dynamic_defaults=dict(dynamic_defaults),
-                dynamic_names=dynamic_names,
-                jit=jit,
-                capture_hlo=capture_hlo,
+            spec = build_specialization(
+                method_fqn=sig.fqn,
+                static_params=static_values,
+                input_arrays=sample_inputs,
+                backend=backend,
+                jit_enabled=jit,
                 vmap_axis=vmap_axis,
                 donate_argnums=donate_argnums,
             )
-        except Exception as exc:
-            flight.error = exc
-            raise CompilationError(sig.fqn, str(exc)) from exc
-        finally:
+
+            cached = self._cache.get(spec, token=token)
+            if cached is not None:
+                return cached
+
+            flight_key = f"{token.generation}:{spec.cache_key}"
             with self._inflight_lock:
-                self._inflight.pop(key, None)
-                flight.event.set()
+                flight = self._inflight.get(flight_key)
+                if flight is None:
+                    flight = _InFlight(event=threading.Event())
+                    self._inflight[flight_key] = flight
+                    leader = True
+                else:
+                    leader = False
 
-        compile_time_ms = (time.monotonic() - start_time) * 1000
+            if not leader:
+                flight.event.wait()
+                cached = self._cache.get(spec, token=token)
+                if cached is not None:
+                    return cached
+                if flight.error is not None:
+                    raise CompilationError(sig.fqn, str(flight.error))
+                attempts += 1
+                if attempts >= 3:
+                    raise CompilationError(
+                        sig.fqn,
+                        "Compilation invalidated before publication",
+                    )
+                continue
 
-        compiled = CompiledMethod(
-            method_fqn=sig.fqn,
-            signature=sig,
-            specialization=spec,
-            step_fn=compiled_step,
-            dynamic_defaults=MappingProxyType(dict(dynamic_defaults)),
-            lowered_hlo=None,
-            compile_time_ms=compile_time_ms,
-        )
+            start_time = time.monotonic()
+            try:
+                compiled_step = self._compile_method(
+                    method_class=method_class,
+                    signature=sig,
+                    specialization=spec,
+                    static_params=dict(static_values),
+                    dynamic_defaults=dict(dynamic_defaults),
+                    dynamic_names=dynamic_names,
+                    jit=jit,
+                    capture_hlo=capture_hlo,
+                    vmap_axis=vmap_axis,
+                    donate_argnums=donate_argnums,
+                )
+            except Exception as exc:
+                flight.error = exc
+                raise CompilationError(sig.fqn, str(exc)) from exc
+            finally:
+                with self._inflight_lock:
+                    self._inflight.pop(flight_key, None)
+                    flight.event.set()
 
-        self._cache.put(spec, compiled)
-        return compiled
+            compile_time_ms = (time.monotonic() - start_time) * 1000
+
+            compiled = CompiledMethod(
+                method_fqn=sig.fqn,
+                signature=sig,
+                specialization=spec,
+                step_fn=compiled_step,
+                dynamic_defaults=MappingProxyType(dict(dynamic_defaults)),
+                lowered_hlo=None,
+                compile_time_ms=compile_time_ms,
+            )
+
+            if self._cache.put(spec, compiled, token=token):
+                return compiled
+
+            attempts += 1
+            if attempts >= 3:
+                raise CompilationError(
+                    sig.fqn,
+                    "Compilation invalidated by concurrent cache generation change",
+                )
 
     def _compile_method(
         self,
@@ -396,10 +487,12 @@ class MethodCompiler:
         dynamic_name_set = set(dynamic_names)
         static_name_set = signature.static_param_names
 
-        def pack_dynamic_params(overrides: Mapping[str, Any] | None) -> tuple[Any, ...]:
+        def pack_dynamic_params(
+            overrides: Mapping[str, Any] | None,
+        ) -> tuple[tuple[Any, ...], dict[str, Any]]:
             overrides = overrides or {}
             if overrides:
-                unknown = set(overrides.keys()) - dynamic_name_set
+                unknown = set(overrides.keys()) - dynamic_name_set - _RUNTIME_PARAM_NAMES
                 if unknown:
                     static_overlap = unknown & static_name_set
                     if static_overlap:
@@ -410,25 +503,37 @@ class MethodCompiler:
                         )
                     raise ParameterValidationError(
                         param_name=",".join(sorted(unknown)),
-                        value=list(unknown),
-                        reason="Unknown dynamic parameters",
-                    )
+                            value=list(unknown),
+                            reason="Unknown dynamic parameters",
+                        )
             merged = dict(dynamic_defaults)
-            merged.update(overrides)
-            return tuple(_normalize_dynamic_value(merged[name]) for name in dynamic_names)
+            merged.update({name: overrides[name] for name in dynamic_names if name in overrides})
+            runtime_params = {
+                name: overrides[name]
+                for name in _RUNTIME_PARAM_NAMES
+                if name in overrides
+            }
+            return (
+                tuple(_normalize_dynamic_value(merged[name]) for name in dynamic_names),
+                runtime_params,
+            )
 
         @functools.wraps(pure_step)
-        def step_with_statics(state: Any, dynamic_values: tuple[Any, ...]) -> Any:
+        def step_with_statics(
+            state: Any,
+            dynamic_values: tuple[Any, ...],
+            runtime_params: Mapping[str, Any],
+        ) -> Any:
             dynamic_params = {
                 name: value for name, value in zip(dynamic_names, dynamic_values)
             }
-            all_params = {**static_params, **dynamic_params}
+            all_params = {**static_params, **dynamic_params, **runtime_params}
             return pure_step(state, all_params)
 
         if vmap_axis is not None:
             step_with_statics = jax.vmap(
                 step_with_statics,
-                in_axes=(vmap_axis, None),
+                in_axes=(vmap_axis, None, None),
             )
 
         if jit:
@@ -440,8 +545,8 @@ class MethodCompiler:
             step_core = step_with_statics
 
         def step_fn(state: Any, params: Mapping[str, Any] | None = None) -> Any:
-            dynamic_values = pack_dynamic_params(params)
-            return step_core(state, dynamic_values)
+            dynamic_values, runtime_params = pack_dynamic_params(params)
+            return step_core(state, dynamic_values, runtime_params)
 
         if capture_hlo:
             # Placeholder for optional HLO capture.

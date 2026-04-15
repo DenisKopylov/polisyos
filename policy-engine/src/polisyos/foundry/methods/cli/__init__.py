@@ -6,6 +6,10 @@ Subcommands
 scaffold    Generate a new Foundry method skeleton.
 validate    Validate a method class or an entire registry.
 catalog     Print the catalog snapshot (FQNs, fidelity, backend).
+capabilities Export machine-readable capability metadata.
+advisor     Rank methods for a concrete problem framing.
+evidence    Emit operator-facing applicability and replay evidence.
+release-acceptance  Run the bundle-backed acceptance roundtrip.
 compat      Check for breaking signature changes vs. a baseline.
 
 Usage::
@@ -14,14 +18,28 @@ Usage::
     polisyos-foundry scaffold --namespace causal.did --name my_estimator --version 1.0.0
     polisyos-foundry validate --all
     polisyos-foundry catalog --namespace causal
+    polisyos-foundry release-acceptance --manifest-path bundle/release_manifest.json --runtime-bundle-dir bundle/runtime --method-contract-bundle-dir bundle/contracts --store-root .foundry-release-cas --json
     polisyos-foundry compat --baseline tests/foundry/fixtures/signature_baseline.json
 """
 from __future__ import annotations
 
 import argparse
+import json
 import sys
+from dataclasses import asdict
+from pathlib import Path
 from typing import Sequence
 
+_CLI_SOFT_FAILURES = (
+    AttributeError,
+    FileNotFoundError,
+    ImportError,
+    ModuleNotFoundError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
 
 # ---------------------------------------------------------------------------
 # Sub-command handlers
@@ -77,7 +95,7 @@ def _cmd_catalog(args: argparse.Namespace) -> int:
 
     try:
         ensure_all_methods_registered()
-    except (ImportError, Exception):
+    except _CLI_SOFT_FAILURES:
         pass
 
     registry = MethodRegistry.get_instance()
@@ -108,7 +126,7 @@ def _cmd_compat(args: argparse.Namespace) -> int:
 
     try:
         ensure_all_methods_registered()
-    except (ImportError, Exception):
+    except _CLI_SOFT_FAILURES:
         pass
 
     registry = MethodRegistry.get_instance()
@@ -130,7 +148,7 @@ def _cmd_compat(args: argparse.Namespace) -> int:
             continue
         try:
             current_hash = entry.signature.stable_digest()
-        except Exception:
+        except _CLI_SOFT_FAILURES:
             current_hash = "<error>"
         if current_hash != old_hash:
             breaking.append(f"CHANGED: {fqn}\n  baseline: {old_hash}\n  current:  {current_hash}")
@@ -142,6 +160,185 @@ def _cmd_compat(args: argparse.Namespace) -> int:
         return 1
 
     print("No breaking changes detected.")
+    return 0
+
+
+def _load_catalog_snapshot():
+    from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
+
+    return build_method_catalog_snapshot(run_id="cli")
+
+
+def _cmd_capabilities(args: argparse.Namespace) -> int:
+    from polisyos.foundry.methods.catalog_snapshot import build_method_capability_matrix
+
+    snapshot = _load_catalog_snapshot()
+    rows = build_method_capability_matrix(snapshot, runnable_only=args.runnable_only)
+    if args.namespace:
+        rows = [row for row in rows if str(row["namespace"]).startswith(args.namespace)]
+    if args.family:
+        rows = [row for row in rows if str(row["family"]).startswith(args.family)]
+
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "snapshot_id": snapshot.snapshot_id,
+                    "method_count": len(rows),
+                    "capability_matrix": rows,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    print(f"{'FQN':<60} {'RUNNABLE':<9} {'BACKEND':<10} {'DET_TIER':<22} {'TRUTHFULNESS'}")
+    print("-" * 128)
+    for row in rows:
+        print(
+            f"{str(row['fqn']):<60} "
+            f"{str(row['runnable']):<9} "
+            f"{str(row['execution_backend']):<10} "
+            f"{str(row.get('determinism_tier') or '-'): <22} "
+            f"{str(row['truthfulness_tier'])}"
+        )
+    print(f"\nTotal: {len(rows)} method(s)")
+    return 0
+
+
+def _cmd_evidence(args: argparse.Namespace) -> int:
+    from polisyos.foundry.methods.catalog_snapshot import build_method_operator_evidence
+
+    snapshot = _load_catalog_snapshot()
+    if args.namespace or args.family:
+        filtered_entries = [
+            entry
+            for entry in snapshot.entries
+            if (
+                (not args.namespace or entry.namespace.startswith(args.namespace))
+                and (not args.family or entry.family.startswith(args.family))
+            )
+        ]
+        snapshot = snapshot.model_copy(update={"entries": filtered_entries})
+    payload = build_method_operator_evidence(snapshot, runnable_only=args.runnable_only)
+
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+
+    print(
+        f"snapshot={payload['snapshot_id']} methods={payload['method_count']} "
+        f"runnable={payload['runnable_count']} blocked={payload['blocked_count']}"
+    )
+    print("\nBackends:")
+    for item in payload["backend_summary"]:
+        print(
+            f"  {item['value']}: total={item['count']} "
+            f"runnable={item['runnable_count']} blocked={item['blocked_count']}"
+        )
+    print("\nReplay Contracts:")
+    for item in payload["replay_contracts"]:
+        print(f"  {item['determinism_tier']}: {item['replay_semantics']}")
+    if payload["blocked_methods"]:
+        print("\nBlocked Methods:")
+        for item in payload["blocked_methods"]:
+            reasons = ",".join(item["disabled_reasons"]) or "-"
+            print(f"  {item['fqn']} [{item['execution_backend']}] -> {reasons}")
+    return 0
+
+
+def _cmd_release_acceptance(args: argparse.Namespace) -> int:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.foundry.release_acceptance import ReleaseAcceptanceRunner
+
+    store = FileSystemCAS(args.store_root)
+    report = ReleaseAcceptanceRunner(store).run(
+        release_manifest_path=args.manifest_path,
+        runtime_bundle_dir=args.runtime_bundle_dir,
+        method_contract_bundle_dir=args.method_contract_bundle_dir,
+    )
+
+    if args.json:
+        print(json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True))
+        return 0 if report.passed else 1
+
+    print(
+        f"passed={report.passed} manifest={report.manifest_path} "
+        f"release_bundle_root={report.release_bundle_root}"
+    )
+    if report.governance_verdict:
+        print(f"governance_verdict={report.governance_verdict}")
+    if report.packet_ref:
+        print(f"packet_ref={report.packet_ref}")
+    print("\nSteps:")
+    for step in report.steps:
+        print(f"  {step.step_id}: {step.status}")
+    if report.notes:
+        print("\nNotes:")
+        for note in report.notes:
+            print(f"  {note}")
+    return 0 if report.passed else 1
+
+
+def _cmd_advisor(args: argparse.Namespace) -> int:
+    from polisyos.foundry.methods.selection import (
+        DataCharacteristics,
+        MethodAdvisorQuery,
+        MethodSelectionCriteria,
+        advise_methods,
+    )
+
+    snapshot = _load_catalog_snapshot()
+    criteria = MethodSelectionCriteria(
+        preferred_kind=args.kind,
+        preferred_family=args.family,
+        preferred_variant=args.variant,
+        family_prefixes=tuple(args.family_prefix or ()),
+        preferred_execution_backends=tuple(args.backend or ()),
+        required_data_modalities=tuple(args.required_modality or ()),
+        preferred_data_modalities=tuple(args.preferred_modality or ()),
+        preferred_determinism_tier=args.determinism_tier,
+        minimum_fidelity_tier=args.minimum_fidelity_tier,
+        runnable_only=not args.include_unrunnable,
+    )
+    data = DataCharacteristics(n_obs=args.n_obs) if args.n_obs is not None else None
+    query = MethodAdvisorQuery(
+        criteria=criteria,
+        data=data,
+        runtime_budget_ms=args.runtime_budget_ms,
+        limit=args.limit,
+        runnable_only=not args.include_unrunnable,
+    )
+    result = advise_methods(snapshot, query)
+
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "query": asdict(result.query),
+                    "recommended": [entry.model_dump(mode="json") for entry in result.recommended],
+                    "payload": list(result.payload),
+                    "capability_matrix": list(result.capability_matrix),
+                    "family_summary": list(result.family_summary),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    print(f"{'FQN':<60} {'BACKEND':<10} {'FIDELITY':<8} {'DET_TIER':<22} {'TRUTHFULNESS'}")
+    print("-" * 128)
+    for entry in result.recommended:
+        print(
+            f"{entry.fqn:<60} "
+            f"{entry.execution_backend:<10} "
+            f"{entry.fidelity_tier:<8} "
+            f"{str(entry.determinism_tier or '-'): <22} "
+            f"{entry.truthfulness_tier}"
+        )
+    print(f"\nRecommended: {len(result.recommended)} method(s)")
     return 0
 
 
@@ -185,6 +382,72 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to signature baseline JSON",
     )
 
+    # --- capabilities ---
+    p_capabilities = sub.add_parser("capabilities", help="Export machine-readable capability metadata")
+    p_capabilities.add_argument("--namespace", help="Filter by namespace prefix")
+    p_capabilities.add_argument("--family", help="Filter by family prefix")
+    p_capabilities.add_argument("--runnable-only", action="store_true", help="Only emit runnable methods")
+    p_capabilities.add_argument("--json", action="store_true", help="Emit JSON instead of a table")
+
+    # --- evidence ---
+    p_evidence = sub.add_parser("evidence", help="Export operator-facing applicability and replay evidence")
+    p_evidence.add_argument("--namespace", help="Filter by namespace prefix")
+    p_evidence.add_argument("--family", help="Filter by family prefix")
+    p_evidence.add_argument("--runnable-only", action="store_true", help="Only emit runnable methods")
+    p_evidence.add_argument("--json", action="store_true", help="Emit JSON instead of a table")
+
+    # --- release-acceptance ---
+    p_release_acceptance = sub.add_parser(
+        "release-acceptance",
+        help="Run the bundle-backed Foundry release acceptance roundtrip",
+    )
+    p_release_acceptance.add_argument(
+        "--manifest-path",
+        type=Path,
+        required=True,
+        help="Release manifest JSON path",
+    )
+    p_release_acceptance.add_argument(
+        "--runtime-bundle-dir",
+        type=Path,
+        required=True,
+        help="Directory containing runtime parquet bundle files",
+    )
+    p_release_acceptance.add_argument(
+        "--method-contract-bundle-dir",
+        type=Path,
+        required=True,
+        help="Directory containing acceptance contract bundle JSON",
+    )
+    p_release_acceptance.add_argument(
+        "--store-root",
+        type=Path,
+        required=True,
+        help="Writable CAS root for the acceptance run",
+    )
+    p_release_acceptance.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit JSON instead of a text summary",
+    )
+
+    # --- advisor ---
+    p_advisor = sub.add_parser("advisor", help="Recommend methods for a concrete problem framing")
+    p_advisor.add_argument("--kind", help="Preferred method kind")
+    p_advisor.add_argument("--family", help="Preferred family")
+    p_advisor.add_argument("--variant", help="Preferred variant")
+    p_advisor.add_argument("--family-prefix", action="append", help="Additional acceptable family prefix")
+    p_advisor.add_argument("--backend", action="append", help="Preferred execution backend")
+    p_advisor.add_argument("--required-modality", action="append", help="Required data modality")
+    p_advisor.add_argument("--preferred-modality", action="append", help="Preferred data modality")
+    p_advisor.add_argument("--determinism-tier", help="Preferred determinism tier")
+    p_advisor.add_argument("--minimum-fidelity-tier", choices=["low", "medium", "high"])
+    p_advisor.add_argument("--n-obs", type=int, help="Observation count available to the method")
+    p_advisor.add_argument("--runtime-budget-ms", type=float, help="Runtime budget in milliseconds")
+    p_advisor.add_argument("--limit", type=int, default=5, help="Maximum number of methods to return")
+    p_advisor.add_argument("--include-unrunnable", action="store_true", help="Include unrunnable methods")
+    p_advisor.add_argument("--json", action="store_true", help="Emit JSON instead of a table")
+
     return parser
 
 
@@ -205,6 +468,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         "scaffold": _cmd_scaffold,
         "validate": _cmd_validate,
         "catalog": _cmd_catalog,
+        "capabilities": _cmd_capabilities,
+        "evidence": _cmd_evidence,
+        "release-acceptance": _cmd_release_acceptance,
+        "advisor": _cmd_advisor,
         "compat": _cmd_compat,
     }
 
@@ -217,7 +484,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return handler(args)
     except KeyboardInterrupt:
         return 130
-    except Exception as exc:
+    except _CLI_SOFT_FAILURES as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 

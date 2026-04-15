@@ -37,7 +37,9 @@ class TestAutocorrelation:
         rng = np.random.default_rng(42)
         data = rng.normal(0, 1, size=200).tolist()
         result = check_autocorrelation(data)
-        assert result.test_name == "ljung_box_approx"
+        assert result.test_name == "ljung_box"
+        assert result.p_value is not None
+        assert result.reject_null is False
 
     def test_autocorrelated_data(self):
         # AR(1) process
@@ -47,10 +49,15 @@ class TestAutocorrelation:
             data.append(0.9 * data[-1] + rng.normal(0, 0.1))
         result = check_autocorrelation(data)
         assert result.reject_null is True
+        assert result.p_value is not None
 
     def test_insufficient_data(self):
         result = check_autocorrelation([1.0, 2.0])
         assert result.reject_null is False
+
+    def test_invalid_max_lag(self):
+        result = check_autocorrelation([1.0, 2.0, 3.0], max_lag=0)
+        assert result.description == "invalid_max_lag"
 
 
 class TestStationarity:

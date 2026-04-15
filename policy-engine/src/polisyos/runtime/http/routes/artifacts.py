@@ -1,8 +1,14 @@
 """Public routes artifacts module API."""
 from __future__ import annotations
 
+import mimetypes
+import re
+from typing import Any
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import (
+    ArtifactBatchRequest,
+    ArtifactBatchResponse,
     ArtifactContentResponse,
     ArtifactLineageResponse,
     ArtifactManifestResponse,
@@ -13,23 +19,68 @@ from polisyos.runtime.http.dependencies import (
     build_meta,
     enforce_artifact_tenant_access,
     get_runtime_api_context,
+    record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, not_found
+from polisyos.runtime.http.errors import bad_request, not_acceptable, not_found
+from polisyos.runtime.http.response_policies import (
+    add_artifact_link_relations,
+    build_artifact_etag,
+    build_not_modified_response,
+    set_immutable_resource_headers,
+)
 
 try:  # pragma: no cover - optional runtime dependency
-    from fastapi import APIRouter, Depends, Query, Request
+    APIRouter: Any | None
+    Depends: Any | None
+    Query: Any | None
+    Request: Any
+    Response: Any
+    from fastapi import APIRouter, Depends, Query, Request, Response
 except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None  # type: ignore[assignment]
-    Depends = None  # type: ignore[assignment]
-    Query = None  # type: ignore[assignment]
-    Request = None  # type: ignore[assignment]
+    APIRouter = None
+    Depends = None
+    Query = None
+    Request = Any
+    Response = Any
 
 
 router = APIRouter(prefix="/api/v1/artifacts", tags=["runtime-artifacts"]) if APIRouter else None
 
 
 if router is not None:
+
+    @router.post(
+        "/batch",
+        response_model=ArtifactBatchResponse,
+        operation_id="get_artifact_batch",
+    )
+    def get_artifact_batch(
+        body: ArtifactBatchRequest,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+    ) -> ArtifactBatchResponse:
+        parsed_ids = _parse_artifact_ids(body.artifact_ids)
+        views = []
+        for parsed_id in parsed_ids:
+            tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
+            set_authz_resource(
+                request,
+                tenant_id=tenant_id or getattr(request.state, "tenant_id", None),
+                kind="runtime.artifact_manifest_batch",
+                artifact_id=str(parsed_id),
+            )
+            try:
+                views.append(ctx.artifacts.get_manifest_view(parsed_id))
+            except FileNotFoundError as exc:
+                raise not_found(str(exc), code="artifact_not_found") from exc
+        record_data_access_audit(
+            request,
+            resource_id="artifact.batch",
+            tenant_id=getattr(request.state, "tenant_id", None),
+            metadata={"count": len(views)},
+        )
+        return ArtifactBatchResponse(meta=build_meta(request), artifacts=views)
 
     @router.get(
         "/{artifact_id}",
@@ -39,8 +90,9 @@ if router is not None:
     def get_artifact_manifest(
         artifact_id: str,
         request: Request,
+        response: Response,
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
-    ) -> ArtifactManifestResponse:
+    ) -> ArtifactManifestResponse | Response:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -53,6 +105,22 @@ if router is not None:
             view = ctx.artifacts.get_manifest_view(parsed_id)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        etag = build_artifact_etag(view.artifact_id, view.integrity_sha256, "manifest")
+        not_modified = build_not_modified_response(
+            request.headers,
+            etag=etag,
+            last_modified=view.created_at,
+        )
+        if not_modified is not None:
+            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            return not_modified
+        set_immutable_resource_headers(response, etag=etag, last_modified=view.created_at)
+        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        record_data_access_audit(
+            request,
+            resource_id=str(parsed_id),
+            tenant_id=tenant_id,
+        )
         return ArtifactManifestResponse(meta=build_meta(request), artifact=view)
 
     @router.get(
@@ -63,9 +131,10 @@ if router is not None:
     def get_artifact_content(
         artifact_id: str,
         request: Request,
+        response: Response,
         max_bytes: int | None = Query(default=None, ge=1024, le=2_000_000),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
-    ) -> ArtifactContentResponse:
+    ) -> ArtifactContentResponse | Response:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -75,9 +144,48 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
+            manifest = ctx.store.get_manifest(parsed_id)
             view = ctx.artifacts.get_content_preview(parsed_id, max_bytes=max_bytes)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "content")
+        not_modified = build_not_modified_response(
+            request.headers,
+            etag=etag,
+            last_modified=manifest.created_at,
+        )
+        if not_modified is not None:
+            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            return not_modified
+        if _prefers_raw_representation(request, media_type=manifest.media_type):
+            raw_response = Response(
+                content=ctx.store.get_bytes(parsed_id),
+                media_type=manifest.media_type,
+            )
+            set_immutable_resource_headers(
+                raw_response,
+                etag=etag,
+                last_modified=manifest.created_at,
+            )
+            add_artifact_link_relations(raw_response, artifact_id=str(parsed_id))
+            raw_response.headers["Content-Disposition"] = (
+                f'inline; filename="{_artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)}"'
+            )
+            record_data_access_audit(
+                request,
+                resource_id=str(parsed_id),
+                tenant_id=tenant_id,
+                metadata={"max_bytes": max_bytes, "representation": "raw"},
+            )
+            return raw_response
+        set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
+        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        record_data_access_audit(
+            request,
+            resource_id=str(parsed_id),
+            tenant_id=tenant_id,
+            metadata={"max_bytes": max_bytes},
+        )
         return ArtifactContentResponse(meta=build_meta(request), artifact=view)
 
     @router.get(
@@ -88,10 +196,11 @@ if router is not None:
     def get_artifact_lineage(
         artifact_id: str,
         request: Request,
+        response: Response,
         max_depth: int | None = Query(default=None, ge=1, le=256),
         max_nodes: int | None = Query(default=None, ge=1, le=20000),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
-    ) -> ArtifactLineageResponse:
+    ) -> ArtifactLineageResponse | Response:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -101,6 +210,7 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
+            manifest = ctx.store.get_manifest(parsed_id)
             lineage = ctx.artifacts.get_lineage_view(
                 parsed_id,
                 max_depth=max_depth,
@@ -108,6 +218,23 @@ if router is not None:
             )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "lineage")
+        not_modified = build_not_modified_response(
+            request.headers,
+            etag=etag,
+            last_modified=manifest.created_at,
+        )
+        if not_modified is not None:
+            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            return not_modified
+        set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
+        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        record_data_access_audit(
+            request,
+            resource_id=str(parsed_id),
+            tenant_id=tenant_id,
+            metadata={"max_depth": max_depth, "max_nodes": max_nodes},
+        )
         return ArtifactLineageResponse(meta=build_meta(request), lineage=lineage)
 
     @router.get(
@@ -118,8 +245,9 @@ if router is not None:
     def get_artifact_schema(
         artifact_id: str,
         request: Request,
+        response: Response,
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
-    ) -> ArtifactSchemaResponse:
+    ) -> ArtifactSchemaResponse | Response:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -129,10 +257,87 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
+            manifest = ctx.store.get_manifest(parsed_id)
             schema_view = ctx.artifacts.get_schema_view(parsed_id)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "schema")
+        not_modified = build_not_modified_response(
+            request.headers,
+            etag=etag,
+            last_modified=manifest.created_at,
+        )
+        if not_modified is not None:
+            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            return not_modified
+        set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
+        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        record_data_access_audit(
+            request,
+            resource_id=str(parsed_id),
+            tenant_id=tenant_id,
+        )
         return ArtifactSchemaResponse(meta=build_meta(request), schema_view=schema_view)
+
+    @router.get(
+        "/{artifact_id}/download",
+        operation_id="download_artifact_content",
+        responses={
+            "200": {
+                "description": "Raw artifact bytes",
+                "content": {
+                    "application/octet-stream": {
+                        "schema": {"type": "string", "format": "binary"}
+                    }
+                },
+            }
+        },
+    )
+    def download_artifact_content(
+        artifact_id: str,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+    ) -> Response:
+        parsed_id = _parse_artifact_id(artifact_id)
+        tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
+        set_authz_resource(
+            request,
+            tenant_id=tenant_id or getattr(request.state, "tenant_id", None),
+            kind="runtime.artifact_download",
+            artifact_id=str(parsed_id),
+        )
+        try:
+            manifest = ctx.store.get_manifest(parsed_id)
+            payload = ctx.store.get_bytes(parsed_id)
+        except FileNotFoundError as exc:
+            raise not_found(str(exc), code="artifact_not_found") from exc
+        if not _accepts_raw_representation(request, media_type=manifest.media_type):
+            raise not_acceptable(
+                "Requested Accept header does not support artifact raw download",
+                code="artifact_representation_not_acceptable",
+            )
+        etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "download")
+        not_modified = build_not_modified_response(
+            request.headers,
+            etag=etag,
+            last_modified=manifest.created_at,
+        )
+        if not_modified is not None:
+            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            return not_modified
+        response = Response(content=payload, media_type=manifest.media_type)
+        set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
+        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        response.headers["Content-Disposition"] = (
+            f'attachment; filename="{_artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)}"'
+        )
+        record_data_access_audit(
+            request,
+            resource_id=str(parsed_id),
+            tenant_id=tenant_id,
+            metadata={"representation": "download"},
+        )
+        return response
 
 
 def _parse_artifact_id(value: str) -> ArtifactID:
@@ -143,3 +348,57 @@ def _parse_artifact_id(value: str) -> ArtifactID:
             "artifact_id must match sha256:<64-hex>",
             code="invalid_artifact_id",
         ) from exc
+
+
+def _parse_artifact_ids(values: list[str]) -> list[ArtifactID]:
+    try:
+        return [ArtifactID.model_validate(value) for value in values]
+    except (TypeError, ValueError) as exc:
+        raise bad_request(
+            "artifact_ids must contain only sha256:<64-hex> references",
+            code="invalid_artifact_id",
+        ) from exc
+
+
+def _accepts_raw_representation(request: Request, *, media_type: str) -> bool:
+    accept = str(request.headers.get("accept", "")).strip().lower()
+    if not accept or accept == "*/*":
+        return True
+    accepted = {
+        token.split(";", 1)[0].strip()
+        for token in accept.split(",")
+        if token.strip()
+    }
+    normalized_media_type = media_type.lower()
+    return (
+        "*/*" in accepted
+        or "application/octet-stream" in accepted
+        or normalized_media_type in accepted
+        or ("text/plain" in accepted and normalized_media_type.startswith("text/"))
+    )
+
+
+def _prefers_raw_representation(request: Request, *, media_type: str) -> bool:
+    accept = str(request.headers.get("accept", "")).strip().lower()
+    if not accept or accept == "*/*":
+        return False
+    accepted = {
+        token.split(";", 1)[0].strip()
+        for token in accept.split(",")
+        if token.strip()
+    }
+    if "application/json" in accepted:
+        return False
+    if _accepts_raw_representation(request, media_type=media_type):
+        return True
+    raise not_acceptable(
+        "Requested Accept header does not support this artifact representation",
+        code="artifact_representation_not_acceptable",
+    )
+
+
+def _artifact_filename(artifact_id: str, kind: str, media_type: str) -> str:
+    suffix = mimetypes.guess_extension(media_type.split(";", 1)[0].strip()) or ".bin"
+    safe_kind = re.sub(r"[^a-z0-9._-]+", "-", kind.lower()).strip("-") or "artifact"
+    short_id = artifact_id.split(":", 1)[-1][:12]
+    return f"{safe_kind}-{short_id}{suffix}"

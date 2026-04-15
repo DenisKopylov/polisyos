@@ -155,30 +155,49 @@ class NetworkLendingMechanism(Mechanism):
 
         wants_to_borrow = (agents.wealth < agents.income * 2.0) & active
         can_lend = (agents.wealth > agents.income * 10.0) & active
-        lender_wealth = jnp.where(can_lend, agents.wealth, 0.0)
+        edge_mask = jnp.ones(edges.weights.shape[0], dtype=jnp.bool_)
+        if hasattr(edges, "active"):
+            edge_mask = edge_mask & edges.active
+        edge_mask = edge_mask & active[edges.senders] & active[edges.receivers]
+        eligible_edges = edge_mask & can_lend[edges.senders] & wants_to_borrow[edges.receivers]
 
-        max_neighbor_wealth = aggregate_messages(
-            lender_wealth[:, None],
-            edges,
-            aggregation="max",
-            active=active,
-        ).squeeze(-1)
+        lender_capacity = jnp.where(
+            can_lend,
+            self.max_loan_fraction * agents.wealth,
+            0.0,
+        )
+        eligible_weights = jnp.where(eligible_edges, edges.weights, 0.0)
+        outgoing_weight = jax.ops.segment_sum(
+            eligible_weights,
+            edges.senders,
+            num_segments=agents.wealth.shape[0],
+        )
+        edge_share = eligible_weights / (outgoing_weight[edges.senders] + 1e-8)
+        edge_transfer = edge_share * lender_capacity[edges.senders]
 
-        loan_amount = self.max_loan_fraction * max_neighbor_wealth
-        loan_amount = jnp.where(wants_to_borrow, loan_amount, 0.0)
+        borrower_inflow = jax.ops.segment_sum(
+            edge_transfer,
+            edges.receivers,
+            num_segments=agents.wealth.shape[0],
+        )
+        lender_outflow = jax.ops.segment_sum(
+            edge_transfer,
+            edges.senders,
+            num_segments=agents.wealth.shape[0],
+        )
 
-        new_wealth = agents.wealth + loan_amount
-        new_debt = agents.debt + loan_amount * (1.0 + self.interest_rate)
+        new_wealth = agents.wealth - lender_outflow + borrower_inflow
+        new_debt = agents.debt + borrower_inflow * (1.0 + self.interest_rate)
         new_wealth = jnp.where(active, new_wealth, agents.wealth)
         new_debt = jnp.where(active, new_debt, agents.debt)
         new_agents = agents.replace(wealth=new_wealth, debt=new_debt)
 
-        borrowers = loan_amount > 0
+        borrowers = borrower_inflow > 0
         borrower_count = jnp.sum(borrowers)
         metrics = {
-            "total_loans": jnp.sum(loan_amount),
+            "total_loans": jnp.sum(edge_transfer),
             "n_borrowers": borrower_count,
-            "mean_loan_size": jnp.sum(loan_amount) / (borrower_count + 1e-8),
+            "mean_loan_size": jnp.sum(borrower_inflow) / (borrower_count + 1e-8),
         }
         return state.replace(agents=new_agents), metrics
 

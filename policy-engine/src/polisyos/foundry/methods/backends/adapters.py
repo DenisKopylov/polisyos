@@ -3,9 +3,56 @@ from __future__ import annotations
 
 from typing import Any
 
+import jax
 import numpy as np
 
 from polisyos.foundry.methods.base import ComputeBackend
+from polisyos.foundry.methods.exceptions import BackendAdaptationError
+
+_HOST_BACKENDS = {
+    ComputeBackend.NUMPY,
+    ComputeBackend.SOLVER,
+    ComputeBackend.BAYESIAN,
+}
+
+
+def _tree_leaves(tree: Any) -> list[Any]:
+    try:
+        return list(jax.tree_util.tree_leaves(tree))
+    except (TypeError, ValueError, RuntimeError) as exc:
+        raise BackendAdaptationError("tree", "tree", f"pytree flatten failed: {exc}") from exc
+
+
+def _validate_no_device_leaks(tree: Any) -> None:
+    leaked: list[str] = []
+    for leaf in _tree_leaves(tree):
+        if isinstance(leaf, jax.Array):
+            leaked.append(type(leaf).__name__)
+            continue
+        if isinstance(leaf, np.ndarray) and leaf.dtype == object:
+            for item in leaf.flat:
+                if isinstance(item, jax.Array):
+                    leaked.append("object_array[jax.Array]")
+                    break
+    if leaked:
+        raise BackendAdaptationError(
+            "jax",
+            "numpy",
+            f"device-native leaves remained after conversion: {sorted(set(leaked))}",
+        )
+
+
+def _validate_host_to_jax_inputs(tree: Any) -> None:
+    unsupported: list[str] = []
+    for leaf in _tree_leaves(tree):
+        if isinstance(leaf, np.ndarray) and leaf.dtype == object:
+            unsupported.append("ndarray[object]")
+    if unsupported:
+        raise BackendAdaptationError(
+            "numpy",
+            "jax",
+            f"unsupported host leaves for device adaptation: {sorted(set(unsupported))}",
+        )
 
 
 def to_numpy(tree: Any) -> Any:
@@ -15,20 +62,21 @@ def to_numpy(tree: Any) -> Any:
     Uses JAX canonical helpers when available to avoid custom tree recursion.
     """
     try:
-        import jax
+        converted = jax.device_get(tree)
+    except (TypeError, ValueError, RuntimeError) as exc:
+        raise BackendAdaptationError("jax", "numpy", f"device_get failed: {exc}") from exc
 
-        return jax.device_get(tree)
-    except Exception:
-        if hasattr(tree, "shape") and hasattr(tree, "dtype"):
-            return np.asarray(tree)
-        return tree
+    _validate_no_device_leaks(converted)
+    return converted
 
 
 def to_jax(tree: Any) -> Any:
     """Convert arrays in a pytree to JAX device arrays."""
-    import jax
-
-    return jax.device_put(tree)
+    _validate_host_to_jax_inputs(tree)
+    try:
+        return jax.device_put(tree)
+    except (TypeError, ValueError, RuntimeError) as exc:
+        raise BackendAdaptationError("numpy", "jax", f"device_put failed: {exc}") from exc
 
 
 def adapt_state(
@@ -41,18 +89,17 @@ def adapt_state(
     if source_backend == target_backend:
         return state
 
-    if source_backend is ComputeBackend.JAX and target_backend in (
-        ComputeBackend.NUMPY,
-        ComputeBackend.SOLVER,
-        ComputeBackend.BAYESIAN,
-    ):
+    if source_backend is ComputeBackend.JAX and target_backend in _HOST_BACKENDS:
         return to_numpy(state)
 
-    if source_backend in (
-        ComputeBackend.NUMPY,
-        ComputeBackend.SOLVER,
-        ComputeBackend.BAYESIAN,
-    ) and target_backend is ComputeBackend.JAX:
+    if source_backend in _HOST_BACKENDS and target_backend is ComputeBackend.JAX:
         return to_jax(state)
 
-    return state
+    if source_backend in _HOST_BACKENDS and target_backend in _HOST_BACKENDS:
+        return state
+
+    raise BackendAdaptationError(
+        source_backend.value,
+        target_backend.value,
+        "unsupported backend adaptation path",
+    )

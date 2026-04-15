@@ -12,9 +12,16 @@ from __future__ import annotations
 import logging
 import time
 from contextlib import contextmanager
-from typing import Any, Generator
+from typing import Generator
 
 _logger = logging.getLogger(__name__)
+_LOCK_METRICS_RUNTIME_ERRORS = (
+    AttributeError,
+    ImportError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
 
 try:
     from opentelemetry import metrics
@@ -34,7 +41,7 @@ try:
         description="Number of lock heartbeat extension failures",
     )
     _HAS_OTEL = True
-except Exception:  # noqa: BLE001
+except _LOCK_METRICS_RUNTIME_ERRORS:
     _HAS_OTEL = False
 
 
@@ -70,7 +77,7 @@ class LockMetrics:
         try:
             yield
             success = True
-        except Exception:
+        except (OSError, RuntimeError, TypeError, ValueError):
             self.record_contention()
             raise
         finally:

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
     ResolveParametersNode,
 )
@@ -75,3 +77,28 @@ def test_ok_when_already_present(execution_context, minimal_state, artifact_ref_
     outcome = ResolveParametersNode().execute(execution_context, state)
     assert outcome.status == "ok"
     assert outcome.state is state
+
+
+def test_target_context_assertion_is_not_swallowed(
+    execution_context, minimal_state, monkeypatch: pytest.MonkeyPatch
+):
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "target_context": {"country": "US", "year": 2025},
+                "required_parameters": ["beta"],
+            },
+        }
+    )
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("context-broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ContextProfile.model_validate",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="context-broken"):
+        ResolveParametersNode().execute(execution_context, state)

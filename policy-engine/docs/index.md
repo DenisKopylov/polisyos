@@ -64,8 +64,8 @@ graph LR
 ```bash
 git clone https://github.com/DenisKopylov/polisyos.git
 cd polisyos/policy-engine
-./scripts/bootstrap
-./scripts/doctor
+python3 -m tools.cli workspace bootstrap
+python3 -m tools.cli workspace doctor
 ```
 
 See [Getting Started tutorial](tutorials/getting-started.md) and the [Installation guide](how-to/install.md) for the current verified install surface.

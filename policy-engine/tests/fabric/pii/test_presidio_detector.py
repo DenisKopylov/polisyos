@@ -101,3 +101,20 @@ def test_empty_dataframe_returns_none_severity() -> None:
 
     assert result.total_entities_found == 0
     assert result.max_severity == PIISeverity.NONE
+
+
+def test_detector_uses_luhn_for_credit_card_candidates() -> None:
+    detector = PresidioDetector(PresidioConfig(score_threshold=0.5, sample_rate=1.0))
+
+    df = pd.DataFrame(
+        {
+            "card_candidate": [
+                "4111 1111 1111 1111",  # valid Luhn test number
+                "1234 5678 9012 3456",  # invalid Luhn sequence
+            ]
+        }
+    )
+
+    result = detector.scan_dataframe(df)
+
+    assert result.entities_by_type.get("CREDIT_CARD", 0) == 1

@@ -41,7 +41,7 @@ class ManskiBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="manski",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -124,7 +124,7 @@ class LeeBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="lee",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -303,7 +303,7 @@ class BalkePearlBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="balke_pearl",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -412,7 +412,7 @@ class ImbensManskiBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="imbens_manski",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -544,7 +544,7 @@ class OptimizationBasedBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="optimization",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -973,7 +973,7 @@ class GeneralBalkePearlBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="general_balke_pearl",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -1168,7 +1168,7 @@ class CopulaBoundsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="copula_bounds",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

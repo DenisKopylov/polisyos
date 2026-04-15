@@ -1,4 +1,4 @@
-"""High-level helpers for persisting and loading canonical JSON artifacts through the IR CAS boundary."""
+"""High-level helpers for persisting and loading JSON artifacts through the IR CAS boundary."""
 from __future__ import annotations
 
 from typing import Any, Sequence
@@ -47,7 +47,8 @@ def put_json_artifact(
 
 def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> Any:
     """Return json artifact."""
-    return from_canonical_bytes(store.get_bytes(artifact_id))
+    normalized_id = ArtifactID.model_validate(str(artifact_id))
+    return from_canonical_bytes(store.get_bytes(normalized_id))
 
 
 def normalize_input_sequence(inputs: Sequence[Any] | None) -> list[InputRef]:

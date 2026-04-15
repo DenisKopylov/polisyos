@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 from typing import Any, Optional
 
 from ._metrics_helpers import GaugeProxy, HistogramTimer
@@ -179,6 +180,148 @@ class MetricsRegistry(_MetricsRegistryBase):
         }
         self.slo_connector_requests_total.add(1, attrs)
 
+    def record_fabric_connector_fetch(
+        self,
+        *,
+        connector_id: str,
+        status: str,
+        duration_seconds: float,
+        row_count: int | None = None,
+        payload_bytes: int | None = None,
+    ) -> None:
+        """Record Fabric connector fetch latency plus optional row/byte volume."""
+        self._ensure_initialized()
+        attrs = {"connector_id": connector_id, "status": status}
+        if self.fabric_connector_fetch_duration_seconds is not None:
+            self.fabric_connector_fetch_duration_seconds.record(
+                max(0.0, float(duration_seconds)),
+                attrs,
+            )
+        if row_count is not None and self.fabric_connector_rows_total is not None and row_count >= 0:
+            self.fabric_connector_rows_total.add(int(row_count), attrs)
+        if payload_bytes is not None and self.fabric_connector_bytes_total is not None and payload_bytes >= 0:
+            self.fabric_connector_bytes_total.add(int(payload_bytes), attrs)
+
+    def record_fabric_query(
+        self,
+        *,
+        operation: str,
+        duration_seconds: float,
+        row_count: int | None = None,
+        status: str = "success",
+    ) -> None:
+        """Record query/retrieval latency plus optional output cardinality."""
+        self._ensure_initialized()
+        attrs = {"operation": operation, "status": status}
+        if self.fabric_query_duration_seconds is not None:
+            self.fabric_query_duration_seconds.record(
+                max(0.0, float(duration_seconds)),
+                attrs,
+            )
+        if row_count is not None and self.fabric_query_rows_total is not None and row_count >= 0:
+            self.fabric_query_rows_total.add(int(row_count), attrs)
+
+    def set_fabric_materialization_lag(
+        self,
+        lag_seconds: float,
+        *,
+        scope: str = "world",
+        tenant_id: str | None = None,
+    ) -> None:
+        self._ensure_initialized()
+        if self.fabric_materialization_lag_seconds is None:
+            return
+        attrs = {"scope": scope}
+        if tenant_id:
+            attrs["tenant_id"] = tenant_id
+        self.fabric_materialization_lag_seconds.set(
+            max(0.0, float(lag_seconds)),
+            attrs,
+        )
+
+    def set_fabric_segment_count(
+        self,
+        count: float,
+        *,
+        scope: str = "world",
+        tenant_id: str | None = None,
+    ) -> None:
+        self._ensure_initialized()
+        if self.fabric_segment_count is None:
+            return
+        attrs = {"scope": scope}
+        if tenant_id:
+            attrs["tenant_id"] = tenant_id
+        self.fabric_segment_count.set(max(0.0, float(count)), attrs)
+
+    def record_fabric_quality_score(
+        self,
+        *,
+        metric_id: str,
+        score: float,
+    ) -> None:
+        self._ensure_initialized()
+        if self.fabric_quality_score is None:
+            return
+        self.fabric_quality_score.set(float(score), {"metric_id": metric_id})
+
+    def record_fabric_freshness_age(
+        self,
+        *,
+        dataset_id: str,
+        age_seconds: float,
+    ) -> None:
+        self._ensure_initialized()
+        if self.fabric_freshness_age_seconds is None:
+            return
+        self.fabric_freshness_age_seconds.set(
+            max(0.0, float(age_seconds)),
+            {"dataset_id": dataset_id},
+        )
+
+    def record_fabric_lineage_graph(
+        self,
+        *,
+        graph_id: str,
+        node_count: int,
+        edge_count: int,
+    ) -> None:
+        self._ensure_initialized()
+        if self.fabric_lineage_graph_nodes is not None:
+            self.fabric_lineage_graph_nodes.set(max(0.0, float(node_count)), {"graph_id": graph_id})
+        if self.fabric_lineage_graph_edges is not None:
+            self.fabric_lineage_graph_edges.set(max(0.0, float(edge_count)), {"graph_id": graph_id})
+
+    def set_fabric_prefetch_backlog(
+        self,
+        backlog: int,
+        *,
+        namespace: str = "connector_cache",
+        tenant_id: str | None = None,
+    ) -> None:
+        self._ensure_initialized()
+        if self.fabric_prefetch_backlog is None:
+            return
+        attrs = {"namespace": namespace}
+        if tenant_id:
+            attrs["tenant_id"] = tenant_id
+        self.fabric_prefetch_backlog.set(max(0.0, float(backlog)), attrs)
+
+    def set_fabric_dlq_count(
+        self,
+        count: float,
+        *,
+        queue_name: str = "fabric",
+        tenant_id: str | None = None,
+    ) -> None:
+        self._ensure_initialized()
+        if self.fabric_dlq_entries is None:
+            return
+        attrs = {"queue": queue_name}
+        if tenant_id:
+            attrs["tenant_id"] = tenant_id
+        self.fabric_dlq_entries.set(max(0.0, float(count)), attrs)
+
     def record_llm_call(
         self,
         model: str,
@@ -347,6 +490,69 @@ class MetricsRegistry(_MetricsRegistryBase):
             attrs["error_type"] = error_type
         self.validation_issues_total.add(1, attrs)
 
+    def record_degraded_path(
+        self,
+        *,
+        component: str,
+        operation: str,
+        reason: str,
+        error_type: str | None = None,
+    ) -> None:
+        """Record a degraded-but-recoverable execution path."""
+        self._ensure_initialized()
+        if self.degraded_paths_total is None:
+            return
+        attrs = {
+            "component": component or "unknown",
+            "operation": operation or "unknown",
+            "reason": reason or "unknown",
+        }
+        if error_type:
+            attrs["error_type"] = error_type
+        self.degraded_paths_total.add(1, attrs)
+
+    def record_scientist_trace_correlation(
+        self,
+        *,
+        runner_backend: str,
+        workflow_id: str,
+        run_id: str,
+        trace_id: str | None = None,
+        span_id: str | None = None,
+    ) -> None:
+        """Record one trace-correlation handoff between Scientist runners/workers."""
+        self._ensure_initialized()
+        if self.scientist_trace_correlations_total is None:
+            return
+        attrs = {
+            "runner_backend": runner_backend or "unknown",
+            "workflow_id": workflow_id or "unknown",
+            "run_id": run_id or "unknown",
+            "trace_bound": str(bool(trace_id)).lower(),
+            "span_bound": str(bool(span_id)).lower(),
+        }
+        self.scientist_trace_correlations_total.add(1, attrs)
+
+    def record_scientist_operational_alert(
+        self,
+        *,
+        alert_type: str,
+        severity: str,
+        workflow_id: str | None = None,
+        run_id: str | None = None,
+    ) -> None:
+        """Record one Scientist operational alert for runtime monitoring."""
+        self._ensure_initialized()
+        if self.scientist_operational_alerts_total is None:
+            return
+        attrs = {
+            "alert_type": alert_type or "unknown",
+            "severity": severity or "warn",
+            "workflow_id": workflow_id or "unknown",
+            "run_id": run_id or "unknown",
+        }
+        self.scientist_operational_alerts_total.add(1, attrs)
+
     def record_cell_router_request(self, *, cell_id: str, tier: str, status: str) -> None:
         self._ensure_initialized()
         if self.cell_router_requests_total is None:
@@ -411,7 +617,10 @@ class MetricsRegistry(_MetricsRegistryBase):
         self._ensure_initialized()
         if self.identity_failures_total is None:
             return
-        self.identity_failures_total.add(1, {"reason": reason, "provider": provider})
+        self.identity_failures_total.add(
+            1,
+            self._with_env({"reason": reason, "provider": provider}),
+        )
 
     def record_runtime_api_request(
         self,
@@ -440,6 +649,109 @@ class MetricsRegistry(_MetricsRegistryBase):
         if status_code >= 400 and self.runtime_api_errors_total is not None:
             self.runtime_api_errors_total.add(1, attrs)
 
+    def record_runtime_data_access(
+        self,
+        *,
+        resource_kind: str,
+        endpoint: str,
+        outcome: str,
+        tenant_scoped: bool,
+    ) -> None:
+        self._ensure_initialized()
+        if self.runtime_data_access_total is None:
+            return
+        attrs = self._with_env(
+            {
+                "resource_kind": resource_kind or "unknown",
+                "endpoint": endpoint or "unknown",
+                "outcome": outcome or "unknown",
+                "tenant_scoped": str(bool(tenant_scoped)).lower(),
+            }
+        )
+        self.runtime_data_access_total.add(1, attrs)
+
+    def record_runtime_cache_event(
+        self,
+        *,
+        cache_name: str,
+        operation: str,
+        outcome: str,
+    ) -> None:
+        self._ensure_initialized()
+        if self.runtime_cache_operations_total is None:
+            return
+        attrs = self._with_env(
+            {
+                "cache_name": cache_name or "unknown",
+                "operation": operation or "unknown",
+                "outcome": outcome or "unknown",
+            }
+        )
+        self.runtime_cache_operations_total.add(1, attrs)
+
+    def record_runtime_cache_rebuild(
+        self,
+        *,
+        cache_name: str,
+        duration_seconds: float,
+        item_count: int,
+    ) -> None:
+        self._ensure_initialized()
+        attrs = self._with_env({"cache_name": cache_name or "unknown"})
+        if self.runtime_cache_rebuild_duration_seconds is not None:
+            self.runtime_cache_rebuild_duration_seconds.record(max(duration_seconds, 0.0), attrs)
+        if self.runtime_cache_item_count is not None:
+            self.runtime_cache_item_count.set(float(max(item_count, 0)), attrs)
+
+    def set_runtime_cache_staleness(
+        self,
+        *,
+        cache_name: str,
+        staleness_seconds: float,
+    ) -> None:
+        self._ensure_initialized()
+        if self.runtime_cache_staleness_seconds is None:
+            return
+        self.runtime_cache_staleness_seconds.set(
+            max(float(staleness_seconds), 0.0),
+            self._with_env({"cache_name": cache_name or "unknown"}),
+        )
+
+    def record_runtime_rate_limit_event(
+        self,
+        *,
+        endpoint: str,
+        mode: str,
+        outcome: str,
+    ) -> None:
+        self._ensure_initialized()
+        if self.runtime_rate_limit_events_total is None:
+            return
+        self.runtime_rate_limit_events_total.add(
+            1,
+            self._with_env(
+                {
+                    "endpoint": endpoint or "unknown",
+                    "mode": mode or "unknown",
+                    "outcome": outcome or "unknown",
+                }
+            ),
+        )
+
+    def set_runtime_live_streams(
+        self,
+        *,
+        endpoint: str,
+        active_streams: int,
+    ) -> None:
+        self._ensure_initialized()
+        if self.runtime_live_streams_current is None:
+            return
+        self.runtime_live_streams_current.set(
+            float(max(active_streams, 0)),
+            self._with_env({"endpoint": endpoint or "unknown"}),
+        )
+
     def record_control_plane_job_admission(
         self,
         *,
@@ -462,6 +774,34 @@ class MetricsRegistry(_MetricsRegistryBase):
             self.control_plane_job_admission_duration_seconds.record(
                 max(duration_seconds, 0.0),
                 attrs,
+            )
+
+    def record_control_plane_job_execution(
+        self,
+        *,
+        job_kind: str,
+        status: str,
+        duration_seconds: float,
+        queue_lag_seconds: float,
+    ) -> None:
+        self._ensure_initialized()
+        attrs = self._with_env(
+            {
+                "job_kind": job_kind or "unknown",
+                "status": status or "unknown",
+            }
+        )
+        if self.control_plane_job_executions_total is not None:
+            self.control_plane_job_executions_total.add(1, attrs)
+        if self.control_plane_job_execution_duration_seconds is not None:
+            self.control_plane_job_execution_duration_seconds.record(
+                max(duration_seconds, 0.0),
+                attrs,
+            )
+        if self.control_plane_job_queue_lag_seconds is not None:
+            self.control_plane_job_queue_lag_seconds.record(
+                max(queue_lag_seconds, 0.0),
+                self._with_env({"job_kind": job_kind or "unknown"}),
             )
 
     def record_audit_entry(self, *, chain_id: str, event_type: str) -> None:
@@ -561,16 +901,47 @@ class MetricsRegistry(_MetricsRegistryBase):
             return
         self.sbom_deployment_gate_total.add(1, {"decision": decision})
 
+    def record_artifact_integrity_failure(
+        self,
+        *,
+        backend: str,
+        reason: str,
+    ) -> None:
+        self._ensure_initialized()
+        if self.artifact_integrity_failures_total is None:
+            return
+        self.artifact_integrity_failures_total.add(
+            1,
+            self._with_env(
+                {
+                    "backend": backend or "unknown",
+                    "reason": reason or "unknown",
+                }
+            ),
+        )
+
 
 
 _metrics_registry: Optional[MetricsRegistry] = None
+_metrics_registry_lock = threading.Lock()
 
 
 def get_metrics() -> MetricsRegistry:
     """Get the global MetricsRegistry instance."""
     global _metrics_registry
-    if _metrics_registry is None:
-        _metrics_registry = MetricsRegistry()
+    if (
+        _metrics_registry is not None
+        and MetricsRegistry._instance is not None
+        and _metrics_registry is MetricsRegistry._instance
+    ):
+        return _metrics_registry
+    with _metrics_registry_lock:
+        if (
+            _metrics_registry is None
+            or MetricsRegistry._instance is None
+            or _metrics_registry is not MetricsRegistry._instance
+        ):
+            _metrics_registry = MetricsRegistry()
     return _metrics_registry
 
 

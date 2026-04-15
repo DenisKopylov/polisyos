@@ -26,7 +26,7 @@ IDEMPOTENCY_CONTRACT_VERSION = "1.0"
 _IDEM_CANON = CanonSpec(
     name="polisyos.idempotency.canon",
     version=IDEMPOTENCY_CONTRACT_VERSION,
-    forbid_floats=True,
+    forbid_floats=False,
     sort_keys=True,
 )
 
@@ -155,6 +155,7 @@ class NodeResultCache:
                 schema=SchemaInfo(name="polisyos.scientist.engine.NodeOutcome", version="1.0"),
                 producer=ProducerInfo(component="scientist.engine.idempotency", version="1.0.0"),
             ),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
         entry = NodeCacheEntry(
             run_id=self._run_id,

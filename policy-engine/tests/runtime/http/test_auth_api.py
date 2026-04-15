@@ -12,6 +12,7 @@ class TestAuthMe:
         assert body["user_id"] == "fixture-analyst"
         assert body["tenant_id"] == "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
         assert body["roles"] == ["analyst"]
+        assert "mode.analyst" in body["permissions"]
         assert "runs.launch" in body["permissions"]
         assert "evidence.promotions.approve" in body["permissions"]
         assert body["feature_overrides"]["enableReviewCollaboration"] is True

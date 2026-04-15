@@ -1,22 +1,29 @@
 from __future__ import annotations
 
 from collections import Counter
-from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric.world.store import (
     WorldFactError,
+    WorldSegmentError,
+    WorldSegmentGCReport,
     append_world_segment_index,
     emit_doc_meta_facts,
     emit_edge_fact,
     emit_world_node_facts,
+    gc_world_segments,
     load_world_fact_manifests,
     stable_world_provenance_v1,
+    vacuum_world_segment_index,
     write_world_fact_segment,
 )
 from polisyos.ir.world.abi import EdgeKind, NodeKind
@@ -39,7 +46,7 @@ def test_emit_doc_meta_facts_idempotent_fact_ids() -> None:
         doc_version_id=doc_version_id_from_raw_artifact(raw_artifact_id=raw_ref),
         canonical_url=canonical_url,
         official_id=None,
-        retrieved_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        retrieved_at=datetime(2026, 1, 1, tzinfo=UTC),
         mime="text/html",
         license="public",
         raw_ref=raw_ref,
@@ -161,3 +168,146 @@ def test_write_world_fact_segment_roundtrip(tmp_path: Path) -> None:
 
     digest = sha256(manifest_path.read_bytes()).hexdigest()
     assert manifest.sha256 == digest
+
+
+def test_concurrent_world_segment_index_appends_are_not_corrupt(tmp_path: Path) -> None:
+    provenance = stable_world_provenance_v1()
+    facts = emit_world_node_facts(
+        node_id="doc.source",
+        kind=NodeKind.DOC_SOURCE,
+        label="Doc",
+        artifact_id=None,
+        props_ref=None,
+        provenance=provenance,
+    )
+    base_manifest = write_world_fact_segment(
+        facts,
+        fact_log_root=tmp_path,
+        segment_name="concurrent",
+    )
+
+    def _append(index: int) -> None:
+        append_world_segment_index(
+            base_manifest.model_copy(update={"segment_id": f"segment.{index}"}),
+            fact_log_root=tmp_path,
+        )
+
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        list(executor.map(_append, range(30)))
+
+    manifests = load_world_fact_manifests(tmp_path)
+    assert {manifest.segment_id for manifest in manifests} == {
+        f"segment.{index}" for index in range(30)
+    }
+
+
+def test_append_world_segment_index_uses_injected_observability_providers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provenance = stable_world_provenance_v1()
+    facts = emit_world_node_facts(
+        node_id="doc.source",
+        kind=NodeKind.DOC_SOURCE,
+        label="Doc",
+        artifact_id=None,
+        props_ref=None,
+        provenance=provenance,
+    )
+    manifest = write_world_fact_segment(
+        facts,
+        fact_log_root=tmp_path,
+        segment_name="tenant-observable",
+    ).model_copy(update={"stats": {"tenant_id": "tenant-explicit"}})
+
+    tracer = get_tracer()
+    metrics = get_metrics()
+    resolved_calls: list[tuple[object | None, object | None]] = []
+    monkeypatch.setattr(
+        "polisyos.fabric.world.store.segments.resolve_world_observability",
+        lambda **kwargs: (
+            resolved_calls.append((kwargs.get("tracer"), kwargs.get("metrics")))
+            or SimpleNamespace(tracer=tracer, metrics=metrics)
+        ),
+    )
+
+    append_world_segment_index(
+        manifest,
+        fact_log_root=tmp_path,
+        tracer=tracer,
+        metrics=metrics,
+    )
+
+    manifests = load_world_fact_manifests(tmp_path)
+    assert [item.segment_id for item in manifests] == [manifest.segment_id]
+    assert resolved_calls == [(tracer, metrics)]
+
+
+def test_invalid_world_segment_index_fails_closed(tmp_path: Path) -> None:
+    index_path = tmp_path / "world" / "_segments.jsonl"
+    index_path.parent.mkdir(parents=True)
+    index_path.write_text("{not-json}\n", encoding="utf-8")
+
+    with pytest.raises(WorldSegmentError):
+        load_world_fact_manifests(tmp_path)
+
+
+def test_vacuum_world_segment_index_drops_missing_entries(tmp_path: Path) -> None:
+    provenance = stable_world_provenance_v1()
+    facts = emit_world_node_facts(
+        node_id="doc.source",
+        kind=NodeKind.DOC_SOURCE,
+        label="Doc",
+        artifact_id=None,
+        props_ref=None,
+        provenance=provenance,
+    )
+    manifest = write_world_fact_segment(
+        facts,
+        fact_log_root=tmp_path,
+        segment_name="vacuum",
+    )
+    append_world_segment_index(manifest, fact_log_root=tmp_path)
+    Path(manifest.path).unlink()
+
+    vacuumed = vacuum_world_segment_index(tmp_path)
+
+    assert vacuumed == []
+    assert load_world_fact_manifests(tmp_path) == []
+
+
+def test_gc_world_segments_keeps_latest_and_unapplied(tmp_path: Path) -> None:
+    provenance = stable_world_provenance_v1()
+    segment_ids: list[str] = []
+    manifests = []
+    for index in range(3):
+        facts = emit_world_node_facts(
+            node_id=f"doc.source.{index}",
+            kind=NodeKind.DOC_SOURCE,
+            label=f"Doc {index}",
+            artifact_id=None,
+            props_ref=None,
+            provenance=provenance,
+        )
+        manifest = write_world_fact_segment(
+            facts,
+            fact_log_root=tmp_path,
+            segment_name=f"gc_{index}",
+        )
+        append_world_segment_index(manifest, fact_log_root=tmp_path)
+        manifests.append(manifest)
+        segment_ids.append(manifest.segment_id)
+
+    report = gc_world_segments(
+        tmp_path,
+        applied_segment_ids=segment_ids[:2],
+        retain_latest=2,
+    )
+
+    assert isinstance(report, WorldSegmentGCReport)
+    assert segment_ids[0] in report.deleted_segment_ids
+    assert segment_ids[1] in report.retained_segment_ids
+    assert segment_ids[2] in report.retained_segment_ids
+    assert not Path(manifests[0].path).exists()
+    remaining = {manifest.segment_id for manifest in load_world_fact_manifests(tmp_path)}
+    assert remaining == set(report.retained_segment_ids)

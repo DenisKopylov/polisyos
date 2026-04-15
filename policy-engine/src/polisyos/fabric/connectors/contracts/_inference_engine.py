@@ -21,6 +21,7 @@ from polisyos.fabric.connectors.contracts.schema import (
     SemanticType,
     TimeGranularity,
 )
+from polisyos.fabric.finite import is_finite_number
 
 from ._inference_config import InferenceConfig, SchemaHints
 from ._inference_result import InferenceResult
@@ -78,6 +79,7 @@ SEMANTIC_PATTERNS: dict[str, SemanticType] = {
     r".*_code$": SemanticType.CODE,
     r".*_key$": SemanticType.IDENTIFIER,
     r".*_uuid$": SemanticType.IDENTIFIER,
+    r"^zip$|.*_zip$|^postal_code$|.*_postal_code$": SemanticType.CODE,
 
     # Currency
     r".*_usd$|.*_eur$|.*_uah$|.*_gbp$|.*_jpy$": SemanticType.CURRENCY,
@@ -274,8 +276,8 @@ class SchemaInference:
         # Compute bounds for numeric types
         bounds: tuple[float | None, float | None] = (None, None)
         if data_type.is_numeric():
-            numeric_series = pd.to_numeric(series, errors="coerce")
-            if not numeric_series.isna().all():
+            numeric_series = self._finite_numeric_series(series)
+            if not numeric_series.empty:
                 bounds = (
                     float(numeric_series.min()),
                     float(numeric_series.max()),
@@ -439,28 +441,51 @@ class SchemaInference:
         if data_type.is_numeric():
             if data_type == SchemaType.BOOLEAN:
                 return None
-            sample = series.dropna()
+            sample = self._finite_numeric_series(series)
             if len(sample) > 0:
                 min_val, max_val = sample.min(), sample.max()
 
-                if 0 <= min_val and max_val <= 100:
-                    if (sample >= 0).all() and (sample <= 100).all():
-                        return SemanticType.PERCENTAGE
+                if min_val >= 0 and max_val <= 1 and (sample <= 1).all():
+                    return SemanticType.RATIO
 
-                if 0 <= min_val and max_val <= 1:
-                    if (sample >= 0).all() and (sample <= 1).all():
-                        return SemanticType.RATIO
+                if min_val >= 0 and max_val <= 100 and (sample <= 100).all():
+                    return SemanticType.PERCENTAGE
 
-                if data_type in (
-                    SchemaType.INT32,
-                    SchemaType.INT64,
-                    SchemaType.UINT32,
-                    SchemaType.UINT64,
+                if (
+                    data_type in (
+                        SchemaType.INT32,
+                        SchemaType.INT64,
+                        SchemaType.UINT32,
+                        SchemaType.UINT64,
+                    )
+                    and min_val >= 0
+                    and not self._is_count_excluded_name(name_lower)
                 ):
-                    if min_val >= 0:
-                        return SemanticType.COUNT
+                    return SemanticType.COUNT
 
         return None
+
+    @staticmethod
+    def _finite_numeric_series(series: pd.Series) -> pd.Series:
+        numeric = pd.to_numeric(series, errors="coerce").dropna()
+        if numeric.empty:
+            return numeric
+        return numeric[numeric.map(is_finite_number)]
+
+    @staticmethod
+    def _is_count_excluded_name(name_lower: str) -> bool:
+        protected_tokens = (
+            "year",
+            "date",
+            "time",
+            "period",
+            "id",
+            "key",
+            "code",
+            "zip",
+            "postal",
+        )
+        return any(token in name_lower for token in protected_tokens)
 
     def _detect_time_dimension(
         self,

@@ -6,14 +6,17 @@ profile resolvers pass immutable ``ConnectionConfig`` / ``ConnectionHandle`` obj
 """
 from __future__ import annotations
 
+import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     Any,
     AsyncIterator,
     ClassVar,
     Generic,
+    Mapping,
     Protocol,
     TypeVar,
     runtime_checkable,
@@ -43,6 +46,52 @@ if TYPE_CHECKING:
 DataT = TypeVar("DataT")
 
 
+def _freeze_nested(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return MappingProxyType({str(key): _freeze_nested(item) for key, item in value.items()})
+    if isinstance(value, list):
+        return tuple(_freeze_nested(item) for item in value)
+    if isinstance(value, tuple):
+        return tuple(_freeze_nested(item) for item in value)
+    if isinstance(value, set):
+        return frozenset(_freeze_nested(item) for item in value)
+    return value
+
+
+class ConnectionState:
+    """Mutable runtime state owner hidden behind immutable handle snapshots."""
+
+    __slots__ = ("_data", "_lock")
+
+    def __init__(self) -> None:
+        self._data: dict[str, Any] = {}
+        self._lock = threading.RLock()
+
+    def get(self, key: str, default: Any = None) -> Any:
+        with self._lock:
+            return self._data.get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        with self._lock:
+            self._data[key] = value
+
+    def setdefault(self, key: str, default: Any) -> Any:
+        with self._lock:
+            return self._data.setdefault(key, default)
+
+    def pop(self, key: str, default: Any = None) -> Any:
+        with self._lock:
+            return self._data.pop(key, default)
+
+    def clear(self) -> None:
+        with self._lock:
+            self._data.clear()
+
+    def snapshot(self) -> Mapping[str, Any]:
+        with self._lock:
+            return _freeze_nested(self._data)
+
+
 # ============================================================================
 # Connection Configuration
 # ============================================================================
@@ -57,9 +106,9 @@ class ConnectionConfig:
     """
 
     url: str
-    headers: dict[str, str] = field(default_factory=dict)
+    headers: Mapping[str, str] = field(default_factory=dict)
     auth_method: str | None = None
-    auth_credentials: dict[str, str] = field(default_factory=dict)
+    auth_credentials: Mapping[str, str] = field(default_factory=dict)
     timeout_seconds: int = 30
     max_retries: int = 3
     retry_delay_seconds: float = 1.0
@@ -72,6 +121,10 @@ class ConnectionConfig:
     # SSL/TLS settings
     verify_ssl: bool = True
     ca_bundle_path: str | None = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "headers", _freeze_nested(dict(self.headers)))
+        object.__setattr__(self, "auth_credentials", _freeze_nested(dict(self.auth_credentials)))
 
     def redacted(self) -> "ConnectionConfig":
         """Return config with sensitive fields redacted for logging."""
@@ -103,9 +156,9 @@ class ConnectionConfig:
         config = self.redacted() if redact else self
         return {
             "url": config.url,
-            "headers": config.headers,
+            "headers": dict(config.headers),
             "auth_method": config.auth_method,
-            "auth_credentials": config.auth_credentials,
+            "auth_credentials": dict(config.auth_credentials),
             "timeout_seconds": config.timeout_seconds,
             "max_retries": config.max_retries,
             "retry_delay_seconds": config.retry_delay_seconds,
@@ -125,13 +178,39 @@ class ConnectionHandle:
     config: ConnectionConfig
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     session_id: str = field(default_factory=lambda: str(uuid4()))
-    state: dict[str, Any] = field(default_factory=dict, compare=False, hash=False, repr=False)
+    _state: ConnectionState = field(
+        default_factory=ConnectionState,
+        compare=False,
+        hash=False,
+        repr=False,
+        init=False,
+    )
 
     @property
     def age_seconds(self) -> float:
         """Get the age of this connection in seconds."""
         delta = datetime.now(timezone.utc) - self.created_at
         return delta.total_seconds()
+
+    @property
+    def state(self) -> Mapping[str, Any]:
+        """Immutable snapshot of runtime state for diagnostics and read-only inspection."""
+        return self._state.snapshot()
+
+    def get_state(self, key: str, default: Any = None) -> Any:
+        return self._state.get(key, default)
+
+    def set_state(self, key: str, value: Any) -> None:
+        self._state.set(key, value)
+
+    def setdefault_state(self, key: str, default: Any) -> Any:
+        return self._state.setdefault(key, default)
+
+    def pop_state(self, key: str, default: Any = None) -> Any:
+        return self._state.pop(key, default)
+
+    def clear_state(self) -> None:
+        self._state.clear()
 
 
 class HealthStatus(BaseModel):
@@ -184,7 +263,7 @@ class DatasetCapabilitySnapshot(BaseModel):
         default=(),
         description="Preferred dimension order for keyed transport APIs",
     )
-    allowed_positions: dict[str, tuple[str, ...]] = Field(
+    allowed_positions: Mapping[str, tuple[str, ...]] = Field(
         default_factory=dict,
         description="Allowed dimension members by dimension id",
     )
@@ -214,6 +293,19 @@ class DatasetCapabilitySnapshot(BaseModel):
             return ""
         text = str(value).strip()
         return text
+
+    @field_validator("allowed_positions", mode="before")
+    @classmethod
+    def _freeze_allowed_positions(cls, value: Any) -> Mapping[str, tuple[str, ...]]:
+        if value is None:
+            return MappingProxyType({})
+        if not isinstance(value, Mapping):
+            raise TypeError("allowed_positions must be a mapping")
+        normalized = {
+            str(key): tuple(str(item) for item in values)
+            for key, values in value.items()
+        }
+        return MappingProxyType(normalized)
 
 
 class AsyncFetchLease(BaseModel):

@@ -259,7 +259,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
                 field="url",
             )
         handle = self._create_handle(config)
-        handle.state["sdmx"] = self._parse_sdmx_config(config)
+        handle.set_state("sdmx", self._parse_sdmx_config(config))
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
@@ -272,7 +272,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
     @with_circuit_breaker()
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         start = time.monotonic()
-        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         url = _join_url(handle.config.url, cfg["dataflow_path"], cfg["agency"])
         try:
             async with aiohttp.ClientSession() as session:
@@ -297,7 +297,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         self,
         handle: ConnectionHandle,
     ) -> AsyncIterator[DatasetDescriptor]:
-        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         detail = cfg["dataflow_detail"]
         url = _join_url(handle.config.url, cfg["dataflow_path"], cfg["agency"])
         if detail:
@@ -347,7 +347,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         handle: ConnectionHandle,
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
-        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         filter_path = self._build_filter_path(request, cfg.get("dimension_order"))
         dataflow_key = request.dataset_id
         url = _join_url(
@@ -468,7 +468,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         dataset_id: str,
         cached_version: DataVersion,
     ) -> FreshnessResult:
-        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         url = _join_url(handle.config.url, cfg["data_path"], cfg["agency"], dataset_id)
         headers = self._sdmx_data_headers(handle.config)
 

@@ -6,13 +6,13 @@ import json
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import (
     ComponentEntry,
     ComponentRegistry,
     DuplicateComponentIdPolicy,
     discover_components,
 )
+from polisyos.core.components._cli_store import build_cli_artifact_store
 from polisyos.core.components.bootstrap import bootstrap_plugin_registries, build_components_index
 from polisyos.core.registry import build_registry_bundle_from_components
 from polisyos.core.registry.builder_from_fragments import FragmentPrecedencePolicy
@@ -89,7 +89,7 @@ def _cmd_registry_build(args: Any) -> int:
             on_duplicate=DuplicateComponentIdPolicy.WARN,
         )
 
-    store = FileSystemCAS(Path(args.cas_root))
+    store = build_cli_artifact_store(Path(args.cas_root))
     bundle_ref, compose_report_ref = build_registry_bundle_from_components(
         store,
         components_index=index,

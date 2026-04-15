@@ -7,7 +7,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
@@ -105,6 +105,15 @@ _SPEC = NodeSpec(
     ],
 )
 
+_CAUSAL_ENSEMBLE_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_CAUSAL_ENSEMBLE_RUNTIME_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+
 
 class _MemberPayload(BaseModel):
     model_config = ConfigDict(extra="allow")
@@ -153,12 +162,12 @@ def _coerce_ref(raw: Any, *, default_kind: str) -> ArtifactRef | None:
     if isinstance(raw, Mapping):
         try:
             return ArtifactRef.model_validate(raw)
-        except Exception:
+        except _CAUSAL_ENSEMBLE_VALIDATION_ERRORS:
             return None
     if isinstance(raw, str):
         try:
             artifact_id = ArtifactID.model_validate(raw)
-        except Exception:
+        except _CAUSAL_ENSEMBLE_VALIDATION_ERRORS:
             return None
         return ArtifactRef(
             artifact_id=artifact_id,
@@ -305,7 +314,7 @@ def _mean_bootstrap_stability(
     try:
         report_ref = CausalDiscoveryReportRef.model_validate(discovery_report_ref.model_dump())
         report = load_causal_discovery_report(ctx.store, report_ref)
-    except Exception:
+    except _CAUSAL_ENSEMBLE_RUNTIME_ERRORS:
         return 0.0
     if not report.bootstrap_stability:
         return 0.0
@@ -444,7 +453,7 @@ class RunCausalEnsembleNode:
 
         try:
             candidates, warnings = _resolve_members(state)
-        except Exception as exc:
+        except _CAUSAL_ENSEMBLE_VALIDATION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -475,7 +484,7 @@ class RunCausalEnsembleNode:
         if query_payload is not None:
             try:
                 query = CausalQuery.model_validate(query_payload)
-            except Exception as exc:
+            except _CAUSAL_ENSEMBLE_VALIDATION_ERRORS as exc:
                 return NodeOutcome(
                     status="fail",
                     state=state,
@@ -560,7 +569,7 @@ class RunCausalEnsembleNode:
                         scm_spec=scm_spec,
                         seed=member_seed,
                     )
-                except Exception as exc:
+                except _CAUSAL_ENSEMBLE_RUNTIME_ERRORS as exc:
                     return NodeOutcome(
                         status="fail",
                         state=state,
@@ -576,7 +585,7 @@ class RunCausalEnsembleNode:
                         candidate.query_result_ref.model_dump(mode="json")
                     )
                     query_result = load_causal_query_result(ctx.store, query_result_ref)
-                except Exception as exc:
+                except _CAUSAL_ENSEMBLE_RUNTIME_ERRORS as exc:
                     return NodeOutcome(
                         status="fail",
                         state=state,

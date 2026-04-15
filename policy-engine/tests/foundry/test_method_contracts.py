@@ -98,6 +98,14 @@ class TestCheckContractsPre:
             _check_contracts_pre("test.method@1.0.0", contracts, {}, {})
         assert exc_info.value.contract_type == "precondition"
 
+    def test_unsafe_expression_is_rejected(self):
+        contracts = MethodContracts(
+            preconditions=("__import__('os').system('echo not-allowed') == 0",)
+        )
+        with pytest.raises(ContractViolationError) as exc_info:
+            _check_contracts_pre("test.method@1.0.0", contracts, {"x": [1]}, {})
+        assert exc_info.value.contract_type == "precondition"
+
 
 class TestCheckContractsPost:
     def test_passing_postcondition(self):

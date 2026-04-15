@@ -404,7 +404,7 @@ class LogisticPropensityModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="logistic_propensity",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_nuisance_slots(),
         output_slots=_propensity_output_slots(),
@@ -462,7 +462,7 @@ class LogisticL2PropensityModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="logistic_l2_propensity",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_nuisance_slots(),
         output_slots=_propensity_output_slots(),
@@ -544,7 +544,7 @@ class OLSOutcomeModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ols_outcome",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
@@ -609,7 +609,7 @@ class LassoOutcomeModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="lasso_outcome",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
@@ -703,7 +703,7 @@ class MediatorDensityModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="mediator_density",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
@@ -777,7 +777,7 @@ class EmpiricalDensityEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="empirical_density",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
@@ -847,7 +847,7 @@ class GenericPropensityModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="propensity_model",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_nuisance_slots(),
         output_slots=_propensity_output_slots(),
@@ -900,7 +900,7 @@ class GenericOutcomeModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="outcome_model",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
@@ -966,7 +966,7 @@ class Marginalizer:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="marginalizer",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("joint_distribution", SlotType.VECTOR, Unit("distribution", "value")),
@@ -1025,7 +1025,7 @@ class ProductCombiner:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="product",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("factor_0", SlotType.VECTOR, Unit("distribution", "value")),
@@ -1090,7 +1090,7 @@ class RatioCombiner:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ratio",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("numerator", SlotType.VECTOR, Unit("distribution", "value")),
@@ -1152,7 +1152,7 @@ class Integrator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="integrator",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("integrand", SlotType.VECTOR, Unit("distribution", "value")),
@@ -1214,7 +1214,7 @@ class DistributionReader:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="distribution_read",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("data", SlotType.MATRIX, Unit("dataset", "raw")),
@@ -1278,7 +1278,7 @@ class ParametricConditionalDensity:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="parametric_conditional_density",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
@@ -1401,7 +1401,7 @@ class MultinomialPropensityModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="multinomial_propensity",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="covariates", slot_type=SlotType.MATRIX,

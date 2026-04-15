@@ -1,0 +1,87 @@
+groups:
+  - name: polisyos_runtime_operability
+    interval: 30s
+    rules:
+      - alert: RuntimeDependencyCircuitOpen
+        expr: max by (circuit_id) (polisyos_connector_circuit_state{circuit_id=~"runtime\\..+"}) > 0
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Runtime dependency circuit is not closed"
+          description: |
+            Circuit {{ $labels.circuit_id }} is open or half-open for at least 5 minutes.
+            Check the dependent runtime backend before latency and error rate amplify further.
+
+      - alert: RuntimeRateLimitSaturation
+        expr: sum by (endpoint) (rate(polisyos_runtime_rate_limit_events_total{outcome="throttled"}[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Runtime rate limiting is throttling requests"
+          description: |
+            Endpoint {{ $labels.endpoint }} is throttling at {{ $value | printf "%.3f" }} events/s.
+            Verify tenant traffic spikes or adjust concurrency budgets.
+
+      - alert: RuntimeAuthFailuresSpike
+        expr: increase(polisyos_identity_failures_total[10m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "Runtime identity failures are elevated"
+          description: |
+            {{ $value }} identity/authentication failures were recorded in the last 10 minutes.
+            Review JWT validation, tenant binding mismatches, and client rollout changes.
+
+      - alert: ControlPlaneQueueLagHigh
+        expr: histogram_quantile(0.95, sum by (le, job_kind) (rate(polisyos_control_plane_job_queue_lag_seconds_bucket[10m]))) > 30
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Control-plane queue lag is elevated"
+          description: |
+            Job kind {{ $labels.job_kind }} has p95 queue lag {{ $value | printf "%.1f" }}s.
+            Check worker health, dependency degradation, and backlog growth.
+
+      - alert: RuntimeCacheRebuildStorm
+        expr: increase(polisyos_runtime_cache_operations_total{operation="refresh",outcome="rebuild"}[15m]) > 10
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Runtime cache is rebuilding too often"
+          description: |
+            Cache {{ $labels.cache_name }} rebuilt {{ $value }} times in the last 15 minutes.
+            Investigate invalidation storms or repeated cold starts.
+
+      - alert: RuntimeCacheStalenessHigh
+        expr: max by (cache_name) (polisyos_runtime_cache_staleness_seconds) > 300
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Runtime cache is stale"
+          description: |
+            Cache {{ $labels.cache_name }} has staleness {{ $value | printf "%.1f" }}s.
+            Freshness-sensitive reads may be serving outdated state.
+
+      - alert: ArtifactIntegrityFailuresDetected
+        expr: increase(polisyos_artifact_integrity_failures_total[15m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "Artifact integrity failures detected"
+          description: |
+            Backend {{ $labels.backend }} reported {{ $value }} artifact integrity failures in the last 15 minutes.
+            Inspect manifest/blob corruption and storage health immediately.

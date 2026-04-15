@@ -118,10 +118,13 @@ class TestDirectASTScan:
         for root in foundry_roots:
             for py_file in lf.iter_py_files(root):
                 policy = lf._policy_for_file(py_file, root)
-                tree = ast.parse(py_file.read_text(encoding="utf-8"))
-                visitor = lf.FoundryVisitor(py_file, policy)
-                visitor.visit(tree)
-                violations.extend(visitor.violations)
+                outcome = lf._scan_file(
+                    py_file,
+                    repo_root=REPO_ROOT,
+                    policy=policy,
+                    apply_fix=False,
+                )
+                violations.extend(outcome.violations)
 
         assert violations == [], (
             f"Foundry ban-list violations:\n"
@@ -145,8 +148,7 @@ class TestBackendIsolation:
     def test_no_foundry_catalog_imports_io_directly(self) -> None:
         """Scan catalog/ directory for direct I/O imports (os, pathlib, etc.)."""
         catalog_root = _foundry_root() / "methods" / "catalog"
-        if not catalog_root.exists():
-            pytest.skip("catalog directory not found")
+        assert catalog_root.exists(), "catalog directory not found"
 
         io_modules = {"os", "pathlib", "shutil", "glob", "tempfile", "subprocess"}
         violations = []

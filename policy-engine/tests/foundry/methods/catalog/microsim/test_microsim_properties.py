@@ -17,24 +17,17 @@ from tests.foundry.methods.testing.strategies import microsim_strategy
 
 
 def _method_or_skip(registry, fqn):
-    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-    ensure_all_methods_registered(registry)
-    try:
-        return registry.get(fqn)
-    except Exception:
-        pytest.skip(f"{fqn} not registered")
+    return registry.get(fqn)
 
 
 class TestTaxBenefitProperties:
     @given(data=microsim_strategy())
     @settings(max_examples=25, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_tax_benefit_output_finite(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "microsim.tax_benefit.calculator@1.0.0")
+        method = _method_or_skip(isolated_registry, "microsim.policy.tax_benefit_calculator@1.0.0")
         state = {
-            "income": data["income"],
-            "age": data["age"],
-            "employment_status": data["employment_status"],
-            "household_size": data["household_size"],
+            "market_income": data["income"],
+            "weights": np.ones_like(data["income"], dtype=float),
         }
         try:
             result = method.pure_step(state, {})
@@ -50,12 +43,10 @@ class TestTaxBenefitProperties:
     @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_tax_benefit_disposable_income_non_negative(self, data, isolated_registry):
         """Disposable income (income - tax + benefits) should be >= 0 for positive income."""
-        method = _method_or_skip(isolated_registry, "microsim.tax_benefit.calculator@1.0.0")
+        method = _method_or_skip(isolated_registry, "microsim.policy.tax_benefit_calculator@1.0.0")
         state = {
-            "income": data["income"],
-            "age": data["age"],
-            "employment_status": data["employment_status"],
-            "household_size": data["household_size"],
+            "market_income": data["income"],
+            "weights": np.ones_like(data["income"], dtype=float),
         }
         try:
             result = method.pure_step(state, {})
@@ -69,12 +60,10 @@ class TestTaxBenefitProperties:
     @given(data=microsim_strategy())
     @settings(max_examples=15, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_tax_benefit_deterministic(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "microsim.tax_benefit.calculator@1.0.0")
+        method = _method_or_skip(isolated_registry, "microsim.policy.tax_benefit_calculator@1.0.0")
         state = {
-            "income": data["income"],
-            "age": data["age"],
-            "employment_status": data["employment_status"],
-            "household_size": data["household_size"],
+            "market_income": data["income"],
+            "weights": np.ones_like(data["income"], dtype=float),
         }
         try:
             r1 = method.pure_step(state, {})
@@ -88,14 +77,13 @@ class TestStaticMicrosimProperties:
     @given(data=microsim_strategy())
     @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_static_microsim_output_dict(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "microsim.population.static@1.0.0")
+        method = _method_or_skip(isolated_registry, "microsim.static.static_microsim@1.0.0")
         state = {
-            "income": data["income"],
-            "age": data["age"],
-            "employment_status": data["employment_status"],
+            "market_income": data["income"],
+            "weights": np.ones_like(data["income"], dtype=float),
         }
         try:
-            result = method.pure_step(state, {"policy_params": {}})
+            result = method.pure_step(state, {})
             assert isinstance(result, dict)
         except Exception:
             pass
@@ -103,14 +91,13 @@ class TestStaticMicrosimProperties:
     @given(data=microsim_strategy())
     @settings(max_examples=15, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_static_microsim_output_shape(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "microsim.population.static@1.0.0")
+        method = _method_or_skip(isolated_registry, "microsim.static.static_microsim@1.0.0")
         state = {
-            "income": data["income"],
-            "age": data["age"],
-            "employment_status": data["employment_status"],
+            "market_income": data["income"],
+            "weights": np.ones_like(data["income"], dtype=float),
         }
         try:
-            result = method.pure_step(state, {"policy_params": {}})
+            result = method.pure_step(state, {})
             # Population-level outputs should match n_agents
             for key, val in result.items():
                 arr = np.asarray(val)

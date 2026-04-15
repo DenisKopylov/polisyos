@@ -136,3 +136,19 @@ def test_compiler_bundle_to_measurement_loss_has_finite_gradient() -> None:
 
     grad = jax.grad(loss_fn)(jnp.array(0.4, dtype=jnp.float32))
     npt.assert_allclose(jnp.isfinite(grad), jnp.array(True))
+
+
+def test_measurement_loss_fails_closed_on_non_finite_predictions() -> None:
+    bundle = CalibrationTargetBundleCompiler().compile(_panel())
+    target_id = bundle.targets[0].target_id
+    cfg = TargetLossConfig(kind="mse", weight=1.0, relative=False, epsilon=1e-8)
+
+    pointwise = pointwise_base_loss(
+        jnp.array([0.4, jnp.nan], dtype=jnp.float32),
+        bundle.observed_value[target_id],
+        cfg,
+        scale=1.0,
+    )
+
+    reduced = reduce_weighted_loss(pointwise, jnp.ones_like(pointwise), epsilon=cfg.epsilon)
+    assert jnp.isinf(reduced)

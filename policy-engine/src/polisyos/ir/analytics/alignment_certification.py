@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import json
+import logging
 import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
@@ -15,17 +16,17 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.datasets.knowledge.proxy_resolver import compose_confidence_chain
 from polisyos.datasets.knowledge.variable_alignment import (
     VariableAlignment,
     default_seed_alignments_path,
     load_seed_alignments,
     score_variable_pair,
 )
-from polisyos.datasets.knowledge.proxy_resolver import compose_confidence_chain
 from polisyos.ir.analytics.cross_graph import (
-    InterfaceRole,
     InterfaceMapping,
     InterfaceMappingEntry,
+    InterfaceRole,
     InterfaceVariableBinding,
     InterfaceVariableSchema,
     SCMFragment,
@@ -33,11 +34,16 @@ from polisyos.ir.analytics.cross_graph import (
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import AlignmentReportRef, VariableAlignmentCertificateRef
+from polisyos.scientist.cross_graph.compiler import (
+    build_fragment_alignment_ontology_warnings,
+)
 
 _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_NAME = "ir.variable_alignment_certificate"
 _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_VERSION = "1.1"
 _ALIGNMENT_REPORT_SCHEMA_NAME = "ir.alignment_report"
 _ALIGNMENT_REPORT_SCHEMA_VERSION = "1.1"
+_EXPECTED_ONTOLOGY_WARNING_ERRORS = (AttributeError, KeyError, TypeError, ValueError)
+logger = logging.getLogger(__name__)
 
 
 class AlignmentCertificateType(str, Enum):
@@ -93,6 +99,28 @@ class MetadataCheckStatus(str, Enum):
     WARNING = "warning"
     MISMATCH = "mismatch"
     UNKNOWN = "unknown"
+
+
+class AlignmentDegradedOutcomeCode(str, Enum):
+    """Typed degraded outcomes for optional alignment diagnostics."""
+
+    ONTOLOGY_WARNING_BUILD_FAILED = "ontology_warning_build_failed"
+
+
+class AlignmentDegradedOutcome(BaseModel):
+    """Structured degraded outcome captured inside alignment-report metadata."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    code: AlignmentDegradedOutcomeCode
+    fragment_pair: tuple[str, str]
+    detail: str = Field(..., min_length=1, max_length=512)
+
+
+@dataclass(frozen=True)
+class _OntologyWarningResult:
+    warnings: tuple[str, ...] = ()
+    degraded_outcomes: tuple[AlignmentDegradedOutcome, ...] = ()
 
 
 class AlignmentVerificationConfig(BaseModel):
@@ -374,6 +402,7 @@ def _verify_fragment_bundle_alignment_impl(
 
     certificates: list[VariableAlignmentCertificate] = []
     ontology_warnings: list[str] = []
+    degraded_outcomes: list[AlignmentDegradedOutcome] = []
     stitched_surface: dict[str, set[str]] = {fragment_id: set() for fragment_id in fragment_ids}
     for fragment_a_id, fragment_b_id in selected_pairs:
         pair_key = _fragment_pair_key(fragment_a_id, fragment_b_id)
@@ -389,14 +418,14 @@ def _verify_fragment_bundle_alignment_impl(
             include_negative_coverage=True,
         )
         certificates.extend(pair_certificates)
-        ontology_warnings.extend(
-            _build_ontology_warnings(
-                fragment_a=fragments_by_id[fragment_a_id],
-                fragment_b=fragments_by_id[fragment_b_id],
-                certificates=pair_certificates,
-                ontology=ontology or [],
-            )
+        ontology_result = _build_ontology_warnings(
+            fragment_a=fragments_by_id[fragment_a_id],
+            fragment_b=fragments_by_id[fragment_b_id],
+            certificates=pair_certificates,
+            ontology=ontology or [],
         )
+        ontology_warnings.extend(ontology_result.warnings)
+        degraded_outcomes.extend(ontology_result.degraded_outcomes)
         stitched_surface[fragment_a_id].update(summary.eligible_variables_a)
         stitched_surface[fragment_b_id].update(summary.eligible_variables_b)
 
@@ -414,6 +443,16 @@ def _verify_fragment_bundle_alignment_impl(
             "boundary_interface_variables": boundary_interface_variables,
             "disconnected_components": [list(component) for component in disconnected_components],
             "stitch_topology_mode": resolved_topology_mode,
+            **(
+                {
+                    "degraded_outcomes": [
+                        outcome.model_dump(mode="json")
+                        for outcome in _dedupe_degraded_outcomes(degraded_outcomes)
+                    ]
+                }
+                if degraded_outcomes
+                else {}
+            ),
         },
     )
     mapping = _build_interface_mapping(
@@ -1640,22 +1679,41 @@ def _build_ontology_warnings(
     fragment_b: SCMFragment,
     certificates: Sequence[VariableAlignmentCertificate],
     ontology: Sequence[Any],
-) -> list[str]:
+) -> _OntologyWarningResult:
     if not ontology or not certificates:
-        return []
+        return _OntologyWarningResult()
     try:
-        from polisyos.scientist.cross_graph.compiler import (
-            build_fragment_alignment_ontology_warnings,
+        return _OntologyWarningResult(
+            warnings=tuple(
+                build_fragment_alignment_ontology_warnings(
+                    fragment_a=fragment_a,
+                    fragment_b=fragment_b,
+                    certificates=certificates,
+                    ontology=list(ontology),
+                )
+            )
         )
-
-        return build_fragment_alignment_ontology_warnings(
-            fragment_a=fragment_a,
-            fragment_b=fragment_b,
-            certificates=certificates,
-            ontology=list(ontology),
+    except _EXPECTED_ONTOLOGY_WARNING_ERRORS as exc:
+        logger.warning(
+            "Alignment ontology warning build failed for fragments %s/%s: %s",
+            fragment_a.fragment_id,
+            fragment_b.fragment_id,
+            exc,
         )
-    except Exception:
-        return []
+        warning = (
+            "alignment degraded: ontology_warning_build_failed for pair "
+            f"{fragment_a.fragment_id}<->{fragment_b.fragment_id}"
+        )
+        return _OntologyWarningResult(
+            warnings=(warning,),
+            degraded_outcomes=(
+                AlignmentDegradedOutcome(
+                    code=AlignmentDegradedOutcomeCode.ONTOLOGY_WARNING_BUILD_FAILED,
+                    fragment_pair=(fragment_a.fragment_id, fragment_b.fragment_id),
+                    detail=str(exc),
+                ),
+            ),
+        )
 
 
 class AlignmentCertificationPolicy(BaseModel):
@@ -1971,6 +2029,20 @@ def _dedupe_pairs(values: Sequence[tuple[str, str]]) -> list[tuple[str, str]]:
     return output
 
 
+def _dedupe_degraded_outcomes(
+    values: Sequence[AlignmentDegradedOutcome],
+) -> list[AlignmentDegradedOutcome]:
+    seen: set[tuple[str, tuple[str, str], str]] = set()
+    output: list[AlignmentDegradedOutcome] = []
+    for value in values:
+        key = (value.code.value, tuple(value.fragment_pair), value.detail.strip())
+        if key in seen:
+            continue
+        seen.add(key)
+        output.append(value)
+    return output
+
+
 def _call_outer_evaluator(
     *,
     evaluator: Callable[..., OuterObjectiveResult],
@@ -1994,6 +2066,8 @@ VariableAlignmentCertificate.model_rebuild()
 
 
 __all__ = [
+    "AlignmentDegradedOutcome",
+    "AlignmentDegradedOutcomeCode",
     "AlignmentOverallStatus",
     "AlignmentReviewStatus",
     "AlignmentCertificateType",

@@ -3,9 +3,18 @@ from __future__ import annotations
 
 import re
 
-from polisyos.ir.migrations.base import migrate_artifact
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    SchemaCompatibilityDecision,
+    can_read_schema,
+    get_schema_rule,
+    migrate_artifact,
+    negotiate_schema_version,
+    register_schema_version,
+)
 from polisyos.ir.migrations.base import register_migration as _register_migration
 from polisyos.ir.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
+from . import schema_registry as _schema_registry  # noqa: F401
 
 IR_ARTIFACT = "policy_ir"
 IR_CURRENT_VERSION = POLICY_IR_CURRENT_VERSION
@@ -28,11 +37,21 @@ def is_major_bump(from_version: str, to_version: str) -> bool:
     return to_major != from_major
 
 
-def register_migration(from_version: str, to_version: str):
+def register_migration(
+    from_version: str,
+    to_version: str,
+    *,
+    compatibility: CompatibilityMode | str = CompatibilityMode.BACKWARD,
+):
     """Register policy IR migration in shared registry."""
     parse_version(from_version)
     parse_version(to_version)
-    return _register_migration(IR_ARTIFACT, from_version, to_version)
+    return _register_migration(
+        IR_ARTIFACT,
+        from_version,
+        to_version,
+        compatibility=compatibility,
+    )
 
 
 def migrate_policy_ir(
@@ -64,10 +83,16 @@ def migrate_policy_ir(
 
 
 __all__ = [
+    "CompatibilityMode",
     "IR_ARTIFACT",
     "IR_CURRENT_VERSION",
+    "SchemaCompatibilityDecision",
+    "can_read_schema",
+    "get_schema_rule",
     "is_major_bump",
     "migrate_policy_ir",
+    "negotiate_schema_version",
     "parse_version",
     "register_migration",
+    "register_schema_version",
 ]

@@ -7475,6 +7475,7 @@ export interface operations {
       query?: {
         limit?: number;
         cursor?: string | null;
+        q?: string | null;
         status?: string | null;
         from_ts?: string | null;
         to_ts?: string | null;

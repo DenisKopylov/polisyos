@@ -59,7 +59,7 @@ class TheilIndexEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="theil",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -115,7 +115,7 @@ class PalmaRatioEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="palma_ratio",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -177,7 +177,7 @@ class GeneralizedGiniEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="generalized_gini",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -65,6 +65,7 @@ vi.mock("@/shared/ui", () => ({
 import { RouteErrorElement } from "@/app/routes/RouteErrorElement";
 import { TabBoundary } from "@/app/routes/TabBoundary";
 import { WorkspaceBoundary } from "@/app/routes/WorkspaceBoundary";
+import { buildFeatureFlags } from "@/test/featureFlags";
 
 describe("route boundaries", () => {
   beforeEach(() => {
@@ -79,12 +80,7 @@ describe("route boundaries", () => {
     });
     useFeatureFlagsMock.mockReset();
     useFeatureFlagsMock.mockReturnValue({
-      flags: {
-        enableLexKnowledge: true,
-        enablePlatformHealth: true,
-        enableRunsWorkspace: true,
-        enableScenarioComposer: true,
-      },
+      flags: buildFeatureFlags(),
     });
     useRouteErrorMock.mockReset();
     useRouteErrorMock.mockReturnValue(new Error("boom"));
@@ -135,12 +131,9 @@ describe("route boundaries", () => {
 
   it("blocks workspaces disabled by feature flags", () => {
     useFeatureFlagsMock.mockReturnValue({
-      flags: {
-        enableLexKnowledge: true,
-        enablePlatformHealth: true,
-        enableRunsWorkspace: true,
+      flags: buildFeatureFlags({
         enableScenarioComposer: false,
-      },
+      }),
     });
 
     render(

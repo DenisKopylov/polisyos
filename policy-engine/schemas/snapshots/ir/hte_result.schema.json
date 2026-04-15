@@ -10,6 +10,9 @@
         "dowhy_backdoor",
         "dowhy_iv",
         "dowhy_frontdoor",
+        "proximal_bridge",
+        "distributional_treatment_effect",
+        "interference_cate",
         "causal_forest",
         "forest_dr",
         "causal_bcf",
@@ -169,7 +172,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Canonical artifact for heterogeneous treatment effect estimation.",
+  "description": "Canonical artifact for heterogeneous treatment effect estimation.\n\nThe contract keeps list/dict containers for ABI compatibility, but derived\nfields are normalized before instantiation rather than by mutating the\nvalidated model.",
   "properties": {
     "ate": {
       "title": "Ate",

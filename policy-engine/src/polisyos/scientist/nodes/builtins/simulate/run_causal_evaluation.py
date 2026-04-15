@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.manifest import InputRef
+import numpy as np
+from pydantic import ValidationError
+
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.methods.catalog import (
@@ -31,21 +34,26 @@ from polisyos.ir.analytics.hte import (
 )
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
+from polisyos.scientist.causal.validity import persist_causal_validity_bundle
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
-from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
     ARTIFACT_CAUSAL_METHOD_RESULT_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
 )
+
+if TYPE_CHECKING:
+    from polisyos.scientist.engine.context import ExecutionContext
+    from polisyos.scientist.engine.state import ExperimentState
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_causal_evaluation@1.2.0"),
@@ -71,6 +79,7 @@ _SPEC = NodeSpec(
         "params.causal_refutation_params",
         "params.enable_causal_sensitivity",
         "params.causal_sensitivity_params",
+        "params.causal_validity",
     ],
     state_writes=[
         "params.query_treatment",
@@ -78,6 +87,7 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_CAUSAL_ENVELOPE_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_RESULT_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF}",
+        f"artifacts_index.{ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_HTE_RESULT_REF}",
         f"artifacts_index.{ARTIFACT_POLICY_RECOMMENDATION_REF}",
         f"artifacts_index.{ARTIFACT_SENSITIVITY_RESULT_REF}",
@@ -87,6 +97,7 @@ _SPEC = NodeSpec(
         ARTIFACT_CAUSAL_ENVELOPE_REF,
         ARTIFACT_CAUSAL_METHOD_RESULT_REF,
         ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
+        ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
         ARTIFACT_HTE_RESULT_REF,
         ARTIFACT_POLICY_RECOMMENDATION_REF,
         ARTIFACT_SENSITIVITY_RESULT_REF,
@@ -109,6 +120,15 @@ _MARKET_WIDE_TREATMENT_KEYWORDS: tuple[str, ...] = (
     "market_wide",
 )
 
+_CAUSAL_EVALUATION_LOAD_ERRORS = (
+    TypeError,
+    ValueError,
+    ValidationError,
+    FileNotFoundError,
+    OSError,
+)
+_CAUSAL_EVALUATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+
 
 def _is_rdd_method(method_fqn: str) -> bool:
     return "regression_discontinuity" in method_fqn
@@ -126,7 +146,7 @@ def _is_dowhy_method_v1(method_fqn: str) -> bool:
     return "dowhy_identify_estimate@1." in method_fqn
 
 
-def _coerce_method_params(raw: Any) -> dict[str, Any]:
+def _coerce_method_params(raw: object) -> dict[str, Any]:
     if isinstance(raw, dict):
         return {str(key): value for key, value in raw.items()}
     return {}
@@ -162,6 +182,47 @@ def _coerce_refutation_input(
             covariates=list(data.covariates),
         )
     return None
+
+
+def _coerce_sensitivity_input(
+    data: (
+        PanelObservationalData
+        | RDDObservationalData
+        | HTEObservationalData
+        | GraphCausalData
+        | GraphCausalDataV1
+    ),
+) -> GraphCausalData | None:
+    if isinstance(data, (GraphCausalData, GraphCausalDataV1)):
+        return _coerce_refutation_input(data)
+    if not isinstance(data, HTEObservationalData):
+        return None
+
+    feature_names = (
+        [str(item) for item in data.feature_names]
+        if data.feature_names is not None
+        else [f"x{idx}" for idx in range(data.covariates.shape[1])]
+    )
+    confounder_names: list[str] = []
+    matrices = [
+        np.asarray(data.treatment, dtype=float).reshape(-1, 1),
+        np.asarray(data.outcome, dtype=float).reshape(-1, 1),
+        np.asarray(data.covariates, dtype=float),
+    ]
+    if data.confounders is not None:
+        confounder_names = (
+            [str(item) for item in data.confounder_names]
+            if data.confounder_names is not None
+            else [f"w{idx}" for idx in range(data.confounders.shape[1])]
+        )
+        matrices.append(np.asarray(data.confounders, dtype=float))
+    return GraphCausalData(
+        data=np.column_stack(matrices),
+        column_names=["treatment", "outcome", *feature_names, *confounder_names],
+        treatment="treatment",
+        outcome="outcome",
+        covariates=[*feature_names, *confounder_names],
+    )
 
 
 def _build_refutation_params(
@@ -206,12 +267,23 @@ def _build_sensitivity_params(
 def _append_input_ref(
     refs: list[InputRef],
     *,
-    artifact_id: Any | None,
+    artifact_id: object | None,
     role: str,
 ) -> None:
     if artifact_id is None:
         return
-    refs.append(InputRef(artifact_id=artifact_id, role=role))
+    refs.append(InputRef(artifact_id=str(artifact_id), role=role))
+
+
+def _to_core_artifact_ref(ref: object | None) -> ArtifactRef | None:
+    if ref is None:
+        return None
+    if isinstance(ref, ArtifactRef):
+        return ref
+    model_dump = getattr(ref, "model_dump", None)
+    if callable(model_dump):
+        return ArtifactRef.model_validate(model_dump(mode="json"))
+    return ArtifactRef.model_validate(ref)
 
 
 def _load_observational_data(
@@ -225,7 +297,8 @@ def _load_observational_data(
     | GraphCausalData
     | GraphCausalDataV1
 ):
-    assert state.observational_data_ref is not None
+    if state.observational_data_ref is None:
+        raise ValueError("observational_data_ref is required for causal evaluation")
     payload = from_canonical_bytes(ctx.store.get_bytes(state.observational_data_ref.artifact_id))
     if _is_rdd_method(method_fqn):
         return RDDObservationalData.model_validate(payload)
@@ -300,7 +373,7 @@ class RunCausalEvaluationNode:
         try:
             ensure_causal_methods_registered()
             observational_data = _load_observational_data(ctx, state, method_fqn)
-        except Exception as exc:
+        except _CAUSAL_EVALUATION_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -344,7 +417,17 @@ class RunCausalEvaluationNode:
                 ),
             )
 
-        report = CausalEffectReport.model_validate(report_raw)
+        try:
+            report = CausalEffectReport.model_validate(report_raw)
+        except _CAUSAL_EVALUATION_VALIDATION_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                    message=f"Causal method output report is invalid: {exc}",
+                ),
+            )
         query_treatment = _extract_query_treatment(
             observational_data,
             method_params=method_params,
@@ -435,7 +518,7 @@ class RunCausalEvaluationNode:
                     else:
                         try:
                             ref_report = CausalEffectReport.model_validate(ref_report_raw)
-                        except Exception as exc:
+                        except _CAUSAL_EVALUATION_VALIDATION_ERRORS as exc:
                             refutation_auto["status"] = "failed"
                             refutation_auto["reason"] = f"invalid_refutation_report: {exc}"
                         else:
@@ -476,13 +559,12 @@ class RunCausalEvaluationNode:
             "method_fqn": "causal.sensitivity.sensitivity_metrics@1.0.0",
         }
         should_sensitivity = (
-            _is_dowhy_method(method_fqn)
-            and report.status == EstimationStatus.SUCCESS
+            report.status == EstimationStatus.SUCCESS
             and state.params.get("enable_causal_sensitivity", True) is not False
         )
         if should_sensitivity:
             sensitivity_auto["attempted"] = True
-            sensitivity_input = _coerce_refutation_input(observational_data)
+            sensitivity_input = _coerce_sensitivity_input(observational_data)
             if sensitivity_input is None:
                 sensitivity_auto["status"] = "failed"
                 sensitivity_auto["reason"] = "unsupported_sensitivity_input"
@@ -531,14 +613,16 @@ class RunCausalEvaluationNode:
                     else:
                         try:
                             sensitivity_result = SensitivityResult.model_validate(sensitivity_raw)
-                        except Exception as exc:
+                        except _CAUSAL_EVALUATION_VALIDATION_ERRORS as exc:
                             sensitivity_auto["status"] = "failed"
                             sensitivity_auto["reason"] = f"invalid_sensitivity_result: {exc}"
                         else:
-                            sensitivity_ref = persist_sensitivity_result(
-                                ctx.store,
-                                sensitivity_result,
-                                inputs=input_refs or None,
+                            sensitivity_ref = _to_core_artifact_ref(
+                                persist_sensitivity_result(
+                                    ctx.store,
+                                    sensitivity_result,
+                                    inputs=input_refs or None,
+                                )
                             )
                             sensitivity_auto = {
                                 **sensitivity_auto,
@@ -554,52 +638,115 @@ class RunCausalEvaluationNode:
                                 ),
                             }
 
-        if _is_dowhy_method(method_fqn):
-            metadata = dict(report.metadata)
-            metadata["sensitivity_auto"] = sensitivity_auto
-            report = report.model_copy(update={"metadata": metadata})
+        metadata = dict(report.metadata)
+        metadata["sensitivity_auto"] = sensitivity_auto
+        report = report.model_copy(update={"metadata": metadata})
 
-        report_ref = persist_causal_effect_report(
-            ctx.store,
-            report,
-            inputs=input_refs or None,
+        validity_bundle_ref = persist_causal_validity_bundle(
+            ctx=ctx,
+            state=state,
+            report=report,
+            method_fqn=method_fqn,
+            method_params=method_params,
+            observational_data=observational_data,
+            seed=seed,
+            sensitivity_ref=sensitivity_ref,
+            sensitivity_auto=sensitivity_auto,
+            inputs=input_refs,
+        )
+
+        report_ref = _to_core_artifact_ref(
+            persist_causal_effect_report(
+                ctx.store,
+                report,
+                inputs=input_refs or None,
+            )
         )
 
         envelope_ref = None
         envelope_raw = output.get("envelope")
         envelope = None
         if envelope_raw is not None:
-            envelope = UncertaintyEnvelope.model_validate(envelope_raw)
+            try:
+                envelope = UncertaintyEnvelope.model_validate(envelope_raw)
+            except _CAUSAL_EVALUATION_VALIDATION_ERRORS as exc:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                        message=f"Causal method output envelope is invalid: {exc}",
+                    ),
+                )
         else:
             envelope = report.to_uncertainty_envelope()
         if envelope is not None:
-            envelope_ref = persist_uncertainty_envelope(
-                ctx.store,
-                envelope,
-                inputs=input_refs or None,
+            envelope_ref = _to_core_artifact_ref(
+                persist_uncertainty_envelope(
+                    ctx.store,
+                    envelope,
+                    inputs=input_refs or None,
+                )
             )
 
         hte_ref = None
         hte_raw = output.get("hte_result")
         if hte_raw is not None:
-            hte_result = HTEResult.model_validate(hte_raw)
-            hte_ref = persist_hte_result(
-                ctx.store,
-                hte_result,
-                inputs=input_refs or None,
+            try:
+                hte_result = HTEResult.model_validate(hte_raw)
+            except _CAUSAL_EVALUATION_VALIDATION_ERRORS as exc:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                        message=f"Causal method output hte_result is invalid: {exc}",
+                    ),
+                )
+            hte_ref = _to_core_artifact_ref(
+                persist_hte_result(
+                    ctx.store,
+                    hte_result,
+                    inputs=input_refs or None,
+                )
             )
 
         recommendation_ref = None
         recommendation_raw = output.get("policy_recommendation")
         if recommendation_raw is not None:
-            recommendation = PolicyRecommendation.model_validate(recommendation_raw)
-            recommendation_ref = persist_policy_recommendation(
-                ctx.store,
-                recommendation,
-                inputs=input_refs or None,
+            try:
+                recommendation = PolicyRecommendation.model_validate(recommendation_raw)
+            except _CAUSAL_EVALUATION_VALIDATION_ERRORS as exc:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                        message=f"Causal method output policy_recommendation is invalid: {exc}",
+                    ),
+                )
+            recommendation_ref = _to_core_artifact_ref(
+                persist_policy_recommendation(
+                    ctx.store,
+                    recommendation,
+                    inputs=input_refs or None,
+                )
             )
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=(
+                "params.query_treatment",
+                f"artifacts_index.{ARTIFACT_CAUSAL_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_CAUSAL_ENVELOPE_REF}",
+                f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_RESULT_REF}",
+                f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF}",
+                f"artifacts_index.{ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_HTE_RESULT_REF}",
+                f"artifacts_index.{ARTIFACT_POLICY_RECOMMENDATION_REF}",
+                f"artifacts_index.{ARTIFACT_SENSITIVITY_RESULT_REF}",
+            ),
+        ).state
         if query_treatment:
             new_state.params["query_treatment"] = query_treatment
         else:
@@ -613,6 +760,8 @@ class RunCausalEvaluationNode:
             new_state.artifacts_index[ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF] = (
                 result.method_evidence_ref
             )
+        if validity_bundle_ref is not None:
+            new_state.artifacts_index[ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF] = validity_bundle_ref
         if hte_ref is not None:
             new_state.artifacts_index[ARTIFACT_HTE_RESULT_REF] = hte_ref
         if recommendation_ref is not None:
@@ -627,6 +776,8 @@ class RunCausalEvaluationNode:
             produced.append(result.method_result_ref)
         if result.method_evidence_ref is not None:
             produced.append(result.method_evidence_ref)
+        if validity_bundle_ref is not None:
+            produced.append(validity_bundle_ref)
         if hte_ref is not None:
             produced.append(hte_ref)
         if recommendation_ref is not None:
@@ -645,7 +796,8 @@ class RunCausalEvaluationNode:
                         f"Causal evaluation completed: method={report.method.value}, "
                         f"status={report.status.value}, "
                         f"refutation={report.metadata.get('refutation_auto', {}).get('status')}, "
-                        f"sensitivity={report.metadata.get('sensitivity_auto', {}).get('status')}"
+                        f"sensitivity={report.metadata.get('sensitivity_auto', {}).get('status')}, "
+                        f"validity_bundle={'yes' if validity_bundle_ref is not None else 'no'}"
                     ),
                 )
             ],

@@ -3,10 +3,12 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
+from types import SimpleNamespace
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.foundry.compile._lowering import (
+    _merge_effective_params,
     audit_trinity_field_coverage,
     lower_trinity,
 )
@@ -143,6 +145,26 @@ class TestLowerTrinity:
                 linked_bundle=linked_bundle,
                 registry_content=registry_content,
             )
+
+
+class TestMergeEffectiveParams:
+    def test_includes_mechanism_param_defaults_before_overrides(self) -> None:
+        mechanism_spec = SimpleNamespace(
+            params={
+                "rate": SimpleNamespace(default_value="0.15"),
+                "cap": SimpleNamespace(default=10),
+            }
+        )
+        binding = SimpleNamespace(config_overrides={"cap": 20})
+        intervention = SimpleNamespace(params={"rate": "0.25"})
+
+        merged = _merge_effective_params(
+            mechanism_spec=mechanism_spec,
+            binding=binding,
+            intervention=intervention,
+        )
+
+        assert merged == {"rate": "0.25", "cap": 20}
 
     @patch("polisyos.foundry.compile._lowering.has_runtime_mechanism_support", return_value=True)
     @patch(

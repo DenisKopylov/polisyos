@@ -537,7 +537,7 @@ class DataFusionEngine:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="data_fusion",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("graph_json", SlotType.SCALAR, Unit("graph", "json")),

@@ -32,7 +32,10 @@ def _bounds_input(*, selected: list[float] | None = None) -> BoundsEstimationInp
     treatment = [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
     instrument = [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]
     return BoundsEstimationInput(
-        outcome=[value if selected is None else value * flag for value, flag in zip(outcome, selected, strict=False)],
+        outcome=[
+            value if selected is None else value * flag
+            for value, flag in zip(outcome, selected, strict=False)
+        ],
         treatment=treatment,
         instrument=instrument,
         selected=selected,
@@ -134,7 +137,9 @@ def test_bounds_estimation_runner_persists_interval_and_width_reflects_censoring
     assert persisted.upper_bound is not None
 
 
-def test_bounds_estimation_runner_enables_iv_selection_and_surfaces_missing_path_warnings(tmp_path) -> None:
+def test_bounds_estimation_runner_enables_iv_selection_and_surfaces_missing_path_warnings(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path)
     runner = BoundsEstimationRunner(store=store)
     ok_task = BoundsEstimationTask(
@@ -192,4 +197,21 @@ def test_c3_bounds_compiler_to_runner_integration_produces_interval_output(tmp_p
 
     assert entry.status == "ok"
     assert entry.interval is not None
+    assert entry.bounds_bundle_ref is not None
+
+
+def test_bounds_estimation_runner_sanitizes_non_finite_thresholds(tmp_path) -> None:
+    runner = BoundsEstimationRunner(store=FileSystemCAS(tmp_path))
+    [entry] = runner.run(
+        [
+            BoundsEstimationTask(
+                task_id="nan-threshold",
+                bounds_input=_bounds_input(selected=[1.0] * 8),
+                bundle=_bounds_bundle(),
+                params={"informative_threshold": float("nan")},
+            )
+        ]
+    )
+
+    assert entry.status == "ok"
     assert entry.bounds_bundle_ref is not None

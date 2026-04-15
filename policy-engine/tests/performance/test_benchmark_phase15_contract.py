@@ -45,6 +45,7 @@ from benchmarks.suite_registry import (
     VISIBILITY_LANES,
     alias_targets,
     canonical_suite_id,
+    spec_by_suite_id,
     suites_for_claim_profile,
     suites_for_profile,
 )
@@ -124,6 +125,12 @@ def test_report_payload_uses_unified_schema():
     assert payload["cases"][0]["case_id"] == "transport::demo"
     assert payload["cases"][0]["status"] == "passed"
     assert payload["cases"][0]["runtime"]["elapsed_s"] == 0.02
+    assert payload["cases"][0]["runtime"]["budget_exceeded"] is False
+    assert payload["overall_status"] == "passed"
+    assert payload["n_failed"] == 0
+    assert payload["n_errors"] == 0
+    assert payload["n_skipped"] == 0
+    assert payload["n_over_budget"] == 0
     assert "blockers" in payload
     assert "aggregate_metrics" in payload
     assert "standardized_metrics" in payload
@@ -146,6 +153,45 @@ def test_report_payload_uses_unified_schema():
     assert payload["preflight"]["environment"]["python_version"]
     assert "run_config_hash" in payload["preflight"]
     assert "installed_comparator_versions" in payload["preflight"]
+
+
+def test_report_payload_marks_over_budget_cases_as_non_blocking():
+    case = CaseResult(
+        name="transport::slow-demo",
+        circuit=BenchmarkCircuit.TRANSPORT,
+        verdict=Verdict.PASS,
+        elapsed_s=12.0,
+        memory_delta_mb=1.0,
+        runtime_budget_s=10.0,
+        runtime_budget_exceeded=True,
+        runtime_budget_ratio=1.2,
+        runtime_budget_note="elapsed 12.0s > budget 10.0s",
+    )
+    report = BenchmarkReport(
+        circuits=[BenchmarkCircuit.TRANSPORT],
+        cases=[case],
+        circuit_scores={},
+    )
+    preflight = build_preflight(
+        mode="acceptance",
+        benchmark_tier="research_acceptance",
+        data_source="synthetic_suite",
+    )
+    payload = build_report_payload(
+        report,
+        suite_id="transport_core",
+        mode="acceptance",
+        preflight=preflight,
+        sub_circuit="transport",
+    )
+
+    assert payload["cases"][0]["status"] == "over_budget"
+    assert payload["cases"][0]["runtime_budget_exceeded"] is True
+    assert payload["overall_status"] == "over_budget"
+    assert payload["n_failed"] == 0
+    assert payload["n_errors"] == 0
+    assert payload["n_over_budget"] == 1
+    assert payload["blockers"] == []
 
 
 def test_resolve_tier_defaults_follow_mode():
@@ -198,6 +244,13 @@ def test_suite_registry_filters_by_contour_and_visibility():
     assert VISIBILITY_LANES == ("public", "hidden_release", "prod_shadow")
 
 
+def test_suite_registry_exposes_memory_hints_for_heavy_suites():
+    assert spec_by_suite_id("estimation_acic").memory_gib_hint == 14.0
+    assert spec_by_suite_id("estimation_lbidd").memory_gib_hint == 13.0
+    assert spec_by_suite_id("estimation_realcause").memory_gib_hint == 14.0
+    assert spec_by_suite_id("hte_interpretable").memory_gib_hint == 8.0
+
+
 def test_method_registry_normalizes_flagship_aliases():
     assert canonical_method_name("policy_os_drlearner") == "policy_os_drlearner_cf"
     assert canonical_method_name("external_causal_forest_econml") == "policy_os_causal_forest"
@@ -221,6 +274,29 @@ def test_comparator_scaffold_covers_research_acceptance_env():
     assert set(comparator_required_modules()) == set(REQUIRED_ACCEPTANCE_COMPARATORS)
     degraded = comparator_degraded_reasons({"econml": "missing", "zepid": "available"})
     assert "econml comparator unavailable" in degraded
+
+
+def test_comparator_status_surfaces_import_errors(monkeypatch):
+    from benchmarks.comparators import stack
+    from benchmarks.runtime import ModuleProbe
+
+    monkeypatch.setattr(
+        stack,
+        "probe_comparator",
+        lambda label: ModuleProbe(
+            module_name=label,
+            available=False,
+            status="import_error",
+            error="ModuleNotFoundError: broken comparator install",
+            python_executable=sys.executable,
+        ),
+    )
+
+    status = build_research_acceptance_comparator_status(
+        required_labels=("pygformula",),
+        default_to_legacy_required=False,
+    )
+    assert status["pygformula"].startswith("import_error:")
 
 
 def test_suite_scoped_comparator_groups_resolve_custom_subsets():

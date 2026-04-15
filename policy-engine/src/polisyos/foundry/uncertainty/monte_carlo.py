@@ -1,6 +1,8 @@
 """Public uncertainty monte carlo module API."""
 from __future__ import annotations
 
+import warnings
+from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 
 import jax
@@ -20,9 +22,15 @@ from polisyos.ir.analytics.uncertainty import (
 from .config import PropagationConfig
 from .covariance import extract_std
 from .protocol import PropagationResult
-from .quasi_mc import QuasiMCSampler
 
 logger = get_logger(__name__)
+
+
+@dataclass(frozen=True)
+class _SampleBuffers:
+    values: dict[str, np.ndarray]
+    input_samples: dict[str, np.ndarray]
+    capacity: int
 
 
 class MonteCarloPropagator:
@@ -56,30 +64,37 @@ class MonteCarloPropagator:
 
         batch_size = min(self._config.mc_batch_size, n_samples)
 
-        values: dict[str, list[float]] = {mid: [] for mid in output_metric_ids}
-        input_samples: dict[str, list[float]] = {name: [] for name in param_names}
+        sample_buffers = self._create_sample_buffers(
+            param_names=param_names,
+            output_metric_ids=output_metric_ids,
+            n_samples=n_samples,
+        )
         failed = 0
         stopped_early = False
         actual_n_samples = 0
+        nominal_outputs = self._safe_nominal_outputs(simulation_fn, nominal_params)
 
         use_qmc = self._config.mc_sampling_method != "random"
 
         if use_qmc:
             actual_n_samples, failed = self._run_qmc_loop(
                 simulation_fn, param_names, input_envelopes, output_metric_ids,
-                n_samples, values, input_samples, adaptive, alpha,
+                n_samples, sample_buffers, adaptive, alpha,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
         else:
             actual_n_samples, failed = self._run_random_loop(
                 simulation_fn, param_names, input_envelopes, output_metric_ids,
-                n_samples, batch_size, values, input_samples, adaptive, alpha,
+                n_samples, batch_size, sample_buffers, adaptive, alpha,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
 
         return self._build_results(
-            values, input_samples, param_names, output_metric_ids,
-            nominal_params, actual_n_samples, failed, stopped_early,
+            sample_buffers.values,
+            sample_buffers.input_samples,
+            param_names,
+            output_metric_ids,
+            nominal_params, nominal_outputs, actual_n_samples, failed, stopped_early,
             level, alpha,
         )
 
@@ -94,34 +109,54 @@ class MonteCarloPropagator:
         input_envelopes: Mapping[str, UncertaintyEnvelope],
         output_metric_ids: list[str],
         n_samples: int,
-        values: dict[str, list[float]],
-        input_samples: dict[str, list[float]],
+        sample_buffers: _SampleBuffers,
         adaptive: Any,
         alpha: float,
     ) -> tuple[int, int]:
-        qmc_sampler = QuasiMCSampler(
-            method=self._config.mc_sampling_method,
-            seed=self._config.mc_seed,
-        )
-        uniform_samples = qmc_sampler.sample(n_samples, len(param_names))
-        qmc_transformed = self._transform_qmc_samples(
-            uniform_samples, param_names, input_envelopes,
-        )
-
+        batch_size = min(self._config.mc_batch_size, n_samples)
         failed = 0
-        for i in range(n_samples):
-            params = {name: float(qmc_transformed[name][i]) for name in param_names}
-            self._eval_and_record(
-                simulation_fn, params, param_names, output_metric_ids,
-                values, input_samples,
+        generated = 0
+        sampler_state = self._create_qmc_sampler_state(len(param_names))
+
+        while generated < n_samples:
+            this_batch = min(batch_size, n_samples - generated)
+            uniform_samples, sampler_state = self._next_qmc_uniform_chunk(
+                sampler_state,
+                this_batch,
+            )
+            if uniform_samples.shape[0] > this_batch:
+                uniform_samples = uniform_samples[:this_batch]
+            qmc_transformed = self._transform_qmc_samples(
+                uniform_samples,
+                param_names,
+                input_envelopes,
             )
 
-            if adaptive.enabled and self._check_adaptive_stop(
-                i + 1, adaptive, values, output_metric_ids, alpha,
-            ):
-                return i + 1, failed
+            for row_idx in range(uniform_samples.shape[0]):
+                params = {
+                    name: float(qmc_transformed[name][row_idx])
+                    for name in param_names
+                }
+                sample_idx = generated + row_idx
+                ok = self._eval_and_record(
+                    simulation_fn,
+                    params,
+                    param_names,
+                    output_metric_ids,
+                    sample_buffers,
+                    sample_idx=sample_idx,
+                )
+                if not ok:
+                    failed += 1
 
-        return n_samples, failed
+            generated += int(uniform_samples.shape[0])
+
+            if adaptive.enabled and self._check_adaptive_stop(
+                generated, adaptive, sample_buffers.values, output_metric_ids, alpha,
+            ):
+                return generated, failed
+
+        return generated, failed
 
     def _run_random_loop(
         self,
@@ -131,8 +166,7 @@ class MonteCarloPropagator:
         output_metric_ids: list[str],
         n_samples: int,
         batch_size: int,
-        values: dict[str, list[float]],
-        input_samples: dict[str, list[float]],
+        sample_buffers: _SampleBuffers,
         adaptive: Any,
         alpha: float,
     ) -> tuple[int, int]:
@@ -150,9 +184,10 @@ class MonteCarloPropagator:
 
             for i in range(this_batch):
                 params = {name: batch_samples[name][i] for name in param_names}
+                sample_idx = generated + i
                 ok = self._eval_and_record(
                     simulation_fn, params, param_names, output_metric_ids,
-                    values, input_samples,
+                    sample_buffers, sample_idx=sample_idx,
                 )
                 if not ok:
                     failed += 1
@@ -160,7 +195,7 @@ class MonteCarloPropagator:
             generated += this_batch
 
             if adaptive.enabled and self._check_adaptive_stop(
-                generated, adaptive, values, output_metric_ids, alpha,
+                generated, adaptive, sample_buffers.values, output_metric_ids, alpha,
             ):
                 return generated, failed
 
@@ -172,20 +207,23 @@ class MonteCarloPropagator:
         params: dict[str, Any],
         param_names: list[str],
         output_metric_ids: list[str],
-        values: dict[str, list[float]],
-        input_samples: dict[str, list[float]],
+        sample_buffers: _SampleBuffers,
+        *,
+        sample_idx: int,
     ) -> bool:
         for name in param_names:
-            input_samples[name].append(float(params[name]))
+            sample_buffers.input_samples[name][sample_idx] = float(params[name])
         try:
             result = simulation_fn(**params)
             for mid in output_metric_ids:
                 raw = result.get(mid)
-                values[mid].append(float("nan") if raw is None else float(raw))
+                sample_buffers.values[mid][sample_idx] = (
+                    float("nan") if raw is None else float(raw)
+                )
             return True
         except Exception:
             for mid in output_metric_ids:
-                values[mid].append(float("nan"))
+                sample_buffers.values[mid][sample_idx] = float("nan")
             return False
 
     # ------------------------------------------------------------------
@@ -196,7 +234,7 @@ class MonteCarloPropagator:
         self,
         n_generated: int,
         adaptive: Any,
-        values: dict[str, list[float]],
+        values: dict[str, np.ndarray],
         output_metric_ids: list[str],
         alpha: float,
     ) -> bool:
@@ -206,7 +244,7 @@ class MonteCarloPropagator:
             return False
 
         for mid in output_metric_ids:
-            arr = np.array(values[mid], dtype=np.float64)
+            arr = values[mid][:n_generated]
             valid = arr[np.isfinite(arr)]
             if len(valid) < adaptive.min_samples:
                 return False
@@ -220,17 +258,37 @@ class MonteCarloPropagator:
         logger.info("Adaptive MC stopping: converged after %d samples.", n_generated)
         return True
 
+    @staticmethod
+    def _create_sample_buffers(
+        *,
+        param_names: list[str],
+        output_metric_ids: list[str],
+        n_samples: int,
+    ) -> _SampleBuffers:
+        return _SampleBuffers(
+            values={
+                metric_id: np.full((n_samples,), np.nan, dtype=np.float64)
+                for metric_id in output_metric_ids
+            },
+            input_samples={
+                name: np.empty((n_samples,), dtype=np.float64)
+                for name in param_names
+            },
+            capacity=n_samples,
+        )
+
     # ------------------------------------------------------------------
     # Result building
     # ------------------------------------------------------------------
 
     def _build_results(
         self,
-        values: dict[str, list[float]],
-        input_samples: dict[str, list[float]],
+        values: dict[str, np.ndarray],
+        input_samples: dict[str, np.ndarray],
         param_names: list[str],
         output_metric_ids: list[str],
         nominal_params: Mapping[str, float],
+        nominal_outputs: Mapping[str, float] | None,
         actual_n_samples: int,
         failed: int,
         stopped_early: bool,
@@ -241,12 +299,16 @@ class MonteCarloPropagator:
 
         out: list[PropagationResult] = []
         for metric_id in output_metric_ids:
-            arr = jnp.asarray(values[metric_id], dtype=jnp.float32)
+            arr = jnp.asarray(values[metric_id][:actual_n_samples], dtype=jnp.float32)
             valid = arr[jnp.isfinite(arr)]
             n_valid = int(valid.shape[0])
 
             if n_valid < self._config.mc_min_valid_samples:
-                point = float(nominal_params.get(metric_id, 0.0))
+                point, point_source = self._fallback_point_estimate(
+                    metric_id,
+                    nominal_params=nominal_params,
+                    nominal_outputs=nominal_outputs,
+                )
                 envelope = UncertaintyEnvelope(
                     point_estimate=point,
                     confidence_interval=(point, point),
@@ -262,6 +324,7 @@ class MonteCarloPropagator:
                         "failure": "insufficient_valid_samples",
                         "mc_n_valid": n_valid,
                         "mc_n_samples": actual_n_samples,
+                        "fallback_point_estimate_source": point_source,
                     },
                 )
             else:
@@ -309,14 +372,12 @@ class MonteCarloPropagator:
                     and len(param_names) >= 2
                 ):
                     try:
-                        valid_mask = np.isfinite(
-                            np.array(values[metric_id], dtype=np.float64),
-                        )
+                        valid_mask = np.isfinite(values[metric_id][:actual_n_samples])
                         filtered_inputs = {
-                            name: np.array(input_samples[name], dtype=np.float64)[valid_mask]
+                            name: input_samples[name][:actual_n_samples][valid_mask]
                             for name in param_names
                         }
-                        valid_outputs = np.array(values[metric_id], dtype=np.float64)[valid_mask]
+                        valid_outputs = values[metric_id][:actual_n_samples][valid_mask]
                         indices = compute_first_order_indices(
                             filtered_inputs, valid_outputs, param_names,
                         )
@@ -356,6 +417,37 @@ class MonteCarloPropagator:
             )
 
         return out
+
+    def _safe_nominal_outputs(
+        self,
+        simulation_fn: Callable[..., Mapping[str, float]],
+        nominal_params: Mapping[str, float],
+    ) -> Mapping[str, float] | None:
+        try:
+            outputs = simulation_fn(**nominal_params)
+        except Exception:
+            return None
+        if not isinstance(outputs, Mapping):
+            return None
+        safe_outputs: dict[str, float] = {}
+        for key, value in outputs.items():
+            try:
+                safe_outputs[str(key)] = float(value)
+            except (TypeError, ValueError):
+                continue
+        return safe_outputs
+
+    def _fallback_point_estimate(
+        self,
+        metric_id: str,
+        *,
+        nominal_params: Mapping[str, float],
+        nominal_outputs: Mapping[str, float] | None,
+    ) -> tuple[float, str]:
+        _ = nominal_params
+        if nominal_outputs is not None and metric_id in nominal_outputs:
+            return float(nominal_outputs[metric_id]), "nominal_evaluation"
+        return 0.0, "default_zero_nominal_unavailable"
 
     # ------------------------------------------------------------------
     # Sampling helpers
@@ -423,3 +515,84 @@ class MonteCarloPropagator:
                 std = max((hi - lo) / 4.0, 1e-12)
                 result[name] = sp_norm.ppf(u, loc=point, scale=std)
         return result
+
+    def _create_qmc_sampler_state(self, n_dims: int) -> dict[str, Any]:
+        if self._config.mc_sampling_method == "halton":
+            from scipy.stats.qmc import Halton
+
+            return {
+                "method": "halton",
+                "n_dims": n_dims,
+                "generated": 0,
+                "sampler": Halton(
+                    d=n_dims,
+                    scramble=True,
+                    seed=self._config.mc_seed,
+                ),
+            }
+
+        from scipy.stats.qmc import Sobol
+
+        return {
+            "method": "sobol",
+            "n_dims": n_dims,
+            "generated": 0,
+            "sampler": Sobol(
+                d=n_dims,
+                scramble=True,
+                seed=self._config.mc_seed,
+            ),
+            "buffer": np.empty((0, n_dims), dtype=np.float64),
+        }
+
+    def _next_qmc_uniform_chunk(
+        self,
+        state: dict[str, Any],
+        chunk_size: int,
+    ) -> tuple[np.ndarray, dict[str, Any]]:
+        method = state["method"]
+        generated = int(state["generated"])
+        n_dims = int(state["n_dims"])
+
+        if method == "halton":
+            sampler = state["sampler"]
+            samples = sampler.random(chunk_size)
+            return samples, {**state, "generated": generated + chunk_size}
+
+        sampler = state["sampler"]
+        buffered = state["buffer"]
+        if buffered.shape[0] >= chunk_size:
+            return (
+                buffered[:chunk_size],
+                {
+                    **state,
+                    "generated": generated + chunk_size,
+                    "buffer": buffered[chunk_size:],
+                },
+            )
+
+        needed = max(chunk_size - buffered.shape[0], 1)
+        block_size = _next_power_of_two(needed)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            new_block = sampler.random(block_size)
+
+        available = (
+            new_block
+            if buffered.shape[0] == 0
+            else np.concatenate((buffered, new_block), axis=0)
+        )
+        samples = available[:chunk_size]
+        return (
+            samples,
+            {
+                **state,
+                "generated": generated + chunk_size,
+                "buffer": available[chunk_size:],
+            },
+        )
+
+
+def _next_power_of_two(value: int) -> int:
+    value = max(1, int(value))
+    return 1 << (value - 1).bit_length()

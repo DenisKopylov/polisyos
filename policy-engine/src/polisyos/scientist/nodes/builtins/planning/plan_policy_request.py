@@ -7,6 +7,7 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_POLICY_REQUEST_FRAME_REF
 from polisyos.scientist.policy_verified import (
     persist_policy_request_frame,
@@ -62,7 +63,7 @@ class PlanPolicyRequestNode:
 
         frame = build_policy_request_frame(ctx, state)
         frame_ref = persist_policy_request_frame(ctx.store, frame)
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.policy_request_ref = frame_ref
         new_state.artifacts_index[ARTIFACT_POLICY_REQUEST_FRAME_REF] = frame_ref
         new_state.params.setdefault("policy_answer_mode", "verified_async")

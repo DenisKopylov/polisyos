@@ -12,7 +12,6 @@ from polisyos.scientist.engine.runner.config import (
     build_workflow_runner,
 )
 
-
 # ---------------------------------------------------------------------------
 # WorkflowRunnerConfig defaults
 # ---------------------------------------------------------------------------
@@ -26,6 +25,10 @@ class TestWorkflowRunnerConfigDefaults:
     def test_default_max_parallelism(self) -> None:
         cfg = WorkflowRunnerConfig()
         assert cfg.max_parallelism == 4
+
+    def test_default_merge_conflict_policy(self) -> None:
+        cfg = WorkflowRunnerConfig()
+        assert cfg.merge_conflict_policy == "error"
 
     def test_temporal_fields_default_to_none(self) -> None:
         cfg = WorkflowRunnerConfig()
@@ -85,6 +88,11 @@ class TestWorkflowRunnerConfigFromEnv:
         cfg = WorkflowRunnerConfig.from_env()
         assert cfg.backend == "local"
         assert cfg.max_parallelism == 4
+
+    def test_reads_merge_conflict_policy(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("POLISYOS_RUNNER_MERGE_CONFLICT_POLICY", "last_write_wins")
+        cfg = WorkflowRunnerConfig.from_env()
+        assert cfg.merge_conflict_policy == "last_write_wins"
 
 
 # ---------------------------------------------------------------------------

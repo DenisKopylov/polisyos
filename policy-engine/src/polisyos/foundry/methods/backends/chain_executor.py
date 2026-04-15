@@ -29,7 +29,12 @@ from polisyos.foundry.methods.io import (
     validate_value_for_slot,
 )
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.foundry.methods.backends.runtime_fingerprint import capture_versions, runtime_stack_for, safe_version
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
+    capture_versions,
+    runtime_stack_for,
+    safe_version,
+)
 from polisyos.foundry.methods.types.checker import ShapeAdapterKind
 from polisyos.core.observability.determinism import DeterminismTier
 
@@ -431,13 +436,19 @@ def _build_fused_result(
     except Exception:
         pass
 
+    posture = capture_backend_runtime_fingerprint(
+        ComputeBackend.JAX,
+        method_class=method_class,
+        seed=seed,
+        extra_versions={k: v for k, v in versions.items() if v},
+    )
     reproducibility = ReproducibilityInfo(
         backend=ComputeBackend.JAX,
-        determinism_tier=DeterminismTier.STRICT_CPU,
+        determinism_tier=posture.determinism_tier or DeterminismTier.NONDETERMINISTIC,
         seed=seed,
         library_versions={k: v for k, v in versions.items() if v},
         fingerprint=reproducibility_fingerprint,
-        note=deterministic_note,
+        note=posture.replay_semantics if posture.available else deterministic_note,
     )
     return MethodResult(
         output=output,
@@ -447,6 +458,7 @@ def _build_fused_result(
         ),
         reproducibility=reproducibility,
         slot_outputs=slot_outputs,
+        artifacts={"backend_runtime_fingerprint": posture.as_dict()},
     )
 
 

@@ -27,6 +27,13 @@ from polisyos.ir.analytics.causal import (
     RefutationResult,
     RefutationTestType,
 )
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    GraphType,
+    EdgeMark,
+    CausalGraphModel,
+    persist_causal_graph_model,
+)
 from polisyos.ir.analytics.hte import HTEResult
 from polisyos.ir.analytics.sensitivity import SensitivityResult
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
@@ -37,6 +44,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_METHOD_RESULT_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+    ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
 )
@@ -808,3 +817,190 @@ def test_causal_evaluation_node_can_disable_auto_sensitivity(tmp_path, monkeypat
     assert outcome.status == "ok"
     assert called_fqns == ["causal.inference.dowhy_identify_estimate@2.0.0"]
     assert ARTIFACT_SENSITIVITY_RESULT_REF not in outcome.state.artifacts_index
+
+
+def test_causal_evaluation_node_persists_causal_validity_bundle_for_hte_inputs(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_causal_validity_bundle",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.causal.validity.bundle"),
+    )
+
+    rng = np.random.default_rng(41)
+    x = rng.normal(size=(96, 2))
+    treatment = rng.binomial(1, 0.5, size=96).astype(float)
+    outcome = 0.7 * treatment + 0.4 * x[:, 0] + rng.normal(0.0, 0.2, size=96)
+    treatment_proxy = (0.8 * x[:, 0] + rng.normal(0.0, 0.1, size=96)).tolist()
+    outcome_proxy = (0.6 * x[:, 1] + rng.normal(0.0, 0.1, size=96)).tolist()
+    data = HTEObservationalData(
+        outcome=outcome,
+        treatment=treatment,
+        covariates=x,
+        feature_names=["x0", "x1"],
+        metadata={
+            "causal_validity": {
+                "domain_labels": ["A"] * 48 + ["B"] * 48,
+                "proximal": {
+                    "treatment_proxy": treatment_proxy,
+                    "outcome_proxy": outcome_proxy,
+                    "n_bootstrap": 32,
+                },
+            }
+        },
+    )
+    data_ref = store.put_json(
+        data.model_dump(mode="json"),
+        PutOptions(
+            kind="ir.observational_data",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.ObservationalData", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+    pag_graph = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["A", "B", "C"],
+        edges=[
+            CausalEdge(src="A", dst="B", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="B", dst="C", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.TAIL),
+        ],
+    )
+    pag_ref = persist_causal_graph_model(store, pag_graph)
+
+    def _fake_run_job(spec, *, cas_root, method_state):
+        del cas_root, method_state
+        if spec.method_fqn == "causal.hte.causal_forest@1.0.0":
+            report = CausalEffectReport(
+                method=CausalMethod.CAUSAL_FOREST,
+                status=EstimationStatus.SUCCESS,
+                estimand="ATE_from_CATE",
+                point_estimate=0.7,
+                confidence_interval=(0.5, 0.9),
+                inference_method="causal_forest_dml",
+                sample_size=96,
+                n_treated=48,
+                n_control=48,
+                pre_periods=0,
+                post_periods=0,
+            )
+            hte_result = HTEResult(
+                method=CausalMethod.CAUSAL_FOREST,
+                ate=0.7,
+                ate_ci_lower=0.5,
+                ate_ci_upper=0.9,
+                cate_values=[0.7] * 96,
+                n_samples=96,
+                n_treated=48,
+                n_control=48,
+                n_features=2,
+                feature_names=["x0", "x1"],
+            )
+            return JobResult(
+                job_key=JobKey(value="job:hte-estimate"),
+                final_state={"report": report, "hte_result": hte_result},
+                issues=[],
+            )
+        if spec.method_fqn == "causal.sensitivity.sensitivity_metrics@1.0.0":
+            return JobResult(
+                job_key=JobKey(value="job:hte-sensitivity"),
+                final_state={
+                    "sensitivity_result": SensitivityResult(
+                        e_value=2.1,
+                        e_value_ci_lower=1.4,
+                        conversion_method="ate_to_rr_log",
+                        robustness_value=0.11,
+                        rosenbaum_gamma=1.6,
+                        rosenbaum_p_value=0.09,
+                        is_robust=True,
+                        interpretation="hte sensitivity",
+                    )
+                },
+                issues=[],
+            )
+        if spec.method_fqn == "causal.diagnostics.invariance.icp_invariance@1.0.0":
+            return JobResult(
+                job_key=JobKey(value="job:icp"),
+                final_state={
+                    "result": {
+                        "passed": True,
+                        "n_rejected": 0,
+                        "invariant_features": [0, 1],
+                        "variant_features": [],
+                        "p_values": {"feature_0": 0.44, "feature_1": 0.62},
+                        "correction_method": "bh",
+                        "metadata": {"n_obs": 96},
+                    }
+                },
+                issues=[],
+            )
+        if spec.method_fqn == "causal.proximal.proximal_bridge@1.0.0":
+            return JobResult(
+                job_key=JobKey(value="job:proximal"),
+                final_state={
+                    "report": {"status": "success", "status_reason": None},
+                    "proximal_result": {
+                        "point_estimate": 0.68,
+                        "confidence_interval": [0.51, 0.83],
+                        "bridge_r_squared": 0.57,
+                        "proxy_strength": 0.48,
+                    },
+                },
+                issues=[],
+            )
+        raise AssertionError(f"unexpected method_fqn: {spec.method_fqn}")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.ensure_causal_methods_registered",
+        lambda: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.run_job",
+        _fake_run_job,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.causal.validity.run_job",
+        _fake_run_job,
+    )
+
+    state = ExperimentState(
+        run_id="R_causal_validity_bundle",
+        observational_data_ref=data_ref,
+        causal_method_fqn="causal.hte.causal_forest@1.0.0",
+        params={"random_seed": 6},
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: pag_ref},
+    )
+    outcome = RunCausalEvaluationNode().execute(ctx, state)
+    assert outcome.status == "ok"
+    assert ARTIFACT_SENSITIVITY_RESULT_REF in outcome.state.artifacts_index
+    assert ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF in outcome.state.artifacts_index
+
+    report_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
+    report_payload = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
+    assert report_payload["metadata"]["sensitivity_auto"]["status"] == "success"
+
+    bundle_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF]
+    bundle_payload = from_canonical_bytes(store.get_bytes(bundle_ref.artifact_id))
+    checks = bundle_payload["checks"]
+    assert checks["sensitivity"]["status"] == "success"
+    assert checks["icp_invariance"]["status"] == "success"
+    assert checks["proximal_bridge"]["status"] == "success"
+    assert checks["pag_refinement"]["status"] == "success"
+    assert bundle_payload["confidence"]["honest_hte"]["enabled"] is True
+    assert bundle_payload["capability_matrix"]["icp_invariance"] == "available"
+    frontier_runtime = bundle_payload["frontier_runtime"]
+    proximal = next(
+        item for item in frontier_runtime["capabilities"]
+        if item["capability_id"] == "proximal_causal"
+    )
+    assert proximal["status"] == "offline_gated"

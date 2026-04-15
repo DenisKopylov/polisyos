@@ -1,6 +1,8 @@
 """Tests for Phase 2.5 data transformation pipeline."""
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 import pandas as pd
 import pytest
 
@@ -21,11 +23,20 @@ from polisyos.fabric.connectors.contracts import (
     TimeGranularity,
 )
 from polisyos.fabric.connectors.transform import (
+    AggregationTransform,
+    CodeHarmonizationTransform,
+    CompiledPipeline,
     CompletenessRule,
+    DataTransform,
+    ImputationStrategy,
+    ImputationTransform,
     TemporalType,
     TransformContext,
     TransformError,
+    TransformLineage,
     TransformPipeline,
+    TransformStage,
+    ValidationTransform,
 )
 
 
@@ -74,6 +85,63 @@ def test_topological_sort_stable_for_independent_nodes() -> None:
     ]
 
 
+def test_compiled_pipeline_execute_uses_topological_execution_order() -> None:
+    history: list[str] = []
+
+    class AddColumnTransform(DataTransform):
+        def __init__(self, stage_name: str, required_column: str | None = None) -> None:
+            self._stage_name = stage_name
+            self._required_column = required_column
+
+        @property
+        def name(self) -> str:
+            return self._stage_name
+
+        def apply(
+            self,
+            data: pd.DataFrame,
+            context: TransformContext,
+        ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
+            del context
+            if self._required_column is not None and self._required_column not in data.columns:
+                raise TransformError(f"missing required column {self._required_column}")
+            history.append(self._stage_name)
+            result = data.copy()
+            result[self._stage_name] = len(history)
+            now = datetime.now(timezone.utc)
+            return (
+                result,
+                TransformLineage(
+                    stage_name=self._stage_name,
+                    started_at=now,
+                    completed_at=now,
+                    input_row_count=len(data),
+                    output_row_count=len(result),
+                    parameters={},
+                ),
+                [],
+            )
+
+    compiled = CompiledPipeline(
+        stages=[
+            TransformStage(
+                name="b",
+                transform=AddColumnTransform("b", required_column="a"),
+            ),
+            TransformStage(
+                name="a",
+                transform=AddColumnTransform("a"),
+            ),
+        ],
+        execution_order=["a", "b"],
+    )
+
+    result = compiled.execute(pd.DataFrame({"seed": [1]}), TransformContext())
+
+    assert history == ["a", "b"]
+    assert list(result.data.columns) == ["seed", "a", "b"]
+
+
 def test_cycle_detection() -> None:
     pipeline = TransformPipeline()
     pipeline.normalize(field_mappings={"A": "a"})
@@ -109,6 +177,128 @@ def test_warning_propagation_from_apply() -> None:
     )
     result = pipeline.apply(data, TransformContext())
     assert any("missing" in warning for warning in result.warnings)
+
+
+def test_harmonizer_preserves_missing_values_without_nan_string() -> None:
+    data = pd.DataFrame({"country": ["US", None, float("nan"), "XX"]})
+    transform = CodeHarmonizationTransform(
+        dimension="country",
+        target_codelist="iso3",
+        mapping={"US": "USA", "nan": "SHOULD_NOT_APPEAR"},
+    )
+
+    result, _lineage, warnings = transform.apply(data, TransformContext())
+
+    assert result["country"].tolist()[0] == "USA"
+    assert pd.isna(result["country"].iloc[1])
+    assert pd.isna(result["country"].iloc[2])
+    assert result["country"].iloc[3] == "XX"
+    assert warnings
+
+
+def test_harmonizer_with_empty_mapping_warns_and_skips() -> None:
+    data = pd.DataFrame({"country": ["US", "DE"]})
+    transform = CodeHarmonizationTransform(
+        dimension="country",
+        target_codelist="iso3",
+        mapping={},
+    )
+
+    result, _lineage, warnings = transform.apply(data, TransformContext())
+
+    assert result.equals(data)
+    assert any("skipped" in warning for warning in warnings)
+
+
+def test_harmonizer_strict_mode_rejects_empty_mapping() -> None:
+    with pytest.raises(ValueError, match="non-empty mapping"):
+        CodeHarmonizationTransform(
+            dimension="country",
+            target_codelist="iso3",
+            mapping={},
+            strict=True,
+        )
+
+
+def test_validation_transform_with_empty_rules_warns_and_skips() -> None:
+    transform = ValidationTransform(rules=[], strict=False)
+
+    result, _lineage, warnings = transform.apply(
+        pd.DataFrame({"value": [1, 2]}),
+        TransformContext(),
+    )
+
+    assert list(result["value"]) == [1, 2]
+    assert any("skipped" in warning for warning in warnings)
+
+
+def test_validation_transform_strict_mode_rejects_empty_rules() -> None:
+    with pytest.raises(ValueError, match="at least one rule"):
+        ValidationTransform(rules=[], strict=True)
+
+
+def test_all_nan_mean_imputation_is_validation_outcome() -> None:
+    transform = ImputationTransform(
+        strategy=ImputationStrategy.MEAN,
+        target_fields=["value"],
+    )
+
+    with pytest.raises(TransformError, match="at least one finite value"):
+        transform.apply(
+            pd.DataFrame({"value": [float("nan"), None]}),
+            TransformContext(),
+        )
+
+
+def test_transform_context_snapshots_are_immutable() -> None:
+    context = TransformContext(
+        evidence_refs=["e1", "e2"],
+        metadata={"dataset": "sample", "nested": {"key": "value"}},
+    )
+
+    assert context.evidence_refs == ("e1", "e2")
+
+    with pytest.raises(TypeError):
+        context.metadata["dataset"] = "mutated"  # type: ignore[index]
+
+    with pytest.raises(TypeError):
+        context.metadata["nested"]["key"] = "mutated"  # type: ignore[index]
+
+
+def test_normalization_drop_unmapped_preserves_source_column_order() -> None:
+    transform = TransformPipeline().normalize(
+        field_mappings={"A": "a", "B": "b"},
+        drop_unmapped=True,
+        cast_to_schema=False,
+    ).compile().stages[0].transform
+    data = pd.DataFrame({"B": [1], "A": [2], "C": [3]})
+
+    result, _lineage, _warnings = transform.apply(data, TransformContext())
+
+    assert list(result.columns) == ["b", "a"]
+
+
+def test_aggregation_transform_does_not_mutate_inferred_temporal_context(
+    sample_schema_daily: DataSchema,
+) -> None:
+    transform = AggregationTransform(
+        group_by=["date"],
+        aggregations={"inventory": "sum"},
+    )
+    data = pd.DataFrame(
+        {
+            "date": pd.date_range("2024-01-01", periods=3, freq="D"),
+            "inventory": [100, 100, 100],
+        }
+    )
+
+    result, _lineage, _warnings = transform.apply(
+        data,
+        TransformContext(source_schema=sample_schema_daily),
+    )
+
+    assert dict(transform.temporal_context) == {}
+    assert result["inventory"].iloc[0] == 100
 
 
 def test_stock_sum_over_time_corrected(sample_schema_daily: DataSchema) -> None:

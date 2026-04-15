@@ -4,4 +4,5 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-exec python3 tools/workspace/remote_acceptance.py "$@"
+printf '%s\n' 'DEPRECATED: `scripts/remote-acceptance` is a compatibility wrapper; use `polisyos-tools workspace remote-acceptance` instead.' >&2
+exec python3 -m tools.cli workspace remote-acceptance "$@"

@@ -730,7 +730,7 @@ class DensityRatioEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="density_ratio",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -86,6 +86,7 @@ from polisyos.foundry.methods.lifecycle import (
 )
 from polisyos.foundry.methods.plan_optimizer import (
     ComplexityClass as PlanComplexityClass,
+    ExecutionKernel,
     ExecutionPlanOptimizer,
     MethodCostModel,
     NodeSchedule,
@@ -110,6 +111,7 @@ from polisyos.foundry.methods.registry import (
     MethodEntry,
     MethodRegistry,
     RegistrySnapshot,
+    RegistrySnapshotEntry,
     get_registry,
     registry_scope,
 )
@@ -125,7 +127,11 @@ from polisyos.foundry.methods.resolution import (
     resolve_version,
 )
 from polisyos.foundry.methods.selection import (
+    DataCharacteristics,
+    MethodAdvisorQuery,
+    MethodAdvisorResult,
     MethodSelectionCriteria,
+    advise_methods,
     authoring_catalog_payload,
     method_selection_payload,
     rank_method_catalog_entries,
@@ -194,6 +200,7 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - optional dependency path
     _ARTIFACTS_AVAILABLE = False
 from polisyos.foundry.methods.catalog_snapshot import (
+    build_method_capability_matrix,
     build_method_catalog_snapshot,
     persist_method_catalog_snapshot,
 )
@@ -260,7 +267,11 @@ __all__ = [
     "find_compatible_versions",
     "compare_versions",
     "is_compatible_upgrade",
+    "DataCharacteristics",
     "MethodSelectionCriteria",
+    "MethodAdvisorQuery",
+    "MethodAdvisorResult",
+    "advise_methods",
     "rank_method_catalog_entries",
     "suggest_alternative_methods",
     "suggest_adapter_methods",
@@ -270,6 +281,7 @@ __all__ = [
     "MethodEntry",
     "MethodRegistry",
     "RegistrySnapshot",
+    "RegistrySnapshotEntry",
     "get_registry",
     "DISCOVERY_MODULE_PREFIX",
     "ENTRY_POINT_GROUP",
@@ -341,11 +353,13 @@ __all__ = [
     "ComponentsBridgeReport",
     "bootstrap_method_registry_from_components",
     "build_method_catalog_snapshot",
+    "build_method_capability_matrix",
     "persist_method_catalog_snapshot",
     "ensure_all_methods_registered",
     "ExecutionPlanOptimizer",
     "MethodCostModel",
     "NodeSchedule",
+    "ExecutionKernel",
     "OptimizedPlan",
     "PlanComplexityClass",
     # compat

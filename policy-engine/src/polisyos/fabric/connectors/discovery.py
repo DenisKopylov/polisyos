@@ -17,6 +17,7 @@ from __future__ import annotations
 import importlib
 import os
 import sys
+import threading
 import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -48,7 +49,7 @@ BUILTIN_CONNECTOR_MODULES: tuple[str, ...] = (
 ALLOW_PATHS_ENV = "POLISYOS_ALLOW_CONNECTOR_PATHS"
 
 
-@dataclass
+@dataclass(frozen=True)
 class DiscoveryResult:
     """Result of connector discovery."""
 
@@ -58,7 +59,7 @@ class DiscoveryResult:
     discovered_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
-@dataclass
+@dataclass(frozen=True)
 class DiscoveryError:
     """Record of failed connector discovery."""
 
@@ -88,12 +89,15 @@ class ConnectorDiscovery:
     """
 
     _instance: "ConnectorDiscovery | None" = None
+    _class_lock = threading.Lock()
 
     def __new__(cls) -> "ConnectorDiscovery":
         """Singleton pattern."""
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
+            with cls._class_lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._initialized = False
         return cls._instance
 
     def __init__(self) -> None:
@@ -104,27 +108,32 @@ class ConnectorDiscovery:
         self._errors: list[DiscoveryError] = []
         self._additional_modules: list[str] = []
         self._additional_paths: list[Path] = []
+        self._state_lock = threading.RLock()
         self._initialized = True
 
     @property
     def discovered(self) -> dict[str, DiscoveryResult]:
         """Map of connector FQID -> DiscoveryResult."""
-        return self._discovered.copy()
+        with self._state_lock:
+            return self._discovered.copy()
 
     @property
     def errors(self) -> list[DiscoveryError]:
         """List of discovery errors encountered."""
-        return self._errors.copy()
+        with self._state_lock:
+            return self._errors.copy()
 
     def add_module(self, module_path: str) -> None:
         """Add an additional module path to discover connectors from."""
-        if module_path not in self._additional_modules:
-            self._additional_modules.append(module_path)
+        with self._state_lock:
+            if module_path not in self._additional_modules:
+                self._additional_modules.append(module_path)
 
     def add_path(self, path: Path) -> None:
         """Add a filesystem path to scan for connector modules (dev-only)."""
-        if path not in self._additional_paths:
-            self._additional_paths.append(path)
+        with self._state_lock:
+            if path not in self._additional_paths:
+                self._additional_paths.append(path)
 
     def discover_all(
         self,
@@ -148,9 +157,12 @@ class ConnectorDiscovery:
         Yields:
             Connector classes implementing SourceConnector protocol
         """
-        if refresh:
-            self._discovered.clear()
-            self._errors.clear()
+        with self._state_lock:
+            if refresh:
+                self._discovered.clear()
+                self._errors.clear()
+            explicit_modules = tuple(self._additional_modules)
+            explicit_paths = tuple(self._additional_paths)
 
         allow_paths = self._paths_allowed(allow_paths)
 
@@ -161,12 +173,12 @@ class ConnectorDiscovery:
         yield from self._discover_entry_points()
 
         # 3. Explicit modules
-        yield from self._discover_explicit_modules()
+        yield from self._discover_explicit_modules(explicit_modules)
 
         # 4. Explicit paths (dev-only)
         if allow_paths:
-            yield from self._discover_explicit_paths()
-        elif self._additional_paths:
+            yield from self._discover_explicit_paths(explicit_paths)
+        elif explicit_paths:
             logger.info(
                 "Skipping connector path discovery (disabled).",
                 env_flag=ALLOW_PATHS_ENV,
@@ -188,14 +200,15 @@ class ConnectorDiscovery:
         try:
             eps = list_entry_points(group=ENTRY_POINT_GROUP)
         except Exception as e:
-            self._errors.append(
-                DiscoveryError(
-                    source="entrypoint",
-                    module_path=ENTRY_POINT_GROUP,
-                    error=str(e),
-                    error_type=type(e).__name__,
+            with self._state_lock:
+                self._errors.append(
+                    DiscoveryError(
+                        source="entrypoint",
+                        module_path=ENTRY_POINT_GROUP,
+                        error=str(e),
+                        error_type=type(e).__name__,
+                    )
                 )
-            )
             logger.warning(
                 "Failed to enumerate connector entry points",
                 group=ENTRY_POINT_GROUP,
@@ -209,13 +222,15 @@ class ConnectorDiscovery:
 
                 if self._is_valid_connector(connector_class):
                     fqid = self._get_fqid(connector_class)
-
-                    if fqid not in self._discovered:
-                        self._discovered[fqid] = DiscoveryResult(
-                            connector_class=connector_class,
-                            source="entrypoint",
-                            module_path=f"{ep.value} ({ep.name})",
-                        )
+                    with self._state_lock:
+                        is_new = fqid not in self._discovered
+                        if is_new:
+                            self._discovered[fqid] = DiscoveryResult(
+                                connector_class=connector_class,
+                                source="entrypoint",
+                                module_path=f"{ep.value} ({ep.name})",
+                            )
+                    if is_new:
                         logger.info(
                             "Discovered connector via entry point",
                             connector_id=fqid,
@@ -223,37 +238,45 @@ class ConnectorDiscovery:
                         )
                         yield connector_class
                 else:
+                    with self._state_lock:
+                        self._errors.append(
+                            DiscoveryError(
+                                source="entrypoint",
+                                module_path=f"{ep.value} ({ep.name})",
+                                error="Not a valid SourceConnector implementation",
+                                error_type="ValidationError",
+                            )
+                        )
+            except Exception as e:
+                with self._state_lock:
                     self._errors.append(
                         DiscoveryError(
                             source="entrypoint",
                             module_path=f"{ep.value} ({ep.name})",
-                            error="Not a valid SourceConnector implementation",
-                            error_type="ValidationError",
+                            error=str(e),
+                            error_type=type(e).__name__,
                         )
                     )
-            except Exception as e:
-                self._errors.append(
-                    DiscoveryError(
-                        source="entrypoint",
-                        module_path=f"{ep.value} ({ep.name})",
-                        error=str(e),
-                        error_type=type(e).__name__,
-                    )
-                )
                 logger.warning(
                     "Failed to load connector entry point",
                     entry_point=ep.name,
                     error=str(e),
                 )
 
-    def _discover_explicit_modules(self) -> Iterator[type["SourceConnector"]]:
+    def _discover_explicit_modules(
+        self,
+        module_paths: Sequence[str],
+    ) -> Iterator[type["SourceConnector"]]:
         """Discover connectors from explicitly added modules."""
-        for module_path in self._additional_modules:
+        for module_path in module_paths:
             yield from self._discover_from_module(module_path, source="explicit")
 
-    def _discover_explicit_paths(self) -> Iterator[type["SourceConnector"]]:
+    def _discover_explicit_paths(
+        self,
+        paths: Sequence[Path],
+    ) -> Iterator[type["SourceConnector"]]:
         """Discover connectors from explicitly added filesystem paths."""
-        for path in self._additional_paths:
+        for path in paths:
             yield from self._discover_from_path(path)
 
     def _discover_from_module(
@@ -286,13 +309,15 @@ class ConnectorDiscovery:
 
                 if self._is_valid_connector(obj):
                     fqid = self._get_fqid(obj)
-
-                    if fqid not in self._discovered:
-                        self._discovered[fqid] = DiscoveryResult(
-                            connector_class=obj,
-                            source=source,
-                            module_path=module_path,
-                        )
+                    with self._state_lock:
+                        is_new = fqid not in self._discovered
+                        if is_new:
+                            self._discovered[fqid] = DiscoveryResult(
+                                connector_class=obj,
+                                source=source,
+                                module_path=module_path,
+                            )
+                    if is_new:
                         logger.debug(
                             "Discovered connector",
                             connector_id=fqid,
@@ -302,14 +327,15 @@ class ConnectorDiscovery:
                         yield obj
 
         except ImportError as e:
-            self._errors.append(
-                DiscoveryError(
-                    source=source,
-                    module_path=module_path,
-                    error=str(e),
-                    error_type="ImportError",
+            with self._state_lock:
+                self._errors.append(
+                    DiscoveryError(
+                        source=source,
+                        module_path=module_path,
+                        error=str(e),
+                        error_type="ImportError",
+                    )
                 )
-            )
             logger.debug(
                 "Could not import connector module",
                 module=module_path,
@@ -317,14 +343,15 @@ class ConnectorDiscovery:
             )
 
         except Exception as e:
-            self._errors.append(
-                DiscoveryError(
-                    source=source,
-                    module_path=module_path,
-                    error=str(e),
-                    error_type=type(e).__name__,
+            with self._state_lock:
+                self._errors.append(
+                    DiscoveryError(
+                        source=source,
+                        module_path=module_path,
+                        error=str(e),
+                        error_type=type(e).__name__,
+                    )
                 )
-            )
             logger.warning(
                 "Error discovering connectors from module",
                 module=module_path,
@@ -338,14 +365,15 @@ class ConnectorDiscovery:
         Scans for Python files and attempts to load them as modules.
         """
         if not path.exists():
-            self._errors.append(
-                DiscoveryError(
-                    source="path",
-                    module_path=str(path),
-                    error="Path does not exist",
-                    error_type="FileNotFoundError",
+            with self._state_lock:
+                self._errors.append(
+                    DiscoveryError(
+                        source="path",
+                        module_path=str(path),
+                        error="Path does not exist",
+                        error_type="FileNotFoundError",
+                    )
                 )
-            )
             return
 
         # Add path to sys.path temporarily
@@ -378,13 +406,15 @@ class ConnectorDiscovery:
 
                 if isinstance(obj, type) and self._is_valid_connector(obj):
                     fqid = self._get_fqid(obj)
-
-                    if fqid not in self._discovered:
-                        self._discovered[fqid] = DiscoveryResult(
-                            connector_class=obj,
-                            source="path",
-                            module_path=str(file_path),
-                        )
+                    with self._state_lock:
+                        is_new = fqid not in self._discovered
+                        if is_new:
+                            self._discovered[fqid] = DiscoveryResult(
+                                connector_class=obj,
+                                source="path",
+                                module_path=str(file_path),
+                            )
+                    if is_new:
                         logger.debug(
                             "Discovered connector from file",
                             connector_id=fqid,
@@ -392,14 +422,15 @@ class ConnectorDiscovery:
                         )
                         yield obj
         except Exception as e:
-            self._errors.append(
-                DiscoveryError(
-                    source="path",
-                    module_path=str(file_path),
-                    error=str(e),
-                    error_type=type(e).__name__,
+            with self._state_lock:
+                self._errors.append(
+                    DiscoveryError(
+                        source="path",
+                        module_path=str(file_path),
+                        error=str(e),
+                        error_type=type(e).__name__,
+                    )
                 )
-            )
             logger.warning(
                 "Error loading connector from file",
                 file=str(file_path),
@@ -454,7 +485,8 @@ class ConnectorDiscovery:
     @classmethod
     def reset(cls) -> None:
         """Reset the singleton instance (for testing)."""
-        cls._instance = None
+        with cls._class_lock:
+            cls._instance = None
 
 
 def discover_connectors(

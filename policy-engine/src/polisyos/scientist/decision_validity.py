@@ -5,14 +5,14 @@ import json
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.common.timestamps import parse_iso_datetime, to_iso_utc, utc_now
+from polisyos.common.timestamps import to_iso_utc, utc_now
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionDependencyEvent,
@@ -25,6 +25,12 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityTransition,
 )
 from polisyos.core.contracts.feedback import DecisionMonitoringContract
+from polisyos.scientist.engine.operational_monitoring import get_operational_monitor
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+_StateModel = TypeVar("_StateModel", bound=BaseModel)
 
 
 def _serialize_datetime(value: datetime | None) -> str | None:
@@ -76,8 +82,14 @@ class _DecisionDependencyIndex(BaseModel):
 
 class DecisionValidityStateStore:
     """Decision validity state store implementation."""
-    def __init__(self, cas: FileSystemCAS | Path) -> None:
-        root_path = cas.root if isinstance(cas, FileSystemCAS) else cas
+    def __init__(self, cas: ArtifactStore | Path) -> None:
+        root_value = getattr(cas, "root", cas)
+        if isinstance(root_value, str):
+            root_path = Path(root_value)
+        elif isinstance(root_value, Path):
+            root_path = root_value
+        else:
+            raise TypeError("DecisionValidityStateStore requires a local store root or Path")
         self._base = root_path / "decision_validity"
         self._packets = self._base / "packets"
         self._lineages = self._base / "lineages"
@@ -144,7 +156,7 @@ class DecisionValidityStateStore:
         temp.replace(path)
 
     @staticmethod
-    def _load_model(path: Path, model_type: type[BaseModel]) -> BaseModel | None:
+    def _load_model(path: Path, model_type: type[_StateModel]) -> _StateModel | None:
         if not path.exists():
             return None
         try:
@@ -152,7 +164,7 @@ class DecisionValidityStateStore:
         except (OSError, ValueError, json.JSONDecodeError):
             return None
         try:
-            return model_type.model_validate(payload)
+            return cast("_StateModel", model_type.model_validate(payload))
         except Exception:
             return None
 
@@ -170,7 +182,7 @@ class DecisionValidityService:
     """Decision validity service implementation."""
     def __init__(
         self,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         *,
         reevaluate_ttl_seconds: int = 300,
     ) -> None:
@@ -211,13 +223,12 @@ class DecisionValidityService:
             decision_lineage_key=envelope.decision_lineage_key,
             dependency_keys=dependency_keys,
         )
+        packet_state = self._state.load_packet(packet_ref)
         self._state.save_lineage(
             _DecisionLineageState(
                 decision_lineage_key=envelope.decision_lineage_key,
                 head_packet_ref=packet_ref,
-                evaluation_ref=self._state.load_packet(packet_ref).evaluation_ref
-                if self._state.load_packet(packet_ref) is not None
-                else None,
+                evaluation_ref=packet_state.evaluation_ref if packet_state is not None else None,
                 updated_at=utc_now(),
             )
         )
@@ -243,15 +254,23 @@ class DecisionValidityService:
         force: bool = False,
     ) -> DecisionValidityEvaluation:
         current_state = self._state.load_packet(packet_ref)
-        if not force and current_state is not None and current_state.evaluation_ref:
-            if current_state.last_checked_at is not None:
-                age = utc_now() - current_state.last_checked_at
-                if age <= timedelta(seconds=self._ttl):
-                    loaded = self._load_evaluation(current_state.evaluation_ref)
-                    if loaded is not None:
-                        return loaded
+        if (
+            not force
+            and current_state is not None
+            and current_state.evaluation_ref
+            and current_state.last_checked_at is not None
+        ):
+            age = utc_now() - current_state.last_checked_at
+            if age <= timedelta(seconds=self._ttl):
+                loaded = self._load_evaluation(current_state.evaluation_ref)
+                if loaded is not None:
+                    return loaded
 
-        payload = packet_payload if packet_payload is not None else self._load_packet_payload(packet_ref)
+        payload = (
+            packet_payload
+            if packet_payload is not None
+            else self._load_packet_payload(packet_ref)
+        )
         evaluation = self._compute_evaluation(
             packet_ref=packet_ref,
             packet_payload=payload,
@@ -339,16 +358,25 @@ class DecisionValidityService:
         event: DecisionDependencyEvent,
     ) -> list[DecisionValidityEvaluation]:
         if self._state.load_dedupe_event_id(event.dedupe_key):
-            evaluations: list[DecisionValidityEvaluation] = []
+            cached_evaluations: list[DecisionValidityEvaluation] = []
             for dependency_key in event.dependency_keys:
                 dependency = self._state.load_dependency(dependency_key)
                 if dependency is None:
                     continue
                 for packet_ref in dependency.packet_refs:
-                    evaluations.append(self.ensure_evaluation(packet_ref))
-            return evaluations
+                    cached_evaluations.append(self.ensure_evaluation(packet_ref))
+            return cached_evaluations
 
         self._state.save_dedupe_event_id(event.dedupe_key, event.event_id)
+        if event.trigger_type == DecisionTriggerType.CONTEXT_PROFILE_DRIFT:
+            get_operational_monitor().record_alert(
+                alert_type="drift",
+                severity="warn",
+                details={
+                    "dependency_keys": list(event.dependency_keys),
+                    "event_id": event.event_id,
+                },
+            )
         packet_refs: list[str] = []
         for dependency_key in event.dependency_keys:
             dependency = self._state.load_dependency(dependency_key)
@@ -520,7 +548,7 @@ class DecisionValidityService:
         packet_artifact_id = ArtifactID.model_validate(packet_ref)
         evaluation_ref = self._store.put_json(
             evaluation.model_dump(mode="json"),
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="scientist.decision_validity_evaluation",
                 media_type="application/json",
                 schema=SchemaInfo(
@@ -661,7 +689,10 @@ class DecisionValidityService:
             reissue_candidates.append({"artifact_id": state.latest_reissue_plan_ref})
         return {
             "events": [item.model_dump(mode="json") for item in state.lifecycle_events[-20:]],
-            "transitions": [item.model_dump(mode="json") for item in state.transition_history[-20:]],
+            "transitions": [
+                item.model_dump(mode="json")
+                for item in state.transition_history[-20:]
+            ],
             "pending_reviews": pending_reviews,
             "scheduled_jobs": [item.model_dump(mode="json") for item in state.lifecycle_jobs[-20:]],
             "reissue_candidates": reissue_candidates,
@@ -852,7 +883,9 @@ class DecisionValidityService:
                 "reasons": reasons,
                 "triggers": triggers,
                 "dependency_keys": (
-                    baseline.dependency_keys if baseline.dependency_keys else envelope.dependency_keys()
+                    baseline.dependency_keys
+                    if baseline.dependency_keys
+                    else envelope.dependency_keys()
                 ),
                 "review_required": status == DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
                 "recommended_action": _recommended_action(status),
@@ -1005,19 +1038,21 @@ def _build_event_dedupe_key(
     dependency_keys: list[str],
     packet_ref: str | None = None,
 ) -> str:
-    return content_hash(
-        json.dumps(
-            {
-                "trigger_type": trigger.trigger_type.value,
-                "status": trigger.status.value,
-                "reason": trigger.reason,
-                "dependency_keys": sorted(item for item in dependency_keys if item),
-                "source_ref": trigger.source_ref,
-                "packet_ref": packet_ref,
-                "details": trigger.details,
-            },
-            sort_keys=True,
-            separators=(",", ":"),
+    return str(
+        content_hash(
+            json.dumps(
+                {
+                    "trigger_type": trigger.trigger_type.value,
+                    "status": trigger.status.value,
+                    "reason": trigger.reason,
+                    "dependency_keys": sorted(item for item in dependency_keys if item),
+                    "source_ref": trigger.source_ref,
+                    "packet_ref": packet_ref,
+                    "details": trigger.details,
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            )
         )
     )
 
@@ -1055,7 +1090,7 @@ def _monitoring_due_at(contract: DecisionMonitoringContract) -> datetime:
             max_offset_days,
             int(metric.window.end_offset_days) + int(metric.window.grace_days),
         )
-    return contract.anchor_at + timedelta(days=max_offset_days)
+    return cast("datetime", contract.anchor_at + timedelta(days=max_offset_days))
 
 
 def _complete_monitoring_jobs(

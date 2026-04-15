@@ -95,7 +95,7 @@ class QuadraticProgramEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="quadratic_program",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -231,7 +231,7 @@ class RobustOptimizationEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="robust_optimization",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -46,7 +46,7 @@ class ForestDRLearnerEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="forest_dr",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

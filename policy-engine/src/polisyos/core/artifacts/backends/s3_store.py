@@ -3,14 +3,22 @@
 from __future__ import annotations
 
 import hashlib
-import json
+import importlib
 import threading
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+from polisyos.common.serialization import fast_json_dumps_bytes
 from polisyos.core.canon import content_hash
 from polisyos.core.canon.canon_json import CanonSpec, to_canonical_bytes
+from polisyos.core.observability import get_metrics
 
+from .._integrity_ops import (
+    ArtifactIntegrityError,
+    VerificationReport,
+    validate_manifest_identity,
+    validate_read_integrity,
+    verify_loaded_artifact,
+)
 from ..ids import ArtifactID
 from ..manifest import (
     ArtifactManifest,
@@ -18,7 +26,13 @@ from ..manifest import (
     CanonInfo,
     IntegrityInfo,
 )
-from ..store import PutOptions, VerificationReport
+from ..store import PutOptions
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from .config import ArtifactStoreConfig
+    from polisyos.core.observability import MetricsRegistry
 
 
 class S3ArtifactStore:
@@ -40,6 +54,7 @@ class S3ArtifactStore:
         prefix: str = "polisyos-cas",
         region: str = "us-east-1",
         local_cache_dir: Path | None = None,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self._bucket = bucket
         self._prefix = prefix.rstrip("/")
@@ -47,6 +62,7 @@ class S3ArtifactStore:
         self._local_cache_dir = local_cache_dir
         self._client: Any = None
         self._lock = threading.Lock()
+        self._metrics = metrics or get_metrics()
 
     # -- lazy client ---------------------------------------------------
 
@@ -55,9 +71,8 @@ class S3ArtifactStore:
             return self._client
         with self._lock:
             if self._client is None:
-                import boto3
-
-                self._client = boto3.client("s3", region_name=self._region)
+                boto3_module = importlib.import_module("boto3")
+                self._client = boto3_module.client("s3", region_name=self._region)
         return self._client
 
     # -- key helpers ---------------------------------------------------
@@ -94,37 +109,82 @@ class S3ArtifactStore:
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes(data)
 
+    def _record_integrity_failure(self, *, reason: str) -> None:
+        recorder = getattr(self._metrics, "record_artifact_integrity_failure", None)
+        if callable(recorder):
+            recorder(backend="s3", reason=reason)
+
+    def artifact_store_config(self) -> "ArtifactStoreConfig":
+        """Return declarative config needed to rebuild this store instance."""
+        from .config import ArtifactStoreConfig
+
+        return ArtifactStoreConfig(
+            backend="s3",
+            bucket=self._bucket,
+            prefix=self._prefix,
+            region=self._region,
+            local_cache_dir=(
+                str(self._local_cache_dir) if self._local_cache_dir is not None else None
+            ),
+        )
+
     # -- ArtifactStore protocol ----------------------------------------
 
     def has(self, artifact_id: ArtifactID) -> bool:
         # Check local cache first
-        if self._cache_read(artifact_id, ".blob") is not None:
+        if (
+            self._cache_read(artifact_id, ".blob") is not None
+            and self._cache_read(artifact_id, ".manifest.json") is not None
+        ):
             return True
         try:
             self._s3().head_object(Bucket=self._bucket, Key=self._blob_key(artifact_id))
+            self._s3().head_object(Bucket=self._bucket, Key=self._manifest_key(artifact_id))
             return True
-        except self._s3().exceptions.ClientError:
-            return False
+        except self._s3().exceptions.ClientError as exc:
+            if self._is_missing_error(exc):
+                return False
+            raise
 
     def get_bytes(self, artifact_id: ArtifactID) -> bytes:
         cached = self._cache_read(artifact_id, ".blob")
-        if cached is not None:
-            return cached
-        resp = self._s3().get_object(Bucket=self._bucket, Key=self._blob_key(artifact_id))
-        data = resp["Body"].read()
+        if cached is None:
+            resp = self._s3().get_object(Bucket=self._bucket, Key=self._blob_key(artifact_id))
+            data = resp["Body"].read()
+            self._cache_write(artifact_id, ".blob", data)
+        else:
+            data = cached
+        manifest = self.get_manifest(artifact_id)
+        try:
+            validate_read_integrity(artifact_id, data, manifest)
+        except ArtifactIntegrityError as exc:
+            self._record_integrity_failure(reason=type(exc).__name__)
+            raise
         self._cache_write(artifact_id, ".blob", data)
         return data
 
     def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
         cached = self._cache_read(artifact_id, ".manifest.json")
         if cached is not None:
-            return ArtifactManifest.model_validate_json(cached.decode("utf-8"))
+            manifest = ArtifactManifest.model_validate_json(cached.decode("utf-8"))
+            try:
+                validate_manifest_identity(artifact_id, manifest)
+            except ArtifactIntegrityError as exc:
+                self._record_integrity_failure(reason=type(exc).__name__)
+                raise
+            return manifest
         resp = self._s3().get_object(
             Bucket=self._bucket, Key=self._manifest_key(artifact_id)
         )
         raw = resp["Body"].read()
         self._cache_write(artifact_id, ".manifest.json", raw)
-        return ArtifactManifest.model_validate_json(raw.decode("utf-8"))
+        manifest = ArtifactManifest.model_validate_json(raw.decode("utf-8"))
+        try:
+            validate_manifest_identity(artifact_id, manifest)
+        except ArtifactIntegrityError as exc:
+            self._record_integrity_failure(reason=type(exc).__name__)
+            raise
+        return manifest
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
         sha = content_hash(data)
@@ -143,25 +203,27 @@ class S3ArtifactStore:
 
         # Write manifest if missing
         try:
-            self._s3().head_object(
-                Bucket=self._bucket, Key=self._manifest_key(aid)
-            )
-        except Exception:
+            self._s3().head_object(Bucket=self._bucket, Key=self._manifest_key(aid))
+        except self._s3().exceptions.ClientError as exc:
+            if not self._is_missing_error(exc):
+                raise
             manifest = ArtifactManifest(
                 artifact_id=aid,
                 kind=opts.kind,
                 media_type=opts.media_type,
                 byte_size=len(data),
-                artifact_schema=opts.schema,
+                schema=opts.schema,
                 canon=opts.canon,
                 inputs=list(opts.inputs or []),
                 producer=opts.producer,
                 env=opts.env,
+                governance=getattr(opts, "governance", None),
                 integrity=IntegrityInfo(sha256=sha),
             )
-            man_bytes = manifest.model_dump_json(
-                by_alias=True, exclude_none=True, indent=None
-            ).encode("utf-8")
+            man_bytes = fast_json_dumps_bytes(
+                manifest.model_dump(mode="json", by_alias=True, exclude_none=True),
+                sort_keys=True,
+            )
             self._s3().put_object(
                 Bucket=self._bucket,
                 Key=self._manifest_key(aid),
@@ -189,29 +251,27 @@ class S3ArtifactStore:
             env=opts.env,
             inputs=opts.inputs,
             canon=canon,
+            governance=getattr(opts, "governance", None),
         )
         return self.put_bytes(data, opts2)
 
     def verify(self, artifact_id: ArtifactID) -> VerificationReport:
-        try:
-            data = self.get_bytes(artifact_id)
-        except Exception as exc:
-            return VerificationReport(
-                ok=False,
-                artifact_id=str(artifact_id),
-                expected_sha256_hex=artifact_id.hex,
-                error=str(exc),
-            )
-        actual = hashlib.sha256(data).hexdigest()
-        ok = actual == artifact_id.hex
-        return VerificationReport(
-            ok=ok,
-            artifact_id=str(artifact_id),
-            expected_sha256_hex=artifact_id.hex,
-            actual_sha256_hex=actual,
-            byte_size=len(data),
-            error=None if ok else "SHA256 mismatch",
+        return verify_loaded_artifact(
+            artifact_id,
+            load_bytes=self.get_bytes,
+            load_manifest=self.get_manifest,
         )
+
+    @staticmethod
+    def _is_missing_error(exc: Exception) -> bool:
+        response = getattr(exc, "response", {})
+        error = response.get("Error", {}) if isinstance(response, dict) else {}
+        code = str(error.get("Code", "")).strip()
+        status_code = None
+        metadata = response.get("ResponseMetadata", {}) if isinstance(response, dict) else {}
+        if isinstance(metadata, dict):
+            status_code = metadata.get("HTTPStatusCode")
+        return code in {"404", "NotFound", "NoSuchKey"} or status_code == 404
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
         ids: list[ArtifactID] = []

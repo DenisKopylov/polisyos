@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import os
 from collections import OrderedDict
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
-from benchmarks.runtime import module_available
+from benchmarks.runtime import ModuleProbe, probe_module
 
 
 @dataclass(frozen=True)
@@ -89,6 +91,47 @@ COMPARATOR_GROUPS: "OrderedDict[str, tuple[str, ...]]" = OrderedDict(
     ]
 )
 
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _comparator_python_env_var(label: str) -> str:
+    return f"BENCH_{label.upper().replace('-', '_')}_PYTHON"
+
+
+def _candidate_python_executables(label: str) -> tuple[str, ...]:
+    candidates: list[str] = []
+    explicit = os.environ.get(_comparator_python_env_var(label), "").strip()
+    if explicit:
+        candidates.append(explicit)
+    if label == "pygformula":
+        temporal_explicit = os.environ.get("BENCH_TEMPORAL_PYTHON", "").strip()
+        if temporal_explicit:
+            candidates.append(temporal_explicit)
+        candidates.extend(
+            [
+                str(_REPO_ROOT / ".venvs" / "bench-temporal" / "bin" / "python"),
+                str(_REPO_ROOT / ".venv-bench-temporal" / "bin" / "python"),
+                str(_REPO_ROOT / ".venvs" / "py311-bench" / "bin" / "python"),
+            ]
+        )
+    ordered: list[str] = []
+    for item in candidates:
+        if item and item not in ordered:
+            ordered.append(item)
+    return tuple(ordered)
+
+
+def probe_comparator(label: str) -> ModuleProbe:
+    spec = _COMPARATOR_CATALOG[label]
+    primary = probe_module(spec.module_name)
+    if primary.available:
+        return primary
+    for python_executable in _candidate_python_executables(label):
+        probe = probe_module(spec.module_name, python_executable=python_executable)
+        if probe.available:
+            return probe
+    return primary
+
 
 def _resolve_labels(
     *,
@@ -157,7 +200,7 @@ def comparator_required_modules(
         default_to_legacy_required=default_to_legacy_required,
     )
     return {
-        label: module_available(_COMPARATOR_CATALOG[label].module_name)
+        label: probe_comparator(label).available
         for label in labels
     }
 
@@ -175,11 +218,7 @@ def build_research_acceptance_comparator_status(
         default_to_legacy_required=default_to_legacy_required,
     )
     return {
-        label: (
-            "available"
-            if module_available(_COMPARATOR_CATALOG[label].module_name)
-            else "missing"
-        )
+        label: _format_probe_status(probe_comparator(label))
         for label in labels
     }
 
@@ -188,6 +227,14 @@ def comparator_degraded_reasons(status: dict[str, Any]) -> list[str]:
     """Render human-readable degraded reasons from a comparator status map."""
     reasons: list[str] = []
     for label, value in status.items():
-        if str(value) != "available":
+        if not str(value).startswith("available"):
             reasons.append(f"{label} comparator unavailable")
     return reasons
+
+
+def _format_probe_status(probe: ModuleProbe) -> str:
+    if probe.available:
+        return "available"
+    if probe.error:
+        return f"{probe.status}: {probe.error}"
+    return probe.status

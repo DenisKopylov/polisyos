@@ -9,32 +9,29 @@ from __future__ import annotations
 
 import asyncio
 import random
-from dataclasses import dataclass
-from enum import Enum
+from dataclasses import dataclass, field
 from functools import wraps
-from typing import Any, Awaitable, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
 
 from polisyos.common.logger import get_logger
-from polisyos.core.observability import get_metrics
+from polisyos.core.observability import get_metrics, get_tracer
 
-try:
-    from opentelemetry import trace
-    from opentelemetry.trace import Status, StatusCode
-except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
-    trace = None
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
 
-    class StatusCode(str, Enum):
-        OK = "OK"
-        ERROR = "ERROR"
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
 
-    class Status:  # type: ignore[override]
-        def __init__(self, status_code: StatusCode, description: str | None = None) -> None:
-            self.status_code = status_code
-            self.description = description
+
+class _CounterLike(Protocol):
+    def add(self, value: int | float, attrs: dict[str, str]) -> None: ...
+
+
+class _HistogramLike(Protocol):
+    def record(self, value: int | float, attrs: dict[str, str]) -> None: ...
 
 
 logger = get_logger(__name__)
-tracer = trace.get_tracer(__name__) if trace is not None else None
+_JITTER_RANDOM = random.SystemRandom()
 
 T = TypeVar("T")
 
@@ -92,10 +89,12 @@ def _extract_connector_id(args: tuple[Any, ...], kwargs: dict[str, Any]) -> str 
     for key in ("handle", "connection", "connection_handle"):
         handle = kwargs.get(key)
         if handle is not None and hasattr(handle, "connector_id"):
-            return getattr(handle, "connector_id")
+            connector_id = getattr(handle, "connector_id")
+            return str(connector_id) if connector_id is not None else None
     for arg in args:
         if hasattr(arg, "connector_id"):
-            return getattr(arg, "connector_id")
+            connector_id = getattr(arg, "connector_id")
+            return str(connector_id) if connector_id is not None else None
     return None
 
 
@@ -109,10 +108,7 @@ def _is_retry_allowed(args: tuple[Any, ...], kwargs: dict[str, Any]) -> bool:
         return False
 
     idempotent = getattr(request, "idempotent", None)
-    if idempotent is False:
-        return False
-
-    return True
+    return idempotent is not False
 
 
 def is_retryable_error(error: Exception) -> bool:
@@ -159,6 +155,8 @@ class RetryPolicy:
     jitter_max: float = 0.5
     max_delay: float = 60.0
     retry_on_predicate: Callable[[Exception], bool] | None = None
+    metrics: MetricsRegistry | None = field(default=None, compare=False, repr=False)
+    tracer: PolicyOSTracer | None = field(default=None, compare=False, repr=False)
 
     def __post_init__(self) -> None:
         if self.max_attempts < 1:
@@ -181,7 +179,7 @@ class RetryPolicy:
         if attempt < 1 or self.base_delay <= 0:
             return 0.0
         exponential = self.base_delay * (self.backoff_factor ** (attempt - 1))
-        jitter = random.uniform(0, self.jitter_max)
+        jitter = _JITTER_RANDOM.uniform(0, self.jitter_max)
         return min(exponential + jitter, self.max_delay)
 
     async def execute(
@@ -195,7 +193,7 @@ class RetryPolicy:
         total_delay = 0.0
         last_error: Exception | None = None
         connector_id = _extract_connector_id(args, kwargs)
-        metrics = get_metrics()
+        metrics = self.metrics or get_metrics()
 
         async def _run() -> T:
             nonlocal attempt, total_delay, last_error
@@ -206,10 +204,10 @@ class RetryPolicy:
 
                     if attempt > 1:
                         logger.info(
-                            "Retry succeeded",
-                            attempt=attempt,
-                            total_attempts=self.max_attempts,
-                            total_delay_seconds=total_delay,
+                            "Retry succeeded on attempt %s/%s after %.2fs delay",
+                            attempt,
+                            self.max_attempts,
+                            total_delay,
                         )
 
                     return result
@@ -239,25 +237,25 @@ class RetryPolicy:
                     total_delay += delay
 
                     logger.warning(
-                        "Retry attempt",
-                        attempt=attempt,
-                        max_attempts=self.max_attempts,
-                        delay_seconds=delay,
-                        error_type=type(error).__name__,
-                        error_message=str(error),
+                        "Retry attempt %s/%s in %.2fs after %s: %s",
+                        attempt,
+                        self.max_attempts,
+                        delay,
+                        type(error).__name__,
+                        error,
                     )
 
-                    if metrics and getattr(metrics, "connector_retry_attempts_total", None):
-                        labels = {"attempt": str(attempt)}
-                        if connector_id:
-                            labels["connector_id"] = connector_id
-                        metrics.connector_retry_attempts_total.add(1, labels)  # type: ignore[union-attr]
-
-                    if metrics and getattr(metrics, "connector_retry_delay_seconds", None):
-                        labels = {"attempt": str(attempt)}
-                        if connector_id:
-                            labels["connector_id"] = connector_id
-                        metrics.connector_retry_delay_seconds.record(delay, labels)  # type: ignore[union-attr]
+                    _record_retry_attempt_metric(
+                        metrics,
+                        attempt=attempt,
+                        connector_id=connector_id,
+                    )
+                    _record_retry_delay_metric(
+                        metrics,
+                        attempt=attempt,
+                        connector_id=connector_id,
+                        delay=delay,
+                    )
 
                     if delay > 0:
                         await asyncio.sleep(delay)
@@ -271,8 +269,7 @@ class RetryPolicy:
 
             raise RuntimeError("RetryPolicy.execute reached unexpected state")
 
-        if tracer is None:
-            return await _run()
+        tracer = self.tracer or get_tracer()
 
         with tracer.start_as_current_span(
             "retry.execute",
@@ -283,11 +280,11 @@ class RetryPolicy:
         ) as parent_span:
             try:
                 result = await _run()
-                parent_span.set_status(Status(StatusCode.OK))
+                _set_span_status_ok(parent_span)
                 parent_span.set_attribute("retry.success_attempt", attempt)
                 return result
             except Exception as error:
-                parent_span.set_status(Status(StatusCode.ERROR, str(error)))
+                _set_span_status_error(parent_span, str(error))
                 parent_span.record_exception(error)
                 raise
 
@@ -321,7 +318,7 @@ def with_retry(
     return decorator
 
 
-async def retry_async(
+async def retry_async[T](
     operation: Callable[[], Awaitable[T]],
     *,
     attempts: int,
@@ -354,7 +351,7 @@ async def retry_async(
         raise error.original_error
 
 
-async def simple_retry(
+async def simple_retry[T](
     operation: Callable[[], Awaitable[T]],
     *,
     attempts: int,
@@ -370,11 +367,61 @@ async def simple_retry(
     )
 
 
+def _record_retry_attempt_metric(
+    metrics: MetricsRegistry,
+    *,
+    attempt: int,
+    connector_id: str | None,
+) -> None:
+    counter = cast("_CounterLike | None", getattr(metrics, "connector_retry_attempts_total", None))
+    if counter is None:
+        return
+    attrs = {"attempt": str(attempt)}
+    if connector_id:
+        attrs["connector_id"] = connector_id
+    counter.add(1, attrs)
+
+
+def _record_retry_delay_metric(
+    metrics: MetricsRegistry,
+    *,
+    attempt: int,
+    connector_id: str | None,
+    delay: float,
+) -> None:
+    histogram = cast(
+        "_HistogramLike | None",
+        getattr(metrics, "connector_retry_delay_seconds", None),
+    )
+    if histogram is None:
+        return
+    attrs = {"attempt": str(attempt)}
+    if connector_id:
+        attrs["connector_id"] = connector_id
+    histogram.record(delay, attrs)
+
+
+def _set_span_status_ok(span: Any) -> None:
+    try:
+        from opentelemetry.trace import Status, StatusCode
+    except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+        return
+    span.set_status(Status(status_code=StatusCode.OK))
+
+
+def _set_span_status_error(span: Any, description: str) -> None:
+    try:
+        from opentelemetry.trace import Status, StatusCode
+    except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+        return
+    span.set_status(Status(status_code=StatusCode.ERROR, description=description))
+
+
 __all__ = [
-    "RetryPolicy",
     "RetryExhaustedError",
+    "RetryPolicy",
     "is_retryable_error",
-    "with_retry",
     "retry_async",
     "simple_retry",
+    "with_retry",
 ]

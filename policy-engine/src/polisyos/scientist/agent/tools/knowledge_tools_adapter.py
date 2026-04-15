@@ -9,6 +9,7 @@ from polisyos.common.logger import get_logger
 
 from .registry import ToolRegistry
 from .schema import ToolDefinition
+from .scholar_search_tools import build_scholar_search_tool_registry
 
 logger = get_logger(__name__)
 
@@ -129,7 +130,11 @@ def _infer_domain(name: str) -> str:
     return ""
 
 
-def build_knowledge_tool_registry(toolkit: Any) -> ToolRegistry:
+def build_knowledge_tool_registry(
+    toolkit: Any,
+    *,
+    scholar_search_service: Any | None = None,
+) -> ToolRegistry:
     """Introspect a ``KnowledgeToolkit`` instance and register all
     eligible methods as tools.
 
@@ -161,5 +166,11 @@ def build_knowledge_tool_registry(toolkit: Any) -> ToolRegistry:
             registry.register(definition, method)
         except Exception as exc:  # noqa: BLE001
             logger.debug("Failed to register tool %s: %s", name, exc)
+
+    if scholar_search_service is not None:
+        scholar_registry = build_scholar_search_tool_registry(scholar_search_service)
+        for definition in scholar_registry.list_definitions():
+            _, handler = scholar_registry.get(definition.name)
+            registry.register(definition, handler)
 
     return registry

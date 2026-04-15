@@ -40,6 +40,7 @@ def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
     report = harness.run(circuit=BenchmarkCircuit.ESTIMATION)
     evaluations = extract_temporal_evaluations(report)
     scorecard = build_gold_scorecard(evaluations)
+    suite_status = "passed" if resolve_mode(mode).value == "smoke" else ("passed" if scorecard["passes_all"] else "failed")
     preflight = build_preflight(
         mode=mode,
         benchmark_tier=resolve_tier(mode=resolve_mode(mode)).value,
@@ -69,6 +70,12 @@ def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
             "requires_all_cases_pass": True,
         },
         aggregate_metrics={"temporal_scorecard": scorecard},
+        blockers=[],
+        release_gate_results={
+            "checks": dict(scorecard.get("checks") or {}),
+            "passes_all": bool(scorecard.get("passes_all")),
+        },
+        overall_status=suite_status,
         case_details_builder=lambda case: temporal_case_details(
             case,
             include_scenario_metadata=True,
@@ -97,7 +104,7 @@ def main(argv: list[str] | None = None) -> int:
         Path(args.json).write_text(output + "\n", encoding="utf-8")
     if not args.quiet:
         print(output)
-    return 0
+    return 0 if payload.get("overall_status") in {"passed", "over_budget", "skipped"} else 1
 
 
 if __name__ == "__main__":

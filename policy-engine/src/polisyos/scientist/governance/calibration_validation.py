@@ -15,7 +15,11 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.backtest import BacktestReportRef
-from polisyos.core.contracts.scientist import CalibrationValidationBundleRef, StressTestReportRef
+from polisyos.core.contracts.scientist import (
+    CalibrationValidationBundleRef,
+    GovernanceAccountabilityArtifactRef,
+    StressTestReportRef,
+)
 from polisyos.ir.analytics.interference import InterferenceCertificate, NetworkInterferenceReport
 from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.observation.bundles import BacktestPlanBundle
@@ -23,6 +27,11 @@ from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.scientist.discovery.utility_judge import DownstreamUtilityReport
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult, BacktestMatrixRunner
 from polisyos.scientist.governance.calibration import CalibrationGovernanceReport
+from polisyos.scientist.governance.accountability import (
+    GovernanceAccountabilityInput,
+    build_governance_accountability_artifact,
+    persist_governance_accountability_artifact,
+)
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboard,
     CalibrationLeaderboardEntry,
@@ -60,6 +69,7 @@ class CalibrationValidationRunnerInput(BaseModel):
     scenario_objective_overrides: dict[StressScenarioKind, float] = Field(default_factory=dict)
     scenario_metric_overrides: dict[StressScenarioKind, dict[str, float]] = Field(default_factory=dict)
     lesson_registry: Any | None = None
+    accountability_input: GovernanceAccountabilityInput | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -82,6 +92,8 @@ class CalibrationValidationBundle(BaseModel):
     stress_scenarios: StressScenarioResult | None = None
     leaderboard_entry: CalibrationLeaderboardEntry | None = None
     lesson_card_ref: ArtifactRef | None = None
+    governance_accountability_ref: GovernanceAccountabilityArtifactRef | None = None
+    governance_accountability_summary: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def readout_summary(self) -> dict[str, Any]:
@@ -112,6 +124,24 @@ class CalibrationValidationBundle(BaseModel):
                 None if metrics is None else metrics.strategic_response_plausibility
             ),
             "gap_flags": [] if metrics is None else list(metrics.gap_flags),
+            "risk_weighted_verdict": self.governance_accountability_summary.get(
+                "risk_weighted_verdict"
+            ),
+            "requires_human_review": self.governance_accountability_summary.get(
+                "requires_human_review"
+            ),
+            "failed_accountability_thresholds": list(
+                self.governance_accountability_summary.get("failed_thresholds", [])
+            ),
+            "escalation_triggers": list(
+                self.governance_accountability_summary.get("escalation_triggers", [])
+            ),
+            "accountability_ref": (
+                None
+                if self.governance_accountability_ref is None
+                else str(self.governance_accountability_ref.artifact_id)
+            ),
+            "accountability_summary": dict(self.governance_accountability_summary),
         }
 
     @property
@@ -166,6 +196,10 @@ class CalibrationValidationRunner:
                 status="blocked_by_governance",
                 metadata={"blocked_reason": "c5a_short_circuited", **dict(bundle.metadata)},
             )
+            blocked = self._attach_accountability_artifact(
+                bundle_input=bundle,
+                validation_bundle=blocked,
+            )
             blocked_ref = persist_calibration_validation_bundle(self._store, blocked)
             return CalibrationValidationRunnerResult(bundle_ref=blocked_ref, bundle=blocked)
 
@@ -219,12 +253,69 @@ class CalibrationValidationRunner:
             validation_bundle = validation_bundle.model_copy(
                 update={"lesson_card_ref": lesson_card_ref}
             )
+        validation_bundle = self._attach_accountability_artifact(
+            bundle_input=bundle,
+            validation_bundle=validation_bundle,
+        )
         bundle_ref = persist_calibration_validation_bundle(
             self._store,
             validation_bundle,
             inputs=artifact_inputs,
         )
         return CalibrationValidationRunnerResult(bundle_ref=bundle_ref, bundle=validation_bundle)
+
+    def _attach_accountability_artifact(
+        self,
+        *,
+        bundle_input: CalibrationValidationRunnerInput,
+        validation_bundle: CalibrationValidationBundle,
+    ) -> CalibrationValidationBundle:
+        leaderboard_metrics = (
+            None
+            if validation_bundle.leaderboard_entry is None
+            else validation_bundle.leaderboard_entry.metrics
+        )
+        stress_summary = (
+            None
+            if validation_bundle.stress_scenarios is None
+            else {
+                "worst_scenario": (
+                    None
+                    if validation_bundle.stress_scenarios.worst_scenario is None
+                    else validation_bundle.stress_scenarios.worst_scenario.value
+                ),
+                "critical_count": validation_bundle.stress_scenarios.critical_count,
+                "high_count": validation_bundle.stress_scenarios.high_count,
+            }
+        )
+        accountability_artifact = build_governance_accountability_artifact(
+            run_id=bundle_input.run_id,
+            candidate_ref=bundle_input.candidate_ref,
+            governance_verdict=bundle_input.governance_report.resolved_verdict(),
+            governance_issues=bundle_input.governance_report.issues,
+            adversarial_results=bundle_input.governance_report.adversarial_results,
+            composite_score=(
+                None if leaderboard_metrics is None else leaderboard_metrics.composite_score
+            ),
+            eligible_for_promotion=(
+                None if leaderboard_metrics is None else leaderboard_metrics.eligible_for_promotion
+            ),
+            stress_summary=stress_summary,
+            accountability_input=bundle_input.accountability_input,
+        )
+        accountability_ref = persist_governance_accountability_artifact(
+            self._store,
+            accountability_artifact,
+            inputs=[
+                InputRef(artifact_id=bundle_input.candidate_ref.artifact_id, role="candidate"),
+            ],
+        )
+        return validation_bundle.model_copy(
+            update={
+                "governance_accountability_ref": accountability_ref,
+                "governance_accountability_summary": accountability_artifact.compact_summary(),
+            }
+        )
 
 
 class CalibrationValidationLessonPublisher:

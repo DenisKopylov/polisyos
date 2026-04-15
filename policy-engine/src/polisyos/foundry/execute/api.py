@@ -26,6 +26,7 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
 )
 from polisyos.core.registry import load_registry_bundle_content
+from polisyos.foundry._execution_posture import resolve_execution_posture
 from polisyos.foundry.data_plane import load_input_bindings
 from polisyos.foundry.executor import (
     apply_state_delta_and_snapshot,
@@ -104,6 +105,16 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     base_state = load_state_snapshot(store, snapshot_ref=state_snapshot_ref)
 
     exec_plan = _load_model(store, request.exec_plan_ref, ExecPlan)
+    posture = resolve_execution_posture(exec_plan, request.exec_config)
+    current_step = int(getattr(base_state, "step", 0))
+    execution_notes = [*resolved_state.notes, *posture.notes]
+    if posture.max_steps is not None and current_step >= posture.max_steps:
+        return ExecuteResult(
+            ok=False,
+            simulation_result_ref=None,
+            derived_refs=[],
+            notes=[*execution_notes, f"max_steps_reached:{current_step}>={posture.max_steps}"],
+        )
     parameter_overrides: dict[str, dict[str, object]] | None = None
     parameter_override_inputs: list[InputRef] = []
     if request.parameter_override_bundle_ref is not None:
@@ -134,10 +145,10 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             merge_registry=registry_content.merge_registry,
             selector_field_registry=registry_content.selector_field_registry,
             constraint_registry=registry_content.constraint_registry,
-            step=int(getattr(base_state, "step", 0)),
-            seed=request.exec_config.seed,
+            step=current_step,
+            seed=posture.seed,
             base_ref=state_snapshot_ref,
-            capture_env=request.exec_config.capture_env,
+            capture_env=posture.capture_env,
             parameter_overrides=parameter_overrides,
             parameter_override_bundle_ref=request.parameter_override_bundle_ref,
         )
@@ -170,7 +181,7 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             ok=False,
             simulation_result_ref=None,
             derived_refs=derived_refs,
-            notes=[*resolved_state.notes, "hard_constraint_violation"],
+            notes=[*execution_notes, "hard_constraint_violation"],
         )
 
     _, applied = apply_state_delta_and_snapshot(
@@ -179,7 +190,7 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
         state_delta_ref=exec_artifacts.state_delta_ref,
         slot_registry=registry_content.slot_registry,
         merge_registry=registry_content.merge_registry,
-        step=int(getattr(base_state, "step", 0)),
+        step=current_step,
         base_ref=state_snapshot_ref,
     )
 
@@ -188,7 +199,10 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
         metrics_ref=MetricsRef(artifact_id=exec_artifacts.metrics_ref.artifact_id),
         state_snapshot_ref=StateSnapshotRef(artifact_id=applied.state_snapshot_ref.artifact_id),
         environment_ref=exec_artifacts.environment_ref,
-        environment_fingerprint=exec_artifacts.environment_fingerprint,
+        environment_fingerprint=(
+            exec_artifacts.environment_fingerprint or posture.current_environment_fingerprint
+        ),
+        notes=list(execution_notes),
     )
     sim_inputs = [
         InputRef(artifact_id=request.exec_plan_ref.artifact_id, role="exec_plan"),
@@ -212,7 +226,7 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
         ok=True,
         simulation_result_ref=SimulationResultRef(artifact_id=sim_result_ref.artifact_id),
         derived_refs=derived_refs,
-        notes=list(resolved_state.notes),
+        notes=execution_notes,
     )
 
 

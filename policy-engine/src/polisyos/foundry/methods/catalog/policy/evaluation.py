@@ -41,7 +41,7 @@ class BudgetImpactEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="budget_impact",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -117,7 +117,7 @@ class PolicyScorecardEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="scorecard",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -193,7 +193,7 @@ class ExAnteSimulationEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ex_ante_simulation",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

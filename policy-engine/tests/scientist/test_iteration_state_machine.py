@@ -4,6 +4,7 @@ import pytest
 
 from polisyos.core.contracts.execution_plan import IterationState
 from polisyos.scientist.engine.iteration_state_machine import (
+    IterationTransitionError,
     can_transition,
     derive_terminal_state_from_verdict,
     transition,
@@ -25,8 +26,13 @@ def test_iteration_state_machine_happy_path() -> None:
 def test_iteration_state_machine_rejects_invalid_transition() -> None:
     state = IterationState(run_id="R_invalid")
     assert can_transition(state.lifecycle_state, "approve") is False
-    with pytest.raises(ValueError):
+    with pytest.raises(IterationTransitionError):
         transition(state, "approve")
+
+
+def test_iteration_state_machine_rejects_unknown_event() -> None:
+    with pytest.raises(IterationTransitionError, match="Unsupported transition event"):
+        can_transition("plan_created", "teleport")
 
 
 def test_terminal_state_mapping() -> None:

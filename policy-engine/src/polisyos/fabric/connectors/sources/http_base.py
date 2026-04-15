@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from dataclasses import dataclass, field
@@ -56,6 +57,10 @@ class HTTPResilienceProfile:
     rate_limit_rps: float | None = None
     adaptive_rate_limit: bool = False
     circuit_breaker: CircuitBreakerConfig | None = field(default_factory=CircuitBreakerConfig)
+    max_response_bytes: int = 10 * 1024 * 1024
+    max_json_bytes: int = 5 * 1024 * 1024
+    max_decompressed_bytes: int = 25 * 1024 * 1024
+    max_rows: int = 200_000
 
 
 class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
@@ -71,24 +76,29 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
 
     _STATE_BASE_URL_KEY: ClassVar[str] = "base_url"
     _STATE_SESSION_KEY: ClassVar[str] = "session"
+    _STATE_SESSION_LOCK_KEY: ClassVar[str] = "_session_lock"
     _STATE_JSON_EXECUTOR_KEY: ClassVar[str] = "_http_json_executor"
     _STATE_JSON_EXECUTOR_CONFIG_KEY: ClassVar[str] = "_http_json_executor_config"
+    _READ_CHUNK_SIZE: ClassVar[int] = 64 * 1024
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
         handle = self._create_handle(config)
-        handle.state[self._STATE_BASE_URL_KEY] = config.url or self._BASE_URL
-        handle.state[self._STATE_SESSION_KEY] = None
-        handle.state[self._STATE_JSON_EXECUTOR_KEY] = None
-        handle.state[self._STATE_JSON_EXECUTOR_CONFIG_KEY] = None
+        handle.set_state(self._STATE_BASE_URL_KEY, config.url or self._BASE_URL)
+        handle.set_state(self._STATE_SESSION_KEY, None)
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, asyncio.Lock())
+        handle.set_state(self._STATE_JSON_EXECUTOR_KEY, None)
+        handle.set_state(self._STATE_JSON_EXECUTOR_CONFIG_KEY, None)
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
-        session: aiohttp.ClientSession | None = handle.state.get(self._STATE_SESSION_KEY)
-        if session is not None and not session.closed:
-            await session.close()
-        handle.state[self._STATE_SESSION_KEY] = None
-        handle.state[self._STATE_JSON_EXECUTOR_KEY] = None
-        handle.state[self._STATE_JSON_EXECUTOR_CONFIG_KEY] = None
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is not None and not session.closed:
+                await session.close()
+            handle.set_state(self._STATE_SESSION_KEY, None)
+        handle.set_state(self._STATE_JSON_EXECUTOR_KEY, None)
+        handle.set_state(self._STATE_JSON_EXECUTOR_CONFIG_KEY, None)
 
     @classmethod
     def validate_config(cls, config: ConnectionConfig) -> ValidationResult:
@@ -106,15 +116,25 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
         return ValidationResult.success()
 
     def _base_url(self, handle: ConnectionHandle) -> str:
-        return str(handle.state.get(self._STATE_BASE_URL_KEY) or self._BASE_URL)
+        return str(handle.get_state(self._STATE_BASE_URL_KEY) or self._BASE_URL)
 
     async def _get_session(self, handle: ConnectionHandle) -> aiohttp.ClientSession:
-        session: aiohttp.ClientSession | None = handle.state.get(self._STATE_SESSION_KEY)
-        if session is None or session.closed:
-            timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
-            session = aiohttp.ClientSession(timeout=timeout)
-            handle.state[self._STATE_SESSION_KEY] = session
-        return session
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is None or session.closed:
+                timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
+                session = aiohttp.ClientSession(timeout=timeout)
+                handle.set_state(self._STATE_SESSION_KEY, session)
+            return session
+
+    def _session_lock(self, handle: ConnectionHandle) -> asyncio.Lock:
+        lock = handle.get_state(self._STATE_SESSION_LOCK_KEY)
+        if isinstance(lock, asyncio.Lock):
+            return lock
+        lock = asyncio.Lock()
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, lock)
+        return lock
 
     def _retry_policy(self, handle: ConnectionHandle) -> RetryPolicy:
         profile = self.resilience_profile
@@ -172,9 +192,9 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
         )
 
     def _json_executor(self, handle: ConnectionHandle) -> Callable[..., Any]:
-        cached_key = handle.state.get(self._STATE_JSON_EXECUTOR_CONFIG_KEY)
+        cached_key = handle.get_state(self._STATE_JSON_EXECUTOR_CONFIG_KEY)
         key = self._resilience_cache_key(handle)
-        cached = handle.state.get(self._STATE_JSON_EXECUTOR_KEY)
+        cached = handle.get_state(self._STATE_JSON_EXECUTOR_KEY)
         if cached is not None and cached_key == key:
             return cached
 
@@ -199,8 +219,8 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
             _raw_request,
             config=self._resilience_config(handle),
         )
-        handle.state[self._STATE_JSON_EXECUTOR_KEY] = wrapped
-        handle.state[self._STATE_JSON_EXECUTOR_CONFIG_KEY] = key
+        handle.set_state(self._STATE_JSON_EXECUTOR_KEY, wrapped)
+        handle.set_state(self._STATE_JSON_EXECUTOR_CONFIG_KEY, key)
         return wrapped
 
     async def _resilient_request_json(
@@ -256,7 +276,22 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
                 error.status_code = response.status  # type: ignore[attr-defined]
                 raise error
 
-            raw = await response.read()
+            raw = await self._read_response_body(
+                response,
+                connector_id=connector_id,
+                url=url,
+                max_response_bytes=self.resilience_profile.max_response_bytes,
+                max_decompressed_bytes=self.resilience_profile.max_decompressed_bytes,
+            )
+            if len(raw) > self.resilience_profile.max_json_bytes:
+                raise FetchError(
+                    message=(
+                        "JSON response body exceeds safe limit "
+                        f"({len(raw)} > {self.resilience_profile.max_json_bytes} bytes)"
+                    ),
+                    connector_id=connector_id,
+                    request_params={"url": url},
+                )
             try:
                 body = json.loads(raw)
             except json.JSONDecodeError as exc:
@@ -265,7 +300,69 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
                     connector_id=connector_id,
                     request_params={"url": url},
                 ) from exc
+            if isinstance(body, list) and len(body) > self.resilience_profile.max_rows:
+                raise FetchError(
+                    message=(
+                        "JSON response row count exceeds safe limit "
+                        f"({len(body)} > {self.resilience_profile.max_rows})"
+                    ),
+                    connector_id=connector_id,
+                    request_params={"url": url},
+                )
             return body, headers, raw
+
+    async def _read_response_body(
+        self,
+        response: aiohttp.ClientResponse,
+        *,
+        connector_id: str,
+        url: str,
+        max_response_bytes: int | None = None,
+        max_decompressed_bytes: int | None = None,
+    ) -> bytes:
+        """Read a response body in bounded chunks instead of one blind read."""
+        content_length = safe_int(response.headers.get("Content-Length"))
+        if (
+            max_response_bytes is not None
+            and content_length is not None
+            and content_length > max_response_bytes
+        ):
+            raise FetchError(
+                message=(
+                    "HTTP response body exceeds safe limit "
+                    f"({content_length} > {max_response_bytes} bytes)"
+                ),
+                connector_id=connector_id,
+                request_params={"url": url},
+            )
+
+        raw = bytearray()
+        content = getattr(response, "content", None)
+        if content is not None and hasattr(content, "iter_chunked"):
+            async for chunk in content.iter_chunked(self._READ_CHUNK_SIZE):
+                raw.extend(chunk)
+                if max_decompressed_bytes is not None and len(raw) > max_decompressed_bytes:
+                    raise FetchError(
+                        message=(
+                            "Decoded HTTP body exceeds safe limit "
+                            f"({len(raw)} > {max_decompressed_bytes} bytes)"
+                        ),
+                        connector_id=connector_id,
+                        request_params={"url": url},
+                    )
+            return bytes(raw)
+
+        fallback = await response.read()
+        if max_decompressed_bytes is not None and len(fallback) > max_decompressed_bytes:
+            raise FetchError(
+                message=(
+                    "Decoded HTTP body exceeds safe limit "
+                    f"({len(fallback)} > {max_decompressed_bytes} bytes)"
+                ),
+                connector_id=connector_id,
+                request_params={"url": url},
+            )
+        return fallback
 
     @staticmethod
     def _build_auth_headers(

@@ -121,8 +121,16 @@ class AdaptiveRouter:
             return 0
         reroutes = 0
         for i in range(1, len(history)):
-            prev_idx = _DEFAULT_PIPELINE.index(history[i - 1]) if history[i - 1] in _DEFAULT_PIPELINE else -1
-            curr_idx = _DEFAULT_PIPELINE.index(history[i]) if history[i] in _DEFAULT_PIPELINE else -1
+            prev_idx = (
+                _DEFAULT_PIPELINE.index(history[i - 1])
+                if history[i - 1] in _DEFAULT_PIPELINE
+                else -1
+            )
+            curr_idx = (
+                _DEFAULT_PIPELINE.index(history[i])
+                if history[i] in _DEFAULT_PIPELINE
+                else -1
+            )
             if curr_idx <= prev_idx:
                 reroutes += 1
         return reroutes
@@ -187,4 +195,12 @@ class ParallelAgentRunner:
                 logger.warning("Parallel agent %s failed: %s", label, exc)
                 return exc
 
-        return await asyncio.gather(*(_run(lbl, fn) for lbl, fn in calls))
+        results = await asyncio.gather(
+            *(_run(lbl, fn) for lbl, fn in calls),
+            return_exceptions=True,
+        )
+        for idx, outcome in enumerate(results):
+            if isinstance(outcome, BaseException):
+                label = calls[idx][0] if idx < len(calls) else f"call_{idx}"
+                logger.warning("Parallel agent %s failed outside wrapper: %s", label, outcome)
+        return list(results)

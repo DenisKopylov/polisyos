@@ -60,3 +60,32 @@ def test_semantic_diff_degrades_when_grain_cannot_be_derived() -> None:
     assert report.summary.manual_review_required is True
     assert report.summary.schema_only is True
     assert report.notes == ["manual_review_required:grain_not_derivable"]
+
+
+def test_semantic_diff_reports_duplicate_keys_explicitly() -> None:
+    schema = DataSchema(
+        schema_id="fixture.duplicates",
+        version="1.0",
+        fields=(
+            FieldSpec(name="country_code", data_type=SchemaType.STRING, semantic_type=SemanticType.CODE),
+            FieldSpec(name="year", data_type=SchemaType.INT32, semantic_type=SemanticType.TEMPORAL),
+            FieldSpec(name="value", data_type=SchemaType.FLOAT64),
+        ),
+        primary_key=("country_code", "year"),
+        time_dimension="year",
+    )
+
+    report = compare_historical_rows(
+        schema,
+        [
+            {"country_code": "USA", "year": 2024, "value": 100.0},
+            {"country_code": "USA", "year": 2024, "value": 101.0},
+        ],
+        schema,
+        [{"country_code": "USA", "year": 2024, "value": 100.0}],
+    )
+
+    assert report.summary.duplicate_keys_left == 1
+    assert report.summary.duplicate_keys_right == 0
+    assert report.summary.manual_review_required is True
+    assert any(note.startswith("duplicate_keys:left:") for note in report.notes)

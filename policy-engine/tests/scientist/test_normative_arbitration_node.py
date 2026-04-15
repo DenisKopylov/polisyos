@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from unittest.mock import patch
 
 import pytest
 
@@ -40,6 +41,7 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import EntityType, OptimizationDirection
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.governance.run_normative_arbitration import (
     RunNormativeArbitrationNode,
 )
@@ -80,6 +82,149 @@ def test_normative_arbitration_max_min_prefers_baseline_when_worst_harm_increase
     )
 
     assert result.selected_option == ArbitrationOption.BASELINE
+
+
+def test_normative_arbitration_invalid_trinity_bundle_skips_with_warning(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_normative_bad")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.normative.bad"))
+
+    trinity_ref = store.put_json(
+        {"invalid": True},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state = ExperimentState(
+        run_id="R_normative_bad",
+        inputs={INPUT_TRINITY_BUNDLE_REF: trinity_ref},
+    )
+
+    outcome = RunNormativeArbitrationNode().execute(ctx, state)
+
+    assert outcome.status == "skip"
+    assert outcome.events
+    assert outcome.events[0].level == "warn"
+
+
+def test_normative_arbitration_uses_branch_state_for_artifact_output(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_normative_branch")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.normative.branch"))
+
+    problem_frame = ProblemFrame(
+        problem_id="normative_problem",
+        domain=ProblemDomain.SOCIAL,
+        objectives=[
+            ObjectiveSpec(
+                objective_id="obj1",
+                metric_id="net_welfare",
+                direction=OptimizationDirection.MAXIMIZE,
+            )
+        ],
+        stakeholders=[
+            StakeholderSpec(stakeholder_id="workers", entity_type=EntityType.AGENT, priority=3)
+        ],
+        normative_frame=NormativeFrame(
+            default_policy=NormativeArbitrationPolicy.WEIGHTED_WELFARE,
+            enabled_policies=[NormativeArbitrationPolicy.WEIGHTED_WELFARE],
+            stakeholder_bindings=[
+                StakeholderOutcomeBinding(
+                    binding_id="workers_delta",
+                    stakeholder_id="workers",
+                    channel="distributional_net_impact",
+                    outcome_key="workers",
+                )
+            ],
+            utility_terms=[
+                StakeholderUtilityTerm(
+                    term_id="workers_utility",
+                    stakeholder_id="workers",
+                    binding_refs=["workers_delta"],
+                    welfare_weight=1,
+                )
+            ],
+        ),
+    )
+    trinity_ref = store.put_json(
+        TrinityBundle(
+            problem_frame=problem_frame,
+            policy_spec=PolicySpec(policy_id="policy", interventions=[]),
+            model_spec=ModelSpec(
+                model_id="model",
+                data_snapshot_ref="sha256:" + "0" * 64,
+                fidelity_level=FidelityLevel.HYBRID,
+            ),
+        ),
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    distributional_ref = persist_distributional_report(
+        store,
+        DistributionalReport(
+            cohort_dimensions=[CohortDimension(dimension_id="stakeholder", label="Stakeholder")],
+            impacts_by_dimension=[
+                DimensionBreakdown(
+                    dimension_id="stakeholder",
+                    winners_losers=WinnersLosersTable(
+                        entries=[
+                            WinnersLosersEntry(
+                                cohort_key="workers",
+                                label="Workers",
+                                impact_delta=1.0,
+                                direction=ImpactDirection.WINNERS,
+                                primary_metric="workers_delta",
+                                unit=MetricUnit.UTILS,
+                            )
+                        ]
+                    ),
+                    cohort_impacts=[
+                        CohortImpact(
+                            cohort_key="workers",
+                            label="Workers",
+                            metrics={"workers_delta": 1.0},
+                        )
+                    ],
+                )
+            ],
+        ),
+    )
+    existing_ref = store.put_json(
+        {"ok": True},
+        PutOptions(kind="scientist.existing", media_type="application/json"),
+    )
+    state = ExperimentState(
+        run_id="R_normative_branch",
+        inputs={INPUT_TRINITY_BUNDLE_REF: trinity_ref},
+        artifacts_index={
+            "existing": existing_ref,
+            ARTIFACT_DISTRIBUTIONAL_REPORT_REF: distributional_ref,
+        },
+    )
+    observed: dict[str, tuple[str, ...]] = {}
+
+    def _spy_branch(base_state, *, write_paths=()):
+        observed["write_paths"] = tuple(write_paths)
+        return real_branch_state(base_state, write_paths=write_paths)
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.governance.run_normative_arbitration.branch_state",
+        _spy_branch,
+    ):
+        outcome = RunNormativeArbitrationNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    assert observed["write_paths"] == ("artifacts_index.normative_arbitration_result_ref",)
+    assert ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF not in state.artifacts_index
+    assert outcome.state.artifacts_index["existing"] == existing_ref
+    assert ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF in outcome.state.artifacts_index
 
 
 def test_normative_arbitration_pareto_marks_proposal_inadmissible_with_loser(tmp_path) -> None:

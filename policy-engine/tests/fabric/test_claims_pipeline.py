@@ -12,6 +12,7 @@ from polisyos.fabric.claims import (
     extract_claims_from_doc,
     normalize_claims,
 )
+from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.claims.backends.explicit_lines_v1 import extract as explicit_lines_extract
 from polisyos.fabric.docs import (
     DocChunkOptions,
@@ -23,6 +24,7 @@ from polisyos.fabric.docs import (
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
 from polisyos.ir.kernel.base import ID_PATTERN
+from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.ids import doc_source_id, doc_version_id_from_raw_artifact
 
@@ -225,3 +227,77 @@ def test_claims_pipeline_idempotent_semantics(tmp_path: Path) -> None:
     assert claims_before == claims_after
     assert citations_before == citations_after
     assert events_after > events_before
+
+
+def test_normalize_claims_quarantines_doc_claim_without_citations(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from polisyos.fabric.claims.persist import persist_claim_set
+    from polisyos.fabric.claims.types import ClaimNormalizeOptions
+
+    cas = FileSystemCAS(tmp_path / "cas")
+    doc_meta_artifact_id = _chunked_doc_meta_id(cas, tmp_path, "claim: policy.tax_rate = 20 [percent]")
+
+    missing_citation_claim = Claim.model_construct(
+        schema_version="1.0",
+        claim_id="claim.missingcitation",
+        predicate_id="policy.tax_rate",
+        subject_id="doc.source",
+        subject_text=None,
+        value_text="20",
+        value_decimal=Decimal("20"),
+        unit_id="percent",
+        confidence=Decimal("1"),
+        source_kind=ClaimSourceKind.DOC,
+        citations=[],
+        source_artifacts=[],
+        jurisdiction=None,
+        domain=None,
+        valid_from=None,
+        valid_to=None,
+        qualifiers={},
+        props={},
+    )
+
+    monkeypatch.setattr(
+        "polisyos.fabric.claims.normalize.load_claim",
+        lambda _cas, _artifact_id: missing_citation_claim,
+    )
+
+    claim_set_artifact_id = persist_claim_set(
+        cas=cas,
+        payload={
+            "schema_version": "1.0",
+            "stage": "extract_v1",
+            "extractor_id": "test",
+            "doc_meta_artifact_id": doc_meta_artifact_id,
+            "doc_source_id": "doc.source",
+            "doc_version_id": "doc.version",
+            "normalized_ref": "sha256:" + "a" * 64,
+            "chunks_ref": "sha256:" + "b" * 64,
+            "claims": [
+                {
+                    "claim_id": missing_citation_claim.claim_id,
+                    "claim_artifact_id": "sha256:" + "c" * 64,
+                }
+            ],
+        },
+        kind="fabric.claim_set",
+        schema_name="fabric.claim_set",
+        schema_version="1.0",
+    )
+
+    result = normalize_claims(
+        cas=cas,
+        fact_log_root=tmp_path,
+        claim_set_artifact_id=claim_set_artifact_id,
+        options=ClaimNormalizeOptions(drop_invalid=False, build_evidence=False),
+        segment_name="claims_normalize_quarantine",
+    )
+
+    assert result.claim_ids == []
+    assert len(result.quarantine_record_ids) == 1
+    records = list_quarantine_records(cas, source="claims.normalize")
+    assert len(records) == 1
+    assert records[0][1].reason == "missing_primary_citation"

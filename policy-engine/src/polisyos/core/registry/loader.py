@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.kernel import (
     ConstraintRegistry,
@@ -18,6 +18,11 @@ from polisyos.ir.kernel import (
     TrustRegistry,
     UnitsRegistry,
 )
+
+if TYPE_CHECKING:
+    from pydantic import BaseModel
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
 
 
 def _artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
@@ -36,10 +41,14 @@ def _artifact_ref(
     return ArtifactRef(artifact_id=_artifact_id(value), kind=kind, media_type=media_type)
 
 
-def _load_model(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model_cls):
+def _load_model[ModelT: BaseModel](
+    store: ArtifactStore,
+    ref: ArtifactRef | ArtifactID | str,
+    model_cls: type[ModelT],
+) -> ModelT:
     data = store.get_bytes(_artifact_id(ref))
     payload = from_canonical_bytes(data)
-    return model_cls.model_validate(payload)
+    return cast("ModelT", model_cls.model_validate(payload))
 
 
 @dataclass(frozen=True)
@@ -57,7 +66,8 @@ class RegistryBundleContent:
 
 
 def load_registry_bundle_payload(
-    store: FileSystemCAS, bundle_ref: ArtifactRef | ArtifactID | str
+    store: ArtifactStore,
+    bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundlePayload:
     """Load only the bundle payload graph without dereferencing member registries."""
     data = store.get_bytes(_artifact_id(bundle_ref))
@@ -66,7 +76,8 @@ def load_registry_bundle_payload(
 
 
 def load_registry_bundle(
-    store: FileSystemCAS, bundle_ref: ArtifactRef | ArtifactID | str
+    store: ArtifactStore,
+    bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundle:
     """Load the bundle payload and normalize the bundle reference ABI."""
     payload = load_registry_bundle_payload(store, bundle_ref)
@@ -79,7 +90,8 @@ def load_registry_bundle(
 
 
 def load_registry_bundle_content(
-    store: FileSystemCAS, bundle_ref: ArtifactRef | ArtifactID | str
+    store: ArtifactStore,
+    bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundleContent:
     """Load a bundle and materialize all referenced registry objects from CAS."""
     bundle = load_registry_bundle(store, bundle_ref)

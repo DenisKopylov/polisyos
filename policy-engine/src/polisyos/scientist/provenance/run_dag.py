@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from collections import deque
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -29,14 +30,25 @@ class RunProvenanceDAG:
         prov_dict = graph.to_dict()
     """
 
-    def __init__(self, run_id: str, tenant_id: str | None = None) -> None:
+    def __init__(
+        self,
+        run_id: str,
+        tenant_id: str | None = None,
+        *,
+        max_llm_records: int = 256,
+    ) -> None:
         self._run_id = run_id
         self._tenant_id = tenant_id
+        self._max_llm_records = max(1, int(max_llm_records))
         self._graph = ProvenanceCoreGraph(
             graph_id=f"prov:{run_id}",
-            metadata={"run_id": run_id, **({"tenant_id": tenant_id} if tenant_id else {})},
+            metadata={
+                "run_id": run_id,
+                "llm_records_retention_limit": self._max_llm_records,
+                **({"tenant_id": tenant_id} if tenant_id else {}),
+            },
         )
-        self._llm_records: list[LLMCallRecord] = []
+        self._llm_records: deque[LLMCallRecord] = deque(maxlen=self._max_llm_records)
 
         # Register the run itself as a system agent
         self._graph.add_agent(ProvenanceAgent(
@@ -144,7 +156,7 @@ class RunProvenanceDAG:
     ) -> None:
         """Record an LLM call as a PROV-O Activity + Model Agent."""
         call_id = f"llm:{self._run_id}:{node_alias}:{uuid.uuid4().hex[:8]}"
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         record = LLMCallRecord(
             call_id=call_id,
@@ -160,6 +172,9 @@ class RunProvenanceDAG:
             node_alias=node_alias,
             timestamp=now,
         )
+        if len(self._llm_records) == self._llm_records.maxlen:
+            dropped = int(self._graph.metadata.get("llm_records_dropped", 0) or 0) + 1
+            self._graph.metadata["llm_records_dropped"] = dropped
         self._llm_records.append(record)
 
         # Register model as agent
@@ -214,7 +229,7 @@ class RunProvenanceDAG:
         ended_at: datetime | None = None,
     ) -> None:
         """Record a failed node execution as a PROV-O ERROR Activity."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         started = started_at or now
         ended = ended_at or now
         activity_id = f"activity:error:{self._run_id}:{alias}"
@@ -259,7 +274,7 @@ class RunProvenanceDAG:
         timestamp: datetime | None = None,
     ) -> None:
         """Record a governance pass decision as a PROV-O GOVERNANCE Activity."""
-        now = timestamp or datetime.now(timezone.utc)
+        now = timestamp or datetime.now(UTC)
         activity_id = f"activity:governance:{self._run_id}:{pass_id}"
 
         self._graph.add_activity(ProvenanceActivity(
@@ -302,7 +317,7 @@ class RunProvenanceDAG:
         timestamp: datetime | None = None,
     ) -> None:
         """Record a checkpoint event as a PROV-O CHECKPOINT Activity."""
-        now = timestamp or datetime.now(timezone.utc)
+        now = timestamp or datetime.now(UTC)
         activity_id = f"activity:checkpoint:{self._run_id}:{alias}:{sequence_number}"
 
         self._graph.add_activity(ProvenanceActivity(
@@ -344,7 +359,6 @@ class RunProvenanceDAG:
         timestamp: datetime | None = None,
     ) -> None:
         """Record which state keys a node added or modified."""
-        now = timestamp or datetime.now(timezone.utc)
         # Attach to existing node activity if present
         node_activity_id = f"activity:node:{self._run_id}:{alias}"
         if node_activity_id in self._graph.activities:

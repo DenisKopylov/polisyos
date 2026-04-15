@@ -23,6 +23,7 @@ from polisyos.foundry.methods.catalog.ml.regression import (
     _build_prediction_result,
     _tabular_payload,
 )
+from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
 
 from .protocols import PosteriorResult, metropolis_sample, summarize_posterior_samples
 
@@ -95,6 +96,208 @@ def _coerce_observations(value: Any) -> np.ndarray:
     if observations.shape[0] < 4:
         raise ValueError("mixture models require at least 4 observations")
     return observations
+
+
+def _requested_runtime_backend(params: Mapping[str, Any]) -> str:
+    value = str(params.get("runtime_backend", "auto")).strip().lower()
+    return value or "auto"
+
+
+def _selected_runtime_backend(params: Mapping[str, Any], *, default: str = "numpy") -> str:
+    value = str(params.get("__bayesian_runtime_backend__", default)).strip().lower()
+    return value or default
+
+
+def _runtime_backend_fallback_reason(params: Mapping[str, Any], *, backend_used: str) -> str | None:
+    requested = _requested_runtime_backend(params)
+    health = params.get("__bayesian_backend_health__")
+    if requested == backend_used:
+        return None
+    if backend_used == "numpy":
+        if isinstance(health, Mapping) and requested in {"auto", "numpyro"}:
+            warnings = health.get("warnings")
+            if isinstance(warnings, list) and "numpyro_unavailable:using_numpy_fallback" in warnings:
+                return "numpyro_unavailable"
+    return None
+
+
+def _runtime_backend_metadata(params: Mapping[str, Any], *, backend_used: str) -> dict[str, Any]:
+    health = params.get("__bayesian_backend_health__")
+    metadata = {
+        "runtime_backend_requested": _requested_runtime_backend(params),
+        "runtime_backend_used": backend_used,
+    }
+    fallback_reason = _runtime_backend_fallback_reason(params, backend_used=backend_used)
+    if fallback_reason is not None:
+        metadata["runtime_backend_fallback_reason"] = fallback_reason
+    if isinstance(health, Mapping):
+        metadata["runtime_backend_health"] = dict(health)
+    return metadata
+
+
+def _predictive_uncertainty_decomposition(
+    *,
+    metric_id: str,
+    predictive_mean_draws: np.ndarray,
+    aleatoric_scale_draws: np.ndarray,
+    confidence_level: float,
+    metadata: Mapping[str, Any] | None = None,
+) -> UncertaintyDecomposition:
+    mean_draws = np.asarray(predictive_mean_draws, dtype=float).reshape(-1)
+    noise_draws = np.asarray(aleatoric_scale_draws, dtype=float).reshape(-1)
+    point_estimate = float(np.mean(mean_draws)) if mean_draws.size else 0.0
+    epistemic_std = float(np.std(mean_draws, ddof=1)) if mean_draws.size > 1 else 0.0
+    aleatoric_std = float(np.mean(np.maximum(noise_draws, 0.0))) if noise_draws.size else 0.0
+    return UncertaintyDecomposition.from_gaussian_components(
+        metric_id=metric_id,
+        point_estimate=point_estimate,
+        confidence_level=confidence_level,
+        epistemic_std=epistemic_std,
+        aleatoric_std=aleatoric_std,
+        metadata=metadata,
+    )
+
+
+def _numpyro_linear_regression_samples(
+    *,
+    algorithm: str,
+    x: np.ndarray,
+    y: np.ndarray,
+    prior_scale: float,
+    step_size: float,
+    n_leapfrog: int,
+    max_depth: int,
+    target_accept: float,
+    num_warmup: int,
+    num_samples: int,
+    num_chains: int,
+    seed: int,
+) -> tuple[dict[str, np.ndarray], dict[str, float]]:
+    try:
+        import jax.numpy as jnp
+        from jax import random
+        import numpyro
+        from numpyro import distributions as dist
+        from numpyro.infer import HMC, MCMC, NUTS
+    except Exception as exc:  # pragma: no cover - optional runtime dependency
+        raise RuntimeError("NumPyro runtime is unavailable for Bayesian sampling") from exc
+
+    features = jnp.asarray(x, dtype=jnp.float32)
+    target = jnp.asarray(y, dtype=jnp.float32)
+
+    def model(features: Any, target: Any | None = None) -> None:
+        intercept = numpyro.sample("intercept", dist.Normal(0.0, prior_scale))
+        coefficients = numpyro.sample(
+            "coefficients",
+            dist.Normal(jnp.zeros(features.shape[1]), prior_scale * jnp.ones(features.shape[1])),
+        )
+        sigma = numpyro.sample("sigma", dist.HalfNormal(prior_scale))
+        mean = intercept + jnp.dot(features, coefficients)
+        numpyro.sample("obs", dist.Normal(mean, sigma), obs=target)
+
+    if algorithm == "hmc":
+        kernel = HMC(
+            model,
+            step_size=step_size,
+            num_steps=max(1, int(n_leapfrog)),
+        )
+    else:
+        kernel = NUTS(
+            model,
+            step_size=step_size,
+            target_accept_prob=target_accept,
+            max_tree_depth=max(1, int(max_depth)),
+        )
+    mcmc = MCMC(
+        kernel,
+        num_warmup=max(1, int(num_warmup)),
+        num_samples=max(1, int(num_samples)),
+        num_chains=max(1, int(num_chains)),
+        progress_bar=False,
+    )
+    mcmc.run(random.PRNGKey(int(seed)), features=features, target=target)
+    samples = {key: np.asarray(value) for key, value in mcmc.get_samples(group_by_chain=False).items()}
+    extra_fields = mcmc.get_extra_fields()
+
+    def _extra_field(*keys: str) -> np.ndarray:
+        for key in keys:
+            if key in extra_fields:
+                return np.asarray(extra_fields[key], dtype=float)
+        return np.asarray([], dtype=float)
+
+    accept_prob = _extra_field("accept_prob", "acceptance_prob", "acceptance_probability")
+    num_steps_arr = _extra_field("num_steps")
+    divergences_raw = extra_fields.get("diverging")
+    divergences = (
+        int(np.asarray(divergences_raw, dtype=bool).sum()) if divergences_raw is not None else 0
+    )
+    diagnostics = {
+        "acceptance_rate": float(np.mean(accept_prob)) if accept_prob.size else 0.0,
+        "divergences": float(divergences),
+        "mean_num_steps": float(np.mean(num_steps_arr)) if num_steps_arr.size else 0.0,
+    }
+    return samples, diagnostics
+
+
+def _numpyro_hierarchical_regression_samples(
+    *,
+    x: np.ndarray,
+    y: np.ndarray,
+    group_index: np.ndarray,
+    prior_scale: float,
+    group_scale_prior: float,
+    num_warmup: int,
+    num_samples: int,
+    num_chains: int,
+    seed: int,
+) -> tuple[dict[str, np.ndarray], dict[str, float]]:
+    try:
+        import jax.numpy as jnp
+        from jax import random
+        import numpyro
+        from numpyro import distributions as dist
+        from numpyro.infer import MCMC, NUTS
+    except Exception as exc:  # pragma: no cover - optional runtime dependency
+        raise RuntimeError("NumPyro runtime is unavailable for hierarchical sampling") from exc
+
+    features = jnp.asarray(x, dtype=jnp.float32)
+    target = jnp.asarray(y, dtype=jnp.float32)
+    groups = jnp.asarray(group_index, dtype=jnp.int32)
+    n_groups = int(np.max(np.asarray(group_index, dtype=int))) + 1
+
+    def model(features: Any, target: Any | None = None, groups: Any | None = None) -> None:
+        global_intercept = numpyro.sample("global_intercept", dist.Normal(0.0, prior_scale))
+        coefficients = numpyro.sample(
+            "coefficients",
+            dist.Normal(jnp.zeros(features.shape[1]), prior_scale * jnp.ones(features.shape[1])),
+        )
+        group_scale = numpyro.sample("group_scale", dist.HalfNormal(group_scale_prior))
+        group_effect = numpyro.sample(
+            "group_effect",
+            dist.Normal(jnp.zeros(n_groups), group_scale * jnp.ones(n_groups)),
+        )
+        sigma = numpyro.sample("sigma", dist.HalfNormal(prior_scale))
+        mean = global_intercept + jnp.dot(features, coefficients) + group_effect[groups]
+        numpyro.sample("obs", dist.Normal(mean, sigma), obs=target)
+
+    kernel = NUTS(model, target_accept_prob=0.8)
+    mcmc = MCMC(
+        kernel,
+        num_warmup=max(1, int(num_warmup)),
+        num_samples=max(1, int(num_samples)),
+        num_chains=max(1, int(num_chains)),
+        progress_bar=False,
+    )
+    mcmc.run(random.PRNGKey(int(seed)), features=features, target=target, groups=groups)
+    samples = {key: np.asarray(value) for key, value in mcmc.get_samples(group_by_chain=False).items()}
+    extra_fields = mcmc.get_extra_fields()
+    accept_prob = np.asarray(extra_fields.get("accept_prob", []), dtype=float)
+    divergences = np.asarray(extra_fields.get("diverging", []), dtype=bool)
+    diagnostics = {
+        "acceptance_rate": float(np.mean(accept_prob)) if accept_prob.size else 0.0,
+        "divergences": float(np.sum(divergences)) if divergences.size else 0.0,
+    }
+    return samples, diagnostics
 
 
 def _linear_regression_log_density_and_grad(
@@ -659,13 +862,13 @@ def _mixture_posterior_result(
 class BayesianHierarchicalRegressionEstimator:
     """Estimate pooled and group-level coefficients with hierarchical shrinkage; avoid when group structure is absent or priors are arbitrary."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
-    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "numpyro", "jax", "jaxlib")
+    optional_deps: ClassVar[tuple[str, ...]] = ("arviz", "numpyro", "jax", "jaxlib")
     method_variant: ClassVar[str] = "hierarchical"
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="hierarchical",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -688,6 +891,7 @@ class BayesianHierarchicalRegressionEstimator:
             ParameterSpec(name="num_chains", default=1),
             ParameterSpec(name="credible_mass", default=0.9),
             ParameterSpec(name="proposal_scale", default=0.035),
+            ParameterSpec(name="runtime_backend", default="auto"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -738,75 +942,101 @@ class BayesianHierarchicalRegressionEstimator:
         num_chains = max(1, int(params.get("num_chains", 1)))
         credible_mass = min(max(float(params.get("credible_mass", 0.9)), 0.5), 0.99)
         proposal_scale = max(1e-4, float(params.get("proposal_scale", 0.035)))
+        backend_used = _selected_runtime_backend(params, default="numpy")
 
-        ols_design = np.column_stack([np.ones(x.shape[0]), x])
-        ols_coef = np.linalg.pinv(ols_design) @ y
-        residuals = y - ols_design @ ols_coef
-        sigma0 = max(float(np.std(residuals, ddof=max(ols_design.shape[1], 1))), 0.1)
-        group_std = np.array(
-            [np.mean(residuals[group_index == idx]) for idx in range(n_groups)],
-            dtype=float,
-        )
-        tau0 = max(float(np.std(group_std, ddof=1)) if n_groups > 1 else 0.25, 0.1)
-        initial = np.concatenate(
-            [
-                np.array([ols_coef[0]], dtype=float),
-                np.asarray(ols_coef[1:], dtype=float),
-                np.zeros(n_groups, dtype=float),
-                np.array([np.log(sigma0), np.log(tau0)], dtype=float),
-            ]
-        )
-        rng = np.random.default_rng(int(params.get("__seed__", 0)))
+        if backend_used == "numpyro":
+            posterior, runtime_diag = _numpyro_hierarchical_regression_samples(
+                x=x,
+                y=y,
+                group_index=group_index,
+                prior_scale=prior_scale,
+                group_scale_prior=group_scale_prior,
+                num_warmup=num_warmup,
+                num_samples=num_samples,
+                num_chains=num_chains,
+                seed=int(params.get("__seed__", 0)),
+            )
+            accept_rate = float(runtime_diag.get("acceptance_rate", float("nan")))
+        else:
+            ols_design = np.column_stack([np.ones(x.shape[0]), x])
+            ols_coef = np.linalg.pinv(ols_design) @ y
+            residuals = y - ols_design @ ols_coef
+            sigma0 = max(float(np.std(residuals, ddof=max(ols_design.shape[1], 1))), 0.1)
+            group_std = np.array(
+                [np.mean(residuals[group_index == idx]) for idx in range(n_groups)],
+                dtype=float,
+            )
+            tau0 = max(float(np.std(group_std, ddof=1)) if n_groups > 1 else 0.25, 0.1)
+            initial = np.concatenate(
+                [
+                    np.array([ols_coef[0]], dtype=float),
+                    np.asarray(ols_coef[1:], dtype=float),
+                    np.zeros(n_groups, dtype=float),
+                    np.array([np.log(sigma0), np.log(tau0)], dtype=float),
+                ]
+            )
+            rng = np.random.default_rng(int(params.get("__seed__", 0)))
 
-        def log_density(theta: np.ndarray) -> float:
-            intercept = theta[0]
-            beta = theta[1: 1 + x.shape[1]]
-            group_offsets = theta[1 + x.shape[1]: 1 + x.shape[1] + n_groups]
-            log_sigma = theta[-2]
-            log_tau = theta[-1]
-            sigma = float(np.exp(log_sigma))
-            tau = float(np.exp(log_tau))
-            mean = intercept + x @ beta + group_offsets[group_index]
-            residual = y - mean
-            log_likelihood = -0.5 * np.sum(
-                (residual / sigma) ** 2 + 2.0 * log_sigma + np.log(2.0 * np.pi)
-            )
-            log_prior_global = -0.5 * ((intercept / prior_scale) ** 2 + (log_tau / group_scale_prior) ** 2)
-            log_prior_beta = -0.5 * np.sum((beta / prior_scale) ** 2)
-            log_prior_offsets = -0.5 * np.sum(
-                (group_offsets / tau) ** 2 + 2.0 * log_tau + np.log(2.0 * np.pi)
-            )
-            log_prior_scale = -0.5 * (log_sigma / prior_scale) ** 2
-            return float(
-                log_likelihood
-                + log_prior_global
-                + log_prior_beta
-                + log_prior_offsets
-                + log_prior_scale
-            )
+            def log_density(theta: np.ndarray) -> float:
+                intercept = theta[0]
+                beta = theta[1: 1 + x.shape[1]]
+                group_offsets = theta[1 + x.shape[1]: 1 + x.shape[1] + n_groups]
+                log_sigma = theta[-2]
+                log_tau = theta[-1]
+                sigma = float(np.exp(log_sigma))
+                tau = float(np.exp(log_tau))
+                mean = intercept + x @ beta + group_offsets[group_index]
+                residual = y - mean
+                log_likelihood = -0.5 * np.sum(
+                    (residual / sigma) ** 2 + 2.0 * log_sigma + np.log(2.0 * np.pi)
+                )
+                log_prior_global = -0.5 * (
+                    (intercept / prior_scale) ** 2 + (log_tau / group_scale_prior) ** 2
+                )
+                log_prior_beta = -0.5 * np.sum((beta / prior_scale) ** 2)
+                log_prior_offsets = -0.5 * np.sum(
+                    (group_offsets / tau) ** 2 + 2.0 * log_tau + np.log(2.0 * np.pi)
+                )
+                log_prior_scale = -0.5 * (log_sigma / prior_scale) ** 2
+                return float(
+                    log_likelihood
+                    + log_prior_global
+                    + log_prior_beta
+                    + log_prior_offsets
+                    + log_prior_scale
+                )
 
-        draws, accept_rate = metropolis_sample(
-            log_density=log_density,
-            initial_state=initial,
-            proposal_scale=np.full(initial.shape, proposal_scale, dtype=float),
-            rng=rng,
-            num_warmup=num_warmup,
-            num_samples=num_samples,
-            num_chains=num_chains,
-        )
-        intercept_draws = draws[:, 0]
-        beta_draws = draws[:, 1: 1 + x.shape[1]]
-        group_offset_draws = draws[:, 1 + x.shape[1]: 1 + x.shape[1] + n_groups]
-        posterior = {
-            "global_intercept": intercept_draws,
-            "coefficients": beta_draws,
-            "group_effect": group_offset_draws,
-            "sigma": np.exp(draws[:, -2]),
-            "group_scale": np.exp(draws[:, -1]),
-        }
+            draws, accept_rate = metropolis_sample(
+                log_density=log_density,
+                initial_state=initial,
+                proposal_scale=np.full(initial.shape, proposal_scale, dtype=float),
+                rng=rng,
+                num_warmup=num_warmup,
+                num_samples=num_samples,
+                num_chains=num_chains,
+            )
+            posterior = {
+                "global_intercept": draws[:, 0],
+                "coefficients": draws[:, 1: 1 + x.shape[1]],
+                "group_effect": draws[:, 1 + x.shape[1]: 1 + x.shape[1] + n_groups],
+                "sigma": np.exp(draws[:, -2]),
+                "group_scale": np.exp(draws[:, -1]),
+            }
         posterior_means, posterior_stds, credible_intervals = summarize_posterior_samples(
             posterior,
             credible_mass=credible_mass,
+        )
+        predictive_mean_draws = (
+            np.asarray(posterior["global_intercept"], dtype=float)[:, None]
+            + np.asarray(posterior["coefficients"], dtype=float) @ x.T
+            + np.asarray(posterior["group_effect"], dtype=float)[:, group_index]
+        ).mean(axis=1)
+        decomposition = _predictive_uncertainty_decomposition(
+            metric_id="hierarchical_prediction",
+            predictive_mean_draws=predictive_mean_draws,
+            aleatoric_scale_draws=np.asarray(posterior["sigma"], dtype=float),
+            confidence_level=credible_mass,
+            metadata={"runtime_backend_used": backend_used, "method_name": "bayesian_hierarchical_regression"},
         )
         fitted = (
             posterior_means["global_intercept"]
@@ -830,8 +1060,12 @@ class BayesianHierarchicalRegressionEstimator:
                     for idx, name in enumerate(_feature_names_from_payload(payload, x.shape[1]))
                 },
             },
-            model_info={"library": "numpy", "estimator": "BayesianHierarchicalRegressionMCMC"},
-            metadata={"n_groups": n_groups, "num_samples": num_samples},
+            model_info={"library": backend_used, "estimator": "BayesianHierarchicalRegressionMCMC"},
+            metadata={
+                "n_groups": n_groups,
+                "num_samples": num_samples,
+                **_runtime_backend_metadata(params, backend_used=backend_used),
+            },
         )
         posterior_result = PosteriorResult(
             method_name="bayesian_hierarchical_regression",
@@ -849,6 +1083,9 @@ class BayesianHierarchicalRegressionEstimator:
             metadata={
                 "group_labels": [str(item) for item in np.unique(group_ids.astype(str))],
                 "feature_names": _feature_names_from_payload(payload, x.shape[1]),
+                "partial_pooling": True,
+                "uncertainty_decomposition": decomposition.as_dict(),
+                **_runtime_backend_metadata(params, backend_used=backend_used),
             },
         )
         return {
@@ -868,13 +1105,13 @@ class BayesianHierarchicalRegressionEstimator:
 class BayesianHMCRegressionEstimator:
     """Sample a Bayesian linear-regression posterior with HMC; avoid strongly multimodal or poorly scaled posteriors without reparameterization."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
-    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "numpyro", "jax", "jaxlib")
+    optional_deps: ClassVar[tuple[str, ...]] = ("arviz", "numpyro", "jax", "jaxlib")
     method_variant: ClassVar[str] = "hmc"
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="hmc",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -896,6 +1133,7 @@ class BayesianHMCRegressionEstimator:
             ParameterSpec(name="num_samples", default=128),
             ParameterSpec(name="num_chains", default=2),
             ParameterSpec(name="credible_mass", default=0.9),
+            ParameterSpec(name="runtime_backend", default="auto"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -941,37 +1179,69 @@ class BayesianHMCRegressionEstimator:
         num_samples = max(32, int(params.get("num_samples", 128)))
         num_chains = max(1, int(params.get("num_chains", 2)))
         credible_mass = min(max(float(params.get("credible_mass", 0.9)), 0.5), 0.99)
+        backend_used = _selected_runtime_backend(params, default="numpy")
 
-        ols_design = np.column_stack([np.ones(x.shape[0]), x])
-        ols_coef = np.linalg.pinv(ols_design) @ y
-        residual = y - ols_design @ ols_coef
-        initial = np.concatenate(
-            [
-                np.asarray(ols_coef, dtype=float),
-                np.array([np.log(max(float(np.std(residual, ddof=max(ols_design.shape[1], 1))), 0.1))], dtype=float),
-            ]
-        )
-        rng = np.random.default_rng(int(params.get("__seed__", 0)))
-        draws, accept_rate = _hmc_sample_linear_regression(
-            x=x,
-            y=y,
-            initial_state=initial,
-            prior_scale=prior_scale,
-            step_size=step_size,
-            n_leapfrog=n_leapfrog,
-            rng=rng,
-            num_warmup=num_warmup,
-            num_samples=num_samples,
-            num_chains=num_chains,
-        )
-        posterior = {
-            "intercept": draws[:, 0],
-            "coefficients": draws[:, 1:-1],
-            "sigma": np.exp(draws[:, -1]),
-        }
+        if backend_used == "numpyro":
+            posterior, runtime_diag = _numpyro_linear_regression_samples(
+                algorithm="hmc",
+                x=x,
+                y=y,
+                prior_scale=prior_scale,
+                step_size=step_size,
+                n_leapfrog=n_leapfrog,
+                max_depth=5,
+                target_accept=0.75,
+                num_warmup=num_warmup,
+                num_samples=num_samples,
+                num_chains=num_chains,
+                seed=int(params.get("__seed__", 0)),
+            )
+            accept_rate = float(runtime_diag.get("acceptance_rate", float("nan")))
+        else:
+            ols_design = np.column_stack([np.ones(x.shape[0]), x])
+            ols_coef = np.linalg.pinv(ols_design) @ y
+            residual = y - ols_design @ ols_coef
+            initial = np.concatenate(
+                [
+                    np.asarray(ols_coef, dtype=float),
+                    np.array(
+                        [np.log(max(float(np.std(residual, ddof=max(ols_design.shape[1], 1))), 0.1))],
+                        dtype=float,
+                    ),
+                ]
+            )
+            rng = np.random.default_rng(int(params.get("__seed__", 0)))
+            draws, accept_rate = _hmc_sample_linear_regression(
+                x=x,
+                y=y,
+                initial_state=initial,
+                prior_scale=prior_scale,
+                step_size=step_size,
+                n_leapfrog=n_leapfrog,
+                rng=rng,
+                num_warmup=num_warmup,
+                num_samples=num_samples,
+                num_chains=num_chains,
+            )
+            posterior = {
+                "intercept": draws[:, 0],
+                "coefficients": draws[:, 1:-1],
+                "sigma": np.exp(draws[:, -1]),
+            }
         posterior_means, posterior_stds, credible_intervals = summarize_posterior_samples(
             posterior,
             credible_mass=credible_mass,
+        )
+        predictive_mean_draws = (
+            np.asarray(posterior["intercept"], dtype=float)[:, None]
+            + np.asarray(posterior["coefficients"], dtype=float) @ x.T
+        ).mean(axis=1)
+        decomposition = _predictive_uncertainty_decomposition(
+            metric_id="linear_regression_prediction",
+            predictive_mean_draws=predictive_mean_draws,
+            aleatoric_scale_draws=np.asarray(posterior["sigma"], dtype=float),
+            confidence_level=credible_mass,
+            metadata={"runtime_backend_used": backend_used, "method_name": "bayesian_hmc_regression"},
         )
         coefficients = np.asarray(
             [posterior_means.get(f"coefficients_{idx}", 0.0) for idx in range(x.shape[1])],
@@ -989,8 +1259,12 @@ class BayesianHMCRegressionEstimator:
                     for idx, name in enumerate(_feature_names_from_payload(payload, x.shape[1]))
                 },
             },
-            model_info={"library": "numpy", "estimator": "BayesianHMCRegression"},
-            metadata={"num_samples": num_samples, "num_chains": num_chains},
+            model_info={"library": backend_used, "estimator": "BayesianHMCRegression"},
+            metadata={
+                "num_samples": num_samples,
+                "num_chains": num_chains,
+                **_runtime_backend_metadata(params, backend_used=backend_used),
+            },
         )
         posterior_result = PosteriorResult(
             method_name="bayesian_hmc_regression",
@@ -1006,7 +1280,11 @@ class BayesianHMCRegressionEstimator:
                 "step_size": float(step_size),
                 "n_leapfrog": float(n_leapfrog),
             },
-            metadata={"feature_names": _feature_names_from_payload(payload, x.shape[1])},
+            metadata={
+                "feature_names": _feature_names_from_payload(payload, x.shape[1]),
+                "uncertainty_decomposition": decomposition.as_dict(),
+                **_runtime_backend_metadata(params, backend_used=backend_used),
+            },
         )
         return {
             "result": posterior_result,
@@ -1023,13 +1301,13 @@ class BayesianHMCRegressionEstimator:
 class BayesianNUTSRegressionEstimator:
     """Sample a Bayesian linear-regression posterior with NUTS-style path expansion; avoid expensive runs on very large design matrices."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
-    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "numpyro", "jax", "jaxlib")
+    optional_deps: ClassVar[tuple[str, ...]] = ("arviz", "numpyro", "jax", "jaxlib")
     method_variant: ClassVar[str] = "nuts"
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="nuts",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -1052,6 +1330,7 @@ class BayesianNUTSRegressionEstimator:
             ParameterSpec(name="num_samples", default=128),
             ParameterSpec(name="num_chains", default=2),
             ParameterSpec(name="credible_mass", default=0.9),
+            ParameterSpec(name="runtime_backend", default="auto"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -1097,38 +1376,70 @@ class BayesianNUTSRegressionEstimator:
         num_samples = max(32, int(params.get("num_samples", 128)))
         num_chains = max(1, int(params.get("num_chains", 2)))
         credible_mass = min(max(float(params.get("credible_mass", 0.9)), 0.5), 0.99)
+        backend_used = _selected_runtime_backend(params, default="numpy")
 
-        ols_design = np.column_stack([np.ones(x.shape[0]), x])
-        ols_coef = np.linalg.pinv(ols_design) @ y
-        residual = y - ols_design @ ols_coef
-        initial = np.concatenate(
-            [
-                np.asarray(ols_coef, dtype=float),
-                np.array([np.log(max(float(np.std(residual, ddof=max(ols_design.shape[1], 1))), 0.1))], dtype=float),
-            ]
-        )
-        rng = np.random.default_rng(int(params.get("__seed__", 0)))
-        draws, accept_rate = _nuts_sample_linear_regression(
-            x=x,
-            y=y,
-            initial_state=initial,
-            prior_scale=prior_scale,
-            step_size=step_size,
-            max_depth=max_depth,
-            rng=rng,
-            num_warmup=num_warmup,
-            num_samples=num_samples,
-            num_chains=num_chains,
-            target_accept=target_accept,
-        )
-        posterior = {
-            "intercept": draws[:, 0],
-            "coefficients": draws[:, 1:-1],
-            "sigma": np.exp(draws[:, -1]),
-        }
+        if backend_used == "numpyro":
+            posterior, runtime_diag = _numpyro_linear_regression_samples(
+                algorithm="nuts",
+                x=x,
+                y=y,
+                prior_scale=prior_scale,
+                step_size=step_size,
+                n_leapfrog=8,
+                max_depth=max_depth,
+                target_accept=target_accept,
+                num_warmup=num_warmup,
+                num_samples=num_samples,
+                num_chains=num_chains,
+                seed=int(params.get("__seed__", 0)),
+            )
+            accept_rate = float(runtime_diag.get("acceptance_rate", float("nan")))
+        else:
+            ols_design = np.column_stack([np.ones(x.shape[0]), x])
+            ols_coef = np.linalg.pinv(ols_design) @ y
+            residual = y - ols_design @ ols_coef
+            initial = np.concatenate(
+                [
+                    np.asarray(ols_coef, dtype=float),
+                    np.array(
+                        [np.log(max(float(np.std(residual, ddof=max(ols_design.shape[1], 1))), 0.1))],
+                        dtype=float,
+                    ),
+                ]
+            )
+            rng = np.random.default_rng(int(params.get("__seed__", 0)))
+            draws, accept_rate = _nuts_sample_linear_regression(
+                x=x,
+                y=y,
+                initial_state=initial,
+                prior_scale=prior_scale,
+                step_size=step_size,
+                max_depth=max_depth,
+                rng=rng,
+                num_warmup=num_warmup,
+                num_samples=num_samples,
+                num_chains=num_chains,
+                target_accept=target_accept,
+            )
+            posterior = {
+                "intercept": draws[:, 0],
+                "coefficients": draws[:, 1:-1],
+                "sigma": np.exp(draws[:, -1]),
+            }
         posterior_means, posterior_stds, credible_intervals = summarize_posterior_samples(
             posterior,
             credible_mass=credible_mass,
+        )
+        predictive_mean_draws = (
+            np.asarray(posterior["intercept"], dtype=float)[:, None]
+            + np.asarray(posterior["coefficients"], dtype=float) @ x.T
+        ).mean(axis=1)
+        decomposition = _predictive_uncertainty_decomposition(
+            metric_id="linear_regression_prediction",
+            predictive_mean_draws=predictive_mean_draws,
+            aleatoric_scale_draws=np.asarray(posterior["sigma"], dtype=float),
+            confidence_level=credible_mass,
+            metadata={"runtime_backend_used": backend_used, "method_name": "bayesian_nuts_regression"},
         )
         coefficients = np.asarray(
             [posterior_means.get(f"coefficients_{idx}", 0.0) for idx in range(x.shape[1])],
@@ -1146,8 +1457,12 @@ class BayesianNUTSRegressionEstimator:
                     for idx, name in enumerate(_feature_names_from_payload(payload, x.shape[1]))
                 },
             },
-            model_info={"library": "numpy", "estimator": "BayesianNUTSRegression"},
-            metadata={"num_samples": num_samples, "num_chains": num_chains},
+            model_info={"library": backend_used, "estimator": "BayesianNUTSRegression"},
+            metadata={
+                "num_samples": num_samples,
+                "num_chains": num_chains,
+                **_runtime_backend_metadata(params, backend_used=backend_used),
+            },
         )
         posterior_result = PosteriorResult(
             method_name="bayesian_nuts_regression",
@@ -1164,7 +1479,11 @@ class BayesianNUTSRegressionEstimator:
                 "max_depth": float(max_depth),
                 "target_accept": float(target_accept),
             },
-            metadata={"feature_names": _feature_names_from_payload(payload, x.shape[1])},
+            metadata={
+                "feature_names": _feature_names_from_payload(payload, x.shape[1]),
+                "uncertainty_decomposition": decomposition.as_dict(),
+                **_runtime_backend_metadata(params, backend_used=backend_used),
+            },
         )
         return {
             "result": posterior_result,
@@ -1186,7 +1505,7 @@ class BayesianGaussianMixtureEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gaussian_mixture",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -1269,7 +1588,7 @@ class DirichletProcessMixtureEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="dirichlet_process_mixture",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import re
-from decimal import Decimal, InvalidOperation
+import unicodedata
+from collections.abc import Iterable
+from decimal import Decimal
 
+from polisyos.fabric._numeric_parsing import parse_decimal_text
 from polisyos.ir.kernel.base import ID_PATTERN
 
 _ID_RE = re.compile(ID_PATTERN)
-_NUMERIC_RE = re.compile(r"^[+-]?\d+(?:\.\d+)?$")
 
 _UNIT_ALIASES: dict[str, str] = {
     "%": "percent",
@@ -27,12 +29,50 @@ _UNIT_ALIASES: dict[str, str] = {
 }
 
 
-def canonicalize_id(raw: str) -> str | None:
-    """Canonicalize ID helper."""
-    value = raw.strip().lower()
-    value = value.replace("/", "_")
-    value = re.sub(r"\s+", "_", value)
-    value = re.sub(r"[^a-z0-9_.-]", "_", value)
+def _transliterate_fragment(fragment: str) -> str:
+    decomposed = unicodedata.normalize("NFKD", fragment)
+    stripped = "".join(
+        char
+        for char in decomposed
+        if unicodedata.category(char) != "Mn"
+    )
+    return stripped.encode("ascii", "ignore").decode("ascii")
+
+
+def _encode_unicode_char(char: str) -> str:
+    return f"u{ord(char):04x}"
+
+
+def _canonicalize_char(char: str, *, transliterate: bool) -> str:
+    if char in "/\\" or char.isspace():
+        return "_"
+    if char in "_.-":
+        return char
+    if char.isascii():
+        return char if char.isalnum() else "_"
+    if transliterate:
+        transliterated = _transliterate_fragment(char).casefold()
+        cleaned = "".join(
+            token
+            for token in transliterated
+            if token.isalnum() or token in "_.-"
+        )
+        if cleaned:
+            return cleaned
+    if unicodedata.category(char)[:1] in {"L", "N"}:
+        return _encode_unicode_char(char)
+    return "_"
+
+
+def canonicalize_id(raw: str, *, transliterate: bool = False) -> str | None:
+    """Canonicalize an identifier while preserving non-ASCII information."""
+    value = unicodedata.normalize("NFKC", raw).casefold().strip()
+    if not value:
+        return None
+    value = "".join(
+        _canonicalize_char(char, transliterate=transliterate)
+        for char in value
+    )
     value = re.sub(r"_+", "_", value)
     value = re.sub(r"\.+", ".", value)
     value = re.sub(r"-+", "-", value)
@@ -48,7 +88,7 @@ def canonicalize_id(raw: str) -> str | None:
 
 def canonical_unit(raw_unit: str) -> str | None:
     """Canonical unit helper."""
-    value = raw_unit.strip().lower()
+    value = unicodedata.normalize("NFKC", raw_unit).casefold().strip()
     if not value:
         return None
     alias = _UNIT_ALIASES.get(value)
@@ -59,15 +99,26 @@ def canonical_unit(raw_unit: str) -> str | None:
 
 def parse_decimal_value_text(value_text: str) -> Decimal | None:
     """Parse decimal value text helper."""
-    value = value_text.strip()
-    if "," in value and "." not in value:
-        value = value.replace(",", ".")
-    if _NUMERIC_RE.fullmatch(value) is None:
-        return None
-    try:
-        return Decimal(value)
-    except (InvalidOperation, ValueError):  # pragma: no cover - defensive
-        return None
+    return parse_decimal_text(value_text)
+
+
+def detect_canonical_id_collisions(
+    raw_values: Iterable[str],
+    *,
+    transliterate: bool = False,
+) -> dict[str, tuple[str, ...]]:
+    """Find raw values that collapse to the same canonical id."""
+    buckets: dict[str, set[str]] = {}
+    for raw in raw_values:
+        canonical = canonicalize_id(raw, transliterate=transliterate)
+        if canonical is None:
+            continue
+        buckets.setdefault(canonical, set()).add(raw)
+    return {
+        canonical: tuple(sorted(raws))
+        for canonical, raws in sorted(buckets.items())
+        if len(raws) > 1
+    }
 
 
 def canonical_decimal_text(value: Decimal) -> str:
@@ -84,5 +135,6 @@ __all__ = [
     "canonical_decimal_text",
     "canonical_unit",
     "canonicalize_id",
+    "detect_canonical_id_collisions",
     "parse_decimal_value_text",
 ]

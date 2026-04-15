@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -15,12 +17,12 @@ from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
     CrossGraphSourceRefs,
-    EvidenceSourceKind,
-    EvidenceSourceState,
-    EvidenceSourceStatus,
     EvidenceNeed,
     EvidenceNeedAssessment,
     EvidenceNeedType,
+    EvidenceSourceKind,
+    EvidenceSourceState,
+    EvidenceSourceStatus,
     EvidenceStatus,
     LegalStatus,
     ObservabilityStatus,
@@ -28,18 +30,12 @@ from polisyos.ir.analytics.cross_graph import (
     build_evidence_need_id,
     persist_cross_graph_evidence_profile,
 )
+from polisyos.ir.analytics.literature import load_literature_causal_prior
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.cross_graph.compiler import (
     CrossGraphEvidenceCompiler,
     CrossGraphEvidenceConfig,
 )
-from polisyos.scientist.evidence_sources import (
-    build_path_source_status,
-    merge_evidence_sources_payload,
-    normalize_evidence_sources_config,
-    update_source_status,
-)
-from polisyos.ir.analytics.literature import load_literature_causal_prior
 from polisyos.scientist.cross_graph.feedback import (
     append_need_backlog,
     build_need_backlog,
@@ -50,6 +46,12 @@ from polisyos.scientist.cross_graph.feedback import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.evidence_sources import (
+    build_path_source_status,
+    merge_evidence_sources_payload,
+    normalize_evidence_sources_config,
+    update_source_status,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_LITERATURE_PRIOR_REF,
@@ -88,6 +90,24 @@ _SPEC = NodeSpec(
         "params.cross_graph_benchmark_summary",
     ],
     produces=[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF],
+)
+
+_CROSS_GRAPH_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_CROSS_GRAPH_RUNTIME_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+_CROSS_GRAPH_IMPORT_RUNTIME_ERRORS = (
+    ImportError,
+    ModuleNotFoundError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
 )
 
 
@@ -133,7 +153,7 @@ class CompileCrossGraphEvidenceNode:
             config = CrossGraphEvidenceConfig.model_validate(
                 merge_evidence_sources_payload(config_payload, evidence_sources)
             )
-        except Exception as exc:
+        except _CROSS_GRAPH_VALIDATION_ERRORS as exc:
             profile = CrossGraphEvidenceProfile(
                 summary=CrossGraphEvidenceSummary(status="degraded", total_needs=0),
                 diagnostics=[
@@ -241,7 +261,7 @@ class CompileCrossGraphEvidenceNode:
                         else None
                     ),
                 )
-        except Exception as exc:
+        except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
             profile = CrossGraphEvidenceProfile(
                 summary=CrossGraphEvidenceSummary(status="warning", total_needs=0),
                 diagnostics=[
@@ -308,7 +328,7 @@ def _resolve_target_context(state: ExperimentState) -> ContextProfile | None:
         return None
     try:
         return ContextProfile.model_validate(payload)
-    except Exception:
+    except _CROSS_GRAPH_VALIDATION_ERRORS:
         return None
 
 
@@ -321,7 +341,7 @@ def _resolve_causal_graph(
         return None
     try:
         return load_causal_graph_model(ctx.store, ref)
-    except Exception:
+    except _CROSS_GRAPH_RUNTIME_ERRORS:
         return None
 
 
@@ -340,7 +360,7 @@ def _augment_with_graph_prior(
 
         graph_prior_ref = GraphPriorBundleRef.model_validate(ref.model_dump(mode="json"))
         bundle = load_graph_prior_bundle(ctx.store, graph_prior_ref)
-    except Exception as exc:
+    except _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS as exc:
         diagnostics = [
             *profile.diagnostics,
             CrossGraphDiagnostic(
@@ -606,7 +626,7 @@ def _maybe_emit_feedback_outputs(
 
     try:
         suite = load_benchmark_suite(suite_path)
-    except Exception as exc:
+    except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
         summary = {
             "status": "degraded",
             "available": False,
@@ -639,7 +659,7 @@ def _maybe_emit_feedback_outputs(
             if db_path.exists():
                 index_dir = Path(str(config.academic_index_dir or db_path.parent))
                 scholar_graph = ScholarKnowledgeGraph(db_path=db_path, index_dir=index_dir)
-        except Exception as exc:
+        except _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS as exc:
             events.append(
                 NodeEvent(
                     level="warn",
@@ -649,7 +669,7 @@ def _maybe_emit_feedback_outputs(
 
     try:
         report = evaluate_benchmark_suite(profile, suite, scholar_graph=scholar_graph)
-    except Exception as exc:
+    except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
         summary = {
             "status": "degraded",
             "available": False,

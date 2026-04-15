@@ -1,105 +1,27 @@
-"""Stable registry facade for kernel slots, units, metrics, constraints, and mechanism specs."""
-from .base import ID_PATTERN, SLOT_ID_PATTERN, KernelModel
-from .constraints import DEFAULT_CONSTRAINT_REGISTRY, ConstraintRegistry, ConstraintSpec
-from .mechanisms import (
-    DEFAULT_MECHANISM_REGISTRY,
-    MechanismTypeRegistry,
-    MechanismTypeSpec,
-    ParamSpec,
-    ParamType,
-)
-from .merge_rules import (
-    DEFAULT_MERGE_RULE_REGISTRY,
-    ConflictResolution,
-    MergeRuleKind,
-    MergeRuleRef,
-    MergeRuleRegistry,
-    MergeRuleSpec,
-)
-from .metrics import DEFAULT_METRIC_REGISTRY, MetricRegistry, MetricSpec
-from .numbers import DecimalValue, NonNegativeDecimal, PositiveDecimal
-from .selector_fields import (
-    DEFAULT_SELECTOR_FIELD_REGISTRY,
-    SelectorFieldRegistry,
-    SelectorFieldSpec,
-)
-from .slots import (
-    DEFAULT_SLOT_REGISTRY,
-    MergeOverride,
-    SlotKind,
-    SlotRegistry,
-    SlotScope,
-    SlotSpec,
-    SlotValueType,
-)
-from .time_semantics import TimeSemantics
-from .trust import DEFAULT_TRUST_REGISTRY, TrustPolicySpec, TrustRegistry
-from .units import (
-    DEFAULT_UNITS_REGISTRY,
-    CountUnit,
-    DimensionlessUnit,
-    DurationUnit,
-    GenericUnit,
-    MoneyUnit,
-    RateUnit,
-    UnitKind,
-    UnitRef,
-    UnitSpecType,
-    UnitsRegistry,
-)
-from .values import CountValue, DurationValue, MoneyValue, RateValue
+"""Stable registry facade for kernel slots, units, metrics, and merge contracts.
 
-__all__ = [
-    "ID_PATTERN",
-    "SLOT_ID_PATTERN",
-    "KernelModel",
-    "ConflictResolution",
-    "MergeRuleKind",
-    "MergeRuleRef",
-    "MergeRuleRegistry",
-    "MergeRuleSpec",
-    "DEFAULT_MERGE_RULE_REGISTRY",
-    "ConstraintSpec",
-    "ConstraintRegistry",
-    "DEFAULT_CONSTRAINT_REGISTRY",
-    "MetricSpec",
-    "MetricRegistry",
-    "DEFAULT_METRIC_REGISTRY",
-    "SelectorFieldSpec",
-    "SelectorFieldRegistry",
-    "DEFAULT_SELECTOR_FIELD_REGISTRY",
-    "TrustPolicySpec",
-    "TrustRegistry",
-    "DEFAULT_TRUST_REGISTRY",
-    "ParamSpec",
-    "ParamType",
-    "MechanismTypeSpec",
-    "MechanismTypeRegistry",
-    "DEFAULT_MECHANISM_REGISTRY",
-    "DecimalValue",
-    "NonNegativeDecimal",
-    "PositiveDecimal",
-    "SlotKind",
-    "SlotRegistry",
-    "SlotScope",
-    "SlotSpec",
-    "SlotValueType",
-    "MergeOverride",
-    "DEFAULT_SLOT_REGISTRY",
-    "TimeSemantics",
-    "CountUnit",
-    "DimensionlessUnit",
-    "DurationUnit",
-    "GenericUnit",
-    "MoneyUnit",
-    "RateUnit",
-    "UnitKind",
-    "UnitRef",
-    "UnitSpecType",
-    "UnitsRegistry",
-    "DEFAULT_UNITS_REGISTRY",
-    "CountValue",
-    "DurationValue",
-    "MoneyValue",
-    "RateValue",
-]
+Names in ``__all__`` are resolved lazily so importing ``polisyos.ir.kernel``
+does not eagerly instantiate default registries or pull the full kernel module
+graph into process startup. Treat this facade as the documented public surface
+for registry-aware runtime code.
+"""
+from __future__ import annotations
+
+from typing import Any
+
+from polisyos.ir._lazy_facade import lazy_dir, resolve_lazy_export
+from polisyos.ir.public_surface import KERNEL_FACADE_EXPORTS
+
+__all__ = sorted(KERNEL_FACADE_EXPORTS)
+
+
+def __getattr__(name: str) -> Any:
+    return resolve_lazy_export(
+        name,
+        namespace=globals(),
+        exports=KERNEL_FACADE_EXPORTS,
+    )
+
+
+def __dir__() -> list[str]:
+    return lazy_dir(globals(), KERNEL_FACADE_EXPORTS)

@@ -451,6 +451,7 @@ class DimensionRegistry:
 
     def __init__(self) -> None:
         """Initialize the registry with standard dimension definitions."""
+        self._state_lock = threading.RLock()
         # Map semantic names to dimensions
         self._dimensions: dict[str, Dimension] = {
             # Base dimensions
@@ -513,7 +514,8 @@ class DimensionRegistry:
         Returns:
             The corresponding Dimension, or None if not found.
         """
-        return self._dimensions.get(name.lower())
+        with self._state_lock:
+            return self._dimensions.get(name.lower())
 
     def register(self, name: str, dimension: Dimension) -> None:
         """
@@ -527,21 +529,25 @@ class DimensionRegistry:
             ValueError: If the name is already registered.
         """
         key = name.lower()
-        if key in self._dimensions:
-            raise ValueError(f"Dimension '{name}' is already registered")
-        self._dimensions[key] = dimension
+        with self._state_lock:
+            if key in self._dimensions:
+                raise ValueError(f"Dimension '{name}' is already registered")
+            self._dimensions[key] = dimension
 
     def __iter__(self) -> Iterator[tuple[str, Dimension]]:
         """Iterate over all registered dimensions."""
-        return iter(self._dimensions.items())
+        with self._state_lock:
+            return iter(tuple(self._dimensions.items()))
 
     def __contains__(self, name: str) -> bool:
         """Check if a dimension name is registered."""
-        return name.lower() in self._dimensions
+        with self._state_lock:
+            return name.lower() in self._dimensions
 
     def __len__(self) -> int:
         """Return the number of registered dimensions."""
-        return len(self._dimensions)
+        with self._state_lock:
+            return len(self._dimensions)
 
 
 # =============================================================================

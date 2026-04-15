@@ -24,9 +24,9 @@ Canonical setup:
 
 ```bash
 cd policy-engine
-./scripts/bootstrap
-./scripts/doctor
-./scripts/verify --backend-only
+python3 -m tools.cli workspace bootstrap
+python3 -m tools.cli workspace doctor
+python3 -m tools.cli workspace verify --backend-only
 ```
 
 High-signal docs:
@@ -42,7 +42,8 @@ High-signal docs:
 Choose one bounded backend task:
 
 - update a contract-backed endpoint and regenerate the affected artifacts;
-- fix a failing backend gate caught by `./scripts/verify --backend-only`;
+- fix a failing backend gate caught by
+  `python3 -m tools.cli workspace verify --backend-only`;
 - trace one failed run from `job_id` to `run_id` to artifact lineage and patch
   the broken service path.
 

@@ -6,19 +6,54 @@ import type {
 } from "react";
 import { forwardRef } from "react";
 import { Link, type LinkProps } from "react-router-dom";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-export type ButtonVariant = "primary" | "ghost" | "danger";
-export type ButtonSize = "sm" | "md" | "lg";
+export const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 rounded-[var(--radius-pill)] font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        primary:
+          "bg-[linear-gradient(135deg,var(--button-primary-start),var(--button-primary-end))] text-[var(--button-primary-text)] shadow-[0_16px_28px_rgba(28,139,130,0.22)] hover:brightness-110",
+        ghost: "border border-line bg-white/70 text-text hover:bg-white/90",
+        danger:
+          "border border-danger/20 bg-danger/10 text-danger hover:bg-danger/15",
+        outline:
+          "border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        sm: "px-3 py-2 text-xs",
+        md: "px-4 py-3 text-sm",
+        lg: "px-5 py-3.5 text-sm",
+        icon: "size-9",
+      },
+    },
+    defaultVariants: {
+      variant: "ghost",
+      size: "md",
+    },
+  },
+);
 
-type CommonButtonProps = {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+export type ButtonVariant = NonNullable<
+  VariantProps<typeof buttonVariants>["variant"]
+>;
+export type ButtonSize = NonNullable<
+  VariantProps<typeof buttonVariants>["size"]
+>;
+
+type CommonButtonProps = VariantProps<typeof buttonVariants> & {
   className?: string;
   leading?: ReactNode;
   trailing?: ReactNode;
   fullWidth?: boolean;
+  asChild?: boolean;
   children: ReactNode;
 };
 
@@ -41,34 +76,6 @@ export type ButtonProps =
   | NativeButtonProps
   | RouterButtonProps
   | AnchorButtonProps;
-
-const sizeClassName: Record<ButtonSize, string> = {
-  sm: "px-3 py-2 text-xs",
-  md: "px-4 py-3 text-sm",
-  lg: "px-5 py-3.5 text-sm",
-};
-
-const variantClassName: Record<ButtonVariant, string> = {
-  primary:
-    "bg-[linear-gradient(135deg,var(--button-primary-start),var(--button-primary-end))] text-[var(--button-primary-text)] shadow-[0_16px_28px_rgba(28,139,130,0.22)]",
-  ghost: "border border-line bg-white/70 text-text hover:bg-white/90",
-  danger: "border border-danger/20 bg-danger/10 text-danger hover:bg-danger/15",
-};
-
-function buttonClassName({
-  variant,
-  size,
-  className,
-  fullWidth,
-}: Pick<CommonButtonProps, "variant" | "size" | "className" | "fullWidth">) {
-  return cn(
-    "inline-flex items-center justify-center gap-2 rounded-[var(--radius-pill)] font-extrabold transition disabled:cursor-not-allowed disabled:opacity-50",
-    sizeClassName[size ?? "md"],
-    variantClassName[variant ?? "ghost"],
-    fullWidth ? "w-full" : "",
-    className,
-  );
-}
 
 function ButtonInner({
   children,
@@ -96,24 +103,25 @@ function ButtonComponent(
     size = "md",
     trailing,
     variant = "ghost",
+    asChild,
   } = props;
 
-  const resolvedClassName = buttonClassName({
-    variant,
-    size,
+  const resolvedClassName = cn(
+    buttonVariants({ variant, size }),
+    fullWidth && "w-full",
     className,
-    fullWidth,
-  });
+  );
 
   if ("to" in props && props.to !== undefined) {
     const {
-      children: _children,
-      className: _className,
-      fullWidth: _fullWidth,
-      leading: _leading,
-      size: _size,
-      trailing: _trailing,
-      variant: _variant,
+      children: _c,
+      className: _cl,
+      fullWidth: _fw,
+      leading: _l,
+      size: _s,
+      trailing: _t,
+      variant: _v,
+      asChild: _a,
       to,
       ...linkProps
     } = props as RouterButtonProps;
@@ -133,14 +141,15 @@ function ButtonComponent(
 
   if ("href" in props && props.href !== undefined) {
     const {
-      children: _children,
-      className: _className,
-      fullWidth: _fullWidth,
+      children: _c,
+      className: _cl,
+      fullWidth: _fw,
       href,
-      leading: _leading,
-      size: _size,
-      trailing: _trailing,
-      variant: _variant,
+      leading: _l,
+      size: _s,
+      trailing: _t,
+      variant: _v,
+      asChild: _a,
       ...anchorProps
     } = props as AnchorButtonProps;
     return (
@@ -158,25 +167,33 @@ function ButtonComponent(
   }
 
   const {
-    children: _children,
-    className: _className,
-    fullWidth: _fullWidth,
-    leading: _leading,
-    size: _size,
-    trailing: _trailing,
-    variant: _variant,
+    children: _c,
+    className: _cl,
+    fullWidth: _fw,
+    leading: _l,
+    size: _s,
+    trailing: _t,
+    variant: _v,
+    asChild: _a,
     ...buttonProps
   } = props as NativeButtonProps;
+
+  const Comp = asChild ? Slot : "button";
+
   return (
-    <button
+    <Comp
       ref={ref as ForwardedRef<HTMLButtonElement>}
       className={resolvedClassName}
       {...buttonProps}
     >
-      <ButtonInner leading={leading} trailing={trailing}>
-        {children}
-      </ButtonInner>
-    </button>
+      {asChild ? (
+        children
+      ) : (
+        <ButtonInner leading={leading} trailing={trailing}>
+          {children}
+        </ButtonInner>
+      )}
+    </Comp>
   );
 }
 

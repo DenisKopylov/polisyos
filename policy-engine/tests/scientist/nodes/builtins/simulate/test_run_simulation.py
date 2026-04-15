@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import hashlib
-from types import SimpleNamespace
 from dataclasses import replace
-from unittest.mock import MagicMock
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
@@ -15,8 +17,8 @@ from polisyos.ir.analytics.strategic import (
 )
 from polisyos.ir.refs import ArtifactRefModel, StrategicResponseBundleRef
 from polisyos.scientist.kernel.budgets import ComputeBudget
-from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_EXEC_PLAN_REF,
@@ -206,6 +208,34 @@ def test_run_simulation_keeps_ok_when_strategic_inputs_are_invalid(
     assert outcome.state.params["strategic_response"]["fallback_mode"] == "blocked"
     assert outcome.state.params["strategic_response_source"] == "run_simulation"
     assert any(event.level == "warn" for event in outcome.events)
+
+
+def test_run_simulation_result_assertion_is_not_swallowed(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    mock_foundry = MagicMock()
+    sim_ref = artifact_ref_factory(
+        kind="foundry.simulation_result",
+        data={"schema_version": "1.0", "notes": []},
+    )
+    mock_foundry.execute.return_value = SimpleNamespace(
+        ok=True,
+        simulation_result_ref=sim_ref,
+        derived_refs=[],
+        notes=[],
+    )
+
+    ctx = replace(execution_context, foundry=mock_foundry)
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = artifact_ref_factory(kind="foundry.exec_plan")
+    state.inputs[INPUT_INPUT_BINDINGS_REF] = artifact_ref_factory(kind="foundry.input_bindings")
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.simulate.run_simulation.SimulationResult.model_validate",
+        side_effect=AssertionError("simulation payload invariant"),
+    ):
+        with pytest.raises(AssertionError, match="simulation payload invariant"):
+            RunSimulationNode().execute(ctx, state)
 
 
 def _runtime_payoff_tables() -> dict[str, FiniteStrategicPayoffTable]:

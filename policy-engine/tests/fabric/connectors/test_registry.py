@@ -978,6 +978,32 @@ class TestConnectionPool:
 
         asyncio.run(_run())
 
+    def test_release_is_idempotent_per_handle(
+        self,
+        mock_connector_factory,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Double release cannot over-release the pool semaphore."""
+        async def _run() -> None:
+            pool = ConnectionPool(
+                connector_factory=mock_connector_factory,
+                config=sample_config,
+                pool_config=PoolConfig(max_size=1, acquire_timeout_seconds=0.1),
+            )
+
+            handle = await pool.acquire()
+            await pool.release(handle)
+            await pool.release(handle)
+
+            next_handle = await pool.acquire()
+            with pytest.raises(PoolExhaustedError):
+                await pool.acquire()
+
+            await pool.release(next_handle)
+            await pool.close_all()
+
+        asyncio.run(_run())
+
 
 # =============================================================================
 # Discovery Tests
@@ -1024,6 +1050,60 @@ class TestConnectorDiscovery:
         assert d2 is not d1
         assert len(d2._additional_modules) == 0
 
+    def test_discovery_singleton_is_thread_safe(self) -> None:
+        ConnectorDiscovery.reset()
+        instances: list[ConnectorDiscovery] = []
+        errors: list[BaseException] = []
+        gate = threading.Barrier(8)
+
+        def _build() -> None:
+            try:
+                gate.wait()
+                instances.append(ConnectorDiscovery())
+            except BaseException as exc:  # pragma: no cover - test helper
+                errors.append(exc)
+
+        threads = [threading.Thread(target=_build) for _ in range(8)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        assert errors == []
+        assert len({id(instance) for instance in instances}) == 1
+
+    def test_registry_get_does_not_double_wrap_fetch_under_concurrency(
+        self,
+        registry: ConnectorRegistry,
+    ) -> None:
+        registry.register(MockConnectorA)
+        connectors: list[object] = []
+        errors: list[BaseException] = []
+        gate = threading.Barrier(8)
+
+        def _get_connector() -> None:
+            try:
+                gate.wait()
+                connectors.append(registry.get("mock_a"))
+            except BaseException as exc:  # pragma: no cover - test helper
+                errors.append(exc)
+
+        threads = [threading.Thread(target=_get_connector) for _ in range(8)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        assert errors == []
+        assert len({id(connector) for connector in connectors}) == 1
+
+        wrapped_depth = 0
+        fetch = connectors[0].fetch
+        while hasattr(fetch, "__wrapped__"):
+            wrapped_depth += 1
+            fetch = fetch.__wrapped__  # type: ignore[attr-defined]
+        assert wrapped_depth == 1
+
 
 # =============================================================================
 # Integration Tests
@@ -1047,6 +1127,44 @@ class TestRegistryIntegration:
 
             stats = registry.stats
             assert stats.active_pools == 1
+
+        asyncio.run(_run())
+
+    def test_unregister_async_drains_owned_pool(
+        self, registry: ConnectorRegistry, sample_config: ConnectionConfig
+    ) -> None:
+        """Async unregister closes associated pools without fire-and-forget tasks."""
+        class TrackingConnector(MockConnectorA):
+            disconnect_count = 0
+
+            async def disconnect(self, handle: ConnectionHandle) -> None:
+                type(self).disconnect_count += 1
+
+        async def _run() -> None:
+            registry.register(TrackingConnector, config=sample_config)
+            handle = await registry.get_connection("mock_a")
+            await registry.release_connection("mock_a", handle)
+
+            assert registry.stats.active_pools == 1
+            assert await registry.unregister_async("mock_a") is True
+            assert registry.stats.active_pools == 0
+            assert TrackingConnector.disconnect_count == 1
+
+        asyncio.run(_run())
+
+    def test_sync_unregister_refuses_running_loop_with_active_pool(
+        self, registry: ConnectorRegistry, sample_config: ConnectionConfig
+    ) -> None:
+        """Sync unregister does not create fire-and-forget cleanup tasks in a live loop."""
+        async def _run() -> None:
+            registry.register(MockConnectorA, config=sample_config)
+            handle = await registry.get_connection("mock_a")
+            await registry.release_connection("mock_a", handle)
+
+            with pytest.raises(RuntimeError, match="unregister_async"):
+                registry.unregister("mock_a")
+
+            assert await registry.unregister_async("mock_a") is True
 
         asyncio.run(_run())
 

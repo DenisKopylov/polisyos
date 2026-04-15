@@ -4,39 +4,141 @@ cases:
   - id: knapsack_trivial
     method_fqn: "optimization.combinatorial.knapsack@1.0.0"
     description: "Simple knapsack with obvious selection"
-    skip_reason: "Requires optimization problem model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      values: [10.0, 7.0, 6.0, 4.0]
+      weights: [5.0, 4.0, 3.0, 2.0]
+    input_params:
+      capacity: 7.0
+    expected_output:
+      result:
+        selected_items: [0, 3]
+        total_value: 14.0
+        total_weight: 7.0
+        method: "dynamic_programming"
     tags: [combinatorial]
 
   - id: nash_equilibrium_prisoners_dilemma
     method_fqn: "optimization.game_theory.nash_equilibrium@1.0.0"
     description: "Prisoner's dilemma → known NE"
-    skip_reason: "Requires game matrix model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      payoff_A:
+        - [3.0, 0.0]
+        - [5.0, 1.0]
+      payoff_B:
+        - [3.0, 5.0]
+        - [0.0, 1.0]
+    input_params:
+      max_iter: 500
+      learning_rate: 0.05
+    expected_output:
+      result:
+        mixed_strategy_A: [0.0, 1.0]
+        mixed_strategy_B: [0.0, 1.0]
+        expected_payoff_A: 1.0
+        expected_payoff_B: 1.0
+        n_pure_nash: 1
+        pure_nash_equilibria:
+          - player_A_strategy: 1
+            player_B_strategy: 1
+            payoff_A: 1.0
+            payoff_B: 1.0
+    tolerances: {rtol: 0.0001, atol: 0.000001}
     tags: [game_theory]
 
   - id: qp_simple_quadratic
     method_fqn: "optimization.convex.quadratic_program@1.0.0"
     description: "min 0.5 x^2 - x → x* = 1"
-    skip_reason: "Requires OptimizationProblem model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      objective_vector: [1.0]
+      quadratic_matrix:
+        - [1.0]
+      constraint_matrix:
+        - [1.0]
+      constraint_rhs: [2.0]
+      bounds:
+        - [0.0, 2.0]
+    input_params:
+      objective: "maximize"
+      solver: "OSQP"
+    expected_output:
+      status: "optimal"
+      objective_value: 0.5
+      variables:
+        x_0: 1.0
+      constraints_satisfied:
+        constraint_0: true
+        lower_bounds: true
+        upper_bounds: true
+      metadata:
+        objective: "maximize"
+        solver: "OSQP"
+    tolerances: {rtol: 0.001, atol: 0.001}
     tags: [convex]
 
   - id: resource_lp_basic
     method_fqn: "optimization.linear.resource_lp@1.0.0"
-    description: "Simple LP with 2 items and budget constraint"
-    skip_reason: "Requires optimization problem model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
-    tags: [linear]
+    description: "Simple LP with a binding budget and staffing constraint"
+    input_data:
+      problem_id: "golden_lp"
+      budget: 8.0
+      items:
+        - item_id: "clinics"
+          cost: 2.0
+          benefit: 5.0
+          max_units: 4
+          is_integer: false
+        - item_id: "schools"
+          cost: 1.0
+          benefit: 2.0
+          max_units: 6
+          is_integer: false
+      constraints:
+        - constraint_id: "staffing"
+          coefficients:
+            clinics: 1.0
+            schools: 1.0
+          bound: 6.0
+          sense: "<="
+    input_params:
+      prefer_ortools: false
+    expected_output:
+      status: "optimal"
+      objective_value: 20.0
+      variables:
+        clinics: 4.0
+        schools: 0.0
+      constraints_satisfied:
+        budget: true
+        staffing: true
+      metadata:
+        backend: "scipy"
+    tolerances: {rtol: 0.01, atol: 0.01}
+    tags: [linear, deterministic, release_gate]
 
   - id: dynamic_programming_shortest_path
     method_fqn: "optimization.dynamic.dynamic_programming@1.0.0"
     description: "Shortest path DP on simple graph"
-    skip_reason: "Requires DP problem model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      reward_tensor:
+        - [[5.0, 2.0], [1.0, 4.0]]
+        - [[3.0, 6.0], [0.0, 2.0]]
+      transition_tensor:
+        - [[[1.0, 0.0], [0.0, 1.0]], [[1.0, 0.0], [0.0, 1.0]]]
+        - [[[1.0, 0.0], [0.0, 1.0]], [[1.0, 0.0], [0.0, 1.0]]]
+      initial_state: 0
+    input_params:
+      discount_factor: 0.9
+    expected_output:
+      result:
+        status: "optimal"
+        objective_value: 10.4
+        variables:
+          stage_0_action: 0.0
+          stage_0_state: 0.0
+          stage_1_action: 1.0
+          stage_1_state: 0.0
+        metadata:
+          realized_discounted_reward: 10.4
+          terminal_state: 1
+    tolerances: {rtol: 0.000001, atol: 0.000001}
     tags: [dynamic]

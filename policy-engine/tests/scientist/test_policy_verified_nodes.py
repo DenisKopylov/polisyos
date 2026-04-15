@@ -283,6 +283,66 @@ def test_build_decision_packet_includes_verified_policy_sections(tmp_path) -> No
     assert payload["intervention_legal_basis_map"]["verified_option_1"] == ["стаття 1"]
 
 
+def test_build_decision_packet_records_degraded_paths_for_invalid_policy_verification_artifacts(
+    tmp_path,
+) -> None:
+    store, ctx, registry_bundle = _make_ctx(tmp_path, "R_policy_verified_packet_degraded")
+    trinity_ref = store.put_json(
+        {"trinity": {"interventions": []}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    governance_ref = store.put_json(
+        GovernanceReport(verdict="approve", issues=[]),
+        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+    )
+    invalid_verification_ref = store.put_json(
+        ["invalid"],
+        PutOptions(kind="scientist.source_verification_report", media_type="application/json"),
+    )
+    invalid_verified_policy_ref = store.put_json(
+        ["invalid"],
+        PutOptions(kind="scientist.verified_policy_report", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_policy_verified_packet_degraded",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_SOURCE_VERIFICATION_REPORT_REF: invalid_verification_ref,
+            ARTIFACT_VERIFIED_POLICY_REPORT_REF: invalid_verified_policy_ref,
+        },
+        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
+
+    assert payload["legal_verification"] is None
+    assert payload["source_coverage"] is None
+    assert payload["policy_answer"] is None
+    assert payload["verified_findings"] == []
+    assert payload["hypotheses"] == []
+    assert payload["intervention_legal_basis_map"] == {}
+    assert degraded_reasons == {
+        "source_verification_report_load_failed",
+        "verified_policy_report_load_failed",
+    }
+    assert payload["diagnostics_summary"]["degraded_path_count"] == 2
+
+
 def test_build_legal_toolkit_uses_nested_evidence_sources(monkeypatch, tmp_path) -> None:
     _, ctx, registry_bundle = _make_ctx(tmp_path, "R_policy_verified_sources")
     legal_db_path = tmp_path / "legal.duckdb"

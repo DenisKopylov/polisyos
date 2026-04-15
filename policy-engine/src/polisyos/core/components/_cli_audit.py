@@ -8,10 +8,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components._cli_store import build_cli_filesystem_cas
 
 __all__ = [
     "_cmd_audit_export",
+    "_cmd_audit_runtime_query",
+    "_cmd_audit_runtime_retention",
     "_cmd_audit_verify",
 ]
 
@@ -23,7 +25,7 @@ def _cmd_audit_export(args: Any) -> int:
     ExportProfile = audit_mod.ExportProfile
     SigningPolicy = audit_mod.SigningPolicy
 
-    cas = FileSystemCAS(Path(args.cas_root))
+    cas = build_cli_filesystem_cas(Path(args.cas_root))
     exclude = frozenset(
         item.strip()
         for item in str(args.exclude_kinds).split(",")
@@ -109,3 +111,70 @@ def _cmd_audit_verify(args: Any) -> int:
     if report.overall_status == "PASS":
         return 0
     return 1
+
+
+def _cmd_audit_runtime_query(args: Any) -> int:
+    compliance = importlib.import_module("polisyos.runtime.http.compliance")
+    query = compliance.RuntimeAuditQuery(
+        stream=args.stream,
+        tenant_id=args.tenant_id,
+        actor=args.actor,
+        resource_id=args.resource_id,
+        endpoint=args.endpoint,
+        operation=args.operation,
+        outcome=args.outcome,
+        since=compliance.parse_audit_time(args.since),
+        until=compliance.parse_audit_time(args.until),
+    )
+    try:
+        entries = compliance.query_runtime_audit(Path(args.cas_root), query)
+    except Exception as exc:
+        print(f"ERROR: runtime audit query failed: {exc}", file=sys.stderr)
+        return 1
+
+    if args.output:
+        compliance.write_runtime_audit_report(
+            entries,
+            Path(args.output),
+            output_format=args.format,
+        )
+        if not args.json:
+            print(f"written={args.output}")
+        return 0
+
+    payload = {
+        "summary": compliance.summarize_runtime_audit(entries),
+        "entries": entries,
+    }
+    if args.format == "jsonl":
+        for entry in entries:
+            print(json.dumps(entry, ensure_ascii=True, sort_keys=True))
+        return 0
+    print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
+    return 0
+
+
+def _cmd_audit_runtime_retention(args: Any) -> int:
+    compliance = importlib.import_module("polisyos.runtime.http.compliance")
+    try:
+        result = compliance.apply_runtime_audit_retention(
+            Path(args.cas_root),
+            retention_days=int(args.retention_days),
+            archive_dir=Path(args.archive_dir) if args.archive_dir else None,
+            dry_run=bool(args.dry_run),
+        )
+    except Exception as exc:
+        print(f"ERROR: runtime audit retention failed: {exc}", file=sys.stderr)
+        return 1
+    payload = result.to_dict()
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
+    else:
+        print(
+            "scanned={scanned} kept={kept} archived={archived} dry_run={dry_run}".format(
+                **payload
+            )
+        )
+        for path in payload["archive_paths"]:
+            print(f"archive={path}")
+    return 0

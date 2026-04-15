@@ -72,6 +72,15 @@ export type ApiMeta = {
   source_kinds?: Array<string>;
 };
 
+export type ArtifactBatchRequest = {
+  artifact_ids?: Array<string>;
+};
+
+export type ArtifactBatchResponse = {
+  artifacts?: Array<ArtifactManifestView>;
+  meta: ApiMeta;
+};
+
 export type ArtifactContentPreview = {
   artifact_id: string;
   kind: string;
@@ -1403,6 +1412,15 @@ export type RunWorkflowView = {
   workflow_spec_ref?: ArtifactRef | null;
 };
 
+export type RunsBatchRequest = {
+  run_ids?: Array<string>;
+};
+
+export type RunsBatchResponse = {
+  meta: ApiMeta;
+  runs?: Array<RunDetails>;
+};
+
 export type RunsListResponse = {
   meta: ApiMeta;
   page: CursorPage;
@@ -1488,11 +1506,19 @@ export class RuntimeApiClient {
     method: string,
     path: string,
     query?: URLSearchParams,
+    body?: unknown,
   ): Promise<T> {
     const url = query && query.toString()
       ? `${this.baseUrl}${path}?${query.toString()}`
       : `${this.baseUrl}${path}`;
-    const response = await this.fetchImpl(url, { method, headers: this.headers });
+    const headers = body === undefined
+      ? this.headers
+      : { "Content-Type": "application/json", ...this.headers };
+    const response = await this.fetchImpl(url, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
     if (!response.ok) {
       const body = await response.text();
       throw new Error(
@@ -1523,11 +1549,20 @@ export class RuntimeApiClient {
     return query;
   }
 
+  async getArtifactBatch(params: {
+    body: ArtifactBatchRequest;
+  }): Promise<ArtifactBatchResponse> {
+    const path = `/api/v1/artifacts/batch`;
+    const query = undefined;
+    return this.request<ArtifactBatchResponse>("POST", path, query, params.body);
+  }
+
   async getArtifactManifest(params: {
     artifact_id: string;
   }): Promise<ArtifactManifestResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}`;
-    return this.request<ArtifactManifestResponse>("GET", path);
+    const query = undefined;
+    return this.request<ArtifactManifestResponse>("GET", path, query);
   }
 
   async getArtifactContent(params: {
@@ -1539,6 +1574,14 @@ export class RuntimeApiClient {
       max_bytes: params.max_bytes,
     });
     return this.request<ArtifactContentResponse>("GET", path, query);
+  }
+
+  async downloadArtifactContent(params: {
+    artifact_id: string;
+  }): Promise<unknown> {
+    const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/download`;
+    const query = undefined;
+    return this.request<unknown>("GET", path, query);
   }
 
   async getArtifactLineage(params: {
@@ -1558,27 +1601,32 @@ export class RuntimeApiClient {
     artifact_id: string;
   }): Promise<ArtifactSchemaResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
-    return this.request<ArtifactSchemaResponse>("GET", path);
+    const query = undefined;
+    return this.request<ArtifactSchemaResponse>("GET", path, query);
   }
 
   async getAuthMe(): Promise<AuthMeResponse> {
     const path = `/api/v1/auth/me`;
-    return this.request<AuthMeResponse>("GET", path);
+    const query = undefined;
+    return this.request<AuthMeResponse>("GET", path, query);
   }
 
   async getControlCapabilities(): Promise<CapabilityManifestResponse> {
     const path = `/api/v1/control/capabilities`;
-    return this.request<CapabilityManifestResponse>("GET", path);
+    const query = undefined;
+    return this.request<CapabilityManifestResponse>("GET", path, query);
   }
 
   async listBindingProfiles(): Promise<BindingProfilesListResponse> {
     const path = `/api/v1/control/data/binding-profiles`;
-    return this.request<BindingProfilesListResponse>("GET", path);
+    const query = undefined;
+    return this.request<BindingProfilesListResponse>("GET", path, query);
   }
 
   async getCacheStatus(): Promise<CacheStatusResponse> {
     const path = `/api/v1/control/data/cache`;
-    return this.request<CacheStatusResponse>("GET", path);
+    const query = undefined;
+    return this.request<CacheStatusResponse>("GET", path, query);
   }
 
   async searchDataCatalog(params: {
@@ -1597,36 +1645,42 @@ export class RuntimeApiClient {
 
   async listConnectors(): Promise<ConnectorsListResponse> {
     const path = `/api/v1/control/data/connectors`;
-    return this.request<ConnectorsListResponse>("GET", path);
+    const query = undefined;
+    return this.request<ConnectorsListResponse>("GET", path, query);
   }
 
   async getDataIndexStats(): Promise<IndexStatsResponse> {
     const path = `/api/v1/control/data/index/stats`;
-    return this.request<IndexStatsResponse>("GET", path);
+    const query = undefined;
+    return this.request<IndexStatsResponse>("GET", path, query);
   }
 
   async listSourceProfiles(): Promise<SourceProfilesListResponse> {
     const path = `/api/v1/control/data/profiles`;
-    return this.request<SourceProfilesListResponse>("GET", path);
+    const query = undefined;
+    return this.request<SourceProfilesListResponse>("GET", path, query);
   }
 
   async listDataPromotionCandidates(): Promise<PromotionCandidatesResponse> {
     const path = `/api/v1/control/data/promotion/candidates`;
-    return this.request<PromotionCandidatesResponse>("GET", path);
+    const query = undefined;
+    return this.request<PromotionCandidatesResponse>("GET", path, query);
   }
 
   async getPacketDecisionValidity(params: {
     decision_packet_ref: string;
   }): Promise<DecisionValiditySummaryResponse> {
     const path = `/api/v1/control/decision-packets/${encodeURIComponent(String(params.decision_packet_ref))}/decision-validity`;
-    return this.request<DecisionValiditySummaryResponse>("GET", path);
+    const query = undefined;
+    return this.request<DecisionValiditySummaryResponse>("GET", path, query);
   }
 
   async getControlJobStatus(params: {
     job_id: string;
   }): Promise<ControlJobResponse> {
     const path = `/api/v1/control/jobs/${encodeURIComponent(String(params.job_id))}`;
-    return this.request<ControlJobResponse>("GET", path);
+    const query = undefined;
+    return this.request<ControlJobResponse>("GET", path, query);
   }
 
   async getLexGraphStats(params: {
@@ -1643,12 +1697,14 @@ export class RuntimeApiClient {
     pipeline_id: string;
   }): Promise<LexPipelineStatusResponse> {
     const path = `/api/v1/control/lex/status/${encodeURIComponent(String(params.pipeline_id))}`;
-    return this.request<LexPipelineStatusResponse>("GET", path);
+    const query = undefined;
+    return this.request<LexPipelineStatusResponse>("GET", path, query);
   }
 
   async listLlmProfiles(): Promise<ModelProfilesListResponse> {
     const path = `/api/v1/control/llm/profiles`;
-    return this.request<ModelProfilesListResponse>("GET", path);
+    const query = undefined;
+    return this.request<ModelProfilesListResponse>("GET", path, query);
   }
 
   async listControlOutbox(params: {
@@ -1667,7 +1723,8 @@ export class RuntimeApiClient {
     run_id: string;
   }): Promise<DecisionValiditySummaryResponse> {
     const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/decision-validity`;
-    return this.request<DecisionValiditySummaryResponse>("GET", path);
+    const query = undefined;
+    return this.request<DecisionValiditySummaryResponse>("GET", path, query);
   }
 
   async listControlWorkers(params: {
@@ -1685,28 +1742,32 @@ export class RuntimeApiClient {
     right_run_id: string;
   }): Promise<RunCompareResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.left_run_id))}/compare/${encodeURIComponent(String(params.right_run_id))}`;
-    return this.request<RunCompareResponse>("GET", path);
+    const query = undefined;
+    return this.request<RunCompareResponse>("GET", path, query);
   }
 
   async getRunErrors(params: {
     run_id: string;
   }): Promise<RunErrorsResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/errors`;
-    return this.request<RunErrorsResponse>("GET", path);
+    const query = undefined;
+    return this.request<RunErrorsResponse>("GET", path, query);
   }
 
   async getRunFeedback(params: {
     run_id: string;
   }): Promise<RunFeedbackResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/feedback`;
-    return this.request<RunFeedbackResponse>("GET", path);
+    const query = undefined;
+    return this.request<RunFeedbackResponse>("GET", path, query);
   }
 
   async getGovernanceDebug(params: {
     run_id: string;
   }): Promise<GovernanceDebugResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/governance`;
-    return this.request<GovernanceDebugResponse>("GET", path);
+    const query = undefined;
+    return this.request<GovernanceDebugResponse>("GET", path, query);
   }
 
   async getNodeDebug(params: {
@@ -1714,21 +1775,24 @@ export class RuntimeApiClient {
     alias: string;
   }): Promise<NodeDebugResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/nodes/${encodeURIComponent(String(params.alias))}`;
-    return this.request<NodeDebugResponse>("GET", path);
+    const query = undefined;
+    return this.request<NodeDebugResponse>("GET", path, query);
   }
 
   async runtimeApiHealth(): Promise<{
-  [key: string]: string;
+  [key: string]: unknown;
 }> {
     const path = `/api/v1/health`;
+    const query = undefined;
     return this.request<{
-  [key: string]: string;
-}>("GET", path);
+  [key: string]: unknown;
+}>("GET", path, query);
   }
 
   async listRuns(params: {
     limit?: number;
     cursor?: string | null;
+    q?: string | null;
     status?: string | null;
     from_ts?: string | null;
     to_ts?: string | null;
@@ -1737,6 +1801,7 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       limit: params.limit,
       cursor: params.cursor,
+      q: params.q,
       status: params.status,
       from_ts: params.from_ts,
       to_ts: params.to_ts,
@@ -1744,25 +1809,36 @@ export class RuntimeApiClient {
     return this.request<RunsListResponse>("GET", path, query);
   }
 
+  async getRunsBatch(params: {
+    body: RunsBatchRequest;
+  }): Promise<RunsBatchResponse> {
+    const path = `/api/v1/runs/batch`;
+    const query = undefined;
+    return this.request<RunsBatchResponse>("POST", path, query, params.body);
+  }
+
   async getRunDetails(params: {
     run_id: string;
   }): Promise<RunDetailsResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}`;
-    return this.request<RunDetailsResponse>("GET", path);
+    const query = undefined;
+    return this.request<RunDetailsResponse>("GET", path, query);
   }
 
   async getRunAgents(params: {
     run_id: string;
   }): Promise<AgentPipelineResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
-    return this.request<AgentPipelineResponse>("GET", path);
+    const query = undefined;
+    return this.request<AgentPipelineResponse>("GET", path, query);
   }
 
   async getRunEvidenceContext(params: {
     run_id: string;
   }): Promise<RunEvidenceContextResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/evidence-context`;
-    return this.request<RunEvidenceContextResponse>("GET", path);
+    const query = undefined;
+    return this.request<RunEvidenceContextResponse>("GET", path, query);
   }
 
   async getRunLineage(params: {
@@ -1784,39 +1860,44 @@ export class RuntimeApiClient {
     run_id: string;
   }): Promise<RunNodesResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/nodes`;
-    return this.request<RunNodesResponse>("GET", path);
+    const query = undefined;
+    return this.request<RunNodesResponse>("GET", path, query);
   }
 
   async getRunTimeline(params: {
     run_id: string;
   }): Promise<RunTimelineResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/timeline`;
-    return this.request<RunTimelineResponse>("GET", path);
+    const query = undefined;
+    return this.request<RunTimelineResponse>("GET", path, query);
   }
 
   async getRunWorkflow(params: {
     run_id: string;
   }): Promise<RunWorkflowResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/workflow`;
-    return this.request<RunWorkflowResponse>("GET", path);
+    const query = undefined;
+    return this.request<RunWorkflowResponse>("GET", path, query);
   }
 
   async health(): Promise<{
-  [key: string]: string;
+  [key: string]: unknown;
 }> {
     const path = `/health`;
+    const query = undefined;
     return this.request<{
-  [key: string]: string;
-}>("GET", path);
+  [key: string]: unknown;
+}>("GET", path, query);
   }
 
   async ready(): Promise<{
-  [key: string]: string;
+  [key: string]: unknown;
 }> {
     const path = `/ready`;
+    const query = undefined;
     return this.request<{
-  [key: string]: string;
-}>("GET", path);
+  [key: string]: unknown;
+}>("GET", path, query);
   }
 
 }

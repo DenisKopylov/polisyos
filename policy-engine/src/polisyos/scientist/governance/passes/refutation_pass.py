@@ -1,6 +1,7 @@
 """Validate refutation coverage and failed falsification tests on causal reports."""
 from __future__ import annotations
 
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
@@ -10,6 +11,10 @@ from polisyos.ir.analytics.causal import (
     EstimationStatus,
     RefutationTestType,
     load_causal_effect_report,
+)
+from polisyos.ir.refs import CausalEffectReportRef
+from polisyos.scientist.governance.passes._artifact_resolution import (
+    resolve_optional_artifact_model,
 )
 
 _REQUIRED_TESTS: frozenset[RefutationTestType] = frozenset(
@@ -28,6 +33,7 @@ _DOWHY_METHODS: frozenset[CausalMethod] = frozenset(
         CausalMethod.DOWHY_FRONTDOOR,
     }
 )
+logger = get_logger(__name__)
 
 
 class RefutationPass(ValidatorPass):
@@ -47,16 +53,17 @@ class RefutationPass(ValidatorPass):
         return 10
 
     def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
-        report = _resolve_report(ctx)
+        report_resolution = _resolve_report(ctx, severity=_severity_for_profile(ctx))
+        report = report_resolution.value
+        issues = list(report_resolution.issues)
         if report is None:
-            return []
+            return issues
         if report.status is not EstimationStatus.SUCCESS:
-            return []
+            return issues
         if report.method not in _DOWHY_METHODS:
-            return []
+            return issues
 
         severity = _severity_for_profile(ctx)
-        issues: list[ComplianceIssue] = []
         if not report.refutation_results:
             issues.append(
                 ComplianceIssue(
@@ -110,29 +117,25 @@ class RefutationPass(ValidatorPass):
         return issues
 
 
-def _resolve_report(ctx: PassContext) -> CausalEffectReport | None:
-    direct = ctx.state.get("causal_report")
-    if isinstance(direct, CausalEffectReport):
-        return direct
-    if isinstance(direct, dict):
-        try:
-            return CausalEffectReport.model_validate(direct)
-        except Exception:
-            return None
-
-    artifacts_index = ctx.state.get("artifacts_index")
-    if not isinstance(artifacts_index, dict):
-        return None
-    ref = artifacts_index.get("causal_report_ref")
-    if ref is None:
-        return None
-    store = ctx.state.get("_store")
-    if store is None:
-        return None
-    try:
-        return load_causal_effect_report(store, ref)
-    except Exception:
-        return None
+def _resolve_report(ctx: PassContext, *, severity: IssueSeverity):
+    return resolve_optional_artifact_model(
+        ctx=ctx,
+        pass_id="refutation",
+        direct_key="causal_report",
+        ref_key="causal_report_ref",
+        model_cls=CausalEffectReport,
+        ref_model=CausalEffectReportRef,
+        load_model=load_causal_effect_report,
+        severity=severity,
+        code="REFUTATION_CAUSAL_REPORT_INVALID",
+        message=(
+            "Refutation pass could not validate or load the causal report artifact."
+        ),
+        suggestion=(
+            "Rebuild the causal report before evaluating refutation coverage."
+        ),
+        log=logger,
+    )
 
 
 def _severity_for_profile(ctx: PassContext) -> IssueSeverity:

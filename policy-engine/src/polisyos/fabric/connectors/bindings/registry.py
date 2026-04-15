@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import threading
+from typing import TYPE_CHECKING
 
-from .models import BindingProfile
+if TYPE_CHECKING:
+    from .models import BindingProfile
 
 
 class BindingProfileRegistry:

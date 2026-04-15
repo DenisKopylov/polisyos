@@ -1,12 +1,13 @@
 """Row filtering transform."""
 from __future__ import annotations
 
-import re
+import ast
 from dataclasses import dataclass
 from typing import Callable
 
 import pandas as pd
 
+from polisyos.fabric.safety import UnsafeFilterExpressionError
 from polisyos.fabric.connectors.transform._common import (
     build_lineage,
     resolve_copy_policy,
@@ -22,21 +23,149 @@ from polisyos.fabric.connectors.transform.pipeline import (
 
 __all__ = ["FilterTransform"]
 
-# Tokens that must NOT appear in a DataFrame.eval() condition string.
-# These could enable arbitrary code execution via pandas numexpr backend.
-_UNSAFE_PATTERN = re.compile(
-    r"(__import__|__class__|__subclasses__|__globals__|__builtins__"
-    r"|eval\s*\(|exec\s*\(|compile\s*\(|open\s*\(|os\.|sys\.|subprocess\.)",
-    re.IGNORECASE,
-)
+def _evaluate_filter_condition(
+    data: pd.DataFrame,
+    condition: str,
+) -> pd.Series:
+    """Evaluate a restricted boolean expression against a DataFrame."""
+    try:
+        tree = ast.parse(condition, mode="eval")
+    except SyntaxError as exc:
+        raise UnsafeFilterExpressionError(f"Invalid filter syntax: {exc}") from exc
 
-
-def _validate_eval_condition(condition: str) -> None:
-    """Reject filter conditions containing unsafe tokens."""
-    if _UNSAFE_PATTERN.search(condition):
-        raise TransformError(
-            f"Filter condition contains unsafe token: {condition!r}"
+    result = _eval_ast_node(tree.body, data)
+    if isinstance(result, bool):
+        return pd.Series([result] * len(data), index=data.index, dtype="boolean")
+    if not isinstance(result, pd.Series):
+        raise UnsafeFilterExpressionError(
+            "Filter expression must evaluate to a boolean mask"
         )
+    try:
+        return result.astype("boolean")
+    except (TypeError, ValueError) as exc:
+        raise UnsafeFilterExpressionError(
+            "Filter expression must return boolean-compatible values"
+        ) from exc
+
+
+def _eval_ast_node(node: ast.AST, data: pd.DataFrame) -> object:
+    if isinstance(node, ast.BoolOp):
+        values = [_coerce_bool_like(_eval_ast_node(child, data)) for child in node.values]
+        if not values:
+            raise UnsafeFilterExpressionError("Boolean expressions must not be empty")
+        result = values[0]
+        for value in values[1:]:
+            if isinstance(node.op, ast.And):
+                result = result & value
+            elif isinstance(node.op, ast.Or):
+                result = result | value
+            else:
+                raise UnsafeFilterExpressionError("Unsupported boolean operator")
+        return result
+
+    if isinstance(node, ast.UnaryOp):
+        operand = _eval_ast_node(node.operand, data)
+        if isinstance(node.op, ast.Not):
+            return ~_coerce_bool_like(operand)
+        if isinstance(node.op, ast.USub):
+            return -operand
+        if isinstance(node.op, ast.UAdd):
+            return +operand
+        raise UnsafeFilterExpressionError("Unsupported unary operator")
+
+    if isinstance(node, ast.Compare):
+        left = _eval_ast_node(node.left, data)
+        comparisons: list[object] = []
+        for operator_node, comparator_node in zip(node.ops, node.comparators):
+            right = _eval_ast_node(comparator_node, data)
+            comparisons.append(_apply_comparison(operator_node, left, right))
+            left = right
+        result = _coerce_bool_like(comparisons[0])
+        for comparison in comparisons[1:]:
+            result = result & _coerce_bool_like(comparison)
+        return result
+
+    if isinstance(node, ast.BinOp):
+        left = _eval_ast_node(node.left, data)
+        right = _eval_ast_node(node.right, data)
+        if isinstance(node.op, ast.Add):
+            return left + right
+        if isinstance(node.op, ast.Sub):
+            return left - right
+        if isinstance(node.op, ast.Mult):
+            return left * right
+        if isinstance(node.op, ast.Div):
+            return left / right
+        if isinstance(node.op, ast.Mod):
+            return left % right
+        raise UnsafeFilterExpressionError("Unsupported arithmetic operator")
+
+    if isinstance(node, ast.Name):
+        if node.id not in data.columns:
+            raise UnsafeFilterExpressionError(f"Unknown filter field: {node.id!r}")
+        return data[node.id]
+
+    if isinstance(node, ast.Constant):
+        return node.value
+
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+        values = [_eval_ast_node(child, data) for child in node.elts]
+        if any(isinstance(value, pd.Series) for value in values):
+            raise UnsafeFilterExpressionError("Collection literals may not contain column references")
+        return values
+
+    raise UnsafeFilterExpressionError(
+        f"Unsupported filter expression node: {type(node).__name__}"
+    )
+
+
+def _apply_comparison(
+    operator_node: ast.cmpop,
+    left: object,
+    right: object,
+) -> object:
+    if isinstance(operator_node, ast.In):
+        if isinstance(left, pd.Series):
+            if isinstance(right, (list, tuple, set)):
+                return left.isin(list(right))
+            raise UnsafeFilterExpressionError("Right-hand side of 'in' must be a literal collection")
+        return left in right
+    if isinstance(operator_node, ast.NotIn):
+        if isinstance(left, pd.Series):
+            if isinstance(right, (list, tuple, set)):
+                return ~left.isin(list(right))
+            raise UnsafeFilterExpressionError("Right-hand side of 'not in' must be a literal collection")
+        return left not in right
+    if isinstance(operator_node, ast.Eq):
+        return left == right
+    if isinstance(operator_node, ast.NotEq):
+        return left != right
+    if isinstance(operator_node, ast.Gt):
+        return left > right
+    if isinstance(operator_node, ast.GtE):
+        return left >= right
+    if isinstance(operator_node, ast.Lt):
+        return left < right
+    if isinstance(operator_node, ast.LtE):
+        return left <= right
+    raise UnsafeFilterExpressionError(
+        f"Unsupported comparison operator: {type(operator_node).__name__}"
+    )
+
+
+def _coerce_bool_like(value: object) -> pd.Series | bool:
+    if isinstance(value, pd.Series):
+        try:
+            return value.astype("boolean")
+        except (TypeError, ValueError) as exc:
+            raise UnsafeFilterExpressionError(
+                "Filter expressions must produce boolean-compatible masks"
+            ) from exc
+    if isinstance(value, bool):
+        return value
+    raise UnsafeFilterExpressionError(
+        "Filter expressions must use comparisons that evaluate to booleans"
+    )
 
 
 @dataclass
@@ -60,9 +189,10 @@ class FilterTransform(DataTransform):
         copy_policy = resolve_copy_policy(context)
 
         if isinstance(self.condition, str):
-            _validate_eval_condition(self.condition)
             try:
-                mask = data.eval(self.condition)
+                mask = _evaluate_filter_condition(data, self.condition)
+            except UnsafeFilterExpressionError as exc:
+                raise TransformError(f"Unsafe filter condition: {exc}") from exc
             except Exception as exc:
                 raise TransformError(f"Filter condition failed: {self.condition}: {exc}") from exc
         else:
@@ -99,6 +229,7 @@ class FilterTransform(DataTransform):
                 "dropped_rows": dropped,
                 "drop_pct": drop_pct,
             },
+            context=context,
         )
 
         return result, lineage, warnings

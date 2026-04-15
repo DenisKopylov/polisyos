@@ -136,3 +136,19 @@ def test_refutation_pass_non_dowhy_report_has_no_issues() -> None:
     )
 
     assert RefutationPass().validate(ctx) == []
+
+
+def test_refutation_pass_invalid_report_payload_emits_blocker_for_strict() -> None:
+    ctx = PassContext(
+        ir=None,
+        state={"causal_report": {"invalid": True}},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_refutation_invalid",
+    )
+
+    issues = RefutationPass().validate(ctx)
+
+    assert len(issues) == 1
+    assert issues[0].code == "REFUTATION_CAUSAL_REPORT_INVALID"
+    assert issues[0].severity == IssueSeverity.BLOCKER

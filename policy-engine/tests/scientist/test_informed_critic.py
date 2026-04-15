@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import nullcontext
 
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
@@ -110,6 +111,51 @@ class BudgetOverflowProbe:
         )
 
 
+class _FakeSpan:
+    def __init__(self) -> None:
+        self.attributes: dict[str, object] = {}
+
+    def __enter__(self) -> "_FakeSpan":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> bool:
+        del exc_type, exc, tb
+        return False
+
+    def set_attribute(self, key: str, value: object) -> None:
+        self.attributes[key] = value
+
+
+class _FakeTracer:
+    def __init__(self) -> None:
+        self.last_span: _FakeSpan | None = None
+
+    def start_as_current_span(self, name: str, attributes: dict[str, object]) -> _FakeSpan:
+        del name, attributes
+        self.last_span = _FakeSpan()
+        return self.last_span
+
+
+class _FakeMetrics:
+    def __init__(self) -> None:
+        self.preemptive_catches: list[str] = []
+        self.feasibility_statuses: list[str] = []
+
+    def time_informed_critic(self, attrs: dict[str, str]):
+        del attrs
+        return nullcontext()
+
+    def record_critic_preemptive_catch(self, *, catch_type: str) -> None:
+        self.preemptive_catches.append(catch_type)
+
+    def record_feasibility_query(self, *, duration_seconds: float, status: str) -> None:
+        del duration_seconds
+        self.feasibility_statuses.append(status)
+
+    def set_failure_pattern_index_size(self, size: int) -> None:
+        del size
+
+
 def test_informed_critic_catches_zero_target_before_inner_critic() -> None:
     inner = MockCriticAgent(default_verdict="APPROVE")
     critic = InformedCriticAgent(inner=inner, feasibility_probe=ZeroMatchProbe())
@@ -134,3 +180,38 @@ def test_informed_critic_catches_budget_overflow() -> None:
 
     assert report.verdict == "REJECT"
     assert any("exceeds budget limit" in issue.message for issue in report.issues)
+
+
+def test_informed_critic_accepts_injected_observability(monkeypatch) -> None:
+    def _fail_get_tracer():
+        raise AssertionError("global tracer lookup should not be used")
+
+    def _fail_get_metrics():
+        raise AssertionError("global metrics lookup should not be used")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.informed_critic.get_tracer",
+        _fail_get_tracer,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.informed_critic.get_metrics",
+        _fail_get_metrics,
+    )
+
+    tracer = _FakeTracer()
+    metrics = _FakeMetrics()
+    critic = InformedCriticAgent(
+        inner=MockCriticAgent(default_verdict="APPROVE"),
+        feasibility_probe=BudgetOverflowProbe(),
+        tracer=tracer,
+        metrics=metrics,
+    )
+
+    report = run(critic.critique(_bundle_with_selector("1000", amount="500"), _agent_problem_frame()))
+
+    assert report.verdict == "REJECT"
+    assert "budget_exhausted" in metrics.preemptive_catches
+    assert "ok" in metrics.feasibility_statuses
+    assert "budget" in metrics.feasibility_statuses
+    assert tracer.last_span is not None
+    assert tracer.last_span.attributes["polisyos.critic.verdict"] == "REJECT"

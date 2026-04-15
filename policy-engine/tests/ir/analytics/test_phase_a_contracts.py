@@ -100,6 +100,16 @@ def test_data_readiness_thresholds_block_warn_unknown() -> None:
     assert unknown.can_run_estimation is False
 
 
+def test_data_readiness_marks_malformed_positivity_as_warning_not_absence() -> None:
+    malformed = build_data_readiness_report(
+        positivity={"passes_positivity": "bad"},
+        fallback_data_available=True,
+    )
+
+    assert malformed.decision == "warn"
+    assert "positivity_parse_failed" in malformed.warnings
+
+
 def test_canonical_artifacts_round_trip_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     proof = proof_bundle_from_identification_result(

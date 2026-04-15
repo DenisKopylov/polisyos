@@ -103,11 +103,20 @@ class SmartExpiryPolicy(CachePolicy):
         now = datetime.now(timezone.utc)
 
         if request.date_end:
-            delta_days = (now - request.date_end).days
-            if delta_days <= 7:
+            if request.date_end > now:
+                return now + timedelta(minutes=5)
+
+            if request.date_start and request.date_start <= request.date_end:
+                window_span = request.date_end - request.date_start
+                if request.date_end >= now - timedelta(hours=1) and window_span <= timedelta(days=7):
+                    return now + timedelta(minutes=5)
+
+            delta = now - request.date_end
+            if delta <= timedelta(days=7):
                 return now + timedelta(hours=6)
-            if delta_days <= 365:
+            if delta <= timedelta(days=365):
                 return now + timedelta(days=30)
+            return now + timedelta(days=365)
 
         # Real-time / no date bounds
         return now + timedelta(minutes=5)

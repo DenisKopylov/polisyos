@@ -200,3 +200,59 @@ def test_active_planner_falls_back_to_literature_followup_for_academic_conflict(
 
     assert plan.status == "degraded"
     assert any(action.action_type == "literature_followup" for action in plan.actions)
+
+
+def test_active_planner_clamps_non_finite_scores_to_safe_defaults() -> None:
+    planner = ActiveDisambiguationPlanner()
+    non_finite_score = HypothesisUtilityScore.model_construct(
+        hypothesis_id="h1",
+        identification_status="partial",
+        identifiability_score=float("nan"),
+        stability_score=0.7,
+        transport_status=None,
+        transportability_score=None,
+        estimation_quality_score=None,
+        discovery_consistency_score=None,
+        algebraic_severity=None,
+        disputed_edge_count=None,
+        disputed_edge_fraction=None,
+        composite_score=float("nan"),
+        rank=1,
+        reasons=[],
+        warnings=[],
+        blocking_certificates=[],
+    )
+    plan = planner.plan(
+        ActiveDisambiguationPlannerInput(
+            edge_confidence_matrix=EdgeConfidenceMatrix.model_construct(
+                entries=[
+                    EdgeConfidenceEntry.model_construct(
+                        skeleton_key="X--Y",
+                        edge_key="X->Y",
+                        src="X",
+                        dst="Y",
+                        presence_confidence=0.8,
+                        orientation_confidence=float("nan"),
+                        directional_support={"X->Y": 0.5, "Y->X": 0.45},
+                        orientation_support={"X|tail>arrow|Y": float("nan")},
+                        supporting_hypothesis_ids=["h1"],
+                        disputed=True,
+                        dispute_reasons=["orientation_conflict"],
+                    )
+                ]
+            ),
+            bootstrap_stability_report=_stability(),
+            downstream_utility_report=DownstreamUtilityReport.model_construct(
+                scores=[non_finite_score],
+                recommended_shortlist=["h1"],
+                metadata={},
+            ),
+            hypotheses=[_hypothesis()],
+            graph_prior_bundle=GraphPriorBundle(),
+            prior_knowledge_bundle=PriorKnowledgeBundle(),
+            causal_query=_query(),
+        )
+    )
+
+    assert plan.status == "no_action_needed"
+    assert plan.targets == []

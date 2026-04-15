@@ -82,6 +82,8 @@ nav:
   - Home: index.md
   - Style Guide: style-guide.md
   - Infrastructure SOTA Plan: INFRASTRUCTURE_SOTA_PLAN.md
+  - Ukraine Funding Intelligence Plan: UKRAINE_FUNDING_INTELLIGENCE_PLAN.md
+  - Scientist Audit Remediation Plan: SCIENTIST_AUDIT_REMEDIATION_PLAN.md
 
   - Tutorials:
       - tutorials/index.md
@@ -120,6 +122,10 @@ nav:
       - reference/index.md
       - IR:
           - reference/ir/index.md
+          - reference/ir/public-surface.md
+          - reference/ir/schema-catalog.md
+          - reference/ir/compiler-pipeline.md
+          - reference/ir/interoperability.md
           - reference/ir/governance.md
           - reference/ir/analytics.md
           - reference/ir/observation.md
@@ -129,6 +135,8 @@ nav:
           - reference/foundry/compile-execute.md
           - reference/foundry/calibration.md
           - reference/foundry/methods-catalog.md
+          - reference/foundry/frontier-methods.md
+          - reference/foundry/observability-reproducibility.md
           - reference/foundry/agent-sim.md
           - reference/foundry/state.md
       - Scientist:
@@ -138,6 +146,7 @@ nav:
           - reference/scientist/nodes.md
           - reference/scientist/causal.md
           - reference/scientist/calibration-governance.md
+          - Scientist Agent SOTA Roadmap: reference/scientist/agent-sota-roadmap.md
       - Lex:
           - reference/lex/index.md
           - reference/lex/batch-pipeline.md
@@ -154,6 +163,8 @@ nav:
           - reference/api/runs.md
           - reference/api/control.md
           - reference/api/artifacts.md
+          - reference/api/versioning.md
+          - reference/api/migration-guide.md
       - CLI: reference/cli.md
       - Schemas: reference/schemas.md
       - Public Surface: reference/public-surface.md
@@ -162,16 +173,22 @@ nav:
       - Dependency Platform: reference/dependency-platform.md
       - Environment Matrix: reference/environment-matrix.md
       - Configuration: reference/configuration.md
+      - Configuration Environment Registry: reference/configuration-env-registry.md
       - Configuration Profiles: reference/configuration-profiles.md
+      - Logging and Trace Context: reference/logging.md
+      - Security and Compliance Operations: reference/security-compliance.md
       - Ownership: reference/ownership.md
       - Quality Gates: reference/quality-gates.md
       - Merge Governance: reference/merge-governance.md
       - Ratchet Policy: reference/ratchet-policy.md
+      - Platform Changelog: reference/changelog.md
       - Operations:
           - reference/operations/index.md
+          - Platform Architecture Diagrams: reference/operations/platform-architecture-diagrams.md
           - SLO and Error Budget: reference/operations/slo-error-budget.md
           - Observability Topology: reference/operations/observability-topology.md
           - Retention and Recovery: reference/operations/retention-and-recovery.md
+          - CAS Async I/O Roadmap: reference/operations/cas-async-io-roadmap.md
           - Handoff and Platform Review: reference/operations/handoff-and-platform-review.md
           - Platform Acceptance Audit: reference/operations/platform-acceptance-audit.md
 
@@ -210,11 +227,18 @@ nav:
       - runbooks/index.md
       - Dependency Upgrade Regression: runbooks/dependency-upgrade-regression.md
       - Runtime API Outage: runbooks/runtime-api-outage.md
+      - CAS or OPA Outage: runbooks/cas-opa-outage.md
       - Broken Contract Generation: runbooks/broken-contract-generation.md
       - Artifact Signing or SBOM Failure: runbooks/artifact-signing-sbom-failure.md
+      - Key Rotation: runbooks/key-rotation.md
       - Canary Rollback or Failed Promotion: runbooks/canary-rollback-or-promotion-failure.md
+      - Idempotency Incident: runbooks/idempotency-incident.md
+      - Mutation Audit Investigation: runbooks/mutation-audit-investigation.md
+      - Cache Rebuild Storm: runbooks/cache-rebuild-storm.md
+      - Runtime Graceful Shutdown or Stuck Background Worker: runbooks/runtime-graceful-shutdown-and-stuck-worker.md
       - Replay or Restore Workflow: runbooks/replay-or-restore.md
       - Retained Artifact Recovery: runbooks/retained-artifact-recovery.md
+      - Artifact Corruption Recovery: runbooks/artifact-corruption-recovery.md
       - Docs Publication Failure: runbooks/docs-publication-failure.md
       - Benchmark Regression Triage: runbooks/benchmark-regression-triage.md
 
@@ -312,4 +336,11 @@ nav:
       - adr/0094-confidence-ordinal-quality-score.md
       - adr/0095-canonical-scm-test-fixtures.md
       - adr/0096-canonical-product-root-and-workspace-boundary.md
+      - adr/0097-runtime-rate-limiting-and-idempotency.md
+      - adr/0098-cas-abstraction-boundary.md
+      - adr/0099-runtime-lifecycle-and-di-container.md
+      - adr/0100-runtime-api-versioning-and-deprecation-policy.md
+      - adr/0101-runtime-audit-trail-model.md
+      - adr/0102-key-rotation-lifecycle-and-trust-store-policy.md
+      - adr/0103-async-cas-adapter-roadmap.md
       - adr/ADR-004-policy-surface-removal.md

@@ -1,12 +1,13 @@
 """Define causal effect reports, proof bundles, and readiness diagnostics."""
 from __future__ import annotations
 
-import math
+import logging
 from enum import Enum
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir._validation import ensure_confidence_interval, ensure_finite_numeric
 from polisyos.ir.analytics.estimand import SideConditionKind
 from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.analytics.uncertainty import (
@@ -24,6 +25,8 @@ from polisyos.ir.refs import (
     ProofBundleRef,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class CausalMethod(str, Enum):
     """Declare which estimator family produced a ``CausalEffectReport``.
@@ -39,6 +42,9 @@ class CausalMethod(str, Enum):
     DOWHY_BACKDOOR = "dowhy_backdoor"
     DOWHY_IV = "dowhy_iv"
     DOWHY_FRONTDOOR = "dowhy_frontdoor"
+    PROXIMAL_BRIDGE = "proximal_bridge"
+    DISTRIBUTIONAL_TREATMENT_EFFECT = "distributional_treatment_effect"
+    INTERFERENCE_CATE = "interference_cate"
     CAUSAL_FOREST = "causal_forest"
     FOREST_DR = "forest_dr"
     CAUSAL_BCF = "causal_bcf"
@@ -200,20 +206,18 @@ class CausalEffectReport(BaseModel):
                 raise ValueError("confidence_interval is required for successful estimates")
 
         if self.confidence_interval is not None:
-            lo, hi = self.confidence_interval
-            if not math.isfinite(lo) or not math.isfinite(hi):
-                raise ValueError("confidence_interval bounds must be finite")
-            if lo > hi:
-                raise ValueError("confidence_interval lower bound cannot exceed upper bound")
-            if self.point_estimate is not None and not (lo <= self.point_estimate <= hi):
-                raise ValueError("point_estimate must lie inside confidence_interval")
+            ensure_confidence_interval(
+                self.confidence_interval,
+                label="confidence_interval",
+                point_estimate=self.point_estimate,
+            )
 
-        if self.point_estimate is not None and not math.isfinite(self.point_estimate):
-            raise ValueError("point_estimate must be finite")
-        if self.standard_error is not None and not math.isfinite(self.standard_error):
-            raise ValueError("standard_error must be finite")
-        if self.effect_size_cohen_d is not None and not math.isfinite(self.effect_size_cohen_d):
-            raise ValueError("effect_size_cohen_d must be finite")
+        if self.point_estimate is not None:
+            ensure_finite_numeric(self.point_estimate, field_name="point_estimate")
+        if self.standard_error is not None:
+            ensure_finite_numeric(self.standard_error, field_name="standard_error")
+        if self.effect_size_cohen_d is not None:
+            ensure_finite_numeric(self.effect_size_cohen_d, field_name="effect_size_cohen_d")
         return self
 
     def to_uncertainty_envelope(self) -> UncertaintyEnvelope | None:
@@ -551,10 +555,12 @@ def build_data_readiness_report(
     extra_metrics: dict[str, float] | None = None,
 ) -> DataReadinessReport:
     """Aggregate existing causal diagnostics into a canonical readiness gate."""
-    positivity_report = _normalize_positivity(positivity)
+    positivity_report, positivity_warning = _normalize_positivity(positivity)
     metrics = dict(extra_metrics or {})
     blocking_reasons: list[str] = []
     warnings: list[str] = []
+    if positivity_warning is not None:
+        warnings.append(positivity_warning)
 
     if positivity_report is not None:
         metrics.setdefault("ess_fraction", positivity_report.ess_fraction)
@@ -581,7 +587,11 @@ def build_data_readiness_report(
             try:
                 metrics.setdefault("support_mismatch_score", float(support_score))
             except (TypeError, ValueError):
-                pass
+                warnings.append("support_mismatch_score_invalid")
+                logger.warning(
+                    "Data readiness report received non-numeric support_mismatch_score=%r",
+                    support_score,
+                )
         if not passes_support:
             blocking_reasons.append("support_mismatch_failed")
 
@@ -598,7 +608,12 @@ def build_data_readiness_report(
     if not fallback_data_available:
         warnings.append("fallback_arrays_unavailable")
 
-    if positivity_report is None and support_mismatch is None and sample_size is None:
+    if (
+        positivity_report is None
+        and positivity is None
+        and support_mismatch is None
+        and sample_size is None
+    ):
         decision: Literal["pass", "warn", "block", "unknown"] = "unknown"
     elif blocking_reasons:
         decision = "block"
@@ -625,15 +640,16 @@ def build_data_readiness_report(
 
 def _normalize_positivity(
     positivity: PositivityDiagnosticReport | dict[str, Any] | None,
-) -> PositivityDiagnosticReport | None:
+) -> tuple[PositivityDiagnosticReport | None, str | None]:
     if positivity is None:
-        return None
+        return None, None
     if isinstance(positivity, PositivityDiagnosticReport):
-        return positivity
+        return positivity, None
     try:
-        return PositivityDiagnosticReport.model_validate(positivity)
-    except Exception:
-        return None
+        return PositivityDiagnosticReport.model_validate(positivity), None
+    except (TypeError, ValueError) as exc:
+        logger.warning("Failed to parse positivity payload for readiness report: %s", exc)
+        return None, "positivity_parse_failed"
 
 
 def _status_value(status: Any) -> str:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -17,6 +17,8 @@ class ToolDefinition(BaseModel):
     parameters: dict[str, Any]  # JSON Schema object
     domain: str = ""  # "datasets" | "academic" | "legal"
     timeout_s: float = Field(default=30.0, ge=1.0, le=600.0)
+    response_verbosity: Literal["concise", "detailed"] = "detailed"
+    response_max_chars: int | None = Field(default=None, ge=64, le=2_000_000)
 
     def to_openai_tool(self) -> dict[str, Any]:
         """Convert to OpenAI function-calling format."""

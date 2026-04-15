@@ -10,6 +10,7 @@ From the executor's perspective this is just another ``Node``.
 from __future__ import annotations
 
 import logging
+from copy import deepcopy
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -21,6 +22,7 @@ from polisyos.scientist.engine.errors import EngineError
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.engine.workflow_spec import ErrorPolicy, WorkflowSpec
 
 logger = get_logger(__name__)
@@ -58,12 +60,10 @@ class SubWorkflowConfig(BaseModel):
 # ---------------------------------------------------------------------------
 
 def _resolve_path(state: ExperimentState, path: str) -> Any:
-    from pydantic import BaseModel as _BM
-
     parts = path.split(".")
     current: Any = state
     for part in parts:
-        if isinstance(current, _BM):
+        if isinstance(current, BaseModel):
             current = getattr(current, part, None)
         elif isinstance(current, dict):
             current = current.get(part)
@@ -90,6 +90,36 @@ def _write_to_state(state: ExperimentState, path: str, value: Any) -> None:
         state.artifacts_index[parts[1]] = value
     else:
         _set_nested(state.params, parts, value)
+
+
+def _normalize_path(path: str) -> tuple[str, ...]:
+    return tuple(part for part in path.split(".") if part)
+
+
+def _validate_output_target_path(path: str) -> str | None:
+    parts = _normalize_path(path)
+    if not parts:
+        return "Output mapping target_path must not be empty"
+    if parts[0] == "params":
+        if len(parts) < 2:
+            return "Output mapping target_path 'params' must include a nested key"
+        return None
+    if parts[0] == "inputs":
+        if len(parts) != 2:
+            return "Output mapping target_path 'inputs' must target exactly one key"
+        return None
+    if parts[0] == "artifacts_index":
+        if len(parts) != 2:
+            return (
+                "Output mapping target_path 'artifacts_index' must target exactly one key"
+            )
+        return None
+    return None
+
+
+def _paths_overlap(left: tuple[str, ...], right: tuple[str, ...]) -> bool:
+    shared = min(len(left), len(right))
+    return left[:shared] == right[:shared]
 
 
 # ---------------------------------------------------------------------------
@@ -131,6 +161,17 @@ class SubWorkflowNode:
         )
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        if ctx.depth < 0:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="sub_workflow.invalid_depth",
+                    message=f"Execution context depth must be non-negative, got {ctx.depth}",
+                    details={"depth": ctx.depth},
+                ),
+            )
+
         # Depth check
         if ctx.depth + 1 > self._config.max_depth:
             return NodeOutcome(
@@ -186,13 +227,6 @@ class SubWorkflowNode:
                 ),
             )
 
-        # Map child output state back to parent
-        merged_state = state.model_copy(deep=True)
-        for mapping in self._config.output_mappings:
-            value = _resolve_path(result.state, mapping.source_path)
-            if value is not None:
-                _write_to_state(merged_state, mapping.target_path, value)
-
         # Collect child artifacts
         child_artifacts = []
         for node_record in result.report.nodes:
@@ -203,7 +237,7 @@ class SubWorkflowNode:
         if child_status == "fail":
             return NodeOutcome(
                 status="fail",
-                state=merged_state,
+                state=state,
                 error=NodeError(
                     code="sub_workflow.child_failed",
                     message=f"Child workflow completed with status: {child_status}",
@@ -215,6 +249,61 @@ class SubWorkflowNode:
                     code="sub_workflow.failed",
                 )],
             )
+
+        staged_outputs: list[tuple[str, tuple[str, ...], Any]] = []
+        for mapping in self._config.output_mappings:
+            value = _resolve_path(result.state, mapping.source_path)
+            if value is None:
+                continue
+            target_parts = _normalize_path(mapping.target_path)
+            path_error = _validate_output_target_path(mapping.target_path)
+            if path_error is not None:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code="sub_workflow.invalid_output_mapping",
+                        message=path_error,
+                        details={
+                            "alias": self._alias,
+                            "source_path": mapping.source_path,
+                            "target_path": mapping.target_path,
+                        },
+                    ),
+                )
+            for existing_path, existing_parts, _ in staged_outputs:
+                if _paths_overlap(existing_parts, target_parts):
+                    return NodeOutcome(
+                        status="fail",
+                        state=state,
+                        error=NodeError(
+                            code="sub_workflow.output_conflict",
+                            message=(
+                                "Conflicting sub-workflow output mappings target overlapping "
+                                f"paths: {existing_path!r} and {mapping.target_path!r}"
+                            ),
+                            details={
+                                "alias": self._alias,
+                                "conflict_paths": [existing_path, mapping.target_path],
+                            },
+                        ),
+                        events=[NodeEvent(
+                            level="error",
+                            message=(
+                                "Sub-workflow output mappings conflict on overlapping "
+                                "target paths"
+                            ),
+                            code="sub_workflow.output_conflict",
+                        )],
+                    )
+            staged_outputs.append((mapping.target_path, target_parts, deepcopy(value)))
+
+        merged_state = branch_state(
+            state,
+            write_paths=(path for path, _, _ in staged_outputs),
+        ).state
+        for target_path, _, value in staged_outputs:
+            _write_to_state(merged_state, target_path, value)
 
         events = [
             NodeEvent(

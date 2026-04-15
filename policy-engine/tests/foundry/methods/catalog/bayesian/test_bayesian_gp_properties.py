@@ -39,10 +39,7 @@ class TestGaussianProcessProperties:
     @settings(max_examples=15, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_gp_regression_output_finite(self, data, isolated_registry):
         fqn = "bayesian.gp.gp_regression@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"features": data["X"], "target": data["y"]}
         try:
             result = method.pure_step(state, {"kernel": "rbf", "seed": 42})
@@ -56,10 +53,7 @@ class TestGaussianProcessProperties:
     def test_gp_predictive_variance_positive(self, data, isolated_registry):
         """GP predictive variance should be non-negative."""
         fqn = "bayesian.gp.gp_regression@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"features": data["X"], "target": data["y"]}
         try:
             result = method.pure_step(state, {"kernel": "rbf", "seed": 0})
@@ -74,10 +68,7 @@ class TestGaussianProcessProperties:
     @settings(max_examples=10, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_gp_deterministic_same_seed(self, data, isolated_registry):
         fqn = "bayesian.gp.gp_regression@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"features": data["X"], "target": data["y"]}
         try:
             r1 = method.pure_step(state, {"seed": 42})
@@ -92,10 +83,7 @@ class TestVariationalInferenceProperties:
     @settings(max_examples=15, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_mean_field_vi_output_dict(self, data, isolated_registry):
         fqn = "bayesian.variational.mean_field_vi@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"features": data["X"], "target": data["y"]}
         try:
             result = method.pure_step(state, {"n_iterations": 100, "seed": 42})
@@ -108,10 +96,7 @@ class TestVariationalInferenceProperties:
     def test_elbo_is_finite(self, data, isolated_registry):
         """ELBO (Evidence Lower BOund) should be finite after convergence."""
         fqn = "bayesian.variational.mean_field_vi@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"features": data["X"], "target": data["y"]}
         try:
             result = method.pure_step(state, {"n_iterations": 200, "seed": 0})

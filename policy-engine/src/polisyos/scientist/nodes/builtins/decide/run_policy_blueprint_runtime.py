@@ -3,18 +3,24 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import Any
+
+from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry.methods.catalog.causal.strategic import (
+    build_strategic_response_bundle,
+    solve_strategic_response,
+    strategic_result_summary,
+)
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     load_abstraction_certificate,
 )
-from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile
+from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceKind
 from polisyos.ir.analytics.strategic import (
     EquilibriumSelectionSummary,
     EquilibriumSetSummary,
@@ -40,36 +46,61 @@ from polisyos.scientist.autotune.models import (
     BenchmarkSplit,
     persist_benchmark_evaluation,
 )
+from polisyos.scientist.backtesting.adversarial import (
+    ABSTRACTION_LEAKAGE_SUITE_ID,
+    MULTIPLICITY_DISCLOSURE_SUITE_ID,
+    PHASE_D4_ROTATION_GROUP,
+    STRATEGIC_GAMING_SUITE_ID,
+    run_phase_d4_challenge_suites,
+)
+from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.evidence_sources import (
     build_path_source_status,
-    normalize_evidence_sources_config,
 )
-from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import _is_policy_mode
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     StrategicRuntimeOutput as _SharedStrategicRuntimeOutput,
+)
+from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     build_blocked_strategic_summary as _shared_build_blocked_strategic_summary,
+)
+from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     build_runtime_abstraction_metadata as _shared_build_runtime_abstraction_metadata,
+)
+from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     load_runtime_abstraction_certificate as _shared_load_runtime_abstraction_certificate,
+)
+from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     persist_runtime_strategic_artifacts as _shared_persist_runtime_strategic_artifacts,
+)
+from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     resolve_baseline_policy_value as _shared_selection_baseline_policy_value,
+)
+from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     resolve_existing_strategic_output as _shared_resolve_existing_strategic_output,
+)
+from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import _is_policy_mode
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_request import (
+    resolve_policy_runtime_request,
+)
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import (
+    load_predictive_voi_scheduler,
+    maybe_artifact_ref,
+    persist_predictive_voi_scheduler,
+    policy_runtime_input_signature,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     ProductionPolicyEvaluationBackend,
     build_policy_runtime_evaluation,
     build_selection_benchmark_evaluation,
     build_vulnerabilities,
-    ensure_policy_candidate_ref,
     load_benchmark_evaluation,
     load_causal_report,
-    load_cross_graph_profile,
     load_distributional_report_for_state,
     load_governance_report,
-    load_simulation_metrics,
-    load_search_uncertainty,
     persist_policy_evaluation_vector,
     run_promotion_with_evidence,
 )
@@ -86,13 +117,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_PROMOTION_EVIDENCE_BUNDLE_REF,
 )
-from polisyos.foundry.methods.catalog.causal.strategic import (
-    build_strategic_response_bundle,
-    solve_strategic_response,
-    strategic_result_summary,
-)
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+from polisyos.scientist.replay.verification import ReplayRegistry, verify_and_persist_replay_bundle
 from polisyos.scientist.search.actionable_side_information import resolve_actionable_store
 from polisyos.scientist.search.adversarial import (
     PlatformMetaEvaluationInput,
@@ -100,8 +127,8 @@ from polisyos.scientist.search.adversarial import (
     load_platform_meta_evaluation_report,
     persist_platform_meta_evaluation_report,
 )
+from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
 from polisyos.scientist.search.calibration_report import (
-    FunnelCalibrationReport,
     build_calibration_report,
     load_funnel_calibration_report,
     persist_funnel_calibration_report,
@@ -116,8 +143,6 @@ from polisyos.scientist.search.funnel.level5_refutation_governance import (
 )
 from polisyos.scientist.search.funnel.level6_promotion import Level6PromotionStage
 from polisyos.scientist.search.funnel.orchestrator import FunnelOrchestrator, FunnelOutcome
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
-from polisyos.scientist.replay.verification import ReplayRegistry, verify_and_persist_replay_bundle
 from polisyos.scientist.search.lessons import LessonRegistry
 from polisyos.scientist.search.promotion_evidence import (
     PromotionEvidenceBundle,
@@ -125,22 +150,17 @@ from polisyos.scientist.search.promotion_evidence import (
     persist_promotion_evidence_bundle,
 )
 from polisyos.scientist.search.stages import CorrelationTracker
-from polisyos.scientist.search.voi_scheduler import (
-    PredictiveVOIScheduler,
-    VOIModelSnapshot,
-    VOITrainingConfig,
-)
-from polisyos.scientist.backtesting.adversarial import (
-    ABSTRACTION_LEAKAGE_SUITE_ID,
-    MULTIPLICITY_DISCLOSURE_SUITE_ID,
-    PHASE_D4_ROTATION_GROUP,
-    STRATEGIC_GAMING_SUITE_ID,
-    ChallengeSuiteResult,
-    run_phase_d4_challenge_suites,
-)
-from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.workflows.engine_base import WorkflowEngine
-from polisyos.ir.analytics.cross_graph import EvidenceSourceKind
+
+_POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
+_POLICY_RUNTIME_LOAD_ERRORS = (
+    AttributeError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_policy_blueprint_runtime@1.0.0"),
@@ -291,28 +311,24 @@ class RunPolicyBlueprintRuntimeNode:
         if not _is_policy_mode(state):
             return NodeOutcome(status="skip", state=state)
 
-        from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
-            _resolve_candidate,
-        )
-
-        candidate, candidate_ref = _resolve_candidate(ctx, state)
-        if candidate is None:
+        runtime_request = resolve_policy_runtime_request(ctx, state)
+        if runtime_request is None:
             return NodeOutcome(status="skip", state=state)
-        candidate_ref = ensure_policy_candidate_ref(ctx, state, candidate, candidate_ref)
-
-        uncertainty_envelope = load_search_uncertainty(ctx, state)
-        governance_report = load_governance_report(ctx, state)
-        causal_report = load_causal_report(ctx, state)
-        distributional_report = load_distributional_report_for_state(ctx, state)
-        cross_graph_profile = load_cross_graph_profile(ctx, state)
-        evidence_sources = normalize_evidence_sources_config(state.params)
+        candidate = runtime_request.candidate
+        candidate_ref = runtime_request.candidate_ref
+        uncertainty_envelope = runtime_request.uncertainty_envelope
+        governance_report = runtime_request.governance_report
+        causal_report = runtime_request.causal_report
+        distributional_report = runtime_request.distributional_report
+        cross_graph_profile = runtime_request.cross_graph_profile
+        evidence_sources = runtime_request.evidence_sources
         runtime_source_statuses = _resolve_policy_runtime_source_statuses(
             cross_graph_profile=cross_graph_profile,
             evidence_sources=evidence_sources,
         )
-        simulation_metrics = load_simulation_metrics(ctx, state) or None
+        simulation_metrics = runtime_request.simulation_metrics
         runtime_backend = ProductionPolicyEvaluationBackend()
-        input_signature = _policy_runtime_input_signature(
+        input_signature = policy_runtime_input_signature(
             candidate_ref=candidate_ref,
             state=state,
         )
@@ -645,7 +661,7 @@ class RunPolicyBlueprintRuntimeNode:
                 store=ctx.store,
             ),
         }
-        predictive_voi = _load_predictive_voi_scheduler(
+        predictive_voi = load_predictive_voi_scheduler(
             ctx,
             transfer_context=transfer_context,
         )
@@ -726,7 +742,7 @@ class RunPolicyBlueprintRuntimeNode:
 
         ticket = orchestrator.submit(_candidate_search_payload(candidate, state), funnel_context)
         outcome = orchestrator.advance(ticket, policy="full")
-        _persist_predictive_voi_scheduler(
+        persist_predictive_voi_scheduler(
             ctx,
             transfer_context=transfer_context,
             scheduler=predictive_voi,
@@ -787,7 +803,24 @@ class RunPolicyBlueprintRuntimeNode:
             ],
         )
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=(
+                "artifacts_index",
+                "params.policy_candidate_ref",
+                "params.policy_evaluation",
+                "params.policy_evaluation_ref",
+                "params.promotion_evidence_bundle_ref",
+                "params.funnel_outcome",
+                "params._funnel_outcome",
+                "params.policy_level5_gate",
+                "params.policy_runtime_source_statuses",
+                "params.audit_refs",
+                "params.actionable_side_information_refs",
+                "params.strategic_response",
+                "params.strategic_response_source",
+            ),
+        ).state
         new_state.artifacts_index.update(runtime_artifacts_index)
         new_state.params["policy_candidate_ref"] = candidate_ref.model_dump(mode="json")
         new_state.params["policy_evaluation"] = final_evaluation_vector.model_dump(mode="json")
@@ -995,7 +1028,7 @@ def _persist_runtime_strategic_artifacts(
         macro_payoff_tables = (
             None if macro_payload is None else _coerce_runtime_payoff_tables(macro_payload)
         )
-    except Exception as exc:
+    except _POLICY_RUNTIME_VALIDATION_ERRORS as exc:
         return _StrategicRuntimeOutput(
             strategic_response_summary=_build_blocked_strategic_summary(
                 blocked_reason="strategic_runtime_invalid_input",
@@ -1193,7 +1226,7 @@ def _persist_runtime_strategic_artifacts(
             strategic_response_summary=summary,
             warnings=tuple(str(item) for item in result.warnings),
         )
-    except Exception as exc:
+    except _POLICY_RUNTIME_LOAD_ERRORS as exc:
         return _StrategicRuntimeOutput(
             strategic_response_summary=_build_blocked_strategic_summary(
                 blocked_reason="strategic_runtime_persistence_failed",
@@ -1281,7 +1314,7 @@ def _compare_existing_payoff_refs(
     try:
         for agent, ref in refs.items():
             loaded_tables[agent] = load_strategic_payoff_table(ctx.store, ref)
-    except Exception:
+    except _POLICY_RUNTIME_LOAD_ERRORS:
         return "unreadable_ref"
     if set(loaded_tables) != set(raw_tables):
         return "mismatch"
@@ -1320,7 +1353,7 @@ def _selection_baseline_policy_value(selection_artifact: Any) -> float | None:
         if raw is not None:
             try:
                 return float(raw)
-            except Exception:
+            except _POLICY_RUNTIME_VALIDATION_ERRORS:
                 return None
     return None
 
@@ -1337,7 +1370,7 @@ def _load_runtime_abstraction_certificate(
             ctx.store,
             ref,
         )
-    except Exception:
+    except _POLICY_RUNTIME_LOAD_ERRORS:
         return None
 
 
@@ -1610,7 +1643,7 @@ def _register_runtime_benchmark_inputs(
     hidden_holdout_ref = (
         evidence_bundle.hidden_holdout_evaluation_ref
         if evidence_bundle is not None
-        else _maybe_artifact_ref(state.params.get("hidden_holdout_evaluation_ref"))
+        else maybe_artifact_ref(state.params.get("hidden_holdout_evaluation_ref"))
     )
     _maybe_register_benchmark_evaluation(
         ctx,
@@ -1630,7 +1663,7 @@ def _register_runtime_benchmark_inputs(
         else [
             ref
             for ref in (
-                _maybe_artifact_ref(item)
+                maybe_artifact_ref(item)
                 for item in (state.params.get("rotating_challenge_evaluation_refs") or [])
             )
             if ref is not None
@@ -2049,33 +2082,6 @@ def _load_stress_test_report(
     return StressTestReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
 
 
-def _maybe_artifact_ref(value: Any) -> ArtifactRef | None:
-    if isinstance(value, ArtifactRef):
-        return value
-    if isinstance(value, dict):
-        try:
-            return ArtifactRef.model_validate(value)
-        except Exception:
-            return None
-    return None
-
-
-def _policy_runtime_input_signature(
-    *,
-    candidate_ref: ArtifactRef,
-    state: ExperimentState,
-) -> str:
-    parts = [
-        str(candidate_ref.artifact_id),
-        str(state.artifacts_index.get("causal_report_ref", "")),
-        str(state.artifacts_index.get("distributional_report_ref", "")),
-        str(state.artifacts_index.get("cross_graph_evidence_profile_ref", "")),
-        str(state.artifacts_index.get("causal_envelope_ref", "")),
-        str(state.reports_index.get("governance_report_ref", "")),
-    ]
-    return "|".join(parts)
-
-
 def _extract_level4_policy_runtime_provenance(
     context: dict[str, Any],
 ) -> dict[str, Any]:
@@ -2141,50 +2147,6 @@ def _resolve_runtime_policy_evaluation(
         evaluation_vector=evaluation,
     )
     return evaluation, ref
-
-
-def _predictive_voi_snapshot_path(
-    ctx: ExecutionContext,
-    *,
-    transfer_context: dict[str, Any],
-) -> Path:
-    task_family = str(transfer_context.get("task_family") or "policy").strip() or "policy"
-    domain = str(transfer_context.get("domain") or "unknown").strip() or "unknown"
-    tenant_scope = str(transfer_context.get("tenant_hash") or "global").strip() or "global"
-    safe_name = (
-        f"{task_family}::{domain}::{tenant_scope}"
-        .replace("/", "_")
-        .replace("\\", "_")
-        .replace(":", "_")
-    )
-    return Path(ctx.store.root) / "search_registry" / "voi" / f"{safe_name}.json"
-
-
-def _load_predictive_voi_scheduler(
-    ctx: ExecutionContext,
-    *,
-    transfer_context: dict[str, Any],
-) -> PredictiveVOIScheduler:
-    path = _predictive_voi_snapshot_path(ctx, transfer_context=transfer_context)
-    if not path.exists():
-        return PredictiveVOIScheduler(training_config=VOITrainingConfig(cross_domain_weight=0.0))
-    snapshot = VOIModelSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
-    return PredictiveVOIScheduler.from_snapshot(snapshot)
-
-
-def _persist_predictive_voi_scheduler(
-    ctx: ExecutionContext,
-    *,
-    transfer_context: dict[str, Any],
-    scheduler: PredictiveVOIScheduler,
-) -> None:
-    path = _predictive_voi_snapshot_path(ctx, transfer_context=transfer_context)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload = scheduler.snapshot().model_dump_json(indent=2)
-    with NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as tmp:
-        tmp.write(payload)
-        temp_path = Path(tmp.name)
-    temp_path.replace(path)
 
 
 __all__ = ["RunPolicyBlueprintRuntimeNode"]

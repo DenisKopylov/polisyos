@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any, Iterable
 
 import jax
+import jax.numpy as jnp
 
 from polisyos.foundry.agent_sim.distributions import (
     DistributionConfig,
@@ -61,8 +62,8 @@ class GraphAwareExecutor(PureExecutor):
         should_update = (state.time_step % self.graph_update_frequency) == 0
 
         def _update(s: GlobalState) -> GlobalState:
-            key = jax.random.fold_in(s.rng_key, int(self.graph_update_salt))
-            key = jax.random.fold_in(key, int(s.time_step))
+            key = jax.random.fold_in(s.rng_key, jnp.asarray(self.graph_update_salt, dtype=jnp.uint32))
+            key = jax.random.fold_in(key, jnp.asarray(s.time_step, dtype=jnp.uint32))
             graph = s.graph
             if hasattr(s.graph.edges, "active"):
                 graph = self.graph_updater.update_graph(s.graph, s.agents, key)

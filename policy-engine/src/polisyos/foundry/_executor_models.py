@@ -8,7 +8,7 @@ from io import BytesIO
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from polisyos.core.artifacts.environment import EnvironmentManifestRef
 from polisyos.core.artifacts.ids import ArtifactID
@@ -16,11 +16,13 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ConstraintReportRef
+from polisyos.foundry.methods.exceptions import StatePathTraversalError
 
 __all__ = [
     "ExecuteArtifacts",
     "ApplyArtifacts",
     "FailureSeverity",
+    "FailureKind",
     "FailureCard",
     "ExecutionStrictness",
     "artifact_id",
@@ -41,18 +43,38 @@ class FailureSeverity(str, Enum):
     DEGRADED = "degraded"
 
 
+class FailureKind(str, Enum):
+    """Typed failure family used for executor diagnostics."""
+
+    VALIDATION = "validation"
+    CONTRACT = "contract"
+    SELECTOR = "selector"
+    PATH = "path"
+    LIFECYCLE = "lifecycle"
+    ROUTING = "routing"
+    BACKEND = "backend"
+    NUMERICAL = "numerical"
+    DEPENDENCY = "dependency"
+    INTERNAL = "internal"
+
+
 class FailureCard(BaseModel, frozen=True, extra="forbid"):
     """Structured failure report for a method node execution."""
 
     node_id: str
     method_fqn: str
     severity: FailureSeverity
+    failure_kind: FailureKind = FailureKind.INTERNAL
     error_type: str
     error_message: str
     traceback_hash: str
     timestamp: float
     retry_eligible: bool
     suggested_fallback: str | None = None
+    mechanism_type: str | None = None
+    op_kind: str | None = None
+    slot_context: tuple[str, ...] = ()
+    details: dict[str, Any] = Field(default_factory=dict)
 
 
 class ExecutionStrictness(str, Enum):
@@ -73,6 +95,7 @@ class ExecuteArtifacts:
     environment_ref: EnvironmentManifestRef | None = None
     environment_fingerprint: str | None = None
     failure_cards: tuple[FailureCard, ...] = ()
+    degradation_cards: tuple[FailureCard, ...] = ()
     is_degraded: bool = False
     provenance: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
@@ -140,18 +163,87 @@ def load_tensor(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> np
 
 def get_state_path(obj: Any, path: str) -> Any:
     """Return state path."""
+    if not isinstance(path, str) or not path.strip():
+        raise StatePathTraversalError(str(path), operation="read")
     current = obj
-    for part in path.split("."):
+    for index, part in enumerate(path.split(".")):
+        if not part:
+            raise StatePathTraversalError(
+                path,
+                segment=part,
+                segment_index=index,
+                current_type=type(current).__name__,
+                operation="read",
+            )
+        if not hasattr(current, part):
+            raise StatePathTraversalError(
+                path,
+                segment=part,
+                segment_index=index,
+                current_type=type(current).__name__,
+                operation="read",
+            )
         current = getattr(current, part)
     return current
 
 
 def set_state_path(obj: Any, path: str, value: Any) -> Any:
     """Set state path helper."""
-    parts = path.split(".")
+    if not isinstance(path, str) or not path.strip():
+        raise StatePathTraversalError(str(path), operation="write")
+    return _set_state_path_parts(obj, path, path.split("."), value, segment_offset=0)
+
+
+def _set_state_path_parts(
+    obj: Any,
+    full_path: str,
+    parts: list[str],
+    value: Any,
+    *,
+    segment_offset: int,
+) -> Any:
     if len(parts) == 1:
-        return obj.replace(**{parts[0]: value})
+        segment = parts[0]
+        if not segment or not hasattr(obj, segment):
+            raise StatePathTraversalError(
+                full_path,
+                segment=segment,
+                segment_index=segment_offset,
+                current_type=type(obj).__name__,
+                operation="write",
+            )
+        if not hasattr(obj, "replace"):
+            raise StatePathTraversalError(
+                full_path,
+                segment=segment,
+                segment_index=segment_offset,
+                current_type=type(obj).__name__,
+                operation="write",
+            )
+        return obj.replace(**{segment: value})
     head, tail = parts[0], parts[1:]
+    if not head or not hasattr(obj, head):
+        raise StatePathTraversalError(
+            full_path,
+            segment=head,
+            segment_index=segment_offset,
+            current_type=type(obj).__name__,
+            operation="write",
+        )
     child = getattr(obj, head)
-    updated = set_state_path(child, ".".join(tail), value)
+    updated = _set_state_path_parts(
+        child,
+        full_path,
+        tail,
+        value,
+        segment_offset=segment_offset + 1,
+    )
+    if not hasattr(obj, "replace"):
+        raise StatePathTraversalError(
+            full_path,
+            segment=head,
+            segment_index=segment_offset,
+            current_type=type(obj).__name__,
+            operation="write",
+        )
     return obj.replace(**{head: updated})

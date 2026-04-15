@@ -144,6 +144,39 @@ class EvolutionReport(BaseModel):
         return [c for c in self.changes if not c.is_breaking]
 
 
+class MigrationOperation(BaseModel):
+    """One generated migration step."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    action: str
+    field_name: str | None = None
+    sql: str | None = None
+    safe: bool = True
+    reason: str = ""
+
+
+class MigrationPlan(BaseModel):
+    """DuckDB/world projection migration guidance built from schema diffs."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    table_name: str
+    source_schema_id: str
+    source_version: str
+    target_version: str
+    operations: tuple[MigrationOperation, ...]
+    safe_to_apply: bool
+
+    @property
+    def sql_statements(self) -> tuple[str, ...]:
+        return tuple(
+            operation.sql
+            for operation in self.operations
+            if operation.sql
+        )
+
+
 class SchemaEvolution:
     """
     Analyzes and tracks schema evolution.
@@ -460,26 +493,54 @@ class SchemaEvolution:
             src_min, src_max = source.bounds
             tgt_min, tgt_max = target.bounds
 
-            relaxed = True
-            if tgt_min is not None and (src_min is None or tgt_min > src_min):
-                relaxed = False
-            if tgt_max is not None and (src_max is None or tgt_max < src_max):
-                relaxed = False
+            relaxed = False
+            tightened = False
 
-            changes.append(
-                SchemaChange(
-                    change_type=
-                    ChangeType.BOUNDS_RELAXED if relaxed else ChangeType.BOUNDS_TIGHTENED,
-                    field_name=name,
-                    old_value=str(source.bounds),
-                    new_value=str(target.bounds),
-                    description=
-                    f"Field '{name}' bounds {'relaxed' if relaxed else 'tightened'} from {source.bounds} to {target.bounds}",
+            if src_min is None and tgt_min is not None:
+                tightened = True
+            elif src_min is not None and tgt_min is None:
+                relaxed = True
+            elif src_min is not None and tgt_min is not None:
+                if tgt_min < src_min:
+                    relaxed = True
+                elif tgt_min > src_min:
+                    tightened = True
+
+            if src_max is None and tgt_max is not None:
+                tightened = True
+            elif src_max is not None and tgt_max is None:
+                relaxed = True
+            elif src_max is not None and tgt_max is not None:
+                if tgt_max > src_max:
+                    relaxed = True
+                elif tgt_max < src_max:
+                    tightened = True
+
+            if relaxed:
+                changes.append(
+                    SchemaChange(
+                        change_type=ChangeType.BOUNDS_RELAXED,
+                        field_name=name,
+                        old_value=str(source.bounds),
+                        new_value=str(target.bounds),
+                        description=
+                        f"Field '{name}' bounds relaxed from {source.bounds} to {target.bounds}",
+                    )
                 )
-            )
+            if tightened:
+                changes.append(
+                    SchemaChange(
+                        change_type=ChangeType.BOUNDS_TIGHTENED,
+                        field_name=name,
+                        old_value=str(source.bounds),
+                        new_value=str(target.bounds),
+                        description=
+                        f"Field '{name}' bounds tightened from {source.bounds} to {target.bounds}",
+                    )
+                )
 
         if source.allowed_values != target.allowed_values:
-            if source.allowed_values and target.allowed_values:
+            if source.allowed_values is not None and target.allowed_values is not None:
                 removed = source.allowed_values - target.allowed_values
                 added = target.allowed_values - source.allowed_values
 
@@ -527,13 +588,17 @@ class SchemaEvolution:
                 )
 
         if source.precision != target.precision:
-            if source.precision is not None and target.precision is not None:
+            if source.precision is not None and target.precision is None:
+                change_type = ChangeType.PRECISION_WIDENED
+            elif source.precision is None and target.precision is not None:
+                change_type = ChangeType.PRECISION_NARROWED
+            elif source.precision is not None and target.precision is not None:
                 if target.precision > source.precision:
                     change_type = ChangeType.PRECISION_WIDENED
                 else:
                     change_type = ChangeType.PRECISION_NARROWED
             else:
-                change_type = ChangeType.PRECISION_NARROWED
+                change_type = ChangeType.PRECISION_WIDENED
             changes.append(
                 SchemaChange(
                     change_type=change_type,
@@ -546,13 +611,17 @@ class SchemaEvolution:
             )
 
         if source.scale != target.scale:
-            if source.scale is not None and target.scale is not None:
+            if source.scale is not None and target.scale is None:
+                change_type = ChangeType.SCALE_WIDENED
+            elif source.scale is None and target.scale is not None:
+                change_type = ChangeType.SCALE_NARROWED
+            elif source.scale is not None and target.scale is not None:
                 if target.scale > source.scale:
                     change_type = ChangeType.SCALE_WIDENED
                 else:
                     change_type = ChangeType.SCALE_NARROWED
             else:
-                change_type = ChangeType.SCALE_NARROWED
+                change_type = ChangeType.SCALE_WIDENED
             changes.append(
                 SchemaChange(
                     change_type=change_type,
@@ -634,29 +703,74 @@ class SchemaEvolution:
         Note: This generates ALTER TABLE statements. Review carefully
         before executing as some changes may require data transformation.
         """
+        return list(self.build_migration_plan(source, target, table_name).sql_statements)
+
+    def build_migration_plan(
+        self,
+        source: DataSchema,
+        target: DataSchema,
+        table_name: str,
+    ) -> MigrationPlan:
+        """Build a structured migration plan for DuckDB/world tables."""
+
         report = self.compare(source, target)
-        statements: list[str] = []
+        operations: list[MigrationOperation] = []
 
         for change in report.changes:
             if change.change_type == ChangeType.FIELD_ADDED:
                 field = target.get_field(change.field_name) if change.field_name else None
-                if field:
-                    col_def = field.to_duckdb_column_def()
-                    statements.append(
-                        f"ALTER TABLE {table_name} ADD COLUMN {col_def};"
+                if field is None:
+                    continue
+                operations.append(
+                    MigrationOperation(
+                        action="add_column",
+                        field_name=change.field_name,
+                        sql=f"ALTER TABLE {table_name} ADD COLUMN {field.to_duckdb_column_def()};",
+                        safe=True,
+                        reason=change.description,
                     )
-
-            elif change.change_type == ChangeType.FIELD_REMOVED:
-                statements.append(
-                    f"ALTER TABLE {table_name} DROP COLUMN {change.field_name};"
                 )
-
+            elif change.change_type == ChangeType.FIELD_REMOVED:
+                operations.append(
+                    MigrationOperation(
+                        action="drop_column",
+                        field_name=change.field_name,
+                        sql=f"ALTER TABLE {table_name} DROP COLUMN {change.field_name};",
+                        safe=False,
+                        reason=change.description,
+                    )
+                )
             elif change.change_type == ChangeType.TYPE_WIDENED:
                 field = target.get_field(change.field_name) if change.field_name else None
-                if field:
-                    new_type = field.data_type.to_duckdb_type()
-                    statements.append(
-                        f"ALTER TABLE {table_name} ALTER COLUMN {change.field_name} TYPE {new_type};"
+                if field is None:
+                    continue
+                operations.append(
+                    MigrationOperation(
+                        action="alter_column_type",
+                        field_name=change.field_name,
+                        sql=(
+                            f"ALTER TABLE {table_name} ALTER COLUMN "
+                            f"{change.field_name} TYPE {field.data_type.to_duckdb_type()};"
+                        ),
+                        safe=True,
+                        reason=change.description,
                     )
+                )
+            else:
+                operations.append(
+                    MigrationOperation(
+                        action="manual_review",
+                        field_name=change.field_name,
+                        safe=not change.is_breaking,
+                        reason=change.description,
+                    )
+                )
 
-        return statements
+        return MigrationPlan(
+            table_name=table_name,
+            source_schema_id=source.schema_id,
+            source_version=str(source.version),
+            target_version=str(target.version),
+            operations=tuple(operations),
+            safe_to_apply=all(operation.safe for operation in operations),
+        )

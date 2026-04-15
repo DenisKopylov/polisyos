@@ -14,7 +14,8 @@ Design decisions
 * Uses pytest fixtures, marks, and parametrize -- no custom runner.
 * connector_instance and connection_handle are pytest fixtures so subclasses
   can override them with DI wrappers.
-* All I/O methods are async; the harness is decorated with @pytest.mark.asyncio.
+* All I/O methods are async; pytest asyncio auto mode handles async tests/fixtures
+  without forcing sync compliance checks to carry asyncio marks.
 * Protocol compliance delegates to validate_protocol_compliance() from Phase 2.1.
 * Hash comparison in test_idempotency uses FetchResult.content_hash when present;
   otherwise falls back to a stable SHA-256 over canonical JSON for data.
@@ -155,7 +156,6 @@ def _is_async_capability_method(method: Any, *, method_name: str) -> bool:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio
 class ConnectorTestHarness:
     """
     Abstract pytest base class for connector compliance testing.

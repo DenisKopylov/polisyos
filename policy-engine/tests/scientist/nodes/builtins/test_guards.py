@@ -14,8 +14,8 @@ from polisyos.scientist.nodes.builtins.guards import (
     StateMutationViolation,
 )
 
-
 _COUNTER = 0
+
 
 def _ref(name: str = "test") -> ArtifactRef:
     global _COUNTER
@@ -34,18 +34,26 @@ def _make_spec(*, reads: list[str] | None = None, writes: list[str] | None = Non
     )
 
 
-def _make_state(**artifacts: ArtifactRef) -> ExperimentState:
+def _make_state(
+    *,
+    params: dict[str, object] | None = None,
+    reports: dict[str, ArtifactRef] | None = None,
+    inputs: dict[str, ArtifactRef] | None = None,
+    **artifacts: ArtifactRef,
+) -> ExperimentState:
     return ExperimentState(
         run_id="test_run",
+        inputs=dict(inputs or {}),
         artifacts_index=dict(artifacts),
-        params={},
+        reports_index=dict(reports or {}),
+        params=dict(params or {}),
     )
 
 
 class TestPreCheck:
     def test_pass_when_reads_present(self):
-        spec = _make_spec(reads=["causal_graph"])
-        state = _make_state(causal_graph=_ref("cg"))
+        spec = _make_spec(reads=["causal_graph", "params.depth"])
+        state = _make_state(causal_graph=_ref("cg"), params={"depth": 2})
         guard = StateMutationGuard(spec)
         warnings = guard.pre_check(state)
         assert warnings == []
@@ -62,15 +70,31 @@ class TestPreCheck:
 class TestPostCheck:
     def test_no_mutation_ok(self):
         spec = _make_spec(writes=[])
-        before = _make_state(key1=_ref("a"))
-        after = _make_state(key1=_ref("a"))
+        ref = _ref("a")
+        before = _make_state(key1=ref)
+        after = _make_state(key1=ref)
         guard = StateMutationGuard(spec)
         guard.post_check(before, after)
 
     def test_declared_write_ok(self):
         spec = _make_spec(writes=["new_key"])
-        before = _make_state(key1=_ref("a"))
-        after = _make_state(key1=_ref("a"), new_key=_ref("b"))
+        ref = _ref("a")
+        before = _make_state(key1=ref)
+        after = _make_state(key1=ref, new_key=_ref("b"))
+        guard = StateMutationGuard(spec)
+        guard.post_check(before, after)
+
+    def test_explicit_nested_write_ok(self):
+        spec = _make_spec(writes=["params.depth"])
+        before = _make_state(params={"depth": 1, "mode": "fast"})
+        after = _make_state(params={"depth": 2, "mode": "fast"})
+        guard = StateMutationGuard(spec)
+        guard.post_check(before, after)
+
+    def test_container_write_covers_nested_write(self):
+        spec = _make_spec(writes=["params"])
+        before = _make_state(params={"nested": {"score": 1}})
+        after = _make_state(params={"nested": {"score": 2}})
         guard = StateMutationGuard(spec)
         guard.post_check(before, after)
 
@@ -80,6 +104,22 @@ class TestPostCheck:
         after = _make_state(key1=_ref("a"), surprise=_ref("x"))
         guard = StateMutationGuard(spec)
         with pytest.raises(StateMutationViolation, match="undeclared"):
+            guard.post_check(before, after)
+
+    def test_undeclared_existing_artifact_replacement_raises(self):
+        spec = _make_spec(writes=[])
+        before = _make_state(key1=_ref("a"))
+        after = _make_state(key1=_ref("b"))
+        guard = StateMutationGuard(spec)
+        with pytest.raises(StateMutationViolation, match="undeclared"):
+            guard.post_check(before, after)
+
+    def test_undeclared_param_mutation_raises(self):
+        spec = _make_spec(writes=[])
+        before = _make_state(params={"depth": 1})
+        after = _make_state(params={"depth": 2})
+        guard = StateMutationGuard(spec)
+        with pytest.raises(StateMutationViolation, match="params.depth"):
             guard.post_check(before, after)
 
     def test_removed_key_raises(self):

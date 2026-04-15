@@ -18,6 +18,7 @@ from polisyos.ir.fact_log import (
     FactSegmentManifest,
     FactTrust,
     build_fact_id,
+    utc_tx_time,
 )
 
 
@@ -55,6 +56,7 @@ def _fact_from_payload(
         "legal": legal,
     }
     fact_id = build_fact_id({k: v for k, v in payload.items() if k != "schema_version"})
+    payload["tx_time"] = utc_tx_time()
     return Fact(fact_id=fact_id, **payload)
 
 
@@ -98,7 +100,7 @@ def facts_from_dataframe(
         subject_id = str(row[subject_field])
         valid_time = row[valid_time_field] if valid_time_field else None
         for predicate_id, value_col in predicate_value_map.items():
-            value = row[value_col] if value_col in row else None
+            value = row.get(value_col, None)
             target_id = str(row[target_field]) if target_field else None
             fact = _fact_from_payload(
                 subject_id=subject_id,
@@ -157,7 +159,7 @@ def write_fact_segment(
     manifest = FactSegmentManifest(
         segment_id=segment_id,
         path=str(segment_path),
-        row_count=int(len(rows)),
+        row_count=len(rows),
         sha256=digest,
         time_start=time_start,
         time_end=time_end,

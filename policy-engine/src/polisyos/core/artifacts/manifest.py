@@ -6,7 +6,7 @@ runtime APIs, registry bundles, and governance reports.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -17,7 +17,7 @@ from .ids import ArtifactID
 
 def utc_now() -> datetime:
     """Return a UTC timestamp rounded to whole seconds for manifest defaults."""
-    return datetime.now(timezone.utc).replace(microsecond=0)
+    return datetime.now(UTC).replace(microsecond=0)
 
 
 class SchemaInfo(BaseModel):
@@ -31,15 +31,17 @@ class CanonInfo(BaseModel):
     """Record the canonicalization rules used before hashing/storing JSON payloads."""
     model_config = ConfigDict(extra="forbid")
     name: str = "polisyos.canon.json"
-    version: str = "0.1.0"
+    version: str = "0.2.0"
     forbid_floats: bool = True
     forbid_nan_inf: bool = True
+    exclude_none: bool = True
+    max_depth: int = 128
     sort_keys: bool = True
     separators: tuple[str, str] = (",", ":")
     ensure_ascii: bool = False
 
     @classmethod
-    def from_spec(cls, spec: Any) -> "CanonInfo":
+    def from_spec(cls, spec: Any) -> CanonInfo:
         """Build manifest canon metadata from a duck-typed canonicalization spec."""
         return cls(
             name=getattr(spec, "name", cls.model_fields["name"].default),
@@ -50,6 +52,10 @@ class CanonInfo(BaseModel):
             forbid_nan_inf=getattr(
                 spec, "forbid_nan_inf", cls.model_fields["forbid_nan_inf"].default
             ),
+            exclude_none=getattr(
+                spec, "exclude_none", cls.model_fields["exclude_none"].default
+            ),
+            max_depth=getattr(spec, "max_depth", cls.model_fields["max_depth"].default),
             sort_keys=getattr(spec, "sort_keys", cls.model_fields["sort_keys"].default),
             separators=getattr(
                 spec, "separators", cls.model_fields["separators"].default
@@ -104,6 +110,38 @@ class WarningRecord(BaseModel):
     data: dict[str, Any] | None = None
 
 
+class ArtifactRetentionPolicyInfo(BaseModel):
+    """Persist retention policy metadata resolved at write time."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scope: str
+    retention_days: int = Field(ge=0)
+    delete_on_expiry: bool = True
+
+
+class ArtifactEncryptionPolicyInfo(BaseModel):
+    """Persist at-rest encryption requirements and verification status."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mode: str = "none"
+    enforced: bool = False
+    verified: bool = False
+    key_reference: str | None = None
+
+
+class ArtifactGovernanceInfo(BaseModel):
+    """Persist governance metadata propagated into stored artifacts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    classification: str = "public"
+    column_classification: dict[str, str] = Field(default_factory=dict)
+    retention: ArtifactRetentionPolicyInfo | None = None
+    encryption: ArtifactEncryptionPolicyInfo | None = None
+
+
 class IntegrityInfo(BaseModel):
     """Persist the expected payload digest and optional extra integrity metadata."""
     model_config = ConfigDict(extra="forbid")
@@ -149,6 +187,7 @@ class ArtifactManifest(BaseModel):
 
     producer: ProducerInfo | None = None
     env: EnvInfo | None = None
+    governance: ArtifactGovernanceInfo | None = None
 
     integrity: IntegrityInfo
     warnings: list[WarningRecord] = Field(default_factory=list)

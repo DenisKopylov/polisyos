@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import threading
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation, localcontext
+from types import MappingProxyType
 from typing import ClassVar, Iterator, Mapping
 
 from ._units_base import STANDARD_UNITS, BaseUnit
@@ -44,6 +45,7 @@ class UnitRegistry:
         """Initialize the registry."""
         self._custom_units: dict[str, Unit] = {}
         self._exchange_rates: dict[tuple[str, str], Decimal] = {}
+        self._state_lock = threading.RLock()
 
     @classmethod
     def get_instance(cls) -> "UnitRegistry":
@@ -65,8 +67,9 @@ class UnitRegistry:
             The Unit if found, None otherwise.
         """
         # Check custom units first
-        if symbol in self._custom_units:
-            return self._custom_units[symbol]
+        with self._state_lock:
+            if symbol in self._custom_units:
+                return self._custom_units[symbol]
 
         # Try to parse
         try:
@@ -82,7 +85,25 @@ class UnitRegistry:
             symbol: The symbol to register.
             unit: The Unit to associate.
         """
-        self._custom_units[symbol] = unit
+        with self._state_lock:
+            self._custom_units[symbol] = unit
+
+    @staticmethod
+    def _normalize_currency_code(currency: str) -> str:
+        code = str(currency).strip().upper()
+        if not code:
+            raise ValueError("currency code cannot be empty")
+        return code
+
+    @staticmethod
+    def _normalize_exchange_rate(rate: Decimal) -> Decimal:
+        try:
+            normalized = rate if isinstance(rate, Decimal) else Decimal(str(rate))
+        except (InvalidOperation, ValueError, TypeError) as exc:
+            raise ValueError("exchange rate must be a finite Decimal-compatible value") from exc
+        if not normalized.is_finite() or normalized <= 0:
+            raise ValueError("exchange rate must be positive and finite")
+        return normalized
 
     def set_exchange_rate(
         self,
@@ -98,9 +119,19 @@ class UnitRegistry:
             to_currency: Target currency code (e.g., "USD").
             rate: The exchange rate (how many target units per source unit).
         """
-        self._exchange_rates[(from_currency, to_currency)] = rate
-        # Also set inverse rate
-        self._exchange_rates[(to_currency, from_currency)] = Decimal("1") / rate
+        normalized_from = self._normalize_currency_code(from_currency)
+        normalized_to = self._normalize_currency_code(to_currency)
+        normalized_rate = self._normalize_exchange_rate(rate)
+
+        if normalized_from == normalized_to:
+            normalized_rate = Decimal("1")
+
+        with self._state_lock:
+            with localcontext() as ctx:
+                ctx.prec = max(ctx.prec, 50)
+                inverse_rate = Decimal("1") / normalized_rate
+            self._exchange_rates[(normalized_from, normalized_to)] = normalized_rate
+            self._exchange_rates[(normalized_to, normalized_from)] = inverse_rate
 
     def get_exchange_rate(
         self,
@@ -113,12 +144,16 @@ class UnitRegistry:
         Returns:
             The rate if available, None otherwise.
         """
-        return self._exchange_rates.get((from_currency, to_currency))
+        normalized_from = self._normalize_currency_code(from_currency)
+        normalized_to = self._normalize_currency_code(to_currency)
+        with self._state_lock:
+            return self._exchange_rates.get((normalized_from, normalized_to))
 
     @property
     def exchange_rates(self) -> Mapping[tuple[str, str], Decimal]:
         """Get all registered exchange rates."""
-        return dict(self._exchange_rates)
+        with self._state_lock:
+            return MappingProxyType(dict(self._exchange_rates))
 
     def convert(
         self,
@@ -142,10 +177,13 @@ class UnitRegistry:
         if isinstance(to_unit, str):
             to_unit = Unit.parse(to_unit)
 
+        with self._state_lock:
+            exchange_rates = dict(self._exchange_rates)
+
         return from_unit.convert_to(
             to_unit,
             value,
-            exchange_rates=self._exchange_rates,
+            exchange_rates=exchange_rates,
         )
 
     def __iter__(self) -> Iterator[tuple[str, BaseUnit]]:

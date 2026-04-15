@@ -11,7 +11,13 @@ import pytest
 from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.calibration.pure_executor import PreparedNode, StaticBundle
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.runtime import NaNDetectedError, run_scan, step
+from polisyos.foundry.runtime import (
+    NaNDetectedError,
+    build_compiled_step,
+    run_scan,
+    step,
+    step_jit,
+)
 from polisyos.foundry.runtime.nan_guard import NaNGuard
 from polisyos.ir.kernel import (
     MechanismTypeRegistry,
@@ -91,6 +97,7 @@ def _make_bundle(mechanism, slot_id: str = "income") -> StaticBundle:
     mechanism_registry = MechanismTypeRegistry(mechanisms={})
     return StaticBundle(
         nodes=[node],
+        incoming_dependencies={},
         slot_registry=slot_registry,
         mechanism_registry=mechanism_registry,
         merge_registry=merge_registry,
@@ -204,3 +211,26 @@ def test_run_scan_accepts_states_with_cell_blocks():
     traces = run_scan(base_state, controls_seq, key, static_bundle=bundle)
 
     assert jnp.array_equal(traces["t"], jnp.array([0, 1], dtype=jnp.int32))
+
+
+def test_build_compiled_step_returns_working_jitted_closure():
+    base_state = GlobalState.empty(n_agents=2, n_firms=1)
+    key = jax.random.PRNGKey(19)
+    controls = jnp.array([0.0])
+    bundle = _make_bundle(_AddIncomeMechanism(delta=2.0))
+
+    compiled = build_compiled_step(static_bundle=bundle)
+    new_state, trace = compiled(base_state, controls, key, 0)
+
+    assert jnp.allclose(new_state.agents.income, base_state.agents.income + 2.0)
+    assert int(trace["t"]) == 0
+
+
+def test_step_jit_shim_raises_clear_guidance():
+    base_state = GlobalState.empty(n_agents=2, n_firms=1)
+    key = jax.random.PRNGKey(23)
+    controls = jnp.array([0.0])
+    bundle = _make_bundle(_AddIncomeMechanism(delta=1.0))
+
+    with pytest.raises(RuntimeError, match="build_compiled_step"):
+        step_jit(base_state, controls, key, 0, bundle, None, None)

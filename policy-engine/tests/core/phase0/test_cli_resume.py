@@ -12,9 +12,10 @@ from polisyos.scientist.engine.state import ExperimentState
 def _seed_checkpoint(cas_root: Path, run_id: str) -> None:
     store = FileSystemCAS(cas_root)
     state = ExperimentState(run_id=run_id)
-    checkpoint_ref, _ = create_checkpoint(
+    created = create_checkpoint(
         store,
-        state,
+        run_id=state.run_id,
+        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
         sequence_number=0,
         completed_node_alias="start",
         completed_node_id="scientist.node_noop@1.0.0",
@@ -27,7 +28,7 @@ def _seed_checkpoint(cas_root: Path, run_id: str) -> None:
     update_checkpoint_head(
         cas_root / "runs" / run_id,
         run_id=run_id,
-        checkpoint_ref=checkpoint_ref,
+        checkpoint_ref=created.checkpoint_ref,
         sequence_number=0,
         node_alias="start",
         writer_pid=111,

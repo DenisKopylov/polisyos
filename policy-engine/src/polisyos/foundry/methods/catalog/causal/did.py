@@ -395,7 +395,7 @@ class DifferenceInDifferences:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="difference_in_differences",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -505,7 +505,7 @@ class StandardDifferenceInDifferences:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="standard",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_standard_did_input_slots(),
         output_slots=_did_output_slots(),
@@ -564,7 +564,7 @@ class StaggeredDifferenceInDifferences:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="staggered",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_staggered_did_input_slots(),
         output_slots=_did_output_slots(),

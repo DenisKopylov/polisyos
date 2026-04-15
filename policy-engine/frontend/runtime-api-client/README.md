@@ -25,15 +25,16 @@ Runtime API app -> schemas/runtime_api_v1.openapi.json -> generated runtimeApiCl
 
 Клиент генерирует GET/read-path wrappers по группам:
 - health: `runtimeApiHealth`, `health`, `ready`;
-- runs: `listRuns`, `getRunDetails`, `getRunTimeline`, `getRunNodes`, `getRunLineage`, `getRunAgents`;
+- runs: `listRuns`, `getRunsBatch`, `getRunDetails`, `getRunTimeline`, `getRunNodes`, `getRunLineage`, `getRunAgents`;
 - debug: `getNodeDebug`, `getGovernanceDebug`, `getRunErrors`, `getRunFeedback`, `getRunCompare`;
-- artifacts: `getArtifactManifest`, `getArtifactContent`, `getArtifactLineage`, `getArtifactSchema`;
+- artifacts: `getArtifactBatch`, `getArtifactManifest`, `getArtifactContent`, `getArtifactLineage`, `getArtifactSchema`;
 - control (read): `listBindingProfiles`, `getCacheStatus`, `searchDataCatalog`, `listConnectors`, `getDataIndexStats`, `listSourceProfiles`, `listDataPromotionCandidates`, `listLlmProfiles`.
 
 ## Поведение и ограничения
 
 - Нормализует `baseUrl` (удаляет завершающий `/`).
 - Сериализует query-параметры, включая массивы и `Date -> ISO`.
+- Поддерживает JSON body для batch-read POST wrappers (`getRunsBatch`, `getArtifactBatch`).
 - На non-2xx кидает `Error` с HTTP-статусом и body.
 - Не включает retry/circuit-breaker/auth-flow; настройка только через `headers` и `fetchImpl`.
 - Это thin client поверх контрактных GET endpoint-ов; POST/управляющие сценарии dashboard реализует через `openapi-fetch` в `runtime-dashboard`.

@@ -8,6 +8,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import pytest
+
+from polisyos.fabric.safety import UnsafeFilterExpressionError, UnsafeIdentifierError
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.socrata import SocrataConnector
 from polisyos.ir.connectors import ConnectorCapability
@@ -80,7 +83,7 @@ class TestSoQLParams:
         )
         params = SocrataConnector._build_soql_params(req)
         assert "$where" in params
-        assert "borough='MANHATTAN'" in params["$where"]
+        assert "borough = 'MANHATTAN'" in params["$where"]
 
     def test_multi_value_filter(self):
         req = FetchRequest(
@@ -88,7 +91,7 @@ class TestSoQLParams:
             filters=(("borough", ("MANHATTAN", "BROOKLYN")),),
         )
         params = SocrataConnector._build_soql_params(req)
-        assert "borough in(" in params["$where"]
+        assert "borough IN (" in params["$where"]
 
     def test_date_range(self):
         req = FetchRequest(
@@ -97,16 +100,35 @@ class TestSoQLParams:
             date_end=datetime(2024, 12, 31, tzinfo=timezone.utc),
         )
         params = SocrataConnector._build_soql_params(req)
-        assert ":updated_at>=" in params["$where"]
-        assert ":updated_at<=" in params["$where"]
+        assert ":updated_at >=" in params["$where"]
+        assert ":updated_at <=" in params["$where"]
 
     def test_explicit_where(self):
         req = FetchRequest(
             dataset_id="abc1-2345",
             filters=(("$where", ("complaint_type='Noise'",)),),
         )
+        with pytest.raises(
+            UnsafeFilterExpressionError,
+            match="Raw \\$where filters are not allowed",
+        ):
+            SocrataConnector._build_soql_params(req)
+
+    def test_escapes_literal_values(self):
+        req = FetchRequest(
+            dataset_id="abc1-2345",
+            filters=(("borough", ("MANHATTAN' OR 1=1",)),),
+        )
         params = SocrataConnector._build_soql_params(req)
-        assert "complaint_type='Noise'" in params["$where"]
+        assert "borough = 'MANHATTAN'' OR 1=1'" in params["$where"]
+
+    def test_rejects_unknown_filter_key_when_schema_is_available(self):
+        req = FetchRequest(
+            dataset_id="abc1-2345",
+            filters=(("unknown_field", ("x",)),),
+        )
+        with pytest.raises(UnsafeIdentifierError, match="Unknown SoQL filter field"):
+            SocrataConnector._build_soql_params(req, schema_fields={"borough"})
 
 
 # ---------------------------------------------------------------------------

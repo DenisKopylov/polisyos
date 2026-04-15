@@ -8,8 +8,10 @@ supports every capability hinted by a profile.
 from __future__ import annotations
 
 import threading
+from typing import TYPE_CHECKING
 
-from .models import SourceProfile
+if TYPE_CHECKING:
+    from .models import SourceProfile
 
 
 class SourceProfileRegistry:

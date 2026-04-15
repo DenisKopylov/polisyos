@@ -4,6 +4,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic import ValidationError
+
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -15,13 +18,14 @@ from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.governance.calibration_validation import (
     load_calibration_validation_bundle,
 )
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
+    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CHAMPION_POLICY_DOSSIER_REF,
     ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
@@ -42,8 +46,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.output import (
-    PolicyArtifactBuildInput,
     PolicyArtifactBuilder,
+    PolicyArtifactBuildInput,
     PolicyBrief,
     load_policy_artifact_bundle,
 )
@@ -53,11 +57,30 @@ from polisyos.scientist.policy_design.schema import (
 )
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
 from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.search.judge_stack import JudgeVerdict, PolicyPromotionResult, to_search_uncertainty_envelope
+from polisyos.scientist.search.judge_stack import (
+    JudgeVerdict,
+    PolicyPromotionResult,
+    to_search_uncertainty_envelope,
+)
 from polisyos.scientist.search.pareto_registry import ParetoRegistrySnapshot
 from polisyos.scientist.search.readiness import (
     DecisionReadinessContract,
     load_decision_readiness_contract,
+)
+
+_LOGGER = get_logger(__name__)
+_OPTIONAL_ARTIFACT_LOAD_ERRORS = (
+    AttributeError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
+_SNAPSHOT_MODEL_DUMP_ERRORS = (
+    AttributeError,
+    TypeError,
+    ValueError,
 )
 
 _METADATA = ComponentMetadata(
@@ -169,34 +192,61 @@ class BuildPolicyOutputBundleNode:
             state.params.get("translator_compliance"),
             TranslatorComplianceResult,
         )
+        degraded_events: list[NodeEvent] = []
 
-        distributional_report = None
-        if (ref := state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)) is not None:
-            distributional_report = load_distributional_report(ctx.store, ref)
-        cross_graph_profile = None
-        if (ref := state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)) is not None:
-            cross_graph_profile = load_cross_graph_evidence_profile(ctx.store, ref)
-        stress_test_report = None
         stress_test_ref = state.artifacts_index.get(ARTIFACT_STRESS_TEST_REPORT_REF)
-        if stress_test_ref is not None:
-            stress_test_report = StressTestReport.model_validate(
-                from_canonical_bytes(ctx.store.get_bytes(stress_test_ref.artifact_id))
-            )
-        calibration_validation_bundle = None
         calibration_validation_ref = state.artifacts_index.get(
             ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF
         )
-        if calibration_validation_ref is not None:
-            calibration_validation_bundle = load_calibration_validation_bundle(
-                ctx.store,
-                calibration_validation_ref,
-            )
-
-        uncertainty_envelope = None
-        if (ref := state.artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)) is not None:
-            uncertainty_envelope = to_search_uncertainty_envelope(
+        distributional_report = _load_optional_artifact(
+            ctx,
+            state,
+            degraded_events,
+            artifact_ref=state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF),
+            artifact_key=ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+            reason="distributional_report_load_failed",
+            loader=lambda ref: load_distributional_report(ctx.store, ref),
+        )
+        cross_graph_profile = _load_optional_artifact(
+            ctx,
+            state,
+            degraded_events,
+            artifact_ref=state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF),
+            artifact_key=ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+            reason="cross_graph_profile_load_failed",
+            loader=lambda ref: load_cross_graph_evidence_profile(ctx.store, ref),
+        )
+        stress_test_report = _load_optional_artifact(
+            ctx,
+            state,
+            degraded_events,
+            artifact_ref=stress_test_ref,
+            artifact_key=ARTIFACT_STRESS_TEST_REPORT_REF,
+            reason="stress_test_report_load_failed",
+            loader=lambda ref: StressTestReport.model_validate(
+                from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+            ),
+        )
+        calibration_validation_bundle = _load_optional_artifact(
+            ctx,
+            state,
+            degraded_events,
+            artifact_ref=calibration_validation_ref,
+            artifact_key=ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
+            reason="calibration_validation_bundle_load_failed",
+            loader=lambda ref: load_calibration_validation_bundle(ctx.store, ref),
+        )
+        uncertainty_envelope = _load_optional_artifact(
+            ctx,
+            state,
+            degraded_events,
+            artifact_ref=state.artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF),
+            artifact_key=ARTIFACT_CAUSAL_ENVELOPE_REF,
+            reason="uncertainty_envelope_load_failed",
+            loader=lambda ref: to_search_uncertainty_envelope(
                 load_uncertainty_envelope(ctx.store, ref)
-            )
+            ),
+        )
         upstream_audit_refs, actionable_side_information_refs = _collect_upstream_refs(state)
 
         build_input = PolicyArtifactBuildInput(
@@ -289,6 +339,7 @@ class BuildPolicyOutputBundleNode:
             state=new_state,
             artifacts=[bundle_ref],
             events=[
+                *degraded_events,
                 NodeEvent(
                     level="info",
                     message="Policy artifact bundle created.",
@@ -443,12 +494,54 @@ def _snapshot_runtime_value(value: Any) -> Any:
     if callable(model_dump):
         try:
             return model_dump(mode="json")
-        except Exception:
+        except _SNAPSHOT_MODEL_DUMP_ERRORS:
             try:
                 return model_dump()
-            except Exception:
+            except _SNAPSHOT_MODEL_DUMP_ERRORS:
                 return str(value)
     return str(value)
+
+
+def _load_optional_artifact(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    events: list[NodeEvent],
+    *,
+    artifact_ref: ArtifactRef | None,
+    artifact_key: str,
+    reason: str,
+    loader,
+) -> Any | None:
+    if artifact_ref is None:
+        return None
+    try:
+        return loader(artifact_ref)
+    except _OPTIONAL_ARTIFACT_LOAD_ERRORS as exc:
+        envelope = emit_degraded_path(
+            component="scientist.build_policy_output_bundle",
+            operation="load_optional_artifact",
+            reason=reason,
+            exc=exc,
+            details={
+                "run_id": state.run_id,
+                "artifact_key": artifact_key,
+                "artifact_id": str(artifact_ref.artifact_id),
+            },
+            log=_LOGGER,
+        )
+        events.append(
+            NodeEvent(
+                level="warn",
+                message="Policy output bundle optional artifact degraded",
+                code="policy_output_bundle.optional_artifact_degraded",
+                attrs={
+                    "reason": str(envelope.get("reason", reason)),
+                    "artifact_key": artifact_key,
+                    "error_type": str(envelope.get("error_type", exc.__class__.__name__)),
+                },
+            )
+        )
+        return None
 
 
 __all__ = ["BuildPolicyOutputBundleNode"]

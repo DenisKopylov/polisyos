@@ -9,8 +9,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from polisyos.common.timestamps import ensure_utc, utc_now
 from polisyos.core.canon import content_hash, truncated_hash
 
 
@@ -48,7 +49,12 @@ class AttestationReport(BaseModel):
     report_hash: str | None = None
     signature_validated: bool = False
     raw_report_b64: str | None = None
-    collected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    collected_at: datetime = Field(default_factory=utc_now)
+
+    @field_validator("collected_at")
+    @classmethod
+    def _ensure_collected_at_utc(cls, value: datetime) -> datetime:
+        return ensure_utc(value)
 
     def normalized_measurement(self) -> str:
         """Return the report measurement lowercased and stripped for policy comparison."""
@@ -103,9 +109,14 @@ class AttestationResult(BaseModel):
     measurement: str | None = None
     tcb_version: int | None = None
     errors: list[str] = Field(default_factory=list)
-    verified_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    verified_at: datetime = Field(default_factory=utc_now)
     policy_digest: str | None = None
     cached: bool = False
+
+    @field_validator("verified_at")
+    @classmethod
+    def _ensure_verified_at_utc(cls, value: datetime) -> datetime:
+        return ensure_utc(value)
 
     @property
     def is_trusted(self) -> bool:
@@ -179,8 +190,7 @@ class SEVSNPVerifier:
                 raise AttestationFetchError(f"Failed to parse attestation report: {exc}") from exc
 
             if nonce is not None and report.report_data_hex:
-                nonce_hex = nonce.hex().lower()
-                if not report.report_data_hex.lower().startswith(nonce_hex):
+                if not _report_data_matches_nonce(report.report_data_hex, nonce):
                     raise AttestationFetchError("Attestation report nonce does not match challenge")
             return report
 
@@ -324,7 +334,7 @@ def _report_data_matches_nonce(report_data_hex: str, nonce: bytes) -> bool:
         report_data = bytes.fromhex(value)
     except ValueError:
         return False
-    return report_data.startswith(nonce)
+    return report_data == nonce
 
 
 __all__ = [

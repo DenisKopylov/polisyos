@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from polisyos.core.canon import content_hash, truncated_hash
@@ -134,13 +134,15 @@ class MockCriticAgent:
             completeness_score=completeness_score,
             overall_quality=min(1.0, max(0.0, overall_quality)),
             reflexion_hint=reflexion_hint,
+            citations=_context_citations(problem_frame),
             metadata={
                 "depth": depth,
                 "mock_generated": True,
                 "critique_count": self._critique_count,
                 "artifact_kind": "trinity_bundle",
+                "web_grounding": _context_web_grounding(problem_frame),
             },
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
     async def _check_structure(self, bundle: TrinityBundle) -> list[CritiqueIssue]:
@@ -367,6 +369,9 @@ TRINITY BUNDLE TO REVIEW:
 
 REVIEW DEPTH: {depth}
 
+WEB EVIDENCE:
+{_web_evidence_prompt_block(problem_frame)}
+
 Provide your critique as a JSON object.
 """
 
@@ -416,8 +421,13 @@ Provide your critique as a JSON object.
                 completeness_score=float(data.get("completeness_score", 0.5)),
                 overall_quality=float(data.get("overall_quality", 0.5)),
                 reflexion_hint=data.get("reflexion_hint", ""),
-                metadata={"artifact_kind": "trinity_bundle", "depth": depth},
-                created_at=datetime.utcnow(),
+                citations=_context_citations(problem_frame),
+                metadata={
+                    "artifact_kind": "trinity_bundle",
+                    "depth": depth,
+                    "web_grounding": _context_web_grounding(problem_frame),
+                },
+                created_at=datetime.now(timezone.utc),
             )
         except (json.JSONDecodeError, KeyError, ValueError) as exc:
             return CritiqueReport(
@@ -434,7 +444,13 @@ Provide your critique as a JSON object.
                     )
                 ],
                 reflexion_hint="Unable to parse critique response. Please review manually.",
-                metadata={"artifact_kind": "trinity_bundle", "depth": depth},
+                citations=_context_citations(problem_frame),
+                metadata={
+                    "artifact_kind": "trinity_bundle",
+                    "depth": depth,
+                    "error": str(exc),
+                    "web_grounding": _context_web_grounding(problem_frame),
+                },
             )
 
     async def generate_hint(self, issues: list[CritiqueIssue]) -> str:
@@ -466,6 +482,52 @@ Provide your critique as a JSON object.
         problem_frame: ProblemFrame,
     ) -> float:
         return await MockCriticAgent().check_alignment(ir, problem_frame)
+
+
+def _web_evidence_prompt_block(problem_frame: ProblemFrame) -> str:
+    context = getattr(problem_frame, "context", None)
+    if not isinstance(context, dict):
+        return "{}"
+    value = context.get("web_evidence_context")
+    if isinstance(value, str) and value.strip():
+        return value
+    payload = context.get("web_evidence")
+    if isinstance(payload, dict) and payload:
+        return json.dumps(payload, indent=2, default=str)
+    return "{}"
+
+
+def _context_web_grounding(problem_frame: ProblemFrame) -> dict[str, Any]:
+    context = getattr(problem_frame, "context", None)
+    if not isinstance(context, dict):
+        return {}
+    payload = context.get("web_evidence")
+    return dict(payload) if isinstance(payload, dict) else {}
+
+
+def _context_citations(problem_frame: ProblemFrame) -> list[dict[str, Any]]:
+    payload = _context_web_grounding(problem_frame)
+    snippets = payload.get("snippets")
+    if not isinstance(snippets, list):
+        return []
+    citations: list[dict[str, Any]] = []
+    for item in snippets[:12]:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "")
+        text = str(item.get("text") or "")
+        if not url or not text:
+            continue
+        citations.append(
+            {
+                "url": url,
+                "source_id": str(item.get("source_id") or ""),
+                "snippet": text,
+                "start_char": item.get("start_char"),
+                "end_char": item.get("end_char"),
+            }
+        )
+    return citations
 
 
 def create_critic_agent(
@@ -525,7 +587,7 @@ def create_mock_problem_frame(
         goals=(f"Address: {problem_statement}",),
         constraints=("Budget deficit <= 3%",),
         success_criteria={"improvement_rate": 0.1},
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
 
 

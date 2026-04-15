@@ -137,6 +137,11 @@ from polisyos.foundry.methods.catalog.causal.fairness import (
 from polisyos.foundry.methods.catalog.causal.causal_fairness import CausalFairnessEngine
 from polisyos.foundry.methods.catalog.causal.data_fusion import DataFusionEngine
 from polisyos.foundry.methods.catalog.causal.optimal_design import CausalExperimentDesigner
+from polisyos.foundry.methods.catalog.causal.frontier import (
+    DistributionalTreatmentEffectEstimator,
+    NetworkHeterogeneousEffectEstimator,
+    ProximalBridgeEstimator,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -286,6 +291,10 @@ def register_causal_methods() -> Sequence[type]:
         # Phase 9: Data Fusion and Optimal Experimental Design
         DataFusionEngine,
         CausalExperimentDesigner,
+        # WS-9 frontier additions
+        ProximalBridgeEstimator,
+        DistributionalTreatmentEffectEstimator,
+        NetworkHeterogeneousEffectEstimator,
     ]
     methods.extend(
         _optional_method_types(

@@ -9,6 +9,11 @@ import hashlib
 import json
 from typing import Any
 
+from collections.abc import Mapping, Sequence
+from datetime import date, datetime
+from decimal import Decimal
+from enum import Enum
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.refs import (
@@ -18,13 +23,69 @@ from polisyos.ir.refs import (
     ProofBundleRef,
 )
 
+MAX_FINGERPRINT_DEPTH = 32
+
+
+class EvidenceFingerprintError(ValueError):
+    """Raised when audit evidence cannot be reduced to a stable fingerprint."""
+
+
+def _normalize_fingerprint_value(value: Any, *, path: str = "$", depth: int = 0) -> Any:
+    if depth > MAX_FINGERPRINT_DEPTH:
+        raise EvidenceFingerprintError(
+            f"Fingerprint payload exceeds max depth {MAX_FINGERPRINT_DEPTH} at {path}"
+        )
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    if isinstance(value, bytes):
+        try:
+            return value.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise EvidenceFingerprintError(f"Fingerprint bytes are not UTF-8 decodable at {path}") from exc
+    if isinstance(value, BaseModel):
+        return _normalize_fingerprint_value(
+            value.model_dump(mode="json"),
+            path=path,
+            depth=depth + 1,
+        )
+    if isinstance(value, Mapping):
+        normalized: dict[str, Any] = {}
+        for key in sorted(value, key=lambda item: str(item)):
+            normalized[str(key)] = _normalize_fingerprint_value(
+                value[key],
+                path=f"{path}.{key}",
+                depth=depth + 1,
+            )
+        return normalized
+    if isinstance(value, set):
+        normalized_items = [
+            _normalize_fingerprint_value(item, path=f"{path}[]", depth=depth + 1)
+            for item in value
+        ]
+        return sorted(normalized_items, key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")))
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return [
+            _normalize_fingerprint_value(item, path=f"{path}[{index}]", depth=depth + 1)
+            for index, item in enumerate(value)
+        ]
+    raise EvidenceFingerprintError(
+        f"Unsupported fingerprint payload type at {path}: {type(value).__name__}"
+    )
+
 
 def _fingerprint(data: Any) -> str:
     """Return a 16-char SHA-256 hex fingerprint of JSON-serializable data."""
-    try:
-        content = json.dumps(data, sort_keys=True, default=str)
-    except Exception:
-        content = str(data)
+    content = json.dumps(
+        _normalize_fingerprint_value(data),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
     return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
@@ -252,6 +313,7 @@ class EvidenceBundle(BaseModel):
 
 __all__ = [
     "_fingerprint",
+    "EvidenceFingerprintError",
     "ProofStep",
     "DataProvenance",
     "CompilationStep",

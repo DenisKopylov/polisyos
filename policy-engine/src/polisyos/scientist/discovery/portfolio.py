@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import warnings
 from time import perf_counter
 from typing import Any
@@ -95,6 +96,25 @@ class PortfolioRunResult(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     data_characteristics: DataCharacteristics | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class _ReachabilityTracker:
+    """Incremental transitive-closure helper for greedy DAG construction."""
+
+    def __init__(self, nodes: list[str]) -> None:
+        self._ancestors: dict[str, set[str]] = {name: set() for name in nodes}
+        self._descendants: dict[str, set[str]] = {name: set() for name in nodes}
+
+    def would_create_cycle(self, src: str, dst: str) -> bool:
+        return src == dst or src in self._descendants.get(dst, set())
+
+    def add_edge(self, src: str, dst: str) -> None:
+        ancestors = {src, *self._ancestors.get(src, set())}
+        descendants = {dst, *self._descendants.get(dst, set())}
+        for ancestor in ancestors:
+            self._descendants.setdefault(ancestor, set()).update(descendants)
+        for descendant in descendants:
+            self._ancestors.setdefault(descendant, set()).update(ancestors)
 
 
 def run_discovery_method(
@@ -354,15 +374,15 @@ def _run_functional_discovery(
             candidates.append((strength, src, dst, diagnostics))
 
     candidates.sort(key=lambda item: item[0], reverse=True)
-    adjacency: dict[str, set[str]] = {name: set() for name in variable_names}
+    reachability = _ReachabilityTracker(variable_names)
     edges: list[CausalEdge] = []
     bootstrap_stability: dict[str, float] = {}
     for strength, src, dst, diagnostics in candidates:
         if len(edges) >= max_edges:
             break
-        if _would_create_cycle(adjacency, src, dst):
+        if reachability.would_create_cycle(src, dst):
             continue
-        adjacency[src].add(dst)
+        reachability.add_edge(src, dst)
         orientation_gap = float(diagnostics["orientation_gap"])
         orientation_confidence = _clamp01(0.5 + 0.5 * orientation_gap)
         combined_confidence = _clamp01((strength + orientation_confidence) / 2.0)
@@ -423,33 +443,35 @@ def _orient_functional_pair(
     method: DiscoveryMethod,
 ) -> tuple[str, str, dict[str, float | str]]:
     if method is DiscoveryMethod.ANM:
-        left_to_right = _residual_ratio(left, right, degree=2)
-        right_to_left = _residual_ratio(right, left, degree=2)
+        left_to_right = _finite_or_default(_residual_ratio(left, right, degree=2), default=1.0)
+        right_to_left = _finite_or_default(_residual_ratio(right, left, degree=2), default=1.0)
         rule = "anm_quadratic_residual"
     else:
-        left_to_right = _residual_ratio(left, right, degree=1)
-        right_to_left = _residual_ratio(right, left, degree=1)
+        left_to_right = _finite_or_default(_residual_ratio(left, right, degree=1), default=1.0)
+        right_to_left = _finite_or_default(_residual_ratio(right, left, degree=1), default=1.0)
         if abs(left_to_right - right_to_left) < 0.02:
-            left_var = float(np.var(left))
-            right_var = float(np.var(right))
+            left_var = _finite_or_default(np.var(left), default=0.0)
+            right_var = _finite_or_default(np.var(right), default=0.0)
             if left_var <= right_var:
                 return left_name, right_name, {
                     "orientation_rule": "pairwise_variance_tiebreak",
                     "forward_score": left_to_right,
                     "reverse_score": right_to_left,
-                    "orientation_gap": abs(left_var - right_var)
-                    / max(left_var + right_var, 1e-8),
+                    "orientation_gap": _clamp01(
+                        abs(left_var - right_var) / max(left_var + right_var, 1e-8)
+                    ),
                 }
             return right_name, left_name, {
                 "orientation_rule": "pairwise_variance_tiebreak",
                 "forward_score": right_to_left,
                 "reverse_score": left_to_right,
-                "orientation_gap": abs(left_var - right_var)
-                / max(left_var + right_var, 1e-8),
+                "orientation_gap": _clamp01(
+                    abs(left_var - right_var) / max(left_var + right_var, 1e-8)
+                ),
             }
         rule = "pairwise_linear_residual"
 
-    gap = abs(left_to_right - right_to_left) / max(left_to_right + right_to_left, 1e-8)
+    gap = _clamp01(abs(left_to_right - right_to_left) / max(left_to_right + right_to_left, 1e-8))
     if left_to_right <= right_to_left:
         return left_name, right_name, {
             "orientation_rule": rule,
@@ -476,7 +498,9 @@ def _residual_ratio(cause: np.ndarray, effect: np.ndarray, *, degree: int) -> fl
         coeffs = np.polyfit(cause, effect, deg=fit_degree)
     predicted = np.polyval(coeffs, cause)
     residual = effect - predicted
-    return float(np.var(residual) / max(float(np.var(effect)), 1e-8))
+    residual_var = _finite_or_default(np.var(residual), default=0.0)
+    effect_var = max(_finite_or_default(np.var(effect), default=0.0), 1e-8)
+    return residual_var / effect_var
 
 
 def _would_create_cycle(adjacency: dict[str, set[str]], src: str, dst: str) -> bool:
@@ -496,11 +520,23 @@ def _would_create_cycle(adjacency: dict[str, set[str]], src: str, dst: str) -> b
 
 
 def _clamp01(value: float) -> float:
+    if not math.isfinite(float(value)):
+        return 0.0
     if value <= 0.0:
         return 0.0
     if value >= 1.0:
         return 1.0
     return float(value)
+
+
+def _finite_or_default(value: Any, *, default: float) -> float:
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return default
+    if not math.isfinite(numeric):
+        return default
+    return numeric
 
 
 __all__ = [

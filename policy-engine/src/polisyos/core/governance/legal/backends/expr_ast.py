@@ -11,6 +11,8 @@ SECURITY: Uses ASTPolicy for validation before ANY evaluation.
 from __future__ import annotations
 
 import ast
+import threading
+from collections import OrderedDict
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from polisyos.common.logger import get_logger
@@ -52,6 +54,7 @@ class SafeExpressionEvaluator:
         context: Dict[str, Any],
         *,
         limits: ASTLimits | None = None,
+        cache_maxsize: int = 256,
     ):
         """
         Initialize evaluator with context.
@@ -63,7 +66,9 @@ class SafeExpressionEvaluator:
         """
         self._context = context
         self._limits = limits or ASTLimits()
-        self._ast_cache: Dict[str, ast.Expression] = {}
+        self._cache_maxsize = max(1, int(cache_maxsize))
+        self._ast_cache: OrderedDict[str, ast.Expression] = OrderedDict()
+        self._cache_guard = threading.RLock()
 
     @property
     def available_names(self) -> frozenset[str]:
@@ -93,9 +98,22 @@ class SafeExpressionEvaluator:
 
     def _get_cached_ast(self, expr: str) -> ast.Expression:
         """Get or parse AST with caching."""
-        if expr not in self._ast_cache:
-            self._ast_cache[expr] = ast.parse(expr, mode="eval")
-        return self._ast_cache[expr]
+        with self._cache_guard:
+            cached = self._ast_cache.get(expr)
+            if cached is not None:
+                self._ast_cache.move_to_end(expr)
+                return cached
+
+        parsed = ast.parse(expr, mode="eval")
+        with self._cache_guard:
+            cached = self._ast_cache.get(expr)
+            if cached is not None:
+                self._ast_cache.move_to_end(expr)
+                return cached
+            self._ast_cache[expr] = parsed
+            if len(self._ast_cache) > self._cache_maxsize:
+                self._ast_cache.popitem(last=False)
+            return parsed
 
     def _eval_node(self, node: ast.AST) -> Any:
         """
@@ -165,28 +183,8 @@ class SafeExpressionEvaluator:
             for op, comparator in zip(node.ops, node.comparators):
                 right = self._eval_node(comparator)
 
-                if isinstance(op, ast.Eq):
-                    if not (left == right):
-                        return False
-                elif isinstance(op, ast.NotEq):
-                    if not (left != right):
-                        return False
-                elif isinstance(op, ast.Lt):
-                    if not (left < right):
-                        return False
-                elif isinstance(op, ast.LtE):
-                    if not (left <= right):
-                        return False
-                elif isinstance(op, ast.Gt):
-                    if not (left > right):
-                        return False
-                elif isinstance(op, ast.GtE):
-                    if not (left >= right):
-                        return False
-                else:
-                    raise SecurityError(
-                        f"Unknown comparison operator: {type(op).__name__}"
-                    )
+                if not self._evaluate_comparison(left, op, right):
+                    return False
 
                 left = right
 
@@ -196,6 +194,22 @@ class SafeExpressionEvaluator:
             f"Unexpected node type during evaluation: {type(node).__name__}. "
             "This should have been caught by validation."
         )
+
+    @staticmethod
+    def _evaluate_comparison(left: Any, op: ast.cmpop, right: Any) -> bool:
+        if isinstance(op, ast.Eq):
+            return left == right
+        if isinstance(op, ast.NotEq):
+            return left != right
+        if isinstance(op, ast.Lt):
+            return left < right
+        if isinstance(op, ast.LtE):
+            return left <= right
+        if isinstance(op, ast.Gt):
+            return left > right
+        if isinstance(op, ast.GtE):
+            return left >= right
+        raise SecurityError(f"Unknown comparison operator: {type(op).__name__}")
 
 
 class EvaluationError(Exception):

@@ -19,6 +19,22 @@ Related how-to: [Add Data Source](../how-to/add-data-source.md). Related referen
 - `WHOConnector` для табличных HTTP ответов
 - `SDMXSourceConnector` для SDMX surface
 
+Для новых non-HTTP families сначала откройте capability contract в
+`src/polisyos/fabric/connectors/family_contracts.py`.
+Там уже есть scaffold для:
+
+- `files`
+- `object_storage`
+- `sql`
+- `graphql`
+- `geojson`
+- `stream`
+
+Это полезно по двум причинам:
+
+- вы сразу видите обязательные capabilities и lineage requirements для семьи;
+- profile scaffold уже подсказывает минимальный `connector_family` / `base_url`.
+
 ## Шаг 2. Создайте минимальный connector class
 
 Добавьте новый файл под `src/polisyos/fabric/connectors/sources/`, например `my_source.py`:
@@ -175,6 +191,25 @@ SourceProfile(
 
 `SourceExecutionPolicy` вручную собирать обычно не нужно: он выводится из profile resolver на runtime path.
 
+### Family-first scaffold для новых connector families
+
+Если вы добавляете коннектор не в существующую HTTP family, а в одну из новых WS-5B families, ориентируйтесь на такой порядок:
+
+1. Определите family contract в `family_contracts.py` или переиспользуйте существующий.
+2. Проверьте, что connector metadata и hard capabilities реально покрывают `required_capabilities`.
+3. Добавьте хотя бы один built-in profile scaffold в `builtin_profiles.py`, даже если он demo-oriented.
+4. Для schema introspection сразу решите, какой режим используете:
+   - files/object storage: sample inference + format/provider metadata
+   - sql: query probe или information schema
+   - graphql: protocol query + sample inference
+   - geojson: feature properties + spatial metadata
+   - stream: message sample + stream metadata
+5. Сразу положите lineage metadata в connector boundary, а не как post-processing:
+   - source location / bucket / object key
+   - query or query document
+   - CRS / geometry types
+   - stream topic / message ids
+
 ## Шаг 5. Добавьте хотя бы один локальный тест
 
 Самый полезный первый тест для нового connector-а не live integration, а deterministic mock-path.
@@ -209,6 +244,14 @@ def test_my_source_fetch_with_mock_http(monkeypatch) -> None:
 ```
 
 После этого можно добавить live test под `@pytest.mark.integration`, если upstream достаточно стабилен.
+
+Для WS-5B connector families минимальный contract test должен доказывать не только `fetch()`, но и family-specific acceptance:
+
+- files/object storage: формат и source lineage сохраняются;
+- sql: query/table provenance и schema introspection доступны;
+- graphql: query document и extracted data path объяснимы;
+- geojson: CRS и spatial metadata не теряются;
+- stream: chunk/message IDs детерминированы и пригодны для quarantine/replay.
 
 ## Шаг 6. Прогоните локальные проверки
 

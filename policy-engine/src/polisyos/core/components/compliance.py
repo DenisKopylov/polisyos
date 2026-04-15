@@ -1,17 +1,32 @@
 """Validate component metadata and runtime shape against host ABI contracts."""
 from __future__ import annotations
 
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+from polisyos.common.logger import get_logger
 
 from .capabilities import Capability
 from .ids import ComponentId, SemverRange
 from .metadata import ComponentDep, ComponentKind, ComponentMetadata
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from .protocols import Component
+
+logger = get_logger(__name__)
+
+_COMPLIANCE_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_RUNTIME_SHAPE_ERRORS = (
+    AttributeError,
+    NotImplementedError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
 
 
 class HostAbi(BaseModel):
@@ -58,7 +73,7 @@ _REQUIRED_ABI_KEYS: dict[ComponentKind, tuple[tuple[str, ...], ...]] = {
     ComponentKind.FABRIC_CONNECTOR: (("fabric_connectors_api", "fabric_api"),),
     ComponentKind.LEX_EVALUATOR: (("ir_abi",), ("world_abi",)),
     ComponentKind.NORM_PACK_PROVIDER: (("ir_abi",), ("world_abi",)),
-    ComponentKind.SCIENTIST_NODE: tuple(),
+    ComponentKind.SCIENTIST_NODE: (),
 }
 
 
@@ -77,7 +92,7 @@ def validate_metadata(
     *,
     host_abi: HostAbi | None = None,
     available_components: object | None = None,
-    component: "Component | None" = None,
+    component: Component | None = None,
 ) -> list[ComplianceIssue]:
     """Validate a component before registration or bootstrap.
 
@@ -100,7 +115,7 @@ def validate_metadata(
 
     try:
         _ = ComponentId.parse(component_id)
-    except Exception as exc:
+    except _COMPLIANCE_VALIDATION_ERRORS as exc:
         issues.append(
             ComplianceIssue(
                 severity="error",
@@ -163,7 +178,11 @@ def validate_metadata(
         )
 
     advertised_type_caps = [cap for cap in _TYPE_CAPABILITIES if cap in metadata.capabilities]
-    unexpected_type_caps = [cap.name for cap in advertised_type_caps if cap != required_capability]
+    unexpected_type_caps = [
+        cap_name
+        for cap in advertised_type_caps
+        if cap != required_capability and (cap_name := cap.name) is not None
+    ]
     if unexpected_type_caps:
         issues.append(
             ComplianceIssue(
@@ -196,7 +215,7 @@ def has_errors(issues: Iterable[ComplianceIssue]) -> bool:
 def _validate_abi_targets(*, metadata: ComponentMetadata, host: HostAbi) -> list[ComplianceIssue]:
     component_id = str(metadata.component_id)
     issues: list[ComplianceIssue] = []
-    requirements = _REQUIRED_ABI_KEYS.get(metadata.kind, tuple())
+    requirements = _REQUIRED_ABI_KEYS.get(metadata.kind, ())
 
     for alternatives in requirements:
         selected_key: str | None = None
@@ -222,7 +241,7 @@ def _validate_abi_targets(*, metadata: ComponentMetadata, host: HostAbi) -> list
         range_raw = metadata.abi_targets[selected_key]
         try:
             version_range = SemverRange.parse(range_raw)
-        except Exception as exc:
+        except _COMPLIANCE_VALIDATION_ERRORS as exc:
             issues.append(
                 ComplianceIssue(
                     severity="error",
@@ -269,7 +288,7 @@ def _validate_abi_targets(*, metadata: ComponentMetadata, host: HostAbi) -> list
             continue
         try:
             version_range = SemverRange.parse(range_raw)
-        except Exception as exc:
+        except _COMPLIANCE_VALIDATION_ERRORS as exc:
             issues.append(
                 ComplianceIssue(
                     severity="error",
@@ -356,23 +375,28 @@ def _validate_dependencies(
 def _dependency_satisfied(*, dep: ComponentDep, available_components: object) -> bool:
     matches = []
 
-    if hasattr(available_components, "matching_entries"):
+    matching_entries = getattr(available_components, "matching_entries", None)
+    if callable(matching_entries):
         try:
-            matches = list(
-                available_components.matching_entries(  # type: ignore[attr-defined]
-                    dep.base_id,
-                    constraint=dep.version,
-                    kind=dep.kind,
-                )
+            matches = list(matching_entries(dep.base_id, constraint=dep.version, kind=dep.kind))
+        except (AttributeError, TypeError, ValueError) as exc:
+            logger.warning(
+                "Component dependency lookup failed for %s via matching_entries: %s",
+                dep.base_id,
+                exc,
             )
-        except Exception:
-            matches = []
         return len(matches) > 0
 
-    if hasattr(available_components, "list"):
+    list_entries = getattr(available_components, "list", None)
+    if callable(list_entries):
         try:
-            entries = available_components.list(dep.base_id)  # type: ignore[attr-defined]
-        except Exception:
+            entries = list_entries(dep.base_id)
+        except (AttributeError, TypeError, ValueError) as exc:
+            logger.warning(
+                "Component dependency lookup failed for %s via list: %s",
+                dep.base_id,
+                exc,
+            )
             entries = []
         dep_range = SemverRange.parse(dep.version)
         for entry in entries:
@@ -383,7 +407,12 @@ def _dependency_satisfied(*, dep: ComponentDep, available_components: object) ->
                 version = str(meta.component_id.version)
                 if dep_range.matches(version):
                     return True
-            except Exception:
+            except (AttributeError, TypeError, ValueError) as exc:
+                logger.warning(
+                    "Component dependency candidate was skipped for %s: %s",
+                    dep.base_id,
+                    exc,
+                )
                 continue
 
     return False
@@ -392,7 +421,7 @@ def _dependency_satisfied(*, dep: ComponentDep, available_components: object) ->
 def _validate_runtime_shape(
     *,
     metadata: ComponentMetadata,
-    component: "Component | None",
+    component: Component | None,
 ) -> list[ComplianceIssue]:
     if component is None:
         return []
@@ -402,7 +431,7 @@ def _validate_runtime_shape(
 
     try:
         created = component.create()
-    except Exception as exc:
+    except _RUNTIME_SHAPE_ERRORS as exc:
         return [
             ComplianceIssue(
                 severity="error",

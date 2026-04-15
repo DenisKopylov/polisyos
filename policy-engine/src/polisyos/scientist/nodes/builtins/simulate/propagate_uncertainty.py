@@ -5,6 +5,8 @@ import math
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -24,6 +26,7 @@ from polisyos.ir.analytics.uncertainty import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROPAGATION_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
@@ -32,6 +35,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 logger = get_logger(__name__)
+
+_PROPAGATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_PROPAGATION_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_propagate_uncertainty@1.0.0"),
@@ -180,7 +186,7 @@ class PropagateUncertaintyNode:
         )
         updated_ref = SimulationResultRef(artifact_id=updated_ref_payload.artifact_id)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=("artifacts_index",)).state
         new_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = updated_ref
         new_state.artifacts_index[ARTIFACT_PROPAGATION_REPORT_REF] = report_ref
 
@@ -245,8 +251,8 @@ def _collect_input_envelopes(
                 name = snapshot_env.metadata.get("param_name")
                 key = str(name) if isinstance(name, str) else "data_snapshot"
                 envelopes[key] = snapshot_env
-        except Exception as exc:
-            logger.debug("Ignored exception: %s", exc)
+        except _PROPAGATION_LOAD_ERRORS:
+            logger.debug("Failed to load data snapshot uncertainty envelope", exc_info=True)
 
     calibration_ref = state.inputs.get(INPUT_CALIBRATION_REPORT_REF)
     if calibration_ref is not None:
@@ -258,8 +264,8 @@ def _collect_input_envelopes(
             elif report.uncertainty_envelope_refs:
                 for name, ref in report.uncertainty_envelope_refs.items():
                     envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
-        except Exception as exc:
-            logger.debug("Ignored exception: %s", exc)
+        except _PROPAGATION_LOAD_ERRORS:
+            logger.debug("Failed to load calibration uncertainty envelopes", exc_info=True)
 
     return envelopes
 
@@ -367,8 +373,8 @@ def _load_config(state: ExperimentState) -> PropagationConfig:
     if isinstance(raw, dict):
         try:
             return PropagationConfig.model_validate(raw)
-        except Exception as exc:
-            logger.debug("Ignored exception: %s", exc)
+        except _PROPAGATION_VALIDATION_ERRORS:
+            logger.debug("Invalid propagation_config override; falling back to defaults", exc_info=True)
 
     overrides: dict[str, Any] = {}
     for field_name in PropagationConfig.model_fields:

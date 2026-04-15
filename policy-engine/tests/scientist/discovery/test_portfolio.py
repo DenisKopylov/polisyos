@@ -88,7 +88,9 @@ def _report_for_method(method: DiscoveryMethod) -> CausalDiscoveryReport:
     )
 
 
-def test_cross_sectional_portfolio_runs_constraint_score_and_functional_methods(monkeypatch) -> None:
+def test_cross_sectional_portfolio_runs_constraint_score_and_functional_methods(
+    monkeypatch,
+) -> None:
     seen_params: dict[DiscoveryMethod, dict[str, object]] = {}
 
     def fake_run(state, method, params):
@@ -119,7 +121,10 @@ def test_cross_sectional_portfolio_runs_constraint_score_and_functional_methods(
     }
     assert seen_params[DiscoveryMethod.PC]["discovery_scale_backend"] == "classic"
     assert seen_params[DiscoveryMethod.PC]["n_bootstrap"] == 0
-    assert result.candidates[0].hypothesis.algorithm_family is DiscoveryAlgorithmFamily.CONSTRAINT_BASED
+    assert (
+        result.candidates[0].hypothesis.algorithm_family
+        is DiscoveryAlgorithmFamily.CONSTRAINT_BASED
+    )
     assert result.candidates[3].hypothesis.algorithm_family is DiscoveryAlgorithmFamily.SCORE_BASED
     assert result.candidates[-1].hypothesis.algorithm_family is DiscoveryAlgorithmFamily.FUNCTIONAL
 
@@ -238,4 +243,27 @@ def test_functional_runner_emits_graph_hypotheses_for_tabular_data() -> None:
     assert result.method == DiscoveryMethod.ANM.value
     assert result.graph.graph_type is GraphType.DAG
     assert result.graph.edges
-    assert any("functional_portfolio_runner_uses_builtin_proxy" in warning for warning in result.warnings)
+    assert any(
+        "functional_portfolio_runner_uses_builtin_proxy" in warning
+        for warning in result.warnings
+    )
+
+
+def test_functional_runner_clamps_non_finite_scores() -> None:
+    assert portfolio_module._clamp01(float("nan")) == 0.0
+
+
+def test_reachability_tracker_detects_transitive_cycles_without_dfs() -> None:
+    tracker = portfolio_module._ReachabilityTracker(["A", "B", "C", "D"])
+
+    assert tracker.would_create_cycle("A", "B") is False
+    tracker.add_edge("A", "B")
+    tracker.add_edge("B", "C")
+
+    assert tracker.would_create_cycle("C", "A") is True
+    assert tracker.would_create_cycle("C", "B") is True
+    assert tracker.would_create_cycle("C", "D") is False
+
+    tracker.add_edge("C", "D")
+
+    assert tracker.would_create_cycle("D", "A") is True

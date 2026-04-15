@@ -7,7 +7,7 @@ These are mixed into ``MultiPassLLMDrafter`` via the
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from pydantic import ValidationError
@@ -114,7 +114,7 @@ class _DrafterParsingMixin:
                     payload.alternatives_considered or original.alternatives_considered
                 ),
                 raw_llm_response=raw_response,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             ),
             True,
         )

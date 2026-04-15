@@ -42,25 +42,83 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+import inspect
 import logging
 import os
 import sys
 import threading
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 __all__ = [
     "FoundryHotReloader",
+    "HotReloadDiff",
+    "HotReloadFailureReport",
+    "HotReloadReport",
+    "HotReloadSandboxPolicy",
     "get_reload_version",
     "start_hot_reload",
     "stop_hot_reload",
 ]
 
 _logger = logging.getLogger("foundry.hot_reload")
+_HOT_RELOAD_FAILURES = (
+    AttributeError,
+    ImportError,
+    KeyError,
+    OSError,
+    RuntimeError,
+    SyntaxError,
+    TypeError,
+    ValueError,
+)
 
 # ---------------------------------------------------------------------------
 # FoundryHotReloader
 # ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class HotReloadSandboxPolicy:
+    """Bound the set of registry mutations a hot reload publication may perform."""
+
+    allow_additions: bool = True
+    allow_updates: bool = True
+    allow_removals: bool = True
+
+
+@dataclass(frozen=True, slots=True)
+class HotReloadDiff:
+    """Module-scoped method diff for one staged hot reload publication."""
+
+    module_name: str
+    added_methods: tuple[str, ...]
+    updated_methods: tuple[str, ...]
+    removed_methods: tuple[str, ...]
+    unchanged_methods: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class HotReloadReport:
+    """Structured report for the most recent successful reload publication."""
+
+    module_name: str
+    path: str
+    diff: HotReloadDiff
+    cache_invalidated: bool
+    reload_version: int
+
+
+@dataclass(frozen=True, slots=True)
+class HotReloadFailureReport:
+    """Structured diagnostic for the most recent failed reload attempt."""
+
+    module_name: str
+    path: str
+    error_type: str
+    message: str
 
 
 class FoundryHotReloader:
@@ -80,15 +138,19 @@ class FoundryHotReloader:
         self,
         watch_paths: list[Path] | None = None,
         registry: Any | None = None,
+        sandbox_policy: HotReloadSandboxPolicy | None = None,
     ) -> None:
         if watch_paths is None:
             watch_paths = self._default_catalog_paths()
         self._watch_paths = [Path(p) for p in watch_paths]
         self._registry = registry
+        self._sandbox_policy = sandbox_policy or HotReloadSandboxPolicy()
         self._stop_event = threading.Event()
         self._thread: threading.Thread | None = None
         self._reload_lock = threading.RLock()
         self._reload_version: int = 0
+        self._last_report: HotReloadReport | None = None
+        self._last_failure: HotReloadFailureReport | None = None
 
     # ------------------------------------------------------------------
     # Public API
@@ -121,7 +183,20 @@ class FoundryHotReloader:
     @property
     def reload_version(self) -> int:
         """Monotonically increasing counter, incremented on each successful reload."""
-        return self._reload_version
+        with self._reload_lock:
+            return self._reload_version
+
+    @property
+    def last_report(self) -> HotReloadReport | None:
+        """Structured report for the last successful reload publication."""
+        with self._reload_lock:
+            return self._last_report
+
+    @property
+    def last_failure(self) -> HotReloadFailureReport | None:
+        """Structured report for the last failed reload attempt."""
+        with self._reload_lock:
+            return self._last_failure
 
     def reload_module_at(self, path: Path) -> bool:
         """
@@ -145,11 +220,10 @@ class FoundryHotReloader:
             asyncio.run(self._async_watch_loop())
         except ImportError:
             _logger.warning("watchfiles not installed; hot-reload disabled.")
-        except Exception as exc:
-            _logger.debug("Hot-reload loop exited: %s", exc)
+        except (OSError, RuntimeError) as exc:
+            _logger.warning("Hot-reload loop exited: %s", exc)
 
     async def _async_watch_loop(self) -> None:
-        import asyncio
         try:
             import watchfiles
         except ImportError:
@@ -169,53 +243,216 @@ class FoundryHotReloader:
                     self._reload_and_register(module_name, path)
 
     def _reload_and_register(self, module_name: str, path: Path) -> bool:
-        """Reload module and re-register any Foundry methods found in it."""
-        with self._reload_lock:
-            try:
-                if module_name in sys.modules:
-                    module = importlib.reload(sys.modules[module_name])
-                else:
-                    spec = importlib.util.spec_from_file_location(module_name, path)
-                    if spec is None or spec.loader is None:
-                        return False
-                    module = importlib.util.module_from_spec(spec)
-                    sys.modules[module_name] = module
-                    spec.loader.exec_module(module)  # type: ignore[union-attr]
+        """
+        Reload one module via staged publication and re-register its methods.
 
-                self._register_from_module(module)
-                self._invalidate_cache()
+        The live module reference in ``sys.modules`` is only replaced after the
+        new module object has been executed successfully, validated for Foundry
+        methods, registered into the registry, and the compilation cache has
+        advanced to a new generation.
+        """
+        with self._reload_lock:
+            previous_module = sys.modules.get(module_name)
+            published_previous_entries: dict[str, Any] | None = None
+            published_staged_fqns: set[str] = set()
+            try:
+                module = self._load_module_transactionally(module_name, path)
+                foundry_methods = self._collect_foundry_methods(module)
+                diff = self._build_reload_diff(module_name, foundry_methods)
+                self._validate_reload_diff(diff)
+                published_previous_entries, published_staged_fqns = self._publish_registry_diff(
+                    module_name,
+                    foundry_methods,
+                    diff,
+                )
+                sys.modules[module_name] = module
+                cache_invalidated = self._invalidate_cache()
                 self._reload_version += 1
+                self._last_report = HotReloadReport(
+                    module_name=module_name,
+                    path=str(path),
+                    diff=diff,
+                    cache_invalidated=cache_invalidated,
+                    reload_version=self._reload_version,
+                )
                 _logger.info("Hot-reloaded: %s (version=%d)", module_name, self._reload_version)
                 return True
-            except Exception as exc:
+            except _HOT_RELOAD_FAILURES as exc:
+                if published_previous_entries is not None:
+                    self._restore_registry_entries(
+                        self._registry_or_default(),
+                        published_previous_entries,
+                        published_staged_fqns,
+                    )
+                if previous_module is not None:
+                    sys.modules[module_name] = previous_module
+                else:
+                    sys.modules.pop(module_name, None)
+                self._last_failure = HotReloadFailureReport(
+                    module_name=module_name,
+                    path=str(path),
+                    error_type=type(exc).__name__,
+                    message=str(exc),
+                )
                 _logger.warning("Failed to reload %s: %s", module_name, exc)
                 return False
 
-    def _invalidate_cache(self) -> None:
+    def _invalidate_cache(self) -> bool:
         """Clear compilation cache after method reload to prevent stale hits."""
         try:
             from polisyos.foundry.methods.compiler import get_global_cache
-            cleared = get_global_cache().clear()
+            cleared = get_global_cache().invalidate_all()
             _logger.debug("Cleared %d compilation cache entries after reload", cleared)
-        except Exception as exc:
-            _logger.debug("Cache invalidation skipped: %s", exc)
+            return True
+        except (ImportError, AttributeError, RuntimeError, TypeError, ValueError) as exc:
+            raise RuntimeError(f"Compilation cache invalidation failed: {exc}") from exc
 
-    def _register_from_module(self, module: Any) -> None:
-        """Discover and re-register Foundry methods from a reloaded module."""
-        from polisyos.foundry.methods.registry import get_registry
+    def _load_module_transactionally(self, module_name: str, path: Path) -> Any:
+        """
+        Execute a fresh module object from disk without mutating ``sys.modules``.
+
+        This avoids in-place ``importlib.reload()`` mutation of the previously
+        published module object and gives hot reload a single publication point.
+        """
+        importlib.invalidate_caches()
+        self._ensure_parent_package(module_name)
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Could not build import spec for {module_name} from {path}")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)  # type: ignore[union-attr]
+        return module
+
+    def _collect_foundry_methods(self, module: Any) -> list[type]:
+        """Return Foundry method classes declared directly in *module*."""
         from polisyos.foundry.methods.discovery import is_foundry_method
 
-        reg = self._registry or get_registry()
-        for name in dir(module):
-            obj = getattr(module, name, None)
-            if obj is None:
+        methods: list[type] = []
+        module_name = getattr(module, "__name__", "")
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if getattr(obj, "__module__", None) != module_name:
                 continue
-            try:
-                if is_foundry_method(obj):
-                    reg.register(obj, override=True)
-                    _logger.debug("Re-registered: %s", obj.signature.fqn)
-            except Exception as exc:
-                _logger.debug("Skip %s.%s: %s", module.__name__, name, exc)
+            if name.startswith("_"):
+                continue
+            if is_foundry_method(obj):
+                methods.append(obj)
+        return methods
+
+    def _publish_registry_diff(
+        self,
+        module_name: str,
+        foundry_methods: list[type],
+        diff: HotReloadDiff,
+    ) -> tuple[dict[str, Any], set[str]]:
+        """Apply a module-scoped registry diff and roll back on failure."""
+        reg = self._registry_or_default()
+        staged_fqns = {method_class.signature.fqn for method_class in foundry_methods}
+        previous_entries = {
+            fqn: reg.get_entry(fqn)
+            for fqn in self._module_registry_fqns(module_name) | staged_fqns
+        }
+        try:
+            for fqn in diff.removed_methods:
+                reg.unregister(fqn)
+                _logger.debug("Unregistered stale hot-reload method: %s", fqn)
+            for method_class in foundry_methods:
+                reg.register(method_class, override=True)
+                _logger.debug("Re-registered: %s", method_class.signature.fqn)
+        except _HOT_RELOAD_FAILURES:
+            self._restore_registry_entries(reg, previous_entries, staged_fqns)
+            raise
+        return previous_entries, staged_fqns
+
+    def _restore_registry_entries(
+        self,
+        registry: Any,
+        previous_entries: dict[str, Any],
+        staged_fqns: set[str],
+    ) -> None:
+        """Best-effort rollback for a failed registry publication."""
+        affected_fqns = set(previous_entries) | set(staged_fqns)
+        for fqn in affected_fqns:
+            registry.unregister(fqn)
+        for entry in previous_entries.values():
+            if entry is None:
+                continue
+            cached_class = getattr(entry, "_cached_class", None)
+            if entry.loaded and cached_class is not None:
+                registry.register(cached_class, override=True)
+                continue
+            registry.register_lazy(
+                entry.signature,
+                entry.metadata,
+                entry.factory,
+                override=True,
+                import_target=entry.persistable_import_target,
+            )
+
+    def _build_reload_diff(self, module_name: str, foundry_methods: list[type]) -> HotReloadDiff:
+        """Compute module-scoped add/update/remove sets before publication."""
+        staged_by_fqn = {
+            method_class.signature.fqn: method_class
+            for method_class in foundry_methods
+        }
+        previous_entries = self._module_registry_entries(module_name)
+
+        added = sorted(set(staged_by_fqn) - set(previous_entries))
+        removed = sorted(set(previous_entries) - set(staged_by_fqn))
+        updated: list[str] = []
+        unchanged: list[str] = []
+        for fqn in sorted(set(staged_by_fqn) & set(previous_entries)):
+            previous = previous_entries[fqn]
+            staged = staged_by_fqn[fqn]
+            signature_changed = previous.signature.abi_digest() != staged.signature.abi_digest()
+            metadata_changed = previous.metadata.stable_digest() != staged.metadata.stable_digest()
+            if signature_changed or metadata_changed:
+                updated.append(fqn)
+            else:
+                unchanged.append(fqn)
+
+        return HotReloadDiff(
+            module_name=module_name,
+            added_methods=tuple(added),
+            updated_methods=tuple(updated),
+            removed_methods=tuple(removed),
+            unchanged_methods=tuple(unchanged),
+        )
+
+    def _validate_reload_diff(self, diff: HotReloadDiff) -> None:
+        """Fail closed when the staged reload attempts a disallowed mutation class."""
+        if diff.added_methods and not self._sandbox_policy.allow_additions:
+            raise RuntimeError(
+                f"Hot reload additions blocked for {diff.module_name}: {list(diff.added_methods)}"
+            )
+        if diff.updated_methods and not self._sandbox_policy.allow_updates:
+            raise RuntimeError(
+                f"Hot reload updates blocked for {diff.module_name}: {list(diff.updated_methods)}"
+            )
+        if diff.removed_methods and not self._sandbox_policy.allow_removals:
+            raise RuntimeError(
+                f"Hot reload removals blocked for {diff.module_name}: {list(diff.removed_methods)}"
+            )
+
+    def _module_registry_entries(self, module_name: str) -> dict[str, Any]:
+        """Return live registry entries currently published from *module_name*."""
+        reg = self._registry_or_default()
+        snapshot = reg.snapshot()
+        entries: dict[str, Any] = {}
+        for entry in snapshot.entries():
+            if entry.import_module != module_name:
+                continue
+            live_entry = reg.get_entry(entry.fqn)
+            if live_entry is not None:
+                entries[entry.fqn] = live_entry
+        return entries
+
+    def _module_registry_fqns(self, module_name: str) -> set[str]:
+        return set(self._module_registry_entries(module_name))
+
+    def _registry_or_default(self) -> Any:
+        from polisyos.foundry.methods.registry import get_registry
+
+        return self._registry or get_registry()
 
     @staticmethod
     def _path_to_module_name(path: Path) -> str | None:
@@ -231,13 +468,19 @@ class FoundryHotReloader:
         return None
 
     @staticmethod
+    def _ensure_parent_package(module_name: str) -> None:
+        package_name, _, _ = module_name.rpartition(".")
+        if package_name and package_name not in sys.modules:
+            importlib.import_module(package_name)
+
+    @staticmethod
     def _default_catalog_paths() -> list[Path]:
         """Return the default catalog directories to watch."""
         try:
             import polisyos.foundry.methods.catalog as _catalog_pkg
             catalog_dir = Path(_catalog_pkg.__file__).parent
             return [catalog_dir]
-        except Exception:
+        except (ImportError, AttributeError, TypeError):
             return []
 
 

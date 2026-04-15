@@ -12,6 +12,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -23,6 +25,7 @@ from polisyos.lex.interventions import HierarchicalPolicySearchAdapter
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     resolve_baseline_policy_value,
@@ -68,7 +71,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_TREASURY_PLAN_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
-from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle, PolicyEvaluationVector
+from polisyos.scientist.policy_design.objectives import (
+    ObjectiveStack,
+    PolicyEvaluationBundle,
+    PolicyEvaluationVector,
+)
 from polisyos.scientist.policy_design.output import (
     PolicyFrontierEntry,
     PolicyFrontierReport,
@@ -128,6 +135,9 @@ _INNER_CANDIDATE_ARTIFACT_KEYS = (
     ARTIFACT_TEE_ATTESTATION_REF,
     ARTIFACT_SBOM_REF,
 )
+
+_POLICY_SEARCH_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_POLICY_SEARCH_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
 
 
 @dataclass(frozen=True)
@@ -206,7 +216,7 @@ class RunHierarchicalPolicySearchNode:
                     context=context,
                 ),
             )
-        except Exception as exc:
+        except _POLICY_SEARCH_EXECUTION_ERRORS as exc:
             error = NodeError(
                 code=node_errors.ERROR_INVALID_STATE,
                 message=f"Hierarchical policy search failed: {exc}",
@@ -229,7 +239,15 @@ class RunHierarchicalPolicySearchNode:
             search_result=search_result,
         )
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=(
+                "params.policy_candidate_schema",
+                "params.policy_search_result",
+                f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_POLICY_FRONTIER_REPORT_REF}",
+            ),
+        ).state
         new_state.params["policy_candidate_schema"] = champion
         new_state.params["policy_search_result"] = {
             **search_result.model_dump(mode="json"),
@@ -287,7 +305,14 @@ def _evaluate_candidate_payload(
 ) -> dict[str, Any]:
     del context
     candidate = PolicyCandidateSchema.model_validate(_candidate_payload_without_hash(candidate_payload))
-    candidate_state = state.model_copy(deep=True)
+    candidate_state = branch_state(
+        state,
+        write_paths=(
+            "params.policy_candidate_schema",
+            f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
+            *(f"artifacts_index.{key}" for key in _INNER_CANDIDATE_ARTIFACT_KEYS),
+        ),
+    ).state
     candidate_state.params["policy_candidate_schema"] = candidate
     candidate_state.inputs[INPUT_TRINITY_BUNDLE_REF] = _persist_trinity_bundle(
         ctx,
@@ -532,7 +557,7 @@ def _coerce_policy_candidate(payload: Any) -> PolicyCandidateSchema | None:
         return payload
     try:
         return PolicyCandidateSchema.model_validate(payload)
-    except Exception:
+    except _POLICY_SEARCH_VALIDATION_ERRORS:
         return None
 
 
@@ -543,7 +568,7 @@ def _coerce_lex_bundle(payload: Any) -> LexPolicyBundleInput | None:
         return payload
     try:
         return LexPolicyBundleInput.model_validate(payload)
-    except Exception:
+    except _POLICY_SEARCH_VALIDATION_ERRORS:
         return None
 
 
@@ -554,7 +579,7 @@ def _coerce_policy_evaluation(payload: Any) -> PolicyEvaluationVector | None:
         return payload
     try:
         return PolicyEvaluationVector.model_validate(payload)
-    except Exception:
+    except _POLICY_SEARCH_VALIDATION_ERRORS:
         return None
 
 

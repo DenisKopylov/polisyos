@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+import pytest
 
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.mechanisms.fiscal import IncomeTax, TaxSubsidy, compute_tax
@@ -61,3 +62,71 @@ def test_income_tax_compute_matches_patches() -> None:
 
     assert jnp.allclose(-patches["agents.income"][0]["delta"], tax_amount)
     assert jnp.isclose(patches["government.balance"][0]["delta"], jnp.sum(tax_amount))
+
+
+@pytest.mark.parametrize("rate", [-0.1, 1.1])
+def test_income_tax_rejects_out_of_domain_rate(rate: float) -> None:
+    with pytest.raises(ValueError, match="income tax rate must lie in \\[0, 1\\]"):
+        IncomeTax(n_agents=2, rate=rate)
+
+
+@pytest.mark.parametrize("rate", [-0.1, 1.1])
+def test_tax_subsidy_rejects_out_of_domain_rate(rate: float) -> None:
+    with pytest.raises(ValueError, match="subsidy rate must lie in \\[0, 1\\]"):
+        TaxSubsidy(n_agents=2, rate=rate)
+
+
+def test_compute_tax_rejects_invalid_rate_input() -> None:
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    with pytest.raises(ValueError, match="tax rate must lie in \\[0, 1\\]"):
+        compute_tax(state, jnp.array(1.5, dtype=jnp.float32))
+
+
+def test_income_tax_respects_target_and_active_masks() -> None:
+    state = GlobalState.empty(n_agents=3, n_firms=1).replace(
+        agents=GlobalState.empty(n_agents=3, n_firms=1).agents.replace(
+            active=jnp.array([True, False, True], dtype=jnp.bool_),
+            income=jnp.array([100.0, 200.0, 300.0], dtype=jnp.float32),
+            reported_income=jnp.array([100.0, 200.0, 300.0], dtype=jnp.float32),
+        )
+    )
+    patches, _ = IncomeTax(n_agents=3, rate=0.1).emit_patches(
+        state,
+        jax.random.PRNGKey(0),
+        target_mask=jnp.array([True, True, False], dtype=jnp.bool_),
+    )
+    next_state = apply_patch_map(
+        state,
+        patches,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        default_node_id="tax",
+    )
+
+    assert next_state.agents.income.tolist() == [90.0, 200.0, 300.0]
+    assert float(next_state.government_balance) == 10.0
+
+
+def test_tax_subsidy_respects_target_and_active_masks() -> None:
+    state = GlobalState.empty(n_agents=3, n_firms=1).replace(
+        agents=GlobalState.empty(n_agents=3, n_firms=1).agents.replace(
+            active=jnp.array([True, True, False], dtype=jnp.bool_),
+            income=jnp.array([100.0, 200.0, 300.0], dtype=jnp.float32),
+        ),
+        government_balance=jnp.array(0.0),
+    )
+    patches, _ = TaxSubsidy(n_agents=3, rate=0.5).emit_patches(
+        state,
+        jax.random.PRNGKey(0),
+        target_mask=jnp.array([False, True, True], dtype=jnp.bool_),
+    )
+    next_state = apply_patch_map(
+        state,
+        patches,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        default_node_id="subsidy",
+    )
+
+    assert next_state.agents.income.tolist() == [100.0, 300.0, 300.0]
+    assert float(next_state.government_balance) == -100.0

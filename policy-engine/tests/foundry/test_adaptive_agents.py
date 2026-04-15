@@ -6,6 +6,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
+import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.foundry.agent_metrics import (
@@ -22,6 +23,7 @@ from polisyos.foundry.agents import (
     continuous_actions_from_logits,
 )
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.methods.exceptions import ActionRoutingError, ObservationBindingError
 from polisyos.foundry.utils import gradient_health_report
 
 OBS_SPACE = ["agents.income", "agents.risk_aversion", "policy.tax_rate"]
@@ -304,3 +306,20 @@ def test_adaptive_agent_behavioral_metrics_and_laffer_curve() -> None:
     revenues = jax.vmap(_revenue_for_rate)(tax_rates)
     assert float(revenues[2]) > float(revenues[-1])
     assert float(jnp.std(revenues)) > 0.0
+
+
+def test_build_observations_raises_on_missing_field() -> None:
+    state = _make_base_state(4)
+
+    with pytest.raises(ObservationBindingError):
+        build_observations(state, ["agents.missing_feature"])
+
+
+def test_adaptive_agent_rejects_invalid_action_target() -> None:
+    with pytest.raises(ActionRoutingError):
+        AdaptiveAgentMechanism(
+            observation_space=OBS_SPACE,
+            action_space={"type": "continuous", "affects": ["government.balance"]},
+            stochastic=False,
+            seed=0,
+        )

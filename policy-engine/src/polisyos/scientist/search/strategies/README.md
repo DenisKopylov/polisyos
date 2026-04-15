@@ -16,6 +16,8 @@ Bayesian и multi-objective контуров.
 - **SearchSpace + codecs** — описание параметров и их приведение к runtime форме.
 - **Deterministic baselines** — `RandomSearchStrategy`, `GridSearchStrategy`.
 - **Advanced optimizers** — optional Bayesian и multi-objective backends.
+- **WS-3C policy toolkit** — offline-gated BOHB/ASHA, CMA-ES, learned VOI,
+  learned routing, GP surrogate, constraint propagation and PBT helpers.
 - **Resource arbitration** — лимиты памяти/ресурсов для дорогих strategy paths.
 
 ## Public API
@@ -26,12 +28,17 @@ Bayesian и multi-objective контуров.
 - `RandomSearchStrategy`, `GridSearchStrategy`
 - `ResourceArbiter`, `ResourceMode`, `memory_cleanup(...)`
 - optional: `BayesianConfig`, `BayesianOptimizer`, `MOConfig`, `MOBayesianOptimizer`
+- WS-3C: `AdvancedSearchPolicyConfig`, `ASHAScheduler`, `BOHBSampler`,
+  `CMAESExplorer`, `GaussianProcessCheapStageSurrogate`,
+  `ExplicitConstraintPropagator`, `LearnedVOIPolicy`, `LearnedRoutingPolicy`,
+  `PopulationBasedTrainingScheduler`
 
 Подробности: [Reference →](../../../../../docs/reference/scientist/index.md)
 
 ## Текущее состояние
 
 - Последнее обновление: 2026-04-03
+  - WS-3C advanced policy surface обновлён: 2026-04-12
 - Python modules: 24
 - Exports: 18 base exports plus optional heavy-dependency strategy exports
 - README синхронизирован с текущим lazy/optional import поведением пакета

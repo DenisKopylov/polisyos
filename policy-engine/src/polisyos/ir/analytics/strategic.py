@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 import itertools
-import math
 from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.ir._validation import ensure_finite_numeric, ensure_unique_ids
+from polisyos.ir.analytics.dynamic_regime import RuntimeSupportStatus
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import (
@@ -16,7 +17,6 @@ from polisyos.ir.refs import (
     StrategicResponseBundleRef,
     StrategicSCMRef,
 )
-from polisyos.ir.analytics.dynamic_regime import RuntimeSupportStatus
 from polisyos.scientist.kernel.budgets import ComputeBudget
 
 _STRATEGIC_PAYOFF_TABLE_SCHEMA_NAME = "ir.strategic_payoff_table"
@@ -45,10 +45,7 @@ def _ensure_non_empty(value: str, *, field_name: str) -> str:
 
 
 def _ensure_finite(value: float, *, field_name: str) -> float:
-    casted = float(value)
-    if not math.isfinite(casted):
-        raise ValueError(f"{field_name} must be finite")
-    return casted
+    return float(ensure_finite_numeric(value, field_name=field_name))
 
 
 def _validate_artifact_ref(ref: ArtifactRefModel, *, field_name: str) -> ArtifactRefModel:
@@ -159,8 +156,11 @@ class FiniteStrategicPayoffTable(BaseModel):
     def _validate_dense_surface(self) -> "FiniteStrategicPayoffTable":
         if not self.strategic_agents:
             raise ValueError("strategic_agents must be non-empty")
-        if len(set(self.strategic_agents)) != len(self.strategic_agents):
-            raise ValueError("strategic_agents must be unique")
+        ensure_unique_ids(
+            self.strategic_agents,
+            key_fn=lambda item: item,
+            label="strategic_agents",
+        )
         if self.agent not in self.strategic_agents:
             raise ValueError("agent must be listed in strategic_agents")
         expected_agents = set(self.strategic_agents)
@@ -175,8 +175,11 @@ class FiniteStrategicPayoffTable(BaseModel):
             )
             if not actions:
                 raise ValueError(f"action_spaces.{agent} must be non-empty")
-            if len(set(actions)) != len(actions):
-                raise ValueError(f"action_spaces.{agent} must contain unique actions")
+            ensure_unique_ids(
+                actions,
+                key_fn=lambda item: item,
+                label=f"action_spaces.{agent}",
+            )
             normalized_action_spaces[agent] = actions
 
         expected_profiles = {
@@ -223,8 +226,11 @@ class StrategicSCM(BaseModel):
         _validate_artifact_ref(self.policy_rule_ref, field_name="policy_rule_ref")
         if not self.strategic_agents:
             raise ValueError("strategic_agents must be non-empty")
-        if len(set(self.strategic_agents)) != len(self.strategic_agents):
-            raise ValueError("strategic_agents must be unique")
+        ensure_unique_ids(
+            self.strategic_agents,
+            key_fn=lambda item: item,
+            label="strategic_agents",
+        )
         if set(self.utility_refs) != set(self.strategic_agents):
             raise ValueError("utility_refs keys must match strategic_agents exactly")
         for agent, ref in self.utility_refs.items():

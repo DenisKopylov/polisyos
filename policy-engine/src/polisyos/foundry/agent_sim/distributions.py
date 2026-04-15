@@ -28,7 +28,7 @@ class DistributionConfig:
     update_frequency: int = 8
     soft_temperature: float = 1.0
     n_quantiles: int = 10
-    use_approximate: bool = True
+    use_approximate: bool = False
     approximate_sample_size: int = 1000
 
 
@@ -103,7 +103,7 @@ def compute_all_distributions(
     """Recompute quantiles, ranks, and inequality summaries from the current agent state."""
     agents = state.agents
     active = agents.active
-    mode = ComputeMode.HARD if config.mode == ComputeMode.CACHED else config.mode
+    mode = config.mode
 
     rng_key = jax.random.fold_in(state.rng_key, state.time_step)
 
@@ -206,7 +206,7 @@ def compute_quantiles(
     """Dispatch quantile estimation to exact, differentiable, or sampled implementations."""
     if mode == ComputeMode.SOFT:
         return compute_quantiles_soft(values, active, n_quantiles, temperature=temperature)
-    if use_approximate and rng_key is not None:
+    if mode == ComputeMode.CACHED and use_approximate and rng_key is not None:
         return compute_quantiles_approximate(
             values,
             active,
@@ -269,26 +269,81 @@ def compute_ranks_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
 
 def soft_sort(values: jnp.ndarray, *, temperature: float = 1.0, n_iters: int = 10) -> jnp.ndarray:
     """Approximate sorting with Sinkhorn-style transport for differentiable statistics."""
-    target = jnp.sort(values)
-    cost = (values[:, None] - target[None, :]) ** 2
-    log_p = -cost / temperature
-
-    def _sinkhorn(_, log_p):
-        log_p = log_p - jax.nn.logsumexp(log_p, axis=1, keepdims=True)
-        log_p = log_p - jax.nn.logsumexp(log_p, axis=0, keepdims=True)
-        return log_p
-
-    log_p = jax.lax.fori_loop(0, int(n_iters), _sinkhorn, log_p)
-    perm = jnp.exp(log_p)
-    return perm @ target
+    del n_iters
+    ranks = soft_rank(values, temperature=temperature)
+    target_ranks = jnp.linspace(0.0, 1.0, values.shape[0], dtype=values.dtype)
+    return _soft_select_by_rank(
+        values,
+        ranks,
+        target_ranks=target_ranks,
+        temperature=temperature,
+    )
 
 
 def soft_rank(values: jnp.ndarray, *, temperature: float = 1.0) -> jnp.ndarray:
     """Approximate ranks with pairwise sigmoid comparisons for smooth objectives."""
-    diff = values[:, None] - values[None, :]
-    soft_comp = jax.nn.sigmoid(diff / temperature)
-    ranks = jnp.sum(soft_comp, axis=1) - 0.5
+    if values.shape[0] == 0:
+        return jnp.zeros_like(values, dtype=jnp.float32)
+    block_size = min(values.shape[0], 256)
+    rank_acc = jnp.zeros_like(values, dtype=jnp.float32)
+    for start in range(0, values.shape[0], block_size):
+        block = values[start:start + block_size]
+        diff = values[:, None] - block[None, :]
+        rank_acc = rank_acc + jnp.sum(jax.nn.sigmoid(diff / temperature), axis=1)
+    ranks = rank_acc - 0.5
     return ranks / jnp.maximum(values.shape[0] - 1, 1)
+
+
+def _soft_rank_masked(
+    values: jnp.ndarray,
+    active: jnp.ndarray,
+    *,
+    temperature: float,
+) -> jnp.ndarray:
+    """Rank active agents without letting inactive padding shift the scale."""
+    if values.shape[0] == 0:
+        return jnp.zeros_like(values, dtype=jnp.float32)
+    block_size = min(values.shape[0], 256)
+    active_f = active.astype(jnp.float32)
+    rank_acc = jnp.zeros_like(values, dtype=jnp.float32)
+    for start in range(0, values.shape[0], block_size):
+        block = values[start:start + block_size]
+        block_active = active_f[start:start + block_size]
+        diff = values[:, None] - block[None, :]
+        comparisons = jax.nn.sigmoid(diff / temperature) * block_active[None, :]
+        rank_acc = rank_acc + jnp.sum(comparisons, axis=1)
+    n_active = jnp.sum(active_f)
+    ranks = (rank_acc - 0.5 * active_f) / jnp.maximum(n_active - 1.0, 1.0)
+    return jnp.where(active, ranks, 0.0)
+
+
+def _soft_select_by_rank(
+    values: jnp.ndarray,
+    ranks: jnp.ndarray,
+    *,
+    target_ranks: jnp.ndarray,
+    temperature: float,
+    valid_mask: jnp.ndarray | None = None,
+) -> jnp.ndarray:
+    if target_ranks.shape[0] == 0:
+        return jnp.zeros_like(target_ranks, dtype=values.dtype)
+    block_size = min(target_ranks.shape[0], 128)
+    bandwidth = jnp.maximum(jnp.asarray(temperature, dtype=values.dtype), 1e-3)
+    outputs = []
+    masked_values = values.astype(jnp.float32)
+    masked_ranks = ranks.astype(jnp.float32)
+    valid_weights = None
+    if valid_mask is not None:
+        valid_weights = valid_mask.astype(jnp.float32)[:, None]
+    for start in range(0, target_ranks.shape[0], block_size):
+        target_block = target_ranks[start:start + block_size].astype(jnp.float32)
+        distances = masked_ranks[:, None] - target_block[None, :]
+        weights = jnp.exp(-(distances**2) / bandwidth)
+        if valid_weights is not None:
+            weights = weights * valid_weights
+        weights = weights / (jnp.sum(weights, axis=0, keepdims=True) + 1e-8)
+        outputs.append(jnp.sum(masked_values[:, None] * weights, axis=0))
+    return jnp.concatenate(outputs, axis=0).astype(values.dtype)
 
 
 def compute_quantiles_soft(
@@ -299,24 +354,21 @@ def compute_quantiles_soft(
     temperature: float = 1.0,
 ) -> jnp.ndarray:
     """Estimate quantiles from a differentiable soft sort over active agents."""
-    n_agents = values.shape[0]
     n_active = jnp.sum(active).astype(jnp.int32)
 
     def _no_active():
         return jnp.zeros((n_quantiles,), dtype=values.dtype)
 
     def _with_active():
-        masked_values = jnp.where(active, values, -1e6)
-        soft_sorted = soft_sort(masked_values, temperature=temperature)
+        ranks = _soft_rank_masked(values, active, temperature=temperature)
         fractions = jnp.linspace(0.0, 1.0, n_quantiles + 1, dtype=jnp.float32)[1:]
-        idx_f = fractions * (n_active - 1)
-        lower = jnp.floor(idx_f).astype(jnp.int32)
-        upper = jnp.ceil(idx_f).astype(jnp.int32)
-        weights = idx_f - lower
-        n_inactive = n_agents - n_active
-        lower = jnp.clip(lower + n_inactive, 0, n_agents - 1)
-        upper = jnp.clip(upper + n_inactive, 0, n_agents - 1)
-        return (1.0 - weights) * soft_sorted[lower] + weights * soft_sorted[upper]
+        return _soft_select_by_rank(
+            values,
+            ranks,
+            target_ranks=fractions,
+            temperature=temperature,
+            valid_mask=active,
+        )
 
     return jax.lax.cond(n_active > 0, _with_active, _no_active)
 
@@ -328,9 +380,7 @@ def compute_ranks_soft(
     temperature: float = 1.0,
 ) -> jnp.ndarray:
     """Estimate differentiable ranks while masking inactive agents."""
-    masked_values = jnp.where(active, values, -1e6)
-    ranks = soft_rank(masked_values, temperature=temperature)
-    return jnp.where(active, ranks, 0.0)
+    return _soft_rank_masked(values, active, temperature=temperature)
 
 
 def compute_quantiles_approximate(

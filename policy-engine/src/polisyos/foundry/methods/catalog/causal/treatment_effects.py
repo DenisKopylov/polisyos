@@ -74,7 +74,7 @@ class AIPWEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="aipw",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),
@@ -145,7 +145,7 @@ class TMLEEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="tmle",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),
@@ -210,7 +210,7 @@ class IPWEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ipw",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),
@@ -247,30 +247,50 @@ class IPWEstimator:
         Y = np.asarray(state["outcome"], dtype=float)
         n = len(Y)
         trim = float(params.get("trimming", 0.01))
+        treated = T > 0.5
+        control = ~treated
+        if not np.any(treated) or not np.any(control):
+            raise ValueError("IPW requires both treated and control observations")
 
-        e = _logistic_propensity(X, T)
-        e = np.clip(e, trim, 1.0 - trim)
+        propensity = _logistic_propensity(X, T)
+        e = np.clip(propensity, trim, 1.0 - trim)
 
         # Hajek (normalized) IPW
         w1 = T / e
         w0 = (1 - T) / (1 - e)
+        sum_w1 = float(np.sum(w1))
+        sum_w0 = float(np.sum(w0))
+        if sum_w1 <= 0.0 or sum_w0 <= 0.0:
+            raise ValueError("IPW produced degenerate weights")
 
         ate_ht = float(np.mean(w1 * Y) - np.mean(w0 * Y))
-        ate_hajek = float(np.sum(w1 * Y) / np.sum(w1) - np.sum(w0 * Y) / np.sum(w0))
+        mu1 = float(np.sum(w1 * Y) / sum_w1)
+        mu0 = float(np.sum(w0 * Y) / sum_w0)
+        ate_hajek = float(mu1 - mu0)
 
-        # SE via influence function
-        psi = w1 * Y - w0 * Y - ate_ht
-        se = float(np.std(psi) / np.sqrt(n))
+        # Ratio-estimator influence approximation around the normalized Hajek target.
+        mean_w1 = max(float(np.mean(w1)), 1e-12)
+        mean_w0 = max(float(np.mean(w0)), 1e-12)
+        psi = (w1 * (Y - mu1)) / mean_w1 - (w0 * (Y - mu0)) / mean_w0
+        se = float(np.std(psi, ddof=1) / np.sqrt(n)) if n > 1 else 0.0
+        ess_treated = float(sum_w1 ** 2 / max(np.sum(w1 ** 2), 1e-12))
+        ess_control = float(sum_w0 ** 2 / max(np.sum(w0 ** 2), 1e-12))
+        n_clipped = int(np.sum((propensity < trim) | (propensity > (1.0 - trim))))
 
         return {
             "result": {
+                "ate": ate_hajek,
                 "ate_horvitz_thompson": ate_ht,
                 "ate_hajek": ate_hajek,
                 "standard_error": se,
-                "ci_lower": ate_ht - 1.96 * se,
-                "ci_upper": ate_ht + 1.96 * se,
-                "effective_sample_size_treated": float(np.sum(w1) ** 2 / np.sum(w1 ** 2)),
-                "effective_sample_size_control": float(np.sum(w0) ** 2 / np.sum(w0 ** 2)),
+                "ci_lower": ate_hajek - 1.96 * se,
+                "ci_upper": ate_hajek + 1.96 * se,
+                "interval_method": "hajek_influence",
+                "effective_sample_size_treated": ess_treated,
+                "effective_sample_size_control": ess_control,
+                "min_propensity": float(np.min(e)),
+                "max_propensity": float(np.max(e)),
+                "n_clipped_propensities": n_clipped,
                 "n_obs": n,
             }
         }
@@ -288,7 +308,7 @@ class PropensityScoreMatchingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="propensity_matching",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),
@@ -381,7 +401,7 @@ class EntropyBalancingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="entropy_balancing",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),
@@ -491,7 +511,7 @@ class CBPSEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="cbps",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),

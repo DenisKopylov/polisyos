@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from datetime import UTC, datetime
 from typing import Any
 
@@ -217,7 +218,10 @@ class ActiveDisambiguationPlanner:
             ambiguity_mass = min(
                 1.0,
                 max(
-                    [1.0 - float(edge.orientation_confidence) for edge in disputed.candidate_edges]
+                    [
+                        1.0 - _finite_unit_interval(edge.orientation_confidence)
+                        for edge in disputed.candidate_edges
+                    ]
                     or [0.8]
                 ),
             )
@@ -229,7 +233,11 @@ class ActiveDisambiguationPlanner:
                 DisambiguationTarget(
                     target_id=disputed.dispute_id,
                     target_type="disputed_edge",
-                    edge_key=disputed.candidate_edges[0].edge_key if disputed.candidate_edges else None,
+                    edge_key=(
+                        disputed.candidate_edges[0].edge_key
+                        if disputed.candidate_edges
+                        else None
+                    ),
                     description=(
                         f"Resolve disputed discovery edge around {disputed.skeleton_key}."
                     ),
@@ -257,7 +265,10 @@ class ActiveDisambiguationPlanner:
             margin = self._orientation_margin(entry)
             if not entry.disputed and margin > self._config.low_margin_threshold:
                 continue
-            ambiguity_mass = min(1.0, max(1.0 - margin, 1.0 - float(entry.orientation_confidence)))
+            ambiguity_mass = min(
+                1.0,
+                max(1.0 - margin, 1.0 - _finite_unit_interval(entry.orientation_confidence)),
+            )
             supporting_ids = list(entry.supporting_hypothesis_ids)
             downstream_impact = self._downstream_impact(
                 bundle.downstream_utility_report,
@@ -299,7 +310,9 @@ class ActiveDisambiguationPlanner:
         for score in bundle.downstream_utility_report.scores[: self._config.max_targets]:
             if score.identification_status in {"identified"}:
                 continue
-            ambiguity_mass = 1.0 if score.identifiability_score <= 0.0 else 0.6
+            identifiability_score = _finite_unit_interval(score.identifiability_score)
+            composite_score = _finite_unit_interval(score.composite_score)
+            ambiguity_mass = 1.0 if identifiability_score <= 0.0 else 0.6
             stability_gap = self._stability_gap(
                 bundle.bootstrap_stability_report,
                 [score.hypothesis_id],
@@ -313,11 +326,11 @@ class ActiveDisambiguationPlanner:
                         f"Hypothesis {score.hypothesis_id} remains {score.identification_status}."
                     ),
                     priority_score=self._priority(
-                        downstream_impact=float(score.composite_score),
+                        downstream_impact=composite_score,
                         ambiguity_mass=ambiguity_mass,
                         stability_gap=stability_gap,
                     ),
-                    downstream_impact=float(score.composite_score),
+                    downstream_impact=composite_score,
                     ambiguity_mass=ambiguity_mass,
                     stability_gap=stability_gap,
                     supporting_hypothesis_ids=[score.hypothesis_id],
@@ -399,7 +412,8 @@ class ActiveDisambiguationPlanner:
                 action_type="collect_target_domain_data",
                 title="Collect target-domain data",
                 description=(
-                    f"Collect target-domain evidence to resolve context shift around {target.edge_key or target.target_id}."
+                    "Collect target-domain evidence to resolve context shift around "
+                    f"{target.edge_key or target.target_id}."
                 ),
                 target_ids=[target.target_id],
                 notes=["Transport or context gap remained unresolved after discovery priors."],
@@ -410,7 +424,8 @@ class ActiveDisambiguationPlanner:
                 action_type="measure_proxy",
                 title="Measure missing proxy",
                 description=(
-                    f"Add direct measurement or a stronger proxy for {target.edge_key or target.target_id}."
+                    "Add direct measurement or a stronger proxy for "
+                    f"{target.edge_key or target.target_id}."
                 ),
                 target_ids=[target.target_id],
                 notes=["Measurement ambiguity looked proxy-like from the target naming surface."],
@@ -421,7 +436,8 @@ class ActiveDisambiguationPlanner:
                 action_type="literature_followup",
                 title="Follow up literature conflict",
                 description=(
-                    f"Run a targeted literature follow-up for {target.edge_key or target.target_id}."
+                    "Run a targeted literature follow-up for "
+                    f"{target.edge_key or target.target_id}."
                 ),
                 target_ids=[target.target_id],
                 notes=list(target.notes),
@@ -431,7 +447,8 @@ class ActiveDisambiguationPlanner:
             action_type="expert_review",
             title="Escalate for expert review",
             description=(
-                f"Request expert review for {target.edge_key or target.hypothesis_id or target.target_id}."
+                "Request expert review for "
+                f"{target.edge_key or target.hypothesis_id or target.target_id}."
             ),
             target_ids=[target.target_id],
             notes=list(target.notes),
@@ -446,7 +463,11 @@ class ActiveDisambiguationPlanner:
     ) -> DisambiguationAction | None:
         if bundle.causal_query is None:
             return None
-        hypothesis = self._preferred_hypothesis(target, hypotheses_by_id, bundle.downstream_utility_report)
+        hypothesis = self._preferred_hypothesis(
+            target,
+            hypotheses_by_id,
+            bundle.downstream_utility_report,
+        )
         if hypothesis is None:
             return None
         graph = hypothesis.resolved_graph or hypothesis.graph
@@ -480,7 +501,8 @@ class ActiveDisambiguationPlanner:
                 action_type="run_intervention",
                 title="Run targeted intervention",
                 description=(
-                    f"Execute a targeted causal design to resolve {target.edge_key or target.hypothesis_id or target.target_id}."
+                    "Execute a targeted causal design to resolve "
+                    f"{target.edge_key or target.hypothesis_id or target.target_id}."
                 ),
                 target_ids=[target.target_id],
                 recommended_interventions=list(experiment_plan.recommended_interventions),
@@ -507,7 +529,10 @@ class ActiveDisambiguationPlanner:
                 ),
                 target_ids=[target.target_id],
                 recommended_interventions=list(suggestions[0].required_variables),
-                notes=["Optimal design could not be constructed; using negative-certificate guidance."],
+                notes=[
+                    "Optimal design could not be constructed; using "
+                    "negative-certificate guidance."
+                ],
                 metadata={"hypothesis_id": hypothesis.hypothesis_id},
             )
         return None
@@ -535,12 +560,12 @@ class ActiveDisambiguationPlanner:
         ambiguity_mass: float,
         stability_gap: float,
     ) -> float:
-        return max(
-            0.0,
-            min(
-                1.0,
-                float(downstream_impact) * float(ambiguity_mass) * max(float(stability_gap), 0.1),
-            ),
+        safe_downstream = _finite_unit_interval(downstream_impact)
+        safe_ambiguity = _finite_unit_interval(ambiguity_mass)
+        safe_stability = max(_finite_unit_interval(stability_gap), 0.1)
+        return min(
+            1.0,
+            safe_downstream * safe_ambiguity * safe_stability,
         )
 
     @staticmethod
@@ -549,11 +574,14 @@ class ActiveDisambiguationPlanner:
         supporting_hypothesis_ids: list[str],
     ) -> float:
         score_map = {
-            score.hypothesis_id: float(score.composite_score)
+            score.hypothesis_id: _finite_unit_interval(score.composite_score)
             for score in report.scores
         }
         if supporting_hypothesis_ids:
-            return max(score_map.get(hypothesis_id, 0.0) for hypothesis_id in supporting_hypothesis_ids)
+            return max(
+                score_map.get(hypothesis_id, 0.0)
+                for hypothesis_id in supporting_hypothesis_ids
+            )
         return max(score_map.values(), default=0.5)
 
     @staticmethod
@@ -569,15 +597,21 @@ class ActiveDisambiguationPlanner:
             if summary is None or summary.mean_edge_stability is None:
                 gaps.append(0.5)
                 continue
-            gaps.append(max(0.0, 1.0 - float(summary.mean_edge_stability)))
+            gaps.append(1.0 - _finite_unit_interval(summary.mean_edge_stability, default=0.5))
         if not gaps:
             return 0.5
         return max(0.0, min(1.0, sum(gaps) / len(gaps)))
 
     def _orientation_margin(self, entry: EdgeConfidenceEntry) -> float:
-        supports = sorted(entry.orientation_support.values(), reverse=True)
+        supports = sorted(
+            (
+                _finite_unit_interval(value)
+                for value in entry.orientation_support.values()
+            ),
+            reverse=True,
+        )
         if len(supports) < 2:
-            return float(entry.orientation_confidence)
+            return _finite_unit_interval(entry.orientation_confidence)
         return max(0.0, min(1.0, float(supports[0] - supports[1])))
 
     @staticmethod
@@ -602,9 +636,15 @@ class ActiveDisambiguationPlanner:
     ) -> list[str]:
         notes = [f"Planner status: {status}."]
         if bundle.causal_query is None:
-            notes.append("Causal query missing; intervention designs could not be fully constructed.")
+            notes.append(
+                "Causal query missing; intervention designs could not be fully "
+                "constructed."
+            )
         if any(target.target_type == "academic_conflict" for target in targets):
-            notes.append("Academic support conflicts were surfaced from the prior-knowledge bundle.")
+            notes.append(
+                "Academic support conflicts were surfaced from the prior-knowledge "
+                "bundle."
+            )
         return notes
 
 
@@ -616,3 +656,17 @@ __all__ = [
     "DisambiguationAction",
     "DisambiguationTarget",
 ]
+
+
+def _finite_unit_interval(value: Any, *, default: float = 0.0) -> float:
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return default
+    if not math.isfinite(numeric):
+        return default
+    if numeric <= 0.0:
+        return 0.0
+    if numeric >= 1.0:
+        return 1.0
+    return numeric

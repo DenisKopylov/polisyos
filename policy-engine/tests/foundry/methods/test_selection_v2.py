@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 import threading
 import time
+from pathlib import Path
 
 import pytest
 
@@ -376,3 +377,43 @@ class TestSelectionHistoryStore:
         assert imported == 2
         assert len(restored) == 2
         assert restored.mean_latency_ms("m@1.0.0") == pytest.approx(150.0)
+
+    def test_auto_persist_append_valid_under_concurrent_writers(self, tmp_path):
+        path = tmp_path / "history.jsonl"
+        store = SelectionHistoryStore(persist_path=path, auto_persist=True)
+        n_threads = 6
+        records_per_thread = 40
+
+        def _writer(thread_id: int) -> None:
+            for i in range(records_per_thread):
+                store.record(_make_record(
+                    f"thread.{thread_id}@1.0.0",
+                    latency_ms=float(i),
+                    timestamp=time.time(),
+                ))
+
+        threads = [threading.Thread(target=_writer, args=(idx,)) for idx in range(n_threads)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=10.0)
+
+        restored = SelectionHistoryStore(persist_path=path)
+        assert restored.import_jsonl() == n_threads * records_per_thread
+        assert len(restored) == n_threads * records_per_thread
+
+    def test_persistence_issues_are_bounded(self, tmp_path, monkeypatch):
+        path = tmp_path / "history.jsonl"
+        store = SelectionHistoryStore(persist_path=path, auto_persist=True)
+
+        def _failing_open(self, *args, **kwargs):
+            raise OSError("disk full")
+
+        monkeypatch.setattr(Path, "open", _failing_open)
+
+        for i in range(100):
+            store.record(_make_record("m@1.0.0", latency_ms=float(i)))
+
+        issues = store.persistence_issues()
+        assert len(issues) == store._MAX_PERSISTENCE_ISSUES
+        assert all(issue.operation == "append" for issue in issues)

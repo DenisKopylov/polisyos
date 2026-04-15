@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from functools import lru_cache
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -96,29 +97,57 @@ class GraphHypothesis(BaseModel):
 
 def edge_key_for_edge(edge: CausalEdge) -> str:
     """Return the normalized edge key used by scientist discovery."""
-
-    key = f"{edge.src}->{edge.dst}"
-    if edge.lag not in (None, 0):
-        return f"{key}@lag={edge.lag}"
-    return key
+    return _cached_edge_key(edge.src, edge.dst, _normalized_lag(edge.lag))
 
 
 def orientation_key_for_edge(edge: CausalEdge) -> str:
     """Return a mark-aware edge descriptor for orientation-frequency accounting."""
-
-    base = f"{edge.src}|{edge.mark_src.value}>{edge.mark_dst.value}|{edge.dst}"
-    if edge.lag not in (None, 0):
-        return f"{base}@lag={edge.lag}"
-    return base
+    return _cached_orientation_key(
+        edge.src,
+        edge.dst,
+        getattr(edge.mark_src, "value", str(edge.mark_src)),
+        getattr(edge.mark_dst, "value", str(edge.mark_dst)),
+        _normalized_lag(edge.lag),
+    )
 
 
 def skeleton_key_for_edge(edge: CausalEdge) -> str:
     """Return the skeleton key, ignoring orientation but preserving lag."""
+    return _cached_skeleton_key(edge.src, edge.dst, _normalized_lag(edge.lag))
 
-    src, dst = sorted((edge.src, edge.dst))
-    base = f"{src}--{dst}"
-    if edge.lag not in (None, 0):
-        return f"{base}@lag={edge.lag}"
+
+def _normalized_lag(lag: int | None) -> int:
+    return 0 if lag in (None, 0) else int(lag)
+
+
+@lru_cache(maxsize=16384)
+def _cached_edge_key(src: str, dst: str, lag: int) -> str:
+    key = f"{src}->{dst}"
+    if lag:
+        return f"{key}@lag={lag}"
+    return key
+
+
+@lru_cache(maxsize=16384)
+def _cached_orientation_key(
+    src: str,
+    dst: str,
+    mark_src: str,
+    mark_dst: str,
+    lag: int,
+) -> str:
+    base = f"{src}|{mark_src}>{mark_dst}|{dst}"
+    if lag:
+        return f"{base}@lag={lag}"
+    return base
+
+
+@lru_cache(maxsize=16384)
+def _cached_skeleton_key(src: str, dst: str, lag: int) -> str:
+    left, right = sorted((src, dst))
+    base = f"{left}--{right}"
+    if lag:
+        return f"{base}@lag={lag}"
     return base
 
 

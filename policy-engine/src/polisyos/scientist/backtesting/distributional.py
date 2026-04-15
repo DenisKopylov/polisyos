@@ -2,10 +2,31 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
+
+
+def _chi2_survival(statistic: float, degrees_of_freedom: int) -> float:
+    """Return chi-square survival probability with a robust local fallback."""
+
+    if statistic <= 0.0 or degrees_of_freedom <= 0:
+        return 1.0
+    try:
+        from scipy.stats import chi2
+
+        return float(chi2.sf(statistic, degrees_of_freedom))
+    except ImportError:
+        pass
+
+    # Wilson-Hilferty normal approximation for Chi-square upper tail.
+    df = float(degrees_of_freedom)
+    z = ((statistic / df) ** (1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df))) / math.sqrt(
+        2.0 / (9.0 * df)
+    )
+    return 0.5 * math.erfc(z / math.sqrt(2.0))
 
 
 @dataclass(frozen=True)
@@ -86,14 +107,23 @@ def test_residual_autocorrelation(
     max_lag: int = 5,
     alpha: float = 0.05,
 ) -> DistributionalTestResult:
-    """Test for residual autocorrelation using Ljung-Box-like statistic."""
+    """Test for residual autocorrelation using the Ljung-Box Q statistic."""
     arr = np.asarray(residuals, dtype=float)
     arr = arr[np.isfinite(arr)]
     n = arr.size
 
+    if max_lag < 1:
+        return DistributionalTestResult(
+            test_name="ljung_box",
+            statistic=0.0,
+            p_value=None,
+            reject_null=False,
+            description="invalid_max_lag",
+        )
+
     if n < max_lag + 2:
         return DistributionalTestResult(
-            test_name="autocorrelation",
+            test_name="ljung_box",
             statistic=0.0,
             p_value=None,
             reject_null=False,
@@ -106,7 +136,7 @@ def test_residual_autocorrelation(
 
     if c0 < 1e-12:
         return DistributionalTestResult(
-            test_name="ljung_box_approx",
+            test_name="ljung_box",
             statistic=0.0,
             p_value=1.0,
             reject_null=False,
@@ -118,16 +148,13 @@ def test_residual_autocorrelation(
         rk = float(np.sum(centered[:n - k] * centered[k:])) / (n * c0)
         q_stat += (rk ** 2) / (n - k)
     q_stat *= n * (n + 2)
-
-    # chi2 approximation: df = max_lag
-    # threshold at alpha=0.05 for df=5 is ~11.07
-    chi2_threshold = max_lag + 2 * np.sqrt(2 * max_lag)  # rough approximation
-    reject = bool(q_stat > chi2_threshold)
+    p_value = _chi2_survival(q_stat, max_lag)
+    reject = bool(p_value < alpha)
 
     return DistributionalTestResult(
-        test_name="ljung_box_approx",
+        test_name="ljung_box",
         statistic=float(q_stat),
-        p_value=None,
+        p_value=float(p_value),
         reject_null=reject,
         description=f"ljung_box_Q_lag{max_lag}",
     )

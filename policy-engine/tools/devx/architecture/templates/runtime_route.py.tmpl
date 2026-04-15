@@ -1,0 +1,22 @@
+from __future__ import annotations
+
+from fastapi import APIRouter
+from pydantic import BaseModel, ConfigDict
+
+
+router = APIRouter(prefix="/api/v1/{{route_name}}", tags=["{{route_name}}"])
+
+
+class {{route_class}}Response(BaseModel):
+    """Response contract for the {{route_name}} runtime route."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: str = "todo"
+
+
+@router.get("", response_model={{route_class}}Response)
+async def get_{{route_name}}() -> {{route_class}}Response:
+    """Return the initial payload for the {{route_name}} route."""
+    # TODO: inject the real service and move business logic out of the route layer.
+    return {{route_class}}Response()

@@ -3,14 +3,17 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Mapping
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.contracts.scholar import FreshnessMetadata, FreshnessStatus
 from polisyos.core.observability import get_metrics
-from polisyos.scholar.freshness_store import FreshnessRuntimeState
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from polisyos.core.observability import MetricsRegistry
+    from polisyos.scholar.freshness_store import FreshnessRuntimeState
     from polisyos.scholar.policies import ScholarPolicy
 
 _DEFAULT_STALENESS_DAYS = 30
@@ -106,7 +109,7 @@ def build_freshness_metadata(
     # Keep knowledge bundle payload deterministic when source timestamps exist.
     # Mutable freshness bookkeeping is handled by FreshnessStateStore sidecar.
     """Build freshness metadata."""
-    reference_now = now or source_freshness_at or datetime(1970, 1, 1, tzinfo=timezone.utc)
+    reference_now = now or source_freshness_at or datetime(1970, 1, 1, tzinfo=UTC)
     thresholds = resolve_domain_thresholds(domain, policy=policy)
     return FreshnessMetadata(
         created_at=reference_now,
@@ -143,7 +146,7 @@ class FreshnessPolicy:
         external_drift_signals: Mapping[str, bool] | None = None,
     ) -> FreshnessCheckResult:
         """Evaluate age, expiry, external drift, and runtime cooldown state."""
-        now_utc = now or datetime.now(timezone.utc)
+        now_utc = now or datetime.now(UTC)
         status = freshness.compute_status(now_utc)
         age_seconds = freshness.age_seconds(now_utc)
 
@@ -199,10 +202,14 @@ class FreshnessPolicy:
         )
 
 
-def emit_freshness_metrics(result: FreshnessCheckResult) -> None:
+def emit_freshness_metrics(
+    result: FreshnessCheckResult,
+    *,
+    metrics: MetricsRegistry | Any | None = None,
+) -> None:
     """Publish the freshness verdict to the configured metrics backend."""
-    metrics = get_metrics()
-    record = getattr(metrics, "record_knowledge_freshness_check", None)
+    resolved_metrics = metrics if metrics is not None else get_metrics()
+    record = getattr(resolved_metrics, "record_knowledge_freshness_check", None)
     if callable(record):
         record(
             bundle_ref=result.bundle_ref,
@@ -212,24 +219,24 @@ def emit_freshness_metrics(result: FreshnessCheckResult) -> None:
         )
     else:
         labels = {"bundle_ref": result.bundle_ref[:16]}
-        age_metric = getattr(metrics, "knowledge_bundle_age_seconds", None)
+        age_metric = getattr(resolved_metrics, "knowledge_bundle_age_seconds", None)
         if age_metric is not None and hasattr(age_metric, "set"):
             age_metric.set(float(result.age_seconds), labels)
 
-        ratio_metric = getattr(metrics, "knowledge_bundle_staleness_ratio", None)
+        ratio_metric = getattr(resolved_metrics, "knowledge_bundle_staleness_ratio", None)
         if ratio_metric is not None and hasattr(ratio_metric, "set"):
             ratio_metric.set(float(result.staleness_ratio), labels)
 
-        status_metric = getattr(metrics, "knowledge_bundle_status", None)
+        status_metric = getattr(resolved_metrics, "knowledge_bundle_status", None)
         if status_metric is not None and hasattr(status_metric, "set"):
             status_metric.set(1.0, {"status": result.status.value})
 
     if result.needs_refresh:
-        refresh = getattr(metrics, "record_knowledge_refresh", None)
+        refresh = getattr(resolved_metrics, "record_knowledge_refresh", None)
         if callable(refresh):
             refresh(reason=result.reason)
         else:
-            counter = getattr(metrics, "knowledge_bundle_refresh_total", None)
+            counter = getattr(resolved_metrics, "knowledge_bundle_refresh_total", None)
             if counter is not None and hasattr(counter, "add"):
                 counter.add(1, {"reason": result.reason})
 
@@ -242,6 +249,7 @@ def timed_freshness_check(
     runtime_state: FreshnessRuntimeState | None = None,
     now: datetime | None = None,
     external_drift_signals: Mapping[str, bool] | None = None,
+    metrics: MetricsRegistry | Any | None = None,
 ) -> FreshnessCheckResult:
     """Run a freshness check, record latency/status metrics, and return the verdict."""
     started = time.perf_counter()
@@ -254,12 +262,12 @@ def timed_freshness_check(
     )
     elapsed = time.perf_counter() - started
 
-    metrics = get_metrics()
-    duration_metric = getattr(metrics, "knowledge_bundle_check_duration_seconds", None)
+    resolved_metrics = metrics if metrics is not None else get_metrics()
+    duration_metric = getattr(resolved_metrics, "knowledge_bundle_check_duration_seconds", None)
     if duration_metric is not None and hasattr(duration_metric, "record"):
         duration_metric.record(elapsed, {"status": result.status.value})
 
-    emit_freshness_metrics(result)
+    emit_freshness_metrics(result, metrics=resolved_metrics)
     return result
 
 

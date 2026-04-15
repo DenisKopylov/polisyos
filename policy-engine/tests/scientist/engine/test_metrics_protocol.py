@@ -1,13 +1,10 @@
 """Tests for polisyos.scientist.engine.metrics_protocol — protocol & noop."""
 from __future__ import annotations
 
-import pytest
-
 from polisyos.scientist.engine.metrics_protocol import (
     EngineMetricsCollector,
     NoopEngineMetrics,
 )
-
 
 # ---------------------------------------------------------------------------
 # NoopEngineMetrics
@@ -39,6 +36,25 @@ class TestNoopEngineMetrics:
         noop = NoopEngineMetrics()
         noop.record_workflow_completed(
             workflow_id="w", status="ok", duration_ms=100, node_count=3,
+        )
+
+    def test_record_trace_correlation(self):
+        noop = NoopEngineMetrics()
+        noop.record_trace_correlation(
+            runner_backend="local",
+            workflow_id="w",
+            run_id="r",
+            trace_id="abc",
+            span_id="def",
+        )
+
+    def test_record_operational_alert(self):
+        noop = NoopEngineMetrics()
+        noop.record_operational_alert(
+            alert_type="budget_anomaly",
+            severity="warn",
+            workflow_id="w",
+            run_id="r",
         )
 
 
@@ -74,6 +90,16 @@ class _CustomCollector:
 
     def record_workflow_state(self, *, run_id, workflow_id, state):
         self.calls.append("workflow_state")
+
+    def record_trace_correlation(
+        self, *, runner_backend, workflow_id, run_id, trace_id=None, span_id=None,
+    ):
+        self.calls.append("trace_correlation")
+
+    def record_operational_alert(
+        self, *, alert_type, severity, workflow_id=None, run_id=None,
+    ):
+        self.calls.append("operational_alert")
 
 
 class TestProtocolStructuralCheck:

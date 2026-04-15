@@ -9,7 +9,8 @@ Contains:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, field_validator
@@ -35,6 +36,12 @@ __all__ = [
     "_request_to_payload",
     "_ts_to_dt",
     "_utc_now",
+    "canon_spec_allow_floats",
+    "dt_to_ts",
+    "payload_to_request",
+    "request_to_payload",
+    "ts_to_dt",
+    "utc_now",
 ]
 
 # ── CAS artifact kinds ──────────────────────────────────────────────────────
@@ -51,25 +58,25 @@ INDEX_SCHEMA_VERSION = 1
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
 
-def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+def utc_now() -> datetime:
+    return datetime.now(UTC)
 
 
-def _dt_to_ts(dt: datetime | None) -> float | None:
+def dt_to_ts(dt: datetime | None) -> float | None:
     if dt is None:
         return None
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
     return dt.timestamp()
 
 
-def _ts_to_dt(ts: float | None) -> datetime | None:
+def ts_to_dt(ts: float | None) -> datetime | None:
     if ts is None:
         return None
-    return datetime.fromtimestamp(ts, tz=timezone.utc)
+    return datetime.fromtimestamp(ts, tz=UTC)
 
 
-def _request_to_payload(request: FetchRequest) -> dict[str, Any]:
+def request_to_payload(request: FetchRequest) -> dict[str, Any]:
     incremental_dump = (
         request.incremental_since.model_dump(mode="python")
         if request.incremental_since
@@ -88,10 +95,11 @@ def _request_to_payload(request: FetchRequest) -> dict[str, Any]:
         "page_token": request.page_token,
         "min_quality_tier": request.min_quality_tier.value,
         "retryable": request.retryable,
+        "source_signature": _dataset_source_signature(request.dataset_id),
     }
 
 
-def _payload_to_request(payload: dict[str, Any]) -> FetchRequest:
+def payload_to_request(payload: dict[str, Any]) -> FetchRequest:
     incremental = payload.get("incremental_since")
     incremental_since = DataVersion.model_validate(incremental) if incremental else None
     filters = payload.get("filters") or {}
@@ -113,8 +121,34 @@ def _payload_to_request(payload: dict[str, Any]) -> FetchRequest:
     )
 
 
-def _canon_spec_allow_floats() -> CanonSpec:
+def canon_spec_allow_floats() -> CanonSpec:
     return CanonSpec(forbid_floats=False)
+
+
+_utc_now = utc_now
+_dt_to_ts = dt_to_ts
+_ts_to_dt = ts_to_dt
+_request_to_payload = request_to_payload
+_payload_to_request = payload_to_request
+_canon_spec_allow_floats = canon_spec_allow_floats
+
+
+def _dataset_source_signature(dataset_id: str) -> dict[str, Any] | None:
+    normalized = str(dataset_id or "").strip()
+    if not normalized:
+        return None
+    try:
+        path = Path(normalized)
+        if not path.exists() or not path.is_file():
+            return None
+        stat = path.stat()
+        return {
+            "path": str(path.resolve()),
+            "mtime": stat.st_mtime,
+            "size": stat.st_size,
+        }
+    except OSError:
+        return None
 
 
 # ── Data Models ─────────────────────────────────────────────────────────────
@@ -153,7 +187,7 @@ class CacheMetadata(BaseModel):
         if value is None:
             return None
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
     @property
@@ -207,7 +241,7 @@ class CacheEntry(BaseModel):
         if value is None:
             return None
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
     def to_metadata(self) -> CacheMetadata:

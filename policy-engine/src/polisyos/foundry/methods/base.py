@@ -11,6 +11,7 @@ Architecture laws enforced:
 """
 from __future__ import annotations
 
+import ast
 import dataclasses
 import functools
 import inspect
@@ -668,14 +669,15 @@ class MethodContracts:
     """
     Declarative Design-by-Contract specification for a Foundry method.
 
-    Contracts are strings that are ``eval``'d in strict mode
-    (``POLISYOS_STRICT=1``) before and after ``pure_step``.
+    Contracts are strings that are parsed and evaluated by a restricted AST
+    interpreter in strict mode (``POLISYOS_STRICT=1``) before and after
+    ``pure_step``.
 
-    Eval namespace for preconditions / invariants::
+    Available namespace for preconditions / invariants::
 
         {"state": state, "params": params, "np": np}
 
-    Eval namespace for postconditions::
+    Available namespace for postconditions::
 
         {"state": state, "params": params, "result": result, "np": np}
 
@@ -1074,6 +1076,344 @@ def _wrap_pure_step_with_beartype(cls: type) -> None:
 # ---------------------------------------------------------------------------
 
 
+_ALLOWED_CONTRACT_BUILTINS = MappingProxyType({
+    "abs": abs,
+    "all": all,
+    "any": any,
+    "len": len,
+    "max": max,
+    "min": min,
+    "sum": sum,
+})
+_ALLOWED_CONTRACT_NUMPY_ATTRS = frozenset({
+    "abs",
+    "all",
+    "allclose",
+    "any",
+    "array_equal",
+    "exp",
+    "isclose",
+    "isfinite",
+    "isinf",
+    "isnan",
+    "log",
+    "max",
+    "mean",
+    "min",
+    "sqrt",
+    "std",
+    "sum",
+})
+_MAX_CONTRACT_EXPRESSION_LENGTH = 512
+_MAX_CONTRACT_AST_NODES = 128
+_MAX_CONTRACT_AST_DEPTH = 16
+
+
+def _contract_ast_depth(node: ast.AST) -> int:
+    max_depth = 0
+    stack: list[tuple[ast.AST, int]] = [(node, 0)]
+    while stack:
+        current, depth = stack.pop()
+        max_depth = max(max_depth, depth)
+        for child in ast.iter_child_nodes(current):
+            stack.append((child, depth + 1))
+    return max_depth
+
+
+def _contract_attribute_path(node: ast.AST) -> tuple[str, ...] | None:
+    parts: list[str] = []
+    current = node
+    while isinstance(current, ast.Attribute):
+        parts.append(current.attr)
+        current = current.value
+    if not isinstance(current, ast.Name):
+        return None
+    parts.append(current.id)
+    return tuple(reversed(parts))
+
+
+class _ContractExpressionValidator(ast.NodeVisitor):
+    def __init__(self, expression: str, *, allow_result: bool) -> None:
+        self.expression = expression
+        self.allow_result = allow_result
+        self.allowed_names = {
+            "np",
+            "params",
+            "state",
+            *_ALLOWED_CONTRACT_BUILTINS.keys(),
+        }
+        if allow_result:
+            self.allowed_names.add("result")
+
+    def generic_visit(self, node: ast.AST) -> None:
+        raise ValueError(
+            f"Unsupported contract expression node {type(node).__name__!s} in {self.expression!r}"
+        )
+
+    def visit_Expression(self, node: ast.Expression) -> None:
+        self.visit(node.body)
+
+    def visit_BoolOp(self, node: ast.BoolOp) -> None:
+        if not isinstance(node.op, (ast.And, ast.Or)):
+            raise ValueError(f"Unsupported boolean operator in {self.expression!r}")
+        for value in node.values:
+            self.visit(value)
+
+    def visit_UnaryOp(self, node: ast.UnaryOp) -> None:
+        if not isinstance(node.op, (ast.Not, ast.UAdd, ast.USub)):
+            raise ValueError(f"Unsupported unary operator in {self.expression!r}")
+        self.visit(node.operand)
+
+    def visit_BinOp(self, node: ast.BinOp) -> None:
+        if not isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow)):
+            raise ValueError(f"Unsupported arithmetic operator in {self.expression!r}")
+        self.visit(node.left)
+        self.visit(node.right)
+
+    def visit_Compare(self, node: ast.Compare) -> None:
+        for operator in node.ops:
+            if not isinstance(
+                operator,
+                (ast.Eq, ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE, ast.In, ast.NotIn, ast.Is, ast.IsNot),
+            ):
+                raise ValueError(f"Unsupported comparison operator in {self.expression!r}")
+        self.visit(node.left)
+        for comparator in node.comparators:
+            self.visit(comparator)
+
+    def visit_Call(self, node: ast.Call) -> None:
+        if isinstance(node.func, ast.Name):
+            if node.func.id not in _ALLOWED_CONTRACT_BUILTINS:
+                raise ValueError(f"Unsupported contract function {node.func.id!r}")
+        elif isinstance(node.func, ast.Attribute):
+            self.visit(node.func)
+        else:
+            raise ValueError(f"Unsupported callable in {self.expression!r}")
+
+        for arg in node.args:
+            self.visit(arg)
+        for keyword in node.keywords:
+            if keyword.arg is None or keyword.arg.startswith("_"):
+                raise ValueError(f"Unsupported keyword expansion in {self.expression!r}")
+            self.visit(keyword.value)
+
+    def visit_Attribute(self, node: ast.Attribute) -> None:
+        path = _contract_attribute_path(node)
+        if (
+            path is None
+            or path[0] != "np"
+            or any(part.startswith("_") for part in path[1:])
+            or ".".join(path[1:]) not in _ALLOWED_CONTRACT_NUMPY_ATTRS
+        ):
+            raise ValueError(f"Unsupported attribute access in {self.expression!r}")
+        self.visit(node.value)
+
+    def visit_Subscript(self, node: ast.Subscript) -> None:
+        self.visit(node.value)
+        self.visit(node.slice)
+
+    def visit_Slice(self, node: ast.Slice) -> None:
+        if node.lower is not None:
+            self.visit(node.lower)
+        if node.upper is not None:
+            self.visit(node.upper)
+        if node.step is not None:
+            self.visit(node.step)
+
+    def visit_Name(self, node: ast.Name) -> None:
+        if node.id not in self.allowed_names:
+            raise ValueError(f"Unknown contract name {node.id!r}")
+
+    def visit_Constant(self, node: ast.Constant) -> None:
+        return None
+
+    def visit_List(self, node: ast.List) -> None:
+        for elt in node.elts:
+            self.visit(elt)
+
+    def visit_Tuple(self, node: ast.Tuple) -> None:
+        for elt in node.elts:
+            self.visit(elt)
+
+
+@functools.lru_cache(maxsize=256)
+def _parse_contract_expression(expression: str, *, allow_result: bool) -> ast.Expression:
+    if len(expression) > _MAX_CONTRACT_EXPRESSION_LENGTH:
+        raise ValueError("Contract expression exceeds maximum supported length")
+
+    try:
+        tree = ast.parse(expression, mode="eval")
+    except SyntaxError as exc:
+        raise ValueError(f"Invalid contract expression {expression!r}") from exc
+
+    if len(list(ast.walk(tree))) > _MAX_CONTRACT_AST_NODES:
+        raise ValueError("Contract expression is too complex")
+    if _contract_ast_depth(tree) > _MAX_CONTRACT_AST_DEPTH:
+        raise ValueError("Contract expression is too deeply nested")
+
+    _ContractExpressionValidator(expression, allow_result=allow_result).visit(tree)
+    return tree
+
+
+def _resolve_contract_attribute(node: ast.Attribute) -> Any:
+    path = _contract_attribute_path(node)
+    if path is None or path[0] != "np":
+        raise ValueError("Unsupported contract attribute access")
+    value: Any = np
+    for attr in path[1:]:
+        value = getattr(value, attr)
+    return value
+
+
+def _evaluate_contract_comparison(left: Any, operator: ast.cmpop, right: Any) -> bool:
+    if isinstance(operator, ast.Eq):
+        return left == right
+    if isinstance(operator, ast.NotEq):
+        return left != right
+    if isinstance(operator, ast.Lt):
+        return left < right
+    if isinstance(operator, ast.LtE):
+        return left <= right
+    if isinstance(operator, ast.Gt):
+        return left > right
+    if isinstance(operator, ast.GtE):
+        return left >= right
+    if isinstance(operator, ast.In):
+        return left in right
+    if isinstance(operator, ast.NotIn):
+        return left not in right
+    if isinstance(operator, ast.Is):
+        return left is right
+    if isinstance(operator, ast.IsNot):
+        return left is not right
+    raise ValueError(f"Unsupported comparison operator {type(operator).__name__!s}")
+
+
+def _evaluate_contract_slice(node: ast.AST, namespace: Mapping[str, Any]) -> Any:
+    if isinstance(node, ast.Slice):
+        lower = _evaluate_contract_node(node.lower, namespace) if node.lower is not None else None
+        upper = _evaluate_contract_node(node.upper, namespace) if node.upper is not None else None
+        step = _evaluate_contract_node(node.step, namespace) if node.step is not None else None
+        return slice(lower, upper, step)
+    return _evaluate_contract_node(node, namespace)
+
+
+def _evaluate_contract_node(node: ast.AST | None, namespace: Mapping[str, Any]) -> Any:
+    if node is None:
+        return None
+    if isinstance(node, ast.Expression):
+        return _evaluate_contract_node(node.body, namespace)
+    if isinstance(node, ast.Constant):
+        return node.value
+    if isinstance(node, ast.Name):
+        if node.id == "np":
+            return np
+        if node.id in _ALLOWED_CONTRACT_BUILTINS:
+            return _ALLOWED_CONTRACT_BUILTINS[node.id]
+        if node.id in namespace:
+            return namespace[node.id]
+        raise ValueError(f"Unknown contract name {node.id!r}")
+    if isinstance(node, ast.List):
+        return [_evaluate_contract_node(elt, namespace) for elt in node.elts]
+    if isinstance(node, ast.Tuple):
+        return tuple(_evaluate_contract_node(elt, namespace) for elt in node.elts)
+    if isinstance(node, ast.BoolOp):
+        if isinstance(node.op, ast.And):
+            for value in node.values:
+                if not _evaluate_contract_node(value, namespace):
+                    return False
+            return True
+        if isinstance(node.op, ast.Or):
+            for value in node.values:
+                if _evaluate_contract_node(value, namespace):
+                    return True
+            return False
+        raise ValueError("Unsupported boolean operator")
+    if isinstance(node, ast.UnaryOp):
+        operand = _evaluate_contract_node(node.operand, namespace)
+        if isinstance(node.op, ast.Not):
+            return not operand
+        if isinstance(node.op, ast.USub):
+            return -operand
+        if isinstance(node.op, ast.UAdd):
+            return +operand
+        raise ValueError("Unsupported unary operator")
+    if isinstance(node, ast.BinOp):
+        left = _evaluate_contract_node(node.left, namespace)
+        right = _evaluate_contract_node(node.right, namespace)
+        if isinstance(node.op, ast.Add):
+            return left + right
+        if isinstance(node.op, ast.Sub):
+            return left - right
+        if isinstance(node.op, ast.Mult):
+            return left * right
+        if isinstance(node.op, ast.Div):
+            return left / right
+        if isinstance(node.op, ast.FloorDiv):
+            return left // right
+        if isinstance(node.op, ast.Mod):
+            return left % right
+        if isinstance(node.op, ast.Pow):
+            return left**right
+        raise ValueError("Unsupported arithmetic operator")
+    if isinstance(node, ast.Compare):
+        left = _evaluate_contract_node(node.left, namespace)
+        for operator, comparator in zip(node.ops, node.comparators):
+            right = _evaluate_contract_node(comparator, namespace)
+            if not _evaluate_contract_comparison(left, operator, right):
+                return False
+            left = right
+        return True
+    if isinstance(node, ast.Attribute):
+        return _resolve_contract_attribute(node)
+    if isinstance(node, ast.Subscript):
+        value = _evaluate_contract_node(node.value, namespace)
+        key = _evaluate_contract_slice(node.slice, namespace)
+        return value[key]
+    if isinstance(node, ast.Call):
+        function = _evaluate_contract_node(node.func, namespace)
+        args = [_evaluate_contract_node(arg, namespace) for arg in node.args]
+        kwargs = {
+            keyword.arg: _evaluate_contract_node(keyword.value, namespace)
+            for keyword in node.keywords
+            if keyword.arg is not None
+        }
+        return function(*args, **kwargs)
+    raise ValueError(f"Unsupported contract expression node {type(node).__name__!s}")
+
+
+def _evaluate_contract_expression(
+    expression: str,
+    *,
+    namespace: Mapping[str, Any],
+    allow_result: bool,
+) -> bool:
+    parsed = _parse_contract_expression(expression, allow_result=allow_result)
+    return bool(_evaluate_contract_node(parsed, namespace))
+
+
+def _enforce_contract_expression(
+    fqn: str,
+    contract_type: str,
+    expression: str,
+    *,
+    namespace: Mapping[str, Any],
+    allow_result: bool,
+) -> None:
+    from polisyos.foundry.methods.exceptions import ContractViolationError
+
+    try:
+        ok = _evaluate_contract_expression(
+            expression,
+            namespace=namespace,
+            allow_result=allow_result,
+        )
+    except Exception as exc:
+        raise ContractViolationError(fqn, contract_type, expression) from exc
+    if not ok:
+        raise ContractViolationError(fqn, contract_type, expression)
+
+
 def _check_contracts_pre(
     fqn: str,
     contracts: "MethodContracts",
@@ -1081,25 +1421,23 @@ def _check_contracts_pre(
     params: Any,
 ) -> None:
     """Evaluate preconditions and invariants before pure_step."""
-    _ns = {"state": state, "params": params, "np": np}
+    namespace = {"state": state, "params": params, "np": np}
     for expr in contracts.preconditions:
-        try:
-            ok = eval(expr, _ns)  # noqa: S307 — internal, developer-authored only
-        except Exception as exc:
-            from polisyos.foundry.methods.exceptions import ContractViolationError
-            raise ContractViolationError(fqn, "precondition", expr) from exc
-        if not ok:
-            from polisyos.foundry.methods.exceptions import ContractViolationError
-            raise ContractViolationError(fqn, "precondition", expr)
+        _enforce_contract_expression(
+            fqn,
+            "precondition",
+            expr,
+            namespace=namespace,
+            allow_result=False,
+        )
     for expr in contracts.invariants:
-        try:
-            ok = eval(expr, _ns)  # noqa: S307
-        except Exception as exc:
-            from polisyos.foundry.methods.exceptions import ContractViolationError
-            raise ContractViolationError(fqn, "invariant", expr) from exc
-        if not ok:
-            from polisyos.foundry.methods.exceptions import ContractViolationError
-            raise ContractViolationError(fqn, "invariant", expr)
+        _enforce_contract_expression(
+            fqn,
+            "invariant",
+            expr,
+            namespace=namespace,
+            allow_result=False,
+        )
 
 
 def _check_contracts_post(
@@ -1110,26 +1448,24 @@ def _check_contracts_post(
     result: Any,
 ) -> None:
     """Evaluate postconditions and invariants after pure_step."""
-    _ns = {"state": state, "params": params, "result": result, "np": np}
+    namespace = {"state": state, "params": params, "result": result, "np": np}
     for expr in contracts.postconditions:
-        try:
-            ok = eval(expr, _ns)  # noqa: S307
-        except Exception as exc:
-            from polisyos.foundry.methods.exceptions import ContractViolationError
-            raise ContractViolationError(fqn, "postcondition", expr) from exc
-        if not ok:
-            from polisyos.foundry.methods.exceptions import ContractViolationError
-            raise ContractViolationError(fqn, "postcondition", expr)
-    _ns_inv = {"state": state, "params": params, "np": np}
+        _enforce_contract_expression(
+            fqn,
+            "postcondition",
+            expr,
+            namespace=namespace,
+            allow_result=True,
+        )
+    namespace_invariants = {"state": state, "params": params, "np": np}
     for expr in contracts.invariants:
-        try:
-            ok = eval(expr, _ns_inv)  # noqa: S307
-        except Exception as exc:
-            from polisyos.foundry.methods.exceptions import ContractViolationError
-            raise ContractViolationError(fqn, "invariant", expr) from exc
-        if not ok:
-            from polisyos.foundry.methods.exceptions import ContractViolationError
-            raise ContractViolationError(fqn, "invariant", expr)
+        _enforce_contract_expression(
+            fqn,
+            "invariant",
+            expr,
+            namespace=namespace_invariants,
+            allow_result=False,
+        )
 
 
 # ---------------------------------------------------------------------------

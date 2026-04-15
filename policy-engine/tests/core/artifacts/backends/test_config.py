@@ -1,13 +1,31 @@
 """Tests for ArtifactStoreConfig and build_artifact_store factory."""
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+from pydantic import ValidationError
 
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_async_artifact_store,
+    build_artifact_store,
+    infer_async_artifact_store_config,
+    infer_artifact_store_config,
+)
+from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+
+class _TracerStub:
+    pass
+
+
+class _MetricsStub:
+    pass
 
 
 class TestArtifactStoreConfig:
@@ -16,7 +34,7 @@ class TestArtifactStoreConfig:
         assert cfg.backend == "filesystem"
 
     def test_extra_fields_forbidden(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             ArtifactStoreConfig(backend="filesystem", unknown_field="x")
 
     def test_from_env_defaults(self, monkeypatch):
@@ -35,6 +53,11 @@ class TestArtifactStoreConfig:
         assert cfg.bucket == "my-bucket"
         assert cfg.region == "eu-west-1"
 
+    def test_from_env_rejects_unknown_backend(self, monkeypatch):
+        monkeypatch.setenv("POLISYOS_CAS_BACKEND", "mystery")
+        with pytest.raises(ValueError, match="Unknown CAS backend"):
+            ArtifactStoreConfig.from_env()
+
 
 class TestBuildArtifactStore:
     def test_filesystem_backend(self, tmp_path: Path):
@@ -42,6 +65,17 @@ class TestBuildArtifactStore:
         store = build_artifact_store(cfg)
         assert isinstance(store, FileSystemCAS)
         assert isinstance(store, ArtifactStore)
+
+    def test_filesystem_backend_receives_injected_providers(self, tmp_path: Path):
+        cfg = ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "cas"))
+        metrics = _MetricsStub()
+        tracer = _TracerStub()
+
+        store = build_artifact_store(cfg, metrics=metrics, tracer=tracer)
+
+        assert isinstance(store, FileSystemCAS)
+        assert store._metrics is metrics
+        assert store._tracer is tracer
 
     def test_s3_backend_requires_bucket(self):
         cfg = ArtifactStoreConfig(backend="s3")
@@ -68,3 +102,21 @@ class TestBuildArtifactStore:
         object.__setattr__(cfg, "local_cache_dir", None)
         with pytest.raises(ValueError, match="Unknown CAS backend"):
             build_artifact_store(cfg)
+
+    def test_infer_artifact_store_config_for_filesystem(self, tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+
+        inferred = infer_artifact_store_config(store)
+
+        assert inferred == ArtifactStoreConfig(
+            backend="filesystem",
+            root=str(tmp_path / "cas"),
+        )
+
+    def test_build_async_artifact_store_for_filesystem(self, tmp_path: Path) -> None:
+        cfg = ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "cas"))
+
+        async_store = build_async_artifact_store(cfg)
+
+        assert isinstance(async_store, AsyncArtifactStore)
+        assert infer_async_artifact_store_config(async_store) == cfg

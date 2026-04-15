@@ -4,6 +4,7 @@ import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
 import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useHealth } from "@/api/hooks/useHealth";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
+import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import { useTheme } from "@/app/providers/ThemeProvider";
 import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import {
@@ -15,6 +16,7 @@ import { useRunsLiveStatus } from "@/app/providers/RunsLiveProvider";
 import { isRunInReview, useRunsSample } from "@/features/runs";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
+import { formatTime } from "@/lib/utils";
 import { Badge, Button } from "@/shared/ui";
 
 function resolveHealthBadge(
@@ -38,6 +40,7 @@ export default function Header() {
   const runsLive = useRunsLiveStatus();
   const authz = useMaybeAuthz();
   const { flags } = useFeatureFlags();
+  const { isClerk, mode } = useInterfaceMode();
   const { theme, toggleTheme } = useTheme();
   const { locale, setLocale, t } = useI18n();
   const workspace = WORKSPACES[resolveWorkspaceKey(location.pathname)];
@@ -49,15 +52,15 @@ export default function Header() {
     isRunInReview(run.status),
   ).length;
   const navigation = getWorkspaceNavigationWithOptions(flags, {
-    isAllowed: (workspace) =>
-      authz ? authz.isWorkspaceAllowed(workspace.key) : true,
+    isAllowed: (ws) => (authz ? authz.isWorkspaceAllowed(ws.key) : true),
+    mode,
   });
   const runsWorkspace = navigation.find((item) => item.key === "runsDecisions");
   const composerWorkspace = navigation.find(
     (item) => item.key === "scenarioComposer",
   );
   const liveUpdatedAt = runsLive.lastEventAt
-    ? new Date(runsLive.lastEventAt).toLocaleTimeString()
+    ? formatTime(runsLive.lastEventAt, locale)
     : null;
 
   return (
@@ -69,33 +72,37 @@ export default function Header() {
       </div>
 
       <div className="topbar-actions">
-        {healthQuery.isLoading ? (
-          <Badge kind="neutral">{t("shell.header.checking")}</Badge>
-        ) : null}
-        {healthQuery.isError ? (
-          <Badge kind="fail">{t("shell.header.unavailable")}</Badge>
-        ) : null}
-        {!healthQuery.isLoading && !healthQuery.isError
-          ? resolveHealthBadge(healthQuery.data?.status, t)
-          : null}
-        <Badge kind={runsLive.status === "live" ? "info" : "neutral"}>
-          {runsLive.status === "live"
-            ? t("shell.header.live")
-            : t("shell.header.liveFallback")}
-        </Badge>
-        <Badge kind="neutral">
-          {liveUpdatedAt
-            ? `Updated ${liveUpdatedAt}`
-            : t("shell.header.checking")}
-        </Badge>
-        <Badge kind="neutral">
-          {t("shell.header.capabilities")}: {activeFeatures}
-        </Badge>
-        <Badge kind={reviewRuns > 0 ? "warn" : "ok"}>
-          {reviewRuns > 0
-            ? t("shell.header.runsInReview", { count: reviewRuns })
-            : t("shell.header.queueStable")}
-        </Badge>
+        {!isClerk && (
+          <>
+            {healthQuery.isLoading ? (
+              <Badge kind="neutral">{t("shell.header.checking")}</Badge>
+            ) : null}
+            {healthQuery.isError ? (
+              <Badge kind="fail">{t("shell.header.unavailable")}</Badge>
+            ) : null}
+            {!healthQuery.isLoading && !healthQuery.isError
+              ? resolveHealthBadge(healthQuery.data?.status, t)
+              : null}
+            <Badge kind={runsLive.status === "live" ? "info" : "neutral"}>
+              {runsLive.status === "live"
+                ? t("shell.header.live")
+                : t("shell.header.liveFallback")}
+            </Badge>
+            <Badge kind="neutral">
+              {liveUpdatedAt
+                ? t("shell.header.updatedAt", { time: liveUpdatedAt })
+                : t("shell.header.checking")}
+            </Badge>
+            <Badge kind="neutral">
+              {t("shell.header.capabilities")}: {activeFeatures}
+            </Badge>
+            <Badge kind={reviewRuns > 0 ? "warn" : "ok"}>
+              {reviewRuns > 0
+                ? t("shell.header.runsInReview", { count: reviewRuns })
+                : t("shell.header.queueStable")}
+            </Badge>
+          </>
+        )}
         <Button
           type="button"
           size="sm"
@@ -118,7 +125,7 @@ export default function Header() {
             {t(`common.locale.${value}`)}
           </Button>
         ))}
-        {runsWorkspace ? (
+        {!isClerk && runsWorkspace ? (
           <PrefetchButton
             to={runsWorkspace.path}
             prefetch="intent"
@@ -127,7 +134,7 @@ export default function Header() {
             {t("shell.header.openRuns")}
           </PrefetchButton>
         ) : null}
-        {composerWorkspace ? (
+        {!isClerk && composerWorkspace ? (
           <PrefetchButton
             to={composerWorkspace.path}
             prefetch="intent"

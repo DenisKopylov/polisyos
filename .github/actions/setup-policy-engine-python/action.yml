@@ -3,7 +3,7 @@ description: Setup Python and uv, then sync the Policy Engine environment.
 
 inputs:
   profile:
-    description: Workspace bootstrap profile to sync via tools/workspace/bootstrap.py.
+    description: Workspace bootstrap profile to sync via the unified workspace bootstrap CLI.
     required: false
     default: ""
   extras:
@@ -38,7 +38,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         set -euo pipefail
-        python3 tools/workspace/bootstrap.py \
+        python3 -m tools.cli workspace bootstrap \
           --profile "${{ inputs.profile }}" \
           --skip-frontend \
           --skip-playwright \

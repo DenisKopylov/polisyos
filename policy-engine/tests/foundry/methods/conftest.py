@@ -411,11 +411,15 @@ def isolated_registry():
     Provide an isolated MethodRegistry for the duration of one test.
 
     Uses ``registry_scope()`` so the global singleton is never touched and
-    tests can run safely in parallel.
+    tests can run safely in parallel. The isolated registry is populated with
+    the catalog so property-style tests exercise real registrations instead of
+    silently converting missing setup into coverage-debt skips.
     """
     from polisyos.foundry.methods.registry import registry_scope
+    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 
     with registry_scope() as reg:
+        ensure_all_methods_registered(reg)
         yield reg
 
 

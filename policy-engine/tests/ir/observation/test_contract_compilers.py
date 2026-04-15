@@ -5,6 +5,8 @@ import json
 from datetime import date, timedelta
 
 import numpy as np
+import pytest
+from pydantic import ValidationError
 
 from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
 from polisyos.foundry.methods.catalog.causal.did import StandardDifferenceInDifferences
@@ -48,6 +50,7 @@ from polisyos.ir.observation.contract_compilers import (
     ObservationContractCompilerSuite,
     PanelEconometricCompileSpec,
     PanelObservationalCompileSpec,
+    ObservationContractLoadError,
     ProxyMap,
     ProxyMeasurementCompileSpec,
     RegionSectorFlowRow,
@@ -428,7 +431,6 @@ def test_survival_compiler_sets_right_censoring_flags() -> None:
 def test_compilers_round_trip_deterministic_bundles(tmp_path) -> None:
     suite = ObservationContractCompilerSuite()
     panel = _observation_panel()
-    graph = _graph_artifacts()
     firm_panels = _firm_panels()
     firm_events = _firm_events()
     region_sector_panels = _region_sector_panels()
@@ -467,6 +469,30 @@ def test_compilers_round_trip_deterministic_bundles(tmp_path) -> None:
     assert isinstance(dynamic_artifact.bundle, DTRTreatmentSequenceBundleManifest)
     assert proxy_artifact.bundle.proxy_map == {"c": "c_star"}
     assert leontief_artifact.bundle.contract_payload["sector_names"]
+
+
+def test_load_npz_payload_raises_on_malformed_json_scalar(tmp_path) -> None:
+    npz_path = tmp_path / "broken_payload.npz"
+    np.savez(npz_path, metadata=np.asarray('{"broken":', dtype="<U16"))
+
+    with pytest.raises(ObservationContractLoadError, match="failed to parse JSON-encoded scalar payload"):
+        load_npz_payload(npz_path)
+
+
+def test_proxy_map_rejects_duplicate_targets() -> None:
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["latent_a", "latent_b", "proxy"],
+        edges=[CausalEdge(src="latent_a", dst="proxy"), CausalEdge(src="latent_b", dst="proxy")],
+    )
+
+    with pytest.raises(ValidationError, match="duplicate proxy_map.mapping value"):
+        ProxyMap(
+            proxy_map_id="duplicate_proxy_targets",
+            mapping={"latent_a": "proxy", "latent_b": "proxy"},
+            measurement_model="estimated",
+            graph=graph,
+        )
 
 
 def test_network_causal_compiler_shapes() -> None:

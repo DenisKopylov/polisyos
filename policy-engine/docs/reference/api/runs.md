@@ -8,6 +8,7 @@ The runs surface is the read-only operational view over runtime executions. Ever
 | Method | Path | Response body | Notes |
 |--------|------|---------------|-------|
 | `GET` | `/api/v1/runs` | `RunsListResponse` | Cursor pagination with `limit`, `cursor`, `status`, `from_ts`, `to_ts` |
+| `POST` | `/api/v1/runs/batch` | `RunsBatchResponse` | Bulk read helper for dashboards and operator tools |
 | `GET` | `/api/v1/runs/{run_id}` | `RunDetailsResponse` | Full details for a single run |
 | `GET` | `/api/v1/runs/{run_id}/timeline` | `RunTimelineResponse` | Timeline events and summary |
 | `GET` | `/api/v1/runs/{run_id}/nodes` | `RunNodesResponse` | Node execution records |
@@ -44,6 +45,32 @@ curl -H "Authorization: Bearer $TOKEN" \
 http GET :8000/api/v1/runs \
   "Authorization:Bearer $TOKEN" \
   limit==25 status==completed
+```
+
+## `POST /api/v1/runs/batch`
+
+Return many `RunDetails` envelopes in one request so clients can avoid N+1 fetch loops.
+
+- Request body: `RunsBatchRequest`
+  - `run_ids`: ordered list of run identifiers
+- Response body: `RunsBatchResponse`
+  - `runs`: ordered list of `RunDetails`
+  - `meta`: `ApiMeta`
+- Link relations:
+  - response emits `rel="collection"` for `/api/v1/runs`
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  "http://localhost:8000/api/v1/runs/batch" \
+  -d '{"run_ids":["R_core_api_001","R_core_api_002"]}'
+```
+
+```bash
+http POST :8000/api/v1/runs/batch \
+  "Authorization:Bearer $TOKEN" \
+  run_ids:='["R_core_api_001","R_core_api_002"]'
 ```
 
 ## `GET /api/v1/runs/{run_id}`

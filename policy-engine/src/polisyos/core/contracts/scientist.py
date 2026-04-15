@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, Protocol, runtime_checkable
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
 from ..artifacts.manifest import ArtifactRef
 
@@ -178,6 +178,15 @@ class CalibrationValidationBundleRef(ScientistArtifactRef):
 
     kind: Literal["scientist.calibration_validation_bundle"] = (
         "scientist.calibration_validation_bundle"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class GovernanceAccountabilityArtifactRef(ScientistArtifactRef):
+    """Reference to a stored governance accountability artifact."""
+
+    kind: Literal["scientist.governance_accountability_artifact"] = (
+        "scientist.governance_accountability_artifact"
     )
     media_type: Literal["application/json"] = "application/json"
 
@@ -448,6 +457,7 @@ __all__ = [
     "SensitivityResultRef",
     "StressTestReportRef",
     "CalibrationValidationBundleRef",
+    "GovernanceAccountabilityArtifactRef",
     "PlatformMetaEvaluationReportRef",
     "GraphHypothesisRef",
     "BootstrapStabilityReportRef",

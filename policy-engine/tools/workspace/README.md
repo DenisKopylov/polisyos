@@ -7,12 +7,21 @@ The pinned local toolchain baseline is Python `3.14.x`, Node `22.x`, and
 
 ## Commands
 
+Canonical unified CLI:
+
+```bash
+uv run polisyos-tools workspace --help
+```
+
+Legacy `./scripts/*` paths below remain as thin compatibility wrappers.
+
 | Command | Role |
 | --- | --- |
 | `./scripts/bootstrap` | Install or verify contributor prerequisites from a clean machine path |
 | `./scripts/doctor` | Validate Python, Node, `uv`, Playwright, lockfiles, generated contracts, and optional env surfaces |
 | `./scripts/verify` | Run the standard fast local gate for backend and frontend |
 | `./scripts/ci-parity` | Run a heavier local validation pass that approximates the main CI jobs |
+| `uv run polisyos-tools workspace core-runtime-long-soak` | Generate long-soak runtime performance evidence as markdown + JSON reports |
 | `./scripts/acceptance-audit` | Run the Phase 7 cross-surface acceptance audit and optionally require manual rehearsal evidence |
 | `./scripts/remote-acceptance` | Provision and drive a remote Linux acceptance runner via `ssh`, `rsync`, and `git bundle` |
 

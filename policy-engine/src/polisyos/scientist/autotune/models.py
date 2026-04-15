@@ -6,15 +6,39 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol, Self, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import ConfigDict, Field
 
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.canon.canon_json import CanonSpec
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+    _ValidatorFunc = TypeVar("_ValidatorFunc", bound=Callable[..., object])
+
+    class _PydanticBaseModel:
+        model_config: ClassVar[ConfigDict]
+
+        def __init__(self, /, **data: object) -> None: ...
+
+        @classmethod
+        def model_validate(cls, obj: object) -> Self: ...
+
+        @classmethod
+        def model_validate_json(cls, json_data: str) -> Self: ...
+
+    def model_validator(*, mode: str) -> Callable[[_ValidatorFunc], _ValidatorFunc]: ...
+else:
+    from pydantic import BaseModel as _PydanticBaseModel
+    from pydantic import model_validator
 
 class MetricDirection(str, Enum):
     """Metric direction public type."""
@@ -32,7 +56,7 @@ class BenchmarkSplit(str, Enum):
     SENTINEL = "sentinel"
 
 
-class MutationArtifact(BaseModel):
+class MutationArtifact(_PydanticBaseModel):
     """Mutation artifact public type."""
     model_config = ConfigDict(extra="forbid")
 
@@ -42,8 +66,8 @@ class MutationArtifact(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
-class BenchmarkSplitManifest(BaseModel):
-    """Assignment manifest that partitions benchmark item ids across selection, holdout, and sentinel splits."""
+class BenchmarkSplitManifest(_PydanticBaseModel):
+    """Assignment manifest for benchmark split ids."""
     model_config = ConfigDict(extra="forbid")
 
     suite_id: str = Field(..., min_length=1, max_length=128)
@@ -57,7 +81,7 @@ class BenchmarkSplitManifest(BaseModel):
     sentinel_ids: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _validate_unique_assignments(self) -> "BenchmarkSplitManifest":
+    def _validate_unique_assignments(self) -> BenchmarkSplitManifest:
         assignments: dict[str, BenchmarkSplit] = {}
         for split in BenchmarkSplit:
             for item_id in self.ids_for_split(split):
@@ -92,7 +116,7 @@ class BenchmarkSplitManifest(BaseModel):
         return None
 
 
-class BenchmarkSuite(BaseModel):
+class BenchmarkSuite(_PydanticBaseModel):
     """Benchmark suite public type."""
     model_config = ConfigDict(extra="forbid")
 
@@ -104,7 +128,7 @@ class BenchmarkSuite(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-class BenchmarkEvaluation(BaseModel):
+class BenchmarkEvaluation(_PydanticBaseModel):
     """Benchmark evaluation public type."""
     model_config = ConfigDict(extra="forbid")
 
@@ -164,7 +188,7 @@ class BenchmarkEvaluation(BaseModel):
         return int(self.sample_counts.get(split.value, 0))
 
 
-class PromotionPolicy(BaseModel):
+class PromotionPolicy(_PydanticBaseModel):
     """Promotion rule that decides when a candidate may replace the current champion."""
     model_config = ConfigDict(extra="forbid")
 
@@ -177,7 +201,7 @@ class PromotionPolicy(BaseModel):
     required_guardrails: list[str] = Field(default_factory=list)
 
 
-class ChampionPointer(BaseModel):
+class ChampionPointer(_PydanticBaseModel):
     """Champion pointer public type."""
     model_config = ConfigDict(extra="forbid")
 
@@ -191,7 +215,7 @@ class ChampionPointer(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-class PromotionDecision(BaseModel):
+class PromotionDecision(_PydanticBaseModel):
     """Promotion decision public type."""
     model_config = ConfigDict(extra="forbid")
 
@@ -235,14 +259,14 @@ class MutationCodec(Protocol):
 
 
 class RuntimeLoader(Protocol):
-    """Protocol for loading the latest mutation artifact or baseline runtime state into a search loop."""
+    """Protocol for loading the latest mutation artifact or baseline runtime state."""
     def load(self, context: dict[str, Any] | None = None) -> MutationArtifact | None:
         ...
 
 
 @dataclass(frozen=True)
 class SearchLoopSpec:
-    """Wiring contract for one autotune loop: codec, generator, evaluator, policy, and runtime loader."""
+    """Wiring contract for one autotune loop."""
     loop_id: str
     mutation_codec: MutationCodec | None
     candidate_generator: Any | None
@@ -261,22 +285,27 @@ def default_search_registry_root() -> Path:
     return Path(os.environ.get("POLISYOS_SEARCH_REGISTRY_ROOT", ".polisyos/search_registry"))
 
 
-def default_store(root: Path | None = None) -> FileSystemCAS:
-    """Construct a filesystem CAS rooted at the default autotune storage location."""
-    return FileSystemCAS(root or default_cas_root())
+def default_store(root: Path | None = None) -> ArtifactStore:
+    """Construct the default autotune artifact store from the storage factory boundary."""
+    return build_artifact_store(
+        ArtifactStoreConfig(
+            backend="filesystem",
+            root=str(root or default_cas_root()),
+        )
+    )
 
 
-def load_json_artifact(store: FileSystemCAS, ref: ArtifactRef | str) -> Any:
+def load_json_artifact(store: ArtifactStore, ref: ArtifactRef | str) -> object:
     """Load json artifact."""
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
+    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ArtifactID(ref)
     return from_canonical_bytes(store.get_bytes(artifact_id))
 
 
 def load_model_artifact(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef | str,
-    model_cls: type[BaseModel],
-) -> BaseModel:
+    model_cls: type[_PydanticBaseModel],
+) -> _PydanticBaseModel:
     """Load model artifact."""
     payload = load_json_artifact(store, ref)
     return model_cls.model_validate(payload)
@@ -287,7 +316,7 @@ def _producer(component: str) -> str:
 
 
 def persist_mutation_artifact(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     artifact: MutationArtifact,
     *,
     kind: str | None = None,
@@ -296,7 +325,7 @@ def persist_mutation_artifact(
     """Persist a mutation artifact to CAS and return its typed artifact reference."""
     return store.put_json(
         artifact,
-        PutOptions(
+        ArtifactWriteOptions(
             kind=kind or f"scientist.autotune.{artifact.loop_id}.candidate",
             media_type="application/json",
             schema=SchemaInfo(
@@ -310,7 +339,7 @@ def persist_mutation_artifact(
 
 
 def persist_benchmark_suite(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     suite: BenchmarkSuite,
     *,
     inputs: list[InputRef] | None = None,
@@ -318,10 +347,13 @@ def persist_benchmark_suite(
     """Persist a benchmark suite definition to CAS and return its typed artifact reference."""
     return store.put_json(
         suite,
-        PutOptions(
+        ArtifactWriteOptions(
             kind=f"scientist.autotune.{suite.kind}.suite",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.autotune.BenchmarkSuite", version=suite.suite_version),
+            schema=SchemaInfo(
+                name="polisyos.scientist.autotune.BenchmarkSuite",
+                version=suite.suite_version,
+            ),
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -329,7 +361,7 @@ def persist_benchmark_suite(
 
 
 def persist_split_manifest(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     split_manifest: BenchmarkSplitManifest,
     *,
     inputs: list[InputRef] | None = None,
@@ -337,7 +369,7 @@ def persist_split_manifest(
     """Persist a benchmark split manifest so the loop can replay its evaluation partitions."""
     return store.put_json(
         split_manifest,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="scientist.autotune.split_manifest",
             media_type="application/json",
             schema=SchemaInfo(
@@ -351,17 +383,22 @@ def persist_split_manifest(
 
 
 def persist_benchmark_evaluation(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     evaluation: BenchmarkEvaluation,
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a benchmark evaluation record and return its typed artifact reference."""
     merged_inputs = list(inputs or [])
-    merged_inputs.append(InputRef(artifact_id=evaluation.candidate_ref.artifact_id, role="candidate"))
+    merged_inputs.append(
+        InputRef(
+            artifact_id=evaluation.candidate_ref.artifact_id,
+            role="candidate",
+        )
+    )
     return store.put_json(
         evaluation,
-        PutOptions(
+        ArtifactWriteOptions(
             kind=f"scientist.autotune.{evaluation.loop_id}.evaluation",
             media_type="application/json",
             schema=SchemaInfo(

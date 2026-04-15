@@ -21,6 +21,7 @@ try:
         extract_headers,
         inject_headers,
         propagate_context,
+        with_context_vars,
         with_trace_context,
     )
     from .tracer import PolicyOSTracer, get_current_trace_context, get_tracer
@@ -42,7 +43,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         def __exit__(self, exc_type, exc, tb):
             return False
 
-    class MetricsRegistry:  # type: ignore[override]
+    class MetricsRegistry:
         def __getattr__(self, name: str):
             return _NoopMetric()
 
@@ -75,6 +76,40 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
             combinations_evaluated: int,
             best_objective: float | None,
         ) -> None:
+            return None
+
+        def record_degraded_path(
+            self,
+            *,
+            component: str,
+            operation: str,
+            reason: str,
+            error_type: str | None = None,
+        ) -> None:
+            del component, operation, reason, error_type
+            return None
+
+        def record_scientist_trace_correlation(
+            self,
+            *,
+            runner_backend: str,
+            workflow_id: str,
+            run_id: str,
+            trace_id: str | None = None,
+            span_id: str | None = None,
+        ) -> None:
+            del runner_backend, workflow_id, run_id, trace_id, span_id
+            return None
+
+        def record_scientist_operational_alert(
+            self,
+            *,
+            alert_type: str,
+            severity: str,
+            workflow_id: str | None = None,
+            run_id: str | None = None,
+        ) -> None:
+            del alert_type, severity, workflow_id, run_id
             return None
 
         def record_cell_router_request(self, *, cell_id: str, tier: str, status: str) -> None:
@@ -116,6 +151,156 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
             duration_seconds: float,
         ) -> None:
             del route, method, status, duration_seconds
+            return None
+
+        def record_runtime_data_access(
+            self,
+            *,
+            resource_kind: str,
+            endpoint: str,
+            outcome: str,
+            tenant_scoped: bool,
+        ) -> None:
+            del resource_kind, endpoint, outcome, tenant_scoped
+            return None
+
+        def record_runtime_cache_event(
+            self,
+            *,
+            cache_name: str,
+            operation: str,
+            outcome: str,
+        ) -> None:
+            del cache_name, operation, outcome
+            return None
+
+        def record_runtime_cache_rebuild(
+            self,
+            *,
+            cache_name: str,
+            duration_seconds: float,
+            item_count: int,
+        ) -> None:
+            del cache_name, duration_seconds, item_count
+            return None
+
+        def set_runtime_cache_staleness(
+            self,
+            *,
+            cache_name: str,
+            staleness_seconds: float,
+        ) -> None:
+            del cache_name, staleness_seconds
+            return None
+
+        def record_runtime_rate_limit_event(
+            self,
+            *,
+            endpoint: str,
+            mode: str,
+            outcome: str,
+        ) -> None:
+            del endpoint, mode, outcome
+            return None
+
+        def set_runtime_live_streams(
+            self,
+            *,
+            endpoint: str,
+            active_streams: int,
+        ) -> None:
+            del endpoint, active_streams
+            return None
+
+        def record_fabric_connector_fetch(
+            self,
+            *,
+            connector_id: str,
+            status: str,
+            duration_seconds: float,
+            row_count: int | None = None,
+            payload_bytes: int | None = None,
+        ) -> None:
+            del connector_id, status, duration_seconds, row_count, payload_bytes
+            return None
+
+        def record_fabric_query(
+            self,
+            *,
+            operation: str,
+            duration_seconds: float,
+            row_count: int | None = None,
+            status: str = "success",
+        ) -> None:
+            del operation, duration_seconds, row_count, status
+            return None
+
+        def set_fabric_materialization_lag(
+            self,
+            lag_seconds: float,
+            *,
+            scope: str = "world",
+            tenant_id: str | None = None,
+        ) -> None:
+            del lag_seconds, scope, tenant_id
+            return None
+
+        def set_fabric_segment_count(
+            self,
+            count: float,
+            *,
+            scope: str = "world",
+            tenant_id: str | None = None,
+        ) -> None:
+            del count, scope, tenant_id
+            return None
+
+        def record_fabric_quality_score(
+            self,
+            *,
+            metric_id: str,
+            score: float,
+        ) -> None:
+            del metric_id, score
+            return None
+
+        def record_fabric_freshness_age(
+            self,
+            *,
+            dataset_id: str,
+            age_seconds: float,
+        ) -> None:
+            del dataset_id, age_seconds
+            return None
+
+        def record_fabric_lineage_graph(
+            self,
+            *,
+            graph_id: str,
+            node_count: int,
+            edge_count: int,
+        ) -> None:
+            del graph_id, node_count, edge_count
+            return None
+
+        def set_fabric_prefetch_backlog(
+            self,
+            backlog: int,
+            *,
+            namespace: str = "connector_cache",
+            tenant_id: str | None = None,
+        ) -> None:
+            del backlog, namespace, tenant_id
+            return None
+
+        def set_fabric_dlq_count(
+            self,
+            count: float,
+            *,
+            queue_name: str = "fabric",
+            tenant_id: str | None = None,
+        ) -> None:
+            del count, queue_name, tenant_id
             return None
 
         def record_audit_entry(self, *, chain_id: str, event_type: str) -> None:
@@ -171,6 +356,10 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         def record_sbom_deployment_gate(self, *, decision: str) -> None:
             return None
 
+        def record_artifact_integrity_failure(self, *, backend: str, reason: str) -> None:
+            del backend, reason
+            return None
+
         def record_control_plane_job_admission(
             self,
             *,
@@ -180,6 +369,17 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
             duration_seconds: float,
         ) -> None:
             del job_kind, effective_profile, status, duration_seconds
+            return None
+
+        def record_control_plane_job_execution(
+            self,
+            *,
+            job_kind: str,
+            status: str,
+            duration_seconds: float,
+            queue_lag_seconds: float,
+        ) -> None:
+            del job_kind, status, duration_seconds, queue_lag_seconds
             return None
 
         def record_drafter_multipass_run(
@@ -234,6 +434,12 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
             del count
             return None
 
+        def ensure_initialized(self) -> None:
+            return None
+
+        def get_exporter_health(self) -> dict[str, dict[str, object]]:
+            return {"metrics": {"status": "disabled", "failures": []}}
+
     class _NoopSpan:
         def __enter__(self):
             return self
@@ -250,7 +456,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         def record_exception(self, exc) -> None:
             return None
 
-    class PolicyOSTracer:  # type: ignore[override]
+    class PolicyOSTracer:
         def start_as_current_span(self, name: str, attributes=None):
             return _NoopSpan()
 
@@ -280,10 +486,10 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
     def get_trace_context_dict() -> dict[str, str]:
         return {}
 
-    class StructuredFormatter:  # type: ignore[override]
+    class StructuredFormatter:
         pass
 
-    class TraceContextFilter:  # type: ignore[override]
+    class TraceContextFilter:
         pass
 
     def inject_headers(headers: dict[str, str] | None = None) -> dict[str, str]:
@@ -301,7 +507,13 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
 
         return _decorator
 
-    class TracedExecutorWrapper:  # type: ignore[override]
+    def with_context_vars(*args, **kwargs):
+        def _decorator(func):
+            return func
+
+        return _decorator
+
+    class TracedExecutorWrapper:
         def __init__(self, executor):
             self._executor = executor
 
@@ -340,6 +552,7 @@ __all__ = [
     "inject_headers",
     "extract_headers",
     "propagate_context",
+    "with_context_vars",
     "with_trace_context",
     "TracedExecutorWrapper",
     "pricing_table",

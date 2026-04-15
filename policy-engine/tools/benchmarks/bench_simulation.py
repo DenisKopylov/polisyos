@@ -1,75 +1,19 @@
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SRC_ROOT = REPO_ROOT / "src"
-if str(SRC_ROOT) not in sys.path:
-    sys.path.insert(0, str(SRC_ROOT))
+for _candidate in Path(__file__).resolve().parents:
+    if (_candidate / "tools").is_dir() and (_candidate / "pyproject.toml").exists():
+        sys.path.insert(0, str(_candidate))
+        break
 
-import time
+from tools._lib.compat import expose_module, run_module_entrypoint
 
-import jax_bootstrap  # noqa: F401
-import jax  # noqa: E402
-import jax.numpy as jnp  # noqa: E402
+_TARGET = "tools.research.benchmarks.bench_simulation"
 
-from polisyos.foundry.domain.state import GlobalState  # noqa: E402
-from polisyos.foundry.engine.kernel import SimulationKernel  # noqa: E402
-
-# --- IMPORTS HACK ---
-from polisyos.common.logger import logger  # noqa: E402
-
-
-def main():
-    logger.info("🚀 Starting Simulation Loop Check...")
-
-    # 1. Setup
-    N_AGENTS = 1_000_000
-    N_FIRMS = 1000  # Пропорционально агентам
-    N_STEPS = 12
-
-    # Инициализация (дадим людям денег, чтобы было что считать)
-    state = GlobalState.empty(n_agents=N_AGENTS, n_firms=N_FIRMS)
-    initial_income = jnp.ones(N_AGENTS) * 1000.0
-    # Пусть 95% работают
-    initial_employed = jax.random.bernoulli(jax.random.PRNGKey(0), p=0.95, shape=(N_AGENTS,))
-
-    state = state.replace(
-        agents=state.agents.replace(income=initial_income, is_employed=initial_employed)
-    )
-
-    kernel = SimulationKernel()
-    key = jax.random.PRNGKey(42)  # Мастер-ключ случайности
-
-    logger.info(f"Populated world with {N_AGENTS:,} agents.")
-    logger.info("Starting time loop...")
-
-    start_time = time.time()
-
-    # --- TIME LOOP ---
-    for t in range(N_STEPS):
-        # Расщепляем ключ: один для шага, один на будущее
-        step_key, key = jax.random.split(key)
-
-        # ШАГ СИМУЛЯЦИИ
-        state = kernel.step(state, step_key)
-
-        # Барьер синхронизации (нужен только для точного замера времени)
-        # В реальной жизни не обязателен на каждом шаге
-        state.gdp.block_until_ready()
-
-        # Логируем макро-показатели
-        # Обрати внимание: state.gdp - это DeviceArray (на GPU/CPU),
-        # при печати он вытягивается в Python (медленно), но для логов ок.
-        logger.info(
-            f"Step {t+1:02d} | GDP: {state.gdp/1e6:.2f}M | Unempl: {state.market.unemployment_rate:.2%}"
-        )
-
-    total_time = time.time() - start_time
-    logger.success(f"✅ Simulation finished in {total_time:.4f}s")
-    logger.info(
-        f"Speed: {N_STEPS / total_time:.1f} steps/sec ({N_AGENTS * N_STEPS / total_time / 1e6:.1f}M agents-steps/sec)"
-    )
+expose_module(globals(), _TARGET)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(run_module_entrypoint(_TARGET))

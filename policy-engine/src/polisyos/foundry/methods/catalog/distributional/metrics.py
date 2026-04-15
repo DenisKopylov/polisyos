@@ -60,7 +60,7 @@ class LorenzCurveEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="lorenz_curve",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -120,7 +120,7 @@ class AtkinsonIndexEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="atkinson",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -179,7 +179,7 @@ class GeneralizedEntropyEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="generalized_entropy",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -231,7 +231,7 @@ class FGTPovertyEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="fgt",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

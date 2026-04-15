@@ -6,13 +6,24 @@ from pydantic import ValidationError
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
+    EnvelopeCombinationMethod,
     IntervalSemantics,
+    MixtureComponent,
+    MixtureDistributionCarrier,
+    NumericPolicySpec,
+    NumericToleranceMode,
+    PosteriorSamplesCarrier,
     PropagationMethod,
+    QuantileSummaryCarrier,
+    UncertaintyCompatibilityError,
     UncertaintyEnvelope,
     UncertaintySource,
+    combine_envelopes,
+    envelope_meets_trust_policy,
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
+from polisyos.ir.kernel.trust import TrustPolicySpec
 
 
 def test_uncertainty_envelope_basic_creation() -> None:
@@ -92,3 +103,109 @@ def test_uncertainty_envelope_cas_roundtrip(tmp_path) -> None:
     assert ref_1.kind == "ir.uncertainty_envelope"
     assert ref_1.artifact_id == ref_2.artifact_id
     assert loaded == env
+
+
+def test_numeric_policy_canonicalizes_bounded_floats() -> None:
+    env = UncertaintyEnvelope(
+        numeric_policy=NumericPolicySpec(
+            mode=NumericToleranceMode.HYBRID,
+            decimal_places=6,
+            absolute_tolerance=1e-6,
+        ),
+        point_estimate=1.23456789,
+        confidence_interval=(-0.0000001, 2.34567891),
+        source=UncertaintySource.CAUSAL,
+        confidence_level=None,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+    )
+
+    assert env.point_estimate == pytest.approx(1.234568)
+    assert env.confidence_interval[0] == 0.0
+    assert env.confidence_interval[1] == pytest.approx(2.345679)
+
+
+def test_combine_envelopes_conservative_union() -> None:
+    left = UncertaintyEnvelope(
+        point_estimate=1.0,
+        confidence_interval=(0.8, 1.2),
+        source=UncertaintySource.CAUSAL,
+    )
+    right = UncertaintyEnvelope(
+        point_estimate=1.1,
+        confidence_interval=(0.9, 1.3),
+        source=UncertaintySource.BOOTSTRAP,
+    )
+
+    combined = combine_envelopes(
+        [left, right],
+        method=EnvelopeCombinationMethod.CONSERVATIVE_UNION,
+    )
+
+    assert combined.source is UncertaintySource.ENSEMBLE
+    assert combined.confidence_interval == (0.8, 1.3)
+    assert combined.metadata["combination_method"] == "conservative_union"
+
+
+def test_combine_envelopes_rejects_incompatible_interval_semantics() -> None:
+    left = UncertaintyEnvelope(
+        point_estimate=1.0,
+        confidence_interval=(0.8, 1.2),
+        source=UncertaintySource.CAUSAL,
+    )
+    right = UncertaintyEnvelope(
+        point_estimate=1.1,
+        confidence_interval=(0.9, 1.3),
+        source=UncertaintySource.CAUSAL,
+        confidence_level=None,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+    )
+
+    with pytest.raises(UncertaintyCompatibilityError):
+        combine_envelopes([left, right])
+
+
+def test_distribution_carriers_validate_and_roundtrip(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    env = UncertaintyEnvelope(
+        point_estimate=0.4,
+        confidence_interval=(0.2, 0.6),
+        source=UncertaintySource.BOOTSTRAP,
+        distribution_family=DistributionFamily.BOOTSTRAP,
+        distribution_payload=PosteriorSamplesCarrier(samples=(0.2, 0.4, 0.6)),
+    )
+    quantiles = QuantileSummaryCarrier(quantiles={"0.05": 0.1, "0.95": 0.9})
+    mixture = MixtureDistributionCarrier(
+        components=(
+            MixtureComponent(
+                weight=0.6,
+                family=DistributionFamily.NORMAL,
+                parameters={"mu": 0.4, "sigma": 0.1},
+            ),
+            MixtureComponent(
+                weight=0.4,
+                family=DistributionFamily.NORMAL,
+                parameters={"mu": 0.5, "sigma": 0.2},
+            ),
+        )
+    )
+
+    ref = persist_uncertainty_envelope(store, env)
+    loaded = load_uncertainty_envelope(store, ref)
+
+    assert loaded.distribution_payload == env.distribution_payload
+    assert quantiles.quantiles["0.95"] == pytest.approx(0.9)
+    assert len(mixture.components) == 2
+
+
+def test_envelope_meets_trust_policy_uses_confidence_level() -> None:
+    env = UncertaintyEnvelope(
+        point_estimate=1.0,
+        confidence_interval=(0.8, 1.2),
+        source=UncertaintySource.TRUST,
+        confidence_level=0.95,
+    )
+    strict = TrustPolicySpec(policy_id="strict", min_confidence=0.9)
+    too_strict = TrustPolicySpec(policy_id="too_strict", min_confidence=0.99)
+
+    assert envelope_meets_trust_policy(env, strict) is True
+    assert envelope_meets_trust_policy(env, too_strict) is False

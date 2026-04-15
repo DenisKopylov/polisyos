@@ -1,7 +1,8 @@
 """Tests for RedisRunLock using mocked Redis client."""
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+import json
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -37,8 +38,10 @@ class TestRedisRunLock:
 
         assert isinstance(handle, RunLockHandle)
         assert handle.run_id == "test-001"
-        # set() is called at least once (for the key itself)
-        assert redis_mock.set.call_count >= 1
+        redis_mock.set.assert_called_once()
+        payload = json.loads(redis_mock.set.call_args.args[1])
+        assert payload["token"] == handle.metadata["owner_token"]
+        assert payload["metadata"]["run_id"] == "test-001"
 
     def test_acquire_failure_raises(self):
         redis_mock = MagicMock()
@@ -50,14 +53,28 @@ class TestRedisRunLock:
         with pytest.raises(RunLockError, match="already locked"):
             lock.acquire(run_id="test-002", mode="run")
 
-    def test_acquire_force(self):
+    def test_acquire_force_requires_owner_token(self):
         redis_mock = MagicMock()
-        # First call with nx=True returns False, second (force) succeeds
-        redis_mock.set.side_effect = [False, True, True]
+        redis_mock.set.return_value = False
 
         lock = self._make_lock(redis_mock)
-        handle = lock.acquire(run_id="test-003", mode="run", force=True)
+        with pytest.raises(RunLockError, match="requires owner_token"):
+            lock.acquire(run_id="test-003", mode="run", force=True)
+
+    def test_acquire_force_with_owner_token(self):
+        redis_mock = MagicMock()
+        redis_mock.set.return_value = False
+        redis_mock.eval.return_value = 1
+
+        lock = self._make_lock(redis_mock)
+        handle = lock.acquire(
+            run_id="test-003",
+            mode="run",
+            force=True,
+            owner_token="existing-token",
+        )
         assert handle.run_id == "test-003"
+        assert redis_mock.eval.call_args.args[3] == "existing-token"
 
     def test_release(self):
         redis_mock = MagicMock()
@@ -89,3 +106,21 @@ class TestRedisRunLock:
         handle = lock.acquire(run_id="test-006", mode="run")
         assert isinstance(handle, RunLockHandle)
         handle.release()
+
+    def test_is_alive_returns_false_on_runtime_probe_error(self):
+        redis_mock = MagicMock()
+        redis_mock.set.return_value = True
+        redis_mock.get.side_effect = RuntimeError("redis down")
+
+        lock = self._make_lock(redis_mock)
+        handle = lock.acquire(run_id="test-007", mode="run")
+
+        assert handle.is_alive() is False
+
+    def test_detect_stale_returns_false_on_runtime_probe_error(self):
+        redis_mock = MagicMock()
+        redis_mock.pttl.side_effect = RuntimeError("redis down")
+
+        lock = self._make_lock(redis_mock)
+
+        assert lock.detect_stale("test-008") is False

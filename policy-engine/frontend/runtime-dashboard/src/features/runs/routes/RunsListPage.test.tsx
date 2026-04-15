@@ -18,6 +18,12 @@ vi.mock("@/app/providers/TelemetryProvider", () => ({
 
 vi.mock("@/i18n/LocaleProvider", () => ({
   useI18n: () => ({
+    label: (
+      _mapName: string,
+      value: string | null | undefined,
+      fallback?: string,
+    ) => fallback ?? value ?? "",
+    locale: "en",
     t: (path: string, payload?: Record<string, unknown>) =>
       payload ? `${path}:${JSON.stringify(payload)}` : path,
   }),
@@ -65,50 +71,70 @@ describe("RunsListPage", () => {
       writable: true,
     });
     useRunsMock.mockReset();
-    useRunsMock.mockReturnValue({
+    useRunsMock.mockImplementation((filters?: { q?: string }) => ({
       data: {
         page: {
-          count: 2,
+          count: filters?.q === "missing" ? 0 : filters?.q === "policy" ? 1 : 2,
           cursor: null,
           limit: 50,
-          next_cursor: "cursor-next",
-          total: 2,
+          next_cursor: filters?.q === "missing" ? null : "cursor-next",
+          total: filters?.q === "missing" ? 0 : filters?.q === "policy" ? 1 : 2,
         },
-        runs: [
-          {
-            cell_id: null,
-            duration_ms: 1200,
-            finished_at: null,
-            has_trace: false,
-            has_workflow_report: false,
-            root_artifact_count: 0,
-            run_id: "run-001",
-            source_kind: "etl",
-            started_at: new Date("2026-03-09T10:00:00Z").toISOString(),
-            status: "running",
-            tenant_id: null,
-            warnings: [],
-          },
-          {
-            cell_id: null,
-            duration_ms: 1400,
-            finished_at: null,
-            has_trace: true,
-            has_workflow_report: true,
-            root_artifact_count: 2,
-            run_id: "run-002",
-            source_kind: "policy",
-            started_at: new Date("2026-03-09T11:00:00Z").toISOString(),
-            status: "completed",
-            tenant_id: null,
-            warnings: [],
-          },
-        ],
+        runs:
+          filters?.q === "missing"
+            ? []
+            : filters?.q === "policy"
+              ? [
+                  {
+                    cell_id: null,
+                    duration_ms: 1400,
+                    finished_at: null,
+                    has_trace: true,
+                    has_workflow_report: true,
+                    root_artifact_count: 2,
+                    run_id: "run-002",
+                    source_kind: "policy",
+                    started_at: new Date("2026-03-09T11:00:00Z").toISOString(),
+                    status: "completed",
+                    tenant_id: null,
+                    warnings: [],
+                  },
+                ]
+              : [
+                  {
+                    cell_id: null,
+                    duration_ms: 1200,
+                    finished_at: null,
+                    has_trace: false,
+                    has_workflow_report: false,
+                    root_artifact_count: 0,
+                    run_id: "run-001",
+                    source_kind: "etl",
+                    started_at: new Date("2026-03-09T10:00:00Z").toISOString(),
+                    status: "running",
+                    tenant_id: null,
+                    warnings: [],
+                  },
+                  {
+                    cell_id: null,
+                    duration_ms: 1400,
+                    finished_at: null,
+                    has_trace: true,
+                    has_workflow_report: true,
+                    root_artifact_count: 2,
+                    run_id: "run-002",
+                    source_kind: "policy",
+                    started_at: new Date("2026-03-09T11:00:00Z").toISOString(),
+                    status: "completed",
+                    tenant_id: null,
+                    warnings: [],
+                  },
+                ],
       },
       error: null,
       isError: false,
       isLoading: false,
-    });
+    }));
   });
 
   afterEach(() => {
@@ -116,23 +142,95 @@ describe("RunsListPage", () => {
     delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
   });
 
-  it("supports j/k navigation and Enter to open the active run", async () => {
+  it("only handles keyboard navigation when focus is inside the explorer", async () => {
     const user = userEvent.setup();
     renderRunsListPage();
+
+    const firstRow = await screen.findByRole("row", { name: /run-001/i });
+    const secondRow = screen.getByRole("row", { name: /run-002/i });
+
+    expect(firstRow).toHaveAttribute("tabindex", "0");
+    expect(secondRow).toHaveAttribute("tabindex", "-1");
+
+    await user.keyboard("j");
+
+    expect(firstRow).toHaveAttribute("tabindex", "0");
+    expect(secondRow).toHaveAttribute("tabindex", "-1");
+  });
+
+  it("supports j/k navigation and Enter to open the active run when a row is focused", async () => {
+    const user = userEvent.setup();
+    renderRunsListPage();
+
+    const firstRow = await screen.findByRole("row", { name: /run-001/i });
+    await user.click(firstRow);
 
     await user.keyboard("j");
 
     await waitFor(() => {
       expect(screen.getByRole("row", { name: /run-002/i })).toHaveAttribute(
-        "aria-selected",
-        "true",
+        "tabindex",
+        "0",
       );
     });
+    expect(
+      screen.getByText(
+        'pages.runs.activeRunAnnouncement:{"count":2,"position":2,"runId":"run-002","status":"completed"}',
+      ),
+    ).toBeInTheDocument();
 
     await user.keyboard("{Enter}");
 
     await waitFor(() => {
       expect(screen.getByText("Opened run")).toBeInTheDocument();
+    });
+  });
+
+  it("keeps keyboard behavior consistent in the virtualized table path", async () => {
+    const user = userEvent.setup();
+    useRunsMock.mockReturnValueOnce({
+      data: {
+        page: {
+          count: 31,
+          cursor: null,
+          limit: 50,
+          next_cursor: "cursor-next",
+          total: 31,
+        },
+        runs: Array.from({ length: 31 }, (_, index) => ({
+          cell_id: null,
+          duration_ms: 1_000 + index,
+          finished_at: null,
+          has_trace: false,
+          has_workflow_report: false,
+          root_artifact_count: index % 3,
+          run_id: `run-${String(index + 1).padStart(3, "0")}`,
+          source_kind: index % 2 === 0 ? "workflow" : "policy",
+          started_at: new Date(
+            `2026-03-09T${String(index % 24).padStart(2, "0")}:00:00Z`,
+          ).toISOString(),
+          status: index % 2 === 0 ? "running" : "completed",
+          tenant_id: null,
+          warnings: [],
+        })),
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderRunsListPage();
+
+    const firstRow = await screen.findByRole("row", { name: /run-001/i });
+    await user.click(firstRow);
+
+    await user.keyboard("{ArrowDown}");
+
+    await waitFor(() => {
+      expect(screen.getByRole("row", { name: /run-002/i })).toHaveAttribute(
+        "tabindex",
+        "0",
+      );
     });
   });
 
@@ -146,6 +244,7 @@ describe("RunsListPage", () => {
         cursor: "cursor-1",
         from_ts: new Date("2026-03-09T12:15").toISOString(),
         limit: 50,
+        q: "policy",
         status: "running",
         to_ts: new Date("2026-03-09T14:45").toISOString(),
       }),
@@ -184,6 +283,7 @@ describe("RunsListPage", () => {
         cursor: undefined,
         from_ts: undefined,
         limit: 50,
+        q: "run-002",
         status: "completed",
         to_ts: undefined,
       }),
@@ -213,7 +313,7 @@ describe("RunsListPage", () => {
     expect(screen.getByRole("combobox")).toHaveValue("");
   });
 
-  it("renders the empty state when the deferred client-side search yields no runs", async () => {
+  it("renders the empty state when the server-side search yields no runs", async () => {
     renderRunsListPage("/runs?q=missing");
 
     expect(

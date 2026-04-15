@@ -10,11 +10,11 @@ Related guides: [Installation](../install.md), [Deploy Runtime](../deploy-runtim
 
 | Track | First focus | Primary command surface |
 |---|---|---|
-| [Domain / Policy Reader](domain-policy-reader.md) | Trinity, evidence, governance, decision artifacts | `./scripts/bootstrap --skip-frontend --skip-playwright` |
-| [Backend Engineer](backend-engineer.md) | Python runtime, contracts, Scientist/Fabric/Foundry service paths | `./scripts/bootstrap`, `./scripts/verify --backend-only` |
-| [Frontend Engineer](frontend-engineer.md) | runtime dashboard, route structure, contracts, UX telemetry | `./scripts/bootstrap`, `./scripts/verify --frontend-only` |
-| [Platform / Ops Engineer](platform-ops-engineer.md) | bootstrap/doctor/verify, runtime deploy, observability, release surfaces | `./scripts/bootstrap`, `./scripts/doctor`, `./scripts/verify` |
-| [Security / Compliance Reviewer](security-compliance-reviewer.md) | signing, SBOM, authz, TEE, ownership, audit evidence | `./scripts/bootstrap --skip-playwright`, focused security surfaces |
+| [Domain / Policy Reader](domain-policy-reader.md) | Trinity, evidence, governance, decision artifacts | `python3 -m tools.cli workspace bootstrap --skip-frontend --skip-playwright` |
+| [Backend Engineer](backend-engineer.md) | Python runtime, contracts, Scientist/Fabric/Foundry service paths | `python3 -m tools.cli workspace bootstrap`, `python3 -m tools.cli workspace verify --backend-only` |
+| [Frontend Engineer](frontend-engineer.md) | runtime dashboard, route structure, contracts, UX telemetry | `python3 -m tools.cli workspace bootstrap`, `python3 -m tools.cli workspace verify --frontend-only` |
+| [Platform / Ops Engineer](platform-ops-engineer.md) | bootstrap/doctor/verify, runtime deploy, observability, release surfaces | `python3 -m tools.cli workspace bootstrap`, `python3 -m tools.cli workspace doctor`, `python3 -m tools.cli workspace verify` |
+| [Security / Compliance Reviewer](security-compliance-reviewer.md) | signing, SBOM, authz, TEE, ownership, audit evidence | `python3 -m tools.cli workspace bootstrap --skip-playwright`, focused security surfaces |
 
 ## Shared Principles
 

@@ -24,8 +24,8 @@ Canonical setup:
 
 ```bash
 cd policy-engine
-./scripts/bootstrap
-./scripts/verify --frontend-only
+python3 -m tools.cli workspace bootstrap
+python3 -m tools.cli workspace verify --frontend-only
 cd frontend/runtime-dashboard
 npm run dev
 ```

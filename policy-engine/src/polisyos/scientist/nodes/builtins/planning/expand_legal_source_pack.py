@@ -9,6 +9,7 @@ from polisyos.core.contracts.scientist import LegalCandidatePackRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LEGAL_CANDIDATE_PACK_REF,
     ARTIFACT_LEGAL_SOURCE_PACK_REF,
@@ -74,7 +75,7 @@ class ExpandLegalSourcePackNode:
             source_pack,
             inputs=[InputRef(artifact_id=raw_ref.artifact_id, role="legal_candidate_pack")],
         )
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.legal_source_pack_ref = pack_ref
         new_state.artifacts_index[ARTIFACT_LEGAL_SOURCE_PACK_REF] = pack_ref
         return NodeOutcome(

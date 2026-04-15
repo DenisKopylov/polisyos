@@ -252,6 +252,7 @@ def _is_scalar_numeric_constraint_value(value: object) -> bool:
 
 
 def _schedule_overlaps(left: ScheduleSpec, right: ScheduleSpec) -> bool:
+    """Return whether two Trinity schedules overlap under inclusive ``[start, end]`` semantics."""
     left_start, left_end = schedule_range(left)
     right_start, right_end = schedule_range(right)
     return not (left_end < right_start or right_end < left_start)
@@ -274,7 +275,11 @@ def _validate_schedule_conflicts(
         for slot_id in writes:
             writers.setdefault(slot_id, []).append(intervention)
 
-    for slot_id, interventions_for_slot in writers.items():
+    for slot_id in sorted(writers):
+        interventions_for_slot = sorted(
+            writers[slot_id],
+            key=lambda intervention: intervention.intervention_id,
+        )
         if len(interventions_for_slot) < 2:
             continue
         slot = slot_registry.slots.get(slot_id)

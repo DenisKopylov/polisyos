@@ -13,7 +13,29 @@ import { prefetchRouteHref } from "@/app/routes/prefetch";
 export type PrefetchMode = "none" | "intent" | "viewport";
 
 const PREFETCH_TTL_MS = 60_000;
+const MAX_PREFETCH_HISTORY = 500;
 const prefetchHistory = new Map<string, number>();
+
+function prunePrefetchHistory(now: number) {
+  for (const [key, timestamp] of prefetchHistory.entries()) {
+    if (now - timestamp >= PREFETCH_TTL_MS) {
+      prefetchHistory.delete(key);
+    }
+  }
+
+  if (prefetchHistory.size <= MAX_PREFETCH_HISTORY) {
+    return;
+  }
+
+  const overflow = prefetchHistory.size - MAX_PREFETCH_HISTORY;
+  const oldestEntries = [...prefetchHistory.entries()]
+    .sort((left, right) => left[1] - right[1])
+    .slice(0, overflow);
+
+  oldestEntries.forEach(([key]) => {
+    prefetchHistory.delete(key);
+  });
+}
 
 function shouldSkipPrefetch(
   href: string,
@@ -34,10 +56,12 @@ function shouldSkipPrefetch(
     return true;
   }
 
+  const now = Date.now();
+  prunePrefetchHistory(now);
   const previousPrefetchAt = prefetchHistory.get(`${mode}:${href}`);
   return (
     typeof previousPrefetchAt === "number" &&
-    Date.now() - previousPrefetchAt < PREFETCH_TTL_MS
+    now - previousPrefetchAt < PREFETCH_TTL_MS
   );
 }
 
@@ -72,7 +96,9 @@ export function useRoutePrefetch(to: To, prefetch: PrefetchMode = "none") {
       return;
     }
 
-    prefetchHistory.set(`${prefetch}:${resolvedHref}`, Date.now());
+    const now = Date.now();
+    prunePrefetchHistory(now);
+    prefetchHistory.set(`${prefetch}:${resolvedHref}`, now);
     schedulePrefetch(() => {
       void prefetchRouteHref(resolvedHref).catch(() => undefined);
     });

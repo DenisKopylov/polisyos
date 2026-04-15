@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components._cli_store import build_cli_filesystem_cas
 from polisyos.core.contracts.scholar import ResearchIntent
 
 __all__ = [
@@ -19,7 +19,7 @@ def _cmd_scholar_enrich(args: Any) -> int:
     scholar_api = importlib.import_module("polisyos.scholar.api")
     enrich_topic = scholar_api.enrich_topic
 
-    cas = FileSystemCAS(Path(args.cas_root))
+    cas = build_cli_filesystem_cas(Path(args.cas_root))
     fact_log_root = Path(args.fact_log_root)
     payload = json.loads(Path(args.intent).read_text(encoding="utf-8"))
     intent = ResearchIntent.model_validate(payload)

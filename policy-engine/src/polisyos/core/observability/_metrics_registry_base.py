@@ -8,6 +8,7 @@ every counter / histogram / gauge used by PolicyOS.
 """
 from __future__ import annotations
 
+import logging
 import threading
 from typing import Any, Optional
 
@@ -28,6 +29,8 @@ from ..observability.config import (
 )
 
 __all__ = ["_MetricsRegistryBase"]
+
+_bootstrap_logger = logging.getLogger(__name__)
 
 
 class _MetricsRegistryBase:
@@ -69,8 +72,10 @@ class _MetricsRegistryBase:
     knowledge_base_gc_removed_total: Optional[metrics.Counter] = None
     active_runs: Optional[metrics.UpDownCounter] = None
     validation_issues_total: Optional[metrics.Counter] = None
+    degraded_paths_total: Optional[metrics.Counter] = None
 
     # -- Scientist engine node-level instruments ----------------------------
+    scientist_node_starts_total: Optional[metrics.Counter] = None
     scientist_node_duration_seconds: Optional[metrics.Histogram] = None
     scientist_node_executions_total: Optional[metrics.Counter] = None
     scientist_tier_duration_seconds: Optional[metrics.Histogram] = None
@@ -78,6 +83,8 @@ class _MetricsRegistryBase:
     scientist_workflow_state: Optional[metrics.Counter] = None
     scientist_tier_queue_depth: Optional[GaugeProxy] = None
     scientist_semaphore_wait_seconds: Optional[metrics.Histogram] = None
+    scientist_trace_correlations_total: Optional[metrics.Counter] = None
+    scientist_operational_alerts_total: Optional[metrics.Counter] = None
     scientist_llm_budget_utilization: Optional[GaugeProxy] = None
     scientist_llm_cost_anomalies_total: Optional[metrics.Counter] = None
 
@@ -100,10 +107,24 @@ class _MetricsRegistryBase:
     connector_circuit_trips_total: Optional[metrics.Counter] = None
     connector_circuit_rejected_requests_total: Optional[metrics.Counter] = None
     connector_rate_limit_wait_seconds: Optional[metrics.Histogram] = None
+    connector_rate_limit_acquire_duration_seconds: Optional[metrics.Histogram] = None
     connector_rate_limit_throttled_total: Optional[metrics.Counter] = None
     connector_rate_limit_tokens: Optional[GaugeProxy] = None
     connector_fallback_triggered_total: Optional[metrics.Counter] = None
     connector_fallback_success_total: Optional[metrics.Counter] = None
+    fabric_connector_fetch_duration_seconds: Optional[metrics.Histogram] = None
+    fabric_connector_rows_total: Optional[metrics.Counter] = None
+    fabric_connector_bytes_total: Optional[metrics.Counter] = None
+    fabric_query_duration_seconds: Optional[metrics.Histogram] = None
+    fabric_query_rows_total: Optional[metrics.Counter] = None
+    fabric_materialization_lag_seconds: Optional[GaugeProxy] = None
+    fabric_segment_count: Optional[GaugeProxy] = None
+    fabric_quality_score: Optional[GaugeProxy] = None
+    fabric_freshness_age_seconds: Optional[GaugeProxy] = None
+    fabric_lineage_graph_nodes: Optional[GaugeProxy] = None
+    fabric_lineage_graph_edges: Optional[GaugeProxy] = None
+    fabric_prefetch_backlog: Optional[GaugeProxy] = None
+    fabric_dlq_entries: Optional[GaugeProxy] = None
     calibration_loss: Optional[GaugeProxy] = None
     calibration_grad_norm: Optional[GaugeProxy] = None
     calibration_step_duration_seconds: Optional[metrics.Histogram] = None
@@ -151,6 +172,11 @@ class _MetricsRegistryBase:
     runtime_api_requests_total: Optional[metrics.Counter] = None
     runtime_api_duration_seconds: Optional[metrics.Histogram] = None
     runtime_api_errors_total: Optional[metrics.Counter] = None
+    runtime_data_access_total: Optional[metrics.Counter] = None
+    runtime_cache_operations_total: Optional[metrics.Counter] = None
+    runtime_cache_rebuild_duration_seconds: Optional[metrics.Histogram] = None
+    runtime_cache_item_count: Optional[GaugeProxy] = None
+    runtime_cache_staleness_seconds: Optional[GaugeProxy] = None
     control_plane_job_admissions_total: Optional[metrics.Counter] = None
     control_plane_job_admission_duration_seconds: Optional[metrics.Histogram] = None
 
@@ -164,12 +190,20 @@ class _MetricsRegistryBase:
         return cls._instance
 
     def __init__(self) -> None:
+        # Re-establish instance attributes even if singleton state was reset
+        # while the process kept a previously allocated instance alive.
+        if not hasattr(self, "_config"):
+            self._config: Optional[OTelConfig] = None
+            self._provider: Optional[MeterProvider] = None
+            self._meter: Optional[metrics.Meter] = None
+            self._exporter_health: dict[str, Any] = {
+                "metrics": {
+                    "status": "unknown",
+                    "failures": [],
+                }
+            }
         if _MetricsRegistryBase._initialized:
             return
-
-        self._config: Optional[OTelConfig] = None
-        self._provider: Optional[MeterProvider] = None
-        self._meter: Optional[metrics.Meter] = None
 
     # -- Lazy initialisation ------------------------------------------------
 
@@ -183,6 +217,12 @@ class _MetricsRegistryBase:
                 return
 
             self._config = get_default_config()
+            self._exporter_health = {
+                "metrics": {
+                    "status": "disabled" if not self._config.enabled else "initializing",
+                    "failures": [],
+                }
+            }
 
             if not self._config.enabled:
                 _MetricsRegistryBase._initialized = True
@@ -204,11 +244,20 @@ class _MetricsRegistryBase:
                     try:
                         start_http_server(self._config.metrics_port)
                         readers.append(PrometheusMetricReader())
-                    except Exception:
-                        # Avoid crashing if port is already in use
-                        pass
+                    except (OSError, RuntimeError) as exc:
+                        self._record_exporter_failure("metrics", exc)
+                        _bootstrap_logger.warning(
+                            "Prometheus metrics exporter disabled after bootstrap failure: %s",
+                            exc,
+                        )
                 except ImportError:
-                    pass
+                    self._record_exporter_failure(
+                        "metrics",
+                        RuntimeError("prometheus exporter dependency missing"),
+                    )
+                    _bootstrap_logger.warning(
+                        "Prometheus metrics exporter requested but optional dependency is missing"
+                    )
 
             # Console exporter for debugging
             if self._config.console_export:
@@ -235,12 +284,13 @@ class _MetricsRegistryBase:
 
             # Register metrics
             self._register_metrics()
+            self._mark_exporter_ready("metrics")
 
             _MetricsRegistryBase._initialized = True
 
     # -- Metric registration ------------------------------------------------
 
-    def _register_metrics(self) -> None:  # noqa: C901 — long but linear
+    def _register_metrics(self) -> None:
         """Register all PolicyOS metrics."""
         if self._meter is None:
             return
@@ -398,6 +448,11 @@ class _MetricsRegistryBase:
             description="Total validation issues detected",
             unit="1",
         )
+        self.degraded_paths_total = self._meter.create_counter(
+            name="polisyos_degraded_paths_total",
+            description="Total degraded-but-recoverable execution paths",
+            unit="1",
+        )
 
         # Artifact operations counter
         self.artifact_operations_total = self._meter.create_counter(
@@ -501,7 +556,12 @@ class _MetricsRegistryBase:
         )
         self.connector_rate_limit_wait_seconds = self._meter.create_histogram(
             name="polisyos_connector_rate_limit_wait_seconds",
-            description="Wait time imposed by rate limiter",
+            description="Throttle sleep time imposed by rate limiter",
+            unit="s",
+        )
+        self.connector_rate_limit_acquire_duration_seconds = self._meter.create_histogram(
+            name="polisyos_connector_rate_limit_acquire_duration_seconds",
+            description="Wall-clock duration spent acquiring from the rate limiter",
             unit="s",
         )
         self.connector_rate_limit_throttled_total = self._meter.create_counter(
@@ -523,6 +583,79 @@ class _MetricsRegistryBase:
         self.connector_fallback_success_total = self._meter.create_counter(
             name="polisyos_connector_fallback_success_total",
             description="Fallback strategy successes",
+            unit="1",
+        )
+        self.fabric_connector_fetch_duration_seconds = self._meter.create_histogram(
+            name="polisyos_fabric_connector_fetch_duration_seconds",
+            description="End-to-end Fabric connector fetch latency",
+            unit="s",
+        )
+        self.fabric_connector_rows_total = self._meter.create_counter(
+            name="polisyos_fabric_connector_rows_total",
+            description="Rows fetched through Fabric connectors",
+            unit="1",
+        )
+        self.fabric_connector_bytes_total = self._meter.create_counter(
+            name="polisyos_fabric_connector_bytes_total",
+            description="Bytes fetched through Fabric connectors",
+            unit="By",
+        )
+        self.fabric_query_duration_seconds = self._meter.create_histogram(
+            name="polisyos_fabric_query_duration_seconds",
+            description="Latency of Fabric retrieval/query operations",
+            unit="s",
+        )
+        self.fabric_query_rows_total = self._meter.create_counter(
+            name="polisyos_fabric_query_rows_total",
+            description="Rows returned by Fabric queries/materialized lookups",
+            unit="1",
+        )
+        self.fabric_materialization_lag_seconds = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_materialization_lag_seconds",
+            description="Lag between world segment availability and materialization",
+            unit="s",
+        )
+        self.fabric_segment_count = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_segment_count",
+            description="World/data-plane segment count visible to Fabric",
+            unit="1",
+        )
+        self.fabric_quality_score = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_quality_score",
+            description="Fabric quality score by metric or report id",
+            unit="1",
+        )
+        self.fabric_freshness_age_seconds = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_freshness_age_seconds",
+            description="Age of source or cache data used by Fabric freshness checks",
+            unit="s",
+        )
+        self.fabric_lineage_graph_nodes = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_lineage_graph_nodes",
+            description="Node count for Fabric provenance/lineage graphs",
+            unit="1",
+        )
+        self.fabric_lineage_graph_edges = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_lineage_graph_edges",
+            description="Edge count for Fabric provenance/lineage graphs",
+            unit="1",
+        )
+        self.fabric_prefetch_backlog = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_prefetch_backlog",
+            description="Outstanding Fabric cache prefetch backlog",
+            unit="1",
+        )
+        self.fabric_dlq_entries = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_dlq_entries",
+            description="Fabric dead-letter or quarantined entry count",
             unit="1",
         )
 
@@ -590,6 +723,11 @@ class _MetricsRegistryBase:
         )
 
         # Scientist engine node-level metrics
+        self.scientist_node_starts_total = self._meter.create_counter(
+            name="polisyos_scientist_node_starts_total",
+            description="Scientist node start events by node_id and workflow_id",
+            unit="1",
+        )
         self.scientist_node_duration_seconds = self._meter.create_histogram(
             name="polisyos_scientist_node_duration_seconds",
             description="Per-node execution duration in the Scientist DAG",
@@ -627,6 +765,19 @@ class _MetricsRegistryBase:
             name="polisyos_scientist_semaphore_wait_seconds",
             description="Time spent waiting for execution semaphore",
             unit="s",
+        )
+        self.scientist_trace_correlations_total = self._meter.create_counter(
+            name="polisyos_scientist_trace_correlations_total",
+            description="Cross-runner trace correlation records emitted by Scientist runtimes",
+            unit="1",
+        )
+        self.scientist_operational_alerts_total = self._meter.create_counter(
+            name="polisyos_scientist_operational_alerts_total",
+            description=(
+                "Operational monitoring alerts for drift, fairness, "
+                "calibration, and budget paths"
+            ),
+            unit="1",
         )
 
         # LLM budget utilization gauge
@@ -811,6 +962,11 @@ class _MetricsRegistryBase:
             description="Deployment gate decisions from SBOM policy",
             unit="1",
         )
+        self.artifact_integrity_failures_total = self._meter.create_counter(
+            name="polisyos_artifact_integrity_failures_total",
+            description="Artifact/blob-manifest read-time integrity failures",
+            unit="1",
+        )
         self.runtime_api_requests_total = self._meter.create_counter(
             name="polisyos_runtime_api_requests_total",
             description="Runtime API HTTP requests by route/method/status",
@@ -826,6 +982,44 @@ class _MetricsRegistryBase:
             description="Runtime API HTTP error responses (status >= 400)",
             unit="1",
         )
+        self.runtime_data_access_total = self._meter.create_counter(
+            name="polisyos_runtime_data_access_total",
+            description="Runtime data-access events by resource kind, endpoint, and outcome",
+            unit="1",
+        )
+        self.runtime_cache_operations_total = self._meter.create_counter(
+            name="polisyos_runtime_cache_operations_total",
+            description="Runtime cache lookups and refresh decisions by cache and outcome",
+            unit="1",
+        )
+        self.runtime_cache_rebuild_duration_seconds = self._meter.create_histogram(
+            name="polisyos_runtime_cache_rebuild_duration_seconds",
+            description="Runtime cache rebuild latency",
+            unit="s",
+        )
+        self.runtime_cache_item_count = GaugeProxy(
+            self._meter,
+            name="polisyos_runtime_cache_item_count",
+            description="Current item count for runtime caches",
+            unit="1",
+        )
+        self.runtime_cache_staleness_seconds = GaugeProxy(
+            self._meter,
+            name="polisyos_runtime_cache_staleness_seconds",
+            description="Observed staleness of runtime caches since last successful rebuild",
+            unit="s",
+        )
+        self.runtime_rate_limit_events_total = self._meter.create_counter(
+            name="polisyos_runtime_rate_limit_events_total",
+            description="Runtime request/live-stream rate-limit decisions and throttles",
+            unit="1",
+        )
+        self.runtime_live_streams_current = GaugeProxy(
+            self._meter,
+            name="polisyos_runtime_live_streams_current",
+            description="Current number of active runtime live streams per endpoint",
+            unit="1",
+        )
         self.control_plane_job_admissions_total = self._meter.create_counter(
             name="polisyos_control_plane_job_admissions_total",
             description="Control-plane durable job admission attempts by kind/profile/outcome",
@@ -834,6 +1028,21 @@ class _MetricsRegistryBase:
         self.control_plane_job_admission_duration_seconds = self._meter.create_histogram(
             name="polisyos_control_plane_job_admission_duration_seconds",
             description="Control-plane durable job admission latency",
+            unit="s",
+        )
+        self.control_plane_job_executions_total = self._meter.create_counter(
+            name="polisyos_control_plane_job_executions_total",
+            description="Control-plane durable job execution outcomes by kind/status",
+            unit="1",
+        )
+        self.control_plane_job_execution_duration_seconds = self._meter.create_histogram(
+            name="polisyos_control_plane_job_execution_duration_seconds",
+            description="Control-plane durable job execution duration",
+            unit="s",
+        )
+        self.control_plane_job_queue_lag_seconds = self._meter.create_histogram(
+            name="polisyos_control_plane_job_queue_lag_seconds",
+            description="Control-plane queue lag from job creation to worker execution",
             unit="s",
         )
 
@@ -856,14 +1065,43 @@ class _MetricsRegistryBase:
         if self._provider is not None:
             self._provider.shutdown()
 
+    def ensure_initialized(self) -> None:
+        """Public bootstrap hook for startup checks and health endpoints."""
+        self._ensure_initialized()
+
+    def get_exporter_health(self) -> dict[str, Any]:
+        """Return exporter bootstrap state for health/readiness surfaces."""
+        self._ensure_initialized()
+        metrics_health = self._exporter_health.get("metrics")
+        if isinstance(metrics_health, dict):
+            return {
+                "metrics": {
+                    "status": str(metrics_health.get("status", "unknown")),
+                    "failures": list(metrics_health.get("failures", [])),
+                }
+            }
+        return {"metrics": {"status": "unknown", "failures": []}}
+
     # -- Internal helpers ---------------------------------------------------
 
     def _default_env(self) -> str:
-        if self._config is not None:
-            return self._config.environment
+        config = getattr(self, "_config", None)
+        if config is not None:
+            return config.environment
         return "unknown"
 
     def _with_env(self, attributes: Optional[dict[str, Any]]) -> dict[str, Any]:
         attrs: dict[str, Any] = dict(attributes or {})
         attrs.setdefault("env", self._default_env())
         return attrs
+
+    def _record_exporter_failure(self, exporter: str, exc: BaseException) -> None:
+        health = self._exporter_health.setdefault(exporter, {"status": "degraded", "failures": []})
+        health["status"] = "degraded"
+        failures = health.setdefault("failures", [])
+        failures.append(str(exc))
+
+    def _mark_exporter_ready(self, exporter: str) -> None:
+        health = self._exporter_health.setdefault(exporter, {"status": "ok", "failures": []})
+        if health.get("status") != "degraded":
+            health["status"] = "ok"

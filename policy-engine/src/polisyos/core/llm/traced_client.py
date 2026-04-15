@@ -9,30 +9,50 @@ Intercepts LLM calls to record:
 from __future__ import annotations
 
 import inspect
+import logging
 import time
 from enum import Enum
-from typing import Any, Callable, Optional
-
-try:
-    from opentelemetry.trace import SpanKind, Status, StatusCode
-except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
-    class SpanKind(str, Enum):
-        CLIENT = "CLIENT"
-
-    class StatusCode(str, Enum):
-        OK = "OK"
-        ERROR = "ERROR"
-
-    class Status:  # type: ignore[override]
-        def __init__(self, status_code: StatusCode, description: str | None = None) -> None:
-            self.status_code = status_code
-            self.description = description
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.pricing import estimate_llm_cost_usd
 
 from .protocols import LLMClientProtocol
 from .response import LLMResponseData, extract_llm_response_data
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+
+    from .sanitization import PromptSanitizer
+
+
+def _load_runtime_trace_types() -> tuple[Any, Any, Any]:
+    try:
+        from opentelemetry.trace import SpanKind, Status, StatusCode
+    except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+        class _FallbackSpanKind(str, Enum):
+            CLIENT = "CLIENT"
+
+        class _FallbackStatusCode(str, Enum):
+            OK = "OK"
+            ERROR = "ERROR"
+
+        class _FallbackStatus:
+            def __init__(
+                self,
+                status_code: _FallbackStatusCode,
+                description: str | None = None,
+            ) -> None:
+                self.status_code = status_code
+                self.description = description
+
+        return _FallbackSpanKind, _FallbackStatus, _FallbackStatusCode
+    return SpanKind, Status, StatusCode
+
+
+_RuntimeSpanKind, _RuntimeStatus, _RuntimeStatusCode = _load_runtime_trace_types()
 
 
 class TracedLLMClient:
@@ -55,6 +75,9 @@ class TracedLLMClient:
         model_variant_id: str | None = None,
         provider_name: str | None = None,
         call_observer: Callable[[dict[str, Any]], None] | None = None,
+        prompt_sanitizer: PromptSanitizer | None = None,
+        tracer: PolicyOSTracer | Any | None = None,
+        metrics: MetricsRegistry | Any | None = None,
     ) -> None:
         self._client = client
         self._model_name = model_name or self._detect_model_name()
@@ -64,12 +87,21 @@ class TracedLLMClient:
         self._model_variant_id = model_variant_id
         self._provider_name = provider_name
         self._call_observer = call_observer
+        self._prompt_sanitizer = prompt_sanitizer
+        self._tracer = tracer if tracer is not None else get_tracer()
+        self._metrics = metrics if metrics is not None else get_metrics()
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
 
     def unwrap(self) -> Any:
-        return self._client
+        current = self._client
+        while hasattr(current, "unwrap") and callable(getattr(current, "unwrap")):
+            next_client = current.unwrap()
+            if next_client is current:
+                break
+            current = next_client
+        return current
 
     def _detect_model_name(self) -> str:
         for attr in ("model_name", "model", "model_id"):
@@ -98,17 +130,43 @@ class TracedLLMClient:
             return "mock"
         return "unknown"
 
-    def _build_prompt_text(self, prompt: Optional[str] = None, **kwargs: Any) -> str:
+    def _build_prompt_text(self, prompt: str | None = None, **kwargs: Any) -> str:
         if prompt is not None:
-            return prompt
-        system = kwargs.get("system")
-        user = kwargs.get("user")
-        parts = []
-        if system:
-            parts.append(str(system))
-        if user:
-            parts.append(str(user))
-        return "\n\n".join(parts)
+            prompt_text = str(prompt)
+        else:
+            system = kwargs.get("system")
+            user = kwargs.get("user")
+            parts = []
+            if system:
+                parts.append(str(system))
+            if user:
+                parts.append(str(user))
+            prompt_text = "\n\n".join(parts)
+        if self._prompt_sanitizer is not None:
+            prompt_text = self._prompt_sanitizer.sanitize_text(prompt_text)
+        return prompt_text
+
+    def _sanitize_call_args(
+        self,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> tuple[tuple[Any, ...], dict[str, Any]]:
+        if self._prompt_sanitizer is None:
+            return args, dict(kwargs)
+        sanitized_args = tuple(
+            self._prompt_sanitizer.sanitize_payload(arg)
+            for arg in args
+        )
+        sanitized_kwargs = {
+            key: self._prompt_sanitizer.sanitize_payload(value)
+            for key, value in kwargs.items()
+        }
+        return sanitized_args, sanitized_kwargs
+
+    def _restore_response(self, response: Any) -> Any:
+        if self._prompt_sanitizer is None:
+            return response
+        return self._prompt_sanitizer.restore_response(response)
 
     def _build_span_attributes(
         self,
@@ -133,10 +191,12 @@ class TracedLLMClient:
         return attrs
 
     def _estimate_cost_usd(self, *, prompt_tokens: int, completion_tokens: int) -> float:
-        return estimate_llm_cost_usd(
-            model=self._model_name,
-            prompt_tokens=prompt_tokens,
-            completion_tokens=completion_tokens,
+        return float(
+            estimate_llm_cost_usd(
+                model=self._model_name,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+            )
         )
 
     def _record_tokens(
@@ -150,18 +210,20 @@ class TracedLLMClient:
     ) -> None:
         prompt_tokens = parsed.prompt_tokens
         completion_tokens = parsed.completion_tokens
-        cost_usd = parsed.cost_usd
-        if cost_usd is None:
-            cost_usd = self._estimate_cost_usd(
-                prompt_tokens=prompt_tokens,
-                completion_tokens=completion_tokens,
-            )
+        estimated_cost_usd = self._estimate_cost_usd(
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+        )
+        cost_usd = parsed.cost_usd if parsed.cost_usd is not None else estimated_cost_usd
+        cost_delta_usd = float(cost_usd) - float(estimated_cost_usd)
 
         span.set_attribute("polisyos.llm.tokens.prompt", prompt_tokens)
         span.set_attribute("polisyos.llm.tokens.completion", completion_tokens)
         span.set_attribute("polisyos.llm.tokens.total", prompt_tokens + completion_tokens)
         span.set_attribute("polisyos.llm.latency_ms", latency_ms)
         span.set_attribute("polisyos.llm.cost_usd", float(cost_usd))
+        span.set_attribute("polisyos.llm.estimated_cost_usd", float(estimated_cost_usd))
+        span.set_attribute("polisyos.llm.cost_delta_usd", float(cost_delta_usd))
 
         metrics.record_llm_call(
             model=self._model_name,
@@ -186,49 +248,49 @@ class TracedLLMClient:
                         "total_tokens": prompt_tokens + completion_tokens,
                         "latency_ms": latency_ms,
                         "cost_usd": float(cost_usd),
+                        "estimated_cost_usd": float(estimated_cost_usd),
+                        "cost_delta_usd": float(cost_delta_usd),
                         "run_id": self._run_id,
                         "model_variant_id": self._model_variant_id,
                     }
                 )
             except Exception:
                 # Observability callback must never break agent execution.
-                import logging as _logging
-                _logging.getLogger(__name__).debug(
+                logging.getLogger(__name__).debug(
                     "Observability callback failed", exc_info=True,
                 )
 
     def invoke(self, prompt: str, **kwargs: Any) -> Any:
-        tracer = get_tracer()
-        metrics = get_metrics()
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
-        with tracer.start_as_current_span(
+        with self._tracer.start_as_current_span(
             f"llm.invoke.{self._model_name}",
             attributes=span_attrs,
-            kind=SpanKind.CLIENT,
+            kind=_RuntimeSpanKind.CLIENT,
         ) as span:
             try:
-                response = self._client.invoke(prompt, **kwargs)
+                call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
+                response = self._client.invoke(*call_args, **call_kwargs)
                 parsed = extract_llm_response_data(response)
                 provider = self._detect_provider(parsed.provider)
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))
                 self._record_tokens(
                     span,
-                    metrics,
+                    self._metrics,
                     parsed,
                     latency_ms,
                     "success",
                     provider,
                 )
-                span.set_status(Status(StatusCode.OK))
-                return response
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
+                return self._restore_response(response)
             except Exception as exc:
-                span.set_status(Status(StatusCode.ERROR, str(exc)))
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
-                metrics.record_llm_call(
+                self._metrics.record_llm_call(
                     model=self._model_name,
                     status="error",
                     prompt_tokens=0,
@@ -241,37 +303,36 @@ class TracedLLMClient:
                 raise
 
     async def ainvoke(self, prompt: str, **kwargs: Any) -> Any:
-        tracer = get_tracer()
-        metrics = get_metrics()
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
-        with tracer.start_as_current_span(
+        with self._tracer.start_as_current_span(
             f"llm.ainvoke.{self._model_name}",
             attributes=span_attrs,
-            kind=SpanKind.CLIENT,
+            kind=_RuntimeSpanKind.CLIENT,
         ) as span:
             try:
-                response = await self._client.ainvoke(prompt, **kwargs)
+                call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
+                response = await self._client.ainvoke(*call_args, **call_kwargs)
                 parsed = extract_llm_response_data(response)
                 provider = self._detect_provider(parsed.provider)
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))
                 self._record_tokens(
                     span,
-                    metrics,
+                    self._metrics,
                     parsed,
                     latency_ms,
                     "success",
                     provider,
                 )
-                span.set_status(Status(StatusCode.OK))
-                return response
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
+                return self._restore_response(response)
             except Exception as exc:
-                span.set_status(Status(StatusCode.ERROR, str(exc)))
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
-                metrics.record_llm_call(
+                self._metrics.record_llm_call(
                     model=self._model_name,
                     status="error",
                     prompt_tokens=0,
@@ -284,20 +345,19 @@ class TracedLLMClient:
                 raise
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
-        tracer = get_tracer()
-        metrics = get_metrics()
         prompt_text = self._build_prompt_text(args[0] if args else kwargs.get("prompt"), **kwargs)
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
-        with tracer.start_as_current_span(
+        with self._tracer.start_as_current_span(
             f"llm.generate.{self._model_name}",
             attributes=span_attrs,
-            kind=SpanKind.CLIENT,
+            kind=_RuntimeSpanKind.CLIENT,
         ) as span:
             try:
-                response = self._client.generate(*args, **kwargs)
+                call_args, call_kwargs = self._sanitize_call_args(args, kwargs)
+                response = self._client.generate(*call_args, **call_kwargs)
                 if inspect.isawaitable(response):
                     response = await response
                 parsed = extract_llm_response_data(response)
@@ -305,18 +365,18 @@ class TracedLLMClient:
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))
                 self._record_tokens(
                     span,
-                    metrics,
+                    self._metrics,
                     parsed,
                     latency_ms,
                     "success",
                     provider,
                 )
-                span.set_status(Status(StatusCode.OK))
-                return response
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
+                return self._restore_response(response)
             except Exception as exc:
-                span.set_status(Status(StatusCode.ERROR, str(exc)))
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
-                metrics.record_llm_call(
+                self._metrics.record_llm_call(
                     model=self._model_name,
                     status="error",
                     prompt_tokens=0,
@@ -333,4 +393,3 @@ __all__ = [
     "LLMClientProtocol",
     "TracedLLMClient",
 ]
-

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import time
+from typing import TYPE_CHECKING
 
 from polisyos.core.cache import TTLCache
 from polisyos.core.observability import get_metrics
@@ -17,6 +18,9 @@ from polisyos.core.security.tee import (
     TEEPlatform,
     create_verifier,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.observability import MetricsRegistry
 
 
 class AttestationDeniedError(RuntimeError):
@@ -34,12 +38,14 @@ class TEEGatekeeper:
         enforce_tiers: frozenset[str],
         verifier: AttestationVerifier,
         cache_ttl_seconds: int,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self._cell_tier = cell_tier.strip().lower()
         self._policy = policy
         self._enforce_tiers = frozenset(item.strip().lower() for item in enforce_tiers)
         self._verifier = verifier
         self._cache_ttl_seconds = max(0, cache_ttl_seconds)
+        self._metrics = metrics or get_metrics()
         self._cache = TTLCache[str, AttestationResult](
             ttl_seconds=float(self._cache_ttl_seconds),
             time_fn=time.monotonic,
@@ -52,7 +58,8 @@ class TEEGatekeeper:
         settings: SecuritySettings | None = None,
         cell_tier: str | None = None,
         verifier: AttestationVerifier | None = None,
-    ) -> "TEEGatekeeper":
+        metrics: MetricsRegistry | None = None,
+    ) -> TEEGatekeeper:
         resolved = settings or get_security_settings()
         tier = (cell_tier or resolved.POLISYOS_DEFAULT_CELL_TIER).strip().lower()
         platform = _resolve_platform(resolved.POLISYOS_TEE_PLATFORM)
@@ -74,6 +81,7 @@ class TEEGatekeeper:
             enforce_tiers=resolved.tee_enforce_tiers(),
             verifier=gate_verifier,
             cache_ttl_seconds=resolved.POLISYOS_TEE_CACHE_TTL_SECONDS,
+            metrics=metrics,
         )
 
     def gate(
@@ -83,12 +91,11 @@ class TEEGatekeeper:
         nonce: bytes | None = None,
     ) -> AttestationResult:
         started = time.perf_counter()
-        metrics = get_metrics()
 
         if not self._policy.enabled or self._cell_tier not in self._enforce_tiers:
             result = AttestationResult(status=AttestationStatus.SKIPPED)
-            metrics.record_tee_attestation(platform="none", outcome=result.status.value)
-            metrics.record_tee_attestation_duration(platform="none", duration_seconds=0.0)
+            self._metrics.record_tee_attestation(platform="none", outcome=result.status.value)
+            self._metrics.record_tee_attestation_duration(platform="none", duration_seconds=0.0)
             return result
 
         cache_key = (node_id or os.getenv("HOSTNAME") or "default-node").strip()
@@ -96,9 +103,9 @@ class TEEGatekeeper:
         if cached_result_raw is not None:
             cached_result = cached_result_raw.model_copy(update={"cached": True})
             platform_label = cached_result.platform.value if cached_result.platform else "unknown"
-            metrics.record_tee_attestation_cache_hit(platform=platform_label)
-            metrics.record_tee_attestation(platform=platform_label, outcome="cache_hit")
-            metrics.record_tee_attestation_duration(
+            self._metrics.record_tee_attestation_cache_hit(platform=platform_label)
+            self._metrics.record_tee_attestation(platform=platform_label, outcome="cache_hit")
+            self._metrics.record_tee_attestation_duration(
                 platform=platform_label,
                 duration_seconds=time.perf_counter() - started,
             )
@@ -107,7 +114,7 @@ class TEEGatekeeper:
         try:
             report = self._verifier.fetch_report(nonce=nonce)
             result = self._verifier.verify(report, self._policy, nonce=nonce)
-        except (AttestationFetchError, AttestationDeniedError, TEEError, RuntimeError, ValueError) as exc:  # noqa: BLE001
+        except (AttestationFetchError, AttestationDeniedError, TEEError, RuntimeError, ValueError) as exc:
             status = (
                 AttestationStatus.UNAVAILABLE
                 if self._policy.fail_closed
@@ -117,8 +124,8 @@ class TEEGatekeeper:
 
         self._cache.set(cache_key, result)
         platform_label = result.platform.value if result.platform else "unknown"
-        metrics.record_tee_attestation(platform=platform_label, outcome=result.status.value)
-        metrics.record_tee_attestation_duration(
+        self._metrics.record_tee_attestation(platform=platform_label, outcome=result.status.value)
+        self._metrics.record_tee_attestation_duration(
             platform=platform_label,
             duration_seconds=time.perf_counter() - started,
         )

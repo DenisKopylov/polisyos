@@ -27,6 +27,7 @@ class LinkIssueCode(str, Enum):
     UNKNOWN_MECHANISM = "unknown_mechanism"
     MISSING_PARAM = "missing_param"
     UNKNOWN_PARAM = "unknown_param"
+    PARAM_PATH = "param_path"
     PARAM_TYPE = "param_type"
     PARAM_ENUM = "param_enum"
     PARAM_RANGE = "param_range"
@@ -40,6 +41,10 @@ class LinkIssueCode(str, Enum):
     UNKNOWN_ACTOR = "unknown_actor"
     UNKNOWN_JURISDICTION = "unknown_jurisdiction"
     MISSING_REGISTRY = "missing_registry"
+    UNUSED_REGISTRY = "unused_registry"
+    UNUSED_MECHANISM = "unused_mechanism"
+    UNUSED_SLOT = "unused_slot"
+    UNUSED_CONSTRAINT = "unused_constraint"
     DEPRECATED_MECHANISM_BINDINGS = "deprecated_mechanism_bindings"
     MODEL_FIDELITY_LEVEL_IGNORED = "model_fidelity_level_ignored"
 

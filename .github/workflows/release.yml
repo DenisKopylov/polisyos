@@ -265,7 +265,7 @@ jobs:
         env:
           BENCH_MODE: smoke
           BENCH_JSON_DIR: /tmp/release-canary-bench
-        run: bash benchmarks/run_all_benchmarks.sh --circuit symbolic --quiet
+        run: uv run polisyos-tools benchmarks run-all --circuit symbolic --quiet
 
       - name: Upload canary evidence
         if: always()

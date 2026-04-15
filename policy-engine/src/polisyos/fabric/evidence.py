@@ -14,6 +14,18 @@ from polisyos.core.contracts.fabric import (
 )
 from polisyos.fabric.provenance.core import ProvenanceCoreGraph, ProvenanceCoreRef
 from polisyos.fabric.quality import QualityIndicators
+from polisyos.fabric.security import DataClassification, RetentionScope, resolve_artifact_governance
+
+
+class EvidencePayloadError(ValueError):
+    """Raised when a persisted Fabric evidence payload is malformed."""
+
+
+def _require_payload_str(payload: dict[str, object], field: str) -> str:
+    value = payload.get(field)
+    if not isinstance(value, str) or not value:
+        raise EvidencePayloadError(f"Provenance graph payload missing required string field: {field}")
+    return value
 
 
 def build_evidence_bundle(
@@ -55,18 +67,29 @@ def persist_provenance_graph(
     *,
     schema_name: str = "fabric.provenance_graph",
     schema_version: str = "1.0",
+    classification: DataClassification | str | None = None,
+    encrypted_at_rest: bool = False,
+    field_level_encrypted: bool = False,
+    encryption_key_reference: str | None = None,
 ) -> ProvenanceCoreRef:
     """
     Persist a ProvenanceCoreGraph to CAS and return a reference.
     """
     payload = graph.to_dict()
-    stable_id = payload["stable_id"]
+    stable_id = _require_payload_str(payload, "stable_id")
     ref = store.put_json(
         payload,
         opts=PutOptions(
             kind="fabric.provenance_graph",
             media_type="application/json",
             schema=SchemaInfo(name=schema_name, version=schema_version),
+            governance=resolve_artifact_governance(
+                scope=RetentionScope.EVIDENCE_BUNDLE,
+                classification=classification,
+                encrypted_at_rest=encrypted_at_rest,
+                field_level_encrypted=field_level_encrypted,
+                encryption_key_reference=encryption_key_reference,
+            ),
         ),
     )
     return ProvenanceCoreRef(
@@ -106,9 +129,13 @@ def persist_evidence_bundle(
     *,
     schema_name: str = "fabric.evidence_bundle",
     schema_version: str = "1.0",
+    classification: DataClassification | str | None = None,
+    encrypted_at_rest: bool = False,
+    field_level_encrypted: bool = False,
+    encryption_key_reference: str | None = None,
 ) -> EvidenceBundleRef:
     """
-    Сохраняет EvidenceBundle в CAS и возвращает строгий EvidenceBundleRef.
+    Persist an ``EvidenceBundle`` to CAS and return a strict ``EvidenceBundleRef``.
     """
     ref = store.put_json(
         bundle.model_dump(),
@@ -116,6 +143,13 @@ def persist_evidence_bundle(
             kind="fabric.evidence_bundle",
             media_type="application/json",
             schema=SchemaInfo(name=schema_name, version=schema_version),
+            governance=resolve_artifact_governance(
+                scope=RetentionScope.EVIDENCE_BUNDLE,
+                classification=classification,
+                encrypted_at_rest=encrypted_at_rest,
+                field_level_encrypted=field_level_encrypted,
+                encryption_key_reference=encryption_key_reference,
+            ),
         ),
     )
     return EvidenceBundleRef.model_validate(ref.model_dump())

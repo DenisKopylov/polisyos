@@ -15,19 +15,29 @@ import threading
 import time
 from collections import deque
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from functools import wraps
-from typing import Any, Awaitable, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
+from uuid import uuid4
 
 from opentelemetry import trace
-from opentelemetry.trace import Status, StatusCode
+from opentelemetry.trace import Status, StatusCode, Tracer
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
+from polisyos.fabric.connectors.resilience._bounded_registry import (
+    BoundedResourceRegistry,
+)
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from polisyos.core.observability import MetricsRegistry
 
 logger = get_logger(__name__)
-tracer = trace.get_tracer(__name__)
+DEFAULT_TRACER = trace.get_tracer(__name__)
 
 T = TypeVar("T")
 
@@ -37,7 +47,7 @@ def _monotonic() -> float:
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class CircuitState(Enum):
@@ -63,6 +73,10 @@ class CircuitOpenError(Exception):
             f"Opened at {opened_at.isoformat()}. "
             f"Retry in {time_remaining:.1f}s."
         )
+
+
+class CircuitLeaseError(RuntimeError):
+    """Raised when a half-open attempt lease is released without ownership."""
 
 
 @dataclass
@@ -102,6 +116,19 @@ class CircuitBreakerConfig:
             raise ValueError("min_throughput must be >= 1")
 
 
+@dataclass(frozen=True, slots=True)
+class CircuitAttemptLease:
+    """Execution-boundary lease for one circuit-breaker attempt."""
+
+    circuit_id: str
+    state: CircuitState
+    token: str | None = None
+
+    @property
+    def owns_half_open_slot(self) -> bool:
+        return self.token is not None
+
+
 class CircuitBreaker:
     """
     Circuit breaker with CLOSED/OPEN/HALF_OPEN state machine.
@@ -113,6 +140,9 @@ class CircuitBreaker:
         self,
         circuit_id: str = "default",
         config: CircuitBreakerConfig | None = None,
+        *,
+        metrics: MetricsRegistry | None = None,
+        tracer: Tracer | None = None,
     ) -> None:
         self.circuit_id = circuit_id
         self.config = config or CircuitBreakerConfig()
@@ -122,7 +152,7 @@ class CircuitBreaker:
         self._success_count = 0
         self._opened_at: datetime | None = None
         self._opened_at_monotonic: float | None = None
-        self._half_open_calls = 0
+        self._half_open_leases: set[str] = set()
         self._last_failure_at: datetime | None = None
 
         # Sliding window (monotonic timestamps)
@@ -133,7 +163,8 @@ class CircuitBreaker:
         self._lock = threading.Lock()
 
         # Metrics
-        self._metrics = get_metrics()
+        self._metrics = metrics or get_metrics()
+        self._tracer = tracer or DEFAULT_TRACER
         self._set_state_metric(self._state)
 
         logger.info(
@@ -172,24 +203,31 @@ class CircuitBreaker:
             return self._state == CircuitState.CLOSED
 
     def _set_state_metric(self, state: CircuitState) -> None:
-        if not self._metrics or not getattr(self._metrics, "connector_circuit_state", None):
+        metric = getattr(self._metrics, "connector_circuit_state", None)
+        if metric is None:
             return
         value = {
             CircuitState.CLOSED: 0.0,
             CircuitState.OPEN: 1.0,
             CircuitState.HALF_OPEN: 2.0,
         }[state]
-        self._metrics.connector_circuit_state.set(value, {"circuit_id": self.circuit_id})  # type: ignore[union-attr]
+        metric.set(value, {"circuit_id": self.circuit_id})
 
     def _record_trip_metric(self) -> None:
-        if not self._metrics or not getattr(self._metrics, "connector_circuit_trips_total", None):
+        metric = getattr(self._metrics, "connector_circuit_trips_total", None)
+        if metric is None:
             return
-        self._metrics.connector_circuit_trips_total.add(1, {"circuit_id": self.circuit_id})  # type: ignore[union-attr]
+        metric.add(1, {"circuit_id": self.circuit_id})
 
     def _record_reject_metric(self) -> None:
-        if not self._metrics or not getattr(self._metrics, "connector_circuit_rejected_requests_total", None):
+        metric = getattr(
+            self._metrics,
+            "connector_circuit_rejected_requests_total",
+            None,
+        )
+        if metric is None:
             return
-        self._metrics.connector_circuit_rejected_requests_total.add(1, {"circuit_id": self.circuit_id})  # type: ignore[union-attr]
+        metric.add(1, {"circuit_id": self.circuit_id})
 
     def _evict_old(self, now: float) -> None:
         cutoff = now - self.config.window_size_seconds
@@ -214,58 +252,127 @@ class CircuitBreaker:
             self._transition_to_half_open()
 
     def _transition_to_half_open(self) -> None:
-        self._state = CircuitState.HALF_OPEN
-        self._success_count = 0
-        self._half_open_calls = 0
-        self._set_state_metric(self._state)
+        with self._tracer.start_as_current_span(
+            FABRIC_TRACE_NAMES["circuit_transition"],
+            attributes={
+                "circuit.id": self.circuit_id,
+                "circuit.from_state": CircuitState.OPEN.value,
+                "circuit.to_state": CircuitState.HALF_OPEN.value,
+            },
+        ):
+            self._state = CircuitState.HALF_OPEN
+            self._success_count = 0
+            self._half_open_leases.clear()
+            self._set_state_metric(self._state)
 
-        logger.info(
-            "Circuit half-opened",
-            circuit_id=self.circuit_id,
-            previous_state="OPEN",
-        )
+            logger.info(
+                "Circuit half-opened",
+                circuit_id=self.circuit_id,
+                previous_state="OPEN",
+            )
 
     def _transition_to_open(self) -> None:
-        self._state = CircuitState.OPEN
-        self._opened_at = _utc_now()
-        self._opened_at_monotonic = _monotonic()
-        self._set_state_metric(self._state)
-        self._record_trip_metric()
+        previous_state = self._state
+        with self._tracer.start_as_current_span(
+            FABRIC_TRACE_NAMES["circuit_transition"],
+            attributes={
+                "circuit.id": self.circuit_id,
+                "circuit.from_state": previous_state.value,
+                "circuit.to_state": CircuitState.OPEN.value,
+            },
+        ):
+            self._state = CircuitState.OPEN
+            self._success_count = 0
+            self._opened_at = _utc_now()
+            self._opened_at_monotonic = _monotonic()
+            self._half_open_leases.clear()
+            self._set_state_metric(self._state)
+            self._record_trip_metric()
 
-        logger.critical(
-            "Circuit opened (tripped)",
-            circuit_id=self.circuit_id,
-            failure_count=len(self._failure_timestamps),
-            failure_threshold=self.config.failure_threshold,
-        )
+            logger.critical(
+                "Circuit opened (tripped)",
+                circuit_id=self.circuit_id,
+                failure_count=len(self._failure_timestamps),
+                failure_threshold=self.config.failure_threshold,
+            )
 
     def _transition_to_closed(self) -> None:
-        self._state = CircuitState.CLOSED
-        self._success_count = 0
-        self._opened_at = None
-        self._opened_at_monotonic = None
-        self._failure_timestamps.clear()
-        self._call_timestamps.clear()
-        self._set_state_metric(self._state)
+        with self._tracer.start_as_current_span(
+            FABRIC_TRACE_NAMES["circuit_transition"],
+            attributes={
+                "circuit.id": self.circuit_id,
+                "circuit.from_state": self._state.value,
+                "circuit.to_state": CircuitState.CLOSED.value,
+            },
+        ):
+            self._state = CircuitState.CLOSED
+            self._success_count = 0
+            self._opened_at = None
+            self._opened_at_monotonic = None
+            self._half_open_leases.clear()
+            self._failure_timestamps.clear()
+            self._call_timestamps.clear()
+            self._set_state_metric(self._state)
 
-        logger.info(
-            "Circuit closed (recovered)",
+            logger.info(
+                "Circuit closed (recovered)",
+                circuit_id=self.circuit_id,
+            )
+
+    def _acquire_half_open_lease_locked(self) -> CircuitAttemptLease | None:
+        if len(self._half_open_leases) >= self.config.half_open_max_calls:
+            return None
+        token = uuid4().hex
+        self._half_open_leases.add(token)
+        return CircuitAttemptLease(
             circuit_id=self.circuit_id,
+            state=CircuitState.HALF_OPEN,
+            token=token,
         )
 
-    def _release_half_open_slot(self) -> None:
-        if self._half_open_calls > 0:
-            self._half_open_calls -= 1
+    def _release_half_open_lease_locked(self, lease: CircuitAttemptLease | None) -> None:
+        if lease is None or not lease.owns_half_open_slot or lease.token is None:
+            raise CircuitLeaseError(
+                f"Circuit '{self.circuit_id}' requires a half-open lease token for release"
+            )
+        if lease.token not in self._half_open_leases:
+            raise CircuitLeaseError(
+                f"Circuit '{self.circuit_id}' half-open lease '{lease.token}' is not owned"
+            )
+        self._half_open_leases.remove(lease.token)
 
-    def record_success(self) -> None:
+    def _release_cancelled_lease(self, lease: CircuitAttemptLease | None) -> None:
+        if lease is None or not lease.owns_half_open_slot or lease.token is None:
+            return
+        with self._lock:
+            if lease.token in self._half_open_leases:
+                self._half_open_leases.remove(lease.token)
+
+    def acquire_attempt(self) -> CircuitAttemptLease | None:
+        """Acquire an execution-boundary attempt lease if the circuit allows it."""
+        with self._lock:
+            self._check_timeout()
+
+            if self._state == CircuitState.OPEN:
+                return None
+
+            if self._state == CircuitState.HALF_OPEN:
+                return self._acquire_half_open_lease_locked()
+
+            return CircuitAttemptLease(
+                circuit_id=self.circuit_id,
+                state=CircuitState.CLOSED,
+            )
+
+    def record_success(self, lease: CircuitAttemptLease | None = None) -> None:
         """Record a successful operation."""
         with self._lock:
             now = _monotonic()
             self._record_call(now)
 
             if self._state == CircuitState.HALF_OPEN:
+                self._release_half_open_lease_locked(lease)
                 self._success_count += 1
-                self._release_half_open_slot()
 
                 logger.debug(
                     "Half-open success",
@@ -277,7 +384,7 @@ class CircuitBreaker:
                 if self._success_count >= self.config.success_threshold:
                     self._transition_to_closed()
 
-    def record_failure(self) -> None:
+    def record_failure(self, lease: CircuitAttemptLease | None = None) -> None:
         """Record a failed operation."""
         with self._lock:
             now = _monotonic()
@@ -285,7 +392,7 @@ class CircuitBreaker:
             self._last_failure_at = _utc_now()
 
             if self._state == CircuitState.HALF_OPEN:
-                self._release_half_open_slot()
+                self._release_half_open_lease_locked(lease)
                 self._transition_to_open()
                 return
 
@@ -304,12 +411,14 @@ class CircuitBreaker:
                     call_count=call_count,
                 )
 
-                if call_count >= self.config.min_throughput:
-                    if failure_count >= self.config.failure_threshold:
-                        self._transition_to_open()
+                if (
+                    call_count >= self.config.min_throughput
+                    and failure_count >= self.config.failure_threshold
+                ):
+                    self._transition_to_open()
 
     def can_attempt(self) -> bool:
-        """Check if a request can be attempted."""
+        """Advisory readiness check; acquire_attempt() owns the real execution lease."""
         with self._lock:
             self._check_timeout()
 
@@ -317,10 +426,7 @@ class CircuitBreaker:
                 return False
 
             if self._state == CircuitState.HALF_OPEN:
-                if self._half_open_calls >= self.config.half_open_max_calls:
-                    return False
-                self._half_open_calls += 1
-                return True
+                return len(self._half_open_leases) < self.config.half_open_max_calls
 
             return True
 
@@ -336,34 +442,33 @@ class CircuitBreaker:
         Raises:
             CircuitOpenError: If circuit is OPEN
         """
-        if not self.can_attempt():
+        lease = self.acquire_attempt()
+        if lease is None:
             self._record_reject_metric()
             opened_at = self._opened_at or _utc_now()
             raise CircuitOpenError(self.circuit_id, opened_at, self.config.timeout_seconds)
 
-        with tracer.start_as_current_span(
+        with self._tracer.start_as_current_span(
             "connector.circuit_breaker.execute",
             attributes={
                 "circuit.id": self.circuit_id,
-                "circuit.state": self.state.value,
+                "circuit.state": lease.state.value,
             },
         ) as span:
             try:
                 result = await func(*args, **kwargs)
-                self.record_success()
+                self.record_success(lease)
                 span.set_status(Status(StatusCode.OK))
                 return result
 
             except asyncio.CancelledError:
                 # Do not count cancellations as failures
-                with self._lock:
-                    if self._state == CircuitState.HALF_OPEN:
-                        self._release_half_open_slot()
+                self._release_cancelled_lease(lease)
                 span.set_status(Status(StatusCode.ERROR, "Cancelled"))
                 raise
 
             except Exception as error:
-                self.record_failure()
+                self.record_failure(lease)
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 span.record_exception(error)
                 raise
@@ -382,7 +487,7 @@ class CircuitBreaker:
                 "call_count": len(self._call_timestamps),
                 "opened_at": self._opened_at.isoformat() if self._opened_at else None,
                 "last_failure_at": self._last_failure_at.isoformat() if self._last_failure_at else None,
-                "half_open_calls": self._half_open_calls,
+                "half_open_calls": len(self._half_open_leases),
                 "config": {
                     "failure_threshold": self.config.failure_threshold,
                     "success_threshold": self.config.success_threshold,
@@ -394,7 +499,7 @@ class CircuitBreaker:
             }
 
 
-def _default_circuit_id(
+def _default_circuit_id[T](
     func: Callable[..., Awaitable[T]],
     args: tuple[Any, ...],
     kwargs: dict[str, Any],
@@ -471,8 +576,7 @@ def with_circuit_breaker(
     Returns:
         Decorated async function
     """
-    breakers: dict[str, CircuitBreaker] = {}
-    lock = threading.Lock()
+    breakers = BoundedResourceRegistry[CircuitBreaker]()
 
     def _resolve_breaker(
         func: Callable[..., Awaitable[T]],
@@ -486,12 +590,13 @@ def with_circuit_breaker(
         else:
             resolved_id = _default_circuit_id(func, args, kwargs)
 
-        with lock:
-            breaker = breakers.get(resolved_id)
-            if breaker is None:
-                breaker = CircuitBreaker(circuit_id=resolved_id, config=config)
-                breakers[resolved_id] = breaker
-            return breaker
+        return cast(
+            "CircuitBreaker",
+            breakers.get_or_create(
+                resolved_id,
+                lambda: CircuitBreaker(circuit_id=resolved_id, config=config),
+            ),
+        )
 
     def decorator(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
         @wraps(func)

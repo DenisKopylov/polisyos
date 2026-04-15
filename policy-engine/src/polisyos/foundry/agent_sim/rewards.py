@@ -4,6 +4,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 
+from polisyos.foundry._numeric import NumericDomain, epsilon_for
 from polisyos.foundry.agent_sim.credit_assignment import (
     CreditConfig,
     compute_credit_assignment,
@@ -16,15 +17,20 @@ class UtilityFunction:
     @staticmethod
     def crra(consumption: jnp.ndarray, risk_aversion: jnp.ndarray) -> jnp.ndarray:
         gamma = risk_aversion
-        safe_c = jnp.maximum(consumption, 1e-8)
-        is_log = jnp.abs(gamma - 1.0) < 1e-6
+        eps = epsilon_for(NumericDomain.UTILITY)
+        safe_c = jnp.maximum(consumption, eps)
+        is_log = jnp.abs(gamma - 1.0) < eps
         power_term = (jnp.power(safe_c, 1.0 - gamma) - 1.0) / (1.0 - gamma)
         return jnp.where(is_log, jnp.log(safe_c), power_term)
 
     @staticmethod
     def cara(consumption: jnp.ndarray, risk_aversion: jnp.ndarray) -> jnp.ndarray:
         gamma = risk_aversion
-        return -jnp.exp(-gamma * consumption) / gamma
+        eps = epsilon_for(NumericDomain.UTILITY)
+        near_zero = jnp.abs(gamma) < eps
+        safe_gamma = jnp.where(near_zero, 1.0, gamma)
+        shifted = -jnp.expm1(-gamma * consumption) / safe_gamma
+        return jnp.where(near_zero, consumption, shifted)
 
     @staticmethod
     def epstein_zin(
@@ -35,12 +41,13 @@ class UtilityFunction:
         discount_factor: jnp.ndarray,
     ) -> jnp.ndarray:
         gamma = risk_aversion
-        psi = ies
+        eps = epsilon_for(NumericDomain.UTILITY)
+        psi = jnp.where(jnp.abs(ies - 1.0) < eps, 1.0 + eps, ies)
         beta = discount_factor
         theta = (1.0 - gamma) / (1.0 - 1.0 / psi)
-        safe_c = jnp.maximum(consumption, 1e-8)
+        safe_c = jnp.maximum(consumption, eps)
         consumption_term = (1.0 - beta) * jnp.power(safe_c, 1.0 - 1.0 / psi)
-        continuation_term = beta * jnp.power(jnp.maximum(continuation_value, 1e-8), theta)
+        continuation_term = beta * jnp.power(jnp.maximum(continuation_value, eps), theta)
         return jnp.power(consumption_term + continuation_term, 1.0 / (1.0 - 1.0 / psi))
 
 

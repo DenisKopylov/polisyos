@@ -1,3 +1,9 @@
+import json
+from pathlib import Path
+
+import pytest
+
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_spec import ModelSpec
@@ -95,6 +101,15 @@ class ExpensiveSafetyPass(ValidatorPass):
                 code="SAFETY_RAN",
             )
         ]
+
+
+class ExplodingPass(ValidatorPass):
+    @property
+    def pass_id(self) -> str:
+        return "exploding"
+
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
+        raise RuntimeError("boom")
 
 
 def test_blocker_short_circuits_pipeline() -> None:
@@ -207,6 +222,136 @@ def test_telemetry_attached_on_failure() -> None:
     assert record.phase == "governance_validation"
 
 
+def test_preflight_checks_accept_injected_store_factory(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from polisyos.scientist.governance import preflight_checks
+    from polisyos.scientist.governance.profiles import ValidationProfile
+
+    state = {
+        "run_id": "test_store_factory",
+        "trinity_bundle": _create_minimal_ir(),
+        "runtime_base_dir": str(tmp_path / "runs"),
+    }
+    store = FileSystemCAS(tmp_path / ".polisyos")
+
+    def _unexpected(cas_root: Path):
+        del cas_root
+        raise AssertionError("default store builder should not be used")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.governance.preflight._build_store",
+        _unexpected,
+    )
+
+    updated_state, gate_request = preflight_checks(
+        state,
+        ValidationProfile.mvp(),
+        store_factory=lambda _: store,
+    )
+
+    assert gate_request is None
+    assert "registry_bundle_ref" in updated_state
+
+
+def test_preflight_registry_bundle_load_emits_degraded_path(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.scientist.governance import preflight as preflight_module
+
+    degraded_calls: list[dict[str, object]] = []
+
+    def _emit_degraded_path(**kwargs):
+        degraded_calls.append(kwargs)
+        return {"reason": kwargs["reason"]}
+
+    monkeypatch.setattr(preflight_module, "emit_degraded_path", _emit_degraded_path)
+    monkeypatch.setattr(
+        preflight_module,
+        "load_registry_bundle_content",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("boom")),
+    )
+
+    state = {
+        "run_id": "test_preflight_registry_degraded",
+        "registry_bundle_ref": {"artifact_id": "sha256:" + "1" * 64},
+        "cas_root": "/tmp/polisyos-test",
+    }
+
+    assert preflight_module._load_registry_bundle(state, None) is None
+    assert degraded_calls
+    assert degraded_calls[0]["reason"] == "registry_bundle_unreadable"
+
+
+def test_preflight_registry_helpers_accept_injected_store_factory(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from polisyos.scientist.governance import preflight as preflight_module
+
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    store_factory_calls: list[Path] = []
+
+    def _store_factory(cas_root: Path) -> FileSystemCAS:
+        store_factory_calls.append(cas_root)
+        return store
+
+    bundle_ref = {"artifact_id": "sha256:" + "2" * 64}
+    monkeypatch.setattr(
+        preflight_module,
+        "build_default_registry_bundle",
+        lambda _store: type(
+            "_Bundle",
+            (),
+            {"bundle_ref": type("_Ref", (), {"model_dump": lambda self: bundle_ref})()},
+        )(),
+    )
+    monkeypatch.setattr(
+        preflight_module,
+        "load_registry_bundle_content",
+        lambda _store, bundle_id: {"bundle_id": bundle_id},
+    )
+
+    state = {"run_id": "test_preflight_registry_injected", "cas_root": str(tmp_path / ".polisyos")}
+    updated_state = preflight_module._ensure_registry_bundle(
+        state,
+        store_factory=_store_factory,
+    )
+    loaded_bundle = preflight_module._load_registry_bundle(
+        updated_state,
+        None,
+        store_factory=_store_factory,
+    )
+
+    assert updated_state["registry_bundle_ref"]["artifact_id"] == bundle_ref["artifact_id"]
+    assert loaded_bundle == {"bundle_id": bundle_ref["artifact_id"]}
+    assert store_factory_calls
+
+
+def test_preflight_invalid_trinity_bundle_emits_degraded_path(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.scientist.governance import preflight as preflight_module
+
+    degraded_calls: list[dict[str, object]] = []
+
+    def _emit_degraded_path(**kwargs):
+        degraded_calls.append(kwargs)
+        return {"reason": kwargs["reason"]}
+
+    monkeypatch.setattr(preflight_module, "emit_degraded_path", _emit_degraded_path)
+
+    state = {
+        "run_id": "test_preflight_invalid_bundle",
+        "trinity_bundle": {"problem_frame": "not-a-trinity-bundle"},
+    }
+
+    assert preflight_module._extract_trinity_bundle(state) is None
+    assert degraded_calls
+    assert degraded_calls[0]["reason"] == "invalid_trinity_bundle"
+
+
 def test_telemetry_has_timing_data() -> None:
     """Each pass span should have duration_ms after completion."""
     from polisyos.scientist.governance.passes.budget_pass import BudgetPass
@@ -229,6 +374,37 @@ def test_telemetry_has_timing_data() -> None:
         assert span.duration_ms >= 0
         assert span.start_time is not None
         assert span.end_time is not None
+
+
+def test_failing_pass_returns_structured_error_envelope() -> None:
+    pipeline = ValidationPipeline([ExplodingPass()])
+    profile = ValidationProfile(
+        level=ProfileLevel.MVP,
+        pass_ids=frozenset({"exploding"}),
+        thresholds={},
+        short_circuit_on_blocker=False,
+    )
+    ctx = PassContext(
+        ir=None,
+        state={},
+        registry_bundle=None,
+        profile=profile,
+        run_id="test_error_envelope",
+    )
+
+    issues, trace = pipeline.validate(ctx, profile)
+
+    assert len(issues) == 1
+    assert issues[0].code == "PASS_EXECUTION_ERROR"
+    assert issues[0].severity == IssueSeverity.BLOCKER
+    assert issues[0].input_value is not None
+    envelope = json.loads(issues[0].input_value)
+    assert envelope["component"] == "governance.pipeline"
+    assert envelope["operation"] == "validator_pass"
+    assert envelope["reason"] == "validator_pass_failed"
+    assert envelope["error_type"] == "RuntimeError"
+    assert trace.spans[0].error is not None
+    assert json.loads(trace.spans[0].error)["reason"] == "validator_pass_failed"
 
 
 def test_profiles_include_phase_8a_passes() -> None:

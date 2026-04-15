@@ -79,7 +79,7 @@ def _bool_from_header(value: str | None, default: bool = True) -> bool:
 
 
 def _handle_state(handle: ConnectionHandle) -> dict[str, Any]:
-    state = handle.state.setdefault("static_csv", {})
+    state = handle.setdefault_state("static_csv", {})
     state.setdefault("schema_by_dataset", {})
     state.setdefault("etag_by_dataset", {})
     state.setdefault("last_modified_by_dataset", {})

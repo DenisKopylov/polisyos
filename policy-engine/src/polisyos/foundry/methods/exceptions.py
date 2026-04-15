@@ -6,7 +6,7 @@ Each exception includes context attributes for structured logging and diagnostic
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Any, Mapping, Sequence
 
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 
@@ -24,6 +24,209 @@ class FoundryMethodError(PolicyOSError):
 
     default_stage = "foundry.methods"
     default_category = ErrorCategory.FATAL
+
+
+class FoundryExecutionError(FoundryMethodError):
+    """Base error for runtime execution failures with structured node context."""
+
+    default_stage = "foundry.execution"
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        node_id: str | None = None,
+        method_fqn: str | None = None,
+        mechanism_type: str | None = None,
+        slot_id: str | None = None,
+        op_kind: str | None = None,
+        category: ErrorCategory | str | None = None,
+        code: str | None = None,
+        details: Mapping[str, Any] | None = None,
+    ) -> None:
+        merged_details = dict(details or {})
+        if node_id is not None:
+            merged_details.setdefault("node_id", node_id)
+        if method_fqn is not None:
+            merged_details.setdefault("method_fqn", method_fqn)
+        if mechanism_type is not None:
+            merged_details.setdefault("mechanism_type", mechanism_type)
+        if slot_id is not None:
+            merged_details.setdefault("slot_id", slot_id)
+        if op_kind is not None:
+            merged_details.setdefault("op_kind", op_kind)
+        self.node_id = node_id
+        self.method_fqn = method_fqn
+        self.mechanism_type = mechanism_type
+        self.slot_id = slot_id
+        self.op_kind = op_kind
+        super().__init__(
+            message,
+            category=category,
+            code=code,
+            details=merged_details,
+        )
+
+
+class ProgramNodeValidationError(FoundryExecutionError):
+    """Raised when one program-graph node cannot be validated for execution."""
+
+    default_category = ErrorCategory.VALIDATION
+
+
+class StatePathTraversalError(FoundryExecutionError):
+    """Raised when executor path traversal cannot resolve a state segment."""
+
+    default_category = ErrorCategory.VALIDATION
+
+    def __init__(
+        self,
+        path: str,
+        *,
+        segment: str | None = None,
+        segment_index: int | None = None,
+        current_type: str | None = None,
+        operation: str = "read",
+    ) -> None:
+        message = (
+            f"State path {operation} failed for '{path}'"
+            + (f" at segment '{segment}'" if segment is not None else "")
+            + (f" (index={segment_index})" if segment_index is not None else "")
+            + (f" on {current_type}" if current_type is not None else "")
+        )
+        super().__init__(
+            message,
+            code="state_path_traversal_failed",
+            details={
+                "path": path,
+                "segment": segment,
+                "segment_index": segment_index,
+                "current_type": current_type,
+                "operation": operation,
+            },
+        )
+        self.path = path
+        self.segment = segment
+        self.segment_index = segment_index
+        self.current_type = current_type
+        self.operation = operation
+
+
+class SelectorEvaluationError(FoundryExecutionError):
+    """Raised when selector parsing or evaluation is invalid."""
+
+    default_category = ErrorCategory.VALIDATION
+
+    def __init__(
+        self,
+        field_id: str | None,
+        reason: str,
+        *,
+        operator: str | None = None,
+        value: Any | None = None,
+    ) -> None:
+        super().__init__(
+            f"Selector evaluation failed for field '{field_id}': {reason}",
+            code="selector_evaluation_failed",
+            details={
+                "field_id": field_id,
+                "reason": reason,
+                "operator": operator,
+                "value": value,
+            },
+        )
+        self.field_id = field_id
+        self.reason = reason
+        self.operator = operator
+        self.value = value
+
+
+class SelectorCoercionError(SelectorEvaluationError):
+    """Raised when selector values cannot be coerced safely."""
+
+
+class ObservationBindingError(FoundryExecutionError):
+    """Raised when an adaptive-agent observation field cannot be resolved."""
+
+    default_category = ErrorCategory.VALIDATION
+
+    def __init__(self, field_id: str, reason: str) -> None:
+        super().__init__(
+            f"Observation field '{field_id}' is invalid: {reason}",
+            code="observation_binding_failed",
+            details={"field_id": field_id, "reason": reason},
+        )
+        self.field_id = field_id
+        self.reason = reason
+
+
+class ActionRoutingError(FoundryExecutionError):
+    """Raised when adaptive-agent outputs cannot be routed to state slots."""
+
+    default_category = ErrorCategory.VALIDATION
+
+    def __init__(self, target: str | None, reason: str) -> None:
+        super().__init__(
+            f"Action routing failed for target '{target}': {reason}",
+            code="action_routing_failed",
+            details={"target": target, "reason": reason},
+        )
+        self.target = target
+        self.reason = reason
+
+
+class BackendAdaptationError(FoundryExecutionError):
+    """Raised when backend-boundary state adaptation cannot be completed safely."""
+
+    default_category = ErrorCategory.FATAL
+
+    def __init__(self, source_backend: str, target_backend: str, reason: str) -> None:
+        super().__init__(
+            f"Backend adaptation {source_backend} -> {target_backend} failed: {reason}",
+            code="backend_adaptation_failed",
+            details={
+                "source_backend": source_backend,
+                "target_backend": target_backend,
+                "reason": reason,
+            },
+        )
+        self.source_backend = source_backend
+        self.target_backend = target_backend
+        self.reason = reason
+
+
+class NaNGuardConfigurationError(FoundryExecutionError):
+    """Raised when NaN guard input/state is invalid for checking."""
+
+    default_category = ErrorCategory.VALIDATION
+
+    def __init__(self, slot_id: str, mechanism_id: str, reason: str) -> None:
+        super().__init__(
+            f"NaN guard configuration error for slot '{slot_id}' and mechanism "
+            f"'{mechanism_id}': {reason}",
+            slot_id=slot_id,
+            mechanism_type=mechanism_id,
+            code="nan_guard_configuration_error",
+            details={"reason": reason},
+        )
+        self.reason = reason
+
+
+class NaNGuardEvaluationError(FoundryExecutionError):
+    """Raised when NaN guard cannot safely evaluate one value."""
+
+    default_category = ErrorCategory.FATAL
+
+    def __init__(self, slot_id: str, mechanism_id: str, reason: str) -> None:
+        super().__init__(
+            f"NaN guard evaluation failed for slot '{slot_id}' and mechanism "
+            f"'{mechanism_id}': {reason}",
+            slot_id=slot_id,
+            mechanism_type=mechanism_id,
+            code="nan_guard_evaluation_error",
+            details={"reason": reason},
+        )
+        self.reason = reason
 
 
 class MethodDefinitionError(FoundryMethodError):

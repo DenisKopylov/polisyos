@@ -885,7 +885,7 @@ class ActualCausalityEngine:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="actual_causality",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("ncm_query_data", SlotType.SCALAR, Unit("query", "json")),
@@ -1029,7 +1029,7 @@ class HPActualCauseMethod:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="hp_actual_cause",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("ncm_query_data", SlotType.SCALAR, Unit("query", "json")),

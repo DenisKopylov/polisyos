@@ -65,6 +65,7 @@ export function useQueuedPromotionDecision() {
         queryClient,
         input.promotionId,
         kind === "promotion.approve" ? "approved" : "rejected",
+        input.runId,
       );
       await enqueuePromotionDecision(kind, input);
     },

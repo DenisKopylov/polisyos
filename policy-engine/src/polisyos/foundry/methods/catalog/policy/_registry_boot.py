@@ -8,6 +8,14 @@ from .evaluation import (
     ExAnteSimulationEstimator,
     PolicyScorecardEstimator,
 )
+from .frontier import (
+    FiscalMultiplierEstimator,
+    FoundationModelPolicyAnalysisEstimator,
+    KrusellSmithLiteEstimator,
+    MeanFieldEquilibriumEstimator,
+    OptimalLinearTaxEstimator,
+    SufficientStatisticsWelfareEstimator,
+)
 from .mcda import (
     AHPEstimator,
     ELECTREEstimator,
@@ -28,6 +36,7 @@ def register_policy_methods() -> Sequence[type]:
     return (
         CostBenefitAnalysisEstimator,
         CostEffectivenessEstimator,
+        SufficientStatisticsWelfareEstimator,
         UtilitarianSWFEstimator,
         RawlsianSWFEstimator,
         AtkinsonSWFEstimator,
@@ -35,6 +44,11 @@ def register_policy_methods() -> Sequence[type]:
         BudgetImpactEstimator,
         PolicyScorecardEstimator,
         ExAnteSimulationEstimator,
+        FoundationModelPolicyAnalysisEstimator,
+        FiscalMultiplierEstimator,
+        KrusellSmithLiteEstimator,
+        OptimalLinearTaxEstimator,
+        MeanFieldEquilibriumEstimator,
         TOPSISEstimator,
         AHPEstimator,
         ELECTREEstimator,

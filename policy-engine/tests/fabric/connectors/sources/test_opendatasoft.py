@@ -8,6 +8,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import pytest
+
+from polisyos.fabric.safety import UnsafeFilterExpressionError, UnsafeIdentifierError
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.opendatasoft import OpendatasoftConnector
 from polisyos.ir.connectors import ConnectorCapability
@@ -77,7 +80,7 @@ class TestODSWhereBuilder:
             filters=(("station", ("Bastille",)),),
         )
         result = OpendatasoftConnector._build_where(req)
-        assert "station='Bastille'" in result
+        assert "station = 'Bastille'" in result
 
     def test_date_range(self):
         req = FetchRequest(
@@ -86,8 +89,35 @@ class TestODSWhereBuilder:
             date_end=datetime(2024, 12, 31, tzinfo=timezone.utc),
         )
         result = OpendatasoftConnector._build_where(req)
-        assert "date>='2024-01-01'" in result
-        assert "date<='2024-12-31'" in result
+        assert "date >= '2024-01-01'" in result
+        assert "date <= '2024-12-31'" in result
+
+    def test_rejects_raw_where_clause(self):
+        req = FetchRequest(
+            dataset_id="test",
+            filters=(("where", ("station = 'Bastille'",)),),
+        )
+        with pytest.raises(
+            UnsafeFilterExpressionError,
+            match="Raw ODSQL where clauses are not allowed",
+        ):
+            OpendatasoftConnector._build_where(req)
+
+    def test_escapes_literal_values(self):
+        req = FetchRequest(
+            dataset_id="test",
+            filters=(("station", ("Bastille' OR 1=1",)),),
+        )
+        result = OpendatasoftConnector._build_where(req)
+        assert "station = 'Bastille'' OR 1=1'" in result
+
+    def test_rejects_unknown_filter_key_when_schema_is_available(self):
+        req = FetchRequest(
+            dataset_id="test",
+            filters=(("unknown_field", ("x",)),),
+        )
+        with pytest.raises(UnsafeIdentifierError, match="Unknown ODSQL filter field"):
+            OpendatasoftConnector._build_where(req, schema_fields={"station"})
 
 
 # ---------------------------------------------------------------------------

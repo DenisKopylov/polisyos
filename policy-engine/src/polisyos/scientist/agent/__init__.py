@@ -7,7 +7,7 @@ Exports protocol interfaces, mock implementations, and legacy helpers.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 # =============================================================================
 # PROTOCOLS (Type Interfaces)
@@ -63,6 +63,12 @@ if TYPE_CHECKING:
         MultiPassLLMDrafter,
         create_drafter_agent,
     )
+    from polisyos.scientist.agent.fabric import (
+        ScientistAgentFabric,
+        ScientistAgentFabricConfig,
+        ScientistAgentFabricRequest,
+        ScientistAgentFabricResponse,
+    )
     from polisyos.scientist.agent.failure_index import FailurePatternIndex
     from polisyos.scientist.agent.feasibility import (
         FeasibilityProbe,
@@ -81,74 +87,162 @@ if TYPE_CHECKING:
     )
     from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
     from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig
+    from polisyos.scientist.agent.reasoning import (
+        LATSAgentSearch,
+        LATSConfig,
+        ReasoningAction,
+        ReasoningNode,
+        ReasoningPolicyGate,
+        ReasoningSearchReport,
+        ReasoningStatus,
+        TreeOfThoughtConfig,
+        TreeOfThoughtPlanner,
+    )
+    from polisyos.scientist.agent.reflexion import (
+        ReflexionConfig,
+        ReflexionDecision,
+        ReflexionOrchestrator,
+    )
+    from polisyos.scientist.agent.reflexion_evaluator import (
+        ReflexionEvaluatorConfig,
+        ReflexionReplayCase,
+        ReflexionReplayEvaluation,
+        ReflexionScorecard,
+        ReflexionTrajectoryStep,
+        RubricReflexionEvaluator,
+        evaluate_reflexion_replay_cases,
+    )
+    from polisyos.scientist.agent.supervisor import (
+        ScientistSupervisorAgent,
+        ScientistSupervisorConfig,
+        SupervisorRunResult,
+        SupervisorSynthesisMode,
+    )
+    from polisyos.scientist.agent.workers import (
+        WorkerBudgetHints,
+        WorkerCitation,
+        WorkerExecutionMode,
+        WorkerResultPayload,
+        WorkerSourcePolicy,
+        WorkerTaskEnvelope,
+        WorkerTaskResult,
+        build_reflexion_evaluator_worker_handler,
+        build_scholar_search_worker_handler,
+        build_sectioned_worker_envelopes,
+        build_self_moa_worker_envelopes,
+        build_worker_tool_registry,
+        register_worker_tool,
+    )
 
 __all__ = [
-    "PIAgent",
-    "DrafterAgent",
-    "FormalizerAgent",
-    "CriticAgent",
-    "DataNeedExtractorAgent",
-    "MockPIAgent",
-    "LLMPIAgent",
-    "MockDataNeedExtractorAgent",
-    "LLMDataNeedExtractorAgent",
-    "MockDrafterAgent",
-    "LLMDrafterAgent",
-    "MockFormalizerAgent",
-    "LLMFormalizerAgent",
-    "MockCriticAgent",
-    "LLMCriticAgent",
-    "create_critic_agent",
-    "MockLLM",
-    "MultiPassLLMDrafter",
-    "MultiPassConfig",
-    "create_drafter_agent",
-    "ConstitutionGenerator",
-    "PolicyConstitution",
-    "KnownPitfall",
-    "InformedCriticAgent",
-    "InformedCriticConfig",
-    "FeasibilityProbe",
-    "NullFeasibilityProbe",
-    "StateSnapshotFeasibilityProbe",
-    "DuckDBFeasibilityProbe",
-    "NormPackLoader",
-    "StaticNormPackLoader",
+    "AGENT_PROTOCOLS",
+    "AgentRole",
+    "AgentRouter",
+    "BaseAgent",
     "CASNormPackLoader",
-    "CriticKnowledgeBase",
-    "FailurePatternIndex",
     "CASRAGIndex",
-    "RAGConfig",
     "CodeVerificationSandbox",
-    "SandboxConfig",
-    "ProblemFrame",
-    "SubTask",
-    "DraftResult",
-    "CritiqueReport",
+    "ConstitutionGenerator",
+    "CriticAgent",
+    "CriticKnowledgeBase",
+    "CritiqueCategory",
     "CritiqueIssue",
+    "CritiqueReport",
+    "CritiqueSeverity",
+    "DataNeedExtractorAgent",
     "DataNeedSpec",
     "DelegationResult",
-    "AgentRole",
+    "DraftResult",
+    "DrafterAgent",
+    "DuckDBFeasibilityProbe",
+    "FailurePatternIndex",
+    "FeasibilityProbe",
+    "FormalizerAgent",
+    "InformedCriticAgent",
+    "InformedCriticConfig",
+    "KnownPitfall",
+    "LATSAgentSearch",
+    "LATSConfig",
+    "LLMCriticAgent",
+    "LLMDataNeedExtractorAgent",
+    "LLMDrafterAgent",
+    "LLMFormalizerAgent",
+    "LLMPIAgent",
+    "MockAgent",
+    "MockCriticAgent",
+    "MockDataNeedExtractorAgent",
+    "MockDrafterAgent",
+    "MockFormalizerAgent",
+    "MockLLM",
+    "MockPIAgent",
+    "MultiPassConfig",
+    "MultiPassLLMDrafter",
+    "NormPackLoader",
+    "NullFeasibilityProbe",
+    "PIAgent",
+    "PolicyConstitution",
+    "ProblemFrame",
+    "RAGConfig",
+    "ReasoningAction",
+    "ReasoningNode",
+    "ReasoningPolicyGate",
+    "ReasoningSearchReport",
+    "ReasoningStatus",
+    "ReflexionConfig",
+    "ReflexionDecision",
+    "ReflexionEvaluatorConfig",
+    "ReflexionOrchestrator",
+    "ReflexionReplayCase",
+    "ReflexionReplayEvaluation",
+    "ReflexionScorecard",
+    "ReflexionTrajectoryStep",
+    "RoutingState",
+    "RubricReflexionEvaluator",
+    "SandboxConfig",
+    "ScientistAgentFabric",
+    "ScientistAgentFabricConfig",
+    "ScientistAgentFabricRequest",
+    "ScientistAgentFabricResponse",
+    "ScientistSupervisorAgent",
+    "ScientistSupervisorConfig",
+    "ShortTermMemory",
+    "StateSnapshotFeasibilityProbe",
+    "StaticNormPackLoader",
+    "SubTask",
+    "SupervisorRunResult",
+    "SupervisorSynthesisMode",
     "TaskPriority",
     "TaskStatus",
-    "CritiqueSeverity",
-    "CritiqueCategory",
-    "AGENT_PROTOCOLS",
-    "get_protocol_for_role",
-    "is_valid_agent",
+    "TreeOfThoughtConfig",
+    "TreeOfThoughtPlanner",
+    "TurnRole",
+    "WorkerBudgetHints",
+    "WorkerCitation",
+    "WorkerExecutionMode",
+    "WorkerResultPayload",
+    "WorkerSourcePolicy",
+    "WorkerTaskEnvelope",
+    "WorkerTaskResult",
+    "build_reflexion_evaluator_worker_handler",
+    "build_scholar_search_worker_handler",
+    "build_sectioned_worker_envelopes",
+    "build_self_moa_worker_envelopes",
+    "build_worker_tool_registry",
+    "create_critic_agent",
+    "create_drafter_agent",
     "create_mock_draft",
     "create_mock_problem_frame",
-    "ShortTermMemory",
-    "TurnRole",
-    "BaseAgent",
-    "MockAgent",
     "drafter_node",
+    "evaluate_reflexion_replay_cases",
+    "get_protocol_for_role",
+    "is_valid_agent",
+    "register_worker_tool",
 ]
 
 __version__ = "2.0.0"
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     """
     Lazy export resolver.
 
@@ -163,7 +257,10 @@ def __getattr__(name: str) -> Any:
         "LLMCriticAgent": ("polisyos.scientist.agent.critic", "LLMCriticAgent"),
         "MockCriticAgent": ("polisyos.scientist.agent.critic", "MockCriticAgent"),
         "create_critic_agent": ("polisyos.scientist.agent.critic", "create_critic_agent"),
-        "create_mock_problem_frame": ("polisyos.scientist.agent.critic", "create_mock_problem_frame"),
+        "create_mock_problem_frame": (
+            "polisyos.scientist.agent.critic",
+            "create_mock_problem_frame",
+        ),
         # drafter
         "LLMDrafterAgent": ("polisyos.scientist.agent.drafter", "LLMDrafterAgent"),
         "MockDrafterAgent": ("polisyos.scientist.agent.drafter", "MockDrafterAgent"),
@@ -223,6 +320,63 @@ def __getattr__(name: str) -> Any:
         # pi
         "LLMPIAgent": ("polisyos.scientist.agent.pi", "LLMPIAgent"),
         "MockPIAgent": ("polisyos.scientist.agent.pi", "MockPIAgent"),
+        # reflexion
+        "ReflexionConfig": ("polisyos.scientist.agent.reflexion", "ReflexionConfig"),
+        "ReflexionDecision": ("polisyos.scientist.agent.reflexion", "ReflexionDecision"),
+        "ReflexionOrchestrator": (
+            "polisyos.scientist.agent.reflexion",
+            "ReflexionOrchestrator",
+        ),
+        "ReflexionEvaluatorConfig": (
+            "polisyos.scientist.agent.reflexion_evaluator",
+            "ReflexionEvaluatorConfig",
+        ),
+        "ReflexionReplayCase": (
+            "polisyos.scientist.agent.reflexion_evaluator",
+            "ReflexionReplayCase",
+        ),
+        "ReflexionReplayEvaluation": (
+            "polisyos.scientist.agent.reflexion_evaluator",
+            "ReflexionReplayEvaluation",
+        ),
+        "ReflexionScorecard": (
+            "polisyos.scientist.agent.reflexion_evaluator",
+            "ReflexionScorecard",
+        ),
+        "ReflexionTrajectoryStep": (
+            "polisyos.scientist.agent.reflexion_evaluator",
+            "ReflexionTrajectoryStep",
+        ),
+        "RubricReflexionEvaluator": (
+            "polisyos.scientist.agent.reflexion_evaluator",
+            "RubricReflexionEvaluator",
+        ),
+        "evaluate_reflexion_replay_cases": (
+            "polisyos.scientist.agent.reflexion_evaluator",
+            "evaluate_reflexion_replay_cases",
+        ),
+        # tree reasoning
+        "LATSAgentSearch": ("polisyos.scientist.agent.reasoning", "LATSAgentSearch"),
+        "LATSConfig": ("polisyos.scientist.agent.reasoning", "LATSConfig"),
+        "ReasoningAction": ("polisyos.scientist.agent.reasoning", "ReasoningAction"),
+        "ReasoningNode": ("polisyos.scientist.agent.reasoning", "ReasoningNode"),
+        "ReasoningPolicyGate": (
+            "polisyos.scientist.agent.reasoning",
+            "ReasoningPolicyGate",
+        ),
+        "ReasoningSearchReport": (
+            "polisyos.scientist.agent.reasoning",
+            "ReasoningSearchReport",
+        ),
+        "ReasoningStatus": ("polisyos.scientist.agent.reasoning", "ReasoningStatus"),
+        "TreeOfThoughtConfig": (
+            "polisyos.scientist.agent.reasoning",
+            "TreeOfThoughtConfig",
+        ),
+        "TreeOfThoughtPlanner": (
+            "polisyos.scientist.agent.reasoning",
+            "TreeOfThoughtPlanner",
+        ),
         # data need extractor
         "LLMDataNeedExtractorAgent": (
             "polisyos.scientist.agent.data_need_extractor",
@@ -235,6 +389,70 @@ def __getattr__(name: str) -> Any:
         # base
         "BaseAgent": ("polisyos.scientist.agent.base", "BaseAgent"),
         "MockAgent": ("polisyos.scientist.agent.base", "MockAgent"),
+        # swarm runtime
+        "ScientistSupervisorAgent": (
+            "polisyos.scientist.agent.supervisor",
+            "ScientistSupervisorAgent",
+        ),
+        "ScientistSupervisorConfig": (
+            "polisyos.scientist.agent.supervisor",
+            "ScientistSupervisorConfig",
+        ),
+        "SupervisorRunResult": (
+            "polisyos.scientist.agent.supervisor",
+            "SupervisorRunResult",
+        ),
+        "SupervisorSynthesisMode": (
+            "polisyos.scientist.agent.supervisor",
+            "SupervisorSynthesisMode",
+        ),
+        "ScientistAgentFabric": (
+            "polisyos.scientist.agent.fabric",
+            "ScientistAgentFabric",
+        ),
+        "ScientistAgentFabricConfig": (
+            "polisyos.scientist.agent.fabric",
+            "ScientistAgentFabricConfig",
+        ),
+        "ScientistAgentFabricRequest": (
+            "polisyos.scientist.agent.fabric",
+            "ScientistAgentFabricRequest",
+        ),
+        "ScientistAgentFabricResponse": (
+            "polisyos.scientist.agent.fabric",
+            "ScientistAgentFabricResponse",
+        ),
+        "WorkerBudgetHints": ("polisyos.scientist.agent.workers", "WorkerBudgetHints"),
+        "WorkerCitation": ("polisyos.scientist.agent.workers", "WorkerCitation"),
+        "WorkerExecutionMode": ("polisyos.scientist.agent.workers", "WorkerExecutionMode"),
+        "WorkerResultPayload": ("polisyos.scientist.agent.workers", "WorkerResultPayload"),
+        "WorkerSourcePolicy": ("polisyos.scientist.agent.workers", "WorkerSourcePolicy"),
+        "WorkerTaskEnvelope": ("polisyos.scientist.agent.workers", "WorkerTaskEnvelope"),
+        "WorkerTaskResult": ("polisyos.scientist.agent.workers", "WorkerTaskResult"),
+        "build_reflexion_evaluator_worker_handler": (
+            "polisyos.scientist.agent.workers",
+            "build_reflexion_evaluator_worker_handler",
+        ),
+        "build_scholar_search_worker_handler": (
+            "polisyos.scientist.agent.workers",
+            "build_scholar_search_worker_handler",
+        ),
+        "build_sectioned_worker_envelopes": (
+            "polisyos.scientist.agent.workers",
+            "build_sectioned_worker_envelopes",
+        ),
+        "build_self_moa_worker_envelopes": (
+            "polisyos.scientist.agent.workers",
+            "build_self_moa_worker_envelopes",
+        ),
+        "build_worker_tool_registry": (
+            "polisyos.scientist.agent.workers",
+            "build_worker_tool_registry",
+        ),
+        "register_worker_tool": (
+            "polisyos.scientist.agent.workers",
+            "register_worker_tool",
+        ),
         # router
         "FixedPipelineRouter": ("polisyos.scientist.agent.router", "FixedPipelineRouter"),
         "AdaptiveRouter": ("polisyos.scientist.agent.router", "AdaptiveRouter"),

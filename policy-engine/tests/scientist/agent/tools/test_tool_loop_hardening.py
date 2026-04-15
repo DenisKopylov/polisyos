@@ -5,20 +5,19 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.scientist.agent.tools.dependency_graph import ToolDependencyGraph
 from polisyos.scientist.agent.tools.registry import ToolCallResult, ToolRegistry
 from polisyos.scientist.agent.tools.schema import ToolDefinition
 from polisyos.scientist.agent.tools.tool_circuit_breaker import ToolCircuitBreakerRegistry
 from polisyos.scientist.agent.tools.tool_loop import (
-    ToolLoopResult,
     _tool_backoff_delay,
     run_tool_loop,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -74,9 +73,9 @@ class TestToolDefinitionTimeout:
         assert t.timeout_s == 60.0
 
     def test_timeout_bounds(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             _make_tool(timeout_s=0.5)
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             _make_tool(timeout_s=700.0)
 
 
@@ -108,6 +107,50 @@ class TestRegistryTimeout:
         result = await reg.aexecute("test_tool", {})
         assert result.error is None
         assert result.result == "quick"
+
+
+class TestToolLoopFaultIsolation:
+    @pytest.mark.asyncio
+    async def test_one_exploding_tool_does_not_drop_sibling_result(self):
+        class FaultyRegistry(ToolRegistry):
+            async def aexecute(self, name: str, arguments: dict[str, Any]) -> ToolCallResult:
+                if name == "boom":
+                    raise RuntimeError("kaboom")
+                await asyncio.sleep(0)
+                return ToolCallResult(
+                    tool_name=name,
+                    arguments=arguments,
+                    result={"ok": name},
+                )
+
+        registry = FaultyRegistry()
+        registry.register(_make_tool("ok"), lambda: "unused")
+        registry.register(_make_tool("boom"), lambda: "unused")
+
+        client = AsyncMock()
+        client.generate.side_effect = [
+            FakeLLMResponse(
+                content="",
+                tool_calls=[
+                    FakeToolCall(id="tc-ok", name="ok"),
+                    FakeToolCall(id="tc-boom", name="boom"),
+                ],
+            ),
+            FakeLLMResponse(content="final"),
+        ]
+
+        result = await run_tool_loop(
+            client=client,
+            system="sys",
+            user="run tools",
+            tool_registry=registry,
+        )
+
+        by_name = {item.tool_name: item for item in result.tool_calls_made}
+        assert result.content == "final"
+        assert by_name["ok"].result == {"ok": "ok"}
+        assert by_name["boom"].error_type == "task_exception"
+        assert "kaboom" in str(by_name["boom"].error)
 
 
 class TestRegistryCircuitBreaker:
@@ -226,3 +269,8 @@ class TestToolDependencyGraph:
         # x not in requested -> ignored, only a matters
         order = g.execution_order(["b", "a"])
         assert order.index("a") < order.index("b")
+
+    def test_cycle_raises(self):
+        g = ToolDependencyGraph(edges={"a": ["b"], "b": ["a"]})
+        with pytest.raises(ValueError, match="cyclic tool dependencies detected"):
+            g.execution_order(["a", "b"])

@@ -36,7 +36,7 @@ class ProbabilisticScoringEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="normal_scores",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

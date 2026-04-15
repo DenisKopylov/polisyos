@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
-from pathlib import Path
 import sys
+from datetime import datetime
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -19,6 +19,9 @@ from polisyos.core.run.context import RunContext
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.services.control import ControlPlaneService
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 # Allow explicit imports from tests that need the runtime HTTP helpers when
 # pytest uses importlib mode for duplicate-basename safety.
 sys.modules.setdefault("polisyos_tests_runtime_http_conftest", sys.modules[__name__])
@@ -26,7 +29,12 @@ sys.modules.setdefault("polisyos_tests_runtime_http_conftest", sys.modules[__nam
 _put_json = put_json_artifact
 
 
-def build_runtime_api_env(tmp_path: Path, *, include_test_client: bool = True):
+def build_runtime_api_env(
+    tmp_path: Path,
+    *,
+    include_test_client: bool = True,
+    app_kwargs: dict[str, object] | None = None,
+):
     tenant_a = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     tenant_b = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
 
@@ -716,6 +724,8 @@ def build_runtime_api_env(tmp_path: Path, *, include_test_client: bool = True):
     )
     run.add_output(experiment_state_ref)
     run.add_output(workflow_report_ref)
+    run.add_output(binary_ref)
+    run.add_output(secret_ref)
     run.add_output(decision_packet_ref)
     run.add_output(decision_card_ref)
     run.add_output(execution_plan_ref)
@@ -749,14 +759,46 @@ def build_runtime_api_env(tmp_path: Path, *, include_test_client: bool = True):
     second_run.add_output(decision_packet_ref_secondary)
     second_run.finalize(status="completed")
 
+    cross_tenant_run_id = "R_core_api_tenant_b_001"
+    cross_tenant_run = RunContext.start(
+        store=store,
+        registry_bundle=registry_ref,
+        run_id=cross_tenant_run_id,
+        tenant_id=tenant_b,
+        cell_id="cell-a",
+    )
+    cross_tenant_run.emit(
+        "scientist.node.compile_foundry",
+        "NODE_OK",
+        metrics={"duration_ms": 2, "status_ok": 1},
+    )
+    cross_tenant_run.add_output(decision_packet_ref_secondary)
+    cross_tenant_run.finalize(status="completed")
+
     app = create_runtime_api_app(
         cas_root=cas_root,
         core_runs_root=cas_root / "runs",
         enable_security_middlewares=False,
+        allow_fixture_identity=True,
+        **(app_kwargs or {}),
+    )
+    container = getattr(app.state, "runtime_container", None)
+    shared_store = (
+        container.runtime_api_context.store
+        if container is not None
+        else app.state.runtime_api_ctx.store
     )
     control_service = ControlPlaneService(
         cas_root=cas_root,
         core_runs_root=cas_root / "runs",
+        metrics=app.state.runtime_metrics,
+        tracer=app.state.runtime_tracer,
+        artifact_store=shared_store,
+        registry_providers=(
+            container.control_registry_providers
+            if container is not None
+            else None
+        ),
     )
     control_service._retrieval._promotion_queue["promotion_fixture_001"] = PromotionCandidate(
         promotion_id="promotion_fixture_001",
@@ -775,6 +817,9 @@ def build_runtime_api_env(tmp_path: Path, *, include_test_client: bool = True):
         },
     )
     app.state._control_service = control_service
+    if container is not None:
+        container.control_service = control_service
+        container.install(app)
     client = TestClient(app) if include_test_client and TestClient is not None else None
 
     return {
@@ -783,6 +828,7 @@ def build_runtime_api_env(tmp_path: Path, *, include_test_client: bool = True):
         "cas_root": cas_root,
         "core_run_id": core_run_id,
         "core_run_id_secondary": core_run_id_secondary,
+        "cross_tenant_run_id": cross_tenant_run_id,
         "root_artifact_id": str(root_ref.artifact_id),
         "child_artifact_id": str(child_ref.artifact_id),
         "binary_artifact_id": str(binary_ref.artifact_id),

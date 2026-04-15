@@ -25,6 +25,7 @@ const workspaceLayoutClassName: Record<WorkspaceLayout, string> = {
   form: "workspace-frame workspace-frame--form",
   "master-detail": "workspace-frame workspace-frame--master-detail",
   "full-width": "workspace-frame workspace-frame--full-width",
+  chat: "workspace-frame workspace-frame--chat",
 };
 
 function WorkspaceContentFrame({

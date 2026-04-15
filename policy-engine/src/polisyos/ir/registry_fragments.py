@@ -1,4 +1,4 @@
-"""Public ir registry fragments module API."""
+"""Public IR registry fragments module API."""
 from __future__ import annotations
 
 from typing import Any, Iterable, Literal, Sequence
@@ -17,6 +17,7 @@ from polisyos.ir.kernel.slots import SlotRegistry
 from polisyos.ir.kernel.trust import TrustRegistry
 from polisyos.ir.kernel.units import UnitsRegistry
 from polisyos.ir.predicate import PredicateRegistry, PrivacyPolicyRegistry
+from polisyos.ir.public_surface import RegistryItemId
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -245,13 +246,15 @@ class RegistryComposeRequest(KernelModel):
 class RegistryConflict(KernelModel):
     """Registry conflict public type."""
     registry_kind: str
-    item_key: str
+    item_key: RegistryItemId
     conflict_kind: Literal[
         "duplicate_identical",
         "duplicate_different",
         "invalid_item",
         "reserved_prefix",
         "dependency_missing",
+        "dependency_cycle",
+        "dependency_unresolved",
     ]
     left_fragment_id: str | None = None
     right_fragment_id: str | None = None
@@ -281,6 +284,110 @@ def _sorted_fragments(fragments: Sequence[RegistryFragment]) -> list[RegistryFra
         fragments,
         key=lambda frag: (-frag.meta.priority, frag.meta.fragment_id),
     )
+
+
+def _append_unique_message(
+    warnings: list[str],
+    seen: set[str],
+    message: str,
+) -> None:
+    if message in seen:
+        return
+    seen.add(message)
+    warnings.append(message)
+
+
+def _topological_sort_fragments(
+    fragments: Sequence[RegistryFragment],
+) -> tuple[list[RegistryFragment], dict[str, list[str]]]:
+    fragments_by_id = {
+        fragment.meta.fragment_id: fragment
+        for fragment in _sorted_fragments(fragments)
+    }
+    dependency_map = {
+        fragment_id: [
+            dep
+            for dep in dict.fromkeys(fragment.meta.depends_on)
+            if dep in fragments_by_id
+        ]
+        for fragment_id, fragment in fragments_by_id.items()
+    }
+    reverse_dependencies: dict[str, list[str]] = {
+        fragment_id: []
+        for fragment_id in fragments_by_id
+    }
+    for fragment_id, dependencies in dependency_map.items():
+        for dependency in dependencies:
+            reverse_dependencies.setdefault(dependency, []).append(fragment_id)
+
+    indegree = {
+        fragment_id: len(dependencies)
+        for fragment_id, dependencies in dependency_map.items()
+    }
+    ready = [
+        fragments_by_id[fragment_id]
+        for fragment_id, degree in indegree.items()
+        if degree == 0
+    ]
+    ready = _sorted_fragments(ready)
+    ordered: list[RegistryFragment] = []
+
+    while ready:
+        fragment = ready.pop(0)
+        ordered.append(fragment)
+        fragment_id = fragment.meta.fragment_id
+        for dependent_id in sorted(reverse_dependencies.get(fragment_id, [])):
+            indegree[dependent_id] -= 1
+            if indegree[dependent_id] == 0:
+                ready.append(fragments_by_id[dependent_id])
+        ready = _sorted_fragments(ready)
+
+    return ordered, dependency_map
+
+
+def _strongly_connected_components(
+    node_ids: set[str],
+    dependency_map: dict[str, list[str]],
+) -> list[list[str]]:
+    index = 0
+    indices: dict[str, int] = {}
+    lowlinks: dict[str, int] = {}
+    stack: list[str] = []
+    on_stack: set[str] = set()
+    components: list[list[str]] = []
+
+    def _visit(node_id: str) -> None:
+        nonlocal index
+        indices[node_id] = index
+        lowlinks[node_id] = index
+        index += 1
+        stack.append(node_id)
+        on_stack.add(node_id)
+
+        for dependency in sorted(dep for dep in dependency_map.get(node_id, []) if dep in node_ids):
+            if dependency not in indices:
+                _visit(dependency)
+                lowlinks[node_id] = min(lowlinks[node_id], lowlinks[dependency])
+            elif dependency in on_stack:
+                lowlinks[node_id] = min(lowlinks[node_id], indices[dependency])
+
+        if lowlinks[node_id] != indices[node_id]:
+            return
+
+        component: list[str] = []
+        while stack:
+            candidate = stack.pop()
+            on_stack.remove(candidate)
+            component.append(candidate)
+            if candidate == node_id:
+                break
+        components.append(sorted(component))
+
+    for node_id in sorted(node_ids):
+        if node_id not in indices:
+            _visit(node_id)
+
+    return components
 
 
 def _registry_items(registry: Any, *, kind: str) -> list[tuple[str, str, Any]]:
@@ -320,6 +427,94 @@ def _registry_items(registry: Any, *, kind: str) -> list[tuple[str, str, Any]]:
         items.extend(("concepts", key, value) for key, value in registry.concepts.items())
 
     return items
+
+
+def _build_composed_bundle(
+    *,
+    base: RegistryBundle,
+    registry_item_buckets: dict[str, dict[str, Any]],
+) -> RegistryBundle:
+    predicates = base.predicates
+    if (
+        "predicates.scalars" in registry_item_buckets
+        or "predicates.edges" in registry_item_buckets
+    ):
+        predicates = PredicateRegistry(
+            scalars=registry_item_buckets.get("predicates.scalars", {}),
+            edges=registry_item_buckets.get("predicates.edges", {}),
+            notes=list(base.predicates.notes) if base.predicates else [],
+        )
+
+    return RegistryBundle(
+        schema_version=base.schema_version,
+        units=_apply_items_to_registry(
+            base.units,
+            kind="units",
+            items=registry_item_buckets["units"],
+        ) if "units" in registry_item_buckets else base.units,
+        trust=_apply_items_to_registry(
+            base.trust,
+            kind="trust",
+            items=registry_item_buckets["trust"],
+        ) if "trust" in registry_item_buckets else base.trust,
+        predicates=predicates,
+        privacy=_apply_items_to_registry(
+            base.privacy,
+            kind="privacy",
+            items=registry_item_buckets["privacy"],
+        ) if "privacy" in registry_item_buckets else base.privacy,
+        metrics=_apply_items_to_registry(
+            base.metrics,
+            kind="metrics",
+            items=registry_item_buckets["metrics"],
+        ) if "metrics" in registry_item_buckets else base.metrics,
+        mechanisms=_apply_items_to_registry(
+            base.mechanisms,
+            kind="mechanisms",
+            items=registry_item_buckets["mechanisms"],
+        ) if "mechanisms" in registry_item_buckets else base.mechanisms,
+        slots=_apply_items_to_registry(
+            base.slots,
+            kind="slots",
+            items=registry_item_buckets["slots"],
+        ) if "slots" in registry_item_buckets else base.slots,
+        selector_fields=_apply_items_to_registry(
+            base.selector_fields,
+            kind="selector_fields",
+            items=registry_item_buckets["selector_fields"],
+        ) if "selector_fields" in registry_item_buckets else base.selector_fields,
+        merge_rules=_apply_items_to_registry(
+            base.merge_rules,
+            kind="merge_rules",
+            items=registry_item_buckets["merge_rules"],
+        ) if "merge_rules" in registry_item_buckets else base.merge_rules,
+        constraints=_apply_items_to_registry(
+            base.constraints,
+            kind="constraints",
+            items=registry_item_buckets["constraints"],
+        ) if "constraints" in registry_item_buckets else base.constraints,
+        time=_apply_items_to_registry(
+            base.time,
+            kind="time",
+            items=registry_item_buckets["time"],
+        ) if "time" in registry_item_buckets else base.time,
+        geo=_apply_items_to_registry(
+            base.geo,
+            kind="geo",
+            items=registry_item_buckets["geo"],
+        ) if "geo" in registry_item_buckets else base.geo,
+        actors=_apply_items_to_registry(
+            base.actors,
+            kind="actors",
+            items=registry_item_buckets["actors"],
+        ) if "actors" in registry_item_buckets else base.actors,
+        concepts=_apply_items_to_registry(
+            base.concepts,
+            kind="concepts",
+            items=registry_item_buckets["concepts"],
+        ) if "concepts" in registry_item_buckets else base.concepts,
+        notes=list(base.notes),
+    )
 
 
 def _apply_items_to_registry(registry: Any, *, kind: str, items: dict[str, Any]) -> Any:
@@ -408,7 +603,10 @@ def _apply_fragment_items(
     )
 
     for registry_kind, key, value in items:
-        if any(key.startswith(prefix) for prefix in reserved_prefixes) and not is_reserved_namespace:
+        if (
+            any(key.startswith(prefix) for prefix in reserved_prefixes)
+            and not is_reserved_namespace
+        ):
             conflicts.append(
                 RegistryConflict(
                     registry_kind=registry_kind,
@@ -486,15 +684,22 @@ def _apply_fragment_items(
 def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryComposeResult:
     """Compose registry fragments helper."""
     fragments = _sorted_fragments(request.fragments)
-    fragment_ids = {fragment.meta.fragment_id for fragment in fragments}
+    fragments_by_id = {
+        fragment.meta.fragment_id: fragment
+        for fragment in fragments
+    }
+    fragment_ids = set(fragments_by_id)
 
     conflicts: list[RegistryConflict] = []
     warnings: list[str] = []
+    warning_set: set[str] = set()
     applied: list[str] = []
 
+    blocked_missing: dict[str, list[str]] = {}
     for fragment in fragments:
         missing = [dep for dep in fragment.meta.depends_on if dep not in fragment_ids]
         if missing:
+            blocked_missing[fragment.meta.fragment_id] = sorted(dict.fromkeys(missing))
             conflicts.append(
                 RegistryConflict(
                     registry_kind=fragment.kind,
@@ -505,25 +710,132 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
                     message=f"Missing dependencies: {', '.join(sorted(missing))}",
                 )
             )
+            _append_unique_message(
+                warnings,
+                warning_set,
+                f"fragment_skipped:{fragment.meta.fragment_id}:dependency_missing",
+            )
+
+    dependency_map = {
+        fragment_id: [
+            dep
+            for dep in dict.fromkeys(fragment.meta.depends_on)
+            if dep in fragments_by_id
+        ]
+        for fragment_id, fragment in fragments_by_id.items()
+    }
+
+    blocked_unresolved_from_missing: dict[str, list[str]] = {}
+    changed = True
+    while changed:
+        changed = False
+        invalid_ids = set(blocked_missing) | set(blocked_unresolved_from_missing)
+        for fragment in fragments:
+            fragment_id = fragment.meta.fragment_id
+            if fragment_id in invalid_ids:
+                continue
+            bad_deps = sorted(dep for dep in dependency_map[fragment_id] if dep in invalid_ids)
+            if not bad_deps:
+                continue
+            blocked_unresolved_from_missing[fragment_id] = bad_deps
+            changed = True
+
+    eligible_ids = (
+        fragment_ids
+        - set(blocked_missing)
+        - set(blocked_unresolved_from_missing)
+    )
+    eligible_fragments = [
+        fragments_by_id[fragment_id]
+        for fragment_id in eligible_ids
+    ]
+    ordered_fragments, _ = _topological_sort_fragments(eligible_fragments)
+    ordered_ids = {fragment.meta.fragment_id for fragment in ordered_fragments}
+    unresolved_cycle_candidates = eligible_ids - ordered_ids
+    blocked_cycle: dict[str, list[str]] = {}
+    if unresolved_cycle_candidates:
+        for component in _strongly_connected_components(
+            unresolved_cycle_candidates,
+            dependency_map,
+        ):
+            is_self_cycle = (
+                len(component) == 1
+                and component[0] in dependency_map.get(component[0], [])
+            )
+            if len(component) == 1 and not is_self_cycle:
+                continue
+            for fragment_id in component:
+                blocked_cycle[fragment_id] = component
+                conflicts.append(
+                    RegistryConflict(
+                        registry_kind=fragments_by_id[fragment_id].kind,
+                        item_key=fragment_id,
+                        conflict_kind="dependency_cycle",
+                        right_fragment_id=fragment_id,
+                        resolution="none",
+                        message=f"Dependency cycle detected: {', '.join(component)}",
+                    )
+                )
+                _append_unique_message(
+                    warnings,
+                    warning_set,
+                    f"fragment_skipped:{fragment_id}:dependency_cycle",
+                )
+
+    blocked_unresolved_from_cycle: dict[str, list[str]] = {}
+    changed = True
+    while changed:
+        changed = False
+        invalid_ids = (
+            set(blocked_missing)
+            | set(blocked_unresolved_from_missing)
+            | set(blocked_cycle)
+            | set(blocked_unresolved_from_cycle)
+        )
+        for fragment in fragments:
+            fragment_id = fragment.meta.fragment_id
+            if fragment_id in invalid_ids:
+                continue
+            bad_deps = sorted(dep for dep in dependency_map[fragment_id] if dep in invalid_ids)
+            if not bad_deps:
+                continue
+            blocked_unresolved_from_cycle[fragment_id] = bad_deps
+            changed = True
+
+    for fragment_id, dependencies in sorted(blocked_unresolved_from_missing.items()):
+        conflicts.append(
+            RegistryConflict(
+                registry_kind=fragments_by_id[fragment_id].kind,
+                item_key=fragment_id,
+                conflict_kind="dependency_unresolved",
+                right_fragment_id=fragment_id,
+                resolution="none",
+                message=f"Unresolved dependencies: {', '.join(dependencies)}",
+            )
+        )
+        _append_unique_message(
+            warnings,
+            warning_set,
+            f"fragment_skipped:{fragment_id}:dependency_unresolved",
+        )
+    for fragment_id, dependencies in sorted(blocked_unresolved_from_cycle.items()):
+        conflicts.append(
+            RegistryConflict(
+                registry_kind=fragments_by_id[fragment_id].kind,
+                item_key=fragment_id,
+                conflict_kind="dependency_unresolved",
+                right_fragment_id=fragment_id,
+                resolution="none",
+                message=f"Unresolved dependencies: {', '.join(dependencies)}",
+            )
+        )
+        _append_unique_message(
+            warnings,
+            warning_set,
+            f"fragment_skipped:{fragment_id}:dependency_unresolved",
+        )
 
     base = request.base_registries or RegistryBundle()
-    composed = RegistryBundle(
-        units=base.units,
-        trust=base.trust,
-        predicates=base.predicates,
-        privacy=base.privacy,
-        metrics=base.metrics,
-        mechanisms=base.mechanisms,
-        slots=base.slots,
-        selector_fields=base.selector_fields,
-        merge_rules=base.merge_rules,
-        constraints=base.constraints,
-        time=base.time,
-        geo=base.geo,
-        actors=base.actors,
-        concepts=base.concepts,
-        notes=list(base.notes),
-    )
 
     registry_item_buckets: dict[str, dict[str, Any]] = {}
     registry_item_sources: dict[str, dict[str, str]] = {}
@@ -553,10 +865,13 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
     _seed_base("actors", base.actors)
     _seed_base("concepts", base.concepts)
 
-    for fragment in fragments:
+    for fragment in ordered_fragments:
         applied.append(fragment.meta.fragment_id)
         items = _registry_items(fragment.payload, kind=fragment.kind)
+        items_by_registry: dict[str, list[tuple[str, str, Any]]] = {}
         for registry_kind, key, value in items:
+            items_by_registry.setdefault(registry_kind, []).append((registry_kind, key, value))
+        for registry_kind in sorted(items_by_registry):
             bucket = registry_item_buckets.setdefault(registry_kind, {})
             sources = registry_item_sources.setdefault(registry_kind, {})
             priorities = registry_item_priorities.setdefault(registry_kind, {})
@@ -565,7 +880,7 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
                 base_sources=sources,
                 base_priorities=priorities,
                 fragment_meta=fragment.meta,
-                items=[(registry_kind, key, value)],
+                items=items_by_registry[registry_kind],
                 mode=request.policy.mode,
                 conflicts=conflicts,
                 reserved_prefixes=RESERVED_NAMESPACE_PREFIXES,
@@ -586,65 +901,10 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
             applied_fragments=applied,
         )
 
-    # Build composed registries from buckets
-    if "units" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "units": UnitsRegistry(units=registry_item_buckets["units"], notes=list(composed.units.notes) if composed.units else []),
-        })
-    if "trust" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "trust": TrustRegistry(policies=registry_item_buckets["trust"], notes=list(composed.trust.notes) if composed.trust else []),
-        })
-    if "predicates.scalars" in registry_item_buckets or "predicates.edges" in registry_item_buckets:
-        scalars = registry_item_buckets.get("predicates.scalars", {})
-        edges = registry_item_buckets.get("predicates.edges", {})
-        composed = composed.model_copy(update={
-            "predicates": PredicateRegistry(scalars=scalars, edges=edges, notes=list(composed.predicates.notes) if composed.predicates else []),
-        })
-    if "privacy" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "privacy": PrivacyPolicyRegistry(policies=registry_item_buckets["privacy"], notes=list(composed.privacy.notes) if composed.privacy else []),
-        })
-    if "metrics" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "metrics": MetricRegistry(metrics=registry_item_buckets["metrics"], notes=list(composed.metrics.notes) if composed.metrics else []),
-        })
-    if "mechanisms" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "mechanisms": MechanismTypeRegistry(mechanisms=registry_item_buckets["mechanisms"], notes=list(composed.mechanisms.notes) if composed.mechanisms else []),
-        })
-    if "slots" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "slots": SlotRegistry(slots=registry_item_buckets["slots"], notes=list(composed.slots.notes) if composed.slots else []),
-        })
-    if "selector_fields" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "selector_fields": SelectorFieldRegistry(fields=registry_item_buckets["selector_fields"], notes=list(composed.selector_fields.notes) if composed.selector_fields else []),
-        })
-    if "merge_rules" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "merge_rules": MergeRuleRegistry(rules=registry_item_buckets["merge_rules"], notes=list(composed.merge_rules.notes) if composed.merge_rules else []),
-        })
-    if "constraints" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "constraints": ConstraintRegistry(constraints=registry_item_buckets["constraints"], notes=list(composed.constraints.notes) if composed.constraints else []),
-        })
-    if "time" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "time": TimeAxisRegistry(axes=registry_item_buckets["time"], notes=list(composed.time.notes) if composed.time else []),
-        })
-    if "geo" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "geo": GeoRegistry(areas=registry_item_buckets["geo"], notes=list(composed.geo.notes) if composed.geo else []),
-        })
-    if "actors" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "actors": ActorRegistry(actor_types=registry_item_buckets["actors"], notes=list(composed.actors.notes) if composed.actors else []),
-        })
-    if "concepts" in registry_item_buckets:
-        composed = composed.model_copy(update={
-            "concepts": ConceptRegistry(concepts=registry_item_buckets["concepts"], notes=list(composed.concepts.notes) if composed.concepts else []),
-        })
+    composed = _build_composed_bundle(
+        base=base,
+        registry_item_buckets=registry_item_buckets,
+    )
 
     deterministic_hash = None
     if composed is not None:

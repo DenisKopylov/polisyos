@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any
 
 from polisyos.core.audit.prov_json import ProvJsonConverter
+from polisyos.fabric.temporal import ensure_aware_utc
 from polisyos.fabric.provenance.core import (
     ProvenanceActivity,
     ProvenanceAgent,
@@ -44,7 +45,29 @@ PROV_CONTEXT = {
 
 def _format_datetime(dt: datetime) -> str:
     """Format datetime for JSON-LD (ISO 8601 with timezone)."""
-    return dt.isoformat() + "Z" if dt.tzinfo is None else dt.isoformat()
+    return ensure_aware_utc(dt, what="provenance datetime").isoformat().replace("+00:00", "Z")
+
+
+def _escape_nquads_literal(value: str) -> str:
+    """Escape a string for use in an RDF N-Quads literal."""
+    escaped: list[str] = []
+    for char in str(value):
+        codepoint = ord(char)
+        if char == "\\":
+            escaped.append("\\\\")
+        elif char == '"':
+            escaped.append('\\"')
+        elif char == "\n":
+            escaped.append("\\n")
+        elif char == "\r":
+            escaped.append("\\r")
+        elif char == "\t":
+            escaped.append("\\t")
+        elif codepoint < 0x20 or codepoint == 0x7F:
+            escaped.append(f"\\u{codepoint:04X}")
+        else:
+            escaped.append(char)
+    return "".join(escaped)
 
 
 def _entity_to_jsonld(entity: ProvenanceEntity, base_uri: str) -> dict[str, Any]:
@@ -177,7 +200,7 @@ def export_to_provo_nquads(
     for entity in graph.entities.values():
         subj = uri(f"entity/{entity.entity_id}")
         lines.append(f"{subj} <{rdf}type> <{prov}Entity> .")
-        lines.append(f"{subj} <{rdfs}label> \"{entity.label}\" .")
+        lines.append(f"{subj} <{rdfs}label> \"{_escape_nquads_literal(entity.label)}\" .")
         lines.append(
             f"{subj} <{prov}generatedAtTime> "
             f"\"{_format_datetime(entity.created_at)}\"^^<{xsd}dateTime> ."
@@ -186,7 +209,7 @@ def export_to_provo_nquads(
     for activity in graph.activities.values():
         subj = uri(f"activity/{activity.activity_id}")
         lines.append(f"{subj} <{rdf}type> <{prov}Activity> .")
-        lines.append(f"{subj} <{rdfs}label> \"{activity.label}\" .")
+        lines.append(f"{subj} <{rdfs}label> \"{_escape_nquads_literal(activity.label)}\" .")
         lines.append(
             f"{subj} <{prov}startedAtTime> "
             f"\"{_format_datetime(activity.started_at)}\"^^<{xsd}dateTime> ."
@@ -200,7 +223,7 @@ def export_to_provo_nquads(
     for agent in graph.agents.values():
         subj = uri(f"agent/{agent.agent_id}")
         lines.append(f"{subj} <{rdf}type> <{prov}Agent> .")
-        lines.append(f"{subj} <{rdfs}label> \"{agent.label}\" .")
+        lines.append(f"{subj} <{rdfs}label> \"{_escape_nquads_literal(agent.label)}\" .")
 
     for edge in graph.edges:
         source_prefix = _get_node_prefix(edge.source_id, graph)

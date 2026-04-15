@@ -1,0 +1,175 @@
+name: Fabric Remediation Gates
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/fabric-remediation.yml"
+      - "policy-engine/docs/FABRIC_AUDIT_REMEDIATION_PLAN.md"
+      - "policy-engine/docs/FABRIC_REMEDIATION_CLOSURE_MATRIX.md"
+      - "policy-engine/pyproject.toml"
+      - "policy-engine/scripts/testing/**"
+      - "policy-engine/schemas/snapshots/fabric/**"
+      - "policy-engine/src/polisyos/core/security/db_backend.py"
+      - "policy-engine/src/polisyos/fabric/**"
+      - "policy-engine/tests/fabric/**"
+      - "policy-engine/tests/tools/test_fabric_schema_governance.py"
+      - "policy-engine/tools/ci/check_fabric_schema_registry.py"
+      - "policy-engine/tools/quality/ci/check_fabric_schema_registry.py"
+      - "policy-engine/tools/quality/validation/fabric_schema_governance.py"
+      - "policy-engine/tools/validation/fabric_schema_governance.py"
+      - "policy-engine/uv.lock"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/fabric-remediation.yml"
+      - "policy-engine/docs/FABRIC_AUDIT_REMEDIATION_PLAN.md"
+      - "policy-engine/docs/FABRIC_REMEDIATION_CLOSURE_MATRIX.md"
+      - "policy-engine/pyproject.toml"
+      - "policy-engine/scripts/testing/**"
+      - "policy-engine/schemas/snapshots/fabric/**"
+      - "policy-engine/src/polisyos/core/security/db_backend.py"
+      - "policy-engine/src/polisyos/fabric/**"
+      - "policy-engine/tests/fabric/**"
+      - "policy-engine/tests/tools/test_fabric_schema_governance.py"
+      - "policy-engine/tools/ci/check_fabric_schema_registry.py"
+      - "policy-engine/tools/quality/ci/check_fabric_schema_registry.py"
+      - "policy-engine/tools/quality/validation/fabric_schema_governance.py"
+      - "policy-engine/tools/validation/fabric_schema_governance.py"
+      - "policy-engine/uv.lock"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fabric-remediation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fabric-full-suite:
+    name: Fabric / Full suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          extras: "lint test runtime analytics ml"
+
+      - name: Verify strict provenance parser dependency
+        run: uv run python -c "import rdflib"
+
+      - name: Run Fabric suite
+        run: |
+          mkdir -p .tmp/test-reports
+          uv run pytest tests/fabric --durations=25 --junitxml=.tmp/test-reports/fabric.xml
+
+      - name: Upload Fabric JUnit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: junit-fabric
+          path: policy-engine/.tmp/test-reports/fabric.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  fabric-hygiene:
+    name: Fabric / Hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          extras: "lint test"
+
+      - name: Check broad-exception baseline
+        run: uv run python scripts/testing/check_fabric_exception_baseline.py
+
+      - name: Run Fabric schema governance gate
+        run: |
+          mkdir -p .tmp/test-reports
+          uv run python tools/ci/check_fabric_schema_registry.py --check \
+            --evidence-out .tmp/test-reports/fabric-schema-governance.json
+
+      - name: Ban query.replace in Fabric connector and world paths
+        run: |
+          ! rg -n "query\\.replace\\(" src/polisyos/fabric/connectors src/polisyos/fabric/world src/polisyos/fabric/quality.py
+
+      - name: Ban eval-style DataFrame filters
+        run: |
+          ! rg -n "DataFrame\\.eval|\\.eval\\(" src/polisyos/fabric
+
+      - name: Ban datetime.utcnow in Fabric
+        run: |
+          ! rg -n "datetime\\.utcnow\\(" src/polisyos/fabric
+
+      - name: Upload Fabric schema governance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: fabric-schema-governance
+          path: policy-engine/.tmp/test-reports/fabric-schema-governance.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  fabric-repeated:
+    name: Fabric / Repeated race-leak smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          extras: "test runtime analytics ml"
+
+      - name: Repeat resilience concurrency smoke
+        run: |
+          uv run python scripts/testing/repeat_pytest.py --count 5 --fail-fast -- \
+            tests/fabric/connectors/test_resilience.py -k "half_open or rate_limiter or fallback"
+
+      - name: Repeat cache and tenant isolation smoke
+        run: |
+          uv run python scripts/testing/repeat_pytest.py --count 5 --fail-fast -- \
+            tests/fabric/connectors/test_cache_system.py -k "concurrency or atomic or leak" \
+            tests/fabric/test_world_query_column_masking.py \
+            tests/fabric/test_duckdb_storage_access_control.py
+
+  fabric-performance-smoke:
+    name: Fabric / Performance smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          extras: "test runtime analytics ml"
+
+      - name: Run Fabric benchmark smoke
+        run: |
+          uv run pytest tests/fabric/data_plane/test_benchmarks.py --durations=10

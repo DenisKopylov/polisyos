@@ -4,13 +4,15 @@ from __future__ import annotations
 import json
 import math
 import uuid
+from collections.abc import Callable
+from importlib import import_module
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.ir_adapter import build_ir_artifact_store, ensure_ir_artifact_store
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
@@ -28,6 +30,21 @@ from polisyos.scientist.backtesting.plan import (
 )
 from polisyos.scientist.backtesting.trust_scorer import TrustScorer
 
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
+    from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
+
+    type BacktestStore = IRArtifactStore | CoreArtifactStore
+else:
+    BacktestStore = Any
+
+
+BacktestStoreFactory = Callable[[Path], BacktestStore]
+
+
+def _default_backtest_store_factory(root: Path) -> BacktestStore:
+    return build_ir_artifact_store(root)
+
 
 class BacktestOrchestrator:
     """Run scenario replay, score prediction quality, and persist a `BacktestReport`.
@@ -39,8 +56,18 @@ class BacktestOrchestrator:
     quality.
     """
 
-    def __init__(self, *, cas: FileSystemCAS | None = None, cas_root: str = ".polisyos") -> None:
-        self._cas = cas or FileSystemCAS(Path(cas_root))
+    def __init__(
+        self,
+        *,
+        cas: BacktestStore | None = None,
+        cas_root: str = ".polisyos",
+        store_factory: BacktestStoreFactory | None = None,
+    ) -> None:
+        if cas is not None:
+            self._store = ensure_ir_artifact_store(cas)
+        else:
+            factory = store_factory or _default_backtest_store_factory
+            self._store = ensure_ir_artifact_store(factory(Path(cas_root)))
         self._masker = OutcomeMasker()
         self._evaluator = PredictionEvaluator()
         self._trust_scorer = TrustScorer()
@@ -83,7 +110,7 @@ class BacktestOrchestrator:
             prediction_mode_effective=_collapse_modes(effective_modes),
             degraded_reasons=degraded_reasons,
         )
-        ref = persist_backtest_report(self._cas, report)
+        ref = persist_backtest_report(self._store, report)
         report.cas_artifact_id = str(ref.artifact_id)
         return report
 
@@ -136,12 +163,17 @@ class BacktestOrchestrator:
     def _load_historical_data(self, plan: HistoricalValidationPlan) -> dict[str, Any]:
         if plan.historical_data_ref:
             artifact_id = ArtifactID.model_validate(plan.historical_data_ref)
-            payload = from_canonical_bytes(self._cas.get_bytes(artifact_id))
+            payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
             if not isinstance(payload, dict):
                 raise ValueError(f"historical_data_ref must point to a JSON object: {plan.historical_data_ref}")
-            return payload
+            return cast("dict[str, Any]", payload)
         assert plan.historical_data_path is not None
-        return json.loads(Path(plan.historical_data_path).read_text(encoding="utf-8"))
+        file_payload = json.loads(Path(plan.historical_data_path).read_text(encoding="utf-8"))
+        if not isinstance(file_payload, dict):
+            raise ValueError(
+                f"historical_data_path must contain a JSON object: {plan.historical_data_path}"
+            )
+        return cast("dict[str, Any]", file_payload)
 
     def _predict(
         self,
@@ -204,7 +236,7 @@ class BacktestOrchestrator:
         if isinstance(metrics_ref_payload, dict) and metrics_ref_payload.get("artifact_id"):
             try:
                 artifact_id = ArtifactID.model_validate(metrics_ref_payload["artifact_id"])
-                metrics_payload = from_canonical_bytes(self._cas.get_bytes(artifact_id))
+                metrics_payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
                 values = metrics_payload.get("values", metrics_payload)
                 if isinstance(values, dict):
                     for metric in plan.target_metrics:
@@ -247,7 +279,7 @@ class BacktestOrchestrator:
 
         try:
             sim_id = ArtifactID.model_validate(sim_ref_payload["artifact_id"])
-            sim_payload = from_canonical_bytes(self._cas.get_bytes(sim_id))
+            sim_payload = from_canonical_bytes(self._store.get_bytes(sim_id))
         except Exception:
             return {}
         envelopes = sim_payload.get("uncertainty_envelopes")
@@ -261,7 +293,7 @@ class BacktestOrchestrator:
                 continue
             try:
                 env_id = ArtifactID.model_validate(ref_payload["artifact_id"])
-                env_payload = from_canonical_bytes(self._cas.get_bytes(env_id))
+                env_payload = from_canonical_bytes(self._store.get_bytes(env_id))
                 ci = env_payload.get("confidence_interval")
                 if isinstance(ci, (list, tuple)) and len(ci) == 2:
                     lo = float(ci[0])
@@ -270,7 +302,7 @@ class BacktestOrchestrator:
                         lo, hi = hi, lo
                     horizon = len(plan.ground_truth_outcomes.get(metric, []))
                     intervals[metric] = [(lo, hi)] * horizon
-            except Exception:
+            except (TypeError, ValueError, KeyError):
                 continue
         return intervals
 
@@ -325,6 +357,7 @@ class BacktestOrchestrator:
             trust_score, trust_grade = self._trust_scorer.compute(scenarios=scenarios, biases=biases)
 
         return BacktestReport(
+            schema_version="1.0",
             report_id=report_id,
             scenarios=scenarios,
             overall_rmse=float(np.mean(rmse_values)) if rmse_values else None,
@@ -391,8 +424,10 @@ class BacktestOrchestrator:
             return None
         t_stat = mean / (std / math.sqrt(n))
         try:
-            from scipy.stats import t as t_dist
-
+            scipy_stats = import_module("scipy.stats")
+            t_dist = getattr(scipy_stats, "t", None)
+            if t_dist is None:
+                return None
             return float(2.0 * (1.0 - t_dist.cdf(abs(t_stat), df=n - 1)))
         except Exception:
             # Normal approximation fallback.

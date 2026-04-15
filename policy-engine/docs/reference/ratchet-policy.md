@@ -31,7 +31,7 @@ the same change set:
 | Test strategy | tests path plus the validation command in PR summary and package README |
 | Compatibility classification | PR labels, release fragment, and `docs/how-to/release-policy.md` language |
 | Review / merge-governance impact | PR template, `docs/reference/quality-gates.md`, `docs/reference/merge-governance.md` |
-| Bootstrap / doctor impact | `tools/workspace/**`, `scripts/*`, install/onboarding docs, or explicit “none” note |
+| Bootstrap / doctor impact | `tools/workspace/**`, `polisyos-tools workspace ...`, install/onboarding docs, or explicit “none” note |
 | Config / secrets impact | `docs/reference/configuration-profiles.md`, `.env.example`, deployment notes, or explicit “none” note |
 | Generated-artifact impact | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, or explicit “none” note |
 | Observability / rollout impact | `docs/reference/operations/observability-topology.md`, `docs/how-to/review-rollouts.md`, or explicit “none” note |
@@ -50,7 +50,7 @@ For a new package or durable surface, the default authoring path is:
 3. Update the relevant entry point in docs, not only a leaf page.
 4. Add or update the release fragment when the change is operator-visible,
    compatibility-sensitive, or part of the shipped platform story.
-5. Run `./scripts/acceptance-audit` when the change spans repo policy, release,
+5. Run `polisyos-tools workspace acceptance-audit` when the change spans repo policy, release,
    onboarding, governance, or other cross-phase surfaces.
 
 ## Merge-Time Expectations

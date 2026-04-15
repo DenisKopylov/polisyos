@@ -1,0 +1,65 @@
+[explicit_any]
+"src/polisyos/scientist/autotune/pareto.py" = 0
+"src/polisyos/scientist/cross_graph/alignment.py" = 0
+"src/polisyos/scientist/cross_graph/compiler.py" = 8
+"src/polisyos/scientist/discovery/aggregator.py" = 4
+"src/polisyos/scientist/discovery/output.py" = 21
+"src/polisyos/scientist/discovery/portfolio.py" = 10
+"src/polisyos/scientist/discovery/prior_miner.py" = 0
+"src/polisyos/scientist/discovery/priors.py" = 5
+"src/polisyos/scientist/discovery/workers/__init__.py" = 17
+"src/polisyos/scientist/engine/async_executor.py" = 5
+"src/polisyos/scientist/engine/fan_out.py" = 17
+"src/polisyos/scientist/feedback.py" = 29
+"src/polisyos/scientist/feedback_utils.py" = 0
+"src/polisyos/scientist/llm/prompt_cache.py" = 24
+"src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py" = 9
+"src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py" = 0
+"src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py" = 0
+"src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py" = 20
+"src/polisyos/scientist/search/judge_stack.py" = 6
+"src/polisyos/scientist/search/judge_thresholds.py" = 0
+
+[unsafe_cast]
+"src/polisyos/scientist/autotune/pareto.py" = 0
+"src/polisyos/scientist/cross_graph/alignment.py" = 0
+"src/polisyos/scientist/cross_graph/compiler.py" = 0
+"src/polisyos/scientist/discovery/aggregator.py" = 0
+"src/polisyos/scientist/discovery/output.py" = 0
+"src/polisyos/scientist/discovery/portfolio.py" = 0
+"src/polisyos/scientist/discovery/prior_miner.py" = 0
+"src/polisyos/scientist/discovery/priors.py" = 0
+"src/polisyos/scientist/discovery/workers/__init__.py" = 0
+"src/polisyos/scientist/engine/async_executor.py" = 0
+"src/polisyos/scientist/engine/fan_out.py" = 0
+"src/polisyos/scientist/feedback.py" = 0
+"src/polisyos/scientist/feedback_utils.py" = 0
+"src/polisyos/scientist/llm/prompt_cache.py" = 0
+"src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py" = 0
+"src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py" = 0
+"src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py" = 0
+"src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py" = 0
+"src/polisyos/scientist/search/judge_stack.py" = 0
+"src/polisyos/scientist/search/judge_thresholds.py" = 0
+
+[raw_dict_index]
+"src/polisyos/scientist/autotune/pareto.py" = 0
+"src/polisyos/scientist/cross_graph/alignment.py" = 0
+"src/polisyos/scientist/cross_graph/compiler.py" = 1
+"src/polisyos/scientist/discovery/aggregator.py" = 0
+"src/polisyos/scientist/discovery/output.py" = 3
+"src/polisyos/scientist/discovery/portfolio.py" = 8
+"src/polisyos/scientist/discovery/prior_miner.py" = 0
+"src/polisyos/scientist/discovery/priors.py" = 0
+"src/polisyos/scientist/discovery/workers/__init__.py" = 1
+"src/polisyos/scientist/engine/async_executor.py" = 2
+"src/polisyos/scientist/engine/fan_out.py" = 2
+"src/polisyos/scientist/feedback.py" = 14
+"src/polisyos/scientist/feedback_utils.py" = 0
+"src/polisyos/scientist/llm/prompt_cache.py" = 6
+"src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py" = 126
+"src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py" = 0
+"src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py" = 0
+"src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py" = 89
+"src/polisyos/scientist/search/judge_stack.py" = 22
+"src/polisyos/scientist/search/judge_thresholds.py" = 0

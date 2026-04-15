@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from typing import Any
+
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.control import (
     BindingProfilesListResponse,
     CacheStatusResponse,
@@ -15,11 +18,11 @@ from polisyos.core.contracts.control import (
     DataDiscoverResponse,
     DataPreviewRequest,
     DataPreviewResponse,
+    DataResolveRequest,
+    DataResolveResponse,
     DecisionValidityEventRequest,
     DecisionValidityEventResponse,
     DecisionValiditySummaryResponse,
-    DataResolveRequest,
-    DataResolveResponse,
     IndexStatsResponse,
     IngestRequest,
     IngestResponse,
@@ -39,9 +42,9 @@ from polisyos.core.contracts.control import (
     WorkflowRunRequest,
 )
 from polisyos.core.contracts.runtime import FeedbackActionResponse
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.runtime.http.execution_policy import RuntimePrincipal
+from polisyos.runtime.http.container import resolve_control_service
 from polisyos.runtime.http.dependencies import (
+    RuntimeApiContext,
     build_meta,
     enforce_artifact_tenant_access,
     enforce_run_tenant_access,
@@ -50,32 +53,29 @@ from polisyos.runtime.http.dependencies import (
     set_authz_resource,
 )
 from polisyos.runtime.http.errors import bad_request, not_found
+from polisyos.runtime.http.execution_policy import RuntimePrincipal
 
 try:  # pragma: no cover - optional runtime dependency
+    APIRouter: Any | None
+    Depends: Any | None
+    Query: Any | None
+    Request: Any
     from fastapi import APIRouter, Depends, Query, Request
 except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None  # type: ignore[assignment]
-    Depends = None  # type: ignore[assignment]
-    Query = None  # type: ignore[assignment]
-    Request = None  # type: ignore[assignment]
+    APIRouter = None
+    Depends = None
+    Query = None
+    Request = Any
 
 
 router = APIRouter(prefix="/api/v1/control", tags=["control-plane"]) if APIRouter else None
 
 
-def _get_control_service(request: Request):
-    """Lazy-init control service from RuntimeApiContext."""
-    from polisyos.runtime.http.services.control import ControlPlaneService
-
-    ctx = get_runtime_api_context(request)
-    # Cache on app state to avoid re-creating
-    svc = getattr(request.app.state, "_control_service", None)
+def _get_control_service(request: Request) -> Any:
+    """Return the startup-initialized control service instance."""
+    svc = resolve_control_service(request)
     if svc is None:
-        svc = ControlPlaneService(
-            cas_root=ctx.cas_root,
-            core_runs_root=ctx.core_runs_root,
-        )
-        request.app.state._control_service = svc
+        raise RuntimeError("ControlPlaneService was not initialized during application startup")
     return svc
 
 
@@ -125,7 +125,7 @@ if router is not None:
     def evaluate_run_feedback(
         run_id: str,
         request: Request,
-        ctx=Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> FeedbackActionResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -134,7 +134,6 @@ if router is not None:
             tenant_id=run.details.tenant_id,
             kind="control.evaluate_feedback",
         )
-        request_id = ensure_request_id(request)
         _, monitoring_report_ref, compare_report_ref, reissue_plan_ref = ctx.feedback.evaluate_run_feedback(run)
         return FeedbackActionResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
@@ -203,7 +202,7 @@ if router is not None:
     def reissue_run(
         run_id: str,
         request: Request,
-        ctx=Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> FeedbackActionResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -347,7 +346,7 @@ if router is not None:
     def get_run_decision_validity(
         run_id: str,
         request: Request,
-        ctx=Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> DecisionValiditySummaryResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -378,7 +377,7 @@ if router is not None:
     def get_packet_decision_validity(
         decision_packet_ref: str,
         request: Request,
-        ctx=Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> DecisionValiditySummaryResponse:
         artifact_id = ArtifactID.model_validate(decision_packet_ref)
         tenant_id = enforce_artifact_tenant_access(

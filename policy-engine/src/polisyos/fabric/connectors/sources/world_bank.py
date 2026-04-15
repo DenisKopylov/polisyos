@@ -8,6 +8,7 @@ from typing import Any, AsyncIterator, ClassVar
 import pandas as pd
 
 from polisyos.core.canon import streaming_hash
+from polisyos.fabric.safety import UnsafePathSegmentError, safe_path_segment
 from polisyos.fabric.connectors.base import (
     ConnectionHandle,
     DatasetCapabilitySnapshot,
@@ -261,7 +262,13 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
         countries = filters.get("country")
         if not countries:
             return "all"
-        return ";".join(sorted({value for value in countries if value}))
+        encoded = [
+            safe_path_segment(str(value).strip(), what="World Bank country code")
+            for value in sorted({value for value in countries if str(value).strip()})
+        ]
+        if not encoded:
+            return "all"
+        return ";".join(encoded)
 
     @staticmethod
     def _normalize_indicator_batch(dataset_id: str) -> str:
@@ -270,7 +277,13 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
             for token in str(dataset_id or "").split(";")
             if token and token.strip()
         ]
-        return ";".join(dict.fromkeys(indicators))
+        encoded = [
+            safe_path_segment(token, what="World Bank indicator id")
+            for token in dict.fromkeys(indicators)
+        ]
+        if not encoded:
+            raise UnsafePathSegmentError("Unsafe World Bank indicator id: empty segment list")
+        return ";".join(encoded)
 
     @staticmethod
     def _parse_per_page(request: FetchRequest) -> int:

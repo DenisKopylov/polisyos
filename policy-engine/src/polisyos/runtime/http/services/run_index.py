@@ -14,7 +14,7 @@ from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.runtime import CursorPage, RunDetails, RunSummary, SourceKind
 from polisyos.scientist.decision_validity import DecisionValidityService
 
@@ -36,6 +36,14 @@ class IndexedRunRecord:
     manifest_errors: tuple[dict[str, Any], ...]
 
 
+@dataclass(frozen=True)
+class _RunDirFingerprint:
+    """Cheap change detector for one run directory."""
+
+    trace_mtime_ns: int
+    trace_size: int
+
+
 class RunIndexService:
     """Provide TTL-refreshed run listings and artifact-to-tenant lookups.
 
@@ -46,36 +54,51 @@ class RunIndexService:
     def __init__(
         self,
         *,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         core_runs_root: Path,
         refresh_ttl_seconds: float = 2.0,
+        max_cached_runs: int = 10_000,
+        metrics: Any | None = None,
     ) -> None:
         self._store = store
         self._core_runs_root = core_runs_root
         self._refresh_ttl_seconds = max(refresh_ttl_seconds, 0.1)
+        self._max_cached_runs = max(int(max_cached_runs), 1)
+        self._metrics = metrics
         self._decision_validity_service = DecisionValidityService(store)
         self._cache: dict[str, IndexedRunRecord] = {}
         self._artifact_tenants: dict[str, str] = {}
+        self._dir_fingerprints: dict[Path, _RunDirFingerprint] = {}
         self._cache_built_at: float = 0.0
 
     @property
-    def store(self) -> FileSystemCAS:
+    def store(self) -> ArtifactStore:
         """Return the CAS store used by downstream services."""
         return self._store
 
     def refresh(self, *, force: bool = False) -> None:
         """Rebuild the cached index when TTL expired or `force=True`."""
         now = time.monotonic()
+        if self._cache_built_at > 0.0:
+            self._record_cache_staleness(now - self._cache_built_at)
         if not force and (now - self._cache_built_at) < self._refresh_ttl_seconds:
+            self._record_cache_event(operation="refresh", outcome="cache_hit")
             return
-        self._cache, self._artifact_tenants = self._build_index()
+        started = time.perf_counter()
+        self._cache, self._artifact_tenants = self._refresh_index_incremental()
         self._cache_built_at = now
+        self._record_cache_event(operation="refresh", outcome="incremental_rebuild")
+        self._record_cache_rebuild(
+            duration_seconds=time.perf_counter() - started,
+            item_count=len(self._cache),
+        )
 
     def list_runs(
         self,
         *,
         limit: int = 50,
         cursor: str | None = None,
+        q: str | None = None,
         status: str | None = None,
         from_ts: datetime | None = None,
         to_ts: datetime | None = None,
@@ -87,6 +110,8 @@ class RunIndexService:
             limit: Requested page size; clamped to the `[1, 200]` API range.
             cursor: Integer offset encoded as a string, or `None` for the first
                 page.
+            q: Optional case-insensitive substring search applied to run id,
+                status, and source kind before pagination.
             status: Optional case-insensitive run status filter.
             from_ts: Optional inclusive lower bound on `started_at`.
             to_ts: Optional inclusive upper bound on `started_at`.
@@ -103,6 +128,7 @@ class RunIndexService:
         self.refresh()
         normalized_from = _as_utc(from_ts)
         normalized_to = _as_utc(to_ts)
+        normalized_query = q.strip().lower() if isinstance(q, str) and q.strip() else None
         status_normalized = status.lower() if isinstance(status, str) else None
 
         runs: list[IndexedRunRecord] = []
@@ -120,6 +146,16 @@ class RunIndexService:
                 continue
             if normalized_to and run_started and run_started > normalized_to:
                 continue
+            if normalized_query:
+                search_haystack = " ".join(
+                    [
+                        run.summary.run_id,
+                        run.summary.status,
+                        str(run.summary.source_kind),
+                    ]
+                ).lower()
+                if normalized_query not in search_haystack:
+                    continue
             runs.append(run)
 
         runs.sort(key=_run_sort_key)
@@ -149,13 +185,20 @@ class RunIndexService:
         self.refresh()
         record = self._cache.get(run_id)
         if record is None:
+            self._record_cache_event(operation="lookup_run", outcome="miss")
             raise KeyError(run_id)
+        self._record_cache_event(operation="lookup_run", outcome="hit")
         return record
 
     def get_artifact_tenant(self, artifact_id: str) -> str | None:
         """Return the tenant owning an artifact id when the run index can infer it."""
         self.refresh()
-        return self._artifact_tenants.get(artifact_id)
+        tenant_id = self._artifact_tenants.get(artifact_id)
+        self._record_cache_event(
+            operation="lookup_artifact_tenant",
+            outcome="hit" if tenant_id is not None else "miss",
+        )
+        return tenant_id
 
     def resolve_root_artifact_ids(
         self,
@@ -180,18 +223,39 @@ class RunIndexService:
 
         return [ArtifactID.model_validate(str(ref.artifact_id)) for ref in refs]
 
-    def _build_index(self) -> tuple[dict[str, IndexedRunRecord], dict[str, str]]:
+    def _refresh_index_incremental(self) -> tuple[dict[str, IndexedRunRecord], dict[str, str]]:
         index: dict[str, IndexedRunRecord] = {}
         artifact_tenants: dict[str, str] = {}
+        next_fingerprints: dict[Path, _RunDirFingerprint] = {}
 
         if self._core_runs_root.exists():
             for run_dir in sorted(_iter_run_dirs(self._core_runs_root)):
-                record = self._adapt_core_run(run_dir)
+                if len(index) >= self._max_cached_runs:
+                    self._record_cache_event(operation="refresh", outcome="capacity_eviction")
+                    break
+                fingerprint = _fingerprint_run_dir(run_dir)
+                if fingerprint is None:
+                    continue
+                next_fingerprints[run_dir] = fingerprint
+                cached = self._cache.get(run_dir.name)
+                if (
+                    cached is not None
+                    and self._dir_fingerprints.get(run_dir) == fingerprint
+                ):
+                    record = cached
+                    self._record_cache_event(operation="adapt_run", outcome="unchanged")
+                else:
+                    record = self._adapt_core_run(run_dir)
+                    self._record_cache_event(
+                        operation="adapt_run",
+                        outcome="updated" if record is not None else "skipped",
+                    )
                 if record is None:
                     continue
                 index[record.run_id] = record
                 _register_artifact_tenants(artifact_tenants, record)
 
+        self._dir_fingerprints = next_fingerprints
         return index, artifact_tenants
 
     def _adapt_core_run(self, run_dir: Path) -> IndexedRunRecord | None:
@@ -203,6 +267,32 @@ class RunIndexService:
             run_dir=run_dir,
             decision_validity_service=self._decision_validity_service,
         )
+
+    def _record_cache_event(self, *, operation: str, outcome: str) -> None:
+        recorder = getattr(self._metrics, "record_runtime_cache_event", None)
+        if callable(recorder):
+            recorder(
+                cache_name="run_index",
+                operation=operation,
+                outcome=outcome,
+            )
+
+    def _record_cache_rebuild(self, *, duration_seconds: float, item_count: int) -> None:
+        recorder = getattr(self._metrics, "record_runtime_cache_rebuild", None)
+        if callable(recorder):
+            recorder(
+                cache_name="run_index",
+                duration_seconds=duration_seconds,
+                item_count=item_count,
+            )
+
+    def _record_cache_staleness(self, staleness_seconds: float) -> None:
+        recorder = getattr(self._metrics, "set_runtime_cache_staleness", None)
+        if callable(recorder):
+            recorder(
+                cache_name="run_index",
+                staleness_seconds=staleness_seconds,
+            )
 
 
 def _core_result_to_indexed(
@@ -298,6 +388,18 @@ def _iter_run_dirs(root: Path):
     for item in root.iterdir():
         if item.is_dir():
             yield item
+
+
+def _fingerprint_run_dir(run_dir: Path) -> _RunDirFingerprint | None:
+    trace_path = run_dir / "trace.jsonl"
+    try:
+        stat = trace_path.stat()
+    except FileNotFoundError:
+        return None
+    return _RunDirFingerprint(
+        trace_mtime_ns=int(stat.st_mtime_ns),
+        trace_size=int(stat.st_size),
+    )
 
 
 def _as_utc(value: datetime | None) -> datetime | None:

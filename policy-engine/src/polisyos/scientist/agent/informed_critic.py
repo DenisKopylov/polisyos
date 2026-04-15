@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import os
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -33,6 +33,9 @@ from polisyos.scientist.agent.protocols import (
     CritiqueSeverity,
     ProblemFrame,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
 
 _SEVERITY_ORDER: dict[CritiqueSeverity, int] = {
     CritiqueSeverity.INFO: 0,
@@ -100,6 +103,8 @@ class InformedCriticAgent:
         enable_failure_patterns: bool = True,
         feasibility_min_match_ratio: float = 0.001,
         failure_pattern_threshold: int = 3,
+        tracer: PolicyOSTracer | None = None,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         resolved_config = config or InformedCriticConfig(
             enable_feasibility_check=enable_feasibility_check,
@@ -120,6 +125,8 @@ class InformedCriticAgent:
         self._feasibility_min_match_ratio = max(0.0, resolved_config.feasibility_min_match_ratio)
         self._failure_pattern_threshold = max(1, resolved_config.failure_pattern_threshold)
         self._constraint_assembler = ConstraintContextAssembler()
+        self._tracer = tracer if tracer is not None else get_tracer()
+        self._metrics = metrics if metrics is not None else get_metrics()
 
     async def critique(
         self,
@@ -129,12 +136,10 @@ class InformedCriticAgent:
         depth: str = "standard",
     ) -> CritiqueReport:
         bundle = self._to_bundle(ir)
-        metrics = get_metrics()
-        tracer = get_tracer()
         domain = self._domain(problem_frame)
 
-        with metrics.time_informed_critic({"domain": domain}):
-            with tracer.start_as_current_span(
+        with self._metrics.time_informed_critic({"domain": domain}):
+            with self._tracer.start_as_current_span(
                 "critic.informed_critique",
                 attributes={
                     "polisyos.critic.domain": domain,
@@ -176,12 +181,12 @@ class InformedCriticAgent:
                         "informed_critic": True,
                         "pre_issues_count": len(pre_issues),
                     },
-                    created_at=inner_report.created_at or datetime.utcnow(),
+                    created_at=inner_report.created_at or datetime.now(UTC),
                 )
 
                 if self._knowledge_base is not None:
                     self._knowledge_base.record_critique(report, problem_frame)
-                    metrics.set_failure_pattern_index_size(self._knowledge_base.pattern_count)
+                    self._metrics.set_failure_pattern_index_size(self._knowledge_base.pattern_count)
 
                 span.set_attribute("polisyos.critic.pre_issues", len(pre_issues))
                 span.set_attribute("polisyos.critic.total_issues", len(report.issues))
@@ -198,7 +203,6 @@ class InformedCriticAgent:
         if self._knowledge_base is None:
             return []
 
-        metrics = get_metrics()
         domain = self._domain(problem_frame)
         issues: list[CritiqueIssue] = []
         for pattern, score in self._knowledge_base.search_patterns(
@@ -221,7 +225,7 @@ class InformedCriticAgent:
                     evidence={"occurrence_count": pattern.occurrence_count},
                 )
             )
-            metrics.record_critic_preemptive_catch(catch_type="pattern_match")
+            self._metrics.record_critic_preemptive_catch(catch_type="pattern_match")
         return issues
 
     async def _feasibility_issues(
@@ -229,7 +233,6 @@ class InformedCriticAgent:
         bundle: TrinityBundle,
         problem_frame: ProblemFrame,
     ) -> list[CritiqueIssue]:
-        metrics = get_metrics()
         issues: list[CritiqueIssue] = []
         budget_limit = self._budget_limit(bundle, problem_frame)
 
@@ -258,15 +261,15 @@ class InformedCriticAgent:
                         suggestion="Use an existing selector field or adjust registry mapping.",
                     )
                 )
-                metrics.record_critic_preemptive_catch(catch_type="feasibility_attr")
+                self._metrics.record_critic_preemptive_catch(catch_type="feasibility_attr")
 
-            query_started = datetime.utcnow()
+            query_started = datetime.now(UTC)
             result = await self._feasibility.count_matching_agents(
                 selector_expr=selector,
                 data_snapshot_ref=snapshot_ref,
             )
-            query_duration = (datetime.utcnow() - query_started).total_seconds()
-            metrics.record_feasibility_query(duration_seconds=query_duration, status="ok")
+            query_duration = (datetime.now(UTC) - query_started).total_seconds()
+            self._metrics.record_feasibility_query(duration_seconds=query_duration, status="ok")
 
             if result.matching_count == 0:
                 issues.append(
@@ -283,7 +286,7 @@ class InformedCriticAgent:
                         evidence={"snapshot_ref": snapshot_ref},
                     )
                 )
-                metrics.record_critic_preemptive_catch(catch_type="feasibility_empty")
+                self._metrics.record_critic_preemptive_catch(catch_type="feasibility_empty")
             elif result.matching_count > 0 and result.match_ratio < self._feasibility_min_match_ratio:
                 issues.append(
                     CritiqueIssue(
@@ -306,15 +309,18 @@ class InformedCriticAgent:
                 if amount is None:
                     continue
 
-                budget_started = datetime.utcnow()
+                budget_started = datetime.now(UTC)
                 budget = await self._feasibility.estimate_budget_impact(
                     selector_expr=selector,
                     amount_per_agent=amount,
                     data_snapshot_ref=snapshot_ref,
                     budget_limit=float(budget_limit),
                 )
-                budget_duration = (datetime.utcnow() - budget_started).total_seconds()
-                metrics.record_feasibility_query(duration_seconds=budget_duration, status="budget")
+                budget_duration = (datetime.now(UTC) - budget_started).total_seconds()
+                self._metrics.record_feasibility_query(
+                    duration_seconds=budget_duration,
+                    status="budget",
+                )
 
                 if budget.feasible is False:
                     issues.append(
@@ -334,7 +340,9 @@ class InformedCriticAgent:
                             },
                         )
                     )
-                    metrics.record_critic_preemptive_catch(catch_type="budget_exhausted")
+                    self._metrics.record_critic_preemptive_catch(
+                        catch_type="budget_exhausted"
+                    )
 
         return issues
 
@@ -346,7 +354,6 @@ class InformedCriticAgent:
         if self._norm_loader is None:
             return []
 
-        metrics = get_metrics()
         domain = self._domain(problem_frame)
         jurisdiction = self._jurisdiction(bundle, problem_frame)
         norm_pack = self._norm_loader.load_for_context(
@@ -379,7 +386,7 @@ class InformedCriticAgent:
                         suggestion=f"Review prohibition: {prohibition.description[:180]}",
                     )
                 )
-                metrics.record_critic_preemptive_catch(catch_type="norm_prohibition")
+                self._metrics.record_critic_preemptive_catch(catch_type="norm_prohibition")
         return issues
 
     def _merge_issues(

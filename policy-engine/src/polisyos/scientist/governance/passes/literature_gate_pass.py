@@ -1,6 +1,8 @@
 """Gate unsupported causal edges when literature-prior coverage is insufficient."""
 from __future__ import annotations
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
@@ -17,6 +19,7 @@ from polisyos.ir.analytics.cross_graph import (
     load_cross_graph_evidence_profile,
 )
 from polisyos.ir.refs import CrossGraphEvidenceProfileRef
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 logger = get_logger(__name__)
 
@@ -106,10 +109,13 @@ def _resolve_graph(ctx: PassContext) -> CausalGraphModel | None:
     if isinstance(direct, dict):
         try:
             return CausalGraphModel.model_validate(direct)
-        except Exception:
-            logger.warning(
-                "Failed to parse CausalGraphModel from dict",
-                exc_info=True,
+        except (AttributeError, TypeError, ValidationError, ValueError) as exc:
+            emit_degraded_path(
+                component="governance.literature_gate_pass",
+                operation="resolve_graph",
+                reason="graph_parse_failed",
+                exc=exc,
+                log=logger,
             )
             return None
 
@@ -126,11 +132,14 @@ def _resolve_graph(ctx: PassContext) -> CausalGraphModel | None:
         return None
     try:
         return load_causal_graph_model(store, ref)
-    except Exception:
-        logger.warning(
-            "Failed to load causal graph model from ref %s",
-            ref,
-            exc_info=True,
+    except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
+        emit_degraded_path(
+            component="governance.literature_gate_pass",
+            operation="resolve_graph",
+            reason="artifact_load_failed",
+            exc=exc,
+            details={"ref": ref},
+            log=logger,
         )
         return None
 
@@ -149,11 +158,14 @@ def _resolve_cross_graph_profile(ctx: PassContext) -> CrossGraphEvidenceProfile 
     try:
         ref = CrossGraphEvidenceProfileRef.model_validate(raw_ref)
         return load_cross_graph_evidence_profile(store, ref)
-    except Exception:
-        logger.debug(
-            "Failed to resolve cross-graph evidence profile from ref %s",
-            raw_ref,
-            exc_info=True,
+    except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
+        emit_degraded_path(
+            component="governance.literature_gate_pass",
+            operation="resolve_cross_graph_profile",
+            reason="artifact_load_failed",
+            exc=exc,
+            details={"raw_ref": raw_ref},
+            log=logger,
         )
         return None
 

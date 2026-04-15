@@ -10,6 +10,8 @@ from polisyos.ir.analytics.interference import (
     InterferenceMethod,
     NetworkInterferenceReport,
 )
+from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
+from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
@@ -18,6 +20,7 @@ from polisyos.scientist.discovery.utility_judge import (
     HypothesisUtilityScore,
 )
 from polisyos.scientist.governance.backtest_matrix import BacktestKind
+from polisyos.scientist.governance.accountability import GovernanceAccountabilityInput
 from polisyos.scientist.governance.calibration import (
     CalibrationAdversarialResult,
     CalibrationGovernanceReport,
@@ -117,6 +120,60 @@ def _interference_report() -> NetworkInterferenceReport:
     )
 
 
+def _accountability_input() -> GovernanceAccountabilityInput:
+    return GovernanceAccountabilityInput(
+        candidate_id="candidate_policy",
+        model_name="policy_classifier",
+        model_version="2026.04",
+        intended_use="promotion_gate",
+        evaluation_split="holdout",
+        dataset_name="policy_holdout",
+        dataset_version="v1",
+        data_sources=["holdout_snapshot"],
+        predicted_scores=[0.95, 0.80, 0.70, 0.40, 0.65, 0.55, 0.35, 0.10],
+        observed_outcomes=[1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+        protected_attributes={
+            "gender": ["F", "F", "F", "F", "M", "M", "M", "M"],
+            "region": ["urban", "urban", "rural", "rural", "urban", "urban", "rural", "rural"],
+        },
+        causal_fairness_report=CausalFairnessReport(
+            decomposition=FairnessDecomposition(
+                tv=0.16,
+                direct_effect=0.08,
+                indirect_effect=0.03,
+                spurious_effect=0.05,
+                decomposition_residual=0.0,
+                n_obs=8,
+                protected_attribute="gender",
+                outcome="approval",
+                mediators=("income_proxy",),
+                estimation_method="counterfactual",
+            ),
+            counterfactual_fairness_satisfied=False,
+            path_specific_fairness={"A->Y": False},
+            direct_discrimination=0.08,
+            indirect_discrimination=0.03,
+            primary_unfair_pathway="A->Y",
+            recommendation="Direct discrimination remains above threshold.",
+        ),
+        tail_risk_summary=TailRiskDeltaSummary(
+            outcome_name="loss",
+            entries=[
+                TailRiskDeltaEntry(
+                    baseline_quantile=0.95,
+                    threshold_value=0.8,
+                    baseline_exceedance_probability=0.05,
+                    counterfactual_exceedance_probability=0.13,
+                    exceedance_probability_delta=0.08,
+                    baseline_expected_shortfall=0.22,
+                    counterfactual_expected_shortfall=0.34,
+                    expected_shortfall_delta=0.12,
+                )
+            ],
+        ),
+    )
+
+
 def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_lesson(
     tmp_path,
     cas_store,
@@ -149,6 +206,7 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
             },
             baseline_metrics={"policy_value": 100.0, "coverage": 0.9},
             lesson_registry=registry,
+            accountability_input=_accountability_input(),
         )
     )
 
@@ -158,9 +216,15 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     assert result.bundle.stress_scenarios is not None
     assert result.bundle.leaderboard_entry is not None
     assert result.bundle.lesson_card_ref is not None
+    assert result.bundle.governance_accountability_ref is not None
+    assert result.bundle.governance_accountability_summary["risk_weighted_verdict"] == "human_gate"
 
     stored = load_calibration_validation_bundle(cas_store, result.bundle_ref)
     assert stored.readout_summary()["composite_score"] is not None
+    assert stored.readout_summary()["accountability_ref"] is not None
+    assert stored.readout_summary()["requires_human_review"] is True
+    assert stored.readout_summary()["escalation_triggers"]
+    assert stored.readout_summary()["accountability_summary"]["requires_human_review"] is True
 
     card = load_lesson_card(cas_store, result.bundle.lesson_card_ref)
     assert card.stage_name == "calibration_validation"

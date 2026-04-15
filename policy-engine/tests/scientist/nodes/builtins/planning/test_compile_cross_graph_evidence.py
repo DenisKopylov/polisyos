@@ -1,11 +1,23 @@
 from __future__ import annotations
 
+import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.literature import (
     EnvironmentAuditReport,
     LiteratureCausalPrior,
     persist_literature_causal_prior,
+)
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.discovery.priors import (
+    GraphPriorBundle,
+    PriorEdge,
+    persist_graph_prior_bundle,
 )
 from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
     CompileCrossGraphEvidenceNode,
@@ -16,16 +28,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_GRAPH_PRIOR_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
-from polisyos.scientist.discovery.priors import (
-    GraphPriorBundle,
-    PriorEdge,
-    persist_graph_prior_bundle,
-)
-from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
-from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
-from polisyos.ir.governance.policy_spec import PolicySpec
-from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 
 
 def _bundle() -> TrinityBundle:
@@ -313,3 +315,28 @@ def test_compilation_passes_literature_prior_context_into_compiler(
     assert outcome.status == "ok"
     assert captured["literature_prior"] is not None
     assert captured["literature_prior_ref"] == str(prior_ref.artifact_id)
+
+
+def test_compilation_target_context_assertion_not_swallowed(
+    execution_context, minimal_state, monkeypatch: pytest.MonkeyPatch
+):
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "cross_graph_evidence_config": {"enabled": True},
+                "target_context": {"country": "US", "year": 2025},
+            }
+        }
+    )
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("target-context-broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence.ContextProfile.model_validate",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="target-context-broken"):
+        CompileCrossGraphEvidenceNode().execute(execution_context, state)

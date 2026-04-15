@@ -4,16 +4,27 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+import pytest
+
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType
 from polisyos.ir.analytics.literature import LiteratureCausalPrior
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.build_literature_prior import (
     BuildLiteraturePriorNode,
+    _optional_float,
+    _optional_int,
 )
-from polisyos.scientist.nodes.builtins import errors as node_errors
-from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_LITERATURE_PRIOR_REF,
-    INPUT_KNOWLEDGE_BUNDLE_REF,
-)
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_LITERATURE_PRIOR_REF
+
+
+class _AssertionInt:
+    def __int__(self) -> int:
+        raise AssertionError("int invariant")
+
+
+class _AssertionFloat:
+    def __float__(self) -> float:
+        raise AssertionError("float invariant")
 
 
 def test_skip_when_no_causal_variables(execution_context, minimal_state):
@@ -41,6 +52,22 @@ def test_fail_when_pure_step_raises(execution_context, minimal_state):
     assert outcome.status == "fail"
     assert outcome.error is not None
     assert outcome.error.code == node_errors.ERROR_FOUNDRY_EXECUTE_FAILED
+
+
+def test_fail_when_pure_step_assertion_is_not_swallowed(execution_context, minimal_state):
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "causal_variables": ["X", "Y"],
+            },
+        },
+    )
+    with patch(
+        "polisyos.scientist.nodes.builtins.causal.build_literature_prior.BuildLiteraturePrior.pure_step",
+        side_effect=AssertionError("literature invariant"),
+    ):
+        with pytest.raises(AssertionError, match="literature invariant"):
+            BuildLiteraturePriorNode().execute(execution_context, state)
 
 
 def test_fail_when_pure_step_returns_no_prior(execution_context, minimal_state):
@@ -187,3 +214,13 @@ def test_environment_audit_misconfiguration_does_not_fail_node(execution_context
 
     assert outcome.status == "ok"
     assert outcome.state.params["environment_audit_status"] == "degraded"
+
+
+def test_optional_int_assertion_is_not_swallowed() -> None:
+    with pytest.raises(AssertionError, match="int invariant"):
+        _optional_int(_AssertionInt(), default=1)
+
+
+def test_optional_float_assertion_is_not_swallowed() -> None:
+    with pytest.raises(AssertionError, match="float invariant"):
+        _optional_float(_AssertionFloat(), default=0.5)

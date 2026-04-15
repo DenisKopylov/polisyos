@@ -14,7 +14,7 @@
       "type": "string"
     },
     "IntervalSemantics": {
-      "description": "Tell governance/reporting whether an interval is statistical or heuristic.\n\n``UncertaintyEnvelope`` validators use this enum to enforce when\n``confidence_level`` must be present and when the interval must be marked\nnon-gate-eligible.",
+      "description": "Tell governance/reporting whether an interval is statistical or heuristic.",
       "enum": [
         "confidence_interval",
         "credible_interval",
@@ -23,6 +23,192 @@
       ],
       "title": "IntervalSemantics",
       "type": "string"
+    },
+    "MixtureComponent": {
+      "additionalProperties": false,
+      "description": "One component of a mixture distribution carrier.",
+      "properties": {
+        "family": {
+          "$ref": "#/$defs/DistributionFamily"
+        },
+        "parameters": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "weight": {
+          "exclusiveMinimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "weight",
+        "family",
+        "parameters"
+      ],
+      "title": "MixtureComponent",
+      "type": "object"
+    },
+    "MixtureDistributionCarrier": {
+      "additionalProperties": false,
+      "description": "Carry a finite mixture approximation of the posterior distribution.",
+      "properties": {
+        "carrier_type": {
+          "const": "mixture_distribution",
+          "default": "mixture_distribution",
+          "title": "Carrier Type",
+          "type": "string"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/MixtureComponent"
+          },
+          "title": "Components",
+          "type": "array"
+        }
+      },
+      "required": [
+        "components"
+      ],
+      "title": "MixtureDistributionCarrier",
+      "type": "object"
+    },
+    "NumericPolicySpec": {
+      "additionalProperties": false,
+      "description": "Explicit numeric policy for envelope canonicalization.",
+      "properties": {
+        "absolute_tolerance": {
+          "default": 1e-12,
+          "minimum": 0.0,
+          "title": "Absolute Tolerance",
+          "type": "number"
+        },
+        "decimal_places": {
+          "default": 12,
+          "maximum": 15,
+          "minimum": 0,
+          "title": "Decimal Places",
+          "type": "integer"
+        },
+        "mode": {
+          "$ref": "#/$defs/NumericToleranceMode",
+          "default": "float_round_12"
+        },
+        "policy_id": {
+          "default": "bounded_float_v1",
+          "title": "Policy Id",
+          "type": "string"
+        }
+      },
+      "title": "NumericPolicySpec",
+      "type": "object"
+    },
+    "NumericToleranceMode": {
+      "description": "How float payloads are canonicalized before persistence and composition.",
+      "enum": [
+        "decimal_exact",
+        "float_round_12",
+        "hybrid"
+      ],
+      "title": "NumericToleranceMode",
+      "type": "string"
+    },
+    "ParametricFitCarrier": {
+      "additionalProperties": false,
+      "description": "Carry the parameters of a parametric fit used to derive the interval.",
+      "properties": {
+        "carrier_type": {
+          "const": "parametric_fit",
+          "default": "parametric_fit",
+          "title": "Carrier Type",
+          "type": "string"
+        },
+        "family": {
+          "$ref": "#/$defs/DistributionFamily"
+        },
+        "parameters": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "support": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Support"
+        }
+      },
+      "required": [
+        "family",
+        "parameters"
+      ],
+      "title": "ParametricFitCarrier",
+      "type": "object"
+    },
+    "PosteriorSamplesCarrier": {
+      "additionalProperties": false,
+      "description": "Carry posterior/bootstrap draws when an interval alone is not expressive enough.",
+      "properties": {
+        "carrier_type": {
+          "const": "posterior_samples",
+          "default": "posterior_samples",
+          "title": "Carrier Type",
+          "type": "string"
+        },
+        "sample_axis": {
+          "default": "draw",
+          "title": "Sample Axis",
+          "type": "string"
+        },
+        "samples": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Samples",
+          "type": "array"
+        },
+        "weights": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weights"
+        }
+      },
+      "required": [
+        "samples"
+      ],
+      "title": "PosteriorSamplesCarrier",
+      "type": "object"
     },
     "PropagationMethod": {
       "description": "Declare how uncertainty was propagated before the interval reached the IR.",
@@ -34,6 +220,30 @@
       ],
       "title": "PropagationMethod",
       "type": "string"
+    },
+    "QuantileSummaryCarrier": {
+      "additionalProperties": false,
+      "description": "Carry quantile summaries for calibrated posteriors.",
+      "properties": {
+        "carrier_type": {
+          "const": "quantile_summary",
+          "default": "quantile_summary",
+          "title": "Carrier Type",
+          "type": "string"
+        },
+        "quantiles": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Quantiles",
+          "type": "object"
+        }
+      },
+      "required": [
+        "quantiles"
+      ],
+      "title": "QuantileSummaryCarrier",
+      "type": "object"
     },
     "UncertaintySource": {
       "description": "Origin of the uncertainty interval carried in the IR.",
@@ -85,6 +295,40 @@
       "$ref": "#/$defs/DistributionFamily",
       "default": "unknown"
     },
+    "distribution_payload": {
+      "anyOf": [
+        {
+          "discriminator": {
+            "mapping": {
+              "mixture_distribution": "#/$defs/MixtureDistributionCarrier",
+              "parametric_fit": "#/$defs/ParametricFitCarrier",
+              "posterior_samples": "#/$defs/PosteriorSamplesCarrier",
+              "quantile_summary": "#/$defs/QuantileSummaryCarrier"
+            },
+            "propertyName": "carrier_type"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/PosteriorSamplesCarrier"
+            },
+            {
+              "$ref": "#/$defs/QuantileSummaryCarrier"
+            },
+            {
+              "$ref": "#/$defs/ParametricFitCarrier"
+            },
+            {
+              "$ref": "#/$defs/MixtureDistributionCarrier"
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Distribution Payload"
+    },
     "gate_eligible": {
       "default": true,
       "title": "Gate Eligible",
@@ -103,6 +347,9 @@
       "additionalProperties": true,
       "title": "Metadata",
       "type": "object"
+    },
+    "numeric_policy": {
+      "$ref": "#/$defs/NumericPolicySpec"
     },
     "point_estimate": {
       "title": "Point Estimate",

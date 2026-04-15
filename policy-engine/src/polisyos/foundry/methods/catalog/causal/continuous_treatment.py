@@ -282,7 +282,7 @@ class GeneralizedPropensityScoreEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gps",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
@@ -428,7 +428,7 @@ class KernelDoseResponseEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="kernel_dr",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
@@ -580,7 +580,7 @@ class ShiftInterventionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="shift",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
@@ -751,7 +751,7 @@ class EntropyBalancingContinuousEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="entropy_balancing",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="outcome", slot_type=SlotType.VECTOR,

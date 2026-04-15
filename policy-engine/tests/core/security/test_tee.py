@@ -22,7 +22,7 @@ def _report_dict(*, measurement: str = "abc123", age_seconds: int = 30) -> dict[
         "host_data": "host-hash",
         "guest_svn": 5,
         "tcb_version": 7,
-        "report_data_hex": "001122",
+        "report_data_hex": "00",
         "report_hash": "report-hash",
         "signature_validated": True,
         "collected_at": (
@@ -82,3 +82,14 @@ def test_fetch_report_nonce_mismatch_raises(tmp_path: Path) -> None:
     verifier = SEVSNPVerifier(report_path=report_path)
     with pytest.raises(AttestationFetchError):
         verifier.fetch_report(nonce=b"\x00\x11")
+
+
+def test_fetch_report_rejects_prefix_only_nonce_match(tmp_path: Path) -> None:
+    report_path = tmp_path / "report.json"
+    report = _report_dict()
+    report["report_data_hex"] = "001122"
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+
+    verifier = SEVSNPVerifier(report_path=report_path)
+    with pytest.raises(AttestationFetchError, match="nonce does not match"):
+        verifier.fetch_report(nonce=b"\x00")

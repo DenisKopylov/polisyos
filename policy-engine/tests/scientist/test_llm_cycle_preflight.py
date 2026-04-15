@@ -5,6 +5,7 @@ import importlib.util
 import pytest
 
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
+from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
 from polisyos.scientist.llm_cycle import evaluate_iteration, preflight_execution_plan
@@ -36,6 +37,64 @@ def test_preflight_returns_structured_diagnostics_for_cycle_and_missing_methods(
     assert report.ready_to_run is False
     assert "method_catalog.method_missing" in codes
     assert "method_dag.cycle_detected" in codes
+
+
+def test_preflight_accepts_injected_registry_provider(monkeypatch: pytest.MonkeyPatch) -> None:
+    snapshot = build_method_catalog_snapshot(run_id="R_preflight")
+    plan = ExecutionPlan(
+        plan_id="plan_registry_override",
+        run_id="R_preflight",
+        method_dag=[
+            MethodDagNode(
+                node_id="node_missing",
+                method_fqn="missing.method.override@1.0.0",
+            )
+        ],
+    )
+    registry = MethodRegistry()
+
+    def _unexpected(cls, *args, **kwargs):
+        del cls, args, kwargs
+        raise AssertionError("global registry lookup should not be used")
+
+    monkeypatch.setattr(MethodRegistry, "get_instance", classmethod(_unexpected))
+
+    report = preflight_execution_plan(plan, snapshot, registry=registry)
+
+    assert report.ready_to_run is False
+    assert any(item.code == "method_catalog.method_missing" for item in report.diagnostics)
+
+
+def test_preflight_accepts_registry_provider_without_explicit_registry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    snapshot = build_method_catalog_snapshot(run_id="R_preflight_provider")
+    plan = ExecutionPlan(
+        plan_id="plan_registry_provider_override",
+        run_id="R_preflight_provider",
+        method_dag=[
+            MethodDagNode(
+                node_id="node_missing",
+                method_fqn="missing.method.provider@1.0.0",
+            )
+        ],
+    )
+    registry = MethodRegistry()
+
+    def _unexpected(cls, *args, **kwargs):
+        del cls, args, kwargs
+        raise AssertionError("global registry lookup should not be used")
+
+    monkeypatch.setattr(MethodRegistry, "get_instance", classmethod(_unexpected))
+
+    report = preflight_execution_plan(
+        plan,
+        snapshot,
+        registry_provider=lambda: registry,
+    )
+
+    assert report.ready_to_run is False
+    assert any(item.code == "method_catalog.method_missing" for item in report.diagnostics)
 
 
 @pytest.mark.skipif(_Y0_INSTALLED, reason="y0 is installed — symbolic_identify is available, test verifies unavailable scenario")

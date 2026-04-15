@@ -9,7 +9,8 @@ import json
 from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 
 from .models import BindingProfile, BindingRuleSpec
@@ -42,7 +43,7 @@ def resolve_binding_rules(profile: BindingProfile) -> list[dict[str, Any]]:
 
 
 def persist_binding_rules_artifact(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     profile: BindingProfile,
     data_snapshot_ref: str | None = None,
 ) -> ArtifactRef:
@@ -64,7 +65,7 @@ def persist_binding_rules_artifact(
 
     return store.put_json(
         payload,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="fabric.binding_rules",
             media_type="application/json",
             schema=SchemaInfo(

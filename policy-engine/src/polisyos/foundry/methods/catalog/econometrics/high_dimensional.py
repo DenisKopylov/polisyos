@@ -59,7 +59,7 @@ class PostLASSOEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="post_lasso",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -162,7 +162,7 @@ class PostDoubleSelectionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="post_double_selection",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

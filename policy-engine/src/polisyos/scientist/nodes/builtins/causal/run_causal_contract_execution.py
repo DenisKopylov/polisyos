@@ -8,7 +8,8 @@ downstream decision packaging and audit.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any
+
+from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -25,6 +26,7 @@ from polisyos.scientist.causal.execution import BoundsEstimationRunner
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_BOUNDS_BUNDLE_REF,
@@ -64,6 +66,8 @@ _SPEC = NodeSpec(
         ARTIFACT_EFFECT_TRAJECTORY_BUNDLE_REF,
     ],
 )
+
+_CAUSAL_CONTRACT_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 
 
 def _artifact_input_ref(ref: ArtifactRefModel | None, *, role: str) -> InputRef | None:
@@ -135,7 +139,7 @@ class RunCausalContractExecutionNode:
                 task if isinstance(task, TemporalDTRTask) else TemporalDTRTask.model_validate(task)
                 for task in (temporal_payload or [])
             ]
-        except Exception as exc:
+        except _CAUSAL_CONTRACT_VALIDATION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -178,7 +182,15 @@ class RunCausalContractExecutionNode:
             inputs=aggregate_inputs,
         )
 
-        next_state = state.model_copy(deep=True)
+        next_state = branch_state(
+            state,
+            write_paths=(
+                f"artifacts_index.{ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_BOUNDS_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_DYNAMIC_TREATMENT_REGIME_REF}",
+                f"artifacts_index.{ARTIFACT_EFFECT_TRAJECTORY_BUNDLE_REF}",
+            ),
+        ).state
         next_state.artifacts_index[ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF] = ArtifactRef.model_validate(
             aggregate_ref.model_dump(mode="json")
         )

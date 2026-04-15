@@ -58,10 +58,7 @@ class TestNearSingularMatrix:
         self, near_singular_regression_data, isolated_registry
     ):
         fqn = "bayesian.regression.linear_regression@1.0.0"
-        try:
-            method_cls = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method_cls = isolated_registry.get(fqn)
 
         # Must complete without raising (may produce NaN/Inf which monitor catches)
         result = method_cls.pure_step(near_singular_regression_data, {"seed": 0})
@@ -75,22 +72,22 @@ class TestNearSingularMatrix:
         instrument = rng.standard_normal(n)
         treatment = 1e-10 * instrument + rng.standard_normal(n)  # essentially useless IV
         outcome = treatment * 2.0 + rng.standard_normal(n)
+        entity_ids = np.repeat(np.arange(n // 2), 2).astype(np.int64)
         return {
-            "outcome": outcome.astype(np.float64),
-            "treatment": treatment.astype(np.float64),
-            "instrument": instrument.astype(np.float64),
+            "dependent": outcome.astype(np.float64),
+            "exog": np.column_stack([treatment, np.ones(n)]).astype(np.float64),
+            "instrument_ids": instrument.reshape(-1, 1).astype(np.float64),
+            "entity_ids": entity_ids,
+            "time_ids": np.tile(np.array([0, 1], dtype=np.int64), n // 2),
         }
 
     def test_iv_weak_instrument_does_not_crash(
         self, near_singular_iv_data, isolated_registry
     ):
-        fqn = "econometrics.iv.two_stage_ls@1.0.0"
-        try:
-            method_cls = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        fqn = "econometrics.iv.two_stage_least_squares@1.0.0"
+        method_cls = isolated_registry.get(fqn)
 
-        result = method_cls.pure_step(near_singular_iv_data, {})
+        result = method_cls.pure_step(near_singular_iv_data, {"n_endogenous": 1})
         _assert_output_finite_or_warned(result, fqn)
 
 
@@ -102,40 +99,34 @@ class TestExtremeMagnitudes:
     @pytest.fixture()
     def extreme_large_data(self):
         rng = np.random.default_rng(2)
-        n = 80
+        n_units = 20
+        n_periods = 4
         return {
-            "outcome": (rng.standard_normal(n) * 1e10).astype(np.float64),
-            "treatment": (rng.standard_normal(n) > 0).astype(np.float64),
-            "entity_id": np.repeat(np.arange(20), 4).astype(np.int64),
-            "time_id": np.tile(np.arange(4), 20).astype(np.int64),
+            "outcome": (rng.standard_normal((n_units, n_periods)) * 1e10).astype(np.float64),
+            "treatment": (rng.standard_normal(n_units) > 0).astype(np.float64),
+            "time_treatment": 2,
         }
 
     @pytest.fixture()
     def extreme_small_data(self):
         rng = np.random.default_rng(3)
-        n = 80
+        n_units = 20
+        n_periods = 4
         return {
-            "outcome": (rng.standard_normal(n) * 1e-10).astype(np.float64),
-            "treatment": (rng.standard_normal(n) > 0).astype(np.float64),
-            "entity_id": np.repeat(np.arange(20), 4).astype(np.int64),
-            "time_id": np.tile(np.arange(4), 20).astype(np.int64),
+            "outcome": (rng.standard_normal((n_units, n_periods)) * 1e-10).astype(np.float64),
+            "treatment": (rng.standard_normal(n_units) > 0).astype(np.float64),
+            "time_treatment": 2,
         }
 
     def test_did_extreme_large_does_not_crash(self, extreme_large_data, isolated_registry):
-        fqn = "causal.did.standard@1.0.0"
-        try:
-            method_cls = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        fqn = "causal.inference.did.standard@1.0.0"
+        method_cls = isolated_registry.get(fqn)
         result = method_cls.pure_step(extreme_large_data, {})
         _assert_output_finite_or_warned(result, fqn)
 
     def test_did_extreme_small_does_not_crash(self, extreme_small_data, isolated_registry):
-        fqn = "causal.did.standard@1.0.0"
-        try:
-            method_cls = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        fqn = "causal.inference.did.standard@1.0.0"
+        method_cls = isolated_registry.get(fqn)
         result = method_cls.pure_step(extreme_small_data, {})
         _assert_output_finite_or_warned(result, fqn)
 
@@ -148,20 +139,17 @@ class TestZeroVariance:
     @pytest.fixture()
     def zero_variance_data(self):
         """Outcome is constant — zero variance."""
-        n = 60
+        n_units = 15
+        n_periods = 4
         return {
-            "outcome": np.zeros(n, dtype=np.float64),
-            "treatment": (np.arange(n) >= 30).astype(np.float64),
-            "entity_id": np.repeat(np.arange(15), 4).astype(np.int64),
-            "time_id": np.tile(np.arange(4), 15).astype(np.int64),
+            "outcome": np.zeros((n_units, n_periods), dtype=np.float64),
+            "treatment": (np.arange(n_units) >= n_units // 2).astype(np.float64),
+            "time_treatment": 2,
         }
 
     def test_did_zero_variance_does_not_crash(self, zero_variance_data, isolated_registry):
-        fqn = "causal.did.standard@1.0.0"
-        try:
-            method_cls = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        fqn = "causal.inference.did.standard@1.0.0"
+        method_cls = isolated_registry.get(fqn)
         # Should not raise — might return zeros or NaN (monitored)
         try:
             result = method_cls.pure_step(zero_variance_data, {})
@@ -187,20 +175,16 @@ class TestMinimumSampleSizes:
     def tiny_panel_data(self):
         """Smallest possible panel: 2 entities × 2 periods = 4 observations."""
         return {
-            "outcome": np.array([1.0, 1.5, 2.0, 2.5]),
-            "treatment": np.array([0.0, 0.0, 1.0, 1.0]),
-            "entity_id": np.array([0, 0, 1, 1], dtype=np.int64),
-            "time_id": np.array([0, 1, 0, 1], dtype=np.int64),
+            "outcome": np.array([[1.0, 1.5], [2.0, 2.5]], dtype=np.float64),
+            "treatment": np.array([0.0, 1.0], dtype=np.float64),
+            "time_treatment": 1,
         }
 
     def test_did_minimum_sample_does_not_silently_corrupt(
         self, tiny_panel_data, isolated_registry
     ):
-        fqn = "causal.did.standard@1.0.0"
-        try:
-            method_cls = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        fqn = "causal.inference.did.standard@1.0.0"
+        method_cls = isolated_registry.get(fqn)
 
         try:
             result = method_cls.pure_step(tiny_panel_data, {})
@@ -214,10 +198,7 @@ class TestMinimumSampleSizes:
     def test_lp_minimum_constraints(self, isolated_registry):
         """LP with single constraint and single variable."""
         fqn = "optimization.linear.resource_lp@1.0.0"
-        try:
-            method_cls = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method_cls = isolated_registry.get(fqn)
 
         state = {
             "c": np.array([-1.0]),       # minimize -x (= maximize x)

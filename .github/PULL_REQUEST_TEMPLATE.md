@@ -106,7 +106,7 @@ Owned areas touched:
 
 ## Validation
 
-- [ ] `./scripts/verify` or an equivalent scoped validation path passed.
+- [ ] `uv run polisyos-tools workspace verify` or an equivalent scoped validation path passed.
 - [ ] I called out any checks I did not run and why.
 
 Skipped checks / follow-up:

@@ -24,8 +24,6 @@ All levels:
 """
 from __future__ import annotations
 
-import pytest
-
 from polisyos.foundry.methods.base import FidelityLevel, parse_fqn
 from polisyos.foundry.methods.resolution import SemVer
 
@@ -139,12 +137,10 @@ class TestFidelityTierContracts:
                 continue
             if not entry.metadata.tags:
                 failures.append(sig.fqn)
-        # Informational: warn rather than fail hard (some MEDIUM methods may lack tags)
-        if failures:
-            pytest.xfail(
-                f"{len(failures)} MEDIUM-fidelity method(s) have no tags: "
-                + ", ".join(failures[:5])
-            )
+        assert not failures, (
+            f"{len(failures)} MEDIUM-fidelity method(s) have no tags:\n"
+            + "\n".join(failures[:20])
+        )
 
     def test_fidelity_level_is_valid_enum(self, module_registry):
         """Every method must declare a recognized FidelityLevel."""

@@ -13,14 +13,17 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import multiprocessing as mp
+import queue
 import random
 import time
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
-from datetime import datetime, timezone
+from concurrent.futures import TimeoutError as FuturesTimeoutError
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from polisyos.common.async_tools import get_shared_executor, run_blocking_async
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.scientist.engine.errors import (
@@ -29,6 +32,7 @@ from polisyos.scientist.engine.errors import (
     RetryExhaustedError,
 )
 from polisyos.scientist.engine.protocol import NodeError, NodeOutcome
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.scientist.engine.circuit_breaker import CircuitBreaker
@@ -36,6 +40,27 @@ if TYPE_CHECKING:
     from polisyos.scientist.engine.state import ExperimentState
 
 _logger = logging.getLogger(__name__)
+
+_RETRY_RUNTIME_ERRORS = (
+    ArithmeticError,
+    AssertionError,
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
+_DEAD_LETTER_PERSIST_ERRORS = (
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 
 class RetryPolicy(BaseModel):
@@ -67,9 +92,9 @@ def _backoff_delay(attempt: int, policy: RetryPolicy) -> float:
     if policy.jitter == "none":
         return base
     if policy.jitter == "full":
-        return random.uniform(0, base)  # noqa: S311
+        return random.uniform(0, base)
     # "equal" jitter: half deterministic + half random
-    return base / 2 + random.uniform(0, base / 2)  # noqa: S311
+    return base / 2 + random.uniform(0, base / 2)
 
 
 def _persist_dead_letter(
@@ -84,13 +109,16 @@ def _persist_dead_letter(
     try:
         payload = {
             "kind": "scientist.dead_letter",
+            "run_id": getattr(ctx.run.run_manifest, "run_id", ""),
             "alias": alias,
             "node_id": node_id,
             "error_type": type(last_error).__name__,
             "error_message": str(last_error),
             "attempts": attempts,
-            "policy": policy.model_dump(),
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            # Canonical JSON forbids floats, so retain numeric retry knobs as
+            # strings and let Pydantic coerce them back during replay.
+            "policy": _serialize_dead_letter_policy(policy),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         return ctx.store.put_json(
             payload,
@@ -103,9 +131,33 @@ def _persist_dead_letter(
                 ),
             ),
         )
-    except Exception:  # noqa: BLE001 — DLQ must never crash retry flow
-        _logger.debug("Failed to persist dead-letter artifact for node %s", alias)
+    except _DEAD_LETTER_PERSIST_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.engine.retry",
+            operation="persist_dead_letter",
+            reason="dead_letter_persist_failed",
+            exc=exc,
+            details={"alias": alias, "node_id": node_id, "attempts": attempts},
+            log=_logger,
+        )
         return None
+
+
+def _serialize_dead_letter_policy(policy: RetryPolicy) -> dict[str, Any]:
+    raw = policy.model_dump(mode="python")
+    serialized: dict[str, Any] = {}
+    for key, value in raw.items():
+        if isinstance(value, float):
+            serialized[key] = str(value)
+            continue
+        if isinstance(value, list):
+            serialized[key] = [
+                str(item) if isinstance(item, float) else item
+                for item in value
+            ]
+            continue
+        serialized[key] = value
+    return serialized
 
 
 def execute_with_retry_sync(
@@ -128,7 +180,6 @@ def execute_with_retry_sync(
     if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
         return node.execute(ctx, state)
 
-    last_error: Exception | None = None
     last_outcome: NodeOutcome | None = None
     node_id = str(getattr(node, "spec", None) and node.spec.metadata.component_id or alias)
 
@@ -175,8 +226,7 @@ def execute_with_retry_sync(
             raise
         except KeyboardInterrupt:
             raise
-        except Exception as exc:  # noqa: BLE001
-            last_error = exc
+        except _RETRY_RUNTIME_ERRORS as exc:
             if circuit_breaker is not None:
                 circuit_breaker.record_failure()
             if attempt < retry_policy.max_retries:
@@ -222,15 +272,132 @@ def _execute_with_timeout_sync(
     *,
     timeout_s: float,
 ) -> NodeOutcome:
-    with ThreadPoolExecutor(max_workers=1) as pool:
-        future = pool.submit(node.execute, ctx, state)
-        try:
-            return future.result(timeout=timeout_s)
-        except FuturesTimeoutError:
-            future.cancel()
-            raise NodeTimeoutError(
-                f"Node exceeded timeout of {timeout_s}s",
-            ) from None
+    if _can_use_forked_timeout_worker():
+        return _execute_with_timeout_process(node, ctx, state, timeout_s=timeout_s)
+
+    future = get_shared_executor().submit(node.execute, ctx, state)
+    try:
+        return future.result(timeout=timeout_s)
+    except FuturesTimeoutError:
+        future.cancel()
+        raise NodeTimeoutError(
+            f"Node exceeded timeout of {timeout_s}s",
+        ) from None
+
+
+def _can_use_forked_timeout_worker() -> bool:
+    try:
+        return "fork" in mp.get_all_start_methods()
+    except (RuntimeError, ValueError):
+        return False
+
+
+def _execute_with_timeout_process(
+    node: Any,
+    ctx: "ExecutionContext",
+    state: "ExperimentState",
+    *,
+    timeout_s: float,
+) -> NodeOutcome:
+    mp_ctx = mp.get_context("fork")
+    result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
+    process = mp_ctx.Process(
+        target=_node_execute_worker,
+        args=(node, ctx, state, result_queue),
+        daemon=True,
+    )
+    process.start()
+    process.join(timeout=timeout_s)
+    if process.is_alive():
+        process.terminate()
+        process.join(timeout=1.0)
+        if process.is_alive():
+            process.kill()
+            process.join(timeout=1.0)
+        result_queue.close()
+        result_queue.join_thread()
+        raise NodeTimeoutError(
+            f"Node exceeded timeout of {timeout_s}s",
+        ) from None
+
+    try:
+        status, payload = result_queue.get_nowait()
+    except queue.Empty as exc:
+        raise RuntimeError(
+            f"Node timeout worker exited without result (exitcode={process.exitcode})"
+        ) from exc
+    finally:
+        result_queue.close()
+        result_queue.join_thread()
+
+    if status == "ok":
+        return NodeOutcome.model_validate(payload)
+    if status == "error":
+        raise RuntimeError(str(payload))
+    raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")
+
+
+async def _execute_with_timeout_process_async(
+    node: Any,
+    ctx: "ExecutionContext",
+    state: "ExperimentState",
+    *,
+    timeout_s: float,
+) -> NodeOutcome:
+    mp_ctx = mp.get_context("fork")
+    result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
+    process = mp_ctx.Process(
+        target=_node_execute_worker,
+        args=(node, ctx, state, result_queue),
+        daemon=True,
+    )
+    process.start()
+    deadline = time.monotonic() + timeout_s
+    while process.is_alive() and time.monotonic() < deadline:
+        await asyncio.sleep(min(0.01, max(0.0, deadline - time.monotonic())))
+    if process.is_alive():
+        process.terminate()
+        process.join(timeout=1.0)
+        if process.is_alive():
+            process.kill()
+            process.join(timeout=1.0)
+        result_queue.close()
+        result_queue.join_thread()
+        raise NodeTimeoutError(
+            f"Node exceeded timeout of {timeout_s}s",
+        ) from None
+
+    try:
+        status, payload = result_queue.get_nowait()
+    except queue.Empty as exc:
+        raise RuntimeError(
+            f"Node timeout worker exited without result (exitcode={process.exitcode})"
+        ) from exc
+    finally:
+        result_queue.close()
+        result_queue.join_thread()
+
+    if status == "ok":
+        return NodeOutcome.model_validate(payload)
+    if status == "error":
+        raise RuntimeError(str(payload))
+    raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")
+
+
+def _node_execute_worker(
+    node: Any,
+    ctx: "ExecutionContext",
+    state: "ExperimentState",
+    result_queue: mp.Queue[Any],
+) -> None:
+    try:
+        outcome = node.execute(ctx, state)
+        if hasattr(outcome, "model_dump"):
+            result_queue.put(("ok", outcome.model_dump(mode="python")))
+        else:
+            result_queue.put(("error", f"invalid node outcome: {type(outcome).__name__}"))
+    except _RETRY_RUNTIME_ERRORS as exc:
+        result_queue.put(("error", f"{type(exc).__name__}: {exc}"))
 
 
 async def execute_with_retry_async(
@@ -259,7 +426,23 @@ async def execute_with_retry_async(
     async def _invoke() -> "NodeOutcome":
         if _has_async:
             return await node.execute_async(ctx, state)
-        return await asyncio.to_thread(node.execute, ctx, state)
+        if timeout_s is not None:
+            if _can_use_forked_timeout_worker():
+                return await _execute_with_timeout_process_async(
+                    node,
+                    ctx,
+                    state,
+                    timeout_s=timeout_s,
+                )
+            return await run_blocking_async(
+                _execute_with_timeout_sync,
+                node,
+                ctx,
+                state,
+                timeout_s=timeout_s,
+                timeout_seconds=timeout_s,
+            )
+        return await run_blocking_async(node.execute, ctx, state)
 
     # Fast path
     if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
@@ -278,8 +461,8 @@ async def execute_with_retry_async(
             )
 
         try:
-            coro = _invoke()
-            if timeout_s is not None:
+            if timeout_s is not None and _has_async:
+                coro = _invoke()
                 try:
                     outcome = await asyncio.wait_for(coro, timeout=timeout_s)
                 except asyncio.TimeoutError:
@@ -287,7 +470,7 @@ async def execute_with_retry_async(
                         f"Node exceeded timeout of {timeout_s}s",
                     ) from None
             else:
-                outcome = await coro
+                outcome = await _invoke()
 
             if outcome.status != "fail":
                 if circuit_breaker is not None:
@@ -318,7 +501,7 @@ async def execute_with_retry_async(
         except asyncio.CancelledError:
             _logger.info("Node %s cancelled during attempt %d", alias, attempt)
             raise
-        except Exception as exc:  # noqa: BLE001
+        except _RETRY_RUNTIME_ERRORS as exc:
             if circuit_breaker is not None:
                 circuit_breaker.record_failure()
             if attempt < retry_policy.max_retries:

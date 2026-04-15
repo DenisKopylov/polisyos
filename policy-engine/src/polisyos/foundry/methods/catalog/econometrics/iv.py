@@ -339,7 +339,7 @@ class InstrumentalVariablesEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="instrumental_variables",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -424,7 +424,7 @@ class TwoStageLeastSquaresEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="two_stage_least_squares",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_iv_input_slots(),
         output_slots=_iv_output_slots(),
@@ -486,7 +486,7 @@ class GMMEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gmm",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_iv_input_slots(),
         output_slots=_iv_output_slots(),

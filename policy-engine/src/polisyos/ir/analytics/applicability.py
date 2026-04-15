@@ -5,6 +5,7 @@ import re
 
 from pydantic import Field, field_validator, model_validator
 
+from polisyos.ir._validation import ensure_interval_monotonicity, ensure_unique_ids
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
@@ -20,9 +21,13 @@ class TimeWindow(KernelModel):
 
     @model_validator(mode="after")
     def validate_time_window(self) -> "TimeWindow":
-        if self.valid_from is not None and self.valid_to is not None:
-            if self.valid_to < self.valid_from:
-                raise ValueError("valid_to must be >= valid_from")
+        ensure_interval_monotonicity(
+            self.valid_from,
+            self.valid_to,
+            label="time window",
+            start_name="valid_from",
+            end_name="valid_to",
+        )
         return self
 
 
@@ -36,8 +41,7 @@ class IdSelector(KernelModel):
     @field_validator("any_of", "all_of", "none_of")
     @classmethod
     def validate_ids(cls, values: list[str]) -> list[str]:
-        if len(values) != len(set(values)):
-            raise ValueError("duplicate ids are not allowed")
+        ensure_unique_ids(values, key_fn=lambda item: item, label="ids")
         for value in values:
             if _ID_RE.match(value) is None:
                 raise ValueError(f"id '{value}' does not match {ID_PATTERN}")

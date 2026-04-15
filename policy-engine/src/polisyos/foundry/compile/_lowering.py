@@ -60,6 +60,18 @@ TRINITY_FIELD_COVERAGE: dict[str, dict[str, CoverageEntry]] = {
         "interventions": CoverageEntry("runtime", "foundry.lowering.mechanisms"),
         "mechanism_bindings": CoverageEntry("runtime", "foundry.lowering.mechanisms"),
         "parameters": CoverageEntry("compile_only", "foundry.lowering.parameter_specs"),
+        "temporal_constraints": CoverageEntry(
+            "governance_only",
+            "scientist.governance.temporal_policy_constraints",
+        ),
+        "composition": CoverageEntry(
+            "governance_only",
+            "scientist.governance.policy_composition",
+        ),
+        "mechanism_design": CoverageEntry(
+            "governance_only",
+            "scientist.governance.mechanism_design",
+        ),
         "global_schedule": CoverageEntry("runtime", "foundry.lowering.schedule"),
         "name": CoverageEntry("explicit_noop", "non_executable_metadata"),
         "description": CoverageEntry("explicit_noop", "non_executable_metadata"),
@@ -314,10 +326,14 @@ def _merge_effective_params(
     intervention: InterventionSpec,
 ) -> dict[str, Any]:
     defaults: dict[str, Any] = {}
+    missing = object()
     if mechanism_spec is not None:
-        for param_id in mechanism_spec.params:
-            if param_id in defaults:
-                continue
+        for param_id, param_spec in mechanism_spec.params.items():
+            default_value = getattr(param_spec, "default_value", missing)
+            if default_value is missing:
+                default_value = getattr(param_spec, "default", missing)
+            if default_value is not missing and param_id not in defaults:
+                defaults[param_id] = default_value
     merged = dict(defaults)
     merged.update(binding.config_overrides)
     merged.update(intervention.params)

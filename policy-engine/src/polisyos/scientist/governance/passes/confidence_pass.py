@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any, List
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -10,6 +12,8 @@ from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.governance.accountability import resolve_governance_threshold
 
 
 class ConfidencePass(ValidatorPass):
@@ -49,7 +53,21 @@ class ConfidencePass(ValidatorPass):
             try:
                 payload = from_canonical_bytes(store.get_bytes(sim_result_id))
                 sim_result = SimulationResult.model_validate(payload)
-            except Exception as exc:
+            except (
+                AttributeError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValidationError,
+                ValueError,
+            ) as exc:
+                emit_degraded_path(
+                    component="governance.confidence_pass",
+                    operation="load_simulation_result",
+                    reason="artifact_load_failed",
+                    exc=exc,
+                    details={"simulation_result_id": str(sim_result_id)},
+                )
                 return [
                     ComplianceIssue(
                         pass_id=self.pass_id,
@@ -70,10 +88,18 @@ class ConfidencePass(ValidatorPass):
         if not envelope_refs:
             return issues
 
-        max_ci_ratio = float(ctx.profile.thresholds.get("uncertainty_max_ci_width_ratio", 1.0))
-        max_ci_abs = float(ctx.profile.thresholds.get("uncertainty_max_ci_width_abs", float("inf")))
-        min_gate_ratio = float(
-            ctx.profile.thresholds.get("uncertainty_min_gate_eligible_ratio", 0.0)
+        max_ci_ratio = resolve_governance_threshold(
+            "uncertainty_max_ci_width_ratio",
+            ctx.profile.thresholds,
+        )
+        max_ci_abs = resolve_governance_threshold(
+            "uncertainty_max_ci_width_abs",
+            ctx.profile.thresholds,
+            fallback=float("inf"),
+        )
+        min_gate_ratio = resolve_governance_threshold(
+            "uncertainty_min_gate_eligible_ratio",
+            ctx.profile.thresholds,
         )
 
         n_total = 0
@@ -81,7 +107,21 @@ class ConfidencePass(ValidatorPass):
         for metric_id, ref in envelope_refs.items():
             try:
                 env = load_uncertainty_envelope(store, ref)
-            except Exception:
+            except (
+                AttributeError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValidationError,
+                ValueError,
+            ) as exc:
+                emit_degraded_path(
+                    component="governance.confidence_pass",
+                    operation="load_uncertainty_envelope",
+                    reason="artifact_load_failed",
+                    exc=exc,
+                    details={"metric_id": str(metric_id)},
+                )
                 issues.append(
                     ComplianceIssue(
                         pass_id=self.pass_id,
@@ -153,7 +193,7 @@ class ConfidencePass(ValidatorPass):
 
 def _resolve_store(state: dict[str, Any]) -> FileSystemCAS | None:
     store = state.get("_store")
-    return store if isinstance(store, FileSystemCAS) else None
+    return store if store is not None and hasattr(store, "get_bytes") and hasattr(store, "put_json") else None
 
 
 def _resolve_simulation_result_id(state: dict[str, Any]) -> ArtifactID | None:
@@ -169,7 +209,14 @@ def _resolve_simulation_result_id(state: dict[str, Any]) -> ArtifactID | None:
     if isinstance(explicit, str):
         try:
             return ArtifactID.model_validate(explicit)
-        except Exception:
+        except (TypeError, ValidationError, ValueError) as exc:
+            emit_degraded_path(
+                component="governance.confidence_pass",
+                operation="resolve_simulation_result_id",
+                reason="artifact_ref_parse_failed",
+                exc=exc,
+                details={"simulation_result_ref": explicit},
+            )
             return None
     if hasattr(explicit, "artifact_id"):
         return explicit.artifact_id

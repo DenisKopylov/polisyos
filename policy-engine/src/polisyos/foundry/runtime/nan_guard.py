@@ -3,9 +3,14 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.observability import get_metrics
+from polisyos.foundry.methods.exceptions import (
+    NaNGuardConfigurationError,
+    NaNGuardEvaluationError,
+)
 
 
 class NaNDiagnostic(BaseModel):
@@ -124,65 +129,69 @@ class NaNGuard:
             return True
 
         self._checks_performed += 1
-        if slot_id in state:
-            value = state[slot_id]
-        else:
-            if len(state) == 1:
-                value = next(iter(state.values()))
-            else:
-                return True
+        if slot_id not in state:
+            raise NaNGuardConfigurationError(
+                slot_id,
+                mechanism_id,
+                "slot is missing from provided state payload",
+            )
 
+        import jax.numpy as jnp
+
+        value = state[slot_id]
         try:
-            import jax.numpy as jnp
-
             arr = jnp.asarray(value)
-            nan_mask = jnp.isnan(arr)
-            inf_mask = jnp.isinf(arr)
+        except (TypeError, ValueError, RuntimeError) as exc:
+            raise NaNGuardEvaluationError(
+                slot_id,
+                mechanism_id,
+                f"failed to coerce value to array: {exc}",
+            ) from exc
 
-            has_nan = bool(jnp.any(nan_mask))
-            has_inf = bool(jnp.any(inf_mask))
-            if not has_nan and not has_inf:
-                return True
+        nan_mask = jnp.isnan(arr)
+        inf_mask = jnp.isinf(arr)
 
-            nan_count = int(jnp.sum(nan_mask))
-            inf_count = int(jnp.sum(inf_mask))
-
-            problem_mask = nan_mask | inf_mask
-            indices = jnp.where(problem_mask.flatten())[0]
-            sample_indices = indices[:10].tolist()
-
-            valid_mask = ~problem_mask
-            has_valid = bool(jnp.any(valid_mask))
-            if has_valid:
-                valid_values = arr[valid_mask]
-                value_stats = {
-                    "min": float(jnp.min(valid_values)),
-                    "max": float(jnp.max(valid_values)),
-                    "mean": float(jnp.mean(valid_values)),
-                }
-            else:
-                value_stats = {}
-
-            if len(self._diagnostics) < self._max_diagnostics:
-                diagnostic = NaNDiagnostic(
-                    slot_id=slot_id,
-                    mechanism_id=mechanism_id,
-                    time_step=time_step,
-                    nan_count=nan_count,
-                    inf_count=inf_count,
-                    sample_indices=sample_indices,
-                    possible_cause=self._diagnose_cause(slot_id, mechanism_id),
-                    value_stats=value_stats,
-                )
-                self._diagnostics.append(diagnostic)
-                if self._first_failure_step is None:
-                    self._first_failure_step = time_step
-
-            self._metrics.record_slo_simulation_nan(method=mechanism_id)
-            return False
-
-        except Exception:
+        has_nan = bool(jnp.any(nan_mask))
+        has_inf = bool(jnp.any(inf_mask))
+        if not has_nan and not has_inf:
             return True
+
+        nan_count = int(jnp.sum(nan_mask))
+        inf_count = int(jnp.sum(inf_mask))
+
+        problem_mask = nan_mask | inf_mask
+        indices = jnp.where(problem_mask.flatten())[0]
+        sample_indices = [int(index) for index in np.asarray(indices[:10]).tolist()]
+
+        valid_mask = ~problem_mask
+        has_valid = bool(jnp.any(valid_mask))
+        if has_valid:
+            valid_values = arr[valid_mask]
+            value_stats = {
+                "min": float(jnp.min(valid_values)),
+                "max": float(jnp.max(valid_values)),
+                "mean": float(jnp.mean(valid_values)),
+            }
+        else:
+            value_stats = {}
+
+        if len(self._diagnostics) < self._max_diagnostics:
+            diagnostic = NaNDiagnostic(
+                slot_id=slot_id,
+                mechanism_id=mechanism_id,
+                time_step=time_step,
+                nan_count=nan_count,
+                inf_count=inf_count,
+                sample_indices=sample_indices,
+                possible_cause=self._diagnose_cause(slot_id, mechanism_id),
+                value_stats=value_stats,
+            )
+            self._diagnostics.append(diagnostic)
+            if self._first_failure_step is None:
+                self._first_failure_step = time_step
+
+        self._metrics.record_slo_simulation_nan(method=mechanism_id)
+        return False
 
     def check_array(
         self,

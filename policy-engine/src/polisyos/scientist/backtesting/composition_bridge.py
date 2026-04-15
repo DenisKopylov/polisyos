@@ -2,13 +2,18 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
+from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
+    load_composition_failure_card_bundle,
+)
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentVerificationConfig,
     load_alignment_report,
@@ -20,16 +25,12 @@ from polisyos.ir.analytics.causal_graph import (
     load_causal_graph_model,
     persist_causal_graph_model,
 )
-from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.analytics.cross_graph import (
     SCMFragment,
     load_composition_certificate,
     load_interface_mapping,
     persist_interface_mapping,
     persist_scm_fragment,
-)
-from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
-    load_composition_failure_card_bundle,
 )
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
@@ -41,6 +42,27 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_INTERFACE_MAPPING_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.causal_queries import CausalQuery
+    from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
+    type CompositionStore = CoreArtifactStore
+else:
+    IRArtifactStore = Any
+    CausalQuery = Any
+    CompositionStore = CoreArtifactStore
+
+
+CompositionStoreFactory = Callable[[Path], CompositionStore]
+
+
+def _default_composition_store_factory(root: Path) -> CompositionStore:
+    from polisyos.core.artifacts.backends.config import (
+        ArtifactStoreConfig,
+        build_artifact_store,
+    )
+
+    return build_artifact_store(ArtifactStoreConfig(root=str(root)))
 
 
 @dataclass(frozen=True)
@@ -72,6 +94,8 @@ def replay_fragment_composition_case(
     precompute_alignment: bool = False,
     direct_stitch_pairs: list[tuple[str, str]] | None = None,
     cas_root: str,
+    store: CoreArtifactStore | None = None,
+    store_factory: CompositionStoreFactory | None = None,
 ) -> CompositionReplayResult:
     """Replay one fragment-composition benchmark and normalize the persisted diagnostics.
 
@@ -92,15 +116,19 @@ def replay_fragment_composition_case(
     Raises:
         RuntimeError: If `ReconcileCausalGraphNode` fails for the replay case.
     """
-    store = FileSystemCAS(Path(cas_root))
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    resolved_store = store
+    if resolved_store is None:
+        factory = store_factory or _default_composition_store_factory
+        resolved_store = factory(Path(cas_root))
+    ir_store: IRArtifactStore = ensure_ir_artifact_store(resolved_store)
+    registry_bundle = build_default_registry_bundle(resolved_store).bundle_ref
     run = RunContext.start(
-        store=store,
+        store=resolved_store,
         registry_bundle=registry_bundle,
         run_id="R_composition_benchmark_replay",
     )
     ctx = ExecutionContext(
-        store=store,
+        store=resolved_store,
         run=run,
         logger=logging.getLogger("scientist.backtesting.composition_bridge"),
     )
@@ -108,9 +136,9 @@ def replay_fragment_composition_case(
     fragment_refs: list[str] = []
     for fragment in fragments:
         graph = fragment_graphs[fragment.fragment_id]
-        graph_ref = persist_causal_graph_model(store, graph)
+        graph_ref = persist_causal_graph_model(ir_store, graph)
         persisted_fragment = fragment.model_copy(update={"graph_ref": str(graph_ref.artifact_id)})
-        fragment_ref = persist_scm_fragment(store, persisted_fragment)
+        fragment_ref = persist_scm_fragment(ir_store, persisted_fragment)
         fragment_refs.append(str(fragment_ref.artifact_id))
 
     artifacts_index: dict[str, Any] = {}
@@ -123,10 +151,11 @@ def replay_fragment_composition_case(
             config=alignment_verification_config,
             stitch_pairs=direct_stitch_pairs,
         )
-        artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF] = persist_alignment_report(store, report)
-        artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF] = persist_interface_mapping(store, mapping)
+        artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF] = persist_alignment_report(ir_store, report)
+        artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF] = persist_interface_mapping(ir_store, mapping)
 
     state = ExperimentState(
+        schema_version="1.3",
         run_id="R_composition_benchmark_replay",
         artifacts_index=artifacts_index,
         params={
@@ -146,17 +175,31 @@ def replay_fragment_composition_case(
     if outcome.status != "ok":
         raise RuntimeError(f"scientist composition replay failed: {outcome.status}")
 
+    from polisyos.ir.refs import (
+        AlignmentReportRef,
+        CausalGraphModelRef,
+        CompositionCertificateRef,
+        CompositionFailureCardBundleRef,
+        InterfaceMappingRef,
+    )
+
     certificate = load_composition_certificate(
-        store,
-        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
+        ir_store,
+        CompositionCertificateRef.model_validate(
+            outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+        ),
     )
     alignment_report = load_alignment_report(
-        store,
-        outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF],
+        ir_store,
+        AlignmentReportRef.model_validate(
+            outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF]
+        ),
     )
     interface_mapping = load_interface_mapping(
-        store,
-        outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF],
+        ir_store,
+        InterfaceMappingRef.model_validate(
+            outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]
+        ),
     )
     persisted_artifacts = {
         "alignment_report": ARTIFACT_ALIGNMENT_REPORT_REF in outcome.state.artifacts_index,
@@ -168,20 +211,26 @@ def replay_fragment_composition_case(
     composed_graph_signature = None
     if persisted_artifacts["composed_graph"]:
         composed_graph = load_causal_graph_model(
-            store,
-            outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF],
+            ir_store,
+            CausalGraphModelRef.model_validate(
+                outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
+            ),
         )
         composed_graph_signature = _graph_signature(composed_graph)
     if persisted_artifacts["interface_mapping"]:
         load_interface_mapping(
-            store,
-            outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF],
+            ir_store,
+            InterfaceMappingRef.model_validate(
+                outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]
+            ),
         )
     failure_cards: list[dict[str, Any]] = []
     if persisted_artifacts["failure_card_bundle"]:
         bundle = load_composition_failure_card_bundle(
-            store,
-            outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF],
+            ir_store,
+            CompositionFailureCardBundleRef.model_validate(
+                outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF]
+            ),
         )
         failure_cards = [
             _failure_card_signature(card.model_dump(mode="json"))

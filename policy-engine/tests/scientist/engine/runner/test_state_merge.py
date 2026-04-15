@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.runner.serialization import deserialize_state, serialize_state
 from polisyos.scientist.engine.runner.state_merge import (
     StateMergeConflictError,
     merge_tier_states,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_merge import MergeConflictPolicy
 
 
 def _make_ref(name: str) -> ArtifactRef:
@@ -98,3 +99,30 @@ class TestMergeTierStates:
                 base_bytes,
                 [serialize_state(r1), serialize_state(r2)],
             )
+
+    def test_last_write_wins_policy_is_supported(self) -> None:
+        base = _make_state()
+        r1 = _make_state(params={"shared": "val1"})
+        r2 = _make_state(params={"shared": "val2"})
+
+        merged_bytes = merge_tier_states(
+            serialize_state(base),
+            [serialize_state(r1), serialize_state(r2)],
+            conflict_policy=MergeConflictPolicy.LAST_WRITE_WINS,
+        )
+        merged = deserialize_state(merged_bytes)
+        assert merged.params["shared"] == "val2"
+
+    def test_declared_write_specs_can_merge_non_default_fields(self) -> None:
+        base = _make_state()
+        ref = _make_ref("policy-output")
+        result = _make_state(policy_output_bundle_ref=ref)
+
+        merged_bytes = merge_tier_states(
+            serialize_state(base),
+            {"policy": serialize_state(result)},
+            write_specs={"policy": ["policy_output_bundle_ref"]},
+        )
+
+        merged = deserialize_state(merged_bytes)
+        assert merged.policy_output_bundle_ref == ref

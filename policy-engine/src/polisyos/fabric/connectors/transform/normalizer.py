@@ -63,30 +63,44 @@ class NormalizationTransform(DataTransform):
                 result.rename(columns=self.field_mappings, inplace=True)
 
             if self.drop_unmapped:
-                mapped_cols = set(self.field_mappings.values())
-                result = result[list(mapped_cols)]
+                ordered_columns = tuple(
+                    dict.fromkeys(
+                        self.field_mappings[source_col]
+                        for source_col in data.columns
+                        if source_col in self.field_mappings
+                    )
+                )
+                result = result.loc[:, list(ordered_columns)]
 
         # Step 2: Convert units
         conversion_log: dict[str, str] = {}
-        for field, (from_unit, to_unit) in self.unit_conversions.items():
-            if field not in result.columns:
+        for field_name, (from_unit, to_unit) in self.unit_conversions.items():
+            if field_name not in result.columns:
                 continue
             try:
-                result[field] = self._convert_units(result[field], from_unit, to_unit)
-                conversion_log[field] = f"{from_unit} → {to_unit}"
+                result[field_name] = self._convert_units(
+                    result[field_name],
+                    from_unit,
+                    to_unit,
+                )
+                conversion_log[field_name] = f"{from_unit} → {to_unit}"
             except Exception as exc:
-                raise TransformError(f"Unit conversion failed for field '{field}': {exc}") from exc
+                raise TransformError(
+                    f"Unit conversion failed for field '{field_name}': {exc}"
+                ) from exc
 
         # Step 3: Type casting (explicit)
         cast_log: dict[str, str] = {}
-        for field, target_dtype in self.type_casts.items():
-            if field not in result.columns:
+        for field_name, target_dtype in self.type_casts.items():
+            if field_name not in result.columns:
                 continue
             try:
-                result[field] = self._safe_cast(result[field], target_dtype)
-                cast_log[field] = target_dtype
+                result[field_name] = self._safe_cast(result[field_name], target_dtype)
+                cast_log[field_name] = target_dtype
             except Exception as exc:
-                raise TransformError(f"Type cast failed for field '{field}': {exc}") from exc
+                raise TransformError(
+                    f"Type cast failed for field '{field_name}': {exc}"
+                ) from exc
 
         # Step 4: Type casting based on target schema (optional)
         if self.cast_to_schema and context.target_schema:
@@ -117,6 +131,7 @@ class NormalizationTransform(DataTransform):
                 "drop_unmapped": self.drop_unmapped,
                 "cast_to_schema": self.cast_to_schema,
             },
+            context=context,
         )
 
         return result, lineage, []
@@ -127,7 +142,7 @@ class NormalizationTransform(DataTransform):
         context: TransformContext,
     ) -> list[str]:
         errors: list[str] = []
-        for source_col in self.field_mappings.keys():
+        for source_col in self.field_mappings:
             if source_col not in data.columns:
                 errors.append(f"Source column '{source_col}' not found")
         return errors

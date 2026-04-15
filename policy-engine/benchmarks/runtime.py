@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import enum
 import importlib
+import json
 import os
+import subprocess
+import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -17,6 +21,15 @@ class BenchmarkMode(str, enum.Enum):
 class BenchmarkTier(str, enum.Enum):
     LOCAL_EVIDENCE = "local_evidence"
     RESEARCH_ACCEPTANCE = "research_acceptance"
+
+
+@dataclass(frozen=True)
+class ModuleProbe:
+    module_name: str
+    available: bool
+    status: str
+    error: str | None = None
+    python_executable: str | None = None
 
 
 def resolve_mode(raw: str | None = None) -> BenchmarkMode:
@@ -49,17 +62,111 @@ def resolve_tier(
         raise ValueError(f"Unknown benchmark tier {value!r}; expected one of: {allowed}") from exc
 
 
-def module_available(module_name: str) -> bool:
+def probe_module(
+    module_name: str,
+    *,
+    python_executable: str | None = None,
+) -> ModuleProbe:
+    if python_executable is None or Path(python_executable).resolve() == Path(sys.executable).resolve():
+        try:
+            importlib.import_module(module_name)
+            return ModuleProbe(
+                module_name=module_name,
+                available=True,
+                status="available",
+                python_executable=sys.executable,
+            )
+        except ModuleNotFoundError as exc:
+            return ModuleProbe(
+                module_name=module_name,
+                available=False,
+                status="missing",
+                error=f"{type(exc).__name__}: {exc}",
+                python_executable=sys.executable,
+            )
+        except Exception as exc:
+            return ModuleProbe(
+                module_name=module_name,
+                available=False,
+                status="import_error",
+                error=f"{type(exc).__name__}: {exc}",
+                python_executable=sys.executable,
+            )
+
+    python_path = Path(python_executable).expanduser()
+    if not python_path.exists():
+        return ModuleProbe(
+            module_name=module_name,
+            available=False,
+            status="missing_python",
+            error=f"python executable not found: {python_path}",
+            python_executable=str(python_path),
+        )
+    probe_program = (
+        "import importlib, json, sys\n"
+        "module = sys.argv[1]\n"
+        "try:\n"
+        "    importlib.import_module(module)\n"
+        "    payload = {'available': True, 'status': 'available', 'error': None}\n"
+        "except ModuleNotFoundError as exc:\n"
+        "    payload = {'available': False, 'status': 'missing', 'error': f'{type(exc).__name__}: {exc}'}\n"
+        "except Exception as exc:\n"
+        "    payload = {'available': False, 'status': 'import_error', 'error': f'{type(exc).__name__}: {exc}'}\n"
+        "print(json.dumps(payload))\n"
+    )
     try:
-        importlib.import_module(module_name)
-        return True
+        completed = subprocess.run(
+            [str(python_path), "-c", probe_program, module_name],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except Exception as exc:
+        return ModuleProbe(
+            module_name=module_name,
+            available=False,
+            status="probe_error",
+            error=f"{type(exc).__name__}: {exc}",
+            python_executable=str(python_path),
+        )
+    if completed.returncode != 0:
+        stderr = (completed.stderr or completed.stdout or "").strip()
+        return ModuleProbe(
+            module_name=module_name,
+            available=False,
+            status="probe_error",
+            error=stderr or f"probe exited with code {completed.returncode}",
+            python_executable=str(python_path),
+        )
+    try:
+        payload = json.loads((completed.stdout or "").strip() or "{}")
+    except Exception as exc:
+        return ModuleProbe(
+            module_name=module_name,
+            available=False,
+            status="probe_error",
+            error=f"invalid probe output: {type(exc).__name__}: {exc}",
+            python_executable=str(python_path),
+        )
+    return ModuleProbe(
+        module_name=module_name,
+        available=bool(payload.get("available", False)),
+        status=str(payload.get("status") or "missing"),
+        error=str(payload.get("error")) if payload.get("error") else None,
+        python_executable=str(python_path),
+    )
+
+
+def module_available(module_name: str, *, python_executable: str | None = None) -> bool:
+    try:
+        return probe_module(module_name, python_executable=python_executable).available
     except Exception:
         return False
 
 
 def dependency_status(module_names: Iterable[str]) -> dict[str, str]:
     return {
-        name: ("available" if module_available(name) else "missing")
+        name: probe_module(name).status
         for name in module_names
     }
 

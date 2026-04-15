@@ -39,7 +39,7 @@ Related how-to: [Run Benchmarks](../how-to/run-benchmarks.md). Related reference
 
    ```bash
    cd policy-engine
-   bash benchmarks/run_all_benchmarks.sh --circuit <suite-or-circuit> --mode smoke
+   uv run polisyos-tools benchmarks run-all --circuit <suite-or-circuit> --mode smoke
    ```
 
 2. Если regression выглядит performance-specific, запустите узкий pytest path

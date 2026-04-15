@@ -15,6 +15,8 @@ from typing import Any
 
 import pandas as pd
 
+from polisyos.fabric.finite import ensure_probability, is_finite_number
+
 from .report import ConsistencyResult, RuleViolation
 
 SEVERITY_WEIGHTS = {"error": 1.0, "warning": 0.6, "info": 0.3}
@@ -59,7 +61,7 @@ class ConsistencyChecker:
         violations.extend(type_violations)
         penalty += type_penalty
 
-        score = max(0.0, 1.0 - penalty)
+        score = ensure_probability(1.0 - penalty, what="consistency score", clamp=True)
 
         return ConsistencyResult(score=score, violations=violations, penalty=penalty)
 
@@ -257,6 +259,7 @@ class ConsistencyChecker:
             ):
                 numeric = pd.to_numeric(series, errors="coerce")
                 non_numeric = numeric.isna() & series.notna()
+                non_finite = numeric.notna() & ~numeric.map(is_finite_number)
 
                 if non_numeric.any():
                     count = int(non_numeric.sum())
@@ -271,6 +274,23 @@ class ConsistencyChecker:
                             expected=expected_type.value,
                             actual="mixed types",
                             sample_values=series[non_numeric].head(5).tolist(),
+                        )
+                    )
+                    penalty += invalid_ratio * SEVERITY_WEIGHTS[severity]
+
+                if non_finite.any():
+                    count = int(non_finite.sum())
+                    invalid_ratio = count / len(series)
+                    severity = _severity_from_ratio(invalid_ratio)
+                    violations.append(
+                        RuleViolation(
+                            rule_type="consistency",
+                            field_name=field.name,
+                            severity=severity,
+                            message=f"{count} non-finite values in numeric field",
+                            expected="finite numeric",
+                            actual="non-finite values",
+                            sample_values=series[non_finite].head(5).tolist(),
                         )
                     )
                     penalty += invalid_ratio * SEVERITY_WEIGHTS[severity]

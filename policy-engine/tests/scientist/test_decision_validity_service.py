@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -19,6 +19,15 @@ from polisyos.core.contracts.decision_validity import (
 )
 from polisyos.core.contracts.feedback import DecisionMonitoringContract
 from polisyos.scientist.decision_validity import DecisionValidityService
+
+
+class _StoreWithRootProxy:
+    def __init__(self, store: FileSystemCAS) -> None:
+        self._store = store
+        self.root = store.root
+
+    def __getattr__(self, name: str):
+        return getattr(self._store, name)
 
 
 def _put_json(store: FileSystemCAS, payload, *, kind: str):
@@ -117,7 +126,7 @@ def test_decision_validity_service_records_events_dedupes_and_tracks_monitoring(
     event = DecisionDependencyEvent(
         event_id="decision_evt_fixture_001",
         dedupe_key="decision_evt_fixture_law_change",
-        occurred_at=datetime(2026, 3, 12, 13, 0, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 3, 12, 13, 0, tzinfo=UTC),
         trigger_type=DecisionTriggerType.LAW_CHANGE,
         status=DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
         reason="fixture_law_changed",
@@ -193,3 +202,25 @@ def test_decision_validity_service_applies_sticky_triggers_to_legacy_packets(tmp
     assert summary["status"] == "requires_human_review"
     assert summary["review_required"] is True
     assert summary["lifecycle"]["pending_reviews"][0]["trigger_type"] == "context_profile_drift"
+
+
+def test_decision_validity_service_accepts_protocol_store_proxy(tmp_path) -> None:
+    base_store = FileSystemCAS(tmp_path)
+    store = _StoreWithRootProxy(base_store)
+    service = DecisionValidityService(store)
+    packet_ref = _put_json(
+        base_store,
+        {"schema_version": "3.4", "run_id": "R_proxy_fixture", "artifacts": {}},
+        kind="scientist.decision_packet",
+    )
+
+    evaluation = service.mark_packet_trigger(
+        packet_ref=str(packet_ref.artifact_id),
+        trigger=DecisionTriggerRecord(
+            trigger_type=DecisionTriggerType.CONTEXT_PROFILE_DRIFT,
+            status=DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
+            reason="proxy_store_support",
+        ),
+    )
+
+    assert evaluation.status == DecisionValidityStatus.REQUIRES_HUMAN_REVIEW

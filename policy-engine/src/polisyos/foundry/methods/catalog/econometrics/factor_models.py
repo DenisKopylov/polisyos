@@ -93,7 +93,7 @@ class PrincipalComponentsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="principal_components",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_vars")),
@@ -287,7 +287,7 @@ class DynamicFactorModelEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="dynamic_factor_model",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_time", "n_vars")),

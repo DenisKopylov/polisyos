@@ -42,6 +42,26 @@ class MockKnowledgeToolkit:
         return ""
 
 
+class MockScholarSearchService:
+    async def scholar_web_search(self, *, query: str, max_results: int = 10) -> dict:
+        return {
+            "provider": "mock",
+            "query": query,
+            "error": None,
+            "results": [{"title": f"Result for {query}", "rank": 1}],
+            "max_results": max_results,
+        }
+
+    async def scholar_fetch_open(self, *, url: str) -> dict:
+        return {"url": url, "status": "ok"}
+
+    async def scholar_find_in_page(self, *, url: str, pattern: str) -> dict:
+        return {
+            "page": {"url": url, "status": "ok"},
+            "snippets": [{"text": pattern}],
+        }
+
+
 class TestBuildKnowledgeToolRegistry:
     def test_returns_registry(self):
         toolkit = MockKnowledgeToolkit()
@@ -114,3 +134,20 @@ class TestBuildKnowledgeToolRegistry:
         assert all(t["type"] == "function" for t in tools)
         names = {t["function"]["name"] for t in tools}
         assert "search_datasets" in names
+
+    @pytest.mark.asyncio
+    async def test_merges_optional_scholar_search_tools(self):
+        toolkit = MockKnowledgeToolkit()
+        registry = build_knowledge_tool_registry(
+            toolkit,
+            scholar_search_service=MockScholarSearchService(),
+        )
+
+        names = {definition.name for definition in registry.list_definitions()}
+        assert "scholar_web_search" in names
+        assert "scholar_fetch_open" in names
+        assert "scholar_find_in_page" in names
+
+        result = await registry.aexecute("scholar_web_search", {"query": "minimum wage"})
+        assert result.error is None
+        assert result.result["provider"] == "mock"

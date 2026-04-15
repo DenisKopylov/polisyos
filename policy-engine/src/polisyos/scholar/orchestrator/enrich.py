@@ -57,6 +57,7 @@ from polisyos.scholar.orchestrator.bundle import (
     persist_bundle_and_event,
 )
 from polisyos.scholar.policies import ScholarPolicy
+from polisyos.scholar.search.models import WebEvidenceBundle
 from polisyos.scholar.types import (
     AcquireResult,
     ClaimsPipelineRefs,
@@ -327,6 +328,53 @@ def _max_source_freshness(
     return latest
 
 
+def _web_evidence_payload(
+    bundle: WebEvidenceBundle | None,
+    *,
+    artifact_id: str | None,
+) -> dict[str, Any]:
+    if bundle is None:
+        return {}
+    return {
+        "bundle_id": bundle.bundle_id,
+        "artifact_id": artifact_id,
+        "partial": bundle.partial,
+        "uncertainty_notes": list(bundle.uncertainty_notes),
+        "sources": [
+            {
+                "source_id": source.source_id,
+                "url": str(source.url),
+                "title": source.title,
+                "domain": source.domain,
+                "source_type": source.source_type,
+                "quality_score": source.quality_score,
+                "duplicate_of_source_id": source.duplicate_of_source_id,
+                "paywalled": source.paywalled,
+                "error": source.error,
+            }
+            for source in bundle.sources
+        ],
+        "snippets": [
+            {
+                "snippet_id": snippet.snippet_id,
+                "source_id": snippet.source_id,
+                "url": str(snippet.url),
+                "query_node_id": snippet.query_node_id,
+                "perspective": snippet.perspective,
+                "start_char": snippet.start_char,
+                "end_char": snippet.end_char,
+                "text": snippet.text,
+                "relevance_score": snippet.relevance_score,
+            }
+            for snippet in bundle.snippets
+        ],
+        "claim_supports": [
+            support.model_dump(mode="json", exclude_none=True)
+            for support in bundle.claim_supports
+        ],
+    }
+
+
 def enrich_topic(
     *,
     cas: FileSystemCAS,
@@ -335,6 +383,8 @@ def enrich_topic(
     storage: StoragePort | None = None,
     db: Any | None = None,
     policy: ScholarPolicy | None = None,
+    web_evidence_bundle: WebEvidenceBundle | None = None,
+    web_evidence_artifact_id: str | None = None,
 ) -> EnrichResultV1:
     """Run the Scholar enrichment pipeline from normalized sources through bundle persistence."""
     if db is not None and storage is None:
@@ -655,6 +705,10 @@ def enrich_topic(
         budgets=budgets,
         thresholds=thresholds,
     )
+    web_evidence_payload = _web_evidence_payload(
+        web_evidence_bundle,
+        artifact_id=web_evidence_artifact_id,
+    )
 
     bundle_id = compute_bundle_id(
         intent_core=intent_core,
@@ -718,6 +772,7 @@ def enrich_topic(
         ),
         quality_report_ids=reconcile_refs.quality_report_ids,
         quality_report_artifact_ids=reconcile_refs.quality_report_artifact_ids,
+        web_evidence=web_evidence_payload,
         policy_ids_used=policy_ids_used,
         created_by={
             "component": "polisyos.scholar",
@@ -761,6 +816,14 @@ def enrich_topic(
             "issues_top": quality_issues,
             "quality_report_ids": reconcile_refs.quality_report_ids,
         },
+        web_evidence={
+            "bundle_id": web_evidence_payload.get("bundle_id"),
+            "artifact_id": web_evidence_payload.get("artifact_id"),
+            "sources_count": len(web_evidence_payload.get("sources") or []),
+            "snippets_count": len(web_evidence_payload.get("snippets") or []),
+            "claim_supports_count": len(web_evidence_payload.get("claim_supports") or []),
+            "uncertainty_notes": list(web_evidence_payload.get("uncertainty_notes") or []),
+        } if web_evidence_payload else {},
         artifacts={
             "doc_meta_artifact_ids": selected_doc_meta_ids,
             "claim_set_artifact_ids": sorted(set(normalized_claim_set_artifact_ids)),
@@ -769,6 +832,11 @@ def enrich_topic(
                 reconcile_refs.trust_assessment_artifact_ids_by_id.values()
             ),
             "quality_report_artifact_ids": reconcile_refs.quality_report_artifact_ids,
+            **(
+                {"web_evidence_artifact_id": web_evidence_artifact_id}
+                if web_evidence_artifact_id
+                else {}
+            ),
         },
         notes=acquire_notes,
     )
@@ -781,6 +849,8 @@ def enrich_topic(
         *sorted(reconcile_refs.trust_assessment_artifact_ids_by_id.values()),
         *reconcile_refs.quality_report_artifact_ids,
     ]
+    if web_evidence_artifact_id:
+        input_artifact_ids.append(web_evidence_artifact_id)
 
     try:
         knowledge_bundle_ref, report, report_ref = persist_bundle_and_event(

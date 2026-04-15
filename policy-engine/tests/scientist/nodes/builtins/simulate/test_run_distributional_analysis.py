@@ -5,8 +5,15 @@ from __future__ import annotations
 from dataclasses import replace
 
 import jax.numpy as jnp
+import pytest
+
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult, StateSnapshotRef
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    MetricsRef,
+    SimulationResult,
+    StateSnapshotRef,
+)
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.executor import put_state_snapshot
 from polisyos.ir.analytics.distributional import (
@@ -18,6 +25,7 @@ from polisyos.ir.analytics.distributional import (
 )
 from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis import (
     RunDistributionalAnalysisNode,
+    _resolve_baseline_snapshot_ref,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
@@ -253,3 +261,25 @@ def test_undersized_geography_groups_emit_warning_without_failing(
         for reason in report.metadata["geography_breakdown_skipped_reasons"]
     )
     assert any("skipped" in event.message.lower() for event in outcome.events)
+
+
+def test_resolve_baseline_snapshot_ref_assertion_is_not_swallowed(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_STATE_SNAPSHOT_REF] = artifact_ref_factory(kind="foundry.state_snapshot")
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("state snapshot invariant")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis.StateSnapshotRef.model_validate",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="state snapshot invariant"):
+        _resolve_baseline_snapshot_ref(execution_context, state)

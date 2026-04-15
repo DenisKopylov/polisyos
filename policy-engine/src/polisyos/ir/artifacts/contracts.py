@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, ClassVar, Protocol, Sequence, runtime_checkable
+from typing import Any, ClassVar, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, RootModel, field_validator
 
@@ -30,7 +31,7 @@ class ArtifactID(RootModel[str]):
         return f"{cls.prefix}{hex64}"
 
     @classmethod
-    def from_sha256_hex(cls, hex64: str) -> "ArtifactID":
+    def from_sha256_hex(cls, hex64: str) -> ArtifactID:
         hex64 = hex64.lower()
         if not _SHA256_HEX_RE.match(hex64):
             raise ValueError("sha256 hex must be 64 characters [0-9a-f]")
@@ -61,20 +62,24 @@ class CanonInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str = "polisyos.canon.json"
-    version: str = "0.1.0"
+    version: str = "0.2.0"
     forbid_floats: bool = True
     forbid_nan_inf: bool = True
+    exclude_none: bool = True
+    max_depth: int = 128
     sort_keys: bool = True
     separators: tuple[str, str] = (",", ":")
     ensure_ascii: bool = False
 
     @classmethod
-    def from_spec(cls, spec: CanonSpec) -> "CanonInfo":
+    def from_spec(cls, spec: CanonSpec) -> CanonInfo:
         return cls(
             name=spec.name,
             version=spec.version,
             forbid_floats=spec.forbid_floats,
             forbid_nan_inf=spec.forbid_nan_inf,
+            exclude_none=spec.exclude_none,
+            max_depth=spec.max_depth,
             sort_keys=spec.sort_keys,
             separators=spec.separators,
             ensure_ascii=spec.ensure_ascii,
@@ -111,6 +116,7 @@ class StorePutOptions:
     env: Any = None
     inputs: list[dict[str, Any]] | None = None
     canon: dict[str, Any] | None = None
+    governance: dict[str, Any] | None = None
 
 
 @runtime_checkable
@@ -124,6 +130,10 @@ class ArtifactStore(Protocol):
     ) -> Any: ...
 
     def get_bytes(self, artifact_id: Any) -> bytes: ...
+
+    def get_manifest(self, artifact_id: Any) -> Any: ...
+
+    def iter_artifact_ids(self) -> list[Any]: ...
 
 
 def _as_payload(value: Any) -> dict[str, Any]:
@@ -156,6 +166,9 @@ def to_store_put_options(opts: PutOptions) -> StorePutOptions:
     schema = opts.schema.model_dump(mode="python") if opts.schema is not None else None
     canon = opts.canon.model_dump(mode="python") if opts.canon is not None else None
     inputs = [entry.model_dump(mode="python") for entry in (opts.inputs or [])] or None
+    governance = (
+        opts.governance.model_dump(mode="python") if getattr(opts, "governance", None) is not None else None
+    )
     return StorePutOptions(
         kind=opts.kind,
         media_type=opts.media_type,
@@ -164,6 +177,7 @@ def to_store_put_options(opts: PutOptions) -> StorePutOptions:
         env=opts.env,
         inputs=inputs,
         canon=canon,
+        governance=governance,
     )
 
 

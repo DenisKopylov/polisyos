@@ -12,6 +12,11 @@ from polisyos.core.registry.generic import GenericRegistry
 
 from .contract import ConnectorSchemaContract
 from .evolution import EvolutionReport, SchemaEvolution
+from .governance_checks import (
+    ContractGovernanceEvaluation,
+    actual_version_bump,
+    evaluate_contract_governance,
+)
 from .schema import SchemaVersion
 
 logger = get_logger(__name__)
@@ -52,6 +57,23 @@ class ContractViolationError(PolicyOSError):
         super().__init__(
             f"Contract '{contract_id}' has {breaking_count} breaking change(s); "
             "major schema version bump is required."
+        )
+
+
+class ContractGovernanceError(PolicyOSError):
+    """Raised when a breaking contract change lacks required governance approval."""
+
+    default_stage = "fabric.connectors.contract_registry"
+    default_category = ErrorCategory.VALIDATION
+
+    def __init__(self, contract_id: str, evaluation: ContractGovernanceEvaluation) -> None:
+        self.contract_id = contract_id
+        self.evaluation = evaluation
+        impacted = ", ".join(evaluation.impacted_surfaces)
+        missing = "; ".join(evaluation.missing_governance_requirements)
+        super().__init__(
+            f"Contract '{contract_id}' breaking change missing governance metadata: "
+            f"{missing}; impacted={impacted}"
         )
 
 
@@ -128,11 +150,18 @@ class ContractRegistry:
 
             if history.versions:
                 previous = history.versions[-1]
-                report = self._evolution.compare(previous.schema, contract.schema)
+                evaluation = evaluate_contract_governance(
+                    previous,
+                    contract,
+                    evolution=self._evolution,
+                )
+                report = evaluation.report
                 self._validate_version_bump(previous, contract, report)
 
                 if report.breaking_changes and not allow_breaking:
                     raise ContractViolationError(contract.contract_id, report)
+                if report.breaking_changes and evaluation.missing_governance_requirements:
+                    raise ContractGovernanceError(contract.contract_id, evaluation)
 
             history.versions.append(contract)
             self._revision += 1
@@ -244,7 +273,7 @@ class ContractRegistry:
             return
 
         required = report.recommended_version_bump
-        actual = self._actual_bump(previous_version, current_version)
+        actual = actual_version_bump(previous_version, current_version)
 
         if required == "major" and actual != "major":
             raise ContractVersionError(
@@ -261,16 +290,6 @@ class ContractRegistry:
                 f"{current.contract_id}: contract change requires version bump "
                 f"({previous_version} -> {current_version})"
             )
-
-    @staticmethod
-    def _actual_bump(previous: SchemaVersion, current: SchemaVersion) -> str:
-        if current.major > previous.major:
-            return "major"
-        if current.minor > previous.minor:
-            return "minor"
-        if current.patch > previous.patch:
-            return "patch"
-        return "none"
 
     @staticmethod
     def _parse(value: str | SchemaVersion) -> SchemaVersion:

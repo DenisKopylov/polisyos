@@ -59,7 +59,7 @@ class EstebanRayEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="esteban_ray",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -145,7 +145,7 @@ class DuclosEstebanRayEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="duclos_esteban_ray",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

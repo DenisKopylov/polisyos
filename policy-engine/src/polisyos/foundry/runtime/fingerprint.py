@@ -5,6 +5,7 @@ import os
 import platform
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from importlib.metadata import PackageNotFoundError, version as package_version
 from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
@@ -21,6 +22,25 @@ from polisyos.core.observability.determinism import (
 from polisyos.core.observability.determinism import (
     get_determinism_tier as _get_determinism_tier,
 )
+
+_FINGERPRINT_PROBE_FAILURES = (
+    AttributeError,
+    ImportError,
+    ModuleNotFoundError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+
+_PACKAGE_METADATA_FAILURES = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+
+_PACKAGE_VERSION_FAILURES = (PackageNotFoundError, *_PACKAGE_METADATA_FAILURES)
 
 
 @dataclass(frozen=True, slots=True)
@@ -213,10 +233,8 @@ class EnvironmentFingerprint:
 def _get_jaxlib_version() -> str:
     """Get jaxlib version without importing heavy modules."""
     try:
-        from importlib.metadata import version
-
-        return version("jaxlib")
-    except Exception:
+        return package_version("jaxlib")
+    except _PACKAGE_VERSION_FAILURES:
         return "unknown"
 
 
@@ -245,7 +263,7 @@ def _get_cuda_version_fast() -> str | None:
                     if cuda_home
                     else "detected"
                 )
-    except Exception as exc:
+    except _FINGERPRINT_PROBE_FAILURES as exc:
         logger.debug("Ignored exception: %s", exc)
 
     return None
@@ -254,13 +272,10 @@ def _get_cuda_version_fast() -> str | None:
 def _get_cudnn_version() -> str | None:
     """Get cuDNN version if available."""
     try:
-        from importlib.metadata import version
-
-
-        jaxlib_ver = version("jaxlib")
+        jaxlib_ver = package_version("jaxlib")
         if "cuda" in jaxlib_ver:
             return "bundled"
-    except Exception as exc:
+    except _PACKAGE_VERSION_FAILURES as exc:
         logger.debug("Ignored exception: %s", exc)
     return None
 

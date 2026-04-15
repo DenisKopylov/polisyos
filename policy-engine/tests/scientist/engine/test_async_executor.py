@@ -1,11 +1,11 @@
 """Tests for polisyos.scientist.engine.async_executor — AsyncWorkflowExecutor."""
 from __future__ import annotations
 
-import asyncio
 from unittest.mock import MagicMock
 
 import pytest
 
+from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.engine.context import ExecutionContext
@@ -229,6 +229,41 @@ class TestAsyncWorkflowExecutor:
         assert result.report.status == "ok"
         assert metrics.record_tier_completed.call_count == 2
         assert metrics.record_workflow_completed.call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_async_executor_persists_via_async_artifact_store_adapter(self, monkeypatch):
+        state = ExperimentState(run_id="async-test-persist")
+        node = _make_mock_node()
+        node.execute.return_value = NodeOutcome(
+            status="ok", state=state, events=[], artifacts=[],
+        )
+
+        registry = MagicMock(spec=NodeRegistry)
+        registry.get.return_value = node
+        workflow = WorkflowSpec(
+            workflow_id="test_async_persist",
+            nodes=[NodeInvocation(alias="a", node_id="test.node@1.0.0")],
+        )
+
+        seen_kinds: list[str] = []
+        original_put_json = AsyncArtifactStoreAdapter.put_json
+
+        async def _tracked_put_json(self, obj, opts, canon_spec=None):
+            seen_kinds.append(str(getattr(opts, "kind", "")))
+            return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+
+        monkeypatch.setattr(AsyncArtifactStoreAdapter, "put_json", _tracked_put_json)
+
+        ctx = _make_ctx()
+        executor = AsyncWorkflowExecutor(ctx, registry)
+        result = await executor.execute(workflow, state)
+
+        assert result.report.status == "ok"
+        assert seen_kinds[:3] == [
+            "scientist.workflow_spec",
+            "scientist.experiment_state",
+            "scientist.workflow_report",
+        ]
 
     @pytest.mark.asyncio
     async def test_no_metrics_no_crash(self):

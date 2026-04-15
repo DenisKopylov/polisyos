@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.ir.canon import content_hash, to_canonical_bytes
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN, KernelModel, reject_float
@@ -52,6 +52,33 @@ class FactLegal(KernelModel):
     pii_max_severity: str | None = None
 
 
+def canonical_tx_time(value: datetime | str) -> str:
+    """Normalize a transaction timestamp to aware UTC ``Z`` form.
+
+    ``Fact.tx_time`` is part of the fact-log ordering contract and must be
+    caller-supplied. Naive datetimes/strings are rejected instead of being
+    guessed from host locale.
+    """
+    if isinstance(value, datetime):
+        dt = value
+    elif isinstance(value, str):
+        raw = value[:-1] + "+00:00" if value.endswith("Z") else value
+        try:
+            dt = datetime.fromisoformat(raw)
+        except ValueError as exc:
+            raise ValueError("tx_time must be an ISO-8601 datetime") from exc
+    else:
+        raise ValueError("tx_time must be datetime or ISO-8601 string")
+    if dt.tzinfo is None or dt.utcoffset() is None:
+        raise ValueError("tx_time must include timezone information")
+    return dt.astimezone(UTC).isoformat().replace("+00:00", "Z")
+
+
+def utc_tx_time() -> str:
+    """Return the current UTC transaction timestamp for explicit factories."""
+    return canonical_tx_time(datetime.now(UTC))
+
+
 class Fact(KernelModel):
     """Fact public type."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -61,13 +88,18 @@ class Fact(KernelModel):
     object_value: str | int | bool | Decimal | None = Field(None, serialization_alias="object")
     target_id: str | None = Field(None, pattern=ID_PATTERN)
     valid_time: str | int | None = None
-    tx_time: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"))
+    tx_time: str
     provenance: FactProvenance
     trust: FactTrust | None = None
     legal: FactLegal | None = None
 
+    @field_validator("tx_time", mode="before")
+    @classmethod
+    def normalize_tx_time(cls, value: datetime | str) -> str:
+        return canonical_tx_time(value)
+
     @model_validator(mode="after")
-    def ensure_object(self) -> "Fact":
+    def ensure_object(self) -> Fact:
         if self.object_value is None and self.target_id is None:
             raise ValueError("Fact requires object_value or target_id")
         return self
@@ -89,6 +121,7 @@ class FactBatch(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="before")
+    @classmethod
     def reject_floats(cls, value: Any) -> Any:
         reject_float(value)
         return value

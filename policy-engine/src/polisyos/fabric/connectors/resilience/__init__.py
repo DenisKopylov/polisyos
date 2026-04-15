@@ -13,6 +13,7 @@ from typing import Any, Awaitable, Callable, Mapping, TypeVar
 
 from polisyos.common.logger import get_logger
 
+from ._bounded_registry import BoundedResourceRegistry
 from .circuit_breaker import (
     CircuitBreaker,
     CircuitBreakerConfig,
@@ -227,8 +228,8 @@ def apply_resilience(
     if resolved is None:
         return func
 
-    circuit_breakers: dict[str, CircuitBreaker] = {}
-    rate_limiters: dict[str, RateLimiter] = {}
+    circuit_breakers = BoundedResourceRegistry[CircuitBreaker]()
+    rate_limiters = BoundedResourceRegistry[RateLimiter]()
     registry_lock = threading.Lock()
 
     @wraps(func)
@@ -272,11 +273,10 @@ def apply_resilience(
 
             breaker_id = _default_circuit_id(func, args, kwargs)
             with registry_lock:
-                breaker = circuit_breakers.get(breaker_id)
-                if breaker is None:
-                    breaker = CircuitBreaker(circuit_id=breaker_id, config=breaker_config)
-                    circuit_breakers[breaker_id] = breaker
-                return breaker
+                return circuit_breakers.get_or_create(
+                    breaker_id,
+                    lambda: CircuitBreaker(circuit_id=breaker_id, config=breaker_config),
+                )
 
         def _get_limiter() -> RateLimiter | None:
             if rate_limit_rps is None:
@@ -285,21 +285,21 @@ def apply_resilience(
             # Different rate limits get separate limiters
             limiter_key = f"{limiter_id}:{rate_limit_rps}"
             with registry_lock:
-                limiter = rate_limiters.get(limiter_key)
-                if limiter is None:
-                    if adaptive:
-                        limiter = AdaptiveRateLimiter(
+                return rate_limiters.get_or_create(
+                    limiter_key,
+                    lambda: (
+                        AdaptiveRateLimiter(
                             initial_rate_rps=rate_limit_rps,
                             config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
                             limiter_id=limiter_id,
                         )
-                    else:
-                        limiter = RateLimiter(
+                        if adaptive
+                        else RateLimiter(
                             rate_limit_rps=rate_limit_rps,
                             limiter_id=limiter_id,
                         )
-                    rate_limiters[limiter_key] = limiter
-                return limiter
+                    ),
+                )
 
         async def _rate_limited_call(*call_args: Any, **call_kwargs: Any) -> T:
             limiter = _get_limiter()

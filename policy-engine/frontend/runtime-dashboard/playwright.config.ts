@@ -49,7 +49,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: `PYTHONPATH=src:. uv run --extra runtime-http python frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py --port 8000 --metadata-file ${fixtureMetadataPath}`,
+      command: `uv run --extra runtime-http python frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py --port 8000 --metadata-file ${fixtureMetadataPath}`,
       url: "http://127.0.0.1:8000/health",
       cwd: policyEngineRoot,
       reuseExistingServer: !process.env.CI,

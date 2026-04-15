@@ -450,7 +450,7 @@ class PCMCIDiscovery:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="pcmci_discovery",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -373,51 +373,114 @@ def batch_create_agents(
     if age_override is not None:
         new_age = age_override
 
-    step_val = state.time_step if birth_step is None else birth_step
+    raw_step = state.time_step if birth_step is None else birth_step
+    step_values = jnp.asarray(raw_step, dtype=jnp.int32)
+    if step_values.ndim == 0:
+        step_values = jnp.full((n_new,), step_values, dtype=jnp.int32)
 
-    def update_agent(i, agents):
-        def apply(agents):
-            idx = slot_indices[i]
-            next_id = state.next_agent_id + i
-            return agents.replace(
-                active=agents.active.at[idx].set(True),
-                agent_id=agents.agent_id.at[idx].set(next_id),
-                birth_step=agents.birth_step.at[idx].set(step_val),
-                parent_id=agents.parent_id.at[idx].set(parent_agent_id[i]),
-                parent_slot=agents.parent_slot.at[idx].set(parent_slot[i]),
-                parent_wealth_at_birth=agents.parent_wealth_at_birth.at[idx].set(
-                    parent_wealth[i]
-                ),
-                age=agents.age.at[idx].set(new_age[i]),
-                life_expectancy=agents.life_expectancy.at[idx].set(new_life[i]),
-                fertility_rate=agents.fertility_rate.at[idx].set(0.0),
-                wealth=agents.wealth.at[idx].set(new_wealth[i]),
-                income=agents.income.at[idx].set(0.0),
-                consumption=agents.consumption.at[idx].set(0.0),
-                savings=agents.savings.at[idx].set(0.0),
-                debt=agents.debt.at[idx].set(0.0),
-                risk_aversion=agents.risk_aversion.at[idx].set(new_risk[i]),
-                discount_factor=agents.discount_factor.at[idx].set(new_discount[i]),
-                skill_level=agents.skill_level.at[idx].set(new_skill[i]),
-                education_years=agents.education_years.at[idx].set(0.0),
-                employed=agents.employed.at[idx].set(False),
-                retired=agents.retired.at[idx].set(False),
-                consumption_target=agents.consumption_target.at[idx].set(0.0),
-                information_level=agents.information_level.at[idx].set(0.0),
-                utility_adjustment=agents.utility_adjustment.at[idx].set(0.0),
-                expected_lifetime_utility=agents.expected_lifetime_utility.at[idx].set(0.0),
-                savings_target=agents.savings_target.at[idx].set(0.0),
-                planning_horizon=agents.planning_horizon.at[idx].set(
-                    state.simulation_horizon.astype(jnp.int32)
-                ),
-                expected_income_growth=agents.expected_income_growth.at[idx].set(0.0),
-                n_connections=agents.n_connections.at[idx].set(0),
+    safe_slots = jnp.clip(slot_indices, 0, state.agents.active.shape[0] - 1)
+    valid_slots = allocated_mask & (slot_indices >= 0)
+    slot_mask = (
+        jnp.zeros_like(state.agents.active, dtype=jnp.int32)
+        .at[safe_slots]
+        .max(valid_slots.astype(jnp.int32))
+        .astype(jnp.bool_)
+    )
+
+    def _scatter_updates(field: jnp.ndarray, values: jnp.ndarray) -> jnp.ndarray:
+        if jnp.issubdtype(field.dtype, jnp.bool_):
+            updates = (
+                jnp.zeros(field.shape, dtype=jnp.int32)
+                .at[safe_slots]
+                .add(values.astype(jnp.int32) * valid_slots.astype(jnp.int32))
+            ).astype(field.dtype)
+        else:
+            updates = (
+                jnp.zeros_like(field)
+                .at[safe_slots]
+                .add(values.astype(field.dtype) * valid_slots.astype(field.dtype))
             )
+        return jnp.where(slot_mask, updates, field)
 
-        valid = allocated_mask[i] & (slot_indices[i] >= 0)
-        return jax.lax.cond(valid, apply, lambda a: a, agents)
+    next_ids = state.next_agent_id + jnp.arange(n_new, dtype=jnp.int32)
+    planning_horizon = jnp.full(
+        (n_new,),
+        state.simulation_horizon.astype(jnp.int32),
+        dtype=jnp.int32,
+    )
 
-    new_agents = jax.lax.fori_loop(0, int(n_new), update_agent, state.agents)
+    new_agents = state.agents.replace(
+        active=_scatter_updates(state.agents.active, jnp.ones((n_new,), dtype=jnp.bool_)),
+        agent_id=_scatter_updates(state.agents.agent_id, next_ids),
+        birth_step=_scatter_updates(state.agents.birth_step, step_values),
+        parent_id=_scatter_updates(state.agents.parent_id, parent_agent_id),
+        parent_slot=_scatter_updates(state.agents.parent_slot, parent_slot),
+        parent_wealth_at_birth=_scatter_updates(
+            state.agents.parent_wealth_at_birth,
+            parent_wealth,
+        ),
+        age=_scatter_updates(state.agents.age, new_age),
+        life_expectancy=_scatter_updates(state.agents.life_expectancy, new_life),
+        fertility_rate=_scatter_updates(
+            state.agents.fertility_rate,
+            jnp.zeros((n_new,), dtype=state.agents.fertility_rate.dtype),
+        ),
+        wealth=_scatter_updates(state.agents.wealth, new_wealth),
+        income=_scatter_updates(
+            state.agents.income,
+            jnp.zeros((n_new,), dtype=state.agents.income.dtype),
+        ),
+        consumption=_scatter_updates(
+            state.agents.consumption,
+            jnp.zeros((n_new,), dtype=state.agents.consumption.dtype),
+        ),
+        savings=_scatter_updates(
+            state.agents.savings,
+            jnp.zeros((n_new,), dtype=state.agents.savings.dtype),
+        ),
+        debt=_scatter_updates(
+            state.agents.debt,
+            jnp.zeros((n_new,), dtype=state.agents.debt.dtype),
+        ),
+        risk_aversion=_scatter_updates(state.agents.risk_aversion, new_risk),
+        discount_factor=_scatter_updates(state.agents.discount_factor, new_discount),
+        skill_level=_scatter_updates(state.agents.skill_level, new_skill),
+        education_years=_scatter_updates(
+            state.agents.education_years,
+            jnp.zeros((n_new,), dtype=state.agents.education_years.dtype),
+        ),
+        employed=_scatter_updates(state.agents.employed, jnp.zeros((n_new,), dtype=jnp.bool_)),
+        retired=_scatter_updates(state.agents.retired, jnp.zeros((n_new,), dtype=jnp.bool_)),
+        consumption_target=_scatter_updates(
+            state.agents.consumption_target,
+            jnp.zeros((n_new,), dtype=state.agents.consumption_target.dtype),
+        ),
+        information_level=_scatter_updates(
+            state.agents.information_level,
+            jnp.zeros((n_new,), dtype=state.agents.information_level.dtype),
+        ),
+        utility_adjustment=_scatter_updates(
+            state.agents.utility_adjustment,
+            jnp.zeros((n_new,), dtype=state.agents.utility_adjustment.dtype),
+        ),
+        expected_lifetime_utility=_scatter_updates(
+            state.agents.expected_lifetime_utility,
+            jnp.zeros((n_new,), dtype=state.agents.expected_lifetime_utility.dtype),
+        ),
+        savings_target=_scatter_updates(
+            state.agents.savings_target,
+            jnp.zeros((n_new,), dtype=state.agents.savings_target.dtype),
+        ),
+        planning_horizon=_scatter_updates(state.agents.planning_horizon, planning_horizon),
+        expected_income_growth=_scatter_updates(
+            state.agents.expected_income_growth,
+            jnp.zeros((n_new,), dtype=state.agents.expected_income_growth.dtype),
+        ),
+        n_connections=_scatter_updates(
+            state.agents.n_connections,
+            jnp.zeros((n_new,), dtype=state.agents.n_connections.dtype),
+        ),
+    )
     return state.replace(
         agents=new_agents,
         population_manager=manager,
@@ -539,9 +602,9 @@ def sync_graph_with_population(
             jnp.sum(free_mask.astype(jnp.int32)),
         )
         key_slots, key_births, key_senders, key_receivers = jax.random.split(rng_key, 4)
-        slot_candidates = jax.random.randint(
-            key_slots, shape=(max_edges,), minval=0, maxval=max_edges
-        )
+        slot_scores = jax.random.uniform(key_slots, shape=(max_edges,))
+        slot_scores = jnp.where(free_mask, slot_scores, jnp.inf)
+        slot_candidates = jnp.argsort(slot_scores)
 
         birth_weights = births.astype(jnp.float32)
         birth_weights = birth_weights / jnp.maximum(jnp.sum(birth_weights), 1.0)
@@ -598,22 +661,45 @@ def sync_graph_with_population(
             receiver_candidates,
         )
 
-        def add_one(i, edges_inner):
-            idx = slot_candidates[i]
-            can_add = free_mask[idx] & (i < max_new_edges)
+        can_add = edge_idx < max_new_edges
+        slot_mask = (
+            jnp.zeros_like(edges_local.active, dtype=jnp.int32)
+            .at[slot_candidates]
+            .max(can_add.astype(jnp.int32))
+            .astype(jnp.bool_)
+        )
 
-            def _update(edges_inner):
-                return edges_inner.replace(
-                    senders=edges_inner.senders.at[idx].set(sender_candidates[i]),
-                    receivers=edges_inner.receivers.at[idx].set(receiver_candidates[i]),
-                    weights=edges_inner.weights.at[idx].set(1.0),
-                    edge_types=edges_inner.edge_types.at[idx].set(0),
-                    active=edges_inner.active.at[idx].set(True),
+        def _scatter_edge_values(field: jnp.ndarray, values: jnp.ndarray) -> jnp.ndarray:
+            if jnp.issubdtype(field.dtype, jnp.bool_):
+                updates = (
+                    jnp.zeros(field.shape, dtype=jnp.int32)
+                    .at[slot_candidates]
+                    .add(values.astype(jnp.int32) * can_add.astype(jnp.int32))
+                ).astype(field.dtype)
+            else:
+                updates = (
+                    jnp.zeros_like(field)
+                    .at[slot_candidates]
+                    .add(values.astype(field.dtype) * can_add.astype(field.dtype))
                 )
+            return jnp.where(slot_mask, updates, field)
 
-            return jax.lax.cond(can_add, _update, lambda e: e, edges_inner)
-
-        edges_updated = jax.lax.fori_loop(0, int(edges_local.max_edges), add_one, edges_local)
+        edges_updated = edges_local.replace(
+            senders=_scatter_edge_values(edges_local.senders, sender_candidates),
+            receivers=_scatter_edge_values(edges_local.receivers, receiver_candidates),
+            weights=_scatter_edge_values(
+                edges_local.weights,
+                jnp.ones((max_edges,), dtype=edges_local.weights.dtype),
+            ),
+            edge_types=_scatter_edge_values(
+                edges_local.edge_types,
+                jnp.zeros((max_edges,), dtype=edges_local.edge_types.dtype),
+            ),
+            active=_scatter_edge_values(
+                edges_local.active,
+                jnp.ones((max_edges,), dtype=jnp.bool_),
+            ),
+        )
         n_active_edges = jnp.sum(edges_updated.active.astype(jnp.int32))
         edges_updated = edges_updated.replace(n_active_edges=n_active_edges)
         active_weights = edges_updated.active.astype(jnp.int32)

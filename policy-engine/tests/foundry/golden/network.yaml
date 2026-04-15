@@ -4,23 +4,65 @@ cases:
   - id: community_detection_two_blocks
     method_fqn: "network.community.community_detection@1.0.0"
     description: "Two well-separated blocks → 2 communities"
-    skip_reason: "Requires NetworkData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    seed: 42
+    input_data:
+      adjacency:
+        - [0.0, 1.0, 0.9, 0.05, 0.02, 0.01]
+        - [1.0, 0.0, 0.85, 0.02, 0.02, 0.01]
+        - [0.9, 0.85, 0.0, 0.02, 0.03, 0.02]
+        - [0.05, 0.02, 0.02, 0.0, 1.0, 0.9]
+        - [0.02, 0.02, 0.03, 1.0, 0.0, 0.85]
+        - [0.01, 0.01, 0.02, 0.9, 0.85, 0.0]
+    input_params:
+      n_clusters: 2
+    expected_output:
+      result:
+        method_name: "community_detection"
+        metrics:
+          modularity: 0.4649122807017545
+          n_clusters: 2.0
+        labels: [0, 0, 0, 1, 1, 1]
+    tolerances: {rtol: 0.001, atol: 0.001}
     tags: [community]
 
   - id: io_network_leontief
     method_fqn: "network.io.input_output_network@1.0.0"
     description: "Simple Leontief IO model"
-    skip_reason: "Requires IOData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      adjacency:
+        - [0.2, 0.1, 0.0]
+        - [0.1, 0.3, 0.2]
+        - [0.0, 0.2, 0.4]
+    expected_output:
+      result:
+        method_name: "input_output_network"
+        metrics:
+          spectral_radius: 1.0
+          total_backward_linkage: 15.0
+    tolerances: {rtol: 0.0001, atol: 0.0001}
     tags: [io]
 
   - id: network_diffusion_simple
     method_fqn: "network.diffusion.network_diffusion@1.0.0"
     description: "Diffusion on star graph"
-    skip_reason: "Requires NetworkData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      adjacency:
+        - [0.0, 1.0, 1.0, 1.0]
+        - [1.0, 0.0, 0.0, 0.0]
+        - [1.0, 0.0, 0.0, 0.0]
+        - [1.0, 0.0, 0.0, 0.0]
+      node_states: [1.0, 0.0, 0.0, 0.0]
+    input_params:
+      diffusion_rate: 0.4
+      decay: 0.0
+      n_steps: 4
+    expected_output:
+      result:
+        method_name: "network_diffusion"
+        metrics:
+          final_mean_state: 1.0
+        node_scores: [1.0, 1.0, 1.0, 1.0]
+        metadata:
+          n_steps: 4
+    tolerances: {rtol: 0.000001, atol: 0.000001}
     tags: [diffusion]

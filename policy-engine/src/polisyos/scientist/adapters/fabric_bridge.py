@@ -1,12 +1,12 @@
 """Default Fabric port implementation that resolves data-view requests into CAS snapshots."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo, WarningRecord
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import (
     DataSnapshot,
@@ -20,13 +20,21 @@ from polisyos.fabric import fabric_get_data
 from polisyos.ir.analytics.data_views import DataViewRequest as AnalyticsDataViewRequest
 from polisyos.ir.connectors import FetchResult, QualityTier
 from polisyos.ir.queries import DataViewRequest as QueryDataViewRequest
-from polisyos.scientist.engine.context import FabricPort
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.fabric._connector_bridge import ConnectorRegistryLike
 
 logger = get_logger(__name__)
 
 
-class ExecutionTierViolation(RuntimeError):
+class ExecutionTierViolationError(RuntimeError):
     """Signal that the requested dataset is catalog-only and cannot be auto-executed."""
+
+
+ExecutionTierViolation = ExecutionTierViolationError
 
 
 # Minimum tier required for runtime execution.  Datasets below this
@@ -40,7 +48,41 @@ _TIER_RANK: dict[str, int] = {
 }
 
 
-class DefaultFabricPort(FabricPort):
+class FabricFetchDataFn(Protocol):
+    """Call signature used by the Scientist-to-Fabric adapter."""
+
+    def __call__(
+        self,
+        *,
+        dataset_id: str,
+        connector_id: str | None = None,
+        constraints: dict[str, Any] | None = None,
+        registry: ConnectorRegistryLike | None = None,
+    ) -> FetchResult[Any]: ...
+
+
+class DatasetCatalogStoreLike(Protocol):
+    """Read-only catalog surface required for execution-tier checks."""
+
+    def get_dataset(self, dataset_id: str) -> object | None: ...
+
+
+@runtime_checkable
+class ColumnarPayloadLike(Protocol):
+    """Payloads that expose a dataframe-style `columns` collection."""
+
+    @property
+    def columns(self) -> Iterable[object]: ...
+
+
+@runtime_checkable
+class ModelDumpLike(Protocol):
+    """Objects that can serialize themselves into JSON-compatible data."""
+
+    def model_dump(self, *, mode: str) -> object: ...
+
+
+class DefaultFabricPort:
     """Fetch a Fabric dataset and persist a normalized `DataSnapshot` artifact tree.
 
     The adapter accepts either query-layer or analytics-layer `DataViewRequest`
@@ -49,7 +91,18 @@ class DefaultFabricPort(FabricPort):
     `DataSnapshotRef` suitable for `BuildDataSnapshotNode`.
     """
 
-    def snapshot(self, store: FileSystemCAS, request_ref: DataViewRequestRef) -> DataSnapshotRef:
+    def __init__(
+        self,
+        *,
+        fetch_data: FabricFetchDataFn = fabric_get_data,
+        connector_registry: ConnectorRegistryLike | None = None,
+        catalog_store: DatasetCatalogStoreLike | None = None,
+    ) -> None:
+        self._fetch_data = fetch_data
+        self._connector_registry = connector_registry
+        self._catalog_store = catalog_store
+
+    def snapshot(self, store: ArtifactStore, request_ref: DataViewRequestRef) -> DataSnapshotRef:
         """Resolve a request artifact into a persisted `DataSnapshotRef`.
 
         Raises:
@@ -63,11 +116,12 @@ class DefaultFabricPort(FabricPort):
         dataset_id = _resolve_dataset_id(query_request)
         constraints = _build_fetch_constraints(query_request)
 
-        _enforce_execution_tier(dataset_id)
+        _enforce_execution_tier(dataset_id, catalog_store=self._catalog_store)
 
-        fetch_result = fabric_get_data(
+        fetch_result = self._fetch_data(
             dataset_id=dataset_id,
             constraints=constraints,
+            registry=self._connector_registry,
         )
         quality_payload = _build_quality_report_payload(
             result=fetch_result,
@@ -76,7 +130,7 @@ class DefaultFabricPort(FabricPort):
 
         data_ref = store.put_json(
             _jsonable(fetch_result.data),
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="fabric.tabular_payload",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.fabric.TabularPayload", version="1.0"),
@@ -91,7 +145,7 @@ class DefaultFabricPort(FabricPort):
                 "schema_id": fetch_result.schema_id,
                 "schema_version": fetch_result.schema_version,
             },
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="fabric.data_schema",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.fabric.DataSchema", version="1.0"),
@@ -99,7 +153,7 @@ class DefaultFabricPort(FabricPort):
         )
         quality_report_ref = store.put_json(
             quality_payload,
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="fabric.quality_report",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
@@ -156,7 +210,7 @@ class DefaultFabricPort(FabricPort):
         )
         snapshot_ref = store.put_json(
             snapshot,
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="fabric.data_snapshot",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
@@ -167,7 +221,7 @@ class DefaultFabricPort(FabricPort):
         return DataSnapshotRef(artifact_id=snapshot_ref.artifact_id)
 
 
-def _parse_query_request(payload: Any) -> QueryDataViewRequest | AnalyticsDataViewRequest:
+def _parse_query_request(payload: object) -> QueryDataViewRequest | AnalyticsDataViewRequest:
     try:
         return QueryDataViewRequest.model_validate(payload)
     except Exception as exc:
@@ -229,7 +283,7 @@ def _build_fetch_constraints(
 
 
 def _build_quality_report_payload(*, result: FetchResult[Any], dataset_id: str) -> dict[str, Any]:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     data_age_seconds: int | None = None
     if result.source_updated_at is not None:
         data_age_seconds = max(
@@ -292,7 +346,7 @@ def _quality_grade(tier: QualityTier) -> str:
     return "F"
 
 
-def _persist_warnings(store: FileSystemCAS, result: FetchResult[Any]) -> WarningsRef | None:
+def _persist_warnings(store: ArtifactStore, result: FetchResult[Any]) -> WarningsRef | None:
     warnings: list[WarningRecord] = []
     for flag in sorted(result.quality_flags):
         warnings.append(
@@ -312,7 +366,7 @@ def _persist_warnings(store: FileSystemCAS, result: FetchResult[Any]) -> Warning
         return None
     warnings_ref = store.put_json(
         WarningsBundle(warnings=warnings),
-        PutOptions(
+        ArtifactWriteOptions(
             kind="fabric.warnings",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.WarningsBundle", version="1.0"),
@@ -327,7 +381,7 @@ def _coerce_evidence_ref(result: FetchResult[Any]) -> EvidenceBundleRef | None:
     return EvidenceBundleRef.model_validate(result.evidence_ref.model_dump(mode="json"))
 
 
-def _collect_snapshot_semantics(data: Any) -> tuple[dict[str, str], list[str]]:
+def _collect_snapshot_semantics(data: object) -> tuple[dict[str, str], list[str]]:
     fields = _payload_field_names(data)
     if not fields:
         return {}, []
@@ -337,7 +391,13 @@ def _collect_snapshot_semantics(data: Any) -> tuple[dict[str, str], list[str]]:
 
     survey_year_field = _first_field(fields, "survey_year", "SurveyYear")
     wave_field = _first_field(fields, "wave", "Wave")
-    sample_weight_field = _first_field(fields, "sample_weight", "sample_weights", "weight", "weights")
+    sample_weight_field = _first_field(
+        fields,
+        "sample_weight",
+        "sample_weights",
+        "weight",
+        "weights",
+    )
     inclusion_prob_field = _first_field(
         fields,
         "inclusion_probabilities",
@@ -363,10 +423,10 @@ def _collect_snapshot_semantics(data: Any) -> tuple[dict[str, str], list[str]]:
     return stats, notes
 
 
-def _payload_field_names(data: Any) -> set[str]:
+def _payload_field_names(data: object) -> set[str]:
     if data is None:
         return set()
-    if hasattr(data, "columns"):
+    if isinstance(data, ColumnarPayloadLike):
         try:
             return {str(column) for column in list(data.columns)}
         except Exception:
@@ -375,16 +435,16 @@ def _payload_field_names(data: Any) -> set[str]:
         fields: set[str] = set()
         for row in data[:5]:
             if isinstance(row, dict):
-                fields.update(str(key) for key in row.keys())
+                fields.update(str(key) for key in row)
         return fields
     if isinstance(data, dict):
-        fields = {str(key) for key in data.keys()}
+        fields = {str(key) for key in data}
         for nested_key in ("value", "data", "items", "results", "records"):
             nested = data.get(nested_key)
             if isinstance(nested, list):
                 for row in nested[:5]:
                     if isinstance(row, dict):
-                        fields.update(str(key) for key in row.keys())
+                        fields.update(str(key) for key in row)
                 break
         return fields
     return set()
@@ -397,13 +457,17 @@ def _first_field(fields: set[str], *candidates: str) -> str | None:
     return None
 
 
-def _jsonable(value: Any) -> Any:
-    if hasattr(value, "model_dump"):
+def _jsonable(value: object) -> object:
+    if isinstance(value, ModelDumpLike):
         return value.model_dump(mode="json")
     return value
 
 
-def _enforce_execution_tier(dataset_id: str) -> None:
+def _enforce_execution_tier(
+    dataset_id: str,
+    *,
+    catalog_store: DatasetCatalogStoreLike | None = None,
+) -> None:
     """Check that *dataset_id* meets the minimum execution tier.
 
     The check is best-effort: if the catalog is unavailable or the dataset
@@ -411,9 +475,9 @@ def _enforce_execution_tier(dataset_id: str) -> None:
     with a warning rather than a hard block.
     """
     try:
-        from polisyos.datasets.knowledge.store import DatasetCatalogStore
-
-        catalog = DatasetCatalogStore.get_default()
+        if catalog_store is None:
+            return
+        catalog = catalog_store
         if catalog is None:
             return
         dataset = catalog.get_dataset(dataset_id)
@@ -424,14 +488,14 @@ def _enforce_execution_tier(dataset_id: str) -> None:
         min_rank = _TIER_RANK.get(_MIN_RUNTIME_EXECUTION_TIER, 1)
         actual_rank = _TIER_RANK.get(tier, 2)
         if actual_rank > min_rank:
-            raise ExecutionTierViolation(
+            raise ExecutionTierViolationError(
                 f"Dataset '{dataset_id}' has execution_tier='{tier}' which is "
                 f"below the minimum runtime tier '{_MIN_RUNTIME_EXECUTION_TIER}'. "
                 f"Catalog-only datasets are discoverable but not auto-executable. "
                 f"Promote the dataset to '{_MIN_RUNTIME_EXECUTION_TIER}' or higher "
                 f"before using it in a workflow."
             )
-    except ExecutionTierViolation:
+    except ExecutionTierViolationError:
         raise
     except Exception as exc:
         logger.debug("Execution tier check skipped for '%s': %s", dataset_id, exc)

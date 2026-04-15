@@ -151,7 +151,7 @@ class TaxSubsidyMechanismMethod:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="tax_subsidy",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
         output_slots=_result_slot(),
@@ -206,7 +206,7 @@ class IncomeTaxMechanismMethod:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="income_tax",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
         output_slots=_result_slot(),
@@ -264,7 +264,7 @@ class LaborMarketMechanismMethod:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="labor_market",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
         output_slots=_result_slot(),
@@ -325,7 +325,7 @@ class QueueMechanismMethod:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="queue",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
         output_slots=_result_slot(),
@@ -390,7 +390,7 @@ class AdaptiveAgentMechanismMethod:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="adaptive_agent",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
         output_slots=_result_slot(),

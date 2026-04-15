@@ -4,16 +4,21 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.control import DataNeed, DiscoveryCandidate
-from polisyos.fabric.connectors.profiles import SourceProfileRegistry
 from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
-from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.ir.connectors import ConnectorCapability
+
+from .providers import RetrievalProviders, resolve_retrieval_providers
+
+if TYPE_CHECKING:
+    from polisyos.fabric.connectors.base import ConnectionConfig
+    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
 
 logger = get_logger(__name__)
 
@@ -39,9 +44,19 @@ class ExploreLaneDiscoverResult:
 class ExploreLaneDiscovery:
     """Live discovery orchestrator with strict budget guardrails."""
 
-    def __init__(self) -> None:
-        self._registry = ConnectorRegistry.get_instance()
-        self._profiles = SourceProfileRegistry.get_instance()
+    def __init__(
+        self,
+        *,
+        registry: ConnectorRegistry | None = None,
+        profiles: SourceProfileRegistry | None = None,
+        providers: RetrievalProviders | None = None,
+    ) -> None:
+        resolved = providers or resolve_retrieval_providers(
+            registry=registry,
+            profiles=profiles,
+        )
+        self._registry = resolved.registry
+        self._profiles = resolved.profiles
 
     def discover(
         self,
@@ -50,7 +65,10 @@ class ExploreLaneDiscovery:
         limits: ExploreLaneLimits | None = None,
     ) -> ExploreLaneDiscoverResult:
         active_limits = limits or ExploreLaneLimits()
-        return run_coro_sync(self._discover_async(data_needs, limits=active_limits))
+        return cast(
+            "ExploreLaneDiscoverResult",
+            run_coro_sync(self._discover_async(data_needs, limits=active_limits)),
+        )
 
     async def _discover_async(
         self,
@@ -88,7 +106,11 @@ class ExploreLaneDiscovery:
                 handle = await self._registry.get_connection(connector_id, config)
                 try:
                     per_source_calls = 0
-                    async for descriptor in connector.list_datasets(handle):
+                    dataset_iterator = cast(
+                        "Any",
+                        connector.list_datasets(handle),
+                    )
+                    async for descriptor in dataset_iterator:
                         per_source_calls += 1
                         docs_fetched_total += 1
                         if per_source_calls > limits.max_discovery_calls_per_source:
@@ -135,7 +157,7 @@ class ExploreLaneDiscovery:
                                     else None
                                 ),
                                 schema_excerpt=schema_excerpt,
-                                discovered_at=datetime.now(timezone.utc),
+                                discovered_at=datetime.now(UTC),
                                 metadata={
                                     "tags": list(descriptor.tags),
                                     "supports_filters": list(descriptor.supports_filters),
@@ -161,20 +183,24 @@ class ExploreLaneDiscovery:
             warnings=warnings,
         )
 
-    def _resolve_connection_config(self, family: str, connector_id: str):
+    def _resolve_connection_config(
+        self,
+        family: str,
+        connector_id: str,
+    ) -> ConnectionConfig | None:
         default = self._registry.get_default_config(connector_id)
         if default is not None:
-            return default
+            return cast("ConnectionConfig", default)
         profiles = self._profiles.list_by_family(family)
         if not profiles:
             return None
-        return resolve_connection_config(profiles[0])
+        return cast("ConnectionConfig", resolve_connection_config(profiles[0]))
 
     def _default_profile_id(self, family: str) -> str | None:
         profiles = self._profiles.list_by_family(family)
         if not profiles:
             return None
-        return profiles[0].profile_id
+        return cast("str | None", profiles[0].profile_id)
 
     @staticmethod
     def _descriptor_match_score(*, need: DataNeed, descriptor: Any) -> float:

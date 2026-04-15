@@ -37,6 +37,7 @@ from polisyos.foundry.methods.exceptions import (
 )
 from polisyos.foundry.methods.registry import (
     MethodRegistry,
+    get_registry_audit_log,
     get_registry,
 )
 from polisyos.foundry.methods.resolution import (
@@ -667,6 +668,22 @@ class TestLazyLoading:
         assert load_count["count"] == 1
 
 
+class TestRegistryAuditLog:
+    def test_audit_log_is_bounded(self):
+        audit_log = get_registry_audit_log()
+        audit_log.clear()
+
+        for i in range(audit_log.max_events + 25):
+            audit_log.record("register", f"ns.test_{i}@1.0.0")
+
+        history = audit_log.get_history()
+        assert len(history) == audit_log.max_events
+        assert history[0].fqn == "ns.test_25@1.0.0"
+        assert history[-1].fqn == f"ns.test_{audit_log.max_events + 24}@1.0.0"
+
+        audit_log.clear()
+
+
 # =============================================================================
 # Retrieval Tests
 # =============================================================================
@@ -951,6 +968,34 @@ class TestSnapshot:
 
         assert len(sigs) == 1
         assert sigs[0].name == "a"
+
+    def test_snapshot_entry_does_not_mutate_with_live_lazy_load(self, unitless: Unit):
+        registry = MethodRegistry()
+        signature = create_method_signature(
+            "lazy",
+            "ns",
+            "1.0.0",
+            frozenset(),
+            frozenset(
+                {
+                    SlotSpec(name="value", slot_type=SlotType.SCALAR, unit=unitless)
+                }
+            ),
+        )
+        metadata = MethodMetadata(description="lazy snapshot")
+        lazy_method = create_mock_method("lazy", "ns", "1.0.0")
+        registry.register_lazy(signature, metadata, lambda: lazy_method)
+
+        snapshot = registry.snapshot()
+        snap_entry = next(snapshot.entries())
+        assert snap_entry.loaded is False
+
+        registry.get(signature.fqn)
+        live_entry = registry.get_entry(signature.fqn)
+
+        assert live_entry is not None
+        assert live_entry.loaded is True
+        assert snap_entry.loaded is False
 
 
 # =============================================================================

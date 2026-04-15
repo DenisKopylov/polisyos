@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import pytest
+
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import (
     RunCausalQueriesNode,
 )
-from polisyos.scientist.nodes.builtins import errors as node_errors
 
 
 def test_skip_when_no_causal_query(execution_context, minimal_state):
@@ -45,3 +47,30 @@ def test_fail_when_causal_query_payload_invalid(execution_context, minimal_state
     assert outcome.status == "fail"
     assert outcome.error is not None
     assert outcome.error.code == node_errors.ERROR_INVALID_STATE
+
+
+def test_causal_query_assertion_is_not_swallowed(
+    execution_context, minimal_state, artifact_ref_factory, monkeypatch: pytest.MonkeyPatch
+):
+    ref = artifact_ref_factory(kind="ir.structural_causal_model_spec")
+    state = minimal_state.model_copy(deep=True)
+    state.params["causal_query"] = {
+        "query_type": "interventional",
+        "treatment_variable": "X",
+        "treatment_value": 1.0,
+        "outcome_variable": "Y",
+        "n_samples": 128,
+    }
+    state.params["structural_causal_model_ref"] = ref.model_dump(mode="json")
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("query-broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.CausalQuery.model_validate",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="query-broken"):
+        RunCausalQueriesNode().execute(execution_context, state)

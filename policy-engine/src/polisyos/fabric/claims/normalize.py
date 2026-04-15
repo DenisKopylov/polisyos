@@ -12,6 +12,10 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.fabric.data_plane.quarantine import (
+    QuarantineRecord,
+    persist_quarantine_record,
+)
 from polisyos.fabric.world import (
     emit_claim_facts,
     emit_edge_fact,
@@ -63,6 +67,59 @@ def _require_str(payload: dict[str, Any], field: str) -> str:
 
 def _claim_tie_key(claim: Claim) -> tuple[str, str, str]:
     return (claim.predicate_id, claim.value_text, claim.unit_id or "")
+
+
+def _quarantine_claim(
+    *,
+    cas: FileSystemCAS,
+    claim_artifact_id: str,
+    claim_set_artifact_id: str,
+    claim: Claim,
+    reason: str,
+    message: str,
+    options: ClaimNormalizeOptions,
+    traceback_class: str | None = None,
+) -> str:
+    record = QuarantineRecord.new(
+        reason=reason,
+        severity="error",
+        source="claims.normalize",
+        raw_payload_ref=claim_artifact_id,
+        schema_version=claim.schema_version,
+        traceback_class=traceback_class,
+        retry_policy=options.quarantine_retry_policy,
+        downstream_impacts=("claims.normalize", "world.segment", "world.materialize"),
+        context={
+            "claim_id": claim.claim_id,
+            "claim_set_artifact_id": claim_set_artifact_id,
+            "message": message,
+        },
+    )
+    ref = persist_quarantine_record(
+        cas,
+        record=record,
+        input_artifact_ids=[claim_set_artifact_id, claim_artifact_id],
+    )
+    return str(ref.artifact_id)
+
+
+def _primary_citation_fragment_id(
+    claim: Claim,
+    *,
+    warnings: list[tuple[str, str]] | None = None,
+) -> str:
+    for citation in claim.citations:
+        fragment_id = getattr(citation, "fragment_id", None)
+        if isinstance(fragment_id, str) and fragment_id:
+            return fragment_id
+    if warnings is not None:
+        warnings.append(
+            (
+                "missing_primary_citation",
+                f"claim {claim.claim_id} is missing a usable primary citation",
+            )
+        )
+    return ""
 
 
 def _build_normalized_claim(claim: Claim, *, options: ClaimNormalizeOptions) -> Claim:
@@ -216,8 +273,30 @@ def normalize_claims(
     normalized_pairs: list[tuple[str, Claim]] = []
     derived_pairs: list[tuple[str, str]] = []
     invalid_drops = 0
+    quarantine_record_ids: list[str] = []
 
-    for _, claim in input_claims:
+    for claim_artifact_id, claim in input_claims:
+        if claim.source_kind == ClaimSourceKind.DOC and not claim.citations:
+            invalid_drops += 1
+            warnings.append(
+                (
+                    "missing_primary_citation",
+                    f"quarantined claim {claim.claim_id} because it has no citations",
+                )
+            )
+            if opts.quarantine_invalid:
+                quarantine_record_ids.append(
+                    _quarantine_claim(
+                        cas=cas,
+                        claim_artifact_id=claim_artifact_id,
+                        claim_set_artifact_id=claim_set_artifact_id,
+                        claim=claim,
+                        reason="missing_primary_citation",
+                        message="document claim has no citations",
+                        options=opts,
+                    )
+                )
+            continue
         try:
             normalized_claim = _build_normalized_claim(claim, options=opts)
         except ClaimValidationError as exc:
@@ -225,6 +304,19 @@ def normalize_claims(
                 raise
             invalid_drops += 1
             warnings.append(("normalize_error", str(exc)))
+            if opts.quarantine_invalid:
+                quarantine_record_ids.append(
+                    _quarantine_claim(
+                        cas=cas,
+                        claim_artifact_id=claim_artifact_id,
+                        claim_set_artifact_id=claim_set_artifact_id,
+                        claim=claim,
+                        reason="normalize_error",
+                        message=str(exc),
+                        options=opts,
+                        traceback_class=type(exc).__name__,
+                    )
+                )
             continue
         normalized_pairs.append((claim.claim_id, normalized_claim))
         if normalized_claim.claim_id != claim.claim_id:
@@ -243,8 +335,8 @@ def normalize_claims(
         claim_artifact_id = str(claim_ref.artifact_id)
         output_claim_artifact_ids.append(claim_artifact_id)
         source_fragment_id = (
-            claim.citations[0].fragment_id
-            if claim.source_kind == ClaimSourceKind.DOC and claim.citations
+            _primary_citation_fragment_id(claim, warnings=warnings)
+            if claim.source_kind == ClaimSourceKind.DOC
             else ""
         )
         output_claim_entries.append(
@@ -295,11 +387,16 @@ def normalize_claims(
             "input_claims": len(input_claims),
             "claims_emitted": len(deduped_claims),
             "claims_dropped": claims_dropped,
+            "claims_quarantined": len(quarantine_record_ids),
         },
     }
     warning_rows = _warning_rows(warnings)
     if warning_rows:
         normalized_claim_set_payload["warnings"] = warning_rows
+    if quarantine_record_ids:
+        normalized_claim_set_payload["quarantine_record_ids"] = sorted(
+            set(quarantine_record_ids)
+        )
 
     claim_set_inputs = [("input_claim_set", claim_set_artifact_id)]
     claim_set_inputs.extend(
@@ -371,6 +468,7 @@ def normalize_claims(
         evidence_ref=evidence_ref,
         world_segment_manifest=manifest,
         derived_edges=derived_pairs,
+        quarantine_record_ids=sorted(set(quarantine_record_ids)),
     )
 
 

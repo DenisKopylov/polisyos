@@ -18,12 +18,87 @@ from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, Rat
 
 from .reports import LinkIssue, LinkIssueCode, LinkSeverity
 
+_MISSING_PARAM = object()
+MAX_PARAM_PATH_DEPTH = 16
+
+
+class _ParamPathError(ValueError):
+    def __init__(self, *, path: str, message: str) -> None:
+        self.path = path
+        super().__init__(message)
+
+
+def _validate_param_structure(
+    value: Any,
+    issues: list[LinkIssue],
+    *,
+    path: list[str | int],
+    ids: dict[str, str],
+    depth: int = 0,
+) -> None:
+    if depth > MAX_PARAM_PATH_DEPTH:
+        issues.append(
+            LinkIssue(
+                severity=LinkSeverity.ERROR,
+                code=LinkIssueCode.PARAM_PATH,
+                message=(
+                    f"Parameter payload nesting exceeds max depth {MAX_PARAM_PATH_DEPTH}"
+                ),
+                path=path,
+                ids=ids,
+                data={"max_depth": MAX_PARAM_PATH_DEPTH},
+            )
+        )
+        return
+    if isinstance(value, dict):
+        for key in sorted(value):
+            if "." in key:
+                issues.append(
+                    LinkIssue(
+                        severity=LinkSeverity.ERROR,
+                        code=LinkIssueCode.PARAM_PATH,
+                        message=(
+                            "Dots in parameter field names are not supported; "
+                            "use nested objects with dot-separated ParamSpec.param_id"
+                        ),
+                        path=path + [key],
+                        ids=ids,
+                    )
+                )
+                continue
+            _validate_param_structure(
+                value[key],
+                issues,
+                path=path + [key],
+                ids=ids,
+                depth=depth + 1,
+            )
+        return
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            if isinstance(item, (dict, list)):
+                _validate_param_structure(
+                    item,
+                    issues,
+                    path=path + [index],
+                    ids=ids,
+                    depth=depth + 1,
+                )
+
 
 def _get_param_value(params: dict[str, Any], path: str) -> Any:
+    if not path or path.startswith(".") or path.endswith(".") or ".." in path:
+        raise _ParamPathError(path=path, message=f"Invalid param path '{path}'")
+    parts = path.split(".")
+    if len(parts) > MAX_PARAM_PATH_DEPTH:
+        raise _ParamPathError(
+            path=path,
+            message=f"Param path exceeds max depth {MAX_PARAM_PATH_DEPTH}",
+        )
     current: Any = params
-    for part in path.split("."):
+    for part in parts:
         if not isinstance(current, dict) or part not in current:
-            return None
+            return _MISSING_PARAM
         current = current[part]
     return current
 
@@ -86,10 +161,29 @@ def _validate_params(
 ) -> None:
     params = intervention.params
     spec_params = mech.params
+    _validate_param_structure(
+        params,
+        issues,
+        path=path_prefix,
+        ids=ids,
+    )
 
     for param_id, spec in spec_params.items():
-        value = _get_param_value(params, param_id)
-        if value is None:
+        try:
+            value = _get_param_value(params, param_id)
+        except _ParamPathError as exc:
+            issues.append(
+                LinkIssue(
+                    severity=LinkSeverity.ERROR,
+                    code=LinkIssueCode.PARAM_PATH,
+                    message=str(exc),
+                    path=path_prefix + [param_id],
+                    ids=ids,
+                    data={"param_path": exc.path},
+                )
+            )
+            continue
+        if value is _MISSING_PARAM:
             if spec.required:
                 issues.append(
                     LinkIssue(
@@ -397,9 +491,11 @@ def _validate_param_unit(
 
 
 __all__ = [
+    "MAX_PARAM_PATH_DEPTH",
     "_as_decimal",
     "_as_rate_decimal",
     "_get_param_value",
+    "_validate_param_structure",
     "_validate_param_unit",
     "_validate_param_value",
     "_validate_params",

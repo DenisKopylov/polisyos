@@ -24,6 +24,7 @@ from polisyos.fabric.connectors.federation.types import (
     ConflictResolutionError,
     MergeLogEntry,
 )
+from polisyos.fabric.finite import is_finite_number
 
 logger = get_logger(__name__)
 
@@ -281,26 +282,41 @@ class ConflictResolver:
         """
         numeric_values: list[float] = []
         numeric_candidates: list[ConflictCandidate] = []
+        skipped_non_finite = 0
 
         for candidate in candidates:
             try:
                 value = float(candidate.value)
-                if not np.isnan(value):
+                if is_finite_number(value):
                     numeric_values.append(value)
                     numeric_candidates.append(candidate)
+                else:
+                    skipped_non_finite += 1
             except (TypeError, ValueError):
                 continue
+
+        if skipped_non_finite and context.request.strict_conflicts:
+            raise ConflictResolutionError(
+                f"MEDIAN policy cannot resolve non-finite data for column {context.column}"
+            )
 
         if not numeric_values:
             if context.request.strict_conflicts:
                 raise ConflictResolutionError(
-                    f"MEDIAN policy cannot handle non-numeric data for column {context.column}"
+                    f"MEDIAN policy cannot handle non-numeric or non-finite data for column {context.column}"
                 )
             logger.warning(
-                "MEDIAN policy cannot handle non-numeric data; falling back to TRUST_HIGHEST",
+                "MEDIAN policy cannot handle non-numeric/non-finite data; falling back to TRUST_HIGHEST",
                 column=context.column,
             )
             return self._resolve_by_trust(candidates, context)
+
+        if skipped_non_finite:
+            logger.warning(
+                "MEDIAN policy ignored non-finite candidates",
+                column=context.column,
+                skipped=skipped_non_finite,
+            )
 
         median_value = float(np.median(numeric_values))
         closest = [

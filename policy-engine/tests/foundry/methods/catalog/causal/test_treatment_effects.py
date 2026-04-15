@@ -6,9 +6,11 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../src"))
 
+from polisyos.foundry.methods.catalog.causal._common import bootstrap_ci
 from polisyos.foundry.methods.catalog.causal.tmle_core import (
     ATENuisanceBundle,
     ATENuisanceContract,
@@ -16,7 +18,11 @@ from polisyos.foundry.methods.catalog.causal.tmle_core import (
     fit_aipw_ate,
     fit_tmle_ate,
 )
-from polisyos.foundry.methods.catalog.causal.treatment_effects import AIPWEstimator, TMLEEstimator
+from polisyos.foundry.methods.catalog.causal.treatment_effects import (
+    AIPWEstimator,
+    IPWEstimator,
+    TMLEEstimator,
+)
 
 
 def _make_state(n: int = 180, seed: int = 7) -> dict[str, np.ndarray]:
@@ -188,3 +194,22 @@ def test_overlap_ntv_triggers_coverage_guard_interval_inflation() -> None:
     assert low_method == "bootstrap_eif"
     assert high_method.endswith("+coverage_guard")
     assert (high_ci_hi - high_ci_lo) > (low_ci_hi - low_ci_lo)
+
+
+def test_ipw_uses_hajek_interval_and_weight_diagnostics() -> None:
+    state = _make_state()
+    result = IPWEstimator.pure_step(state, {"trimming": 0.02})
+    inner = result["result"]
+
+    assert inner["interval_method"] == "hajek_influence"
+    assert inner["ci_lower"] <= inner["ate"] <= inner["ci_upper"]
+    assert inner["effective_sample_size_treated"] > 0
+    assert inner["effective_sample_size_control"] > 0
+    assert inner["n_clipped_propensities"] >= 0
+
+
+def test_bootstrap_ci_ignores_non_finite_draws() -> None:
+    lower, upper = bootstrap_ci(np.array([np.nan, 1.0, 2.0, np.inf]), confidence_level=0.9)
+
+    assert lower == pytest.approx(1.05)
+    assert upper == pytest.approx(1.95)

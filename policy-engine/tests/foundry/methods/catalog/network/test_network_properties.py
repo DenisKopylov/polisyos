@@ -18,12 +18,7 @@ sys.path.insert(0, "src")
 
 
 def _method_or_skip(registry, fqn):
-    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-    ensure_all_methods_registered(registry)
-    try:
-        return registry.get(fqn)
-    except Exception:
-        pytest.skip(f"{fqn} not registered")
+    return registry.get(fqn)
 
 
 @st.composite

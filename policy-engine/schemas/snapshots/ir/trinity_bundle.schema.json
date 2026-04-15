@@ -349,6 +349,38 @@
       "title": "AssumptionType",
       "type": "string"
     },
+    "BayesianTypeSpec": {
+      "additionalProperties": false,
+      "description": "Private-type support for one strategic participant.",
+      "properties": {
+        "player_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Player Id",
+          "type": "string"
+        },
+        "prior_probabilities": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Prior Probabilities",
+          "type": "object"
+        },
+        "type_space": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Type Space",
+          "type": "array"
+        }
+      },
+      "required": [
+        "player_id",
+        "type_space"
+      ],
+      "title": "BayesianTypeSpec",
+      "type": "object"
+    },
     "ConstraintSpec": {
       "additionalProperties": false,
       "description": "Specify one feasibility boundary or soft penalty attached to a metric slot.\n\nHard constraints are expected to fail governance or search admission when\nviolated, whereas soft constraints may be traded off using\n``penalty_weight``. Use ``slot_id`` and ``operator`` when the constraint is\ntied to a concrete metric channel.",
@@ -417,7 +449,7 @@
         "slot_id": {
           "anyOf": [
             {
-              "pattern": "^[a-z][a-z0-9_]*$",
+              "pattern": "^[a-z][a-z0-9_.]*$",
               "type": "string"
             },
             {
@@ -671,6 +703,99 @@
       "title": "EnvironmentParam",
       "type": "object"
     },
+    "ExtensiveFormNode": {
+      "additionalProperties": false,
+      "description": "One node in an extensive-form policy/mechanism game.",
+      "properties": {
+        "actor_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actor Id"
+        },
+        "available_actions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Available Actions",
+          "type": "array"
+        },
+        "chance_probabilities": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Chance Probabilities"
+        },
+        "information_set_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Information Set Id"
+        },
+        "node_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Node Id",
+          "type": "string"
+        },
+        "parent_node_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Node Id"
+        },
+        "terminal_payoffs": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terminal Payoffs"
+        }
+      },
+      "required": [
+        "node_id"
+      ],
+      "title": "ExtensiveFormNode",
+      "type": "object"
+    },
     "FidelityLevel": {
       "description": "Select the execution fidelity expected by simulation and calibration runners.\n\nSearch and orchestration layers use this enum to trade speed against model\ndetail; lower-fidelity surrogates are useful for fast scans, while\n``FULL_DISCRETE`` is reserved for high-detail confirmation runs.",
       "enum": [
@@ -787,10 +912,13 @@
           "description": "Agent/entity selector expression",
           "discriminator": {
             "mapping": {
+              "aggregate": "#/$defs/SelectorAggregate",
               "all_of": "#/$defs/SelectorAll",
               "any_of": "#/$defs/SelectorAny",
               "not": "#/$defs/SelectorNot",
-              "predicate": "#/$defs/SelectorPredicate"
+              "predicate": "#/$defs/SelectorPredicate",
+              "quantifier": "#/$defs/SelectorQuantifier",
+              "temporal": "#/$defs/SelectorTemporalPredicate"
             },
             "propertyName": "kind"
           },
@@ -806,6 +934,15 @@
             },
             {
               "$ref": "#/$defs/SelectorNot"
+            },
+            {
+              "$ref": "#/$defs/SelectorQuantifier"
+            },
+            {
+              "$ref": "#/$defs/SelectorAggregate"
+            },
+            {
+              "$ref": "#/$defs/SelectorTemporalPredicate"
             }
           ],
           "title": "Target"
@@ -1006,6 +1143,176 @@
       ],
       "title": "MechanismBinding",
       "type": "object"
+    },
+    "MechanismConstraintType": {
+      "description": "Mechanism-design properties disclosed by the policy author.",
+      "enum": [
+        "dominant_strategy_ic",
+        "bayesian_ic",
+        "ex_post_ir",
+        "ex_interim_ir",
+        "budget_balance",
+        "revenue_monotonicity"
+      ],
+      "title": "MechanismConstraintType",
+      "type": "string"
+    },
+    "MechanismDesignConstraint": {
+      "additionalProperties": false,
+      "description": "One incentive-compatibility or participation constraint.",
+      "properties": {
+        "applies_to_players": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Applies To Players",
+          "type": "array"
+        },
+        "constraint_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Constraint Id",
+          "type": "string"
+        },
+        "constraint_type": {
+          "$ref": "#/$defs/MechanismConstraintType"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "tolerance": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tolerance"
+        }
+      },
+      "required": [
+        "constraint_id",
+        "constraint_type"
+      ],
+      "title": "MechanismDesignConstraint",
+      "type": "object"
+    },
+    "MechanismDesignSpec": {
+      "additionalProperties": false,
+      "description": "Richer strategic/mechanism-design metadata for a policy surface.",
+      "properties": {
+        "action_spaces": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Action Spaces",
+          "type": "object"
+        },
+        "bayesian_types": {
+          "items": {
+            "$ref": "#/$defs/BayesianTypeSpec"
+          },
+          "title": "Bayesian Types",
+          "type": "array"
+        },
+        "constraints": {
+          "items": {
+            "$ref": "#/$defs/MechanismDesignConstraint"
+          },
+          "title": "Constraints",
+          "type": "array"
+        },
+        "design_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Design Id",
+          "type": "string"
+        },
+        "extensive_form_nodes": {
+          "items": {
+            "$ref": "#/$defs/ExtensiveFormNode"
+          },
+          "title": "Extensive Form Nodes",
+          "type": "array"
+        },
+        "mechanism_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Mechanism Ids",
+          "type": "array"
+        },
+        "objective": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Objective"
+        },
+        "players": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Players",
+          "type": "array"
+        },
+        "repeated_game": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RepeatedGameMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "representation": {
+          "$ref": "#/$defs/MechanismGameRepresentation"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "design_id",
+        "representation",
+        "players"
+      ],
+      "title": "MechanismDesignSpec",
+      "type": "object"
+    },
+    "MechanismGameRepresentation": {
+      "description": "Supported mechanism/game representations for governance artifacts.",
+      "enum": [
+        "normal_form",
+        "extensive_form",
+        "bayesian"
+      ],
+      "title": "MechanismGameRepresentation",
+      "type": "string"
     },
     "ModelSpec": {
       "additionalProperties": false,
@@ -1453,10 +1760,297 @@
       "title": "ParameterSpec",
       "type": "object"
     },
+    "PolicyCompatibilityConstraint": {
+      "additionalProperties": false,
+      "description": "Compatibility requirement between a higher and lower policy layer.",
+      "properties": {
+        "constraint_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Constraint Id",
+          "type": "string"
+        },
+        "higher_layer_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Higher Layer Id",
+          "type": "string"
+        },
+        "lower_layer_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Lower Layer Id",
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/PolicyCompatibilityMode"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "required_policy_refs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Policy Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "constraint_id",
+        "higher_layer_id",
+        "lower_layer_id",
+        "mode"
+      ],
+      "title": "PolicyCompatibilityConstraint",
+      "type": "object"
+    },
+    "PolicyCompatibilityMode": {
+      "description": "Compatibility contract between stacked policy layers.",
+      "enum": [
+        "strict_subset",
+        "extends",
+        "requires_approval",
+        "incompatible"
+      ],
+      "title": "PolicyCompatibilityMode",
+      "type": "string"
+    },
+    "PolicyCompositionPlan": {
+      "additionalProperties": false,
+      "description": "Versioned multi-level policy composition plan.",
+      "properties": {
+        "base_policy_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Base Policy Id",
+          "type": "string"
+        },
+        "compatibility_constraints": {
+          "items": {
+            "$ref": "#/$defs/PolicyCompatibilityConstraint"
+          },
+          "maxItems": 64,
+          "title": "Compatibility Constraints",
+          "type": "array"
+        },
+        "composition_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Composition Id",
+          "type": "string"
+        },
+        "layers": {
+          "items": {
+            "$ref": "#/$defs/PolicyLayerSpec"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Layers",
+          "type": "array"
+        },
+        "override_rules": {
+          "items": {
+            "$ref": "#/$defs/PolicyOverrideRule"
+          },
+          "maxItems": 64,
+          "title": "Override Rules",
+          "type": "array"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "versioning_mode": {
+          "$ref": "#/$defs/PolicyVersioningMode",
+          "default": "explicit_negotiation"
+        }
+      },
+      "required": [
+        "composition_id",
+        "base_policy_id",
+        "layers"
+      ],
+      "title": "PolicyCompositionPlan",
+      "type": "object"
+    },
+    "PolicyLayerLevel": {
+      "description": "Supported override layers in a composed policy stack.",
+      "enum": [
+        "federal",
+        "state",
+        "local",
+        "organizational"
+      ],
+      "title": "PolicyLayerLevel",
+      "type": "string"
+    },
+    "PolicyLayerSpec": {
+      "additionalProperties": false,
+      "description": "One policy layer participating in a multi-jurisdiction composition.",
+      "properties": {
+        "effective_from": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}-\\d{2}(-\\d{2})?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}-\\d{2}(-\\d{2})?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "jurisdiction_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Jurisdiction Id",
+          "type": "string"
+        },
+        "layer_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Layer Id",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/PolicyLayerLevel"
+        },
+        "policy_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "precedence": {
+          "minimum": 0,
+          "title": "Precedence",
+          "type": "integer"
+        },
+        "version_tag": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Version Tag",
+          "type": "string"
+        }
+      },
+      "required": [
+        "layer_id",
+        "level",
+        "jurisdiction_id",
+        "policy_id",
+        "version_tag",
+        "precedence"
+      ],
+      "title": "PolicyLayerSpec",
+      "type": "object"
+    },
+    "PolicyOverrideMode": {
+      "description": "How a lower layer interacts with an inherited policy surface.",
+      "enum": [
+        "inherit",
+        "append",
+        "replace",
+        "disable"
+      ],
+      "title": "PolicyOverrideMode",
+      "type": "string"
+    },
+    "PolicyOverrideRule": {
+      "additionalProperties": false,
+      "description": "Override applied by one policy layer to another.",
+      "properties": {
+        "justification": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Justification",
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/PolicyOverrideMode"
+        },
+        "override_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Override Id",
+          "type": "string"
+        },
+        "source_layer_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Source Layer Id",
+          "type": "string"
+        },
+        "target_constraint_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Constraint Id"
+        },
+        "target_intervention_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Intervention Id"
+        },
+        "target_layer_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Target Layer Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "override_id",
+        "source_layer_id",
+        "target_layer_id",
+        "mode",
+        "justification"
+      ],
+      "title": "PolicyOverrideRule",
+      "type": "object"
+    },
     "PolicySpec": {
       "additionalProperties": false,
       "description": "Define the Trinity intervention/governance contract for policy proposals.\n\n``PolicySpec`` answers \"which intervention is being proposed and under what\nexecution semantics?\" It should reference a stable ``ProblemFrame`` and can\nbe iterated by search, optimization, or human authoring while ``ModelSpec``\nsupplies alternative world-model assumptions. Use ``interventions`` for the\nauthored action set, ``mechanism_bindings`` for runtime mechanism mapping,\nand ``parameters`` for calibration/search knobs.\n\nAttributes:\n    policy_id: Stable identifier for the proposal candidate.\n    problem_frame_ref: Optional content-addressed link to the ``ProblemFrame``\n        this proposal is meant to satisfy.\n    interventions: Concrete actions with selector, schedule, and mechanism\n        parameters.\n    mechanism_bindings: Explicit runtime mechanism bindings for one or more\n        interventions.\n    parameters: Tunable knobs exposed to calibration and sensitivity passes.\n    global_schedule: Optional schedule override shared by all interventions.",
       "properties": {
+        "composition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PolicyCompositionPlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional multi-level override/composition metadata"
+        },
         "description": {
           "anyOf": [
             {
@@ -1507,6 +2101,18 @@
           "maxItems": 100,
           "title": "Mechanism Bindings",
           "type": "array"
+        },
+        "mechanism_design": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MechanismDesignSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional strategic/mechanism-design contract for the policy"
         },
         "name": {
           "anyOf": [
@@ -1562,6 +2168,15 @@
           "title": "Schema Version",
           "type": "string"
         },
+        "temporal_constraints": {
+          "description": "Temporal compliance/consistency constraints for the policy",
+          "items": {
+            "$ref": "#/$defs/TemporalPolicyConstraint"
+          },
+          "maxItems": 64,
+          "title": "Temporal Constraints",
+          "type": "array"
+        },
         "version_tag": {
           "anyOf": [
             {
@@ -1582,6 +2197,16 @@
       ],
       "title": "PolicySpec",
       "type": "object"
+    },
+    "PolicyVersioningMode": {
+      "description": "How versions are negotiated across composed layers.",
+      "enum": [
+        "lockstep",
+        "independent",
+        "explicit_negotiation"
+      ],
+      "title": "PolicyVersioningMode",
+      "type": "string"
     },
     "ProblemDomain": {
       "description": "Classify the domain vocabulary used to route metrics and templates.\n\nThe domain label is consumed by authoring tools and reporting layers to\nchoose problem-specific defaults; ``CUSTOM`` is the escape hatch when no\nbuilt-in domain taxonomy applies.",
@@ -1757,6 +2382,63 @@
       "title": "RateValue",
       "type": "object"
     },
+    "RepeatedGameHorizon": {
+      "description": "Repeated-game horizon semantics.",
+      "enum": [
+        "one_shot",
+        "finite",
+        "infinite"
+      ],
+      "title": "RepeatedGameHorizon",
+      "type": "string"
+    },
+    "RepeatedGameMetadata": {
+      "additionalProperties": false,
+      "description": "Repeated-game metadata layered on top of one-shot mechanism design.",
+      "properties": {
+        "discount_factor": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discount Factor"
+        },
+        "horizon": {
+          "$ref": "#/$defs/RepeatedGameHorizon",
+          "default": "one_shot"
+        },
+        "n_rounds": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N Rounds"
+        },
+        "public_signal_fields": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Public Signal Fields",
+          "type": "array"
+        }
+      },
+      "title": "RepeatedGameMetadata",
+      "type": "object"
+    },
     "ScheduleSpec": {
       "additionalProperties": false,
       "description": "Describe when an intervention or task is active in step-indexed Trinity schedules.",
@@ -1799,6 +2481,129 @@
       "title": "ScheduleSpec",
       "type": "object"
     },
+    "SelectorAggregate": {
+      "additionalProperties": false,
+      "description": "Aggregate selector predicate over a collection.",
+      "properties": {
+        "aggregation": {
+          "$ref": "#/$defs/SelectorAggregationFunction"
+        },
+        "collection_field": {
+          "maxLength": 128,
+          "title": "Collection Field",
+          "type": "string"
+        },
+        "kind": {
+          "const": "aggregate",
+          "default": "aggregate",
+          "title": "Kind",
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/$defs/SelectorOperator"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Value"
+        },
+        "value_field": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Field"
+        },
+        "where": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "aggregate": "#/$defs/SelectorAggregate",
+                  "all_of": "#/$defs/SelectorAll",
+                  "any_of": "#/$defs/SelectorAny",
+                  "not": "#/$defs/SelectorNot",
+                  "predicate": "#/$defs/SelectorPredicate",
+                  "quantifier": "#/$defs/SelectorQuantifier",
+                  "temporal": "#/$defs/SelectorTemporalPredicate"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/SelectorPredicate"
+                },
+                {
+                  "$ref": "#/$defs/SelectorAll"
+                },
+                {
+                  "$ref": "#/$defs/SelectorAny"
+                },
+                {
+                  "$ref": "#/$defs/SelectorNot"
+                },
+                {
+                  "$ref": "#/$defs/SelectorQuantifier"
+                },
+                {
+                  "$ref": "#/$defs/SelectorAggregate"
+                },
+                {
+                  "$ref": "#/$defs/SelectorTemporalPredicate"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Where"
+        }
+      },
+      "required": [
+        "aggregation",
+        "collection_field",
+        "operator",
+        "value"
+      ],
+      "title": "SelectorAggregate",
+      "type": "object"
+    },
+    "SelectorAggregationFunction": {
+      "description": "Aggregate functions supported inside selector predicates.",
+      "enum": [
+        "count",
+        "sum",
+        "avg",
+        "min",
+        "max"
+      ],
+      "title": "SelectorAggregationFunction",
+      "type": "string"
+    },
     "SelectorAll": {
       "additionalProperties": false,
       "description": "Selector all public type.",
@@ -1807,10 +2612,13 @@
           "items": {
             "discriminator": {
               "mapping": {
+                "aggregate": "#/$defs/SelectorAggregate",
                 "all_of": "#/$defs/SelectorAll",
                 "any_of": "#/$defs/SelectorAny",
                 "not": "#/$defs/SelectorNot",
-                "predicate": "#/$defs/SelectorPredicate"
+                "predicate": "#/$defs/SelectorPredicate",
+                "quantifier": "#/$defs/SelectorQuantifier",
+                "temporal": "#/$defs/SelectorTemporalPredicate"
               },
               "propertyName": "kind"
             },
@@ -1826,9 +2634,20 @@
               },
               {
                 "$ref": "#/$defs/SelectorNot"
+              },
+              {
+                "$ref": "#/$defs/SelectorQuantifier"
+              },
+              {
+                "$ref": "#/$defs/SelectorAggregate"
+              },
+              {
+                "$ref": "#/$defs/SelectorTemporalPredicate"
               }
             ]
           },
+          "maxItems": 32,
+          "minItems": 1,
           "title": "Clauses",
           "type": "array"
         },
@@ -1853,10 +2672,13 @@
           "items": {
             "discriminator": {
               "mapping": {
+                "aggregate": "#/$defs/SelectorAggregate",
                 "all_of": "#/$defs/SelectorAll",
                 "any_of": "#/$defs/SelectorAny",
                 "not": "#/$defs/SelectorNot",
-                "predicate": "#/$defs/SelectorPredicate"
+                "predicate": "#/$defs/SelectorPredicate",
+                "quantifier": "#/$defs/SelectorQuantifier",
+                "temporal": "#/$defs/SelectorTemporalPredicate"
               },
               "propertyName": "kind"
             },
@@ -1872,9 +2694,20 @@
               },
               {
                 "$ref": "#/$defs/SelectorNot"
+              },
+              {
+                "$ref": "#/$defs/SelectorQuantifier"
+              },
+              {
+                "$ref": "#/$defs/SelectorAggregate"
+              },
+              {
+                "$ref": "#/$defs/SelectorTemporalPredicate"
               }
             ]
           },
+          "maxItems": 32,
+          "minItems": 1,
           "title": "Clauses",
           "type": "array"
         },
@@ -1898,10 +2731,13 @@
         "clause": {
           "discriminator": {
             "mapping": {
+              "aggregate": "#/$defs/SelectorAggregate",
               "all_of": "#/$defs/SelectorAll",
               "any_of": "#/$defs/SelectorAny",
               "not": "#/$defs/SelectorNot",
-              "predicate": "#/$defs/SelectorPredicate"
+              "predicate": "#/$defs/SelectorPredicate",
+              "quantifier": "#/$defs/SelectorQuantifier",
+              "temporal": "#/$defs/SelectorTemporalPredicate"
             },
             "propertyName": "kind"
           },
@@ -1917,6 +2753,15 @@
             },
             {
               "$ref": "#/$defs/SelectorNot"
+            },
+            {
+              "$ref": "#/$defs/SelectorQuantifier"
+            },
+            {
+              "$ref": "#/$defs/SelectorAggregate"
+            },
+            {
+              "$ref": "#/$defs/SelectorTemporalPredicate"
             }
           ],
           "title": "Clause"
@@ -2020,6 +2865,198 @@
         "value"
       ],
       "title": "SelectorPredicate",
+      "type": "object"
+    },
+    "SelectorQuantifier": {
+      "additionalProperties": false,
+      "description": "Quantified selector over a repeated/collection field.",
+      "properties": {
+        "clause": {
+          "discriminator": {
+            "mapping": {
+              "aggregate": "#/$defs/SelectorAggregate",
+              "all_of": "#/$defs/SelectorAll",
+              "any_of": "#/$defs/SelectorAny",
+              "not": "#/$defs/SelectorNot",
+              "predicate": "#/$defs/SelectorPredicate",
+              "quantifier": "#/$defs/SelectorQuantifier",
+              "temporal": "#/$defs/SelectorTemporalPredicate"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/SelectorPredicate"
+            },
+            {
+              "$ref": "#/$defs/SelectorAll"
+            },
+            {
+              "$ref": "#/$defs/SelectorAny"
+            },
+            {
+              "$ref": "#/$defs/SelectorNot"
+            },
+            {
+              "$ref": "#/$defs/SelectorQuantifier"
+            },
+            {
+              "$ref": "#/$defs/SelectorAggregate"
+            },
+            {
+              "$ref": "#/$defs/SelectorTemporalPredicate"
+            }
+          ],
+          "title": "Clause"
+        },
+        "collection_field": {
+          "maxLength": 128,
+          "title": "Collection Field",
+          "type": "string"
+        },
+        "kind": {
+          "const": "quantifier",
+          "default": "quantifier",
+          "title": "Kind",
+          "type": "string"
+        },
+        "quantifier": {
+          "$ref": "#/$defs/SelectorQuantifierKind"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        }
+      },
+      "required": [
+        "quantifier",
+        "collection_field",
+        "clause"
+      ],
+      "title": "SelectorQuantifier",
+      "type": "object"
+    },
+    "SelectorQuantifierKind": {
+      "description": "Quantified collection selectors.",
+      "enum": [
+        "exists",
+        "for_all",
+        "at_least",
+        "at_most",
+        "exactly"
+      ],
+      "title": "SelectorQuantifierKind",
+      "type": "string"
+    },
+    "SelectorTemporalOperator": {
+      "description": "Temporal wrappers for selector predicates.",
+      "enum": [
+        "ever",
+        "always_within",
+        "eventually_within",
+        "historically_within"
+      ],
+      "title": "SelectorTemporalOperator",
+      "type": "string"
+    },
+    "SelectorTemporalPredicate": {
+      "additionalProperties": false,
+      "description": "Temporal wrapper around a selector clause.",
+      "properties": {
+        "clause": {
+          "discriminator": {
+            "mapping": {
+              "aggregate": "#/$defs/SelectorAggregate",
+              "all_of": "#/$defs/SelectorAll",
+              "any_of": "#/$defs/SelectorAny",
+              "not": "#/$defs/SelectorNot",
+              "predicate": "#/$defs/SelectorPredicate",
+              "quantifier": "#/$defs/SelectorQuantifier",
+              "temporal": "#/$defs/SelectorTemporalPredicate"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/SelectorPredicate"
+            },
+            {
+              "$ref": "#/$defs/SelectorAll"
+            },
+            {
+              "$ref": "#/$defs/SelectorAny"
+            },
+            {
+              "$ref": "#/$defs/SelectorNot"
+            },
+            {
+              "$ref": "#/$defs/SelectorQuantifier"
+            },
+            {
+              "$ref": "#/$defs/SelectorAggregate"
+            },
+            {
+              "$ref": "#/$defs/SelectorTemporalPredicate"
+            }
+          ],
+          "title": "Clause"
+        },
+        "clock_field": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clock Field"
+        },
+        "kind": {
+          "const": "temporal",
+          "default": "temporal",
+          "title": "Kind",
+          "type": "string"
+        },
+        "lower_bound": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Lower Bound",
+          "type": "integer"
+        },
+        "temporal_operator": {
+          "$ref": "#/$defs/SelectorTemporalOperator"
+        },
+        "upper_bound": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper Bound"
+        }
+      },
+      "required": [
+        "temporal_operator",
+        "clause"
+      ],
+      "title": "SelectorTemporalPredicate",
       "type": "object"
     },
     "StakeholderOutcomeBinding": {
@@ -2425,6 +3462,953 @@
       ],
       "title": "SuccessCriterion",
       "type": "object"
+    },
+    "TemporalAll": {
+      "additionalProperties": false,
+      "description": "Conjunction over temporal clauses.",
+      "properties": {
+        "clauses": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "all_of": "#/$defs/TemporalAll",
+                "any_of": "#/$defs/TemporalAny",
+                "atom": "#/$defs/TemporalAtom",
+                "binary": "#/$defs/TemporalBinaryFormula",
+                "bounded": "#/$defs/TemporalBoundedFormula",
+                "not": "#/$defs/TemporalNot",
+                "path": "#/$defs/TemporalPathFormula",
+                "unary": "#/$defs/TemporalUnaryFormula"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/TemporalAtom"
+              },
+              {
+                "$ref": "#/$defs/TemporalNot"
+              },
+              {
+                "$ref": "#/$defs/TemporalAll"
+              },
+              {
+                "$ref": "#/$defs/TemporalAny"
+              },
+              {
+                "$ref": "#/$defs/TemporalUnaryFormula"
+              },
+              {
+                "$ref": "#/$defs/TemporalBinaryFormula"
+              },
+              {
+                "$ref": "#/$defs/TemporalBoundedFormula"
+              },
+              {
+                "$ref": "#/$defs/TemporalPathFormula"
+              }
+            ]
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Clauses",
+          "type": "array"
+        },
+        "kind": {
+          "const": "all_of",
+          "default": "all_of",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clauses"
+      ],
+      "title": "TemporalAll",
+      "type": "object"
+    },
+    "TemporalAny": {
+      "additionalProperties": false,
+      "description": "Disjunction over temporal clauses.",
+      "properties": {
+        "clauses": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "all_of": "#/$defs/TemporalAll",
+                "any_of": "#/$defs/TemporalAny",
+                "atom": "#/$defs/TemporalAtom",
+                "binary": "#/$defs/TemporalBinaryFormula",
+                "bounded": "#/$defs/TemporalBoundedFormula",
+                "not": "#/$defs/TemporalNot",
+                "path": "#/$defs/TemporalPathFormula",
+                "unary": "#/$defs/TemporalUnaryFormula"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/TemporalAtom"
+              },
+              {
+                "$ref": "#/$defs/TemporalNot"
+              },
+              {
+                "$ref": "#/$defs/TemporalAll"
+              },
+              {
+                "$ref": "#/$defs/TemporalAny"
+              },
+              {
+                "$ref": "#/$defs/TemporalUnaryFormula"
+              },
+              {
+                "$ref": "#/$defs/TemporalBinaryFormula"
+              },
+              {
+                "$ref": "#/$defs/TemporalBoundedFormula"
+              },
+              {
+                "$ref": "#/$defs/TemporalPathFormula"
+              }
+            ]
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Clauses",
+          "type": "array"
+        },
+        "kind": {
+          "const": "any_of",
+          "default": "any_of",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clauses"
+      ],
+      "title": "TemporalAny",
+      "type": "object"
+    },
+    "TemporalAtom": {
+      "additionalProperties": false,
+      "description": "Atomic temporal proposition backed by selector or metric comparison.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "kind": {
+          "const": "atom",
+          "default": "atom",
+          "title": "Kind",
+          "type": "string"
+        },
+        "metric_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric Path"
+        },
+        "operator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SelectorOperator"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "proposition_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proposition Id"
+        },
+        "selector": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "aggregate": "#/$defs/SelectorAggregate",
+                  "all_of": "#/$defs/SelectorAll",
+                  "any_of": "#/$defs/SelectorAny",
+                  "not": "#/$defs/SelectorNot",
+                  "predicate": "#/$defs/SelectorPredicate",
+                  "quantifier": "#/$defs/SelectorQuantifier",
+                  "temporal": "#/$defs/SelectorTemporalPredicate"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/SelectorPredicate"
+                },
+                {
+                  "$ref": "#/$defs/SelectorAll"
+                },
+                {
+                  "$ref": "#/$defs/SelectorAny"
+                },
+                {
+                  "$ref": "#/$defs/SelectorNot"
+                },
+                {
+                  "$ref": "#/$defs/SelectorQuantifier"
+                },
+                {
+                  "$ref": "#/$defs/SelectorAggregate"
+                },
+                {
+                  "$ref": "#/$defs/SelectorTemporalPredicate"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selector"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "title": "TemporalAtom",
+      "type": "object"
+    },
+    "TemporalBinaryFormula": {
+      "additionalProperties": false,
+      "description": "Binary temporal operator application.",
+      "properties": {
+        "kind": {
+          "const": "binary",
+          "default": "binary",
+          "title": "Kind",
+          "type": "string"
+        },
+        "left": {
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/TemporalAll",
+              "any_of": "#/$defs/TemporalAny",
+              "atom": "#/$defs/TemporalAtom",
+              "binary": "#/$defs/TemporalBinaryFormula",
+              "bounded": "#/$defs/TemporalBoundedFormula",
+              "not": "#/$defs/TemporalNot",
+              "path": "#/$defs/TemporalPathFormula",
+              "unary": "#/$defs/TemporalUnaryFormula"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TemporalAtom"
+            },
+            {
+              "$ref": "#/$defs/TemporalNot"
+            },
+            {
+              "$ref": "#/$defs/TemporalAll"
+            },
+            {
+              "$ref": "#/$defs/TemporalAny"
+            },
+            {
+              "$ref": "#/$defs/TemporalUnaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBinaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBoundedFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalPathFormula"
+            }
+          ],
+          "title": "Left"
+        },
+        "operator": {
+          "$ref": "#/$defs/TemporalBinaryOperator"
+        },
+        "right": {
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/TemporalAll",
+              "any_of": "#/$defs/TemporalAny",
+              "atom": "#/$defs/TemporalAtom",
+              "binary": "#/$defs/TemporalBinaryFormula",
+              "bounded": "#/$defs/TemporalBoundedFormula",
+              "not": "#/$defs/TemporalNot",
+              "path": "#/$defs/TemporalPathFormula",
+              "unary": "#/$defs/TemporalUnaryFormula"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TemporalAtom"
+            },
+            {
+              "$ref": "#/$defs/TemporalNot"
+            },
+            {
+              "$ref": "#/$defs/TemporalAll"
+            },
+            {
+              "$ref": "#/$defs/TemporalAny"
+            },
+            {
+              "$ref": "#/$defs/TemporalUnaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBinaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBoundedFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalPathFormula"
+            }
+          ],
+          "title": "Right"
+        }
+      },
+      "required": [
+        "operator",
+        "left",
+        "right"
+      ],
+      "title": "TemporalBinaryFormula",
+      "type": "object"
+    },
+    "TemporalBinaryOperator": {
+      "description": "Binary operators used across temporal-logic subsets.",
+      "enum": [
+        "implies",
+        "until",
+        "release"
+      ],
+      "title": "TemporalBinaryOperator",
+      "type": "string"
+    },
+    "TemporalBoundedFormula": {
+      "additionalProperties": false,
+      "description": "MTL bounded temporal operator application.",
+      "properties": {
+        "clause": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "all_of": "#/$defs/TemporalAll",
+                  "any_of": "#/$defs/TemporalAny",
+                  "atom": "#/$defs/TemporalAtom",
+                  "binary": "#/$defs/TemporalBinaryFormula",
+                  "bounded": "#/$defs/TemporalBoundedFormula",
+                  "not": "#/$defs/TemporalNot",
+                  "path": "#/$defs/TemporalPathFormula",
+                  "unary": "#/$defs/TemporalUnaryFormula"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/TemporalAtom"
+                },
+                {
+                  "$ref": "#/$defs/TemporalNot"
+                },
+                {
+                  "$ref": "#/$defs/TemporalAll"
+                },
+                {
+                  "$ref": "#/$defs/TemporalAny"
+                },
+                {
+                  "$ref": "#/$defs/TemporalUnaryFormula"
+                },
+                {
+                  "$ref": "#/$defs/TemporalBinaryFormula"
+                },
+                {
+                  "$ref": "#/$defs/TemporalBoundedFormula"
+                },
+                {
+                  "$ref": "#/$defs/TemporalPathFormula"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clause"
+        },
+        "kind": {
+          "const": "bounded",
+          "default": "bounded",
+          "title": "Kind",
+          "type": "string"
+        },
+        "left": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "all_of": "#/$defs/TemporalAll",
+                  "any_of": "#/$defs/TemporalAny",
+                  "atom": "#/$defs/TemporalAtom",
+                  "binary": "#/$defs/TemporalBinaryFormula",
+                  "bounded": "#/$defs/TemporalBoundedFormula",
+                  "not": "#/$defs/TemporalNot",
+                  "path": "#/$defs/TemporalPathFormula",
+                  "unary": "#/$defs/TemporalUnaryFormula"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/TemporalAtom"
+                },
+                {
+                  "$ref": "#/$defs/TemporalNot"
+                },
+                {
+                  "$ref": "#/$defs/TemporalAll"
+                },
+                {
+                  "$ref": "#/$defs/TemporalAny"
+                },
+                {
+                  "$ref": "#/$defs/TemporalUnaryFormula"
+                },
+                {
+                  "$ref": "#/$defs/TemporalBinaryFormula"
+                },
+                {
+                  "$ref": "#/$defs/TemporalBoundedFormula"
+                },
+                {
+                  "$ref": "#/$defs/TemporalPathFormula"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Left"
+        },
+        "lower_bound": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Lower Bound",
+          "type": "integer"
+        },
+        "operator": {
+          "enum": [
+            "eventually",
+            "always",
+            "until"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "right": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "all_of": "#/$defs/TemporalAll",
+                  "any_of": "#/$defs/TemporalAny",
+                  "atom": "#/$defs/TemporalAtom",
+                  "binary": "#/$defs/TemporalBinaryFormula",
+                  "bounded": "#/$defs/TemporalBoundedFormula",
+                  "not": "#/$defs/TemporalNot",
+                  "path": "#/$defs/TemporalPathFormula",
+                  "unary": "#/$defs/TemporalUnaryFormula"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/TemporalAtom"
+                },
+                {
+                  "$ref": "#/$defs/TemporalNot"
+                },
+                {
+                  "$ref": "#/$defs/TemporalAll"
+                },
+                {
+                  "$ref": "#/$defs/TemporalAny"
+                },
+                {
+                  "$ref": "#/$defs/TemporalUnaryFormula"
+                },
+                {
+                  "$ref": "#/$defs/TemporalBinaryFormula"
+                },
+                {
+                  "$ref": "#/$defs/TemporalBoundedFormula"
+                },
+                {
+                  "$ref": "#/$defs/TemporalPathFormula"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Right"
+        },
+        "upper_bound": {
+          "minimum": 0,
+          "title": "Upper Bound",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "operator",
+        "upper_bound"
+      ],
+      "title": "TemporalBoundedFormula",
+      "type": "object"
+    },
+    "TemporalEvaluationScope": {
+      "description": "Where a temporal constraint is expected to be evaluated.",
+      "enum": [
+        "policy_simulation",
+        "compliance_trace",
+        "branching_forecast"
+      ],
+      "title": "TemporalEvaluationScope",
+      "type": "string"
+    },
+    "TemporalExecutionSemantics": {
+      "description": "Execution semantics expected by the runtime or compliance checker.",
+      "enum": [
+        "finite_trace",
+        "branching_tree",
+        "windowed_trace"
+      ],
+      "title": "TemporalExecutionSemantics",
+      "type": "string"
+    },
+    "TemporalLogicFamily": {
+      "description": "Supported temporal-logic subsets for policy/compliance contracts.",
+      "enum": [
+        "ltl",
+        "ctl",
+        "mtl"
+      ],
+      "title": "TemporalLogicFamily",
+      "type": "string"
+    },
+    "TemporalNot": {
+      "additionalProperties": false,
+      "description": "Boolean negation over a temporal formula.",
+      "properties": {
+        "clause": {
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/TemporalAll",
+              "any_of": "#/$defs/TemporalAny",
+              "atom": "#/$defs/TemporalAtom",
+              "binary": "#/$defs/TemporalBinaryFormula",
+              "bounded": "#/$defs/TemporalBoundedFormula",
+              "not": "#/$defs/TemporalNot",
+              "path": "#/$defs/TemporalPathFormula",
+              "unary": "#/$defs/TemporalUnaryFormula"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TemporalAtom"
+            },
+            {
+              "$ref": "#/$defs/TemporalNot"
+            },
+            {
+              "$ref": "#/$defs/TemporalAll"
+            },
+            {
+              "$ref": "#/$defs/TemporalAny"
+            },
+            {
+              "$ref": "#/$defs/TemporalUnaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBinaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBoundedFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalPathFormula"
+            }
+          ],
+          "title": "Clause"
+        },
+        "kind": {
+          "const": "not",
+          "default": "not",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clause"
+      ],
+      "title": "TemporalNot",
+      "type": "object"
+    },
+    "TemporalPathFormula": {
+      "additionalProperties": false,
+      "description": "CTL path quantifier over a temporal formula.",
+      "properties": {
+        "clause": {
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/TemporalAll",
+              "any_of": "#/$defs/TemporalAny",
+              "atom": "#/$defs/TemporalAtom",
+              "binary": "#/$defs/TemporalBinaryFormula",
+              "bounded": "#/$defs/TemporalBoundedFormula",
+              "not": "#/$defs/TemporalNot",
+              "path": "#/$defs/TemporalPathFormula",
+              "unary": "#/$defs/TemporalUnaryFormula"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TemporalAtom"
+            },
+            {
+              "$ref": "#/$defs/TemporalNot"
+            },
+            {
+              "$ref": "#/$defs/TemporalAll"
+            },
+            {
+              "$ref": "#/$defs/TemporalAny"
+            },
+            {
+              "$ref": "#/$defs/TemporalUnaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBinaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBoundedFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalPathFormula"
+            }
+          ],
+          "title": "Clause"
+        },
+        "kind": {
+          "const": "path",
+          "default": "path",
+          "title": "Kind",
+          "type": "string"
+        },
+        "quantifier": {
+          "$ref": "#/$defs/TemporalPathQuantifier"
+        }
+      },
+      "required": [
+        "quantifier",
+        "clause"
+      ],
+      "title": "TemporalPathFormula",
+      "type": "object"
+    },
+    "TemporalPathQuantifier": {
+      "description": "CTL path quantifiers.",
+      "enum": [
+        "for_all_paths",
+        "exists_path"
+      ],
+      "title": "TemporalPathQuantifier",
+      "type": "string"
+    },
+    "TemporalPolicyConstraint": {
+      "additionalProperties": false,
+      "description": "Versioned temporal constraint with explicit execution semantics.",
+      "properties": {
+        "clock_field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clock Field"
+        },
+        "constraint_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Constraint Id",
+          "type": "string"
+        },
+        "evaluation_scope": {
+          "$ref": "#/$defs/TemporalEvaluationScope"
+        },
+        "execution_semantics": {
+          "$ref": "#/$defs/TemporalExecutionSemantics"
+        },
+        "finite_horizon": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finite Horizon"
+        },
+        "formula": {
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/TemporalAll",
+              "any_of": "#/$defs/TemporalAny",
+              "atom": "#/$defs/TemporalAtom",
+              "binary": "#/$defs/TemporalBinaryFormula",
+              "bounded": "#/$defs/TemporalBoundedFormula",
+              "not": "#/$defs/TemporalNot",
+              "path": "#/$defs/TemporalPathFormula",
+              "unary": "#/$defs/TemporalUnaryFormula"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TemporalAtom"
+            },
+            {
+              "$ref": "#/$defs/TemporalNot"
+            },
+            {
+              "$ref": "#/$defs/TemporalAll"
+            },
+            {
+              "$ref": "#/$defs/TemporalAny"
+            },
+            {
+              "$ref": "#/$defs/TemporalUnaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBinaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBoundedFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalPathFormula"
+            }
+          ],
+          "title": "Formula"
+        },
+        "logic_family": {
+          "$ref": "#/$defs/TemporalLogicFamily"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Notes",
+          "type": "array"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "time_domain": {
+          "$ref": "#/$defs/TemporalTimeDomain",
+          "default": "step"
+        }
+      },
+      "required": [
+        "constraint_id",
+        "logic_family",
+        "execution_semantics",
+        "evaluation_scope",
+        "formula"
+      ],
+      "title": "TemporalPolicyConstraint",
+      "type": "object"
+    },
+    "TemporalTimeDomain": {
+      "description": "Clock used by temporal-policy evaluation.",
+      "enum": [
+        "step",
+        "event_time"
+      ],
+      "title": "TemporalTimeDomain",
+      "type": "string"
+    },
+    "TemporalUnaryFormula": {
+      "additionalProperties": false,
+      "description": "Unary temporal operator application.",
+      "properties": {
+        "clause": {
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/TemporalAll",
+              "any_of": "#/$defs/TemporalAny",
+              "atom": "#/$defs/TemporalAtom",
+              "binary": "#/$defs/TemporalBinaryFormula",
+              "bounded": "#/$defs/TemporalBoundedFormula",
+              "not": "#/$defs/TemporalNot",
+              "path": "#/$defs/TemporalPathFormula",
+              "unary": "#/$defs/TemporalUnaryFormula"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TemporalAtom"
+            },
+            {
+              "$ref": "#/$defs/TemporalNot"
+            },
+            {
+              "$ref": "#/$defs/TemporalAll"
+            },
+            {
+              "$ref": "#/$defs/TemporalAny"
+            },
+            {
+              "$ref": "#/$defs/TemporalUnaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBinaryFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalBoundedFormula"
+            },
+            {
+              "$ref": "#/$defs/TemporalPathFormula"
+            }
+          ],
+          "title": "Clause"
+        },
+        "kind": {
+          "const": "unary",
+          "default": "unary",
+          "title": "Kind",
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/$defs/TemporalUnaryOperator"
+        }
+      },
+      "required": [
+        "operator",
+        "clause"
+      ],
+      "title": "TemporalUnaryFormula",
+      "type": "object"
+    },
+    "TemporalUnaryOperator": {
+      "description": "Unary operators used across LTL/MTL subsets.",
+      "enum": [
+        "not",
+        "next",
+        "eventually",
+        "always"
+      ],
+      "title": "TemporalUnaryOperator",
+      "type": "string"
     },
     "TimeFrequency": {
       "description": "\u0415\u0434\u0438\u043d\u0438\u0446\u044b \u0432\u0440\u0435\u043c\u0435\u043d\u0438 \u0434\u043b\u044f \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u0438.",

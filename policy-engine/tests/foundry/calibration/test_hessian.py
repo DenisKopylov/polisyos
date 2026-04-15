@@ -60,3 +60,28 @@ def test_finite_difference_matches_exact() -> None:
     H_fd = _finite_difference_hessian(loss, x0, eps=1e-4)
 
     npt.assert_allclose(np.asarray(H_fd), np.asarray(H_exact), atol=1e-3)
+
+
+def test_compute_hessian_reports_infinite_condition_for_singular_raw_hessian() -> None:
+    def loss(x: jnp.ndarray) -> jnp.ndarray:
+        return jnp.square(x[0])
+
+    result = compute_hessian(loss, jnp.zeros(2), ["p0", "p1"], damping=0.0, jitter_floor=1e-8)
+
+    assert result.condition_number == float("inf")
+    assert result.n_repaired >= 1
+
+
+def test_compute_hessian_applies_damping_before_covariance_inversion() -> None:
+    hessian = jnp.diag(jnp.array([0.0, 2.0], dtype=jnp.float32))
+    with patch("jax.hessian", return_value=lambda _: hessian):
+        result = compute_hessian(
+            lambda x: jnp.sum(x),
+            jnp.zeros(2, dtype=jnp.float32),
+            ["p0", "p1"],
+            damping=0.5,
+            jitter_floor=1e-8,
+        )
+
+    expected = np.linalg.inv(np.diag([0.5, 2.5]))
+    npt.assert_allclose(result.covariance, expected, atol=1e-6)

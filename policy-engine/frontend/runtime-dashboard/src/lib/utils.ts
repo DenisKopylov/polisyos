@@ -7,8 +7,28 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+type DateValue = Date | number | string | null | undefined;
+
 function resolveIntlLocale(locale?: Locale): string {
   return toIntlLocale(locale ?? resolveLocale());
+}
+
+function resolveDate(value: DateValue): Date | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  const date = value instanceof Date ? new Date(value) : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  return date;
+}
+
+function fallbackDateValue(value: DateValue): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  return "-";
 }
 
 export function formatNumber(
@@ -57,20 +77,77 @@ export function formatCurrency(
 }
 
 export function formatDate(
-  value: string | null | undefined,
+  value: DateValue,
   locale?: Locale,
+  options?: Intl.DateTimeFormatOptions,
 ): string {
-  if (!value) {
+  if (value === null || value === undefined || value === "") {
     return "-";
   }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
+  const date = resolveDate(value);
+  if (!date) {
+    return fallbackDateValue(value);
   }
   return new Intl.DateTimeFormat(resolveIntlLocale(locale), {
     dateStyle: "medium",
     timeStyle: "short",
+    ...options,
   }).format(date);
+}
+
+export function formatTime(
+  value: DateValue,
+  locale?: Locale,
+  options?: Intl.DateTimeFormatOptions,
+): string {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+  const date = resolveDate(value);
+  if (!date) {
+    return fallbackDateValue(value);
+  }
+  return new Intl.DateTimeFormat(resolveIntlLocale(locale), {
+    hour: "2-digit",
+    minute: "2-digit",
+    ...options,
+  }).format(date);
+}
+
+export function formatRelativeTime(
+  value: DateValue,
+  locale?: Locale,
+  now: DateValue = Date.now(),
+): string {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+  const date = resolveDate(value);
+  const reference = resolveDate(now);
+  if (!date || !reference) {
+    return fallbackDateValue(value);
+  }
+  const diffSeconds = Math.round((reference.getTime() - date.getTime()) / 1000);
+  const formatter = new Intl.RelativeTimeFormat(resolveIntlLocale(locale), {
+    numeric: "auto",
+  });
+
+  if (Math.abs(diffSeconds) < 60) {
+    return formatter.format(-diffSeconds, "second");
+  }
+
+  const diffMinutes = Math.round(diffSeconds / 60);
+  if (Math.abs(diffMinutes) < 60) {
+    return formatter.format(-diffMinutes, "minute");
+  }
+
+  const diffHours = Math.round(diffMinutes / 60);
+  if (Math.abs(diffHours) < 24) {
+    return formatter.format(-diffHours, "hour");
+  }
+
+  const diffDays = Math.round(diffHours / 24);
+  return formatter.format(-diffDays, "day");
 }
 
 export function formatDuration(

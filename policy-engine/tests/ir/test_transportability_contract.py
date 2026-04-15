@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
+from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod, EstimationStatus
@@ -18,6 +20,7 @@ from polisyos.ir.analytics.transportability import (
     SNodeOrigin,
     SNodeRole,
     SelectionDiagram,
+    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
     load_transportability_result,
@@ -92,6 +95,45 @@ def test_transportability_result_upgrades_legacy_formula_alias() -> None:
     dumped = result.model_dump(mode="json")
     assert "formula" not in dumped
     assert dumped["identification_engine"] == "simplified_legacy"
+
+
+def test_transportability_result_normalizes_derived_fields_consistently() -> None:
+    payload = {
+        "status": "unsupported",
+        "base_confidence": 1.4,
+        "context_distance_penalty": -0.2,
+        "outer_search_truncated": True,
+        "lagged_edge_count": 2,
+    }
+
+    normalized = TransportabilityResult.normalize_payload(payload)
+    result = TransportabilityResult.from_payload(payload)
+
+    assert "unsupported_reason" not in payload
+    assert normalized["unsupported_reason"] == "transport_unsupported"
+    assert result.transport_mode is TransportMode.NONE
+    assert result.unsupported_reason == "transport_unsupported"
+    assert result.base_confidence == 1.0
+    assert result.context_distance_penalty == 0.0
+    assert result.search_budget_exhausted is True
+    assert "search_budget_exhausted" in result.search_events
+    assert "outer_search_truncated" in result.search_events
+    assert result.lagged_edges_in_query is True
+    assert result.assumes_time_stationarity is True
+    assert result.time_stationarity_warning is not None
+
+    cloned = result.model_copy(deep=True)
+    assert cloned.transport_mode is TransportMode.NONE
+    reparsed = TransportabilityResult.model_validate(result.model_dump(mode="json"))
+    assert reparsed.transport_mode is TransportMode.NONE
+    assert reparsed.search_events == result.search_events
+
+
+def test_transportability_result_is_frozen_report_contract() -> None:
+    result = TransportabilityResult()
+
+    with pytest.raises(ValidationError, match="frozen"):
+        result.final_confidence = 0.5
 
 
 # --- DOD-145 golden tests ---

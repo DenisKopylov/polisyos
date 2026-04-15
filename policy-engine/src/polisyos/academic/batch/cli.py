@@ -354,6 +354,45 @@ def _cmd_prior(args: argparse.Namespace) -> None:
     print(prior.model_dump_json(indent=2))
 
 
+def _cmd_build_best(args: argparse.Namespace) -> None:
+    from polisyos.academic.batch.best_snapshot import build_runtime_first_snapshot
+
+    country_codes = tuple(token.strip().upper() for token in str(args.transport_target_country_codes).split(",") if token.strip())
+    outcome = build_runtime_first_snapshot(
+        original_root=Path(args.original_root),
+        remap_root=Path(args.remap_root),
+        backup_root=Path(args.backup_root),
+        output_root=Path(args.output_root),
+        timestamp=str(getattr(args, "timestamp", "")).strip() or None,
+        benchmark_suite_path=(Path(args.benchmark_suite_path) if str(args.benchmark_suite_path).strip() else None),
+        run_id=str(getattr(args, "run_id", "")).strip() or None,
+        pass_name=str(getattr(args, "pass_name", "runtime_first_best")),
+        transport_target_context_id=str(getattr(args, "transport_target_context_id", "")),
+        transport_target_country_codes=country_codes or ("UA",),
+        transport_target_time_period=str(getattr(args, "transport_target_time_period", "")),
+        embedding_model=str(getattr(args, "embedding_model", "intfloat/multilingual-e5-large")),
+        embedding_dimension=int(getattr(args, "embedding_dimension", 1024)),
+        embedding_batch_size=int(getattr(args, "embedding_batch_size", 32)),
+        embedding_device=str(getattr(args, "embedding_device", "mps")),
+        thermal=bool(getattr(args, "thermal", False)),
+        promote_on_pass=bool(getattr(args, "promote_on_pass", True)),
+    )
+    print(
+        json_dumps_pretty(
+            {
+                "timestamp": outcome.timestamp,
+                "candidate_root": str(outcome.candidate_root),
+                "final_root": str(outcome.final_root),
+                "best_root": str(outcome.best_root) if outcome.best_root else "",
+                "promoted": outcome.promoted,
+                "snapshot_version_id": outcome.snapshot_version_id,
+                "promotion_report_path": str(outcome.promotion_report_path),
+                "runtime_evidence_sources_path": str(outcome.runtime_evidence_sources_path),
+            }
+        )
+    )
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Academic staged CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -563,6 +602,27 @@ def _build_parser() -> argparse.ArgumentParser:
     prior.add_argument("--domain", default=None)
     prior.add_argument("--country", default=None)
 
+    build_best = sub.add_parser("build-best", help="Assemble and promote a runtime-first best academic snapshot")
+    build_best.add_argument("--original-root", required=True)
+    build_best.add_argument("--remap-root", required=True)
+    build_best.add_argument("--backup-root", required=True)
+    build_best.add_argument("--output-root", required=True)
+    build_best.add_argument("--timestamp", default="")
+    build_best.add_argument("--benchmark-suite-path", default="")
+    build_best.add_argument("--run-id", default="")
+    build_best.add_argument("--pass-name", default="runtime_first_best")
+    build_best.add_argument("--transport-target-context-id", default="")
+    build_best.add_argument("--transport-target-country-codes", default="UA")
+    build_best.add_argument("--transport-target-time-period", default="")
+    build_best.add_argument("--embedding-model", default="intfloat/multilingual-e5-large")
+    build_best.add_argument("--embedding-dimension", type=int, default=1024)
+    build_best.add_argument("--embedding-batch-size", type=int, default=32)
+    build_best.add_argument("--embedding-device", default="mps")
+    build_best.add_argument("--thermal", action="store_true")
+    build_best.add_argument("--promote-on-pass", dest="promote_on_pass", action="store_true")
+    build_best.add_argument("--no-promote-on-pass", dest="promote_on_pass", action="store_false")
+    build_best.set_defaults(promote_on_pass=True)
+
     return parser
 
 
@@ -613,6 +673,9 @@ def main() -> None:
         return
     if args.command == "prior":
         _cmd_prior(args)
+        return
+    if args.command == "build-best":
+        _cmd_build_best(args)
         return
 
     parser.print_help()

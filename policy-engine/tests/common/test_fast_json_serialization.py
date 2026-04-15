@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from polisyos.common import serialization
 from polisyos.core.canon import to_canonical_bytes
 
@@ -35,3 +37,48 @@ def test_canonical_path_is_unchanged_by_fast_json_helpers() -> None:
     after = to_canonical_bytes(payload)
 
     assert baseline == after
+
+
+def test_failed_array_coercion_is_logged(monkeypatch) -> None:
+    messages: list[str] = []
+
+    class BrokenArray:
+        def tolist(self):
+            raise RuntimeError("coercion exploded")
+
+    monkeypatch.setattr(
+        serialization.logger,
+        "warning",
+        lambda message, *args, **kwargs: messages.append(message % args),
+    )
+
+    result = serialization.to_python_data(BrokenArray())
+
+    assert isinstance(result, BrokenArray)
+    assert messages
+    assert "Serialization tolist() coercion failed" in messages[0]
+
+
+def test_fast_json_rejects_cycles_without_recursion_error() -> None:
+    payload: dict[str, object] = {}
+    payload["self"] = payload
+
+    with pytest.raises(serialization.SerializationCycleError):
+        serialization.fast_json_dumps(payload)
+
+
+def test_to_python_data_enforces_depth_budget() -> None:
+    payload: object = {"leaf": True}
+    for _ in range(4):
+        payload = {"nested": payload}
+
+    with pytest.raises(serialization.SerializationDepthError):
+        serialization.to_python_data(payload, max_depth=2)
+
+
+def test_fast_json_rejects_unsupported_objects_explicitly() -> None:
+    class NotJson:
+        pass
+
+    with pytest.raises(serialization.UnsupportedSerializationError):
+        serialization.fast_json_dumps({"value": NotJson()})

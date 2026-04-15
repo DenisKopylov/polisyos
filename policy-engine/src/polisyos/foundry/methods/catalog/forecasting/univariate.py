@@ -58,7 +58,7 @@ class ExponentialSmoothingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="exponential_smoothing",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {SlotSpec("series", SlotType.VECTOR, Unit("timeseries", "value"), shape=("n_obs",))}
@@ -115,7 +115,7 @@ class ThetaMethodEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="theta",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {SlotSpec("series", SlotType.VECTOR, Unit("timeseries", "value"), shape=("n_obs",))}
@@ -175,7 +175,7 @@ class ForecastEnsembleEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="simple_average",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -228,7 +228,7 @@ class BottomUpReconciliationEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="bottom_up",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

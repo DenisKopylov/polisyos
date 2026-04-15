@@ -6,6 +6,7 @@ import time
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, AsyncIterator, ClassVar
 
 import pandas as pd
@@ -187,7 +188,9 @@ class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
 
     def __init__(self) -> None:
         super().__init__()
-        self._survey_year_by_country = dict(self._DEFAULT_SURVEY_YEAR_BY_COUNTRY)
+        self._survey_year_by_country = MappingProxyType(
+            dict(self._DEFAULT_SURVEY_YEAR_BY_COUNTRY)
+        )
 
     def find_closest_in_wave(
         self,
@@ -481,12 +484,6 @@ class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
         frame["wave"] = frame["wave"].fillna(7).astype("int64")
         frame["survey_year"] = frame["survey_year"].astype("int64")
         frame["country_code"] = frame["country_code"].astype(str)
-
-        for _, row in frame.iterrows():
-            cc = str(row.get("country_code") or "").upper()
-            sy = safe_int(row.get("survey_year"))
-            if cc and sy is not None:
-                self._survey_year_by_country[cc] = int(sy)
         return frame
 
 

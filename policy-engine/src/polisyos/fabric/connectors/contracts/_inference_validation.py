@@ -18,6 +18,7 @@ from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     SchemaType,
 )
+from polisyos.fabric.finite import is_finite_number
 
 from ._inference_config import InferenceConfig, SchemaHints
 from ._inference_engine import SchemaInference
@@ -123,8 +124,19 @@ def validate_dataframe_against_schema(
                 f"Field '{field.name}' has {null_count} null values but is not nullable"
             )
 
-        if field.data_type.is_numeric() and field.bounds != (None, None):
+        if field.data_type.is_numeric():
             numeric_col = pd.to_numeric(col, errors="coerce")
+            finite_mask = numeric_col.map(is_finite_number)
+            nonfinite = numeric_col.notna() & ~finite_mask
+            if nonfinite.any():
+                errors.append(
+                    f"Field '{field.name}' has {int(nonfinite.sum())} non-finite values"
+                )
+            numeric_col = numeric_col[finite_mask]
+        else:
+            numeric_col = None
+
+        if field.data_type.is_numeric() and field.bounds != (None, None):
             min_val, max_val = field.bounds
             if min_val is not None:
                 below = (numeric_col < min_val).sum()
@@ -139,7 +151,7 @@ def validate_dataframe_against_schema(
                         f"Field '{field.name}' has {above} values above max bound {max_val}"
                     )
 
-        if field.allowed_values:
+        if field.allowed_values is not None:
             invalid = set(col.dropna().astype(str)) - field.allowed_values
             if invalid:
                 errors.append(

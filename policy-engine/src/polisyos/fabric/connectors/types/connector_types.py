@@ -52,16 +52,17 @@ class CapabilityError(ConnectorError):
         connector_id: str,
         required: ConnectorCapability,
         available: ConnectorCapability | None = None,
+        message: str | None = None,
     ) -> None:
         self.required = required
         self.available = available
 
-        message = f"Missing required capability: {required.name}"
-        if available is not None:
-            message += f" (available: {available})"
+        resolved_message = message or f"Missing required capability: {required.name}"
+        if message is None and available is not None:
+            resolved_message += f" (available: {available})"
 
         super().__init__(
-            message=message,
+            message=resolved_message,
             connector_id=connector_id,
             details={
                 "required_capability": required.name,

@@ -1,0 +1,5 @@
+[manual]
+engineering_signoff = false
+operator_signoff = false
+release_review_bundle = false
+reopened_followups = false

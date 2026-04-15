@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import threading
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
 from polisyos.scientist.engine.budget import BudgetExhaustedError, BudgetLimit, BudgetState
+from polisyos.scientist.engine.budget_ledger import FileBudgetLedger
 from polisyos.scientist.engine.budget_middleware import BudgetMiddleware
 
 
@@ -52,18 +54,21 @@ class TestBudgetStateReservation:
     def test_release_restores_remaining(self) -> None:
         bs = _budget(max_usd="100")
         bs.reserve("run", Decimal("40"))
-        bs.release("run", Decimal("40"))
+        released = bs.release("run", Decimal("40"))
+        assert released == Decimal("40")
         assert bs.remaining("run") == Decimal("100")
 
     def test_release_clamps_to_zero(self) -> None:
         bs = _budget(max_usd="100")
-        bs.release("run", Decimal("50"))  # nothing reserved
+        released = bs.release("run", Decimal("50"))  # nothing reserved
+        assert released == Decimal("0")
         assert bs.reserved["run"] == Decimal("0")
 
     def test_commit_converts_to_spend(self) -> None:
         bs = _budget(max_usd="100")
         bs.reserve("run", Decimal("20"))
-        bs.commit_reservation("run", Decimal("20"))
+        committed = bs.commit_reservation("run", Decimal("20"))
+        assert committed == Decimal("20")
         assert bs.reserved.get("run", Decimal(0)) == Decimal("0")
         assert bs.spent["run"] == Decimal("20")
         assert bs.remaining("run") == Decimal("80")
@@ -150,8 +155,15 @@ class TestBudgetMiddleware:
         bs = _budget(max_usd="100")
         mw = BudgetMiddleware(bs)
         mw.reserve_safe("run", Decimal("20"))
-        mw.commit_safe("run", Decimal("20"))
+        assert mw.commit_safe("run", Decimal("20")) == Decimal("20")
         assert bs.spent["run"] == Decimal("20")
+
+    def test_release_safe_returns_actual_released_amount(self) -> None:
+        bs = _budget(max_usd="100")
+        mw = BudgetMiddleware(bs)
+        mw.reserve_safe("run", Decimal("15"))
+        assert mw.release_safe("run", Decimal("25")) == Decimal("15")
+        assert bs.reserved["run"] == Decimal("0")
 
 
 class TestBudgetMiddlewareThreadSafety:
@@ -172,3 +184,33 @@ class TestBudgetMiddlewareThreadSafety:
             t.join()
 
         assert bs.spent["run"] == Decimal("1000")
+
+
+class TestFileBudgetLedger:
+    def test_ledger_persists_state_across_middleware_instances(self, tmp_path: Path) -> None:
+        ledger = FileBudgetLedger(tmp_path / "budget_ledger.json")
+        mw_a = BudgetMiddleware(_budget(max_usd="100"), ledger=ledger)
+        mw_b = BudgetMiddleware(_budget(max_usd="100"), ledger=ledger)
+
+        assert mw_a.reserve_safe("run", Decimal("30")) is True
+        assert mw_b.commit_safe("run", Decimal("20"), provider="openai") == Decimal("20")
+        assert mw_a.release_safe("run", Decimal("50")) == Decimal("10")
+        assert mw_b.budget_state.spent["run"] == Decimal("20")
+        assert mw_b.budget_state.provider_spent["openai"] == Decimal("20")
+        assert mw_b.budget_state.reserved["run"] == Decimal("0")
+
+    def test_ledger_mutation_uses_copy_on_write_budget_state(self, tmp_path: Path) -> None:
+        ledger = FileBudgetLedger(tmp_path / "budget_ledger.json")
+        initial = _budget(max_usd="100")
+
+        loaded = ledger.load_or_bootstrap(initial)
+        result = ledger.record_spend("run", Decimal("10"), provider="openai")
+
+        assert initial.spent == {"run": Decimal("0")}
+        assert loaded.spent == {"run": Decimal("0")}
+        assert result.state.spent["run"] == Decimal("10")
+        assert result.state.provider_spent["openai"] == Decimal("10")
+        assert result.state.limits is not loaded.limits
+        assert result.state.limits["run"] == loaded.limits["run"]
+        result.state.spent["run"] = Decimal("25")
+        assert loaded.spent == {"run": Decimal("0")}

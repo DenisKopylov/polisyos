@@ -116,6 +116,25 @@ class TestCommutativity:
         )
 
     @given(
+        deltas=st.lists(st.integers(-1000, 1000), min_size=4, max_size=8),
+        base=st.integers(-1000, 1000),
+    )
+    @settings(max_examples=150, suppress_health_check=_PROPERTY_TEST_HEALTH_CHECKS)
+    def test_sum_commutativity_for_many_writers(self, sum_slot_registry, deltas, base):
+        engine = MergeEngine(sum_slot_registry, DEFAULT_MERGE_RULE_REGISTRY)
+        records = [
+            MergeRecord(node_id=f"writer-{index}", slot_id="test.sum_slot", delta=delta)
+            for index, delta in enumerate(deltas)
+        ]
+
+        result_forward = engine.merge_records(records, {"test.sum_slot": base})
+        result_reverse = engine.merge_records(list(reversed(records)), {"test.sum_slot": base})
+
+        assert result_forward.merged_values["test.sum_slot"] == result_reverse.merged_values[
+            "test.sum_slot"
+        ]
+
+    @given(
         value_a=st.floats(-1000, 1000, allow_nan=False, allow_infinity=False),
         value_b=st.floats(-1000, 1000, allow_nan=False, allow_infinity=False),
         priority_a=st.integers(0, 100),

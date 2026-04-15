@@ -26,7 +26,12 @@ import math
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from polisyos.common.logger import get_logger
+from polisyos.core.errors import ErrorCategory
+from polisyos.scientist.engine.errors import EngineError
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.scientist.engine.budget import BudgetState
@@ -37,6 +42,15 @@ __all__ = [
     "ConvergenceState",
     "ConvergenceStrategy",
 ]
+
+logger = get_logger(__name__)
+
+
+class ConvergenceValidationError(EngineError):
+    """Raised when convergence configuration cannot be evaluated safely."""
+
+    default_stage = "scientist.engine.convergence"
+    default_category = ErrorCategory.VALIDATION
 
 
 class ConvergenceStrategy(str, Enum):
@@ -76,6 +90,14 @@ class ConvergenceConfig(BaseModel):
         description="Weights for MULTI_SIGNAL strategy sub-signals",
     )
 
+    @model_validator(mode="after")
+    def _validate_window(self) -> ConvergenceConfig:
+        if self.min_iterations > self.max_iterations:
+            raise ValueError("min_iterations must be <= max_iterations")
+        if self.window_size > self.max_iterations:
+            raise ValueError("window_size must be <= max_iterations")
+        return self
+
 
 class ConvergenceState(BaseModel):
     """Snapshot of convergence detection state after a check."""
@@ -94,7 +116,7 @@ class ConvergenceState(BaseModel):
 
 def _cosine_similarity(a: list[float], b: list[float]) -> float:
     """Cosine similarity between two vectors."""
-    dot = sum(x * y for x, y in zip(a, b))
+    dot = sum(x * y for x, y in zip(a, b, strict=False))
     norm_a = math.sqrt(sum(x * x for x in a))
     norm_b = math.sqrt(sum(x * x for x in b))
     if norm_a < 1e-12 or norm_b < 1e-12:
@@ -131,7 +153,7 @@ class ConvergenceDetector:
     def __init__(
         self,
         config: ConvergenceConfig,
-        budget_state: "BudgetState | None" = None,
+        budget_state: BudgetState | None = None,
         embedder: Any | None = None,
     ) -> None:
         self._config = config
@@ -140,6 +162,7 @@ class ConvergenceDetector:
         self._history: list[float] = []
         self._iteration = 0
         self._text_embeddings: list[list[float]] = []
+        self._validate_budget_configuration()
 
     @property
     def config(self) -> ConvergenceConfig:
@@ -166,8 +189,16 @@ class ConvergenceDetector:
             try:
                 emb = self._embedder.embed([text])[0]
                 self._text_embeddings.append(emb)
-            except Exception:
-                pass  # degrade gracefully
+            except (AttributeError, IndexError, RuntimeError, TypeError, ValueError) as exc:
+                emit_degraded_path(
+                    component="engine.convergence",
+                    operation="embed_text",
+                    reason="text_embedding_unavailable",
+                    exc=exc,
+                    retryable=True,
+                    details={"strategy": self._config.strategy.value},
+                    log=logger,
+                )
         return self._do_check(metric_value)
 
     def reset(self) -> None:
@@ -176,11 +207,43 @@ class ConvergenceDetector:
         self._text_embeddings.clear()
         self._iteration = 0
 
+    def _validate_budget_configuration(self) -> None:
+        if self._config.budget_key is None:
+            return
+        if self._budget is None:
+            raise ConvergenceValidationError(
+                "budget_key requires a budget_state",
+                code="budget_state_required",
+                details={"budget_key": self._config.budget_key},
+            )
+        limit = self._budget.limits.get(self._config.budget_key)
+        if limit is None:
+            raise ConvergenceValidationError(
+                f"budget_key {self._config.budget_key!r} is not present in budget_state",
+                code="budget_key_missing",
+                details={"budget_key": self._config.budget_key},
+            )
+        if limit.max_usd <= 0:
+            raise ConvergenceValidationError(
+                f"budget_key {self._config.budget_key!r} must have a positive limit",
+                code="budget_limit_non_positive",
+                details={
+                    "budget_key": self._config.budget_key,
+                    "max_usd": str(limit.max_usd),
+                },
+            )
+
     # ------------------------------------------------------------------
     # Internal
     # ------------------------------------------------------------------
 
     def _do_check(self, metric_value: float) -> ConvergenceState:
+        if not math.isfinite(metric_value):
+            raise ConvergenceValidationError(
+                "metric_value must be finite",
+                code="metric_not_finite",
+                details={"metric_value": str(metric_value)},
+            )
         self._iteration += 1
         self._history.append(metric_value)
 

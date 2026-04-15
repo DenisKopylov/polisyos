@@ -2,12 +2,18 @@ from __future__ import annotations
 
 import importlib.util
 from dataclasses import replace
-from pathlib import Path
 
 import numpy as np
 import pytest
+from fixtures.c7_synthetic_data import (
+    N_AGENTS,
+    N_CELLS,
+    build_c7_synthetic_fixture,
+)
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.observation.bundles import (
     BilevelProblemBundle,
     SobolDiagnosticsBundle,
@@ -27,14 +33,10 @@ from polisyos.scientist.compute.advanced_methods import (
     SpecificationCurveAdapter,
     run_c7_advanced_suite,
 )
-from fixtures.c7_synthetic_data import (
-    N_AGENTS,
-    N_CELLS,
-    build_c7_synthetic_fixture,
-)
+from polisyos.scientist.compute.runner import MethodBackend, MethodRuntimeProviders
 
 
-def _write_cas_artifact(store: FileSystemCAS, ref, path: Path) -> Path:
+def _write_cas_artifact(store: FileSystemCAS, ref, path):
     path.write_bytes(store.get_bytes(ref.artifact_id))
     return path
 
@@ -48,15 +50,24 @@ def test_factor_builder_supports_pca_and_dynamic_modes(tmp_path) -> None:
     )
 
     pca_payload = load_npz_payload(
-        _write_cas_artifact(store, pca_result.bundle_ref, tmp_path / "agent_factor_embeddings_v1.npz")
+        _write_cas_artifact(
+            store,
+            pca_result.bundle_ref,
+            tmp_path / "agent_factor_embeddings_v1.npz",
+        )
     )
     dynamic_payload = load_npz_payload(
-        _write_cas_artifact(store, dynamic_result.bundle_ref, tmp_path / "agent_factor_embeddings_dynamic_v1.npz")
+        _write_cas_artifact(
+            store,
+            dynamic_result.bundle_ref,
+            tmp_path / "agent_factor_embeddings_dynamic_v1.npz",
+        )
     )
 
     assert store.has(pca_result.bundle_ref.artifact_id)
     assert store.has(dynamic_result.bundle_ref.artifact_id)
-    assert pca_result.method_result_refs and dynamic_result.method_result_refs
+    assert pca_result.method_result_refs
+    assert dynamic_result.method_result_refs
     assert pca_payload["embeddings"].shape[0] == N_AGENTS
     assert dynamic_payload["embeddings"].shape[0] == N_AGENTS
     assert np.isfinite(np.asarray(pca_payload["embeddings"], dtype=float)).all()
@@ -76,17 +87,33 @@ def test_non_survival_c7_adapters_persist_valid_artifacts(tmp_path) -> None:
     spec_result = SpecificationCurveAdapter(store).run(fixture.advanced_inputs)
 
     cell_payload = load_npz_payload(
-        _write_cas_artifact(store, cell_result.bundle_ref, tmp_path / "cell_prototype_embeddings_v1.npz")
+        _write_cas_artifact(
+            store,
+            cell_result.bundle_ref,
+            tmp_path / "cell_prototype_embeddings_v1.npz",
+        )
     )
     bilevel_bundle = load_json_bundle(
-        _write_cas_artifact(store, bilevel_result.bundle_ref, tmp_path / "bilevel_problem_bundle_v1.json"),
+        _write_cas_artifact(
+            store,
+            bilevel_result.bundle_ref,
+            tmp_path / "bilevel_problem_bundle_v1.json",
+        ),
         BilevelProblemBundle,
     )
     heckman_rows = load_parquet_rows(
-        _write_cas_artifact(store, heckman_result.bundle_ref, tmp_path / "heckman_correction_bundle_v1.parquet")
+        _write_cas_artifact(
+            store,
+            heckman_result.bundle_ref,
+            tmp_path / "heckman_correction_bundle_v1.parquet",
+        )
     )
     sobol_bundle = load_json_bundle(
-        _write_cas_artifact(store, sobol_result.bundle_ref, tmp_path / "sobol_diagnostics_bundle_v1.json"),
+        _write_cas_artifact(
+            store,
+            sobol_result.bundle_ref,
+            tmp_path / "sobol_diagnostics_bundle_v1.json",
+        ),
         SobolDiagnosticsBundle,
     )
     spec_bundle = load_json_bundle(
@@ -115,7 +142,38 @@ def test_non_survival_c7_adapters_persist_valid_artifacts(tmp_path) -> None:
         assert store.has(artifact.bundle_ref.artifact_id)
 
 
-@pytest.mark.skipif(importlib.util.find_spec("lifelines") is None, reason="lifelines is required for survival C7 tests")
+def test_c7_adapter_uses_injected_method_registry(tmp_path, monkeypatch) -> None:
+    fixture = build_c7_synthetic_fixture(tmp_path)
+    store = FileSystemCAS(tmp_path / ".cas_registry")
+    registry = MethodRegistry()
+
+    def _boom() -> MethodRegistry:
+        raise AssertionError("global method registry should not be used")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.compute.advanced_methods.MethodRegistry.get_instance",
+        _boom,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.compute.runner.MethodRegistry.get_instance",
+        _boom,
+    )
+
+    result = BilevelOptimizationAdapter(
+        store,
+        MethodBackend(registry_provider=lambda: registry),
+        method_registry=registry,
+    ).run(fixture.advanced_inputs)
+
+    assert store.has(result.bundle_ref.artifact_id)
+    assert result.method_result_refs
+    assert result.method_evidence_refs
+
+
+@pytest.mark.skipif(
+    importlib.util.find_spec("lifelines") is None,
+    reason="lifelines is required for survival C7 tests",
+)
 def test_run_c7_advanced_suite_persists_all_sidecar_artifacts(tmp_path) -> None:
     fixture = build_c7_synthetic_fixture(tmp_path)
     store = FileSystemCAS(tmp_path / ".cas_suite")
@@ -123,7 +181,11 @@ def test_run_c7_advanced_suite_persists_all_sidecar_artifacts(tmp_path) -> None:
     result = run_c7_advanced_suite(store, inputs=fixture.advanced_inputs)
 
     survival_rows = load_parquet_rows(
-        _write_cas_artifact(store, result.survival_hazards.bundle_ref, tmp_path / "survival_hazard_bundle_v1.parquet")
+        _write_cas_artifact(
+            store,
+            result.survival_hazards.bundle_ref,
+            tmp_path / "survival_hazard_bundle_v1.parquet",
+        )
     )
 
     assert len(result.bundle_refs()) == 7
@@ -134,3 +196,48 @@ def test_run_c7_advanced_suite_persists_all_sidecar_artifacts(tmp_path) -> None:
     assert {row["firm_id"] for row in survival_rows}
     assert result.survival_hazards.method_result_refs
     assert result.survival_hazards.method_evidence_refs
+
+
+@pytest.mark.skipif(
+    importlib.util.find_spec("lifelines") is None,
+    reason="lifelines is required for survival C7 tests",
+)
+def test_run_c7_advanced_suite_uses_injected_method_runtime_providers(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = build_c7_synthetic_fixture(tmp_path)
+    store = FileSystemCAS(tmp_path / ".cas_suite_injected")
+    registry = MethodRegistry()
+    dispatcher = MethodDispatcher()
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("global method singleton lookup should not be used")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.compute.advanced_methods.MethodRegistry.get_instance",
+        _boom,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.compute.runner.MethodRegistry.get_instance",
+        _boom,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.compute.runner.MethodDispatcher.get_instance",
+        _boom,
+    )
+
+    providers = MethodRuntimeProviders(
+        registry_provider=lambda: registry,
+        dispatcher_provider=lambda: dispatcher,
+    )
+    result = run_c7_advanced_suite(
+        store,
+        inputs=fixture.advanced_inputs,
+        method_runtime_providers=providers,
+    )
+
+    assert len(result.bundle_refs()) == 7
+    for ref in result.bundle_refs().values():
+        assert store.has(ref.artifact_id)

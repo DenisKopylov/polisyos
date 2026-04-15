@@ -169,7 +169,7 @@ describe("LexKnowledgeGraphPage", () => {
       useLexTriggerMock.mock.results[0]?.value.mutate,
     ).toHaveBeenCalledWith(
       expect.objectContaining({
-        cards_path: "data/data_lex/edrnpa_cards_2026-02-08.xml",
+        cards_path: "data/data_lex/edrnpa_cards_2026-04-05.xml",
         output_dir: "data/lex_knowledge",
       }),
       expect.any(Object),

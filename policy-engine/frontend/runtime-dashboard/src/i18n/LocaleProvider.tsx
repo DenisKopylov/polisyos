@@ -62,6 +62,37 @@ function interpolate(
   );
 }
 
+function createI18nContextValue(
+  locale: Locale,
+  setLocale: (locale: Locale) => void,
+): I18nContextValue {
+  const catalog = catalogs[locale];
+
+  return {
+    locale,
+    setLocale,
+    t: (path, vars) => {
+      const translated =
+        readPathValue(catalog, path) ??
+        readPathValue(catalogs.en, path) ??
+        path;
+      return interpolate(translated, vars);
+    },
+    label: (mapName, value, fallback) => {
+      if (!value) {
+        return fallback ?? "-";
+      }
+      const direct =
+        readPathValue(catalog.labels[mapName], value) ??
+        readPathValue(catalogs.en.labels[mapName], value);
+      if (direct) {
+        return direct;
+      }
+      return fallback ?? humanize(value);
+    },
+  };
+}
+
 export function LocaleProvider({ children }: PropsWithChildren) {
   const [locale, setLocaleState] = useState<Locale>(() => resolveLocale());
 
@@ -70,35 +101,17 @@ export function LocaleProvider({ children }: PropsWithChildren) {
     document.documentElement.lang = locale;
   }, [locale]);
 
-  const value = useMemo<I18nContextValue>(() => {
-    const catalog = catalogs[locale];
-
-    return {
-      locale,
-      setLocale: setLocaleState,
-      t: (path, vars) => {
-        const translated =
-          readPathValue(catalog, path) ??
-          readPathValue(catalogs.en, path) ??
-          path;
-        return interpolate(translated, vars);
-      },
-      label: (mapName, value, fallback) => {
-        if (!value) {
-          return fallback ?? "-";
-        }
-        const direct =
-          readPathValue(catalog.labels[mapName], value) ??
-          readPathValue(catalogs.en.labels[mapName], value);
-        if (direct) {
-          return direct;
-        }
-        return fallback ?? humanize(value);
-      },
-    };
-  }, [locale]);
+  const value = useMemo<I18nContextValue>(
+    () => createI18nContextValue(locale, setLocaleState),
+    [locale],
+  );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+}
+
+export function useOptionalI18n(): I18nContextValue {
+  const context = useContext(I18nContext);
+  return context ?? createI18nContextValue(resolveLocale(), () => undefined);
 }
 
 export function useI18n(): I18nContextValue {

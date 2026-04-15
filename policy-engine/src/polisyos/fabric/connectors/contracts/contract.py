@@ -11,12 +11,20 @@ import fnmatch
 from datetime import datetime, timezone
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.canon import content_hash as compute_content_hash
+from polisyos.fabric.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.ir.canon import CanonSpec, to_canonical_bytes
 
+from .governance import SchemaApprovalMetadata
 from .schema import DataSchema, SchemaVersion
+
+
+CONTRACT_ID_PATTERN = (
+    r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)*"
+    r"(?:\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*)*$"
+)
 
 
 class FieldMapping(BaseModel):
@@ -49,11 +57,16 @@ class ConnectorSchemaContract(BaseModel):
     dataset_id supports shell-style wildcards, e.g. "NY.*" or "*".
     """
 
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(
+        frozen=True,
+        extra="forbid",
+        populate_by_name=True,
+        serialize_by_alias=True,
+    )
 
     contract_id: str = Field(
         ...,
-        pattern=r"^[a-z][a-z0-9_.]+$",
+        pattern=CONTRACT_ID_PATTERN,
         description="Globally unique contract ID",
     )
     connector_id: str = Field(..., min_length=1, max_length=256)
@@ -64,7 +77,7 @@ class ConnectorSchemaContract(BaseModel):
         description="Dataset ID or wildcard pattern matched against FetchRequest.dataset_id",
     )
 
-    schema: DataSchema
+    connector_schema: DataSchema = Field(alias="schema")
     field_mappings: tuple[FieldMapping, ...] = Field(default=())
 
     min_completeness: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -81,6 +94,50 @@ class ConnectorSchemaContract(BaseModel):
     description: str = Field(default="", max_length=2048)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = Field(default="", max_length=256)
+    approval: SchemaApprovalMetadata = Field(default_factory=SchemaApprovalMetadata)
+
+    @field_validator("min_completeness", mode="before")
+    @classmethod
+    def _validate_min_completeness(cls, value: object) -> float | None:
+        if value is None:
+            return None
+        return ensure_probability(value, what="min_completeness")
+
+    @field_validator("field_completeness", mode="before")
+    @classmethod
+    def _validate_field_completeness(
+        cls, value: object
+    ) -> dict[str, float]:
+        if value is None:
+            return {}
+        if not isinstance(value, dict):
+            raise TypeError("field_completeness must be a mapping")
+        return {
+            field_name: ensure_probability(
+                threshold,
+                what=f"field_completeness[{field_name}]",
+            )
+            for field_name, threshold in value.items()
+        }
+
+    @field_validator("max_staleness_hours", mode="before")
+    @classmethod
+    def _validate_max_staleness_hours(cls, value: object) -> float | None:
+        if value is None:
+            return None
+        return ensure_non_negative_finite(value, what="max_staleness_hours")
+
+    @field_validator("expected_row_count_range", mode="before")
+    @classmethod
+    def _coerce_expected_row_count_range(
+        cls, value: object
+    ) -> tuple[int | None, int | None]:
+        if value is None:
+            return (None, None)
+        if not isinstance(value, (list, tuple)) or len(value) != 2:
+            raise ValueError("expected_row_count_range must contain exactly two values")
+        min_rows, max_rows = value
+        return (None if min_rows is None else int(min_rows), None if max_rows is None else int(max_rows))
 
     @model_validator(mode="after")
     def _validate_consistency(self) -> "ConnectorSchemaContract":
@@ -97,10 +154,8 @@ class ConnectorSchemaContract(BaseModel):
                 "completeness_window_rows is only allowed when completeness_scope=latest_window"
             )
 
-        schema_fields = set(self.schema.field_names())
+        schema_fields = set(self.connector_schema.field_names())
         for field_name, threshold in self.field_completeness.items():
-            if not 0.0 <= threshold <= 1.0:
-                raise ValueError(f"field_completeness[{field_name}] must be in [0, 1]")
             if field_name not in schema_fields:
                 raise ValueError(
                     f"field_completeness references unknown schema field '{field_name}'"
@@ -109,8 +164,13 @@ class ConnectorSchemaContract(BaseModel):
         return self
 
     @property
+    def schema(self) -> DataSchema:
+        """Backwards-compatible accessor for callers using ``contract.schema``."""
+        return self.connector_schema
+
+    @property
     def schema_version(self) -> SchemaVersion:
-        return self.schema.version
+        return self.connector_schema.version
 
     @property
     def content_hash(self) -> str:
@@ -124,7 +184,7 @@ class ConnectorSchemaContract(BaseModel):
             "contract_id": self.contract_id,
             "connector_id": self.connector_id,
             "dataset_id": self.dataset_id,
-            "schema_content_hash": self.schema.content_hash,
+            "schema_content_hash": self.connector_schema.content_hash,
             "field_mappings": [
                 mapping.model_dump(mode="python") for mapping in self.field_mappings
             ],

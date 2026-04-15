@@ -86,6 +86,28 @@ export const foundationTokens = {
       description: "Fully rounded badge/button radius.",
     },
   },
+  elevation: {
+    xs: {
+      cssVar: "--shadow-xs",
+      description: "Subtle hover elevation.",
+    },
+    sm: {
+      cssVar: "--shadow-sm",
+      description: "Light card elevation.",
+    },
+    md: {
+      cssVar: "--shadow-md",
+      description: "Default floating elevation.",
+    },
+    lg: {
+      cssVar: "--shadow-lg",
+      description: "Prominent dialog/dropdown elevation.",
+    },
+    xl: {
+      cssVar: "--shadow-xl",
+      description: "Maximum elevation (overlays, modals).",
+    },
+  },
   shadow: {
     focusRing: {
       cssVar: "--focus-ring",
@@ -123,8 +145,97 @@ export const foundationTokens = {
       cssVar: "--font-sans",
       description: "Primary interface typeface.",
     },
+    text2xs: {
+      cssVar: "--text-2xs",
+      description: "Extra-extra-small text size (10px).",
+    },
+    textXs: {
+      cssVar: "--text-xs",
+      description: "Extra-small text size (12px).",
+    },
+    textSm: {
+      cssVar: "--text-sm",
+      description: "Small text size (14px).",
+    },
+    textBase: {
+      cssVar: "--text-base",
+      description: "Base text size (16px).",
+    },
+    textLg: {
+      cssVar: "--text-lg",
+      description: "Large text size (18px).",
+    },
+    textXl: {
+      cssVar: "--text-xl",
+      description: "Extra-large text size (20px).",
+    },
+    text2xl: {
+      cssVar: "--text-2xl",
+      description: "Display text size (24px).",
+    },
+    text3xl: {
+      cssVar: "--text-3xl",
+      description: "Heading text size (30px).",
+    },
+    text4xl: {
+      cssVar: "--text-4xl",
+      description: "Hero text size (36px).",
+    },
+  },
+  zIndex: {
+    base: {
+      cssVar: "--z-base",
+      description: "Default stacking layer.",
+    },
+    dropdown: {
+      cssVar: "--z-dropdown",
+      description: "Dropdown menus stacking layer.",
+    },
+    sticky: {
+      cssVar: "--z-sticky",
+      description: "Sticky headers and footers.",
+    },
+    overlay: {
+      cssVar: "--z-overlay",
+      description: "Background overlays / scrims.",
+    },
+    modal: {
+      cssVar: "--z-modal",
+      description: "Modal dialogs and sheets.",
+    },
+    popover: {
+      cssVar: "--z-popover",
+      description: "Popovers and tooltips.",
+    },
+    toast: {
+      cssVar: "--z-toast",
+      description: "Toast notifications.",
+    },
+    command: {
+      cssVar: "--z-command",
+      description: "Command palette (highest layer).",
+    },
   },
 } as const satisfies Record<string, Record<string, DesignTokenDefinition>>;
+
+/**
+ * Responsive breakpoint tokens — mirrors the Tailwind CSS breakpoint scale.
+ * Values are min-width thresholds in pixels.
+ */
+export const breakpointTokens = {
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+  "2xl": 1536,
+} as const;
+
+export type BreakpointKey = keyof typeof breakpointTokens;
+
+/** Build a `(min-width: …px)` media query string for a given breakpoint. */
+export function mediaQuery(bp: BreakpointKey): string {
+  return `(min-width: ${breakpointTokens[bp]}px)`;
+}
 
 export const semanticTokens = {
   action: {

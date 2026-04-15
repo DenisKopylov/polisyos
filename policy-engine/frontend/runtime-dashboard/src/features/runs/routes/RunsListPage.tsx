@@ -1,4 +1,9 @@
-import { startTransition, useDeferredValue, useEffect, useMemo } from "react";
+import {
+  startTransition,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { useRuns } from "@/api/hooks/useRuns";
@@ -74,8 +79,10 @@ function isEditableTarget(target: EventTarget | null) {
 }
 
 export default function RunsList() {
-  const { t } = useI18n();
+  const { label, locale, t } = useI18n();
   const navigate = useNavigate();
+  const explorerRef = useRef<HTMLDivElement | null>(null);
+  const pendingFocusRunIdRef = useRef<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const parsedSearch = parseRunsListSearchParams(searchParams);
   const status = parsedSearch.status ?? "";
@@ -83,7 +90,6 @@ export default function RunsList() {
   const to = parsedSearch.to ?? "";
   const query = parsedSearch.q ?? "";
   const cursor = parsedSearch.cursor ?? "";
-  const deferredQuery = useDeferredValue(query);
 
   const {
     activeRunId,
@@ -123,59 +129,64 @@ export default function RunsList() {
     () => ({
       limit: 50,
       cursor: cursor || undefined,
+      q: query.trim() || undefined,
       status: status || undefined,
       from_ts: localDateTimeToIso(from),
       to_ts: localDateTimeToIso(to),
     }),
-    [cursor, from, status, to],
+    [cursor, from, query, status, to],
   );
 
   const runsQuery = useRuns(runsFilters);
-
-  const filteredRuns = useMemo(() => {
-    const rows = runsQuery.data?.runs ?? [];
-    if (!deferredQuery.trim()) {
-      return rows;
-    }
-    const normalized = deferredQuery.trim().toLowerCase();
-    return rows.filter(
-      (row) =>
-        row.run_id.toLowerCase().includes(normalized) ||
-        row.status.toLowerCase().includes(normalized) ||
-        row.source_kind.toLowerCase().includes(normalized),
-    );
-  }, [deferredQuery, runsQuery.data?.runs]);
+  const displayedRuns = runsQuery.data?.runs ?? [];
+  const firstDisplayedRunId = displayedRuns[0]?.run_id ?? null;
+  const activeRunIsVisible = activeRunId
+    ? displayedRuns.some((run) => run.run_id === activeRunId)
+    : false;
 
   useEffect(() => {
-    if (filteredRuns.length === 0) {
-      setActiveRunId(null);
+    if (!firstDisplayedRunId) {
+      if (activeRunId !== null) {
+        setActiveRunId(null);
+      }
       return;
     }
-    setActiveRunId((current) =>
-      current && filteredRuns.some((run) => run.run_id === current)
-        ? current
-        : (filteredRuns[0]?.run_id ?? null),
-    );
-  }, [filteredRuns]);
+    if (!activeRunIsVisible) {
+      setActiveRunId(firstDisplayedRunId);
+    }
+  }, [
+    activeRunId,
+    activeRunIsVisible,
+    firstDisplayedRunId,
+    setActiveRunId,
+  ]);
 
   const currentCursorIndex = cursorTrail.lastIndexOf(cursor);
   const previousCursor =
     currentCursorIndex > 0 ? cursorTrail[currentCursorIndex - 1] : null;
   const activeRunIndex = activeRunId
-    ? filteredRuns.findIndex((run) => run.run_id === activeRunId)
+    ? displayedRuns.findIndex((run) => run.run_id === activeRunId)
     : 0;
   const activeRun =
     activeRunId != null
-      ? (filteredRuns.find((run) => run.run_id === activeRunId) ?? null)
+      ? (displayedRuns.find((run) => run.run_id === activeRunId) ?? null)
       : null;
+  const activeRunAnnouncement = activeRun
+    ? t("pages.runs.activeRunAnnouncement", {
+        count: displayedRuns.length,
+        position: activeRunIndex + 1,
+        runId: activeRun.run_id,
+        status: label("runStatuses", activeRun.status, activeRun.status),
+      })
+    : "";
 
   const columns = useMemo(
     () => [
       {
         key: "runId",
         header: t("pages.runs.columns.runId"),
-        exportValue: (run: (typeof filteredRuns)[number]) => run.run_id,
-        render: (run: (typeof filteredRuns)[number]) => (
+        exportValue: (run: (typeof displayedRuns)[number]) => run.run_id,
+        render: (run: (typeof displayedRuns)[number]) => (
           <PrefetchLink
             className="decoration-line underline"
             prefetch="intent"
@@ -188,45 +199,48 @@ export default function RunsList() {
       {
         key: "status",
         header: t("pages.runs.columns.status"),
-        exportValue: (run: (typeof filteredRuns)[number]) => run.status,
-        render: (run: (typeof filteredRuns)[number]) => (
-          <Badge kind={statusBadgeKind(run.status)}>{run.status}</Badge>
+        exportValue: (run: (typeof displayedRuns)[number]) => run.status,
+        render: (run: (typeof displayedRuns)[number]) => (
+          <Badge kind={statusBadgeKind(run.status)}>
+            {label("runStatuses", run.status, run.status)}
+          </Badge>
         ),
       },
       {
         key: "started",
         header: t("pages.runs.columns.started"),
-        exportValue: (run: (typeof filteredRuns)[number]) => run.started_at,
-        render: (run: (typeof filteredRuns)[number]) =>
-          formatDate(run.started_at),
+        exportValue: (run: (typeof displayedRuns)[number]) => run.started_at,
+        render: (run: (typeof displayedRuns)[number]) =>
+          formatDate(run.started_at, locale),
       },
       {
         key: "duration",
         header: t("pages.runs.columns.duration"),
-        exportValue: (run: (typeof filteredRuns)[number]) => run.duration_ms,
-        render: (run: (typeof filteredRuns)[number]) =>
-          formatDuration(run.duration_ms),
+        exportValue: (run: (typeof displayedRuns)[number]) => run.duration_ms,
+        render: (run: (typeof displayedRuns)[number]) =>
+          formatDuration(run.duration_ms, locale),
       },
       {
         key: "artifacts",
         header: t("pages.runs.columns.artifacts"),
-        exportValue: (run: (typeof filteredRuns)[number]) =>
+        exportValue: (run: (typeof displayedRuns)[number]) =>
           run.root_artifact_count ?? 0,
-        render: (run: (typeof filteredRuns)[number]) =>
+        render: (run: (typeof displayedRuns)[number]) =>
           run.root_artifact_count ?? 0,
       },
       {
         key: "source",
         header: t("pages.runs.columns.source"),
-        exportValue: (run: (typeof filteredRuns)[number]) => run.source_kind,
-        render: (run: (typeof filteredRuns)[number]) => run.source_kind,
+        exportValue: (run: (typeof displayedRuns)[number]) => run.source_kind,
+        render: (run: (typeof displayedRuns)[number]) =>
+          label("runSourceKinds", run.source_kind, run.source_kind),
       },
     ],
-    [t],
+    [label, locale, t],
   );
 
   function exportRunsCsv() {
-    exportCsv("runs-view.csv", filteredRuns, columns);
+    exportCsv("runs-view.csv", displayedRuns, columns);
   }
 
   function exportRunsJson() {
@@ -239,7 +253,7 @@ export default function RunsList() {
         to,
       },
       page: runsQuery.data?.page ?? null,
-      runs: filteredRuns,
+      runs: displayedRuns,
     });
   }
 
@@ -266,53 +280,99 @@ export default function RunsList() {
   }
 
   useEffect(() => {
-    function moveSelection(delta: number) {
-      if (filteredRuns.length === 0) {
-        return;
-      }
-      const currentIndex = activeRunId
-        ? filteredRuns.findIndex((run) => run.run_id === activeRunId)
-        : 0;
-      const baseIndex = currentIndex >= 0 ? currentIndex : 0;
-      const nextIndex = Math.max(
-        0,
-        Math.min(filteredRuns.length - 1, baseIndex + delta),
-      );
-      setActiveRunId(filteredRuns[nextIndex]?.run_id ?? null);
+    if (!pendingFocusRunIdRef.current || !activeRunId) {
+      return;
+    }
+    if (pendingFocusRunIdRef.current !== activeRunId) {
+      return;
     }
 
-    function onKeyDown(event: KeyboardEvent) {
+    const focusActiveRow = () => {
+      const rows = explorerRef.current?.querySelectorAll<HTMLElement>(
+        "[data-run-row-id]",
+      );
+      if (!rows) {
+        return false;
+      }
+      for (const row of rows) {
+        if (row.dataset.runRowId === activeRunId) {
+          row.focus();
+          pendingFocusRunIdRef.current = null;
+          return true;
+        }
+      }
+      return false;
+    };
+
+    if (focusActiveRow()) {
+      return;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      focusActiveRow();
+    });
+    return () => window.cancelAnimationFrame(frameId);
+  }, [activeRunId]);
+
+  function moveSelection(delta: number) {
+    if (displayedRuns.length === 0) {
+      return;
+    }
+    const currentIndex = activeRunId
+      ? displayedRuns.findIndex((run) => run.run_id === activeRunId)
+      : 0;
+    const baseIndex = currentIndex >= 0 ? currentIndex : 0;
+    const nextIndex = Math.max(
+      0,
+      Math.min(displayedRuns.length - 1, baseIndex + delta),
+    );
+    const nextRunId = displayedRuns[nextIndex]?.run_id ?? null;
+    pendingFocusRunIdRef.current = nextRunId;
+    setActiveRunId(nextRunId);
+  }
+
+  function handleExplorerKeyDown(event: KeyboardEvent) {
+    if (
+      event.defaultPrevented ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.altKey ||
+      isEditableTarget(event.target)
+    ) {
+      return;
+    }
+
+    if (event.key === "j" || event.key === "ArrowDown") {
+      event.preventDefault();
+      moveSelection(1);
+      return;
+    }
+    if (event.key === "k" || event.key === "ArrowUp") {
+      event.preventDefault();
+      moveSelection(-1);
+      return;
+    }
+    if (event.key === "Enter" && activeRunId) {
+      const target = event.target;
       if (
-        event.defaultPrevented ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.altKey ||
-        isEditableTarget(event.target)
+        target instanceof HTMLElement &&
+        target.closest("a, button, summary, input, select, textarea")
       ) {
         return;
       }
-
-      if (event.key === "j" || event.key === "ArrowDown") {
-        event.preventDefault();
-        moveSelection(1);
-        return;
-      }
-      if (event.key === "k" || event.key === "ArrowUp") {
-        event.preventDefault();
-        moveSelection(-1);
-        return;
-      }
-      if (event.key === "Enter" && activeRunId) {
-        event.preventDefault();
-        navigate(`/runs/${activeRunId}/overview`);
-      }
+      event.preventDefault();
+      navigate(`/runs/${activeRunId}/overview`);
     }
+  }
 
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
+  function buildRowProps(run: (typeof displayedRuns)[number]) {
+    return {
+      "data-run-row-id": run.run_id,
+      onFocus: () => setActiveRunId(run.run_id),
+      onMouseEnter: () => setActiveRunId(run.run_id),
+      tabIndex: activeRunId === run.run_id ? 0 : -1,
     };
-  }, [activeRunId, filteredRuns, navigate]);
+  }
 
   function updateParams(next: {
     status?: string;
@@ -332,6 +392,18 @@ export default function RunsList() {
       setSearchParams(new URL(href, "http://localhost").searchParams);
     });
   }
+
+  useEffect(() => {
+    const explorer = explorerRef.current;
+    if (!explorer) {
+      return;
+    }
+
+    explorer.addEventListener("keydown", handleExplorerKeyDown);
+    return () => {
+      explorer.removeEventListener("keydown", handleExplorerKeyDown);
+    };
+  }, [handleExplorerKeyDown]);
 
   function applyFilters(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -445,7 +517,7 @@ export default function RunsList() {
         query={runsQuery}
         loading={<PanelSkeleton rows={6} />}
         errorTitle={t("pages.runs.loadError")}
-        empty={filteredRuns.length === 0}
+        empty={displayedRuns.length === 0}
         emptyState={
           <EmptyState
             title={t("pages.runs.emptyTitle")}
@@ -500,65 +572,66 @@ export default function RunsList() {
             </div>
           </div>
 
-          {filteredRuns.length < VIRTUALIZATION_THRESHOLD ? (
-            <div className="border-line overflow-x-auto rounded-2xl border">
-              <table
-                aria-label={t("pages.runs.explorerTitle")}
-                className="min-w-full border-collapse text-sm"
-              >
-                <thead>
-                  <tr className="border-line text-muted border-b text-left text-xs tracking-wide uppercase">
-                    {columns.map((column) => (
-                      <th key={column.key} className="px-3 py-2">
-                        {column.header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredRuns.map((run) => (
-                    <tr
-                      key={run.run_id}
-                      aria-selected={activeRunId === run.run_id}
-                      className={
-                        activeRunId === run.run_id
-                          ? "border-accent/20 bg-accent/5 border-b last:border-b-0"
-                          : "border-line/70 border-b last:border-b-0"
-                      }
-                      onMouseEnter={() => setActiveRunId(run.run_id)}
-                    >
+          <div ref={explorerRef} data-testid="runs-explorer">
+            <div aria-atomic="true" aria-live="polite" className="sr-only">
+              {activeRunAnnouncement}
+            </div>
+            {displayedRuns.length < VIRTUALIZATION_THRESHOLD ? (
+              <div className="border-line overflow-x-auto rounded-2xl border">
+                <table
+                  aria-label={t("pages.runs.explorerTitle")}
+                  className="min-w-full border-collapse text-sm"
+                >
+                  <thead>
+                    <tr className="border-line text-muted border-b text-left text-xs tracking-wide uppercase">
                       {columns.map((column) => (
-                        <td key={column.key} className="px-3 py-3 align-top">
-                          {column.render(run)}
-                        </td>
+                        <th key={column.key} className="px-3 py-2">
+                          {column.header}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <VirtualTable
-              activeIndex={activeRunIndex >= 0 ? activeRunIndex : 0}
-              ariaLabel={t("pages.runs.explorerTitle")}
-              columns={columns}
-              estimateRowHeight={56}
-              initialScrollTop={tableScrollTop}
-              maxHeight={560}
-              onScrollPositionChange={setTableScrollTop}
-              rowClassName={(run) =>
-                activeRunId === run.run_id
-                  ? "border-accent/20 bg-accent/5 border-b last:border-b-0"
-                  : "border-line/70 border-b last:border-b-0"
-              }
-              rowKey={(run) => run.run_id}
-              rowProps={(run) => ({
-                "aria-selected": activeRunId === run.run_id,
-                onMouseEnter: () => setActiveRunId(run.run_id),
-              })}
-              rows={filteredRuns}
-            />
-          )}
+                  </thead>
+                  <tbody>
+                    {displayedRuns.map((run) => (
+                      <tr
+                        key={run.run_id}
+                        className={
+                          activeRunId === run.run_id
+                            ? "border-accent/20 bg-accent/5 outline-accent/35 border-b last:border-b-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+                            : "border-line/70 outline-accent/35 border-b last:border-b-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+                        }
+                        {...buildRowProps(run)}
+                      >
+                        {columns.map((column) => (
+                          <td key={column.key} className="px-3 py-3 align-top">
+                            {column.render(run)}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <VirtualTable
+                activeIndex={activeRunIndex >= 0 ? activeRunIndex : 0}
+                ariaLabel={t("pages.runs.explorerTitle")}
+                columns={columns}
+                estimateRowHeight={56}
+                initialScrollTop={tableScrollTop}
+                maxHeight={560}
+                onScrollPositionChange={setTableScrollTop}
+                rowClassName={(run) =>
+                  activeRunId === run.run_id
+                    ? "border-accent/20 bg-accent/5 outline-accent/35 border-b last:border-b-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+                    : "border-line/70 outline-accent/35 border-b last:border-b-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+                }
+                rowKey={(run) => run.run_id}
+                rowProps={(run) => buildRowProps(run)}
+                rows={displayedRuns}
+              />
+            )}
+          </div>
 
           <div className="mt-4 flex items-center justify-end gap-2">
             <Button

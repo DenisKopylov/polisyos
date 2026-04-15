@@ -4,6 +4,7 @@ from __future__ import annotations
 import chex
 import jax
 import jax.numpy as jnp
+import numpy as np
 from jaxtyping import Array, Bool, Float, Int
 
 
@@ -255,28 +256,48 @@ def create_scale_free_graph(
     rng_key: chex.PRNGKey,
 ) -> EdgeList:
     """Create scale free graph."""
-    initial = m + 1
+    if n_nodes <= 1:
+        return EdgeList(
+            senders=jnp.zeros((0,), dtype=jnp.int32),
+            receivers=jnp.zeros((0,), dtype=jnp.int32),
+            weights=jnp.zeros((0,), dtype=jnp.float32),
+            edge_types=jnp.zeros((0,), dtype=jnp.int32),
+            n_nodes=int(n_nodes),
+            n_edges=0,
+            is_directed=False,
+        )
+
+    initial = min(n_nodes, max(2, m + 1))
+    seed = int(jax.random.randint(rng_key, shape=(), minval=0, maxval=2**31 - 1))
+    rng = np.random.default_rng(seed)
     senders_list: list[int] = []
     receivers_list: list[int] = []
-    degrees = jnp.zeros((n_nodes,), dtype=jnp.float32)
+    degrees = np.zeros((n_nodes,), dtype=np.int64)
 
     for i in range(initial):
         for j in range(i + 1, initial):
             senders_list.extend([i, j])
             receivers_list.extend([j, i])
-            degrees = degrees.at[i].add(1)
-            degrees = degrees.at[j].add(1)
+            degrees[i] += 1
+            degrees[j] += 1
 
     for new_node in range(initial, n_nodes):
-        rng_key, key = jax.random.split(rng_key)
-        probs = degrees[:new_node]
-        probs = probs / jnp.maximum(jnp.sum(probs), 1e-8)
-        targets = jax.random.choice(key, new_node, shape=(m,), replace=False, p=probs)
-        for target in targets.tolist():
-            senders_list.extend([new_node, int(target)])
-            receivers_list.extend([int(target), new_node])
-            degrees = degrees.at[new_node].add(1)
-            degrees = degrees.at[int(target)].add(1)
+        n_targets = min(m, new_node)
+        if n_targets <= 0:
+            continue
+        probs = degrees[:new_node].astype(np.float64)
+        total = float(probs.sum())
+        if total > 0.0:
+            probs = probs / total
+        else:
+            probs = None
+        targets = rng.choice(new_node, size=n_targets, replace=False, p=probs)
+        for target in np.asarray(targets, dtype=np.int64):
+            target_i = int(target)
+            senders_list.extend([new_node, target_i])
+            receivers_list.extend([target_i, new_node])
+            degrees[new_node] += 1
+            degrees[target_i] += 1
 
     senders = jnp.array(senders_list, dtype=jnp.int32)
     receivers = jnp.array(receivers_list, dtype=jnp.int32)
@@ -313,8 +334,8 @@ def create_fixed_size_graph(edges: EdgeList, max_edges: int) -> FixedSizeEdgeLis
         weights=weights,
         edge_types=edge_types,
         active=active,
-        n_nodes=int(edges.n_nodes),
-        max_edges=int(max_edges),
+        n_nodes=edges.n_nodes,
+        max_edges=max_edges,
         n_active_edges=jnp.array(n_edges, dtype=jnp.int32),
     )
 
@@ -330,7 +351,7 @@ def aggregate_messages(
     senders = edges.senders
     receivers = edges.receivers
     weights = edges.weights
-    n_nodes = int(edges.n_nodes)
+    n_nodes = node_features.shape[0]
 
     edge_mask = jnp.ones(weights.shape[0], dtype=jnp.bool_)
     if hasattr(edges, "active"):
@@ -378,7 +399,7 @@ def scatter_messages(
     senders = edges.senders
     receivers = edges.receivers
     weights = edges.weights
-    n_nodes = int(edges.n_nodes)
+    n_nodes = source_features.shape[0]
 
     edge_mask = jnp.ones(weights.shape[0], dtype=jnp.bool_)
     if hasattr(edges, "active"):
@@ -420,7 +441,7 @@ def apply_edge_attention(
     queries = query_features[edges.receivers]
     keys = key_features[edges.senders]
     scores = jnp.sum(queries * keys, axis=-1) / temperature
-    attention = segment_softmax(scores, edges.receivers, int(edges.n_nodes))
+    attention = segment_softmax(scores, edges.receivers, query_features.shape[0])
     return messages * attention[:, None]
 
 
@@ -447,14 +468,14 @@ def multi_hop_aggregation(
         return messages, aggregated
 
     init = (node_features, jnp.zeros_like(node_features))
-    _, out = jax.lax.fori_loop(0, int(n_hops), body, init)
+    _, out = jax.lax.fori_loop(0, n_hops, body, init)
     return out
 
 
 def compute_degree_centrality(edges: EdgeList | FixedSizeEdgeList) -> jnp.ndarray:
     """Compute normalized total-degree centrality for each node."""
-    n_nodes = int(edges.n_nodes)
     in_degrees, out_degrees = compute_degrees(edges)
+    n_nodes = in_degrees.shape[0]
     total_degree = in_degrees + out_degrees
     denom = max(n_nodes - 1, 1)
     return total_degree.astype(jnp.float32) / float(denom)
@@ -467,7 +488,7 @@ def compute_pagerank(
     n_iterations: int = 20,
 ) -> jnp.ndarray:
     """Estimate PageRank-style influence scores over the current graph."""
-    n_nodes = int(edges.n_nodes)
+    n_nodes = edges.n_nodes
     weights = edges.weights
     edge_mask = jnp.ones(weights.shape[0], dtype=jnp.bool_)
     if hasattr(edges, "active"):
@@ -483,7 +504,7 @@ def compute_pagerank(
         incoming = jax.ops.segment_sum(messages, edges.receivers, num_segments=n_nodes)
         return (1.0 - damping) / float(n_nodes) + damping * incoming
 
-    return jax.lax.fori_loop(0, int(n_iterations), body, pr0)
+    return jax.lax.fori_loop(0, n_iterations, body, pr0)
 
 
 def compute_graph_metrics(
@@ -491,7 +512,7 @@ def compute_graph_metrics(
     active: jnp.ndarray,
 ) -> dict[str, jnp.ndarray]:
     """Summarize density and degree dispersion for the active graph."""
-    n_nodes = int(edges.n_nodes)
+    n_nodes = active.shape[0]
     edge_mask = active[edges.senders] & active[edges.receivers]
     if hasattr(edges, "active"):
         edge_mask = edge_mask & edges.active
@@ -518,9 +539,13 @@ def compute_graph_metrics(
     }
 
 
-def compute_degrees(edges: EdgeList | FixedSizeEdgeList) -> tuple[jnp.ndarray, jnp.ndarray]:
+def compute_degrees(
+    edges: EdgeList | FixedSizeEdgeList,
+    *,
+    n_nodes: int | None = None,
+) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Compute in-degree and out-degree arrays for the current edge set."""
-    n_nodes = int(edges.n_nodes)
+    n_nodes = edges.n_nodes if n_nodes is None else n_nodes
     edge_mask = jnp.ones(edges.senders.shape[0], dtype=jnp.float32)
     if hasattr(edges, "active"):
         edge_mask = edge_mask * edges.active.astype(jnp.float32)
@@ -548,7 +573,7 @@ class DynamicGraphUpdater:
             edges = self._update_fixed_edges(edges, agents, rng_key)
         else:
             edges = self._update_edge_list(edges, agents, rng_key)
-        in_degrees, out_degrees = compute_degrees(edges)
+        in_degrees, out_degrees = compute_degrees(edges, n_nodes=agents.active.shape[0])
         return graph.replace(edges=edges, in_degrees=in_degrees, out_degrees=out_degrees)
 
     def _update_edge_list(self, edges: EdgeList, agents, rng_key: chex.PRNGKey) -> EdgeList:

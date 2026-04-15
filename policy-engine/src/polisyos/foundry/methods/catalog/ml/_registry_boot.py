@@ -6,6 +6,12 @@ from typing import Sequence
 from .advanced import GaussianProcessEstimator, NeuralODEEstimator, QuantileForestEstimator
 from .clustering import KMeansEstimator
 from .decomposition import PCAEstimator
+from .frontier import (
+    FTTransformerEstimator,
+    GraphNeuralNetworkEstimator,
+    MaskedAutoencoderEmbeddingEstimator,
+    TabNetEstimator,
+)
 from .regression import (
     ElasticNetEstimator,
     GradientBoostingEstimator,
@@ -26,6 +32,10 @@ def register_ml_methods() -> Sequence[type]:
         QuantileForestEstimator,
         NeuralODEEstimator,
         TabularTransformerEstimator,
+        FTTransformerEstimator,
+        TabNetEstimator,
+        GraphNeuralNetworkEstimator,
+        MaskedAutoencoderEmbeddingEstimator,
         ConformalPredictionEstimator,
         SurvivalAnalysisEstimator,
         PCAEstimator,

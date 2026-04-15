@@ -9,10 +9,18 @@ adaptive TTL based on update intervals (not data age).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.observability import get_metrics
+from polisyos.fabric.finite import ensure_non_negative_finite
+from polisyos.fabric.temporal import (
+    ensure_aware_utc,
+    normalize_reference_datetime,
+    utc_age,
+    utc_now,
+)
 from polisyos.ir.connectors import ConnectorCapability
 
 from .report import FreshnessLevel, FreshnessStatus
@@ -76,6 +84,30 @@ class FreshnessPolicy:
     fresh_threshold: float = 0.8
     healthy_threshold: float = 1.2
 
+    def __post_init__(self) -> None:
+        ttl_seconds = ensure_non_negative_finite(
+            self.ttl.total_seconds(),
+            what="freshness ttl",
+        )
+        if ttl_seconds <= 0:
+            raise ValueError("freshness ttl must be > 0")
+        multiplier = ensure_non_negative_finite(
+            self.multiplier,
+            what="freshness multiplier",
+        )
+        if multiplier <= 0:
+            raise ValueError("freshness multiplier must be > 0")
+        fresh_threshold = ensure_non_negative_finite(
+            self.fresh_threshold,
+            what="freshness fresh_threshold",
+        )
+        healthy_threshold = ensure_non_negative_finite(
+            self.healthy_threshold,
+            what="freshness healthy_threshold",
+        )
+        if healthy_threshold < fresh_threshold:
+            raise ValueError("healthy_threshold must be >= fresh_threshold")
+
 
 DEFAULT_POLICIES = {
     "real-time": FreshnessPolicy(ttl=timedelta(minutes=5), schedule="real-time"),
@@ -121,15 +153,35 @@ class FreshnessChecker:
         fetched_at: datetime,
         last_updated: datetime | None = None,
     ) -> FreshnessStatus:
-        now = datetime.now(timezone.utc)
+        now = utc_now()
 
-        if fetched_at.tzinfo is None:
-            fetched_at = fetched_at.replace(tzinfo=timezone.utc)
-        if last_updated and last_updated.tzinfo is None:
-            last_updated = last_updated.replace(tzinfo=timezone.utc)
+        fetched_at, fetched_warning = normalize_reference_datetime(
+            ensure_aware_utc(fetched_at, what=f"{dataset_id} fetched_at"),
+            now=now,
+            what=f"{dataset_id} fetched_at",
+            clamp_future=True,
+        )
+        last_updated_warning: str | None = None
+        if last_updated is not None:
+            last_updated, last_updated_warning = normalize_reference_datetime(
+                ensure_aware_utc(last_updated, what=f"{dataset_id} last_updated"),
+                now=now,
+                what=f"{dataset_id} last_updated",
+                clamp_future=True,
+            )
 
-        cache_age = now - fetched_at
-        data_age = (now - last_updated) if last_updated else None
+        cache_age, _ = utc_age(
+            fetched_at,
+            now=now,
+            what=f"{dataset_id} fetched_at",
+        )
+        data_age = None
+        if last_updated is not None:
+            data_age, _ = utc_age(
+                last_updated,
+                now=now,
+                what=f"{dataset_id} last_updated",
+            )
 
         policy = self._get_policy(dataset_id, metadata)
         ttl = policy.ttl
@@ -144,7 +196,7 @@ class FreshnessChecker:
                     dataset_id,
                 )
 
-        age_to_check = data_age if data_age else cache_age
+        age_to_check = data_age if data_age is not None else cache_age
         ttl_seconds = int(ttl.total_seconds())
 
         if age_to_check <= ttl * policy.fresh_threshold:
@@ -169,16 +221,35 @@ class FreshnessChecker:
                 f"({_format_age(age_to_check)} >> {policy.schedule} TTL)"
             )
 
-        return FreshnessStatus(
+        warnings = [warning for warning in (fetched_warning, last_updated_warning) if warning]
+        if warnings:
+            logger.warning(
+                "Future timestamp clamped during freshness check for %s: %s",
+                dataset_id,
+                "; ".join(warnings),
+            )
+            message = f"{message} ({'; '.join(warnings)})"
+
+        freshness = FreshnessStatus(
             level=level,
             cache_age_seconds=int(cache_age.total_seconds()),
-            data_age_seconds=int(data_age.total_seconds()) if data_age else None,
+            data_age_seconds=int(data_age.total_seconds()) if data_age is not None else None,
             ttl_seconds=ttl_seconds,
             schedule=policy.schedule,
             last_updated=last_updated,
             fetched_at=fetched_at,
             message=message,
         )
+        metrics = get_metrics()
+        tracked_age_seconds = freshness.data_age_seconds
+        if tracked_age_seconds is None:
+            tracked_age_seconds = freshness.cache_age_seconds
+        if getattr(metrics, "record_fabric_freshness_age", None):
+            metrics.record_fabric_freshness_age(
+                dataset_id=dataset_id,
+                age_seconds=float(max(tracked_age_seconds, 0)),
+            )
+        return freshness
 
     def _get_policy(self, dataset_id: str, metadata: Any | None) -> FreshnessPolicy:
         if dataset_id in self._dataset_policies:
@@ -266,19 +337,29 @@ def _extract_update_interval(metadata: Any | None) -> timedelta | None:
 
     value = getattr(metadata, "update_interval", None)
     if isinstance(value, timedelta):
-        return value
+        return value if value.total_seconds() > 0 else None
     if isinstance(value, (int, float)):
-        return timedelta(seconds=float(value))
+        seconds_value = _positive_seconds(value)
+        return timedelta(seconds=seconds_value) if seconds_value is not None else None
 
     seconds = getattr(metadata, "update_interval_seconds", None)
     if isinstance(seconds, (int, float)):
-        return timedelta(seconds=float(seconds))
+        seconds_value = _positive_seconds(seconds)
+        return timedelta(seconds=seconds_value) if seconds_value is not None else None
 
     schedule = _normalize_schedule(getattr(metadata, "update_frequency", None))
     if schedule in SCHEDULE_INTERVALS:
         return SCHEDULE_INTERVALS[schedule]
 
     return None
+
+
+def _positive_seconds(value: float) -> float | None:
+    try:
+        seconds = ensure_non_negative_finite(value, what="update_interval seconds")
+    except ValueError:
+        return None
+    return seconds if seconds > 0 else None
 
 
 def _format_age(age: timedelta) -> str:

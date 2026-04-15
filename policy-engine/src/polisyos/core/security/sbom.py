@@ -4,15 +4,26 @@ from __future__ import annotations
 import json
 import os
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
 from polisyos.core.canon import content_hash
 from polisyos.core.observability import get_metrics
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.observability import MetricsRegistry
+
+    class _PydanticBaseModel:
+        model_config: ClassVar[ConfigDict]
+
+        def __init__(self, /, **data: Any) -> None: ...
+else:
+    from pydantic import BaseModel as _PydanticBaseModel
 
 
 class SBOMFormat(str, Enum):
@@ -31,7 +42,7 @@ class VulnerabilitySeverity(str, Enum):
     UNKNOWN = "unknown"
 
 
-class VulnerabilityRecord(BaseModel):
+class VulnerabilityRecord(_PydanticBaseModel):
     """One vulnerability finding attached to a package discovered in an SBOM scan."""
     model_config = ConfigDict(extra="forbid")
 
@@ -44,20 +55,20 @@ class VulnerabilityRecord(BaseModel):
     source: str = ""
 
 
-class SBOMMetadata(BaseModel):
+class SBOMMetadata(_PydanticBaseModel):
     """Describes how an SBOM was produced and how much software inventory it contains."""
     model_config = ConfigDict(extra="forbid")
 
     format: SBOMFormat = SBOMFormat.CYCLONEDX_JSON
     schema_version: str = "1.5"
     component_count: int = 0
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     generator_tool: str = ""
     source: str = ""
     sbom_hash: str = ""
 
 
-class SBOMVerificationResult(BaseModel):
+class SBOMVerificationResult(_PydanticBaseModel):
     """Decision record returned after applying vulnerability thresholds to an SBOM scan."""
     model_config = ConfigDict(extra="forbid")
 
@@ -86,13 +97,14 @@ class SBOMGenerator:
         cyclonedx_bin: str = "cyclonedx-py",
         syft_bin: str = "syft",
         grype_bin: str = "grype",
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self._cyclonedx_bin = cyclonedx_bin
         self._syft_bin = syft_bin
         self._grype_bin = grype_bin
+        self._metrics = metrics or get_metrics()
 
     def generate_from_lockfile(self, *, lockfile_path: Path, output_path: Path) -> SBOMMetadata:
-        metrics = get_metrics()
         source = "lockfile"
         try:
             resolved = lockfile_path
@@ -131,14 +143,13 @@ class SBOMGenerator:
                 source=source,
                 generator=self._cyclonedx_bin,
             )
-            metrics.record_sbom_generation(source=source, outcome="success")
+            self._metrics.record_sbom_generation(source=source, outcome="success")
             return metadata
-        except (FileNotFoundError, OSError, RuntimeError, TimeoutError, ValueError) as exc:  # noqa: BLE001
-            metrics.record_sbom_generation(source=source, outcome="error")
+        except (FileNotFoundError, OSError, RuntimeError, TimeoutError, ValueError) as exc:
+            self._metrics.record_sbom_generation(source=source, outcome="error")
             raise SBOMGenerationError(str(exc)) from exc
 
     def generate_from_image(self, *, image_ref: str, output_path: Path) -> SBOMMetadata:
-        metrics = get_metrics()
         source = "image"
         try:
             _run_cli(
@@ -157,10 +168,10 @@ class SBOMGenerator:
                 source=image_ref,
                 generator=self._syft_bin,
             )
-            metrics.record_sbom_generation(source=source, outcome="success")
+            self._metrics.record_sbom_generation(source=source, outcome="success")
             return metadata
-        except (FileNotFoundError, OSError, RuntimeError, TimeoutError, ValueError) as exc:  # noqa: BLE001
-            metrics.record_sbom_generation(source=source, outcome="error")
+        except (FileNotFoundError, OSError, RuntimeError, TimeoutError, ValueError) as exc:
+            self._metrics.record_sbom_generation(source=source, outcome="error")
             raise SBOMGenerationError(str(exc)) from exc
 
     def merge_cyclonedx(self, *, inputs: list[Path], output_path: Path) -> SBOMMetadata:
@@ -224,7 +235,7 @@ class SBOMGenerator:
             env = {"GRYPE_DB_CACHE_DIR": str(grype_db_path)}
         try:
             _run_cli(cmd, timeout_seconds=300, env=env)
-        except (FileNotFoundError, OSError, RuntimeError, TimeoutError, ValueError) as exc:  # noqa: BLE001
+        except (FileNotFoundError, OSError, RuntimeError, TimeoutError, ValueError) as exc:
             raise SBOMScannerError(str(exc)) from exc
 
 
@@ -235,9 +246,11 @@ class SBOMVerifier:
         *,
         cvss_threshold: float = 7.0,
         allowed_cves: frozenset[str] | None = None,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self._threshold = cvss_threshold
         self._allowed_cves = frozenset(item.upper() for item in (allowed_cves or frozenset()))
+        self._metrics = metrics or get_metrics()
 
     def verify(
         self,
@@ -264,14 +277,13 @@ class SBOMVerifier:
             and (item.cve_id.upper() not in self._allowed_cves)
         ]
 
-        metrics = get_metrics()
         for severity in VulnerabilitySeverity:
             count = sum(1 for item in deduped if item.severity == severity)
             if count:
-                metrics.record_sbom_vulnerability_count(severity=severity.value, count=count)
+                self._metrics.record_sbom_vulnerability_count(severity=severity.value, count=count)
 
         allowed = len(blocking) == 0
-        metrics.record_sbom_deployment_gate(decision="allow" if allowed else "deny")
+        self._metrics.record_sbom_deployment_gate(decision="allow" if allowed else "deny")
 
         reasons: list[str] = []
         if blocking:

@@ -17,6 +17,12 @@ from typing import Any, AsyncIterator, ClassVar
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
+from polisyos.fabric.safety import (
+    UnsafeFilterExpressionError,
+    UnsafeIdentifierError,
+    escape_odsql_literal,
+    safe_path_segment,
+)
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
@@ -181,7 +187,8 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
         base = self._base_url(handle)
-        url = f"{base}/api/explore/v2.1/catalog/datasets/{request.dataset_id}/records"
+        dataset_segment = safe_path_segment(request.dataset_id, what="Opendatasoft dataset id")
+        url = f"{base}/api/explore/v2.1/catalog/datasets/{dataset_segment}/records"
 
         started = time.monotonic()
         all_records: list[dict[str, Any]] = []
@@ -191,7 +198,12 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
         offset = 0
         limit = 100
 
-        where = self._build_where(request)
+        schema_fields = (
+            await self._get_schema_fields(handle, request.dataset_id)
+            if request.filters
+            else None
+        )
+        where = self._build_where(request, schema_fields=schema_fields)
         while True:
             params: dict[str, str] = {"limit": str(limit), "offset": str(offset)}
             if where:
@@ -237,7 +249,8 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
         base = self._base_url(handle)
-        url = f"{base}/api/explore/v2.1/catalog/datasets/{request.dataset_id}/exports/json"
+        dataset_segment = safe_path_segment(request.dataset_id, what="Opendatasoft dataset id")
+        url = f"{base}/api/explore/v2.1/catalog/datasets/{dataset_segment}/exports/json"
 
         started = time.monotonic()
         body, headers, raw = await self._resilient_request_json(
@@ -274,7 +287,8 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
         dataset_id: str,
     ) -> dict[str, Any]:
         base = self._base_url(handle)
-        url = f"{base}/api/explore/v2.1/catalog/datasets/{dataset_id}"
+        dataset_segment = safe_path_segment(dataset_id, what="Opendatasoft dataset id")
+        url = f"{base}/api/explore/v2.1/catalog/datasets/{dataset_segment}"
         body, _headers, _raw = await self._resilient_request_json(
             handle, url, params={},
         )
@@ -299,25 +313,70 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
     # ODSQL where builder
     # ------------------------------------------------------------------
 
+    async def _get_schema_fields(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+    ) -> set[str]:
+        cache = handle.setdefault_state("opendatasoft_schema_fields", {})
+        cached = cache.get(dataset_id)
+        if isinstance(cached, set):
+            return cached
+        schema = await self.get_dataset_schema(handle, dataset_id)
+        fields = {
+            str(field.get("name"))
+            for field in schema.get("fields", [])
+            if isinstance(field, dict) and field.get("name")
+        }
+        cache[dataset_id] = fields
+        return fields
+
     @staticmethod
-    def _build_where(request: FetchRequest) -> str:
+    def _build_where(
+        request: FetchRequest,
+        *,
+        schema_fields: set[str] | None = None,
+    ) -> str:
         clauses: list[str] = []
         for key, values in request.filters:
             if key == "where":
-                clauses.append(values[0] if values else "")
+                raise UnsafeFilterExpressionError(
+                    "Raw ODSQL where clauses are not allowed; use structured request filters"
+                )
             else:
-                quoted = [f"'{v}'" for v in values]
+                column = OpendatasoftConnector._validate_filter_field(
+                    key,
+                    schema_fields=schema_fields,
+                )
+                quoted = [escape_odsql_literal(v) for v in values]
                 if len(quoted) == 1:
-                    clauses.append(f"{key}={quoted[0]}")
+                    clauses.append(f"{column} = {quoted[0]}")
                 else:
-                    clauses.append(f"{key} in ({','.join(quoted)})")
+                    clauses.append(f"{column} IN ({', '.join(quoted)})")
 
         if request.date_start is not None:
-            clauses.append(f"date>='{request.date_start.strftime('%Y-%m-%d')}'")
+            clauses.append(
+                f"date >= {escape_odsql_literal(request.date_start.strftime('%Y-%m-%d'))}"
+            )
         if request.date_end is not None:
-            clauses.append(f"date<='{request.date_end.strftime('%Y-%m-%d')}'")
+            clauses.append(
+                f"date <= {escape_odsql_literal(request.date_end.strftime('%Y-%m-%d'))}"
+            )
 
         return " AND ".join(clauses)
+
+    @staticmethod
+    def _validate_filter_field(
+        field: str,
+        *,
+        schema_fields: set[str] | None,
+    ) -> str:
+        candidate = str(field or "").strip()
+        if schema_fields is not None and candidate not in schema_fields:
+            raise UnsafeIdentifierError(f"Unknown ODSQL filter field: {field!r}")
+        if not candidate.isidentifier():
+            raise UnsafeIdentifierError(f"Unsafe ODSQL filter field: {field!r}")
+        return candidate
 
 
 __all__ = ["OpendatasoftConnector"]

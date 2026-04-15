@@ -16,6 +16,7 @@ try:
         ConflictCandidate,
         ConflictContext,
         ConflictPolicy,
+        ConflictResolutionError,
         DataComposer,
         ConflictResolver,
         FederationPlanner,
@@ -200,6 +201,49 @@ def test_join_duplicate_column_uses_resolver():
     assert merge_log[0].source_b_id == meta_b.connector_id
 
 
+def test_full_audit_is_truncated_with_summary_metadata():
+    years = list(range(2000, 2020))
+    source_a = pd.DataFrame({"country": ["UA"] * len(years), "year": years, "gdp": [100] * len(years)})
+    source_b = pd.DataFrame({"country": ["UA"] * len(years), "year": years, "gdp": [200] * len(years)})
+
+    meta_a = _make_source_metadata(
+        "worldbank",
+        TrustLevel.HIGH,
+        datetime(2024, 1, 1, tzinfo=timezone.utc),
+    )
+    meta_b = _make_source_metadata(
+        "minecon",
+        TrustLevel.MEDIUM,
+        datetime(2024, 6, 1, tzinfo=timezone.utc),
+    )
+
+    request = CompositionRequest(
+        dataset_pattern="ukraine.gdp",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["country", "year"],
+        audit_level=AuditLevel.FULL,
+        audit_max_entries=5,
+    )
+
+    resolver = ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    composer = DataComposer(conflict_resolver=resolver)
+
+    _result, merge_log = composer.compose(
+        sources=[(source_a, meta_a), (source_b, meta_b)],
+        strategy=request.strategy,
+        request=request,
+    )
+    summary = composer.get_last_merge_summary()
+
+    assert summary is not None
+    assert summary.total_conflicts == len(years)
+    assert len(merge_log) == 5
+    assert summary.extra["audit_entries_retained"] == 5
+    assert summary.extra["audit_entries_truncated"] is True
+    assert summary.extra["audit_entries_dropped"] == len(years) - 5
+
+
 def test_first_available_handles_nan():
     resolver = ConflictResolver(policy=ConflictPolicy.FIRST_AVAILABLE)
 
@@ -230,6 +274,41 @@ def test_first_available_handles_nan():
     resolution = resolver.resolve_conflict(candidates, context, record_log=False)
 
     assert resolution.chosen_candidate.value == 5
+
+
+def test_median_strict_rejects_non_finite_candidates():
+    resolver = ConflictResolver(policy=ConflictPolicy.MEDIAN)
+    request = CompositionRequest(
+        dataset_pattern="test",
+        strategy=CompositionStrategy.UNION,
+        conflict_policy=ConflictPolicy.MEDIAN,
+        strict_conflicts=True,
+    )
+    meta_a = _make_source_metadata(
+        "a",
+        TrustLevel.MEDIUM,
+        datetime(2024, 1, 1, tzinfo=timezone.utc),
+    )
+    meta_b = _make_source_metadata(
+        "b",
+        TrustLevel.MEDIUM,
+        datetime(2024, 1, 2, tzinfo=timezone.utc),
+    )
+    candidates = [
+        ConflictCandidate(source_id=meta_a.connector_id, value=1.0, metadata=meta_a),
+        ConflictCandidate(
+            source_id=meta_b.connector_id,
+            value=float("inf"),
+            metadata=meta_b,
+        ),
+    ]
+
+    with pytest.raises(ConflictResolutionError, match="non-finite"):
+        resolver.resolve_conflict(
+            candidates,
+            ConflictContext(request=request, column="value"),
+            record_log=False,
+        )
 
 
 def test_ranker_freshness_latency():
@@ -272,6 +351,35 @@ def test_ranker_freshness_latency():
 
     ranked = ranker.rank_sources([meta_stale, meta_fresh], request=request)
     assert ranked[0].connector_id == meta_fresh.fully_qualified_id
+
+
+def test_ranker_keeps_scores_finite_with_bad_quality_inputs():
+    now = datetime.now(timezone.utc)
+    metadata = ConnectorMetadataSpec(
+        connector_id="bad_quality",
+        version="1.0.0",
+        namespace="test",
+        source_name="Bad Quality",
+        source_organization="Test",
+        trust_level=TrustLevel.MEDIUM,
+        quality_tier=QualityTier.GOLD,
+        capabilities=0,
+        last_updated=now,
+        observed_latency_ms=50.0,
+    ).model_copy(
+        update={"observed_latency_ms": float("nan")},
+    )
+    ranker = SourceRanker()
+    request = CompositionRequest(
+        dataset_pattern="test",
+        strategy=CompositionStrategy.UNION,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+    )
+
+    ranked = ranker.rank_sources([metadata], request=request)
+
+    assert 0.0 <= ranked[0].relevance_score <= 1.0
+    assert 0.0 <= ranked[0].score_components["latency"] <= 1.0
 
 
 class _DummyEntry:

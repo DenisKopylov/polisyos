@@ -1,26 +1,19 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import { buildLoginNavigationTarget } from "@/features/auth/domain/loginRedirect";
 import { parseLoginSearchParams } from "@/features/auth/domain/searchParams";
 import { useI18n } from "@/i18n/LocaleProvider";
-import { LOGIN_PATH, LOGIN_URL } from "@/lib/constants";
 import { Button, Card } from "@/shared/ui";
-
-function buildLoginHref(nextPath: string) {
-  if (LOGIN_URL.startsWith("/")) {
-    return nextPath || "/";
-  }
-  const url = new URL(LOGIN_URL);
-  url.searchParams.set("next", nextPath || "/");
-  return url.toString();
-}
 
 export default function LoginPage() {
   const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const { next: nextPath } = parseLoginSearchParams(searchParams);
-  const loginHref = useMemo(() => buildLoginHref(nextPath), [nextPath]);
-  const usesExternalLogin = LOGIN_URL !== LOGIN_PATH;
+  const loginTarget = useMemo(
+    () => buildLoginNavigationTarget(nextPath),
+    [nextPath],
+  );
 
   return (
     <main
@@ -39,8 +32,8 @@ export default function LoginPage() {
           {t("pages.login.nextRoute", { next: nextPath })}
         </div>
         <div className="flex flex-wrap gap-2">
-          {usesExternalLogin ? (
-            <Button href={loginHref} variant="primary">
+          {loginTarget.usesDedicatedLogin ? (
+            <Button href={loginTarget.href} variant="primary">
               {t("pages.login.continue")}
             </Button>
           ) : (

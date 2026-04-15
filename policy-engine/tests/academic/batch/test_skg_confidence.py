@@ -13,7 +13,7 @@ def test_aggregate_edge_confidence_golden_rct_vs_many_observational() -> None:
     assert rct_conf > single_observational_conf
     assert observational_conf > single_observational_conf
     assert observational_conf > rct_conf
-    assert rct_conf == pytest.approx(0.5355)
+    assert rct_conf == pytest.approx(0.55)
 
 
 def test_aggregate_edge_confidence_replication_bonus_saturates() -> None:

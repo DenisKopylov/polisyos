@@ -120,7 +120,7 @@ The benchmark platform is intentionally broader than `pytest-benchmark`.
 
 | Taxonomy slice | Current path | Owner | Current ratchet |
 |---|---|---|---|
-| Unit microbench | `benchmarks/run_all_benchmarks.sh` circuits and `benchmarks/foundry/` tests | Foundry maintainers | nightly benchmark contour summaries must stay green |
+| Unit microbench | `polisyos-tools benchmarks run-all` circuits and `benchmarks/foundry/` tests | Foundry maintainers | nightly benchmark contour summaries must stay green |
 | Workflow throughput | contour summaries from `tools/validation/run_benchmark_contours.sh` | Platform | release / nightly summaries must keep `passes_all=true` |
 | Frontend bundle | `npm run check:bundle` | Runtime dashboard owners | bundle budgets must pass |
 | Frontend lighthouse | `npm run lighthouse:ci` | Runtime dashboard owners | Lighthouse CI must pass configured budgets |

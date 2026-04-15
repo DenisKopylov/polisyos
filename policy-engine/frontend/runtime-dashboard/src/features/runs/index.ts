@@ -18,7 +18,7 @@ export {
   buildEvidenceHref,
   LEGACY_RUN_DETAIL_TAB_MAP,
 } from "@/features/runs/routes/useRunDetailSummary";
-export type { RunDetailTab } from "@/features/runs/routes/useRunDetailSummary";
+export type { RunDetailTab } from "@/features/runs/domain/runDetailTabs";
 export {
   buildRunCompareHref,
   buildRunDetailHref,

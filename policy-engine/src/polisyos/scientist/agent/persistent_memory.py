@@ -12,6 +12,7 @@ Lifecycle::
 from __future__ import annotations
 
 import hashlib
+import threading
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
@@ -23,6 +24,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon import CanonSpec
 
 logger = get_logger(__name__)
 
@@ -33,6 +35,8 @@ __all__ = [
     "MemoryKind",
     "MemoryQuery",
     "PersistentMemoryStore",
+    "problem_signature",
+    "tool_error_pattern_tag",
 ]
 
 
@@ -71,6 +75,9 @@ class MemoryIndexEntry(BaseModel):
     content_preview: str = ""
     artifact_ref: ArtifactRef
     created_at: datetime
+    full_content_hash: str = ""
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
+    expires_at: datetime | None = None
 
 
 class MemoryIndex(BaseModel):
@@ -119,6 +126,21 @@ def _content_hash(content: str) -> str:
     return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
+def problem_signature(problem_statement: str) -> str:
+    """Stable compact signature for a user problem statement."""
+    normalized = " ".join((problem_statement or "").lower().split())
+    if not normalized:
+        normalized = "empty_problem"
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:16]
+
+
+def tool_error_pattern_tag(pattern: str) -> str:
+    """Normalize a `tool_name:error_type` pattern into a memory tag."""
+    normalized = " ".join((pattern or "unknown_tool:tool_error").lower().split())
+    normalized = normalized.replace(" ", "_")
+    return f"tool_error:{normalized[:96]}"
+
+
 # ---------------------------------------------------------------------------
 # PersistentMemoryStore
 # ---------------------------------------------------------------------------
@@ -161,6 +183,7 @@ class PersistentMemoryStore:
         self._vector_store = vector_store
         self._content_hashes: set[str] = set()
         self._last_prune_at: float = 0.0
+        self._lock = threading.RLock()
 
     @property
     def index(self) -> MemoryIndex:
@@ -174,18 +197,22 @@ class PersistentMemoryStore:
         Returns the existing ref if an entry with identical content already
         exists (deduplication).
         """
+        with self._lock:
+            return self._store_memory_locked(entry)
+
+    def _store_memory_locked(self, entry: MemoryEntry) -> ArtifactRef:
         # Deduplication
         chash = _content_hash(entry.content)
         if chash in self._content_hashes:
             # Find existing ref for the duplicate
             for idx_entry in self._index.entries:
-                if _content_hash(idx_entry.content_preview) == chash:
-                    logger.debug("Skipping duplicate memory: %s", chash)
+                if self._entry_content_hash(idx_entry) == chash:
+                    logger.debug("Skipping duplicate memory: {}", chash)
                     return idx_entry.artifact_ref
             # Hash was tracked but entry not found — fall through to store
         self._content_hashes.add(chash)
 
-        ref = self._store.put_json(
+        ref = self._put_json(
             entry.model_dump(mode="json"),
             PutOptions(
                 kind=_MEMORY_ENTRY_KIND,
@@ -200,6 +227,9 @@ class PersistentMemoryStore:
             content_preview=entry.content[:200],
             artifact_ref=ref,
             created_at=entry.created_at,
+            full_content_hash=chash,
+            confidence=entry.confidence,
+            expires_at=entry.expires_at,
         )
         self._index.entries.append(index_entry)
 
@@ -213,7 +243,7 @@ class PersistentMemoryStore:
                     metadata={"kind": entry.kind.value, "tags": ",".join(entry.tags)},
                 )
             except Exception:
-                logger.debug("Failed to index memory %s in vector store", entry.memory_id)
+                logger.debug("Failed to index memory {} in vector store", entry.memory_id)
 
         return ref
 
@@ -221,9 +251,12 @@ class PersistentMemoryStore:
 
     def query(self, q: MemoryQuery) -> list[MemoryEntry]:
         """Retrieve entries matching a :class:`MemoryQuery`."""
+        with self._lock:
+            return self._query_locked(q)
+
+    def _query_locked(self, q: MemoryQuery) -> list[MemoryEntry]:
         # Lazy TTL prune
         self._maybe_prune_expired()
-
         now = datetime.now(timezone.utc)
         candidates = self._index.entries
 
@@ -236,6 +269,14 @@ class PersistentMemoryStore:
             tag_set = set(q.tags)
             candidates = [e for e in candidates if tag_set <= set(e.tags)]
 
+        # Confidence/TTL filters live in the index to avoid hot-path CAS loads.
+        candidates = [
+            e
+            for e in candidates
+            if e.confidence >= q.min_confidence
+            and not self._is_expired_entry(e, now)
+        ]
+
         # Score by relevance
         scored = self._score_candidates(candidates, q)
 
@@ -247,20 +288,9 @@ class PersistentMemoryStore:
         for _score, idx_entry in scored:
             if len(results) >= q.max_results:
                 break
-            try:
-                raw = self._store.get_bytes(idx_entry.artifact_ref.artifact_id)
-                import json
-                entry = MemoryEntry.model_validate(json.loads(raw))
-            except Exception:
-                logger.debug("Failed to load memory %s", idx_entry.memory_id)
-                continue
-
-            # Confidence filter
-            if entry.confidence < q.min_confidence:
-                continue
-
-            # TTL filter
-            if entry.expires_at is not None and entry.expires_at <= now:
+            entry = self._load_memory_entry(idx_entry)
+            if entry is None:
+                logger.debug("Failed to load memory {}", idx_entry.memory_id)
                 continue
 
             results.append(entry)
@@ -271,23 +301,21 @@ class PersistentMemoryStore:
 
     def prune_expired(self) -> int:
         """Remove index entries whose TTL has expired. Returns count removed."""
+        with self._lock:
+            return self._prune_expired_locked()
+
+    def _prune_expired_locked(self) -> int:
         now = datetime.now(timezone.utc)
         before = len(self._index.entries)
 
         surviving: list[MemoryIndexEntry] = []
         for idx_entry in self._index.entries:
-            # We must load the full entry to check expires_at
-            try:
-                import json
-                raw = self._store.get_bytes(idx_entry.artifact_ref.artifact_id)
-                entry = MemoryEntry.model_validate(json.loads(raw))
-                if entry.expires_at is not None and entry.expires_at <= now:
-                    continue
-            except Exception:
-                pass  # keep entries we can't check
+            if self._is_expired_entry(idx_entry, now):
+                continue
             surviving.append(idx_entry)
 
         self._index.entries = surviving
+        self._refresh_content_hashes()
         return before - len(surviving)
 
     def consolidate(self, similarity_threshold: float = 0.85) -> int:
@@ -295,6 +323,10 @@ class PersistentMemoryStore:
 
         Returns the number of entries removed.
         """
+        with self._lock:
+            return self._consolidate_locked(similarity_threshold)
+
+    def _consolidate_locked(self, similarity_threshold: float = 0.85) -> int:
         if len(self._index.entries) < 2:
             return 0
 
@@ -341,6 +373,9 @@ class PersistentMemoryStore:
                 content_preview=primary.content_preview,
                 artifact_ref=primary.artifact_ref,
                 created_at=primary.created_at,
+                full_content_hash=primary.full_content_hash,
+                confidence=primary.confidence,
+                expires_at=primary.expires_at,
             )
             removed_count += len(cluster) - 1
 
@@ -348,6 +383,7 @@ class PersistentMemoryStore:
         self._index.entries = [
             e for i, e in enumerate(entries) if i not in indices_to_remove
         ]
+        self._refresh_content_hashes()
         return removed_count
 
     # -- index persistence -------------------------------------------------
@@ -356,24 +392,36 @@ class PersistentMemoryStore:
         """Restore the index from CAS."""
         import json
 
-        raw = self._store.get_bytes(index_ref.artifact_id)
-        self._index = MemoryIndex.model_validate(json.loads(raw))
-
-        # Rebuild content hash set
-        self._content_hashes = {
-            _content_hash(e.content_preview) for e in self._index.entries
-        }
+        with self._lock:
+            raw = self._store.get_bytes(index_ref.artifact_id)
+            self._index = MemoryIndex.model_validate(json.loads(raw))
+            self._hydrate_index_metadata()
+            self._refresh_content_hashes()
 
     def save_index(self) -> ArtifactRef:
         """Persist the current index to CAS."""
-        return self._store.put_json(
-            self._index.model_dump(mode="json"),
-            PutOptions(
-                kind=_MEMORY_INDEX_KIND,
-                media_type="application/json",
-                schema=SchemaInfo(name=f"{_SCHEMA_NAME}.Index", version="1.0"),
-            ),
-        )
+        with self._lock:
+            return self._put_json(
+                self._index.model_dump(mode="json"),
+                PutOptions(
+                    kind=_MEMORY_INDEX_KIND,
+                    media_type="application/json",
+                    schema=SchemaInfo(name=f"{_SCHEMA_NAME}.Index", version="1.0"),
+                ),
+            )
+
+    def _put_json(self, payload: dict[str, Any], options: PutOptions) -> ArtifactRef:
+        """Write JSON payloads with canonicalization when the store supports it."""
+        try:
+            return self._store.put_json(
+                payload,
+                options,
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+        except TypeError as exc:
+            if "canon_spec" not in str(exc):
+                raise
+            return self._store.put_json(payload, options)
 
     # -- prompt helpers ----------------------------------------------------
 
@@ -396,6 +444,101 @@ class PersistentMemoryStore:
             lines.append(line)
             chars += len(line) + 1
         return "\n".join(lines)
+
+    # -- Reflexion memory helpers -----------------------------------------
+
+    def store_reflexion_memory(
+        self,
+        *,
+        problem_statement: str,
+        reflection: str,
+        trajectory_summary: str,
+        source_run_id: str,
+        source_node_alias: str | None = "reflexion",
+        error_code: str | None = None,
+        tool_error_patterns: list[str] | None = None,
+        confidence: float = 0.85,
+    ) -> ArtifactRef:
+        """Persist a compact Reflexion summary keyed by problem/error signatures."""
+        signature = problem_signature(problem_statement)
+        tags = ["reflexion", f"problem:{signature}"]
+        if error_code:
+            tags.append(f"error_code:{error_code.strip().lower()[:96]}")
+        for pattern in tool_error_patterns or []:
+            tags.append(tool_error_pattern_tag(pattern))
+
+        content = "\n".join(
+            [
+                f"Problem signature: {signature}",
+                f"Reflection: {reflection.strip()[:1200]}",
+                f"Trajectory: {trajectory_summary.strip()[:1200]}",
+            ]
+        ).strip()
+        return self.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.SEMANTIC,
+                content=content,
+                tags=sorted(dict.fromkeys(tags)),
+                source_run_id=source_run_id,
+                source_node_alias=source_node_alias,
+                confidence=confidence,
+                metadata={
+                    "problem_signature": signature,
+                    "error_code": (error_code or "").strip().lower(),
+                    "memory_role": "reflexion_summary",
+                },
+            )
+        )
+
+    def recall_reflexion_memories(
+        self,
+        *,
+        problem_statement: str,
+        error_code: str | None = None,
+        tool_error_patterns: list[str] | None = None,
+        max_results: int = 5,
+        min_confidence: float = 0.0,
+    ) -> list[MemoryEntry]:
+        """Retrieve Reflexion memories matching problem signature and tool-error tags."""
+        signature = problem_signature(problem_statement)
+        query_specs = [
+            MemoryQuery(
+                query_text=problem_statement,
+                tags=["reflexion", f"problem:{signature}"],
+                max_results=max_results,
+                min_confidence=min_confidence,
+            )
+        ]
+        if error_code:
+            query_specs.append(
+                MemoryQuery(
+                    query_text=problem_statement,
+                    tags=["reflexion", f"error_code:{error_code.strip().lower()[:96]}"],
+                    max_results=max_results,
+                    min_confidence=min_confidence,
+                )
+            )
+        for pattern in tool_error_patterns or []:
+            query_specs.append(
+                MemoryQuery(
+                    query_text=problem_statement,
+                    tags=["reflexion", tool_error_pattern_tag(pattern)],
+                    max_results=max_results,
+                    min_confidence=min_confidence,
+                )
+            )
+
+        merged: list[MemoryEntry] = []
+        seen_ids: set[str] = set()
+        for query in query_specs:
+            for entry in self.query(query):
+                if entry.memory_id in seen_ids:
+                    continue
+                seen_ids.add(entry.memory_id)
+                merged.append(entry)
+                if len(merged) >= max_results:
+                    return merged
+        return merged
 
     # -- internal ----------------------------------------------------------
 
@@ -474,9 +617,7 @@ class PersistentMemoryStore:
 
     def _estimate_confidence(self, idx_entry: MemoryIndexEntry) -> float:
         """Estimate confidence from the index entry (preview-only, no CAS load)."""
-        # We don't have confidence in the index entry, assume 1.0 by default
-        # Full confidence is checked after CAS load in query()
-        return 1.0
+        return min(max(idx_entry.confidence, 0.0), 1.0)
 
     def _entry_similarity(
         self, a: MemoryIndexEntry, b: MemoryIndexEntry,
@@ -486,7 +627,7 @@ class PersistentMemoryStore:
             # Use embedding similarity
             try:
                 embs = self._embedder.embed([a.content_preview, b.content_preview])
-                dot = sum(x * y for x, y in zip(embs[0], embs[1]))
+                dot = sum(x * y for x, y in zip(embs[0], embs[1], strict=True))
                 import math
                 norm_a = math.sqrt(sum(x * x for x in embs[0]))
                 norm_b = math.sqrt(sum(x * x for x in embs[1]))
@@ -519,16 +660,67 @@ class PersistentMemoryStore:
         before = len(self._index.entries)
         surviving: list[MemoryIndexEntry] = []
         for idx_entry in self._index.entries:
-            try:
-                import json
-                raw = self._store.get_bytes(idx_entry.artifact_ref.artifact_id)
-                entry = MemoryEntry.model_validate(json.loads(raw))
-                if entry.expires_at is not None and entry.expires_at <= utc_now:
-                    continue
-            except Exception:
-                pass
+            if self._is_expired_entry(idx_entry, utc_now):
+                continue
             surviving.append(idx_entry)
 
         if len(surviving) < before:
             self._index.entries = surviving
-            logger.debug("Pruned %d expired memories", before - len(surviving))
+            self._refresh_content_hashes()
+            logger.debug("Pruned {} expired memories", before - len(surviving))
+
+    def _entry_content_hash(self, idx_entry: MemoryIndexEntry) -> str:
+        if idx_entry.full_content_hash:
+            return idx_entry.full_content_hash
+        if idx_entry.content_preview:
+            return _content_hash(idx_entry.content_preview)
+        return ""
+
+    def _refresh_content_hashes(self) -> None:
+        self._content_hashes = {
+            chash
+            for entry in self._index.entries
+            if (chash := self._entry_content_hash(entry))
+        }
+
+    def _load_memory_entry(self, idx_entry: MemoryIndexEntry) -> MemoryEntry | None:
+        try:
+            import json
+
+            raw = self._store.get_bytes(idx_entry.artifact_ref.artifact_id)
+            return MemoryEntry.model_validate(json.loads(raw))
+        except Exception:
+            return None
+
+    def _hydrate_index_metadata(self) -> None:
+        hydrated_entries: list[MemoryIndexEntry] = []
+        for idx_entry in self._index.entries:
+            hydrated_entries.append(self._hydrate_index_entry(idx_entry))
+        self._index.entries = hydrated_entries
+
+    def _hydrate_index_entry(self, idx_entry: MemoryIndexEntry) -> MemoryIndexEntry:
+        entry = self._load_memory_entry(idx_entry)
+        if entry is None:
+            return idx_entry.model_copy(
+                update={
+                    "full_content_hash": self._entry_content_hash(idx_entry),
+                },
+            )
+        return idx_entry.model_copy(
+            update={
+                "kind": entry.kind,
+                "tags": list(entry.tags),
+                "content_preview": entry.content[:200],
+                "created_at": entry.created_at,
+                "full_content_hash": _content_hash(entry.content),
+                "confidence": entry.confidence,
+                "expires_at": entry.expires_at,
+            },
+        )
+
+    def _is_expired_entry(
+        self,
+        idx_entry: MemoryIndexEntry,
+        now: datetime,
+    ) -> bool:
+        return idx_entry.expires_at is not None and idx_entry.expires_at <= now

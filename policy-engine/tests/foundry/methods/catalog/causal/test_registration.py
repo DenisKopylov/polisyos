@@ -29,6 +29,9 @@ def test_register_causal_methods_queryable():
     structural_names = {sig.name for sig in registry.query(namespace="causal.structural")}
     prior_names = {sig.name for sig in registry.query(namespace="causal.prior")}
     transport_names = {sig.name for sig in registry.query(namespace="causal.transport")}
+    proximal_names = {sig.name for sig in registry.query(namespace="causal.proximal")}
+    distributional_names = {sig.name for sig in registry.query(namespace="causal.distributional")}
+    interference_names = {sig.name for sig in registry.query(namespace="causal.interference")}
     assert did_names.issuperset({"standard", "staggered", "callaway_santanna", "sun_abraham", "dechaisemartin", "borusyak_jaravel_spiess"})
     assert hte_names.issubset({"causal_forest", "causal_bcf", "forest_dr", "double_ml", "meta_learner", "dr_learner", "r_learner"})
     assert targeting_names.issubset({"policy_tree"})
@@ -48,6 +51,9 @@ def test_register_causal_methods_queryable():
     assert {"build_literature_prior", "reconcile_causal_graph"}.issubset(prior_names)
     assert "check_transportability" in transport_names
     assert "symbolic_identify" in transport_names
+    assert "proximal_bridge" in proximal_names
+    assert "unconditional_qte" in distributional_names
+    assert {"partial", "network_aipw", "spatial", "bipartite", "network_cate"}.issubset(interference_names)
 
     # Phase 1 new namespaces
     treatment_names = {sig.name for sig in registry.query(namespace="causal.treatment_effects")}

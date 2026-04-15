@@ -7,15 +7,19 @@ predicted runtimes.
 
 from __future__ import annotations
 
+import logging
 import math
 import threading
 import time
-from collections import defaultdict
+from collections import defaultdict, deque
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
+
+_log = logging.getLogger("foundry.selection_history")
 
 
 class MethodExecutionRecord(BaseModel):
@@ -32,8 +36,25 @@ class MethodExecutionRecord(BaseModel):
     failure_type: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class SelectionHistoryPersistenceIssue:
+    """Bounded diagnostic record for append/export/import persistence failures."""
+
+    operation: str
+    path: str
+    message: str
+    timestamp: float
+
+
 class SelectionHistoryStore:
-    """Thread-safe store for method execution history."""
+    """
+    Thread-safe store for method execution history.
+
+    In-memory state and optional JSONL persistence are synchronized
+    independently so concurrent writers cannot interleave partial file appends.
+    """
+
+    _MAX_PERSISTENCE_ISSUES = 64
 
     def __init__(
         self,
@@ -43,8 +64,12 @@ class SelectionHistoryStore:
     ) -> None:
         self._by_fqn: dict[str, list[MethodExecutionRecord]] = defaultdict(list)
         self._lock = threading.Lock()
+        self._persist_lock = threading.Lock()
         self._persist_path = Path(persist_path) if persist_path is not None else None
         self._auto_persist = auto_persist
+        self._persistence_issues: deque[SelectionHistoryPersistenceIssue] = deque(
+            maxlen=self._MAX_PERSISTENCE_ISSUES
+        )
 
     def record(self, rec: MethodExecutionRecord) -> None:
         """Append an execution record."""
@@ -104,15 +129,25 @@ class SelectionHistoryStore:
         with self._lock:
             self._by_fqn.clear()
 
+    def persistence_issues(self) -> list[SelectionHistoryPersistenceIssue]:
+        """Return a bounded history of JSONL persistence failures."""
+        with self._persist_lock:
+            return list(self._persistence_issues)
+
     def export_jsonl(self, path: Path | str | None = None) -> Path:
         """Write all records to a JSONL file and return the resolved path."""
         target = Path(path) if path is not None else self._require_persist_path()
         records = self.all_records()
-        target.parent.mkdir(parents=True, exist_ok=True)
-        with target.open("w", encoding="utf-8") as fh:
-            for record in records:
-                fh.write(record.model_dump_json())
-                fh.write("\n")
+        try:
+            with self._persist_lock:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                with target.open("w", encoding="utf-8") as fh:
+                    for record in records:
+                        fh.write(record.model_dump_json())
+                        fh.write("\n")
+        except OSError as exc:
+            self._record_persistence_issue("export", target, exc)
+            raise
         return target
 
     def import_jsonl(
@@ -128,15 +163,20 @@ class SelectionHistoryStore:
         if clear_existing:
             self.clear()
         imported = 0
-        with target.open("r", encoding="utf-8") as fh:
-            for line in fh:
-                payload = line.strip()
-                if not payload:
-                    continue
-                record = MethodExecutionRecord.model_validate_json(payload)
-                with self._lock:
-                    self._by_fqn[record.method_fqn].append(record)
-                imported += 1
+        try:
+            with self._persist_lock:
+                with target.open("r", encoding="utf-8") as fh:
+                    for line in fh:
+                        payload = line.strip()
+                        if not payload:
+                            continue
+                        record = MethodExecutionRecord.model_validate_json(payload)
+                        with self._lock:
+                            self._by_fqn[record.method_fqn].append(record)
+                        imported += 1
+        except OSError as exc:
+            self._record_persistence_issue("import", target, exc)
+            raise
         return imported
 
     def __len__(self) -> int:
@@ -148,15 +188,36 @@ class SelectionHistoryStore:
             raise ValueError("SelectionHistoryStore has no persistence path configured")
         return self._persist_path
 
-    @staticmethod
-    def _append_jsonl(record: MethodExecutionRecord, path: Path) -> None:
+    def _append_jsonl(self, record: MethodExecutionRecord, path: Path) -> None:
         try:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            with path.open("a", encoding="utf-8") as fh:
-                fh.write(record.model_dump_json())
-                fh.write("\n")
-        except OSError:
-            return
+            with self._persist_lock:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                with path.open("a", encoding="utf-8") as fh:
+                    fh.write(record.model_dump_json())
+                    fh.write("\n")
+        except OSError as exc:
+            self._record_persistence_issue("append", path, exc)
+
+    def _record_persistence_issue(
+        self,
+        operation: str,
+        path: Path,
+        exc: OSError,
+    ) -> None:
+        issue = SelectionHistoryPersistenceIssue(
+            operation=operation,
+            path=str(path),
+            message=str(exc),
+            timestamp=time.time(),
+        )
+        with self._persist_lock:
+            self._persistence_issues.append(issue)
+        _log.warning(
+            "selection_history_persist_failed op=%s path=%s exc=%s",
+            operation,
+            path,
+            type(exc).__name__,
+        )
 
 
 _MIN_FIT_RECORDS = 5
@@ -181,8 +242,17 @@ class RuntimePredictor:
         self._slope_feat: float = self._DEFAULT_SLOPE_FEAT
         self._fitted: bool = False
         self._method_intercepts: dict[str, float] = {}
+        self._backend_intercepts: dict[str, float] = {}
+        self._method_backend_intercepts: dict[tuple[str, str], float] = {}
 
-    def predict_ms(self, fqn: str, n_obs: int, n_features: int = 1) -> float:
+    def predict_ms(
+        self,
+        fqn: str,
+        n_obs: int,
+        n_features: int = 1,
+        *,
+        backend: str | None = None,
+    ) -> float:
         """Predict runtime in milliseconds. Always returns a positive finite value."""
         log_latency = (
             self._intercept
@@ -190,6 +260,13 @@ class RuntimePredictor:
             + self._slope_feat * math.log(max(n_features, 1))
             + self._method_intercepts.get(fqn, 0.0)
         )
+        if backend is not None:
+            normalized_backend = str(backend).strip().lower()
+            log_latency += self._backend_intercepts.get(normalized_backend, 0.0)
+            log_latency += self._method_backend_intercepts.get(
+                (fqn, normalized_backend),
+                0.0,
+            )
         return math.exp(log_latency)
 
     def fit(self, history: SelectionHistoryStore) -> None:
@@ -199,15 +276,22 @@ class RuntimePredictor:
         ``data_characteristics``; otherwise keeps defaults.
         """
         all_records = history.all_records()
-        rows: list[tuple[str, float, float, float]] = []
+        rows: list[tuple[str, str | None, float, float, float]] = []
         for rec in all_records:
             n_obs = rec.data_characteristics.get("n_obs")
             if n_obs is None or n_obs < 1 or rec.latency_ms <= 0:
                 continue
             n_features = max(rec.data_characteristics.get("n_features", 1), 1)
+            backend = rec.data_characteristics.get("backend")
+            backend_name = (
+                str(backend).strip().lower()
+                if backend is not None and str(backend).strip()
+                else None
+            )
             rows.append(
                 (
                     rec.method_fqn,
+                    backend_name,
                     math.log(n_obs),
                     math.log(n_features),
                     math.log(rec.latency_ms),
@@ -217,25 +301,43 @@ class RuntimePredictor:
         if len(rows) < _MIN_FIT_RECORDS:
             self._fitted = False
             self._method_intercepts.clear()
+            self._backend_intercepts.clear()
+            self._method_backend_intercepts.clear()
             return
 
-        X = np.array([[1.0, r[1], r[2]] for r in rows])
-        y = np.array([r[3] for r in rows])
+        X = np.array([[1.0, r[2], r[3]] for r in rows])
+        y = np.array([r[4] for r in rows])
         coeffs, *_ = np.linalg.lstsq(X, y, rcond=None)
         self._intercept = float(coeffs[0])
         self._slope_obs = float(coeffs[1])
         self._slope_feat = float(coeffs[2])
         residuals_by_fqn: dict[str, list[float]] = defaultdict(list)
-        for fqn, log_n_obs, log_n_features, log_latency in rows:
+        residuals_by_backend: dict[str, list[float]] = defaultdict(list)
+        residuals_by_method_backend: dict[tuple[str, str], list[float]] = defaultdict(list)
+        for fqn, backend, log_n_obs, log_n_features, log_latency in rows:
             baseline = (
                 self._intercept
                 + self._slope_obs * log_n_obs
                 + self._slope_feat * log_n_features
             )
-            residuals_by_fqn[fqn].append(log_latency - baseline)
+            residual = log_latency - baseline
+            residuals_by_fqn[fqn].append(residual)
+            if backend is not None:
+                residuals_by_backend[backend].append(residual)
+                residuals_by_method_backend[(fqn, backend)].append(residual)
         self._method_intercepts = {
             fqn: float(np.mean(residuals))
             for fqn, residuals in residuals_by_fqn.items()
+            if len(residuals) >= _MIN_METHOD_RESIDUAL_RECORDS
+        }
+        self._backend_intercepts = {
+            backend: float(np.mean(residuals))
+            for backend, residuals in residuals_by_backend.items()
+            if len(residuals) >= _MIN_METHOD_RESIDUAL_RECORDS
+        }
+        self._method_backend_intercepts = {
+            key: float(np.mean(residuals))
+            for key, residuals in residuals_by_method_backend.items()
             if len(residuals) >= _MIN_METHOD_RESIDUAL_RECORDS
         }
         self._fitted = True
@@ -259,13 +361,12 @@ _GLOBAL_HISTORY: SelectionHistoryStore | None = None
 def get_global_selection_history() -> SelectionHistoryStore:
     """Return the process-global execution history store."""
     global _GLOBAL_HISTORY
-    if _GLOBAL_HISTORY is None:
-        with _GLOBAL_HISTORY_LOCK:
-            if _GLOBAL_HISTORY is None:
-                _GLOBAL_HISTORY = SelectionHistoryStore(
-                    persist_path=_DEFAULT_HISTORY_PATH,
-                    auto_persist=True,
-                )
+    with _GLOBAL_HISTORY_LOCK:
+        if _GLOBAL_HISTORY is None:
+            _GLOBAL_HISTORY = SelectionHistoryStore(
+                persist_path=_DEFAULT_HISTORY_PATH,
+                auto_persist=True,
+            )
     return _GLOBAL_HISTORY
 
 
@@ -281,6 +382,7 @@ def fit_runtime_predictor_from_history(
 __all__ = [
     "MethodExecutionRecord",
     "RuntimePredictor",
+    "SelectionHistoryPersistenceIssue",
     "SelectionHistoryStore",
     "fit_runtime_predictor_from_history",
     "get_global_selection_history",

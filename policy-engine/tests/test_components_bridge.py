@@ -96,3 +96,31 @@ def test_foundry_method_discovery_and_selection() -> None:
     assert [sig.fqn for sig in by_domain_tag] == ["roads.method.bridge_method@1.0.0"]
 
     MethodRegistry.reset_instance()
+
+
+def test_bootstrap_does_not_mutate_existing_default_policy() -> None:
+    MethodRegistry.reset_instance()
+    registry = MethodRegistry.get_instance()
+    registry.set_default_policy(ResolutionPolicy.EXACT)
+
+    component_registry = ComponentRegistry()
+
+    report = bootstrap_method_registry_from_components(
+        component_registry,
+        registry,
+        resolution_policy=ResolutionPolicy.LATEST,
+    )
+
+    assert report.errors == []
+    assert registry.get_default_policy() is ResolutionPolicy.EXACT
+
+    bootstrap_method_registry_from_components(
+        component_registry,
+        registry,
+        resolution_policy=ResolutionPolicy.LATEST,
+        mutate_registry_default_policy=True,
+    )
+
+    assert registry.get_default_policy() is ResolutionPolicy.LATEST
+
+    MethodRegistry.reset_instance()

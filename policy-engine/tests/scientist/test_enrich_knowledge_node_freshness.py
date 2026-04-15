@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, ResearchIntentRef
@@ -55,6 +57,12 @@ class _AlwaysFailScholar:
         del store, intent
         self.calls += 1
         raise RuntimeError("upstream source unavailable")
+
+
+class _AssertionFailScholar:
+    def enrich(self, store: FileSystemCAS, intent: ResearchIntent) -> KnowledgeBundleRef:
+        del store, intent
+        raise AssertionError("scholar invariant")
 
 
 def _store_intent(cas: FileSystemCAS) -> ResearchIntentRef:
@@ -201,3 +209,11 @@ def test_enrich_node_failed_refresh_sets_retry_window(tmp_path: Path) -> None:
     assert str(second.state.inputs[INPUT_KNOWLEDGE_BUNDLE_REF].artifact_id) == str(
         stale_ref.artifact_id
     )
+
+
+def test_enrich_node_scholar_assertion_is_not_swallowed(tmp_path: Path) -> None:
+    ctx, state = _build_context(tmp_path, _AssertionFailScholar())
+    state.inputs[INPUT_RESEARCH_INTENT_REF] = _store_intent(ctx.store)
+
+    with pytest.raises(AssertionError, match="scholar invariant"):
+        EnrichKnowledgeNode().execute(ctx, state)

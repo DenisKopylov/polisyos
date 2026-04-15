@@ -1,18 +1,17 @@
 """Public security audit sink module API."""
 from __future__ import annotations
 
+import importlib
 import json
 import os
 import queue
 import threading
 import time
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Protocol
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-from polisyos.core.trace.record import TraceRecord
 
 from .audit_models import (
     AuditActor,
@@ -23,6 +22,12 @@ from .audit_models import (
 )
 
 logger = get_logger("polisyos.security.audit_sink")
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.observability import MetricsRegistry
+    from polisyos.core.trace.record import TraceRecord
 
 
 class AuditStorageBackend(Protocol):
@@ -48,12 +53,11 @@ class LocalJsonlBackend:
         return self._path
 
     def write(self, entry: ChainedLogEntry) -> None:
-        with self._lock:
-            with self._path.open("a", encoding="utf-8") as handle:
-                handle.write(entry.model_dump_json(exclude_none=True))
-                handle.write("\n")
-                handle.flush()
-                os.fsync(handle.fileno())
+        with self._lock, self._path.open("a", encoding="utf-8") as handle:
+            handle.write(entry.model_dump_json(exclude_none=True))
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
 
     def flush(self) -> None:
         return None
@@ -149,6 +153,10 @@ class ColdTierBackend:
         self._buffer_limit = 512
         self._segment_hour: str | None = None
 
+    @property
+    def bucket(self) -> str:
+        return self._bucket
+
     def write(self, entry: ChainedLogEntry) -> None:
         with self._lock:
             hour = entry.timestamp[:13]
@@ -170,18 +178,16 @@ class ColdTierBackend:
             return
 
         try:
-            import boto3
-
-            client = boto3.client("s3", region_name=self._region)
+            client = _load_boto3_s3_client(region_name=self._region)
             segment = (self._segment_hour or "unknown").replace(":", "")
             key = f"{self._prefix}/{segment}/audit-{int(time.time() * 1000)}.jsonl"
             body = "\n".join(item.model_dump_json(exclude_none=True) for item in self._buffer) + "\n"
 
             retain_until = datetime(
-                datetime.now(timezone.utc).year + 7,
+                datetime.now(UTC).year + 7,
                 1,
                 1,
-                tzinfo=timezone.utc,
+                tzinfo=UTC,
             )
             client.put_object(
                 Bucket=self._bucket,
@@ -211,6 +217,7 @@ class ChainedAuditSink:
         backends: list[AuditStorageBackend] | None = None,
         queue_size: int = 50_000,
         enqueue_timeout_seconds: float = 3.0,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self._chain_id = chain_id
         self._local = LocalJsonlBackend(local_path)
@@ -218,6 +225,7 @@ class ChainedAuditSink:
         self._sequence = 0
         self._prev_hash = ChainedLogEntry.genesis_prev_hash()
         self._enqueue_timeout = enqueue_timeout_seconds
+        self._metrics = metrics or get_metrics()
 
         self._replica_backends = backends or []
         self._queue: queue.Queue[ChainedLogEntry | None] = queue.Queue(maxsize=queue_size)
@@ -303,7 +311,7 @@ class ChainedAuditSink:
             raise RuntimeError("ChainedAuditSink is already closed")
 
         self._local.write(entry)
-        get_metrics().record_audit_entry(
+        self._metrics.record_audit_entry(
             chain_id=entry.chain_id,
             event_type=entry.event_type.value,
         )
@@ -312,7 +320,7 @@ class ChainedAuditSink:
 
         try:
             self._queue.put(entry, timeout=self._enqueue_timeout)
-            get_metrics().set_audit_queue_depth(
+            self._metrics.set_audit_queue_depth(
                 chain_id=self._chain_id,
                 depth=self._queue.qsize(),
             )
@@ -328,7 +336,7 @@ class ChainedAuditSink:
                 entry.chain_id,
                 entry.sequence_number,
             )
-            get_metrics().set_audit_queue_depth(
+            self._metrics.set_audit_queue_depth(
                 chain_id=self._chain_id,
                 depth=self._queue.qsize(),
             )
@@ -338,29 +346,44 @@ class ChainedAuditSink:
             item = self._queue.get()
             if item is None:
                 self._queue.task_done()
-                get_metrics().set_audit_queue_depth(chain_id=self._chain_id, depth=self._queue.qsize())
+                self._metrics.set_audit_queue_depth(
+                    chain_id=self._chain_id,
+                    depth=self._queue.qsize(),
+                )
                 break
             try:
                 for backend in self._replica_backends:
                     started = time.perf_counter()
-                    backend.write(item)
-                    get_metrics().record_audit_write_latency(
-                        backend=type(backend).__name__,
-                        duration_seconds=time.perf_counter() - started,
-                        status="ok",
-                    )
-            except (AttributeError, OSError, RuntimeError, TypeError, ValueError, KeyError) as exc:
-                logger.error("Audit replica write failed: %s", exc)
-                get_metrics().record_audit_write_latency(
-                    backend=type(backend).__name__,
-                    duration_seconds=max(time.perf_counter() - started, 0.0),
-                    status="error",
-                )
-                if isinstance(backend, ColdTierBackend):
-                    get_metrics().record_audit_cold_tier_error(bucket=backend._bucket)
+                    try:
+                        backend.write(item)
+                    except (
+                        AttributeError,
+                        OSError,
+                        RuntimeError,
+                        TypeError,
+                        ValueError,
+                        KeyError,
+                    ) as exc:
+                        logger.error("Audit replica write failed: %s", exc)
+                        self._metrics.record_audit_write_latency(
+                            backend=type(backend).__name__,
+                            duration_seconds=max(time.perf_counter() - started, 0.0),
+                            status="error",
+                        )
+                        if isinstance(backend, ColdTierBackend):
+                            self._metrics.record_audit_cold_tier_error(bucket=backend.bucket)
+                    else:
+                        self._metrics.record_audit_write_latency(
+                            backend=type(backend).__name__,
+                            duration_seconds=time.perf_counter() - started,
+                            status="ok",
+                        )
             finally:
                 self._queue.task_done()
-                get_metrics().set_audit_queue_depth(chain_id=self._chain_id, depth=self._queue.qsize())
+                self._metrics.set_audit_queue_depth(
+                    chain_id=self._chain_id,
+                    depth=self._queue.qsize(),
+                )
 
     def flush(self) -> None:
         self._queue.join()
@@ -418,3 +441,8 @@ def _read_tail_lines(path: Path, *, chunk_size: int = 8192) -> list[str]:
             if b"\n" in data and len(data) > chunk_size:
                 break
     return data.decode("utf-8", errors="ignore").splitlines()
+
+
+def _load_boto3_s3_client(*, region_name: str) -> Any:
+    boto3_module = importlib.import_module("boto3")
+    return boto3_module.client("s3", region_name=region_name)

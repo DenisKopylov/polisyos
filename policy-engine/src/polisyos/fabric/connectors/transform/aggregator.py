@@ -6,7 +6,8 @@ This is one of the MOST CRITICAL modules in Phase 2.5.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from types import MappingProxyType
+from typing import Any, Mapping, Sequence
 
 import pandas as pd
 
@@ -45,7 +46,7 @@ __all__ = [
 # =============================================================================
 
 
-@dataclass
+@dataclass(frozen=True)
 class AggregationTransform(DataTransform):
     """
     Aggregate data with Stock/Flow awareness and additivity semantics.
@@ -54,16 +55,26 @@ class AggregationTransform(DataTransform):
     - Non-additive (rates/indices): never sum.
     """
 
-    group_by: list[str | Any]
-    aggregations: dict[str, str | AggregationMethod]
-    temporal_context: dict[str, TemporalType | str] = field(default_factory=dict)
-    additivity_context: dict[str, Additivity | str] = field(default_factory=dict)
+    group_by: Sequence[str | Any]
+    aggregations: Mapping[str, str | AggregationMethod]
+    temporal_context: Mapping[str, TemporalType | str] = field(default_factory=dict)
+    additivity_context: Mapping[str, Additivity | str] = field(default_factory=dict)
     strict: bool = False
     auto_infer_temporal: bool = True
 
     def __post_init__(self) -> None:
-        self.temporal_context = self._normalize_temporal_context(self.temporal_context)
-        self.additivity_context = self._normalize_additivity_context(self.additivity_context)
+        object.__setattr__(self, "group_by", tuple(self.group_by))
+        object.__setattr__(self, "aggregations", MappingProxyType(dict(self.aggregations)))
+        object.__setattr__(
+            self,
+            "temporal_context",
+            MappingProxyType(self._normalize_temporal_context(self.temporal_context)),
+        )
+        object.__setattr__(
+            self,
+            "additivity_context",
+            MappingProxyType(self._normalize_additivity_context(self.additivity_context)),
+        )
 
     @property
     def name(self) -> str:
@@ -76,25 +87,31 @@ class AggregationTransform(DataTransform):
     ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
         start_time = stage_started_at()
         result, _ = copy_if_needed(data, context)
+        temporal_context = dict(self.temporal_context)
 
         if self.auto_infer_temporal:
-            self._infer_missing_temporal_types(result, context)
+            temporal_context = self._infer_missing_temporal_types(
+                result,
+                context,
+                temporal_context=temporal_context,
+            )
 
         time_collapsing, time_details = self._detect_time_collapsing(context)
         agg_dict, corrections, warnings = self._build_safe_aggregation_dict(
             time_collapsing=time_collapsing,
             context=context,
+            temporal_context=temporal_context,
         )
 
         resolved_additivity: dict[str, str] = {}
         schema = context.target_schema or context.source_schema
-        for field, ttype in self.temporal_context.items():
+        for field, ttype in temporal_context.items():
             resolved = self._resolve_additivity(field, ttype, schema)
             if resolved is not None:
                 resolved_additivity[field] = resolved.value
 
         if self.group_by:
-            result = result.groupby(self.group_by, as_index=False).agg(agg_dict)
+            result = result.groupby(list(self.group_by), as_index=False).agg(agg_dict)
         else:
             aggregated = result.agg(agg_dict)
             result = aggregated.to_frame().T if isinstance(aggregated, pd.Series) else aggregated
@@ -107,12 +124,13 @@ class AggregationTransform(DataTransform):
             parameters={
                 "group_by": [str(g) for g in self.group_by],
                 "aggregations": agg_dict,
-                "temporal_types": {k: v.value for k, v in self.temporal_context.items()},
+                "temporal_types": {k: v.value for k, v in temporal_context.items()},
                 "additivity": resolved_additivity,
                 "time_collapsing": time_collapsing,
                 **time_details,
                 "corrections_made": corrections,
             },
+            context=context,
         )
 
         return result, lineage, warnings
@@ -179,9 +197,11 @@ class AggregationTransform(DataTransform):
         self,
         data: pd.DataFrame,
         context: TransformContext,
-    ) -> None:
+        *,
+        temporal_context: dict[str, TemporalType],
+    ) -> dict[str, TemporalType]:
         for field in self.aggregations.keys():
-            if field in self.temporal_context:
+            if field in temporal_context:
                 continue
             semantic_type = None
             schema = context.target_schema or context.source_schema
@@ -189,7 +209,8 @@ class AggregationTransform(DataTransform):
                 field_spec = schema.get_field(field)
                 if field_spec is not None and field_spec.semantic_type is not None:
                     semantic_type = field_spec.semantic_type.value
-            self.temporal_context[field] = infer_temporal_type(field, semantic_type)
+            temporal_context[field] = infer_temporal_type(field, semantic_type)
+        return temporal_context
 
     def _detect_time_collapsing(self, context: TransformContext) -> tuple[bool, dict[str, Any]]:
         schema = context.source_schema
@@ -247,6 +268,7 @@ class AggregationTransform(DataTransform):
         *,
         time_collapsing: bool,
         context: TransformContext,
+        temporal_context: Mapping[str, TemporalType],
     ) -> tuple[dict[str, str], list[str], list[str]]:
         validated_agg: dict[str, str] = {}
         corrections: list[str] = []
@@ -260,7 +282,7 @@ class AggregationTransform(DataTransform):
             )
             method = method.lower()
 
-            temporal_type = self.temporal_context.get(field, TemporalType.DERIVED)
+            temporal_type = temporal_context.get(field, TemporalType.DERIVED)
             additivity = self._resolve_additivity(field, temporal_type, schema)
 
             if method == AggregationMethod.SUM.value:

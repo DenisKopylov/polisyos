@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.fabric.data_plane.regression import (
+    RegressionIssueCategory,
     RegressionResult,
+    categorize_regression_exception,
     compare_artifact_hashes,
     compare_ingestion_runs,
 )
@@ -23,6 +22,9 @@ from polisyos.fabric.data_plane.replay_store import (
     collect_fixtures_from_dir,
     make_record_session,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 # ---------------------------------------------------------------------------
@@ -77,6 +79,43 @@ class TestReplayStore:
         assert loaded.session_id == "empty_sess"
         assert loaded.fixtures == []
         assert loaded.connector_datasets == []
+
+    def test_accepts_protocol_backed_store_proxy(self, tmp_path: Path):
+        cas_root = tmp_path / ".polisyos"
+        backing_store = FileSystemCAS(cas_root)
+
+        class _ProtocolStoreProxy:
+            def __init__(self, wrapped: FileSystemCAS) -> None:
+                self._wrapped = wrapped
+
+            def has(self, artifact_id):
+                return self._wrapped.has(artifact_id)
+
+            def get_bytes(self, artifact_id):
+                return self._wrapped.get_bytes(artifact_id)
+
+            def get_manifest(self, artifact_id):
+                return self._wrapped.get_manifest(artifact_id)
+
+            def put_bytes(self, data, opts):
+                return self._wrapped.put_bytes(data, opts)
+
+            def put_json(self, obj, opts, canon_spec=None):
+                return self._wrapped.put_json(obj, opts, canon_spec=canon_spec)
+
+            def verify(self, artifact_id):
+                return self._wrapped.verify(artifact_id)
+
+            def iter_artifact_ids(self):
+                return self._wrapped.iter_artifact_ids()
+
+        replay_store = ReplayStore(_ProtocolStoreProxy(backing_store))
+
+        session = RecordSession(session_id="proxy_sess")
+        ref = replay_store.save_record_session(session)
+        loaded = replay_store.load_record_session(ref.artifact_id)
+
+        assert loaded.session_id == "proxy_sess"
 
     def test_build_replay_fixture_dir(self, tmp_path: Path):
         cas_root = tmp_path / ".polisyos"
@@ -217,6 +256,15 @@ class TestRegressionComparison:
         with pytest.raises(AttributeError):
             result.match = False  # type: ignore[misc]
 
+    def test_mismatch_result_is_categorized(self):
+        r1 = IngestionResult(datasets_fetched=1)
+        r2 = IngestionResult(datasets_fetched=2)
+        result = compare_ingestion_runs(r1, r2)
+
+        assert result.issue_categories == (
+            RegressionIssueCategory.COMPARISON_MISMATCH,
+        )
+
 
 class TestArtifactHashComparison:
     def test_matching_hashes(self):
@@ -247,3 +295,9 @@ class TestArtifactHashComparison:
         mismatches = compare_artifact_hashes(mock_store, "ref1", "ref2")
         assert len(mismatches) == 1
         assert "failed" in mismatches[0]
+        assert "internal_error" in mismatches[0]
+
+    def test_fixture_missing_errors_are_typed(self):
+        assert categorize_regression_exception(FileNotFoundError("missing")) == (
+            RegressionIssueCategory.FIXTURE_MISSING
+        )

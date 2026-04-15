@@ -8,6 +8,7 @@ rule_files:
   - /etc/prometheus/alerts.yml
   - /etc/prometheus/slo_alerts.yml
   - /etc/prometheus/rules/audit_chain_alerts.yml
+  - /etc/prometheus/rules/runtime_operability_alerts.yml
 
 scrape_configs:
   - job_name: prometheus

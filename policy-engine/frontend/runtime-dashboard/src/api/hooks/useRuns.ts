@@ -17,6 +17,7 @@ import { runsListSchema } from "../validators";
 export type RunsFilters = {
   limit?: number;
   cursor?: string;
+  q?: string;
   status?: string;
   from_ts?: string;
   to_ts?: string;
@@ -28,6 +29,7 @@ export async function fetchRuns(filters: RunsFilters) {
       query: {
         limit: filters.limit ?? RUNS_DEFAULT_LIMIT,
         cursor: filters.cursor ?? null,
+        q: filters.q ?? null,
         status: filters.status ?? null,
         from_ts: filters.from_ts ?? null,
         to_ts: filters.to_ts ?? null,
@@ -49,6 +51,7 @@ export function runsQueryOptions(filters: RunsFilters) {
   const isSampleQuery =
     (filters.limit ?? RUNS_DEFAULT_LIMIT) === RUNS_SAMPLE_LIMIT &&
     !filters.cursor &&
+    !filters.q &&
     !filters.status &&
     !filters.from_ts &&
     !filters.to_ts;

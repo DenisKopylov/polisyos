@@ -1,4 +1,5 @@
 """Tests for the public scientist API (run_experiment)."""
+
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -7,7 +8,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from polisyos.scientist.engine.state import ExperimentState
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -83,7 +83,7 @@ class TestRunExperiment:
     @patch("polisyos.scientist.api.run_selected_workflow" if False else "polisyos.scientist.workflows.builder.run_selected_workflow")
     @patch("polisyos.scientist.api._resolve_observability")
     def test_dict_state_returns_dict(self, mock_obs, mock_run):
-        tracer, span = _mock_tracer()
+        tracer, _span = _mock_tracer()
         mock_obs.return_value = (tracer, _mock_metrics())
         result_state = ExperimentState(run_id="R_result")
         mock_run.return_value = MagicMock(state=result_state, report=MagicMock(status="ok"))
@@ -96,7 +96,7 @@ class TestRunExperiment:
     @patch("polisyos.scientist.workflows.builder.run_selected_workflow")
     @patch("polisyos.scientist.api._resolve_observability")
     def test_none_state_returns_dict(self, mock_obs, mock_run):
-        tracer, span = _mock_tracer()
+        tracer, _span = _mock_tracer()
         mock_obs.return_value = (tracer, _mock_metrics())
         result_state = ExperimentState(run_id="R_auto")
         mock_run.return_value = MagicMock(state=result_state, report=MagicMock(status="ok"))
@@ -113,7 +113,7 @@ class TestRunExperiment:
     @patch("polisyos.scientist.workflows.builder.run_selected_workflow")
     @patch("polisyos.scientist.api._resolve_observability")
     def test_records_metrics_on_success(self, mock_obs, mock_run):
-        tracer, span = _mock_tracer()
+        tracer, _span = _mock_tracer()
         metrics = _mock_metrics()
         mock_obs.return_value = (tracer, metrics)
         result_state = ExperimentState(run_id="R_metrics")
@@ -129,7 +129,7 @@ class TestRunExperiment:
     @patch("polisyos.scientist.workflows.builder.run_selected_workflow")
     @patch("polisyos.scientist.api._resolve_observability")
     def test_records_error_metrics_on_failure(self, mock_obs, mock_run):
-        tracer, span = _mock_tracer()
+        tracer, _span = _mock_tracer()
         metrics = _mock_metrics()
         mock_obs.return_value = (tracer, metrics)
         mock_run.side_effect = RuntimeError("boom")
@@ -140,6 +140,41 @@ class TestRunExperiment:
 
         metrics.record_workflow_run.assert_called_once_with("error", "UNKNOWN", "orchestrator")
         metrics.decrement_active_runs.assert_called_once()
+
+    @patch("polisyos.scientist.workflows.builder.run_selected_workflow")
+    @patch("polisyos.scientist.api._resolve_observability")
+    def test_explicit_provider_overrides_bypass_global_resolution(self, mock_obs, mock_run):
+        tracer, _span = _mock_tracer()
+        metrics = _mock_metrics()
+        result_state = ExperimentState(run_id="R_provider")
+        mock_run.return_value = MagicMock(state=result_state, report=MagicMock(status="ok"))
+        mock_obs.side_effect = AssertionError("global observability fallback should not run")
+        store = object()
+        store_factory = MagicMock()
+        quota_registry = object()
+        engine_metrics_factory = MagicMock(return_value=object())
+
+        from polisyos.scientist.api import run_experiment
+
+        result = run_experiment(
+            {"run_id": "R_provider"},
+            tracer=tracer,
+            metrics=metrics,
+            store=store,
+            store_factory=store_factory,
+            quota_registry=quota_registry,
+            engine_metrics_factory=engine_metrics_factory,
+        )
+
+        assert result["run_id"] == "R_provider"
+        mock_run.assert_called_once()
+        _, kwargs = mock_run.call_args
+        assert kwargs["store"] is store
+        assert kwargs["store_factory"] is store_factory
+        assert kwargs["tracer"] is tracer
+        assert kwargs["metrics"] is metrics
+        assert kwargs["quota_registry"] is quota_registry
+        assert kwargs["engine_metrics_factory"] is engine_metrics_factory
 
 
 # ---------------------------------------------------------------------------

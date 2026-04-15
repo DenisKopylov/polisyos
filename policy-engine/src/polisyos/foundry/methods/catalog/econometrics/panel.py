@@ -354,7 +354,7 @@ class PanelDataEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="panel_data",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -434,7 +434,7 @@ class FixedEffectsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="fixed_effects",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_explicit_panel_input_slots(),
         output_slots=_panel_output_slots(),
@@ -493,7 +493,7 @@ class RandomEffectsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="random_effects",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_explicit_panel_input_slots(),
         output_slots=_panel_output_slots(),

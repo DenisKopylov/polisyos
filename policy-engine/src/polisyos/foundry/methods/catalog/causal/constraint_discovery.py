@@ -1888,7 +1888,7 @@ class PCDiscovery:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="pc_discovery",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -1961,7 +1961,7 @@ class FCIDiscovery:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="fci_discovery",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -2034,7 +2034,7 @@ class GESDiscovery:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ges_discovery",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

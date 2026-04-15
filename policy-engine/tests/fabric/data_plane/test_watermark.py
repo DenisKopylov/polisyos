@@ -10,9 +10,12 @@ from polisyos.fabric.data_plane.watermark import (
     ETagWatermark,
     OffsetWatermark,
     RevisionWatermark,
+    WindowPolicy,
     TimestampWatermark,
+    assign_windows,
     resolve_watermark_policy,
 )
+from polisyos.core.contracts.cursor import WindowStrategy
 from polisyos.ir.connectors import DataVersion, VersionStrategy
 
 
@@ -133,3 +136,38 @@ class TestResolvePolicy:
     def test_resolve_unknown_defaults_to_timestamp(self):
         policy = resolve_watermark_policy("nonexistent_family")
         assert policy.watermark_type == WatermarkType.TIMESTAMP
+
+
+class TestWindowAssignment:
+    def test_assign_count_windows(self):
+        rows = [{"value": 1}, {"value": 2}, {"value": 3}]
+        windows = assign_windows(
+            rows,
+            WindowPolicy(strategy=WindowStrategy.COUNT, size=2),
+        )
+        assert [window.row_count for window in windows] == [2, 1]
+
+    def test_assign_sliding_windows(self):
+        rows = [{"value": 1}, {"value": 2}, {"value": 3}]
+        windows = assign_windows(
+            rows,
+            WindowPolicy(strategy=WindowStrategy.SLIDING, size=2, slide=1),
+        )
+        assert [window.row_count for window in windows] == [2, 2]
+
+    def test_assign_session_windows(self):
+        rows = [
+            {"event_time": "2024-06-15T12:00:00+00:00", "value": 1},
+            {"event_time": "2024-06-15T12:00:10+00:00", "value": 2},
+            {"event_time": "2024-06-15T12:05:00+00:00", "value": 3},
+        ]
+        windows = assign_windows(
+            rows,
+            WindowPolicy(
+                strategy=WindowStrategy.SESSION,
+                size=60,
+                session_gap_seconds=30,
+                timestamp_field="event_time",
+            ),
+        )
+        assert [window.row_count for window in windows] == [2, 1]

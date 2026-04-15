@@ -57,7 +57,7 @@ class StaticMicrosimEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="static_microsim",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

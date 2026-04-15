@@ -94,6 +94,7 @@ describe("useQueuedPromotionDecision", () => {
         expect.anything(),
         "promotion-1",
         "approved",
+        undefined,
       );
       expect(enqueuePromotionDecisionMock).toHaveBeenCalledWith(
         "promotion.approve",
@@ -227,6 +228,7 @@ describe("useQueuedPromotionDecision", () => {
         expect.anything(),
         "promotion-4",
         "rejected",
+        undefined,
       );
       expect(enqueuePromotionDecisionMock).toHaveBeenCalledWith(
         "promotion.reject",

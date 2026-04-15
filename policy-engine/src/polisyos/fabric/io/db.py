@@ -1,5 +1,6 @@
 """Public io db module API."""
 import json
+import threading
 
 import duckdb
 import pandas as pd
@@ -11,11 +12,18 @@ class SimulationDB:
     """Simulation DB public type."""
     def __init__(self, db_path: str = "data/databases/simulation.duckdb"):
         self.db_path = db_path
+        self._lock = threading.RLock()
+        self._closed = False
         self.conn = duckdb.connect(db_path)
         self._setup_db()
 
+    def _ensure_open(self) -> None:
+        if self._closed:
+            raise RuntimeError(f"SimulationDB is closed: {self.db_path}")
+
     def _setup_db(self):
         """Создаем структуру таблиц, если их нет."""
+        self._ensure_open()
         # Таблица для макро-показателей (1 строка на 1 шаг симуляции)
         self.conn.execute(
             """
@@ -91,6 +99,7 @@ class SimulationDB:
 
     def save_macro(self, data: list[dict]):
         """Быстрое сохранение макро-статистики."""
+        self._ensure_open()
         if not data:
             return
         df = pd.DataFrame(data)
@@ -104,6 +113,7 @@ class SimulationDB:
         ВНИМАНИЕ: Это тяжелая операция (1 млн строк).
         Делаем это эффективно через Pandas -> DuckDB Native.
         """
+        self._ensure_open()
         # 1. Конвертируем JAX массивы в Numpy (CPU) -> Pandas
         # JAX массивы ленивые, здесь мы их реально вычисляем
         n_agents = agents_state.size
@@ -126,15 +136,32 @@ class SimulationDB:
         logger.info(f"💾 Snapshot saved: {n_agents:,} agents at step {step}")
 
     def close(self):
-        self.conn.close()
+        with self._lock:
+            if self._closed:
+                return
+            self.conn.close()
+            self._closed = True
+
+    @property
+    def closed(self) -> bool:
+        return self._closed
+
+    def __enter__(self) -> "SimulationDB":
+        self._ensure_open()
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self.close()
 
     def as_backend(self):
         """Return a DatabaseBackend-compatible adapter around this SimulationDB."""
+        self._ensure_open()
         from polisyos.core.security.db_backend import DuckDBLegacyBackend
 
         return DuckDBLegacyBackend(self)
 
     def save_run_record(self, record: "RunRecord") -> None:
+        self._ensure_open()
         payload = record.model_dump()
         generator = payload.pop("generator", {})
         library_versions = json.dumps(payload.pop("library_versions", {}))

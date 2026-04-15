@@ -23,7 +23,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from polisyos.ir._validation import (
+    ensure_confidence_interval,
+    ensure_disjoint_sets,
+    ensure_finite_numeric,
+    ensure_non_empty_path,
+    ensure_unique_ids,
+)
+
+MAX_MEDIATION_PATH_DEPTH = 16
 
 
 class PathSpecificQuery(BaseModel):
@@ -72,6 +82,47 @@ class PathSpecificQuery(BaseModel):
     """Active (treated) value of treatment."""
 
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_query(self) -> "PathSpecificQuery":
+        treatment = self.treatment.strip()
+        outcome = self.outcome.strip()
+        if not treatment:
+            raise ValueError("treatment must be non-empty")
+        if not outcome:
+            raise ValueError("outcome must be non-empty")
+        if treatment == outcome:
+            raise ValueError("treatment and outcome must be distinct")
+
+        ensure_unique_ids(self.mediators, key_fn=lambda item: item, label="mediators")
+        ensure_disjoint_sets(
+            self.mediators,
+            (treatment, outcome),
+            label="mediators and treatment/outcome",
+        )
+        ensure_finite_numeric(self.reference_treatment, field_name="reference_treatment")
+        ensure_finite_numeric(self.active_treatment, field_name="active_treatment")
+        if self.active_treatment == self.reference_treatment:
+            raise ValueError("active_treatment and reference_treatment must differ")
+
+        normalized_active = _normalize_paths(
+            self.active_paths,
+            label="active_paths",
+            treatment=treatment,
+            outcome=outcome,
+        )
+        normalized_fixed = _normalize_paths(
+            self.fixed_paths,
+            label="fixed_paths",
+            treatment=treatment,
+            outcome=outcome,
+        )
+        ensure_disjoint_sets(
+            normalized_active,
+            normalized_fixed,
+            label="active_paths and fixed_paths",
+        )
+        return self
 
 
 class MediationDecomposition(BaseModel):
@@ -143,6 +194,126 @@ class MediationDecomposition(BaseModel):
     """NIE / ATE — fraction of total effect via mediator (None if ATE ≈ 0)."""
 
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_payload(cls, payload: Any) -> Any:
+        return cls.normalize_payload(payload)
+
+    @classmethod
+    def normalize_payload(cls, payload: Any) -> Any:
+        """Return a decomposition payload with explicit derived ratios filled."""
+
+        if not isinstance(payload, dict):
+            return payload
+        normalized = dict(payload)
+        if normalized.get("proportion_mediated") is not None:
+            return normalized
+        try:
+            total_effect = float(normalized.get("total_effect"))
+            nie = float(normalized.get("nie"))
+        except (TypeError, ValueError):
+            return normalized
+        if abs(total_effect) > 1.0e-12:
+            normalized["proportion_mediated"] = max(-10.0, min(10.0, nie / total_effect))
+        return normalized
+
+    @classmethod
+    def from_effects(cls, **payload: Any) -> "MediationDecomposition":
+        """Construct a decomposition after applying explicit derived defaults."""
+
+        return cls.model_validate(cls.normalize_payload(payload))
+
+    @model_validator(mode="after")
+    def validate_decomposition(self) -> "MediationDecomposition":
+        ensure_finite_numeric(self.nde, field_name="nde")
+        ensure_finite_numeric(self.nie, field_name="nie")
+        ensure_finite_numeric(self.total_effect, field_name="total_effect")
+        if self.cde is not None:
+            ensure_finite_numeric(self.cde, field_name="cde")
+        if self.nde_se is not None:
+            ensure_finite_numeric(self.nde_se, field_name="nde_se")
+        if self.nie_se is not None:
+            ensure_finite_numeric(self.nie_se, field_name="nie_se")
+        if self.proportion_mediated is not None:
+            ensure_finite_numeric(self.proportion_mediated, field_name="proportion_mediated")
+
+        if self.nde_ci is not None:
+            ensure_confidence_interval(
+                self.nde_ci,
+                label="nde_ci",
+                point_estimate=self.nde,
+                point_label="nde",
+            )
+        if self.nie_ci is not None:
+            ensure_confidence_interval(
+                self.nie_ci,
+                label="nie_ci",
+                point_estimate=self.nie,
+                point_label="nie",
+            )
+
+        tolerance = max(
+            1.0e-9,
+            1.0e-6 * max(abs(self.nde + self.nie), abs(self.total_effect), 1.0),
+        )
+        if abs((self.nde + self.nie) - self.total_effect) > tolerance:
+            raise ValueError("nde + nie must equal total_effect within numerical tolerance")
+
+        if self.sensitivity_rho_range is None:
+            if self.sensitivity_nde is not None or self.sensitivity_nie is not None:
+                raise ValueError(
+                    "sensitivity_rho_range is required when sensitivity_nde "
+                    "or sensitivity_nie is provided"
+                )
+        else:
+            if self.sensitivity_nde is None or self.sensitivity_nie is None:
+                raise ValueError(
+                    "sensitivity_nde and sensitivity_nie are required when "
+                    "sensitivity_rho_range is provided"
+                )
+            _ensure_finite_tuple(self.sensitivity_rho_range, label="sensitivity_rho_range")
+            _ensure_finite_tuple(self.sensitivity_nde, label="sensitivity_nde")
+            _ensure_finite_tuple(self.sensitivity_nie, label="sensitivity_nie")
+            expected_len = len(self.sensitivity_rho_range)
+            if (
+                len(self.sensitivity_nde) != expected_len
+                or len(self.sensitivity_nie) != expected_len
+            ):
+                raise ValueError(
+                    "sensitivity_nde and sensitivity_nie must align with "
+                    "sensitivity_rho_range length"
+                )
+        return self
+
+
+def _normalize_paths(
+    paths: tuple[tuple[str, ...], ...],
+    *,
+    label: str,
+    treatment: str,
+    outcome: str,
+) -> tuple[tuple[str, ...], ...]:
+    ensure_unique_ids(paths, key_fn=lambda path: tuple(path), label=label)
+    normalized: list[tuple[str, ...]] = []
+    for index, path in enumerate(paths):
+        candidate = ensure_non_empty_path(
+            path,
+            label=f"{label}[{index}]",
+            max_depth=MAX_MEDIATION_PATH_DEPTH,
+        )
+        if candidate[0] != treatment:
+            raise ValueError(f"{label}[{index}] must start with treatment")
+        if candidate[-1] != outcome:
+            raise ValueError(f"{label}[{index}] must end with outcome")
+        ensure_unique_ids(candidate, key_fn=lambda node: node, label=f"{label}[{index}]")
+        normalized.append(candidate)
+    return tuple(normalized)
+
+
+def _ensure_finite_tuple(values: tuple[float, ...], *, label: str) -> None:
+    for index, value in enumerate(values):
+        ensure_finite_numeric(value, field_name=f"{label}[{index}]")
 
 
 __all__ = [

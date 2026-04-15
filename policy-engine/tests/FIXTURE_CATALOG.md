@@ -15,7 +15,7 @@ Phase 4 catalog for reusable test data, snapshots, and deterministic builders.
 | Foundry goldens | cross-method regression expectations | `tests/foundry/golden/*.yaml` | human-reviewed YAML goldens |
 | Schema snapshots | generated contract snapshots checked in to gate ABI drift | `schemas/snapshots/**` | refresh via schema generation tooling, never manual edits |
 | Frontend contract fixtures | recorded runtime payloads parsed by frontend schemas | `frontend/runtime-dashboard/src/test/contracts/fixtures/*.json` | refresh via `npm run contracts:record` |
-| Connector capture fixtures | recorded upstream source payloads and simulator fixtures | `tests/fabric/connectors/sources/fixtures/**`, `scripts/record_fixtures.py` | committed only for narrow, reviewable source slices |
+| Connector capture fixtures | recorded upstream source payloads and simulator fixtures | `tests/fabric/connectors/sources/fixtures/**`, `polisyos-tools data record-fixtures` | committed only for narrow, reviewable source slices |
 | Seed/minimal data bundles | tiny domain examples for lex, transportability, phase0 and benchmark cases | `tests/fixtures/lex/**`, `tests/fixtures/phase0/**`, `tests/fixtures/transportability/**`, `benchmarks/*/fixtures/public_cases.json` | small enough to reason about in code review |
 
 ## 2. Policy: Generated Fixtures

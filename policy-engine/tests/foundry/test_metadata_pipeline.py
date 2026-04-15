@@ -160,8 +160,7 @@ def test_method_selection_payload_includes_output_interpretation() -> None:
 def test_method_selection_payload_includes_typical_min_obs_when_set() -> None:
     entries = _entries()
     with_min = [e for e in entries if e.typical_min_obs is not None and e.runnable][:5]
-    if not with_min:
-        pytest.skip("No runnable entries with typical_min_obs found")
+    assert with_min, "No runnable entries with typical_min_obs found"
 
     payload = method_selection_payload(with_min)
     for item in payload:
@@ -174,11 +173,17 @@ def test_method_selection_payload_includes_typical_min_obs_when_set() -> None:
 
 def test_method_selection_payload_omits_empty_semantic_fields() -> None:
     """Entries without descriptions should not pollute the payload with empty strings."""
-    entries = _entries()
-    bare = [e for e in entries if not e.when_to_use and e.runnable][:3]
-    if not bare:
-        pytest.skip("All runnable entries have when_to_use (unexpectedly perfect coverage)")
-
+    entries = [e for e in _entries() if e.runnable][:3]
+    assert entries, "No runnable entries available for payload check"
+    bare = [
+        entry.model_copy(
+            update={
+                "when_to_use": "",
+                "output_interpretation": "",
+            }
+        )
+        for entry in entries
+    ]
     payload = method_selection_payload(bare)
     for item in payload:
         assert "when_to_use" not in item, f"Empty when_to_use leaked into payload for {item['fqn']}"
@@ -241,8 +246,7 @@ def test_data_characteristics_penalises_underpowered_method() -> None:
     # Find an entry with a large typical_min_obs
     large_min = [e for e in entries if e.typical_min_obs is not None and e.typical_min_obs >= 200 and e.runnable]
     small_min = [e for e in entries if e.typical_min_obs is not None and e.typical_min_obs <= 30 and e.runnable]
-    if not large_min or not small_min:
-        pytest.skip("Need both large- and small-min-obs methods for this test")
+    assert large_min and small_min, "Need both large- and small-min-obs methods for this test"
 
     small_data = DataCharacteristics(n_obs=20)
     criteria = MethodSelectionCriteria(runnable_only=False)
@@ -271,8 +275,7 @@ def test_data_characteristics_instrument_availability_affects_iv_ranking() -> No
         e for e in entries
         if "iv" in e.family.lower() or any("iv" == t.lower() for t in e.tags)
     ]
-    if not iv_entries:
-        pytest.skip("No IV entries found")
+    assert iv_entries, "No IV entries found"
 
     with_instrument = DataCharacteristics(n_obs=500, has_instrument=True)
     without_instrument = DataCharacteristics(n_obs=500, has_instrument=False)

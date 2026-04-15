@@ -8,9 +8,9 @@ from typing import Any, Mapping
 from polisyos.core.canon import CanonSpec, to_canonical_bytes, truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
     capture_versions,
     runtime_stack_for,
-    safe_version,
 )
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
@@ -48,10 +48,8 @@ class SolverRunner(MethodRunner):
         return frozenset({ComputeBackend.SOLVER})
 
     def is_available(self) -> bool:
-        return any(
-            safe_version(pkg) is not None
-            for pkg in ("ortools", "pulp", "scipy", "cvxpy", "pymoo")
-        )
+        posture = capture_backend_runtime_fingerprint(ComputeBackend.SOLVER)
+        return posture.available
 
     def execute(
         self,
@@ -88,6 +86,12 @@ class SolverRunner(MethodRunner):
         versions = capture_versions(
             base_packages=("ortools", "pulp", "scipy", "cvxpy", "pymoo"),
             runtime_stack=runtime_stack,
+        )
+        posture = capture_backend_runtime_fingerprint(
+            ComputeBackend.SOLVER,
+            method_class=method_class,
+            seed=seed,
+            extra_versions=versions,
         )
         fp_payload = {
             "backend": ComputeBackend.SOLVER.value,
@@ -134,9 +138,9 @@ class SolverRunner(MethodRunner):
                 solver_gap=solver_info.get("gap"),
                 solver_iterations=solver_info.get("iterations"),
                 fingerprint=fingerprint,
-                note="Solver reproducibility depends on solver version and tolerances.",
+                note=posture.replay_semantics,
             ),
             slot_outputs=slot_outputs,
-            artifacts=artifacts,
+            artifacts={**artifacts, "backend_runtime_fingerprint": posture.as_dict()},
             warnings=tuple(str(item) for item in warnings),
         )

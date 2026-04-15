@@ -89,6 +89,7 @@ class KnowledgeBundlePayloadV1(BaseModel):
 
     quality_report_ids: list[str] = Field(default_factory=list)
     quality_report_artifact_ids: list[str] = Field(default_factory=list)
+    web_evidence: dict[str, Any] = Field(default_factory=dict)
 
     policy_ids_used: dict[str, str] = Field(default_factory=dict)
     created_by: dict[str, str] = Field(default_factory=dict)
@@ -109,6 +110,7 @@ class EnrichmentReportV1(BaseModel):
     conflicts: dict[str, Any] = Field(default_factory=dict)
     trust: dict[str, Any] = Field(default_factory=dict)
     quality: dict[str, Any] = Field(default_factory=dict)
+    web_evidence: dict[str, Any] = Field(default_factory=dict)
     artifacts: dict[str, Any] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 

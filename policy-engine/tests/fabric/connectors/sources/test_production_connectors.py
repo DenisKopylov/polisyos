@@ -5,6 +5,9 @@ import json
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import pytest
+
+from polisyos.fabric.safety import UnsafePathSegmentError
 from polisyos.fabric.connectors.base import AsyncFetchLease, ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
@@ -155,6 +158,18 @@ def test_world_bank_fetch_batches_multiple_indicators_and_incremental_params(mon
     assert captured[0]["params"]["mrv"] == "2"
     assert captured[0]["params"]["frequency"] == "Y"
     assert sorted(result.data["indicator_id"].tolist()) == ["NY.GDP.MKTP.CD", "SP.POP.TOTL"]
+
+
+def test_world_bank_rejects_unsafe_path_segments() -> None:
+    with pytest.raises(UnsafePathSegmentError, match="World Bank indicator id"):
+        WorldBankConnector._normalize_indicator_batch("../etc/passwd")
+
+    request = FetchRequest(
+        dataset_id="NY.GDP.MKTP.CD",
+        filters=(("country", ("../",)),),
+    )
+    with pytest.raises(UnsafePathSegmentError, match="World Bank country code"):
+        WorldBankConnector._parse_countries(request)
 
 
 def test_eurostat_fetch_with_mock_http(monkeypatch) -> None:
@@ -434,6 +449,20 @@ def test_eurostat_async_lease_lifecycle(monkeypatch) -> None:
     assert first.status == "processing"
     assert second.row_count == 1
     assert second.data.iloc[0]["time_period"] == "2022"
+
+
+def test_eurostat_rejects_unsafe_path_segments() -> None:
+    snapshot = type(
+        "Snapshot",
+        (),
+        {"dimension_order": ("geo", "time")},
+    )()
+    request = FetchRequest(
+        dataset_id="nama_10_gdp",
+        filters=(("geo", ("../",)),),
+    )
+    with pytest.raises(UnsafePathSegmentError, match="Eurostat dimension 'geo'"):
+        EurostatConnector._build_sdmx_key(request, snapshot=snapshot)
 
 
 def test_ukons_fetch_with_mock_http(monkeypatch) -> None:

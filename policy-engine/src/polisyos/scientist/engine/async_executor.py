@@ -10,60 +10,84 @@ Feature-flagged via ``POLISYOS_ASYNC_EXECUTOR=1`` and opt-in through
 from __future__ import annotations
 
 import asyncio
-import logging
 import time
-from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
+from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.async_store import ensure_async_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.scientist.engine.budget import BudgetExhaustedError
 from polisyos.scientist.engine.checkpoint import compute_workflow_fingerprint
-from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.condition import ConditionSyntaxError, evaluate_condition
 from polisyos.scientist.engine.errors import (
     NodeTimeoutError,
     RetryExhaustedError,
     WorkflowTimeoutError,
 )
-from polisyos.scientist.engine.condition import ConditionSyntaxError, evaluate_condition
 from polisyos.scientist.engine.executor import (
+    _EXECUTOR_DEGRADED_ERRORS,
+    NodeBindError,
     NodeRunRecord,
     WorkflowExecutionResult,
     WorkflowReport,
-    _bind_node_params,
     _log_node_events,
+    _merge_cached_outcome_state,
     _should_cache,
-    _topo_sort,
     _validate_aliases,
     _validate_dependencies,
     _validate_required_binds,
+    bind_node_params,
 )
 from polisyos.scientist.engine.idempotency import NodeResultCache, compute_idempotency_key
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeStatus
-from polisyos.scientist.engine.registry import NodeRegistry
+from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.engine.retry import RetryPolicy, execute_with_retry_async
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_merge import merge_parallel_outcomes
-from polisyos.scientist.engine.telemetry import (
-    add_span_events,
-    set_span_attribute,
-    start_node_span,
+from polisyos.scientist.engine.state_branching import branch_state, snapshot_state
+from polisyos.scientist.engine.state_merge import (
+    MergeConflict,
+    MergeConflictPolicy,
+    merge_parallel_outcomes,
 )
+from polisyos.scientist.engine.telemetry import set_span_attribute
 from polisyos.scientist.engine.topo import topo_sort_tiers
 from polisyos.scientist.engine.trace_attributes import (
     build_node_span_attributes,
     enrich_node_span_result,
 )
-from polisyos.scientist.engine.workflow_spec import ErrorPolicy, NodeInvocation, WorkflowSpec
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
-    from polisyos.scientist.engine.checkpoint import CheckpointHook
+    from polisyos.scientist.engine.checkpoint import AsyncCheckpointHook, CheckpointHook
+    from polisyos.scientist.engine.compensation import RollbackCompensationHook
+    from polisyos.scientist.engine.context import ExecutionContext
+    from polisyos.scientist.engine.registry import NodeRegistry
+    from polisyos.scientist.engine.state import ExperimentState
+    from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
     from polisyos.scientist.provenance.run_dag import RunProvenanceDAG
 
 _module_logger = get_logger(__name__)
+
+
+def _executor_degraded(
+    *,
+    operation: str,
+    reason: str,
+    exc: BaseException,
+    details: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return emit_degraded_path(
+        component="engine.async_executor",
+        operation=operation,
+        reason=reason,
+        exc=exc,
+        details=details,
+        log=_module_logger,
+    )
 
 
 class AsyncWorkflowExecutor:
@@ -74,15 +98,18 @@ class AsyncWorkflowExecutor:
         ctx: ExecutionContext,
         registry: NodeRegistry,
         *,
-        checkpoint_hook: "CheckpointHook | None" = None,
+        checkpoint_hook: CheckpointHook | AsyncCheckpointHook | None = None,
         checkpoint_cache_seed_refs: list[ArtifactRef] | None = None,
         max_parallelism: int = 4,
-        provenance_dag: "RunProvenanceDAG | None" = None,
+        provenance_dag: RunProvenanceDAG | None = None,
         semaphore_timeout_s: float | None = None,
         workflow_timeout_s: float | None = None,
         budget_middleware: Any | None = None,
+        merge_conflict_policy: MergeConflictPolicy = MergeConflictPolicy.ERROR,
+        compensation_hook: RollbackCompensationHook | None = None,
     ) -> None:
         self._ctx = ctx
+        self._async_store = ensure_async_artifact_store(ctx.store)
         self._registry = registry
         self._cache: NodeResultCache | None = None
         self._checkpoint_hook = checkpoint_hook
@@ -92,6 +119,8 @@ class AsyncWorkflowExecutor:
         self._semaphore_timeout_s = semaphore_timeout_s
         self._workflow_timeout_s = workflow_timeout_s
         self._budget_middleware = budget_middleware
+        self._merge_conflict_policy = merge_conflict_policy
+        self._compensation_hook = compensation_hook
         self._node_outputs: dict[str, list[ArtifactRef]] = {}
         self._pre_node_state_keys: dict[str, set[str]] = {}
 
@@ -114,10 +143,10 @@ class AsyncWorkflowExecutor:
                 run_id=state.run_id, workflow_id=workflow.workflow_id, state="running",
             )
 
-        initial_state = state.model_copy(deep=True)
-        workflow_ref = self._persist_workflow_spec(workflow)
+        initial_state = snapshot_state(state)
+        workflow_ref = await self._persist_workflow_spec(workflow)
         self._ctx.run.add_input(workflow_ref)
-        state_input_ref = self._persist_state(initial_state)
+        state_input_ref = await self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
 
         self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
@@ -210,7 +239,7 @@ class AsyncWorkflowExecutor:
                     continue
 
                 # Tier savepoint for rollback on failure
-                tier_savepoint = state.model_copy(deep=True)
+                tier_savepoint = snapshot_state(state)
                 tier_started = time.perf_counter()
 
                 if len(runnable) == 1:
@@ -225,6 +254,15 @@ class AsyncWorkflowExecutor:
                         failed.add(alias)
                         if workflow.error_policy == "fail_fast":
                             state = tier_savepoint
+                            self._emit_rollback_compensation(
+                                workflow_id=workflow.workflow_id,
+                                run_id=state.run_id,
+                                tier_index=tier_index,
+                                failed_aliases=(alias,),
+                                completed_before_tier=tuple(completed_nodes),
+                                restored_state=state,
+                                reason="single_node_fail_fast",
+                            )
                             abort = True
                     else:
                         completed_nodes.append(alias)
@@ -251,6 +289,15 @@ class AsyncWorkflowExecutor:
                             completed_nodes.append(rec.alias)
                     if tier_failed and workflow.error_policy == "fail_fast":
                         state = tier_savepoint
+                        self._emit_rollback_compensation(
+                            workflow_id=workflow.workflow_id,
+                            run_id=state.run_id,
+                            tier_index=tier_index,
+                            failed_aliases=tuple(sorted(tier_failed)),
+                            completed_before_tier=tuple(completed_nodes),
+                            restored_state=state,
+                            reason="parallel_tier_fail_fast",
+                        )
                         abort = True
 
                 tier_duration_ms = int((time.perf_counter() - tier_started) * 1000)
@@ -268,11 +315,11 @@ class AsyncWorkflowExecutor:
                 await asyncio.wait_for(
                     _execute_tiers(), timeout=self._workflow_timeout_s,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError as exc:
                 raise WorkflowTimeoutError(
                     f"Workflow {workflow.workflow_id} exceeded "
                     f"timeout of {self._workflow_timeout_s}s",
-                )
+                ) from exc
         else:
             await _execute_tiers()
 
@@ -295,10 +342,13 @@ class AsyncWorkflowExecutor:
             status=overall_status,
             nodes=records,
         )
-        report_ref = self._persist_report(report)
-        final_state = state.model_copy(deep=True)
+        report_ref = await self._persist_report(report)
+        final_state = branch_state(
+            state,
+            write_paths=("reports_index.workflow_report",),
+        ).state
         final_state.reports_index["workflow_report"] = report_ref
-        final_state_ref = self._persist_state(final_state)
+        final_state_ref = await self._persist_state(final_state)
 
         self._ctx.run.add_output(final_state_ref)
         self._ctx.run.add_output(report_ref)
@@ -306,18 +356,23 @@ class AsyncWorkflowExecutor:
         # Finalize and persist provenance DAG
         if self._provenance_dag is not None:
             try:
-                prov_graph = self._provenance_dag.finalize()
+                self._provenance_dag.finalize()
                 prov_json = self._provenance_dag.to_prov_json()
-                prov_ref = self._ctx.store.put_json(
+                prov_ref = await self._async_store.put_json(
                     prov_json,
-                    PutOptions(
+                    ArtifactWriteOptions(
                         kind="scientist.provenance.run_dag",
                         media_type="application/json",
                     ),
                 )
                 self._ctx.run.add_output(prov_ref)
-            except Exception:  # noqa: BLE001 — provenance must never crash pipeline
-                _module_logger.debug("Provenance DAG finalization failed")
+            except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                _executor_degraded(
+                    operation="finalize_provenance_dag",
+                    reason="provenance_finalize_failed",
+                    exc=exc,
+                    details={"workflow_id": workflow.workflow_id, "run_id": state.run_id},
+                )
 
         errors_payload = [
             {"node": r.alias, "code": r.error.code, "message": r.error.message}
@@ -328,6 +383,46 @@ class AsyncWorkflowExecutor:
         )
 
         return WorkflowExecutionResult(state=final_state, report=report, run_ref=run_ref)
+
+    def _emit_rollback_compensation(
+        self,
+        *,
+        workflow_id: str,
+        run_id: str,
+        tier_index: int,
+        failed_aliases: tuple[str, ...],
+        completed_before_tier: tuple[str, ...],
+        restored_state: ExperimentState,
+        reason: str,
+    ) -> None:
+        if self._compensation_hook is None:
+            return
+        from polisyos.scientist.engine.compensation import RollbackCompensationEvent
+
+        try:
+            self._compensation_hook.on_tier_rollback(
+                event=RollbackCompensationEvent(
+                    run_id=run_id,
+                    workflow_id=workflow_id,
+                    tier_index=tier_index,
+                    failed_aliases=failed_aliases,
+                    completed_before_tier=completed_before_tier,
+                    reason=reason,
+                ),
+                restored_state=restored_state,
+            )
+        except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
+            _executor_degraded(
+                operation="rollback_compensation",
+                reason="rollback_compensation_hook_failed",
+                exc=exc,
+                details={
+                    "workflow_id": workflow_id,
+                    "run_id": run_id,
+                    "tier_index": tier_index,
+                    "reason": reason,
+                },
+            )
 
     async def _run_single_node(
         self,
@@ -340,17 +435,18 @@ class AsyncWorkflowExecutor:
         tier_index: int = 0,
     ) -> tuple[NodeRunRecord, ExperimentState, bool]:
         """Execute a single node (same semantics as sync executor)."""
-        outcome, duration_ms, cache_hit = await self._execute_node(
+        outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
             alias, inv, state, workflow, tier_index=tier_index,
         )
-        state = outcome.state
+        if outcome.status == "ok":
+            state = outcome.state
         node_failed = outcome.status == "fail"
 
         if outcome.status == "ok" and self._checkpoint_hook is not None:
-            self._handle_checkpoint(
+            state = await self._handle_checkpoint(
                 state, alias, str(inv.node_id),
-                completed_nodes + [alias], workflow, workflow_fingerprint,
-                cache_entry_ref=None,
+                [*completed_nodes, alias], workflow, workflow_fingerprint,
+                cache_entry_ref=cache_entry_ref,
             )
 
         record = NodeRunRecord(
@@ -373,26 +469,22 @@ class AsyncWorkflowExecutor:
     ) -> tuple[list[NodeRunRecord], ExperimentState, set[str]]:
         """Execute a parallel tier using asyncio.TaskGroup."""
         semaphore = asyncio.Semaphore(self._max_parallelism)
-        results: dict[str, tuple[NodeOutcome, int, bool]] = {}
+        results: dict[str, tuple[NodeOutcome, int, bool, ArtifactRef | None]] = {}
         cancel_event = asyncio.Event()
 
         async def _run_with_sem(alias: str) -> None:
             # Check cancellation before acquiring semaphore
             if cancel_event.is_set():
-                task_state = state.model_copy(deep=True)
                 results[alias] = (
                     NodeOutcome(
-                        status="skip", state=task_state,
+                        status="skip", state=state,
                         events=[NodeEvent(
                             level="info", message="Cancelled by fail_fast",
                             code="node.cancelled", attrs={},
                         )],
-                    ), 0, False,
+                    ), 0, False, None,
                 )
                 return
-
-            # Per-task state snapshot to prevent cross-contamination
-            task_state = state.model_copy(deep=True)
 
             # Semaphore with optional timeout
             sem_wait_start = time.perf_counter()
@@ -401,16 +493,16 @@ class AsyncWorkflowExecutor:
                     await asyncio.wait_for(
                         semaphore.acquire(), timeout=self._semaphore_timeout_s,
                     )
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     results[alias] = (
                         NodeOutcome(
-                            status="fail", state=task_state,
+                            status="fail", state=state,
                             error=NodeError(
                                 code="node.semaphore_timeout",
                                 message=f"Node {alias} timed out waiting for execution slot",
                                 details={"timeout_s": self._semaphore_timeout_s},
                             ),
-                        ), 0, False,
+                        ), 0, False, None,
                     )
                     return
             else:
@@ -423,11 +515,11 @@ class AsyncWorkflowExecutor:
                 )
 
             try:
-                outcome, duration_ms, cache_hit = await self._execute_node(
-                    alias, invocations[alias], task_state, workflow,
+                outcome, duration_ms, cache_hit, cache_entry_ref = await self._execute_node(
+                    alias, invocations[alias], state, workflow,
                     tier_index=tier_index,
                 )
-                results[alias] = (outcome, duration_ms, cache_hit)
+                results[alias] = (outcome, duration_ms, cache_hit, cache_entry_ref)
                 # Signal cancellation on fail_fast
                 if outcome.status == "fail" and workflow.error_policy == "fail_fast":
                     cancel_event.set()
@@ -440,12 +532,13 @@ class AsyncWorkflowExecutor:
 
         # Merge results
         ok_outcomes: dict[str, NodeOutcome] = {}
+        cache_entry_refs: dict[str, ArtifactRef] = {}
         write_specs: dict[str, list[str]] = {}
         records: list[NodeRunRecord] = []
         tier_failed: set[str] = set()
 
         for alias in aliases:
-            outcome, duration_ms, cache_hit = results[alias]
+            outcome, duration_ms, _cache_hit, cache_entry_ref = results[alias]
             records.append(NodeRunRecord(
                 alias=alias, node_id=str(invocations[alias].node_id),
                 status=outcome.status, duration_ms=duration_ms,
@@ -453,18 +546,72 @@ class AsyncWorkflowExecutor:
             ))
             if outcome.status == "ok":
                 ok_outcomes[alias] = outcome
+                if cache_entry_ref is not None:
+                    cache_entry_refs[alias] = cache_entry_ref
                 node = self._registry.get(invocations[alias].node_id)
                 write_specs[alias] = list(node.spec.state_writes)
             elif outcome.status == "fail":
                 tier_failed.add(alias)
 
         if ok_outcomes:
-            merge_result = merge_parallel_outcomes(state, ok_outcomes, write_specs)
-            state = merge_result.state
+            merge_result = merge_parallel_outcomes(
+                state,
+                ok_outcomes,
+                write_specs,
+                conflict_policy=self._merge_conflict_policy,
+            )
             if merge_result.conflicts:
-                self._ctx.logger.warning(
-                    "Parallel merge conflicts: %s", merge_result.conflicts,
+                conflict_ref = await self._persist_parallel_merge_conflict(
+                    workflow_id=workflow.workflow_id,
+                    tier_index=tier_index,
+                    conflicts=merge_result.conflict_details,
+                    aliases=aliases,
                 )
+                conflict_details: dict[str, Any] = {
+                    "tier_index": tier_index,
+                    "conflict_paths": [
+                        conflict.path for conflict in merge_result.conflict_details
+                    ],
+                    "conflict_policy": self._merge_conflict_policy.value,
+                }
+                if conflict_ref is not None:
+                    conflict_details["merge_conflict_ref"] = str(conflict_ref.artifact_id)
+                for record in records:
+                    if record.status != "ok":
+                        continue
+                    record.status = "fail"
+                    record.error = NodeError(
+                        code="node.parallel_merge_conflict",
+                        message="Parallel tier produced conflicting state writes",
+                        details=conflict_details,
+                    )
+                    if conflict_ref is not None:
+                        record.artifacts.append(conflict_ref)
+                    tier_failed.add(record.alias)
+                return records, state, tier_failed
+
+            state = merge_result.state
+            if merge_result.resolved_conflicts:
+                self._ctx.logger.warning(
+                    "Parallel merge resolved by policy=%s: %s",
+                    self._merge_conflict_policy.value,
+                    [str(conflict) for conflict in merge_result.resolved_conflicts],
+                )
+            if self._checkpoint_hook is not None:
+                checkpoint_completed = list(completed_nodes)
+                for alias in aliases:
+                    if alias not in ok_outcomes:
+                        continue
+                    checkpoint_completed.append(alias)
+                    state = await self._handle_checkpoint(
+                        state,
+                        alias,
+                        str(invocations[alias].node_id),
+                        checkpoint_completed,
+                        workflow,
+                        workflow_fingerprint,
+                        cache_entry_ref=cache_entry_refs.get(alias),
+                    )
 
         return records, state, tier_failed
 
@@ -475,9 +622,35 @@ class AsyncWorkflowExecutor:
         state: ExperimentState,
         workflow: WorkflowSpec,
         tier_index: int = 0,
-    ) -> tuple[NodeOutcome, int, bool]:
+    ) -> tuple[NodeOutcome, int, bool, ArtifactRef | None]:
         """Execute a single node with cache, retry, timeout, metrics."""
-        node = _bind_node_params(self._registry.get(inv.node_id), inv.params)
+        try:
+            node = bind_node_params(self._registry.get(inv.node_id), inv.params)
+        except NodeBindError as exc:
+            self._ctx.logger.exception("Node %s bind failed", alias)
+            return (
+                NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code="node.bind_failed",
+                        message=str(exc),
+                        details={
+                            "node": exc.node_label,
+                            "param_keys": list(exc.param_keys),
+                            "type": exc.error_type,
+                        },
+                    ),
+                ),
+                0,
+                False,
+                None,
+            )
+        branch = branch_state(
+            state,
+            write_paths=getattr(node.spec, "state_writes", ()),
+        )
+        node_state = branch.state
         node_id = str(inv.node_id)
 
         # Build structured span attributes for OTel
@@ -507,6 +680,7 @@ class AsyncWorkflowExecutor:
 
         started = time.perf_counter()
         cache_hit = False
+        cache_entry_ref: ArtifactRef | None = None
 
         # Cache check
         cache_key: str | None = None
@@ -515,8 +689,13 @@ class AsyncWorkflowExecutor:
                 cache_key = compute_idempotency_key(
                     spec=node.spec, state=state, bind_params=inv.params,
                 )
-            except Exception:  # noqa: BLE001
-                pass
+            except (AttributeError, TypeError, ValueError) as exc:
+                _executor_degraded(
+                    operation="compute_cache_key",
+                    reason="cache_bypass",
+                    exc=exc,
+                    details={"alias": alias, "node_id": node_id},
+                )
 
         # Budget pre-check
         if self._budget_middleware is not None:
@@ -528,34 +707,40 @@ class AsyncWorkflowExecutor:
                         "scientist.budget", "BUDGET_ALERT",
                         metrics={"threshold_pct": level},
                     )
-            except Exception as budget_exc:
-                from polisyos.scientist.engine.budget import BudgetExhaustedError
-                if isinstance(budget_exc, BudgetExhaustedError):
-                    duration_ms = int((time.perf_counter() - started) * 1000)
-                    return NodeOutcome(
-                        status="fail", state=state,
-                        error=NodeError(
-                            code="node.budget_exhausted",
-                            message=str(budget_exc),
-                            details={},
-                        ),
-                    ), duration_ms, False
-                raise
+            except BudgetExhaustedError as budget_exc:
+                duration_ms = int((time.perf_counter() - started) * 1000)
+                return NodeOutcome(
+                    status="fail", state=state,
+                    error=NodeError(
+                        code="node.budget_exhausted",
+                        message=str(budget_exc),
+                        details={},
+                    ),
+                ), duration_ms, False, None
 
         cached_outcome: NodeOutcome | None = None
+        retry_stats: dict[str, int] = {}
         if cache_key and self._cache:
             cached_outcome = self._cache.get(cache_key)
             if cached_outcome:
                 cache_hit = True
 
         if cached_outcome is not None:
-            outcome = cached_outcome
+            outcome = cached_outcome.model_copy(
+                update={
+                    "state": _merge_cached_outcome_state(
+                        alias=alias,
+                        node=node,
+                        base_state=state,
+                        outcome=cached_outcome,
+                    )
+                }
+            )
         else:
             retry_policy = inv.retry or RetryPolicy()
-            retry_stats: dict[str, int] = {}
             try:
                 raw_outcome = await execute_with_retry_async(
-                    node, self._ctx, state,
+                    node, self._ctx, node_state,
                     retry_policy=retry_policy,
                     timeout_s=inv.timeout_s,
                     alias=alias,
@@ -565,28 +750,28 @@ class AsyncWorkflowExecutor:
             except NodeTimeoutError as exc:
                 self._ctx.logger.error("Node %s timed out", alias)
                 outcome = NodeOutcome(
-                    status="fail", state=state,
+                    status="fail", state=node_state,
                     error=NodeError(code="node.timeout", message=str(exc),
                                     details={"timeout_s": inv.timeout_s}),
                 )
             except RetryExhaustedError as exc:
                 self._ctx.logger.error("Node %s exhausted retries", alias)
                 outcome = NodeOutcome(
-                    status="fail", state=state,
+                    status="fail", state=node_state,
                     error=NodeError(code="node.retry_exhausted", message=str(exc),
                                     details={"max_retries": retry_policy.max_retries}),
                 )
             except ValidationError as exc:
                 outcome = NodeOutcome(
-                    status="fail", state=state,
+                    status="fail", state=node_state,
                     error=NodeError(code="node.invalid_outcome",
                                     message="Node returned invalid outcome",
                                     details={"error": str(exc)}),
                 )
-            except Exception as exc:  # noqa: BLE001
+            except _EXECUTOR_DEGRADED_ERRORS as exc:
                 self._ctx.logger.exception("Node %s failed", alias)
                 outcome = NodeOutcome(
-                    status="fail", state=state,
+                    status="fail", state=node_state,
                     error=NodeError(code="node.exception", message=str(exc),
                                     details={"type": exc.__class__.__name__}),
                 )
@@ -594,9 +779,29 @@ class AsyncWorkflowExecutor:
             # Cache store
             if outcome.status == "ok" and cache_key and self._cache:
                 try:
-                    self._cache.put(cache_key, node_id=node_id, outcome=outcome)
-                except Exception:  # noqa: BLE001
-                    pass
+                    cache_entry_ref = self._cache.put(
+                        cache_key,
+                        node_id=node_id,
+                        outcome=outcome,
+                    )
+                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                    envelope = _executor_degraded(
+                        operation="store_cache_entry",
+                        reason="cache_bypass",
+                        exc=exc,
+                        details={"alias": alias, "node_id": node_id},
+                    )
+                    outcome.events.append(
+                        NodeEvent(
+                            level="warn",
+                            message="Node result cache write bypassed",
+                            code="node.cache_bypass",
+                            attrs={
+                                "reason": str(envelope.get("reason", "cache_bypass")),
+                                "error_type": str(envelope.get("error_type", "runtime_error")),
+                            },
+                        )
+                    )
 
         duration_ms = int((time.perf_counter() - started) * 1000)
 
@@ -611,10 +816,9 @@ class AsyncWorkflowExecutor:
         # Record provenance
         if self._provenance_dag is not None:
             try:
-                from datetime import datetime, timezone
-                ended_at = datetime.now(timezone.utc)
+                ended_at = datetime.now(UTC)
                 started_at = datetime.fromtimestamp(
-                    ended_at.timestamp() - duration_ms / 1000, tz=timezone.utc,
+                    ended_at.timestamp() - duration_ms / 1000, tz=UTC,
                 )
                 if outcome.status == "ok":
                     # Collect input refs from upstream dependencies
@@ -649,11 +853,31 @@ class AsyncWorkflowExecutor:
                     self._provenance_dag.record_node_failure(
                         alias=alias, node_id=node_id,
                         error=str(outcome.error.message) if outcome.error else "Unknown",
-                        traceback=outcome.error.details.get("type", "") if outcome.error and outcome.error.details else None,
+                        traceback=(
+                            outcome.error.details.get("type", "")
+                            if outcome.error and outcome.error.details
+                            else None
+                        ),
                         started_at=started_at, ended_at=ended_at,
                     )
-            except Exception:  # noqa: BLE001 — provenance must never crash pipeline
-                _module_logger.debug("Provenance recording failed for node %s", alias)
+            except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                envelope = _executor_degraded(
+                    operation="record_provenance",
+                    reason="provenance_record_failed",
+                    exc=exc,
+                    details={"alias": alias, "node_id": node_id},
+                )
+                outcome.events.append(
+                    NodeEvent(
+                        level="warn",
+                        message="Node provenance recording degraded",
+                        code="node.provenance_degraded",
+                        attrs={
+                            "reason": str(envelope.get("reason", "provenance_record_failed")),
+                            "error_type": str(envelope.get("error_type", "runtime_error")),
+                        },
+                    )
+                )
 
         _log_node_events(self._ctx.logger, alias, outcome.events)
         status_event = {"ok": "NODE_OK", "skip": "NODE_SKIP", "fail": "NODE_FAIL"}[outcome.status]
@@ -687,9 +911,9 @@ class AsyncWorkflowExecutor:
                 cache_hit=cache_hit, retry_count=actual_retry_count,
             )
 
-        return outcome, duration_ms, cache_hit
+        return outcome, duration_ms, cache_hit, cache_entry_ref
 
-    def _handle_checkpoint(
+    async def _handle_checkpoint(
         self,
         state: ExperimentState,
         alias: str,
@@ -701,13 +925,28 @@ class AsyncWorkflowExecutor:
     ) -> ExperimentState:
         if self._checkpoint_hook is None:
             return state
-        result = self._checkpoint_hook.on_node_complete(
-            state=state, alias=alias, node_id=node_id,
-            completed_nodes=completed_nodes,
-            workflow_id=workflow.workflow_id,
-            workflow_fingerprint=workflow_fingerprint,
-            cache_entry_ref=cache_entry_ref,
-        )
+        async_checkpoint = getattr(self._checkpoint_hook, "on_node_complete_async", None)
+        if callable(async_checkpoint):
+            result = await async_checkpoint(
+                state=state,
+                alias=alias,
+                node_id=node_id,
+                completed_nodes=completed_nodes,
+                workflow_id=workflow.workflow_id,
+                workflow_fingerprint=workflow_fingerprint,
+                cache_entry_ref=cache_entry_ref,
+            )
+        else:
+            result = await run_blocking_async(
+                self._checkpoint_hook.on_node_complete,
+                state=state,
+                alias=alias,
+                node_id=node_id,
+                completed_nodes=completed_nodes,
+                workflow_id=workflow.workflow_id,
+                workflow_fingerprint=workflow_fingerprint,
+                cache_entry_ref=cache_entry_ref,
+            )
         if result is not None:
             state = state.model_copy(
                 update={"last_checkpoint_ref": result.checkpoint_ref},
@@ -729,26 +968,74 @@ class AsyncWorkflowExecutor:
                         checkpoint_ref=result.checkpoint_ref,
                         sequence_number=result.sequence_number,
                     )
-                except Exception:  # noqa: BLE001
-                    _module_logger.debug("Checkpoint provenance recording failed for %s", alias)
+                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                    _executor_degraded(
+                        operation="record_checkpoint_provenance",
+                        reason="provenance_record_failed",
+                        exc=exc,
+                        details={"alias": alias, "node_id": node_id},
+                    )
         return state
 
-    def _persist_workflow_spec(self, workflow: WorkflowSpec) -> ArtifactRef:
-        return self._ctx.store.put_json(
+    async def _persist_parallel_merge_conflict(
+        self,
+        *,
+        workflow_id: str,
+        tier_index: int,
+        conflicts: list[MergeConflict],
+        aliases: list[str],
+    ) -> ArtifactRef | None:
+        if not conflicts:
+            return None
+        payload = {
+            "workflow_id": workflow_id,
+            "tier_index": tier_index,
+            "merge_conflict_policy": self._merge_conflict_policy.value,
+            "aliases": sorted(aliases),
+            "conflicts": [conflict.to_dict() for conflict in conflicts],
+        }
+        try:
+            return await self._async_store.put_json(
+                payload,
+                ArtifactWriteOptions(
+                    kind="scientist.parallel_merge_conflict",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.scientist.engine.ParallelMergeConflict",
+                        version="1.0",
+                    ),
+                ),
+            )
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            _executor_degraded(
+                operation="persist_parallel_merge_conflict",
+                reason="artifact_persist_failed",
+                exc=exc,
+                details={
+                    "workflow_id": workflow_id,
+                    "tier_index": tier_index,
+                    "conflict_count": len(conflicts),
+                },
+            )
+            return None
+
+    async def _persist_workflow_spec(self, workflow: WorkflowSpec) -> ArtifactRef:
+        return await self._async_store.put_json(
             workflow.model_dump(),
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="scientist.workflow_spec",
                 media_type="application/json",
                 schema=SchemaInfo(
                     name="polisyos.scientist.engine.WorkflowSpec", version="1.0",
                 ),
             ),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
 
-    def _persist_state(self, state: ExperimentState) -> ArtifactRef:
-        return self._ctx.store.put_json(
+    async def _persist_state(self, state: ExperimentState) -> ArtifactRef:
+        return await self._async_store.put_json(
             state.model_dump(),
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="scientist.experiment_state",
                 media_type="application/json",
                 schema=SchemaInfo(
@@ -759,10 +1046,10 @@ class AsyncWorkflowExecutor:
             canon_spec=CanonSpec(forbid_floats=False),
         )
 
-    def _persist_report(self, report: WorkflowReport) -> ArtifactRef:
-        return self._ctx.store.put_json(
+    async def _persist_report(self, report: WorkflowReport) -> ArtifactRef:
+        return await self._async_store.put_json(
             report.model_dump(),
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="scientist.workflow_report",
                 media_type="application/json",
                 schema=SchemaInfo(

@@ -1,14 +1,22 @@
 """Request explicit human review when a STRICT run still carries review-sensitive graph state."""
 from __future__ import annotations
 
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
+    CausalGraphModelRef,
     load_causal_graph_model,
 )
+from polisyos.scientist.governance.passes._artifact_resolution import (
+    ArtifactResolution,
+    resolve_optional_artifact_model,
+)
+
+logger = get_logger(__name__)
 
 
 class HumanReviewRequiredPass(ValidatorPass):
@@ -32,9 +40,10 @@ class HumanReviewRequiredPass(ValidatorPass):
         if ctx.profile.level is not ProfileLevel.STRICT:
             return []
 
-        review_items = _collect_review_items(ctx)
+        graph_resolution = _resolve_graph(ctx)
+        review_items = _collect_review_items(graph_resolution.value)
         if not review_items:
-            return []
+            return list(graph_resolution.issues)
 
         ctx.state["human_review_request"] = {
             "items": review_items,
@@ -42,6 +51,7 @@ class HumanReviewRequiredPass(ValidatorPass):
             "deadline_hours": 72,
         }
         return [
+            *graph_resolution.issues,
             ComplianceIssue(
                 pass_id=self.pass_id,
                 path=["human_review"],
@@ -52,8 +62,7 @@ class HumanReviewRequiredPass(ValidatorPass):
         ]
 
 
-def _collect_review_items(ctx: PassContext) -> list[dict[str, object]]:
-    graph = _resolve_graph(ctx)
+def _collect_review_items(graph: CausalGraphModel | None) -> list[dict[str, object]]:
     if graph is None:
         return []
 
@@ -72,31 +81,21 @@ def _collect_review_items(ctx: PassContext) -> list[dict[str, object]]:
     return items
 
 
-def _resolve_graph(ctx: PassContext) -> CausalGraphModel | None:
-    direct = ctx.state.get("causal_graph")
-    if isinstance(direct, CausalGraphModel):
-        return direct
-    if isinstance(direct, dict):
-        try:
-            return CausalGraphModel.model_validate(direct)
-        except Exception:
-            return None
-
-    ref = ctx.state.get("causal_graph_ref")
-    if ref is None:
-        artifacts_index = ctx.state.get("artifacts_index")
-        if isinstance(artifacts_index, dict):
-            ref = artifacts_index.get("causal_graph_ref")
-    if ref is None:
-        return None
-
-    store = ctx.state.get("_store")
-    if store is None:
-        return None
-    try:
-        return load_causal_graph_model(store, ref)
-    except Exception:
-        return None
+def _resolve_graph(ctx: PassContext) -> ArtifactResolution[CausalGraphModel]:
+    return resolve_optional_artifact_model(
+        ctx=ctx,
+        pass_id="human_review_required",
+        direct_key="causal_graph",
+        ref_key="causal_graph_ref",
+        model_cls=CausalGraphModel,
+        ref_model=CausalGraphModelRef,
+        load_model=load_causal_graph_model,
+        severity=IssueSeverity.WARNING,
+        code="HUMAN_REVIEW_GRAPH_INVALID",
+        message="Causal graph could not be validated or loaded for human review.",
+        suggestion="Rebuild the causal graph artifact before strict governance review.",
+        log=logger,
+    )
 
 
 def _edge_path(edge: CausalEdge) -> str:

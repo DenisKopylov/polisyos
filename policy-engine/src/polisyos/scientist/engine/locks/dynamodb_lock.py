@@ -26,6 +26,7 @@ from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.engine.checkpoint import RunLockError
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 logger = get_logger(__name__)
 
@@ -36,7 +37,17 @@ try:
     _HAS_BOTO3 = True
 except ImportError:
     _HAS_BOTO3 = False
-    ClientError = Exception  # type: ignore[assignment,misc]
+    ClientError = RuntimeError  # type: ignore[assignment,misc]
+
+_DYNAMODB_LOCK_RUNTIME_ERRORS = (
+    ClientError,
+    AttributeError,
+    OSError,
+    RuntimeError,
+    TimeoutError,
+    TypeError,
+    ValueError,
+)
 
 
 @dataclass
@@ -66,6 +77,28 @@ class DynamoDBLockHandle:
         except ClientError:
             logger.debug("Failed to release lock %s (already released?)", self._lock_key)
 
+    def is_alive(self) -> bool:
+        """Check if the DynamoDB item still exists and our token matches."""
+        try:
+            resp = self._table.get_item(Key={"lock_key": self._lock_key})
+            item = resp.get("Item")
+            if not item:
+                return False
+            if str(item.get("token") or "") != self._token:
+                return False
+            expires_at = int(item.get("expires_at", 0))
+            return int(time.time()) <= expires_at
+        except _DYNAMODB_LOCK_RUNTIME_ERRORS as exc:
+            emit_degraded_path(
+                component="scientist.engine.locks.dynamodb",
+                operation="is_alive",
+                reason="dynamodb_lock_status_probe_failed",
+                exc=exc,
+                details={"run_id": self.run_id, "lock_key": self._lock_key},
+                log=logger,
+            )
+            return False
+
     def _start_heartbeat(self, ttl_s: int) -> None:
         interval = max(ttl_s // 3, 1)
 
@@ -83,8 +116,17 @@ class DynamoDBLockHandle:
                             ":token": self._token,
                         },
                     )
-                except Exception:  # noqa: BLE001
-                    logger.debug("Failed to extend DynamoDB lock TTL for %s", self._lock_key)
+                except _DYNAMODB_LOCK_RUNTIME_ERRORS as exc:
+                    emit_degraded_path(
+                        component="scientist.engine.locks.dynamodb",
+                        operation="heartbeat_extend",
+                        reason="dynamodb_lock_heartbeat_failed",
+                        exc=exc,
+                        details={"run_id": self.run_id, "lock_key": self._lock_key},
+                        log=logger,
+                    )
+                    self._heartbeat_stop.set()
+                    break
 
         t = threading.Thread(target=_extend, daemon=True, name=f"ddb-lock-hb-{self.run_id}")
         self._heartbeat_thread = t
@@ -132,7 +174,7 @@ class DynamoDBRunLock:
         return self._table
 
     def acquire(
-        self, *, run_id: str, mode: str, force: bool = False
+        self, *, run_id: str, mode: str, force: bool = False, owner_token: str | None = None
     ) -> DynamoDBLockHandle:
         table = self._get_table()
         lock_key = f"{self._key_prefix}{run_id}"
@@ -165,18 +207,35 @@ class DynamoDBRunLock:
                 },
             )
         except ClientError as exc:
-            error_code = exc.response.get("Error", {}).get("Code", "") if hasattr(exc, "response") else ""
+            error_code = (
+                exc.response.get("Error", {}).get("Code", "")
+                if hasattr(exc, "response")
+                else ""
+            )
             if error_code == "ConditionalCheckFailedException":
                 if force:
-                    # Force overwrite
-                    table.put_item(
-                        Item={
-                            "lock_key": lock_key,
-                            "token": token,
-                            "metadata": metadata_json,
-                            "expires_at": expires_at,
-                        },
-                    )
+                    if not owner_token:
+                        raise RunLockError(
+                            f"run {run_id} force acquisition requires owner_token"
+                        ) from exc
+                    try:
+                        table.put_item(
+                            Item={
+                                "lock_key": lock_key,
+                                "token": token,
+                                "metadata": metadata_json,
+                                "expires_at": expires_at,
+                            },
+                            ConditionExpression=(
+                                "attribute_exists(lock_key) AND #t = :owner_token"
+                            ),
+                            ExpressionAttributeNames={"#t": "token"},
+                            ExpressionAttributeValues={":owner_token": owner_token},
+                        )
+                    except ClientError as force_exc:
+                        raise RunLockError(
+                            f"run {run_id} force acquisition rejected: owner token mismatch"
+                        ) from force_exc
                 else:
                     raise RunLockError(
                         f"run {run_id} is already locked in DynamoDB"
@@ -206,5 +265,13 @@ class DynamoDBRunLock:
                 return False
             expires_at = int(item.get("expires_at", 0))
             return int(time.time()) > expires_at
-        except Exception:  # noqa: BLE001
+        except _DYNAMODB_LOCK_RUNTIME_ERRORS as exc:
+            emit_degraded_path(
+                component="scientist.engine.locks.dynamodb",
+                operation="detect_stale",
+                reason="dynamodb_lock_stale_probe_failed",
+                exc=exc,
+                details={"run_id": run_id, "lock_key": lock_key},
+                log=logger,
+            )
             return False

@@ -272,7 +272,7 @@ class StructuralNestedMeanModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="snmm_g_estimation",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=frozenset(

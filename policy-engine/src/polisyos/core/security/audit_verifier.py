@@ -2,11 +2,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.observability import get_metrics
 
 from .audit_models import ChainedLogEntry
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.observability import MetricsRegistry
 
 
 @dataclass
@@ -23,6 +28,9 @@ class ChainVerificationResult:
 class ChainVerifier:
     """Verify contiguous chained-audit segments for tamper evidence."""
 
+    def __init__(self, *, metrics: MetricsRegistry | None = None) -> None:
+        self._metrics = metrics or get_metrics()
+
     def verify_segment(self, entries: list[ChainedLogEntry]) -> ChainVerificationResult:
         result = ChainVerificationResult(total_entries=len(entries))
         if not entries:
@@ -38,12 +46,9 @@ class ChainVerifier:
                 result.chain_intact = False
 
             computed = entry.compute_hash()
-            if computed != entry.entry_hash:
-                result.tampered_entries.append(entry.sequence_number)
-                if result.first_tampered_sequence is None:
-                    result.first_tampered_sequence = entry.sequence_number
-                result.chain_intact = False
-            elif index > 0 and entry.prev_hash != expected_prev_hash:
+            if computed != entry.entry_hash or (
+                index > 0 and entry.prev_hash != expected_prev_hash
+            ):
                 result.tampered_entries.append(entry.sequence_number)
                 if result.first_tampered_sequence is None:
                     result.first_tampered_sequence = entry.sequence_number
@@ -70,7 +75,7 @@ class ChainVerifier:
         result = self.verify_segment(entries)
         if result.tampered_entries:
             chain_id = entries[0].chain_id if entries else "unknown"
-            get_metrics().record_audit_chain_tamper(
+            self._metrics.record_audit_chain_tamper(
                 chain_id=chain_id,
                 count=len(result.tampered_entries),
             )

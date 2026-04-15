@@ -4,10 +4,12 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import os
 from collections import Counter
-from datetime import datetime
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from time import monotonic
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.contracts.runtime import (
     AgentPipelineResponse,
@@ -15,6 +17,8 @@ from polisyos.core.contracts.runtime import (
     RunEvidenceContextResponse,
     RunLineageResponse,
     RunNodesResponse,
+    RunsBatchRequest,
+    RunsBatchResponse,
     RunsListResponse,
     RunTimelineResponse,
     RunWorkflowResponse,
@@ -23,27 +27,69 @@ from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
     enforce_run_tenant_access,
-    get_access_scope,
     get_runtime_api_context,
+    record_data_access_audit,
+    require_access_scope,
     set_authz_resource,
 )
 from polisyos.runtime.http.errors import bad_request
+from polisyos.runtime.http.response_policies import add_run_link_relations
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 try:  # pragma: no cover - optional runtime dependency
-    from fastapi import APIRouter, Depends, Query, Request
+    APIRouter: Any | None
+    Depends: Any | None
+    Query: Any | None
+    Request: Any
+    Response: Any
+    StreamingResponse: Any | None
+    from fastapi import APIRouter, Depends, Query, Request, Response
     from fastapi.responses import StreamingResponse
 except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None  # type: ignore[assignment]
-    Depends = None  # type: ignore[assignment]
-    Query = None  # type: ignore[assignment]
-    Request = None  # type: ignore[assignment]
-    StreamingResponse = None  # type: ignore[assignment]
+    APIRouter = None
+    Depends = None
+    Query = None
+    Request = Any
+    Response = Any
+    StreamingResponse = None
 
 
 router = APIRouter(prefix="/api/v1/runs", tags=["runtime-runs"]) if APIRouter else None
 
-_LIVE_STREAM_INTERVAL_SECONDS = 1.0
-_LIVE_STREAM_KEEPALIVE_SECONDS = 15.0
+
+@dataclass(frozen=True)
+class LiveStreamPolicy:
+    min_interval_seconds: float
+    max_interval_seconds: float
+    keepalive_seconds: float
+    max_duration_seconds: float
+
+    @classmethod
+    def from_env(cls) -> LiveStreamPolicy:
+        min_interval = max(
+            float(os.getenv("POLISYOS_RUNTIME_LIVE_MIN_INTERVAL_SECONDS", "1.0")),
+            0.1,
+        )
+        max_interval = max(
+            float(os.getenv("POLISYOS_RUNTIME_LIVE_MAX_INTERVAL_SECONDS", "5.0")),
+            min_interval,
+        )
+        keepalive = max(
+            float(os.getenv("POLISYOS_RUNTIME_LIVE_KEEPALIVE_SECONDS", "15.0")),
+            min_interval,
+        )
+        max_duration = max(
+            float(os.getenv("POLISYOS_RUNTIME_LIVE_MAX_DURATION_SECONDS", "120")),
+            5.0,
+        )
+        return cls(
+            min_interval_seconds=min_interval,
+            max_interval_seconds=max_interval,
+            keepalive_seconds=keepalive,
+            max_duration_seconds=max_duration,
+        )
 
 
 def _json_default(value: Any) -> Any:
@@ -67,7 +113,7 @@ def _encode_sse(
 
 def _payload_signature(payload: dict[str, Any]) -> str:
     encoded = json.dumps(payload, default=_json_default, sort_keys=True)
-    return hashlib.sha1(encoded.encode("utf-8")).hexdigest()
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 def _is_terminal_status(status: str | None) -> bool:
@@ -82,7 +128,7 @@ def _is_terminal_status(status: str | None) -> bool:
 
 
 def _build_runs_live_payload(request: Request, ctx: RuntimeApiContext) -> dict[str, Any]:
-    scope = get_access_scope(request)
+    scope = require_access_scope(request)
     runs, page = ctx.run_index.list_runs(
         limit=50,
         cursor=None,
@@ -92,9 +138,10 @@ def _build_runs_live_payload(request: Request, ctx: RuntimeApiContext) -> dict[s
         tenant_id=scope.tenant_id if scope else None,
     )
     status_counts = Counter((run.status or "unknown") for run in runs)
+    now = datetime.now(UTC).replace(microsecond=0).isoformat()
     return {
-        "cursor": datetime.utcnow().isoformat(),
-        "generated_at": datetime.utcnow().isoformat(),
+        "cursor": now,
+        "generated_at": now,
         "page": {
             "count": page.count,
             "total": page.total,
@@ -127,9 +174,10 @@ def _build_run_live_payload(run_id: str, ctx: RuntimeApiContext) -> dict[str, An
     agents = ctx.debug.get_run_agents(run)
     governance = ctx.debug.get_governance_debug(run)
     step_count = sum(len(attempt.steps or []) for attempt in agents.attempts or [])
+    now = datetime.now(UTC).replace(microsecond=0).isoformat()
     return {
         "run_id": run_id,
-        "cursor": datetime.utcnow().isoformat(),
+        "cursor": now,
         "status": run.details.status,
         "started_at": run.details.started_at,
         "finished_at": run.details.finished_at,
@@ -156,18 +204,33 @@ def _build_run_live_payload(run_id: str, ctx: RuntimeApiContext) -> dict[str, An
             else None
         ),
         "terminal": _is_terminal_status(run.details.status),
-        "generated_at": datetime.utcnow().isoformat(),
+        "generated_at": now,
     }
 
 
 async def _stream_payloads(
     builder: Callable[[], dict[str, Any]],
     request: Request,
+    *,
+    policy: LiveStreamPolicy,
 ) -> Any:
     previous_signature = None
+    started_at = monotonic()
     last_emit_at = monotonic()
+    sleep_seconds = policy.min_interval_seconds
     while True:
         if await request.is_disconnected():
+            break
+        if monotonic() - started_at >= policy.max_duration_seconds:
+            now = datetime.now(UTC).replace(microsecond=0).isoformat()
+            yield _encode_sse(
+                {
+                    "cursor": now,
+                    "generated_at": now,
+                    "reason": "stream_timeout_budget_exhausted",
+                },
+                event="stream.timeout",
+            )
             break
         payload = builder()
         signature = _payload_signature(payload)
@@ -175,14 +238,18 @@ async def _stream_payloads(
         if should_emit:
             previous_signature = signature
             last_emit_at = monotonic()
+            sleep_seconds = policy.min_interval_seconds
             event_id = str(payload.get("cursor") or payload.get("generated_at") or "")
             yield _encode_sse(payload, event="snapshot", event_id=event_id or None)
             if payload.get("terminal") is True:
                 break
-        elif monotonic() - last_emit_at >= _LIVE_STREAM_KEEPALIVE_SECONDS:
+        elif monotonic() - last_emit_at >= policy.keepalive_seconds:
             last_emit_at = monotonic()
             yield ": keep-alive\n\n"
-        await asyncio.sleep(_LIVE_STREAM_INTERVAL_SECONDS)
+            sleep_seconds = policy.min_interval_seconds
+        else:
+            sleep_seconds = min(policy.max_interval_seconds, sleep_seconds * 2)
+        await asyncio.sleep(sleep_seconds)
 
 
 if router is not None:
@@ -192,50 +259,111 @@ if router is not None:
         request: Request,
         limit: int = Query(default=50, ge=1, le=200),
         cursor: str | None = Query(default=None),
+        q: str | None = Query(default=None),
         status: str | None = Query(default=None),
-        from_ts: datetime | None = Query(default=None),  # noqa: B008
-        to_ts: datetime | None = Query(default=None),  # noqa: B008
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        from_ts: datetime | None = Query(default=None),
+        to_ts: datetime | None = Query(default=None),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunsListResponse:
         set_authz_resource(
             request,
             tenant_id=getattr(request.state, "tenant_id", None),
             kind="runtime.run_list",
         )
-        scope = get_access_scope(request)
+        scope = require_access_scope(request)
         runs, page = ctx.run_index.list_runs(
             limit=limit,
             cursor=cursor,
+            q=q,
             status=status,
             from_ts=from_ts,
             to_ts=to_ts,
             tenant_id=scope.tenant_id if scope else None,
         )
         source_kinds = [run.source_kind for run in runs]
+        record_data_access_audit(
+            request,
+            resource_id=scope.tenant_id,
+            tenant_id=scope.tenant_id,
+            metadata={"count": len(runs), "cursor": page.cursor, "next_cursor": page.next_cursor},
+        )
         return RunsListResponse(
             meta=build_meta(request, source_kinds=source_kinds),
             page=page,
             runs=runs,
         )
 
+    @router.post(
+        "/batch",
+        response_model=RunsBatchResponse,
+        operation_id="get_runs_batch",
+    )
+    def get_runs_batch(
+        body: RunsBatchRequest,
+        request: Request,
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> RunsBatchResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="runtime.run_batch",
+        )
+        runs = []
+        source_kinds = []
+        for run_id in body.run_ids:
+            run = ctx.run_index.get_run(run_id)
+            enforce_run_tenant_access(request, ctx=ctx, run=run)
+            runs.append(run.details)
+            source_kinds.append(run.source_kind)
+        record_data_access_audit(
+            request,
+            resource_id="run.batch",
+            tenant_id=getattr(request.state, "tenant_id", None),
+            metadata={"count": len(runs)},
+        )
+        response.headers["Link"] = "</api/v1/runs>; rel=\"collection\""
+        return RunsBatchResponse(
+            meta=build_meta(request, source_kinds=source_kinds),
+            runs=runs,
+        )
+
     @router.get("/live", include_in_schema=False)
     async def stream_runs_live(
         request: Request,
-        cursor: str | None = Query(default=None),  # noqa: B008
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        cursor: str | None = Query(default=None),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> StreamingResponse:
         set_authz_resource(
             request,
             tenant_id=getattr(request.state, "tenant_id", None),
             kind="runtime.run_list",
         )
+        scope = require_access_scope(request)
+        record_data_access_audit(
+            request,
+            resource_id=scope.tenant_id,
+            tenant_id=scope.tenant_id,
+            outcome="stream_opened",
+        )
+        policy = LiveStreamPolicy.from_env()
         return StreamingResponse(
-            _stream_payloads(lambda: _build_runs_live_payload(request, ctx), request),
+            _stream_payloads(
+                lambda: _build_runs_live_payload(request, ctx),
+                request,
+                policy=policy,
+            ),
             media_type="text/event-stream",
             headers={
-                "Cache-Control": "no-cache",
+                "Cache-Control": "no-cache, no-transform",
                 "Connection": "keep-alive",
                 "X-Accel-Buffering": "no",
+                "X-SSE-Flow-Control": (
+                    f"adaptive; min={policy.min_interval_seconds}; "
+                    f"max={policy.max_interval_seconds}; "
+                    f"heartbeat={policy.keepalive_seconds}; "
+                    f"budget={policy.max_duration_seconds}"
+                ),
             },
         )
 
@@ -243,7 +371,8 @@ if router is not None:
     def get_run_details(
         run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunDetailsResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -257,6 +386,12 @@ if router is not None:
                 else None
             ),
         )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+        )
+        add_run_link_relations(response, run_id=run_id)
         return RunDetailsResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             run=run.details,
@@ -266,8 +401,8 @@ if router is not None:
     async def stream_run_live(
         run_id: str,
         request: Request,
-        cursor: str | None = Query(default=None),  # noqa: B008
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        cursor: str | None = Query(default=None),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> StreamingResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -281,13 +416,30 @@ if router is not None:
                 else None
             ),
         )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            outcome="stream_opened",
+        )
+        policy = LiveStreamPolicy.from_env()
         return StreamingResponse(
-            _stream_payloads(lambda: _build_run_live_payload(run_id, ctx), request),
+            _stream_payloads(
+                lambda: _build_run_live_payload(run_id, ctx),
+                request,
+                policy=policy,
+            ),
             media_type="text/event-stream",
             headers={
-                "Cache-Control": "no-cache",
+                "Cache-Control": "no-cache, no-transform",
                 "Connection": "keep-alive",
                 "X-Accel-Buffering": "no",
+                "X-SSE-Flow-Control": (
+                    f"adaptive; min={policy.min_interval_seconds}; "
+                    f"max={policy.max_interval_seconds}; "
+                    f"heartbeat={policy.keepalive_seconds}; "
+                    f"budget={policy.max_duration_seconds}"
+                ),
             },
         )
 
@@ -299,7 +451,8 @@ if router is not None:
     def get_run_timeline(
         run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunTimelineResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -309,6 +462,12 @@ if router is not None:
             kind="runtime.run_timeline",
         )
         timeline = ctx.timeline.build_for_run(run).timeline
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+        )
+        add_run_link_relations(response, run_id=run_id)
         return RunTimelineResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             timeline=timeline,
@@ -318,7 +477,8 @@ if router is not None:
     def get_run_nodes(
         run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunNodesResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -328,6 +488,13 @@ if router is not None:
             kind="runtime.run_nodes",
         )
         nodes = ctx.debug.list_run_nodes(run)
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            metadata={"node_count": len(nodes)},
+        )
+        add_run_link_relations(response, run_id=run_id)
         return RunNodesResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             run_id=run_id,
@@ -343,10 +510,11 @@ if router is not None:
     def get_run_lineage(
         run_id: str,
         request: Request,
-        root_artifact_id: list[str] | None = Query(default=None),  # noqa: B008
+        response: Response,
+        root_artifact_id: list[str] | None = Query(default=None),
         max_depth: int | None = Query(default=None, ge=1, le=256),
         max_nodes: int | None = Query(default=None, ge=1, le=20000),
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunLineageResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -371,6 +539,13 @@ if router is not None:
             max_depth=max_depth,
             max_nodes=max_nodes,
         )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            metadata={"root_artifact_count": len(root_ids)},
+        )
+        add_run_link_relations(response, run_id=run_id)
         return RunLineageResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             run_id=run_id,
@@ -385,7 +560,8 @@ if router is not None:
     def get_run_agents(
         run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> AgentPipelineResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -395,6 +571,12 @@ if router is not None:
             kind="runtime.run_agents",
         )
         pipeline = ctx.debug.get_run_agents(run)
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+        )
+        add_run_link_relations(response, run_id=run_id)
         return AgentPipelineResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             pipeline=pipeline,
@@ -408,7 +590,8 @@ if router is not None:
     def get_run_evidence_context(
         run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunEvidenceContextResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -418,6 +601,12 @@ if router is not None:
             kind="runtime.run_evidence_context",
         )
         evidence_context = ctx.debug.get_run_evidence_context(run)
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+        )
+        add_run_link_relations(response, run_id=run_id)
         return RunEvidenceContextResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             context=evidence_context,
@@ -431,7 +620,8 @@ if router is not None:
     def get_run_workflow(
         run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunWorkflowResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -441,6 +631,12 @@ if router is not None:
             kind="runtime.run_workflow",
         )
         workflow = ctx.debug.get_run_workflow(run)
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+        )
+        add_run_link_relations(response, run_id=run_id)
         return RunWorkflowResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             workflow=workflow,

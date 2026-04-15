@@ -2,15 +2,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from pydantic import TypeAdapter
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.components import ComponentKind, ComponentRegistry, ResolvePolicy
 from polisyos.core.components.compliance import HostAbi, validate_metadata
-from polisyos.core.components.registry import ComponentEntry
 from polisyos.core.registry.builder import build_registry_bundle
 from polisyos.ir.kernel import (
     DEFAULT_CONSTRAINT_REGISTRY,
@@ -32,6 +32,10 @@ from polisyos.ir.registry_fragments import (
     compose_registry_fragments,
 )
 
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.components.registry import ComponentEntry
+
 logger = get_logger(__name__)
 
 
@@ -44,7 +48,7 @@ class FragmentPrecedencePolicy:
 
 
 def build_registry_bundle_from_components(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     components_index: ComponentRegistry,
     domain: str,
@@ -83,7 +87,9 @@ def build_registry_bundle_from_components(
             fragment = TypeAdapter(RegistryFragment).validate_python(created)
         except Exception as exc:
             logger.debug(
-                "Skipping component %s: create/validate failed: %s", entry.metadata.component_id, exc,
+                "Skipping component %s: create/validate failed: %s",
+                entry.metadata.component_id,
+                exc,
             )
             continue
 
@@ -97,6 +103,7 @@ def build_registry_bundle_from_components(
         selected_components.append(str(entry.metadata.component_id))
 
     request = RegistryComposeRequest(
+        schema_version="1.0",
         fragments=fragments,
         base_registries=base_bundle or _default_base_bundle(),
         policy=compose,
@@ -132,6 +139,7 @@ def build_registry_bundle_from_components(
 
 def _default_base_bundle() -> RegistryBundle:
     return RegistryBundle(
+        schema_version="1.0",
         units=DEFAULT_UNITS_REGISTRY,
         trust=DEFAULT_TRUST_REGISTRY,
         metrics=DEFAULT_METRIC_REGISTRY,
@@ -197,7 +205,7 @@ def _priority_for_entry(entry: ComponentEntry, *, policy: FragmentPrecedencePoli
 
 def _persist_compose_report(
     *,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     result: RegistryComposeResult,
     selected_components: list[str],
     precedence_policy: FragmentPrecedencePolicy,
@@ -212,7 +220,7 @@ def _persist_compose_report(
 
     return store.put_json(
         payload,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="core.registry_compose_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.RegistryComposeResult", version="1.0"),

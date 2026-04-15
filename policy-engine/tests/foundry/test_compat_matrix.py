@@ -68,8 +68,7 @@ class TestCompatibilityMatrix:
         assert "Empty" in md
 
     def test_compatible_runtimes_returns_list(self, matrix):
-        if not matrix.method_fqns:
-            pytest.skip("Registry is empty")
+        assert matrix.method_fqns, "Registry is empty"
         fqn = matrix.method_fqns[0]
         runtimes = matrix.compatible_runtimes(fqn)
         assert isinstance(runtimes, list)
@@ -81,8 +80,7 @@ class TestCompatibilityMatrix:
         assert isinstance(result, list)
 
     def test_cell_attributes(self, matrix):
-        if not matrix.cells:
-            pytest.skip("No cells generated")
+        assert matrix.cells, "No cells generated"
         cell = next(iter(matrix.cells.values()))
         assert isinstance(cell, CompatibilityCell)
         assert cell.method_fqn

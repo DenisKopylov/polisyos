@@ -2,29 +2,26 @@ import { buildRuntimeStreamUrl } from "@/api/stream";
 import type {
   RealtimeSubscription,
   RealtimeSubscriptionHandlers,
-  RealtimeSubscriptionRequest,
   RealtimeTransport,
+  RunsRealtimeSubscriptionRequest,
 } from "@/app/realtime/types";
 
-function resolveSseUrl(request: RealtimeSubscriptionRequest) {
+function assertNever(value: never): never {
+  throw new Error(`Unhandled realtime channel: ${String(value)}`);
+}
+
+function resolveSseUrl(request: RunsRealtimeSubscriptionRequest) {
   switch (request.channel) {
     case "runs.global":
       return buildRuntimeStreamUrl("/api/v1/runs/live", {
         cursor: request.cursor ?? undefined,
       });
     case "runs.byId":
-      if (!request.runId) {
-        throw new Error("runs.byId channel requires runId");
-      }
       return buildRuntimeStreamUrl(`/api/v1/runs/${request.runId}/live`, {
         cursor: request.cursor ?? undefined,
       });
-    case "review.cursor":
-    case "review.lock":
-    case "review.presence":
-      throw new Error(
-        `SSE transport does not support collaboration channel ${request.channel}`,
-      );
+    default:
+      return assertNever(request);
   }
 }
 
@@ -36,9 +33,11 @@ class EventSourceSubscription implements RealtimeSubscription {
   }
 }
 
-export class SseRealtimeTransport implements RealtimeTransport {
+export class SseRealtimeTransport
+  implements RealtimeTransport<RunsRealtimeSubscriptionRequest>
+{
   subscribe(
-    request: RealtimeSubscriptionRequest,
+    request: RunsRealtimeSubscriptionRequest,
     handlers: RealtimeSubscriptionHandlers,
   ): RealtimeSubscription {
     const source = new EventSource(resolveSseUrl(request), {

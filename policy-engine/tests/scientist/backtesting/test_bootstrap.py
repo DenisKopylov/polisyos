@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from polisyos.scientist.backtesting.bootstrap import (
-    BootstrapCI,
+    BootstrapValidationError,
     bootstrap_metric,
     bootstrap_scenario_metrics,
 )
@@ -27,10 +27,12 @@ class TestBootstrapMetric:
         assert ci.lower <= ci.point_estimate <= ci.upper
 
     def test_empty_values(self):
-        ci = bootstrap_metric([], metric="empty")
-        assert ci.point_estimate == 0.0
-        assert ci.lower == 0.0
-        assert ci.upper == 0.0
+        with pytest.raises(BootstrapValidationError, match="at least one observed value"):
+            bootstrap_metric([], metric="empty")
+
+    def test_zero_bootstrap_count_is_rejected(self):
+        with pytest.raises(BootstrapValidationError, match="greater than zero"):
+            bootstrap_metric([1.0, 2.0], n_bootstrap=0)
 
     def test_single_value(self):
         ci = bootstrap_metric([5.0], metric="single", seed=42)
@@ -52,3 +54,28 @@ class TestBootstrapScenarioMetrics:
         assert "rmse" in results
         assert results["mae"].lower <= results["mae"].upper
         assert results["rmse"].lower <= results["rmse"].upper
+
+    def test_rmse_ci_bootstraps_rmse_directly(self):
+        errors = [0.0, 1.0, 3.0, 9.0]
+        seed = 7
+        n_bootstrap = 200
+        result = bootstrap_scenario_metrics(
+            errors,
+            seed=seed,
+            n_bootstrap=n_bootstrap,
+        )["rmse"]
+
+        rng = np.random.default_rng(seed)
+        arr = np.asarray(errors, dtype=float)
+        boot_stats = np.empty(n_bootstrap)
+        for idx in range(n_bootstrap):
+            sample = rng.choice(arr, size=arr.size, replace=True)
+            boot_stats[idx] = float(np.sqrt(np.mean(sample ** 2)))
+
+        alpha = 0.05
+        expected_lower = float(np.percentile(boot_stats, 100 * alpha / 2))
+        expected_upper = float(np.percentile(boot_stats, 100 * (1 - alpha / 2)))
+
+        assert result.point_estimate == float(np.sqrt(np.mean(arr ** 2)))
+        assert result.lower == expected_lower
+        assert result.upper == expected_upper

@@ -2,16 +2,22 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Any
 
 from polisyos.core.contracts.runtime import AuthMeResponse
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+from polisyos.runtime.http.container import resolve_runtime_security
 from polisyos.runtime.http.dependencies import build_meta
+from polisyos.runtime.http.errors import unauthorized
+from polisyos.runtime.http.security import build_fixture_identity_claims
 
 try:  # pragma: no cover - optional runtime dependency
+    APIRouter: Any | None
+    Request: Any
     from fastapi import APIRouter, Request
 except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None  # type: ignore[assignment]
-    Request = object  # type: ignore[assignment]
+    APIRouter = None
+    Request = object
 
 
 router = APIRouter(prefix="/api/v1/auth", tags=["runtime-auth"]) if APIRouter else None
@@ -25,6 +31,7 @@ _ROLE_PERMISSIONS: dict[PolicyOSRole, frozenset[str]] = {
             "evidence.review",
             "evidence.view",
             "knowledge.view",
+            "mode.analyst",
             "platform.admin",
             "platform.view",
             "runs.launch",
@@ -40,6 +47,7 @@ _ROLE_PERMISSIONS: dict[PolicyOSRole, frozenset[str]] = {
             "evidence.review",
             "evidence.view",
             "knowledge.view",
+            "mode.analyst",
             "platform.view",
             "runs.launch",
             "runs.review",
@@ -63,6 +71,7 @@ _ROLE_PERMISSIONS: dict[PolicyOSRole, frozenset[str]] = {
             "evidence.review",
             "evidence.view",
             "knowledge.view",
+            "mode.analyst",
             "platform.admin",
             "platform.view",
             "runs.launch",
@@ -78,6 +87,7 @@ _ROLE_PERMISSIONS: dict[PolicyOSRole, frozenset[str]] = {
             "evidence.review",
             "evidence.view",
             "knowledge.view",
+            "mode.analyst",
             "platform.admin",
             "platform.view",
             "runs.launch",
@@ -100,18 +110,19 @@ def _resolve_permissions(roles: Iterable[PolicyOSRole]) -> list[str]:
 
 
 def _fallback_identity() -> AuthMeResponse:
-    fallback_roles = frozenset({PolicyOSRole.ANALYST})
+    claims = build_fixture_identity_claims()
+    fallback_roles = claims.roles or frozenset({PolicyOSRole.ANALYST})
     permissions = _resolve_permissions(fallback_roles)
     return AuthMeResponse(
         meta=build_meta(type("FallbackRequest", (), {"state": type("State", (), {"request_id": "fallback-auth-me"})()})()),
-        user_id="fixture-analyst",
-        display_name="Fixture Analyst",
-        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        user_id=claims.sub,
+        display_name=claims.email or claims.sub,
+        tenant_id=claims.tenant_id,
         principal_type="user",
-        cell_id="cell-a",
+        cell_id=claims.cell_id,
         roles=_sorted_roles(fallback_roles),
         permissions=permissions,
-        mfa_verified=True,
+        mfa_verified=claims.mfa_verified,
         feature_overrides={"enableReviewCollaboration": "runs.review" in permissions},
     )
 
@@ -122,11 +133,13 @@ if router is not None:
     def get_auth_me(request: Request) -> AuthMeResponse:
         claims = getattr(request.state, "user_claims", None)
         if not isinstance(claims, UserIdentityClaims):
-            fallback = _fallback_identity()
-            return fallback.model_copy(
-                update={
-                    "meta": build_meta(request),
-                }
+            runtime_security = resolve_runtime_security(request)
+            if runtime_security is not None and runtime_security.allow_fixture_identity:
+                fallback = _fallback_identity()
+                return fallback.model_copy(update={"meta": build_meta(request)})
+            raise unauthorized(
+                "Authenticated user claims are required for /auth/me",
+                code="missing_user_claims",
             )
 
         roles = claims.roles or frozenset({PolicyOSRole.VIEWER})

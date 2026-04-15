@@ -1,30 +1,62 @@
-"""Legacy iterative search controller that separates candidate generation from evaluator feedback."""
+"""Legacy iterative search controller for ask/evaluate search loops."""
 from __future__ import annotations
 
 import os
-import hashlib
-import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Protocol
 from uuid import uuid4
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
+from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.search.frontier import (
+    FrontierPoint,
+    dominates,
+    policy_candidate_hash,
+    update_legacy_pareto_front,
+)
 from polisyos.scientist.search.objective import CompositeObjective, ObjectiveValue
 from polisyos.scientist.search.sentinels import extract_sentinel_metadata
 from polisyos.scientist.search.stopping import StoppingCriterion
 
 if TYPE_CHECKING:
-    from polisyos.scientist.search.strategies.transfer import TransferLearningManager
+    from polisyos.core.observability import MetricsRegistry
     from polisyos.scientist.policy_design.objectives import (
         ObjectiveStack,
-        PolicyEvaluationBundle,
         PolicyEvaluationVector,
     )
     from polisyos.scientist.search.pareto_registry import ParetoRegistry
+    from polisyos.scientist.search.strategies.transfer import TransferLearningManager
 
 logger = get_logger(__name__)
+
+_IMPORT_ERRORS = (ImportError, ModuleNotFoundError)
+_SEARCH_DEGRADED_ERRORS = (AttributeError, TypeError, ValidationError, ValueError)
+
+CandidatePayload = dict[str, Any]
+SearchContext = dict[str, Any]
+StageAEvaluator = Callable[[CandidatePayload, SearchContext], tuple[float, bool]]
+StageBEvaluator = Callable[[CandidatePayload, SearchContext], dict[str, Any]]
+
+
+def _search_degraded(
+    *,
+    operation: str,
+    reason: str,
+    exc: BaseException,
+    details: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return emit_degraded_path(
+        component="search.controller",
+        operation=operation,
+        reason=reason,
+        exc=exc,
+        details=details,
+        log=logger,
+    )
 
 
 def _as_bool(raw: str | None, default: bool = False) -> bool:
@@ -111,6 +143,14 @@ class BatchCandidateGenerator(CandidateGenerator, Protocol):
         """Generate multiple candidates for parallel Stage B evaluation."""
 
 
+@dataclass(frozen=True)
+class SearchEvaluatorPorts:
+    """Bundle evaluator callables so controller construction does not sprawl."""
+
+    stage_a: StageAEvaluator
+    stage_b: StageBEvaluator
+
+
 @dataclass
 class SearchConfig:
     """Configure candidate generation, objective evaluation, stopping, and warm start."""
@@ -140,11 +180,25 @@ class SearchController:
         self,
         config: SearchConfig,
         candidate_generator: CandidateGenerator,
-        stage_a_evaluator: Callable[[Dict[str, Any], Dict[str, Any]], tuple[float, bool]],
-        stage_b_evaluator: Callable[[Dict[str, Any], Dict[str, Any]], Dict[str, Any]],
-    ):
+        stage_a_evaluator: StageAEvaluator | None = None,
+        stage_b_evaluator: StageBEvaluator | None = None,
+        *,
+        evaluators: SearchEvaluatorPorts | None = None,
+        metrics: MetricsRegistry | None = None,
+    ) -> None:
+        from polisyos.core.observability import get_metrics
+
         self._config = config
         self._generator = candidate_generator
+        if evaluators is not None:
+            if stage_a_evaluator is not None or stage_b_evaluator is not None:
+                raise ValueError(
+                    "Pass either SearchEvaluatorPorts or legacy evaluator arguments, not both"
+                )
+            stage_a_evaluator = evaluators.stage_a
+            stage_b_evaluator = evaluators.stage_b
+        if stage_a_evaluator is None or stage_b_evaluator is None:
+            raise ValueError("SearchController requires Stage A and Stage B evaluators")
         self._stage_a = stage_a_evaluator
         self._stage_b = stage_b_evaluator
 
@@ -153,10 +207,13 @@ class SearchController:
         self._best_objective: float = float("inf")
         self._status = SearchStatus.NOT_STARTED
         self._search_id = ""
+        self._pareto_front: List[Dict[str, Any]] = []
+        self._pareto_points: list[FrontierPoint] = []
 
         self._stage_a_count = 0
         self._stage_b_count = 0
         self._sentinel_evaluations = 0
+        self._metrics = metrics if metrics is not None else get_metrics()
         self._diversity_enabled = _as_bool(
             os.getenv("POLISYOS_SEARCH_DIVERSITY_ENABLED"),
             default=False,
@@ -165,7 +222,12 @@ class SearchController:
         if self._diversity_enabled:
             try:
                 from polisyos.scientist.search.diversity import DiversityTracker
-            except Exception:
+            except _IMPORT_ERRORS as exc:
+                _search_degraded(
+                    operation="initialize_diversity_tracker",
+                    reason="optional_dependency_unavailable",
+                    exc=exc,
+                )
                 self._diversity_enabled = False
             else:
                 self._diversity_tracker = DiversityTracker()
@@ -191,6 +253,7 @@ class SearchController:
         self._status = SearchStatus.RUNNING
         self._config.stopping.reset()
         self._pareto_front: List[Dict[str, Any]] = []
+        self._pareto_points = []
         self._search_id = search_id
 
         logger.info(f"Starting search {search_id}")
@@ -295,10 +358,25 @@ class SearchController:
         if self._diversity_enabled:
             try:
                 from polisyos.scientist.search.diversity import enrich_context_with_diversity
-            except Exception:
+            except _IMPORT_ERRORS as exc:
+                _search_degraded(
+                    operation="enrich_diversity_context",
+                    reason="optional_dependency_unavailable",
+                    exc=exc,
+                    details={"iteration": iteration},
+                )
                 effective_context = context
             else:
-                effective_context = enrich_context_with_diversity(context, self._history)
+                try:
+                    effective_context = enrich_context_with_diversity(context, self._history)
+                except _SEARCH_DEGRADED_ERRORS as exc:
+                    _search_degraded(
+                        operation="enrich_diversity_context",
+                        reason="diversity_context_failed",
+                        exc=exc,
+                        details={"iteration": iteration},
+                    )
+                    effective_context = context
         effective_context = self._build_generation_context(effective_context, iteration=iteration)
 
         # Adaptive batch sizing based on evaluation cost
@@ -311,13 +389,11 @@ class SearchController:
                     batch_size = min(batch_size * 2, 16)
                 elif avg_duration > 30.0:
                     batch_size = max(1, batch_size // 2)
-        can_batch = (
-            batch_size > 1
-            and hasattr(self._generator, "generate_batch")
-            and callable(getattr(self._generator, "generate_batch"))
-        )
-        if can_batch:
-            return getattr(self._generator, "generate_batch")(
+        generate_batch = None
+        if hasattr(self._generator, "generate_batch"):
+            generate_batch = self._generator.generate_batch
+        if batch_size > 1 and callable(generate_batch):
+            return generate_batch(
                 self._history,
                 self._best_candidate,
                 effective_context,
@@ -432,7 +508,13 @@ class SearchController:
             from polisyos.scientist.autotune.execution_plan import (
                 build_execution_plan_generation_context,
             )
-        except Exception:
+        except _IMPORT_ERRORS as exc:
+            _search_degraded(
+                operation="build_generation_context",
+                reason="execution_plan_context_unavailable",
+                exc=exc,
+                details={"iteration": iteration},
+            )
             return enriched
 
         try:
@@ -441,7 +523,13 @@ class SearchController:
                 current_best=self._best_candidate,
                 context=enriched,
             )
-        except Exception:
+        except _SEARCH_DEGRADED_ERRORS as exc:
+            _search_degraded(
+                operation="build_generation_context",
+                reason="execution_plan_context_failed",
+                exc=exc,
+                details={"iteration": iteration},
+            )
             return enriched
 
         if execution_plan_context.get("execution_plan_topology_mutation_payload"):
@@ -489,8 +577,12 @@ class SearchController:
                     }
                     for pattern in lesson_registry.top_patterns(limit=3)
                 ]
-        except Exception:
-            logger.debug("Lesson hint generation failed.", exc_info=True)
+        except (_IMPORT_ERRORS, _SEARCH_DEGRADED_ERRORS) as exc:
+            _search_degraded(
+                operation="build_lesson_hints",
+                reason="lesson_hint_generation_failed",
+                exc=exc,
+            )
         return []
 
     def _resolve_policy_evaluation(
@@ -507,7 +599,12 @@ class SearchController:
                 PolicyEvaluationVector,
             )
             from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-        except Exception:
+        except _IMPORT_ERRORS as exc:
+            _search_degraded(
+                operation="resolve_policy_evaluation",
+                reason="policy_objective_stack_unavailable",
+                exc=exc,
+            )
             return None
 
         raw_vector = stage_b_result.get("policy_evaluation")
@@ -516,13 +613,21 @@ class SearchController:
         if hasattr(raw_vector, "model_dump"):
             try:
                 raw_vector = raw_vector.model_dump(mode="python")
-            except Exception:
-                logger.debug("Failed to normalize policy_evaluation model payload.", exc_info=True)
+            except _SEARCH_DEGRADED_ERRORS as exc:
+                _search_degraded(
+                    operation="resolve_policy_evaluation",
+                    reason="policy_evaluation_normalization_failed",
+                    exc=exc,
+                )
         if isinstance(raw_vector, dict):
             try:
                 return PolicyEvaluationVector.model_validate(raw_vector)
-            except Exception:
-                logger.debug("Failed to parse policy_evaluation payload.", exc_info=True)
+            except _SEARCH_DEGRADED_ERRORS as exc:
+                _search_degraded(
+                    operation="resolve_policy_evaluation",
+                    reason="policy_evaluation_parse_failed",
+                    exc=exc,
+                )
 
         objective_stack = self._config.policy_objective_stack
         if objective_stack is None:
@@ -541,8 +646,12 @@ class SearchController:
                 if hasattr(raw_bundle, "model_dump"):
                     raw_bundle = raw_bundle.model_dump(mode="python")
                 bundle = PolicyEvaluationBundle.model_validate(raw_bundle)
-        except Exception:
-            logger.debug("Failed to parse policy_evaluation_bundle payload.", exc_info=True)
+        except _SEARCH_DEGRADED_ERRORS as exc:
+            _search_degraded(
+                operation="resolve_policy_evaluation",
+                reason="policy_evaluation_bundle_parse_failed",
+                exc=exc,
+            )
             return None
 
         if bundle.candidate is None:
@@ -560,25 +669,42 @@ class SearchController:
                         candidate_payload = candidate_schema
                     if isinstance(candidate_payload, dict):
                         bundle = bundle.model_copy(
-                            update={"candidate": PolicyCandidateSchema.model_validate(candidate_payload)}
+                            update={
+                                "candidate": PolicyCandidateSchema.model_validate(
+                                    candidate_payload
+                                )
+                            }
                         )
-                except Exception:
-                    logger.debug("Failed to parse policy candidate payload.", exc_info=True)
-            if bundle.candidate is None and isinstance(candidate, dict) and "trinity_bundle" in candidate:
+                except _SEARCH_DEGRADED_ERRORS as exc:
+                    _search_degraded(
+                        operation="resolve_policy_evaluation",
+                        reason="policy_candidate_parse_failed",
+                        exc=exc,
+                    )
+            if (
+                bundle.candidate is None
+                and isinstance(candidate, dict)
+                and "trinity_bundle" in candidate
+            ):
                 try:
                     bundle = bundle.model_copy(
                         update={"candidate": PolicyCandidateSchema.model_validate(candidate)}
                     )
-                except Exception:
-                    logger.debug(
-                        "Candidate did not validate as PolicyCandidateSchema.",
-                        exc_info=True,
+                except _SEARCH_DEGRADED_ERRORS as exc:
+                    _search_degraded(
+                        operation="resolve_policy_evaluation",
+                        reason="policy_candidate_validation_failed",
+                        exc=exc,
                     )
 
         try:
             return objective_stack.evaluate(bundle)
-        except Exception:
-            logger.debug("ObjectiveStack evaluation failed.", exc_info=True)
+        except _SEARCH_DEGRADED_ERRORS as exc:
+            _search_degraded(
+                operation="resolve_policy_evaluation",
+                reason="objective_stack_evaluation_failed",
+                exc=exc,
+            )
             return None
 
     def _update_policy_or_legacy_frontier(
@@ -593,7 +719,12 @@ class SearchController:
         if policy_evaluation is not None and registry is not None:
             try:
                 from polisyos.scientist.search.transfer_context import resolve_transfer_context
-            except Exception:
+            except _IMPORT_ERRORS as exc:
+                _search_degraded(
+                    operation="update_frontier",
+                    reason="transfer_context_unavailable",
+                    exc=exc,
+                )
                 transfer_context = None
             else:
                 transfer_context = resolve_transfer_context(candidate=candidate)
@@ -616,7 +747,11 @@ class SearchController:
                     "feedback": dict((stage_b_result or {}).get("feedback", {})),
                 },
                 seed_payload=dict(candidate),
-                task_family=(transfer_context.task_family if transfer_context is not None else None),
+                task_family=(
+                    transfer_context.task_family
+                    if transfer_context is not None
+                    else None
+                ),
                 domain=(transfer_context.domain if transfer_context is not None else None),
                 transfer_context=transfer_context,
             )
@@ -634,16 +769,12 @@ class SearchController:
         stage_b_result: Dict[str, Any],
     ) -> str:
         metadata_hash = str(policy_evaluation.metadata.get("candidate_hash", "")).strip()
-        if metadata_hash:
-            return metadata_hash
         explicit = stage_b_result.get("candidate_hash")
-        if isinstance(explicit, str) and explicit:
-            return explicit
-        try:
-            payload = json.dumps(candidate, sort_keys=True, separators=(",", ":"), default=str)
-        except TypeError:
-            payload = repr(candidate)
-        return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+        return policy_candidate_hash(
+            candidate,
+            metadata_hash=metadata_hash,
+            explicit_hash=explicit if isinstance(explicit, str) else None,
+        )
 
     def _update_pareto_front(
         self,
@@ -651,50 +782,18 @@ class SearchController:
         objectives: List[ObjectiveValue],
     ) -> None:
         """Update the Pareto front with a new candidate if non-dominated."""
-        new_point = {
-            "candidate": candidate,
-            "objectives": [
-                {"name": o.name, "raw_value": o.raw_value, "direction": o.direction.value}
-                for o in objectives
-            ],
-        }
-        new_values = [o.normalized_value for o in objectives]
-
-        # Remove points dominated by new_point
-        surviving: List[Dict[str, Any]] = []
-        for existing in self._pareto_front:
-            existing_values = [o["raw_value"] * (-1 if o["direction"] == "maximize" else 1)
-                               for o in existing["objectives"]]
-            if not self._dominates(new_values, existing_values):
-                surviving.append(existing)
-
-        # Check if new_point is dominated by any survivor
-        is_dominated = any(
-            self._dominates(
-                [o["raw_value"] * (-1 if o["direction"] == "maximize" else 1)
-                 for o in p["objectives"]],
-                new_values,
-            )
-            for p in surviving
+        self._pareto_points = update_legacy_pareto_front(
+            self._pareto_points,
+            candidate=candidate,
+            objectives=objectives,
+            cap=100,
         )
-        if not is_dominated:
-            surviving.append(new_point)
-
-        # Cap at 100 points
-        self._pareto_front = surviving[:100]
+        self._pareto_front = [point.as_payload() for point in self._pareto_points]
 
     @staticmethod
     def _dominates(a: List[float], b: List[float]) -> bool:
         """Return True if *a* dominates *b* (all <= and at least one <)."""
-        if len(a) != len(b):
-            return False
-        at_least_one_better = False
-        for ai, bi in zip(a, b):
-            if ai > bi:
-                return False
-            if ai < bi:
-                at_least_one_better = True
-        return at_least_one_better
+        return dominates(a, b)
 
     def _to_history_dict(self, iteration: SearchIteration) -> Dict[str, Any]:
         """Convert iteration to dict for stopping criteria."""
@@ -720,9 +819,7 @@ class SearchController:
         Returns a list of `PortfolioEvaluationResult`, sorted by objective descending.
         """
 
-        from polisyos.core.observability import get_metrics
         from polisyos.scientist.search.portfolio import (
-            PortfolioCombination,
             PortfolioEvaluationResult,
             PortfolioSearchMode,
             PortfolioSearchSpace,
@@ -773,9 +870,8 @@ class SearchController:
 
         results.sort(key=lambda item: item.objective_value, reverse=True)
 
-        metrics = get_metrics()
         portfolio_id = str(getattr(portfolio, "portfolio_id", "portfolio"))
-        helper = getattr(metrics, "record_portfolio_search", None)
+        helper = getattr(self._metrics, "record_portfolio_search", None)
         if callable(helper):
             helper(
                 portfolio_id=portfolio_id,
@@ -783,10 +879,10 @@ class SearchController:
                 best_objective=(float(results[0].objective_value) if results else None),
             )
         else:
-            counter = getattr(metrics, "portfolio_combinations_evaluated", None)
+            counter = getattr(self._metrics, "portfolio_combinations_evaluated", None)
             if counter is not None and hasattr(counter, "add"):
                 counter.add(len(results), {"portfolio_id": portfolio_id})
-            gauge = getattr(metrics, "portfolio_best_objective", None)
+            gauge = getattr(self._metrics, "portfolio_best_objective", None)
             if results and gauge is not None and hasattr(gauge, "set"):
                 gauge.set(float(results[0].objective_value), {"portfolio_id": portfolio_id})
 

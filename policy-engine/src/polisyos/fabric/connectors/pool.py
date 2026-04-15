@@ -16,6 +16,7 @@ import threading
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from enum import Enum
 from typing import TYPE_CHECKING, Callable, Generic, TypeVar
 from uuid import uuid4
 
@@ -72,6 +73,7 @@ class PooledConnection:
     last_health_check: datetime | None = None
     consecutive_failures: int = 0
     use_count: int = 0
+    closed: bool = False
 
     @property
     def age_seconds(self) -> float:
@@ -146,6 +148,38 @@ class PoolStats:
     created_at: datetime
 
 
+class BackpressureLevel(str, Enum):
+    """Severity level for downstream backpressure signals."""
+
+    NORMAL = "normal"
+    ELEVATED = "elevated"
+    HIGH = "high"
+    PAUSED = "paused"
+
+
+@dataclass(frozen=True)
+class BackpressureSignal:
+    """One downstream pressure signal registered against the pool."""
+
+    source: str
+    level: BackpressureLevel
+    reason: str
+    pause_seconds: float = 0.0
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+@dataclass(frozen=True)
+class PoolBackpressureSnapshot:
+    """Current pool pressure view exposed to upstream pollers."""
+
+    pool_id: str
+    level: BackpressureLevel
+    utilization: float
+    available_slots: int
+    suggested_poll_delay_seconds: float
+    active_signals: tuple[BackpressureSignal, ...] = ()
+
+
 class ConnectionPool(Generic[ConnectorT]):
     """
     Thread-safe connection pool for SourceConnector instances.
@@ -200,11 +234,15 @@ class ConnectionPool(Generic[ConnectorT]):
         # Connection storage
         self._idle: deque[PooledConnection] = deque()
         self._in_use: dict[str, PooledConnection] = {}
+        self._released_session_ids: set[str] = set()
+        self._closed_session_ids: set[str] = set()
 
         # Synchronization primitives
         self._lock = asyncio.Lock()
         self._semaphore = asyncio.Semaphore(self._config.max_size)
         self._closed = False
+        self._backpressure_lock = threading.Lock()
+        self._backpressure_signals: dict[str, BackpressureSignal] = {}
 
         # Statistics
         self._stats_lock = threading.Lock()
@@ -248,9 +286,6 @@ class ConnectionPool(Generic[ConnectorT]):
             PoolExhaustedError: If no connection available within timeout
             PoolClosedError: If pool has been closed
         """
-        if self._closed:
-            raise PoolClosedError(self._pool_id)
-
         if self._circuit_breaker is not None and self._circuit_breaker.is_open():
             from polisyos.fabric.connectors.resilience import CircuitOpenError
 
@@ -280,6 +315,10 @@ class ConnectionPool(Generic[ConnectorT]):
 
         try:
             async with self._lock:
+                if self._closed:
+                    self._semaphore.release()
+                    raise PoolClosedError(self._pool_id)
+
                 # Try to get an idle connection
                 pooled = await self._get_idle_connection()
 
@@ -290,6 +329,7 @@ class ConnectionPool(Generic[ConnectorT]):
                 # Mark as in-use
                 pooled.mark_used()
                 self._in_use[pooled.handle.session_id] = pooled
+                self._released_session_ids.discard(pooled.handle.session_id)
 
                 # Update statistics
                 with self._stats_lock:
@@ -311,6 +351,58 @@ class ConnectionPool(Generic[ConnectorT]):
             self._semaphore.release()
             raise
 
+    async def acquire_with_connector(self) -> tuple["SourceConnector", "ConnectionHandle"]:
+        """Acquire a connection and return both connector instance and handle."""
+        if self._circuit_breaker is not None and self._circuit_breaker.is_open():
+            from polisyos.fabric.connectors.resilience import CircuitOpenError
+
+            opened_at = self._circuit_breaker.opened_at or datetime.now(timezone.utc)
+            raise CircuitOpenError(
+                self._circuit_breaker.circuit_id,
+                opened_at,
+                self._circuit_breaker.config.timeout_seconds,
+            )
+
+        start_time = datetime.now(timezone.utc)
+
+        try:
+            acquired = await asyncio.wait_for(
+                self._semaphore.acquire(),
+                timeout=self._config.acquire_timeout_seconds,
+            )
+            if not acquired:
+                raise PoolExhaustedError(
+                    self._pool_id, self._config.acquire_timeout_seconds
+                )
+        except asyncio.TimeoutError:
+            raise PoolExhaustedError(
+                self._pool_id, self._config.acquire_timeout_seconds
+            )
+
+        try:
+            async with self._lock:
+                if self._closed:
+                    self._semaphore.release()
+                    raise PoolClosedError(self._pool_id)
+
+                pooled = await self._get_idle_connection()
+                if pooled is None:
+                    pooled = await self._create_connection()
+
+                pooled.mark_used()
+                self._in_use[pooled.handle.session_id] = pooled
+                self._released_session_ids.discard(pooled.handle.session_id)
+
+                with self._stats_lock:
+                    self._total_acquires += 1
+                    elapsed = datetime.now(timezone.utc) - start_time
+                    self._acquire_wait_time_total_ms += elapsed.total_seconds() * 1000
+
+                return pooled.connector, pooled.handle
+        except Exception:
+            self._semaphore.release()
+            raise
+
     async def release(self, handle: "ConnectionHandle") -> None:
         """
         Release a connection back to the pool.
@@ -321,30 +413,27 @@ class ConnectionPool(Generic[ConnectorT]):
         Args:
             handle: ConnectionHandle to release
         """
-        if self._closed:
-            async with self._lock:
-                pooled = self._in_use.pop(handle.session_id, None)
-            if pooled is not None:
-                await self._close_connection(pooled)
-                self._semaphore.release()
-            else:
-                await self._close_connection_handle(handle)
-            return
-
         async with self._lock:
             pooled = self._in_use.pop(handle.session_id, None)
 
             if pooled is None:
-                logger.warning(
-                    "Released unknown connection",
-                    pool_id=self._pool_id,
-                    session_id=handle.session_id,
-                )
-                self._semaphore.release()
+                if handle.session_id not in self._released_session_ids:
+                    logger.warning(
+                        "Released unknown connection",
+                        pool_id=self._pool_id,
+                        session_id=handle.session_id,
+                    )
                 return
+
+            self._released_session_ids.add(handle.session_id)
 
             with self._stats_lock:
                 self._total_releases += 1
+
+            if self._closed:
+                await self._close_connection(pooled)
+                self._semaphore.release()
+                return
 
             # Check if connection should be retired
             if self._should_retire(pooled):
@@ -506,6 +595,10 @@ class ConnectionPool(Generic[ConnectorT]):
 
     async def _close_connection(self, pooled: PooledConnection) -> None:
         """Close a pooled connection using its connector instance."""
+        if pooled.closed or pooled.handle.session_id in self._closed_session_ids:
+            return
+        pooled.closed = True
+        self._closed_session_ids.add(pooled.handle.session_id)
         try:
             await pooled.connector.disconnect(pooled.handle)
             with self._stats_lock:
@@ -520,6 +613,9 @@ class ConnectionPool(Generic[ConnectorT]):
 
     async def _close_connection_handle(self, handle: "ConnectionHandle") -> None:
         """Close a connection handle using a fresh connector instance."""
+        if handle.session_id in self._closed_session_ids:
+            return
+        self._closed_session_ids.add(handle.session_id)
         connector = self._connector_factory()
 
         try:
@@ -540,18 +636,27 @@ class ConnectionPool(Generic[ConnectorT]):
 
         After calling this, the pool cannot be used.
         """
-        self._closed = True
-
         async with self._lock:
-            # Close idle connections
-            while self._idle:
-                pooled = self._idle.popleft()
-                await self._close_connection(pooled)
+            if self._closed:
+                return
+            self._closed = True
+            idle_to_close: list[PooledConnection] = []
+            in_use_to_close: list[PooledConnection] = []
 
-            # Close in-use connections
+            while self._idle:
+                idle_to_close.append(self._idle.popleft())
+
             for pooled in list(self._in_use.values()):
-                await self._close_connection(pooled)
+                in_use_to_close.append(pooled)
+                self._released_session_ids.add(pooled.handle.session_id)
             self._in_use.clear()
+
+        for pooled in idle_to_close:
+            await self._close_connection(pooled)
+
+        for pooled in in_use_to_close:
+            await self._close_connection(pooled)
+            self._semaphore.release()
 
         logger.info(
             "Connection pool closed",
@@ -592,6 +697,73 @@ class ConnectionPool(Generic[ConnectorT]):
         handle = await self.acquire()
         return self._ConnectionContext(self, handle)
 
+    def register_backpressure(
+        self,
+        *,
+        source: str,
+        level: BackpressureLevel,
+        reason: str,
+        pause_seconds: float = 0.0,
+    ) -> None:
+        """Register or replace one downstream backpressure signal."""
+        with self._backpressure_lock:
+            self._backpressure_signals[source] = BackpressureSignal(
+                source=source,
+                level=level,
+                reason=reason,
+                pause_seconds=max(0.0, float(pause_seconds)),
+            )
+
+    def clear_backpressure(self, *, source: str) -> None:
+        """Clear one downstream backpressure signal if present."""
+        with self._backpressure_lock:
+            self._backpressure_signals.pop(source, None)
+
+    def backpressure_snapshot(self) -> PoolBackpressureSnapshot:
+        """Expose a derived pool pressure level for upstream pollers."""
+        with self._backpressure_lock:
+            signals = tuple(self._backpressure_signals.values())
+
+        available_slots = max(0, self._config.max_size - len(self._in_use))
+        utilization = (
+            min(1.0, len(self._in_use) / self._config.max_size)
+            if self._config.max_size > 0
+            else 0.0
+        )
+        level = BackpressureLevel.NORMAL
+        suggested_delay = 0.0
+        if signals:
+            level = max(
+                signals,
+                key=lambda signal: _BACKPRESSURE_ORDER[signal.level],
+            ).level
+            suggested_delay = max(signal.pause_seconds for signal in signals)
+
+        if level == BackpressureLevel.NORMAL:
+            if utilization >= 0.95:
+                level = BackpressureLevel.PAUSED
+            elif utilization >= 0.85:
+                level = BackpressureLevel.HIGH
+            elif utilization >= 0.70:
+                level = BackpressureLevel.ELEVATED
+
+        if suggested_delay <= 0.0:
+            if level == BackpressureLevel.ELEVATED:
+                suggested_delay = 0.01
+            elif level == BackpressureLevel.HIGH:
+                suggested_delay = 0.05
+            elif level == BackpressureLevel.PAUSED:
+                suggested_delay = 0.10
+
+        return PoolBackpressureSnapshot(
+            pool_id=self._pool_id,
+            level=level,
+            utilization=utilization,
+            available_slots=available_slots,
+            suggested_poll_delay_seconds=suggested_delay,
+            active_signals=signals,
+        )
+
     def get_stats(self) -> PoolStats:
         """Get current pool statistics."""
         with self._stats_lock:
@@ -610,3 +782,11 @@ class ConnectionPool(Generic[ConnectorT]):
                 acquire_wait_time_total_ms=self._acquire_wait_time_total_ms,
                 created_at=self._created_at,
             )
+
+
+_BACKPRESSURE_ORDER = {
+    BackpressureLevel.NORMAL: 0,
+    BackpressureLevel.ELEVATED: 1,
+    BackpressureLevel.HIGH: 2,
+    BackpressureLevel.PAUSED: 3,
+}

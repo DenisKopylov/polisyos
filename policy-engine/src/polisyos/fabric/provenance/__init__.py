@@ -16,6 +16,18 @@ from polisyos.fabric.provenance.export_provo import (
     export_to_provo_jsonld,
     export_to_provo_nquads,
 )
+from polisyos.fabric.provenance.lineage import (
+    FabricLineageTracker,
+    ImpactAnalysis,
+    LineageNodeSnapshot,
+    LineageTrace,
+    export_openlineage_json,
+    export_visualization_graph,
+    impact_analysis,
+    trace_claim_origin,
+    trace_column_lineage,
+    trace_value_origin,
+)
 
 __all__ = [
     "ActivityType",
@@ -28,6 +40,16 @@ __all__ = [
     "ProvenanceEdge",
     "ProvenanceEntity",
     "RelationType",
+    "FabricLineageTracker",
+    "LineageNodeSnapshot",
+    "LineageTrace",
+    "ImpactAnalysis",
+    "trace_value_origin",
+    "trace_claim_origin",
+    "trace_column_lineage",
+    "impact_analysis",
+    "export_openlineage_json",
+    "export_visualization_graph",
     "export_to_prov_json",
     "export_to_provo_jsonld",
     "export_to_provo_nquads",

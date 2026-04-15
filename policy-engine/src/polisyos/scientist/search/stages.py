@@ -7,9 +7,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
-from polisyos.common.logger import get_logger
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -428,7 +428,10 @@ class CorrelationTracker:
                     severity="warning",
                     message="Cheap-to-expensive correlation dropped below warning threshold.",
                     metrics={"spearman_correlation": spearman},
-                    recommended_action="Disable VOI and route survivors sequentially through medium fidelity.",
+                    recommended_action=(
+                        "Disable VOI and route survivors sequentially through "
+                        "medium fidelity."
+                    ),
                 )
             )
 
@@ -451,7 +454,9 @@ class CorrelationTracker:
                     severity="warning",
                     message="Sentinel pass rate dropped below the configured floor.",
                     metrics={"sentinel_pass_rate": sentinel_pass_rate},
-                    recommended_action="Inject calibration sentinels and inspect recent regressions.",
+                    recommended_action=(
+                        "Inject calibration sentinels and inspect recent regressions."
+                    ),
                 )
             )
 
@@ -688,8 +693,15 @@ class CorrelationTracker:
         def rank(values: List[float]) -> List[float]:
             sorted_idx = sorted(range(n), key=lambda i: values[i])
             ranks = [0.0] * n
-            for rank_val, idx in enumerate(sorted_idx):
-                ranks[idx] = rank_val + 1
+            start = 0
+            while start < n:
+                end = start + 1
+                while end < n and values[sorted_idx[end]] == values[sorted_idx[start]]:
+                    end += 1
+                avg_rank = (start + 1 + end) / 2.0
+                for idx in sorted_idx[start:end]:
+                    ranks[idx] = avg_rank
+                start = end
             return ranks
 
         rx = rank(x)

@@ -18,7 +18,9 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any
+
+from pydantic import ValidationError
 
 try:
     import ray
@@ -27,21 +29,23 @@ try:
 except ImportError:
     _HAS_RAY = False
 
+from polisyos.scientist.engine.runner.distributed_tier import (
+    merge_and_checkpoint_tier,
+    seed_runner_cache,
+)
 from polisyos.scientist.engine.runner.protocol import RunnerHealth
 from polisyos.scientist.engine.runner.serialization import (
     deserialize_state,
     serialize_context_meta,
     serialize_state,
 )
-
-if TYPE_CHECKING:
-    from polisyos.scientist.engine.context import ExecutionContext
-    from polisyos.scientist.engine.executor import WorkflowExecutionResult
-    from polisyos.scientist.engine.registry import NodeRegistry
-    from polisyos.scientist.engine.state import ExperimentState
-    from polisyos.scientist.engine.workflow_spec import WorkflowSpec
+from polisyos.scientist.engine.state_merge import MergeConflictPolicy
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 _logger = logging.getLogger(__name__)
+_TRACE_IMPORT_ERRORS = (ImportError, ModuleNotFoundError, AttributeError)
+_TRACE_RUNTIME_ERRORS = (RuntimeError, TypeError, ValueError)
+_RAY_PROBE_ERRORS = (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError)
 
 
 # ---------------------------------------------------------------------------
@@ -79,6 +83,15 @@ if _HAS_RAY:
         }
         return run_node_in_worker_sync(payload)
 
+    @ray.remote
+    def merge_checkpoint_tier_task(payload: dict[str, Any]) -> dict[str, Any]:
+        """Merge and checkpoint one tier as a Ray remote task."""
+        from polisyos.scientist.engine.runner._activity_worker import (
+            run_merge_checkpoint_tier_in_worker_sync,
+        )
+
+        return run_merge_checkpoint_tier_in_worker_sync(payload)
+
 
 # ---------------------------------------------------------------------------
 # Runner class
@@ -98,6 +111,7 @@ class RayWorkflowRunner:
         address: str = "auto",
         namespace: str = "polisyos",
         max_parallelism: int = 4,
+        merge_conflict_policy: MergeConflictPolicy = MergeConflictPolicy.ERROR,
     ) -> None:
         if not _HAS_RAY:
             raise ImportError(
@@ -107,6 +121,7 @@ class RayWorkflowRunner:
         self._address = address
         self._namespace = namespace
         self._max_parallelism = max_parallelism
+        self._merge_conflict_policy = merge_conflict_policy
         self._initialised = False
 
     def _ensure_init(self) -> None:
@@ -136,7 +151,7 @@ class RayWorkflowRunner:
                 worker_count=cpu_count,
                 message=f"cluster CPUs={cpu_count}",
             )
-        except Exception as exc:  # noqa: BLE001
+        except _RAY_PROBE_ERRORS as exc:
             return RunnerHealth(
                 backend="ray",
                 healthy=False,
@@ -151,72 +166,139 @@ class RayWorkflowRunner:
         registry: Any,  # NodeRegistry
         *,
         checkpoint_hook: Any | None = None,
+        checkpoint_cache_seed_refs: Any | None = None,
         max_parallelism: int | None = None,
     ) -> Any:  # WorkflowExecutionResult
         """Execute the workflow by dispatching nodes to Ray workers."""
         self._ensure_init()
-
+        from polisyos.scientist.engine.checkpoint import (
+            compute_workflow_fingerprint,
+            serialize_checkpoint_hook_runtime_metadata,
+        )
         from polisyos.scientist.engine.topo import topo_sort_tiers
-        from polisyos.scientist.engine.workflow_spec import NodeInvocation
 
-        ctx_meta = serialize_context_meta(ctx)
+        ctx_meta = serialize_context_meta(
+            ctx,
+            workflow_id=workflow.workflow_id,
+            runner_backend="ray",
+        )
+        if ctx.metrics is not None:
+            ctx.metrics.record_trace_correlation(
+                runner_backend="ray",
+                workflow_id=workflow.workflow_id,
+                run_id=str(ctx_meta.get("run_id") or state.run_id),
+                trace_id=ctx_meta.get("trace_id"),
+                span_id=ctx_meta.get("span_id"),
+        )
         state_bytes = serialize_state(state)
+        cache = seed_runner_cache(
+            store=ctx.store,
+            run_id=state.run_id,
+            checkpoint_cache_seed_refs=list(checkpoint_cache_seed_refs or []),
+            logger=_logger,
+        )
+        effective_max_parallelism = max(
+            1,
+            int(max_parallelism or self._max_parallelism or 1),
+        )
 
         invocations = {inv.alias: inv for inv in workflow.nodes}
         tiers = topo_sort_tiers(invocations)
+        workflow_fingerprint = compute_workflow_fingerprint(workflow)
+        checkpoint_hook_meta = serialize_checkpoint_hook_runtime_metadata(checkpoint_hook)
+        completed_nodes: list[str] = []
 
         for tier in tiers:
-            futures = []
-            for alias in tier:
-                inv = invocations[alias]
-                # Inject W3C TraceContext into carrier for cross-process propagation
-                carrier: dict[str, str] = {}
-                try:
-                    from polisyos.core.observability.propagation import inject_headers
-                    inject_headers(carrier)
-                except Exception:  # noqa: BLE001
-                    pass
+            tier_state_bytes = state_bytes
+            tier_results: dict[str, bytes] = {}
+            for offset in range(0, len(tier), effective_max_parallelism):
+                futures = []
+                chunk_aliases: list[str] = []
+                for alias in tier[offset : offset + effective_max_parallelism]:
+                    inv = invocations[alias]
+                    carrier = _inject_trace_carrier()
 
-                task_ref = execute_node_task
-                if inv.timeout_s is not None:
-                    task_ref = execute_node_task.options(
-                        timeout=inv.timeout_s,
+                    task_ref = execute_node_task
+                    if inv.timeout_s is not None:
+                        task_ref = execute_node_task.options(
+                            timeout=inv.timeout_s,
+                        )
+                    future = task_ref.remote(
+                        node_id=str(inv.node_id),
+                        alias=alias,
+                        params=inv.params or {},
+                        state_bytes=tier_state_bytes,
+                        trace_carrier=carrier,
+                        timeout_s=inv.timeout_s,
+                        context_meta=ctx_meta,
                     )
-                future = task_ref.remote(
-                    node_id=str(inv.node_id),
-                    alias=alias,
-                    params=inv.params or {},
-                    state_bytes=state_bytes,
-                    trace_carrier=carrier,
-                    timeout_s=inv.timeout_s,
-                    context_meta=ctx_meta,
-                )
-                futures.append(future)
+                    futures.append(future)
+                    chunk_aliases.append(alias)
 
-            # Wait for all nodes in this tier with error classification
-            try:
+                # Wait for all nodes in this chunk with error classification.
                 results = await asyncio.gather(
-                    *[asyncio.wrap_future(f.future()) for f in futures]
+                    *[asyncio.wrap_future(f.future()) for f in futures],
+                    return_exceptions=True,
                 )
-            except Exception as exc:  # noqa: BLE001
-                from polisyos.scientist.engine.runner.error_classifier import (
-                    classify_remote_error,
-                    RemoteErrorCategory,
-                )
+                for alias, item in zip(chunk_aliases, results, strict=False):
+                    if not isinstance(item, BaseException):
+                        tier_results[alias] = item
+                exceptions = [
+                    item for item in results if isinstance(item, BaseException)
+                ]
+                for exc in exceptions:
+                    from polisyos.scientist.engine.runner.error_classifier import (
+                        classify_remote_error,
+                    )
 
-                category = classify_remote_error(exc)
-                _logger.error(
-                    "Ray tier execution failed (%s): %s", category.value, exc
-                )
-                if category is RemoteErrorCategory.FATAL:
-                    raise
-                raise
+                    category = classify_remote_error(exc)
+                    _logger.error(
+                        "Ray tier execution failed (%s): %s", category.value, exc
+                    )
+                if exceptions:
+                    raise exceptions[0]
 
             # Merge parallel node results into unified state
-            if results:
-                from polisyos.scientist.engine.runner.state_merge import merge_tier_states
-
-                state_bytes = merge_tier_states(state_bytes, list(results))
+            if tier_results:
+                if checkpoint_hook is not None and checkpoint_hook_meta is not None:
+                    merge_result = await asyncio.wrap_future(
+                        merge_checkpoint_tier_task.remote(
+                            {
+                                "workflow_spec_json": workflow.model_dump(mode="json"),
+                                "tier_aliases": list(tier),
+                                "result_bytes_by_alias": tier_results,
+                                "base_state_bytes": tier_state_bytes,
+                                "context_meta": ctx_meta,
+                                "workflow_fingerprint": workflow_fingerprint,
+                                "completed_nodes": completed_nodes,
+                                "merge_conflict_policy": self._merge_conflict_policy.value,
+                                "checkpoint_hook_meta": checkpoint_hook_meta,
+                                "trace_carrier": _inject_trace_carrier(),
+                            }
+                        ).future()
+                    )
+                    state_bytes = merge_result["state_bytes"]
+                    completed_nodes = list(
+                        merge_result.get("completed_nodes") or completed_nodes
+                    )
+                    checkpoint_hook_meta = merge_result.get("checkpoint_hook_meta")
+                else:
+                    tier_result = merge_and_checkpoint_tier(
+                        workflow=workflow,
+                        tier_aliases=tier,
+                        invocations=invocations,
+                        result_bytes_by_alias=tier_results,
+                        base_state_bytes=tier_state_bytes,
+                        registry=registry,
+                        checkpoint_hook=checkpoint_hook,
+                        cache=cache,
+                        completed_nodes=completed_nodes,
+                        workflow_fingerprint=workflow_fingerprint,
+                        conflict_policy=self._merge_conflict_policy,
+                        logger=_logger,
+                    )
+                    state_bytes = tier_result.state_bytes
+                    completed_nodes = tier_result.completed_nodes
 
         final_state = deserialize_state(state_bytes)
 
@@ -234,3 +316,23 @@ class RayWorkflowRunner:
             nodes=[],
         )
         return WorkflowExecutionResult(state=final_state, report=report)
+
+
+def _inject_trace_carrier() -> dict[str, str]:
+    carrier: dict[str, str] = {}
+    try:
+        from polisyos.core.observability.propagation import inject_headers
+
+        inject_headers(carrier)
+    except _TRACE_IMPORT_ERRORS:
+        return carrier
+    except _TRACE_RUNTIME_ERRORS as exc:
+        emit_degraded_path(
+            component="engine.runner.ray",
+            operation="inject_trace_carrier",
+            reason="trace_carrier_injection_failed",
+            exc=exc,
+            log=_logger,
+        )
+        return carrier
+    return carrier

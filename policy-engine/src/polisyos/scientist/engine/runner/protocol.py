@@ -48,6 +48,7 @@ class WorkflowRunnerBackend(Protocol):
         registry: Any,  # NodeRegistry
         *,
         checkpoint_hook: Any | None = None,  # CheckpointHook
+        checkpoint_cache_seed_refs: Any | None = None,  # list[ArtifactRef]
         max_parallelism: int = 4,
     ) -> Any:  # WorkflowExecutionResult  # pragma: no cover - protocol
         ...

@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import logging
 from decimal import Decimal
+from unittest.mock import patch
+
+import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -225,3 +228,30 @@ def test_bind_foundry_inputs_node_carries_shape_warning_for_survey_snapshots(tmp
     bindings = FoundryInputBindings.model_validate(payload)
     assert "snapshot.data_shape=survey_repeated_cross_section" in bindings.notes
     assert any("panel SCM/DiD/econometrics" in note for note in bindings.notes if note.startswith("warning:"))
+
+
+def test_bind_foundry_inputs_build_assertion_is_not_swallowed(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    ctx, registry_bundle_ref = _setup_ctx(store)
+    data_snapshot_ref = _put_data_snapshot(store)
+    trinity_ref = _put_trinity_bundle(
+        store,
+        registry_bundle_ref=registry_bundle_ref,
+        data_snapshot_ref=str(data_snapshot_ref.artifact_id),
+    )
+
+    state = ExperimentState(
+        run_id="R_bind_assert",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle_ref,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+    )
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.data.bind_foundry_inputs.build_input_bindings",
+        side_effect=AssertionError("binding invariant"),
+    ):
+        with pytest.raises(AssertionError, match="binding invariant"):
+            BindFoundryInputsNode().execute(ctx, state)

@@ -1,7 +1,9 @@
 """Persist durable control jobs, worker leases, and outbox events in SQLite/PostgreSQL."""
 from __future__ import annotations
 
+import importlib
 import json
+import os
 import sqlite3
 import threading
 import uuid
@@ -9,7 +11,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterator, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -42,6 +44,38 @@ def _job_event_topic(event_type: str) -> str:
     if normalized.startswith("job_"):
         normalized = normalized[4:]
     return f"control.job.{normalized}"
+
+
+_CONTROL_JOB_KINDS = frozenset({"workflow_run", "natural_language_run", "lex_pipeline"})
+_CONTROL_JOB_STATES = frozenset({"pending", "running", "completed", "failed"})
+_EXECUTION_PROFILES = frozenset({"dev", "research", "governed", "production"})
+
+
+def _coerce_control_job_kind(value: Any) -> ControlJobKind:
+    normalized = str(value or "").strip()
+    if normalized not in _CONTROL_JOB_KINDS:
+        raise ValueError(f"Unsupported control job kind: {normalized!r}")
+    return cast(ControlJobKind, normalized)
+
+
+def _coerce_control_job_state(value: Any) -> ControlJobState:
+    normalized = str(value or "").strip()
+    if normalized not in _CONTROL_JOB_STATES:
+        raise ValueError(f"Unsupported control job state: {normalized!r}")
+    return cast(ControlJobState, normalized)
+
+
+def _coerce_execution_profile(value: Any) -> ExecutionProfile:
+    normalized = str(value or "").strip()
+    if normalized not in _EXECUTION_PROFILES:
+        raise ValueError(f"Unsupported execution profile: {normalized!r}")
+    return cast(ExecutionProfile, normalized)
+
+
+def _coerce_optional_execution_profile(value: Any) -> ExecutionProfile | None:
+    if value is None:
+        return None
+    return _coerce_execution_profile(value)
 
 
 @dataclass(frozen=True)
@@ -124,6 +158,21 @@ class ControlOutboxRecord:
     error_message: str | None
 
 
+@dataclass(frozen=True)
+class ControlDeadLetterRecord:
+    """Represent one terminally failed control job requiring operator review."""
+
+    job_id: str
+    kind: ControlJobKind
+    run_id: str | None
+    pipeline_id: str | None
+    attempt: int
+    error_message: str
+    failed_at: datetime
+    acknowledged_at: datetime | None
+    acknowledged_by: str | None
+
+
 class ControlPlaneStore:
     """Store control jobs and leases with a backend-specific SQL schema.
 
@@ -141,14 +190,13 @@ class ControlPlaneStore:
         self.backend = backend.strip().lower()
         self._sqlite_path = Path(sqlite_path)
         self._postgres_dsn = postgres_dsn
-        self._lock = threading.Lock()
-        self._sqlite_conn: sqlite3.Connection | None = None
+        self._lock = threading.RLock()
+        self._sqlite_timeout_seconds = max(
+            float(os.getenv("POLISYOS_CONTROL_SQLITE_TIMEOUT_SECONDS", "0.5")),
+            0.05,
+        )
         if self.backend == "sqlite":
             self._sqlite_path.parent.mkdir(parents=True, exist_ok=True)
-            self._sqlite_conn = sqlite3.connect(str(self._sqlite_path), check_same_thread=False)
-            self._sqlite_conn.row_factory = sqlite3.Row
-            self._sqlite_conn.execute("PRAGMA journal_mode=WAL")
-            self._sqlite_conn.execute("PRAGMA foreign_keys=ON")
             self._ensure_sqlite_schema()
         elif self.backend == "postgres":
             if not self._postgres_dsn:
@@ -173,7 +221,7 @@ class ControlPlaneStore:
     ) -> ControlJobRecord:
         """Insert a pending job, initialize progress/event rows, and enqueue a created outbox event."""
         created_at = _utc_now()
-        progress = {}
+        progress: dict[str, Any] = {}
         sql = """
             INSERT INTO control_jobs (
                 job_id, job_kind, state, run_id, pipeline_id,
@@ -434,6 +482,7 @@ class ControlPlaneStore:
         )
         record = self.get_job(job_id)
         if record is not None:
+            self._enqueue_dead_letter_job(record=record, failed_at=now)
             self._emit_job_outbox_event(
                 record=record,
                 event_type="job_failed",
@@ -443,6 +492,45 @@ class ControlPlaneStore:
                     "progress": dict(progress or record.progress),
                 },
             )
+
+    def list_dead_letter_jobs(
+        self,
+        *,
+        acknowledged: bool | None = False,
+        limit: int = 100,
+    ) -> list[ControlDeadLetterRecord]:
+        """List terminal failed jobs awaiting or already carrying operator acknowledgement."""
+        limit = max(1, min(int(limit), 500))
+        where = ""
+        params: tuple[Any, ...] = (limit,)
+        if acknowledged is True:
+            where = "WHERE acknowledged_at IS NOT NULL"
+        elif acknowledged is False:
+            where = "WHERE acknowledged_at IS NULL"
+        rows = self._fetchall(
+            f"""
+            SELECT job_id, job_kind, run_id, pipeline_id, attempt, error_message,
+                   failed_at, acknowledged_at, acknowledged_by
+            FROM control_dead_letter_jobs
+            {where}
+            ORDER BY failed_at ASC
+            LIMIT ?
+            """,
+            params,
+        )
+        return [self._row_to_dead_letter_record(row) for row in rows]
+
+    def acknowledge_dead_letter_job(self, *, job_id: str, acknowledged_by: str) -> None:
+        """Mark a dead-lettered job as operator-acknowledged."""
+        now = _utc_now()
+        self._execute(
+            """
+            UPDATE control_dead_letter_jobs
+            SET acknowledged_at = ?, acknowledged_by = ?
+            WHERE job_id = ?
+            """,
+            (_iso(now), acknowledged_by[:256], job_id),
+        )
 
     def update_manifest_ref(self, *, job_id: str, capability_manifest_ref: str) -> None:
         """Update the persisted capability-manifest ref for an existing job."""
@@ -740,12 +828,12 @@ class ControlPlaneStore:
         policy_flags_json = row["policy_flags_json"] if "policy_flags_json" in row.keys() else "{}"
         return ControlJobRecord(
             job_id=str(row["job_id"]),
-            kind=str(row["job_kind"]),  # type: ignore[arg-type]
-            state=str(row["state"]),  # type: ignore[arg-type]
+            kind=_coerce_control_job_kind(row["job_kind"]),
+            state=_coerce_control_job_state(row["state"]),
             run_id=row["run_id"],
             pipeline_id=row["pipeline_id"],
-            requested_execution_profile=row["requested_profile"],
-            effective_execution_profile=row["effective_profile"],
+            requested_execution_profile=_coerce_optional_execution_profile(row["requested_profile"]),
+            effective_execution_profile=_coerce_execution_profile(row["effective_profile"]),
             policy_flags=json.loads(policy_flags_json or "{}"),
             capability_manifest_ref=row["capability_manifest_ref"],
             payload_ref=row["payload_ref"],
@@ -790,6 +878,71 @@ class ControlPlaneStore:
             error_message=row["error_message"],
         )
 
+    def _row_to_dead_letter_record(self, row: Any) -> ControlDeadLetterRecord:
+        return ControlDeadLetterRecord(
+            job_id=str(row["job_id"]),
+            kind=_coerce_control_job_kind(row["job_kind"]),
+            run_id=row["run_id"],
+            pipeline_id=row["pipeline_id"],
+            attempt=int(row["attempt"] or 0),
+            error_message=str(row["error_message"] or ""),
+            failed_at=_parse_dt(row["failed_at"]) or _utc_now(),
+            acknowledged_at=_parse_dt(row["acknowledged_at"]),
+            acknowledged_by=row["acknowledged_by"],
+        )
+
+    def _enqueue_dead_letter_job(
+        self,
+        *,
+        record: ControlJobRecord,
+        failed_at: datetime,
+    ) -> None:
+        params = (
+            record.job_id,
+            record.kind,
+            record.run_id,
+            record.pipeline_id,
+            record.attempt,
+            (record.error_message or "control job failed")[:2000],
+            _iso(failed_at),
+        )
+        if self.backend == "sqlite":
+            self._execute(
+                """
+                INSERT INTO control_dead_letter_jobs (
+                    job_id, job_kind, run_id, pipeline_id, attempt, error_message, failed_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(job_id) DO UPDATE SET
+                    job_kind = excluded.job_kind,
+                    run_id = excluded.run_id,
+                    pipeline_id = excluded.pipeline_id,
+                    attempt = excluded.attempt,
+                    error_message = excluded.error_message,
+                    failed_at = excluded.failed_at,
+                    acknowledged_at = NULL,
+                    acknowledged_by = NULL
+                """,
+                params,
+            )
+            return
+        self._execute(
+            """
+            INSERT INTO control_dead_letter_jobs (
+                job_id, job_kind, run_id, pipeline_id, attempt, error_message, failed_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (job_id) DO UPDATE SET
+                job_kind = EXCLUDED.job_kind,
+                run_id = EXCLUDED.run_id,
+                pipeline_id = EXCLUDED.pipeline_id,
+                attempt = EXCLUDED.attempt,
+                error_message = EXCLUDED.error_message,
+                failed_at = EXCLUDED.failed_at,
+                acknowledged_at = NULL,
+                acknowledged_by = NULL
+            """,
+            params,
+        )
+
     def _emit_job_outbox_event(
         self,
         *,
@@ -816,43 +969,43 @@ class ControlPlaneStore:
         )
 
     def _lease_next_sqlite(self, *, worker_id: str, lease_seconds: int) -> ControlJobRecord | None:
-        assert self._sqlite_conn is not None
         now = _utc_now()
         lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
         with self._lock:
-            self._sqlite_conn.execute("BEGIN IMMEDIATE")
-            try:
-                row = self._sqlite_conn.execute(
-                    """
-                    SELECT job_id
-                    FROM control_jobs
-                    WHERE state = 'pending'
-                       OR (state = 'running' AND lease_expires_at IS NOT NULL AND lease_expires_at <= ?)
-                    ORDER BY created_at ASC
-                    LIMIT 1
-                    """,
-                    (_iso(now),),
-                ).fetchone()
-                if row is None:
-                    self._sqlite_conn.execute("COMMIT")
-                    return None
-                job_id = str(row["job_id"])
-                self._sqlite_conn.execute(
-                    """
-                    UPDATE control_jobs
-                    SET state = 'running',
-                        started_at = COALESCE(started_at, ?),
-                        lease_owner = ?,
-                        lease_expires_at = ?,
-                        attempt = attempt + 1
-                    WHERE job_id = ?
-                    """,
-                    (_iso(now), worker_id, _iso(lease_expires_at), job_id),
-                )
-                self._sqlite_conn.execute("COMMIT")
-            except Exception:
-                self._sqlite_conn.execute("ROLLBACK")
-                raise
+            with self._sqlite_connection() as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                try:
+                    row = conn.execute(
+                        """
+                        SELECT job_id
+                        FROM control_jobs
+                        WHERE state = 'pending'
+                           OR (state = 'running' AND lease_expires_at IS NOT NULL AND lease_expires_at <= ?)
+                        ORDER BY created_at ASC
+                        LIMIT 1
+                        """,
+                        (_iso(now),),
+                    ).fetchone()
+                    if row is None:
+                        conn.execute("COMMIT")
+                        return None
+                    job_id = str(row["job_id"])
+                    conn.execute(
+                        """
+                        UPDATE control_jobs
+                        SET state = 'running',
+                            started_at = COALESCE(started_at, ?),
+                            lease_owner = ?,
+                            lease_expires_at = ?,
+                            attempt = attempt + 1
+                        WHERE job_id = ?
+                        """,
+                        (_iso(now), worker_id, _iso(lease_expires_at), job_id),
+                    )
+                    conn.execute("COMMIT")
+                except Exception:
+                    conn.execute("ROLLBACK")
+                    raise
         return self.get_job(job_id)
 
     def _lease_next_postgres(self, *, worker_id: str, lease_seconds: int) -> ControlJobRecord | None:
@@ -889,79 +1042,98 @@ class ControlPlaneStore:
         return self.get_job(str(job_id))
 
     def _ensure_sqlite_schema(self) -> None:
-        assert self._sqlite_conn is not None
-        self._sqlite_conn.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS control_jobs (
-                job_id TEXT PRIMARY KEY,
-                job_kind TEXT NOT NULL,
-                state TEXT NOT NULL,
-                run_id TEXT,
-                pipeline_id TEXT,
-                requested_profile TEXT,
-                effective_profile TEXT NOT NULL,
-                policy_flags_json TEXT NOT NULL,
-                capability_manifest_ref TEXT,
-                payload_ref TEXT,
-                submitted_by TEXT,
-                created_at TEXT NOT NULL,
-                started_at TEXT,
-                finished_at TEXT,
-                lease_owner TEXT,
-                lease_expires_at TEXT,
-                attempt INTEGER NOT NULL DEFAULT 0,
-                error_message TEXT
-            );
-            CREATE TABLE IF NOT EXISTS control_job_events (
-                event_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                job_id TEXT NOT NULL,
-                event_type TEXT NOT NULL,
-                payload_json TEXT NOT NULL,
-                created_at TEXT NOT NULL
-            );
-            CREATE TABLE IF NOT EXISTS control_job_progress (
-                job_id TEXT PRIMARY KEY,
-                progress_json TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            );
-            CREATE TABLE IF NOT EXISTS control_worker_leases (
-                worker_id TEXT PRIMARY KEY,
-                state TEXT NOT NULL,
-                backend TEXT,
-                active_job_id TEXT,
-                metadata_json TEXT NOT NULL,
-                heartbeat_at TEXT NOT NULL,
-                lease_expires_at TEXT NOT NULL,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            );
-            CREATE TABLE IF NOT EXISTS control_outbox_events (
-                event_id TEXT PRIMARY KEY,
-                topic TEXT NOT NULL,
-                event_key TEXT,
-                state TEXT NOT NULL,
-                job_id TEXT,
-                run_id TEXT,
-                payload_json TEXT NOT NULL,
-                created_at TEXT NOT NULL,
-                published_at TEXT,
-                attempt INTEGER NOT NULL DEFAULT 0,
-                error_message TEXT
-            );
-            CREATE INDEX IF NOT EXISTS idx_control_jobs_state_created_at
-                ON control_jobs(state, created_at);
-            CREATE INDEX IF NOT EXISTS idx_control_jobs_pipeline_id
-                ON control_jobs(pipeline_id);
-            CREATE INDEX IF NOT EXISTS idx_control_worker_leases_expires_at
-                ON control_worker_leases(lease_expires_at);
-            CREATE INDEX IF NOT EXISTS idx_control_outbox_state_created_at
-                ON control_outbox_events(state, created_at);
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_control_outbox_topic_event_key
-                ON control_outbox_events(topic, event_key)
-                WHERE event_key IS NOT NULL;
-            """
-        )
-        self._sqlite_conn.commit()
+        with self._lock:
+            with self._sqlite_connection() as conn:
+                conn.executescript(
+                    """
+                    PRAGMA journal_mode=WAL;
+                    PRAGMA synchronous=NORMAL;
+                    PRAGMA temp_store=MEMORY;
+                    PRAGMA busy_timeout=5000;
+                    PRAGMA foreign_keys=ON;
+                    CREATE TABLE IF NOT EXISTS control_jobs (
+                        job_id TEXT PRIMARY KEY,
+                        job_kind TEXT NOT NULL,
+                        state TEXT NOT NULL,
+                        run_id TEXT,
+                        pipeline_id TEXT,
+                        requested_profile TEXT,
+                        effective_profile TEXT NOT NULL,
+                        policy_flags_json TEXT NOT NULL,
+                        capability_manifest_ref TEXT,
+                        payload_ref TEXT,
+                        submitted_by TEXT,
+                        created_at TEXT NOT NULL,
+                        started_at TEXT,
+                        finished_at TEXT,
+                        lease_owner TEXT,
+                        lease_expires_at TEXT,
+                        attempt INTEGER NOT NULL DEFAULT 0,
+                        error_message TEXT
+                    );
+                    CREATE TABLE IF NOT EXISTS control_job_events (
+                        event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        job_id TEXT NOT NULL,
+                        event_type TEXT NOT NULL,
+                        payload_json TEXT NOT NULL,
+                        created_at TEXT NOT NULL
+                    );
+                    CREATE TABLE IF NOT EXISTS control_job_progress (
+                        job_id TEXT PRIMARY KEY,
+                        progress_json TEXT NOT NULL,
+                        updated_at TEXT NOT NULL
+                    );
+                    CREATE TABLE IF NOT EXISTS control_worker_leases (
+                        worker_id TEXT PRIMARY KEY,
+                        state TEXT NOT NULL,
+                        backend TEXT,
+                        active_job_id TEXT,
+                        metadata_json TEXT NOT NULL,
+                        heartbeat_at TEXT NOT NULL,
+                        lease_expires_at TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT NOT NULL
+                    );
+                    CREATE TABLE IF NOT EXISTS control_outbox_events (
+                        event_id TEXT PRIMARY KEY,
+                        topic TEXT NOT NULL,
+                        event_key TEXT,
+                        state TEXT NOT NULL,
+                        job_id TEXT,
+                        run_id TEXT,
+                        payload_json TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        published_at TEXT,
+                        attempt INTEGER NOT NULL DEFAULT 0,
+                        error_message TEXT
+                    );
+                    CREATE TABLE IF NOT EXISTS control_dead_letter_jobs (
+                        job_id TEXT PRIMARY KEY,
+                        job_kind TEXT NOT NULL,
+                        run_id TEXT,
+                        pipeline_id TEXT,
+                        attempt INTEGER NOT NULL DEFAULT 0,
+                        error_message TEXT NOT NULL,
+                        failed_at TEXT NOT NULL,
+                        acknowledged_at TEXT,
+                        acknowledged_by TEXT
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_control_jobs_state_created_at
+                        ON control_jobs(state, created_at);
+                    CREATE INDEX IF NOT EXISTS idx_control_jobs_pipeline_id
+                        ON control_jobs(pipeline_id);
+                    CREATE INDEX IF NOT EXISTS idx_control_worker_leases_expires_at
+                        ON control_worker_leases(lease_expires_at);
+                    CREATE INDEX IF NOT EXISTS idx_control_outbox_state_created_at
+                        ON control_outbox_events(state, created_at);
+                    CREATE UNIQUE INDEX IF NOT EXISTS idx_control_outbox_topic_event_key
+                        ON control_outbox_events(topic, event_key)
+                        WHERE event_key IS NOT NULL;
+                    CREATE INDEX IF NOT EXISTS idx_control_dead_letter_ack_failed_at
+                        ON control_dead_letter_jobs(acknowledged_at, failed_at);
+                    """
+                )
+                conn.commit()
 
     def _ensure_postgres_schema(self) -> None:
         with self._postgres_cursor() as cur:
@@ -1043,6 +1215,21 @@ class ControlPlaneStore:
             )
             cur.execute(
                 """
+                CREATE TABLE IF NOT EXISTS control_dead_letter_jobs (
+                    job_id TEXT PRIMARY KEY,
+                    job_kind TEXT NOT NULL,
+                    run_id TEXT,
+                    pipeline_id TEXT,
+                    attempt INTEGER NOT NULL DEFAULT 0,
+                    error_message TEXT NOT NULL,
+                    failed_at TIMESTAMPTZ NOT NULL,
+                    acknowledged_at TIMESTAMPTZ,
+                    acknowledged_by TEXT
+                )
+                """
+            )
+            cur.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_control_worker_leases_expires_at
                 ON control_worker_leases(lease_expires_at)
                 """
@@ -1060,22 +1247,28 @@ class ControlPlaneStore:
                 WHERE event_key IS NOT NULL
                 """
             )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_control_dead_letter_ack_failed_at
+                ON control_dead_letter_jobs(acknowledged_at, failed_at)
+                """
+            )
 
     def _execute(self, sql: str, params: tuple[Any, ...]) -> None:
         if self.backend == "sqlite":
-            assert self._sqlite_conn is not None
             with self._lock:
-                self._sqlite_conn.execute(sql, params)
-                self._sqlite_conn.commit()
+                with self._sqlite_connection() as conn:
+                    conn.execute(sql, params)
+                    conn.commit()
             return
         with self._postgres_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)
 
     def _fetchone(self, sql: str, params: tuple[Any, ...]) -> Any:
         if self.backend == "sqlite":
-            assert self._sqlite_conn is not None
             with self._lock:
-                return self._sqlite_conn.execute(sql, params).fetchone()
+                with self._sqlite_connection() as conn:
+                    return conn.execute(sql, params).fetchone()
         with self._postgres_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)
             row = cur.fetchone()
@@ -1086,9 +1279,9 @@ class ControlPlaneStore:
 
     def _fetchall(self, sql: str, params: tuple[Any, ...]) -> list[Any]:
         if self.backend == "sqlite":
-            assert self._sqlite_conn is not None
             with self._lock:
-                return list(self._sqlite_conn.execute(sql, params).fetchall())
+                with self._sqlite_connection() as conn:
+                    return list(conn.execute(sql, params).fetchall())
         with self._postgres_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)
             rows = cur.fetchall()
@@ -1107,7 +1300,7 @@ class ControlPlaneStore:
         if not self._postgres_dsn:
             raise RuntimeError("PostgreSQL control-plane store requires a DSN")
         try:
-            import psycopg
+            psycopg = importlib.import_module("psycopg")
         except ModuleNotFoundError as exc:  # pragma: no cover
             raise RuntimeError("psycopg is required for PostgreSQL control-plane store") from exc
         with psycopg.connect(self._postgres_dsn, autocommit=False) as conn:
@@ -1119,8 +1312,27 @@ class ControlPlaneStore:
                     conn.rollback()
                     raise
 
+    @contextmanager
+    def _sqlite_connection(self) -> Iterator[sqlite3.Connection]:
+        conn = sqlite3.connect(
+            str(self._sqlite_path),
+            timeout=self._sqlite_timeout_seconds,
+        )
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys=ON")
+        conn.execute("PRAGMA busy_timeout=5000")
+        try:
+            yield conn
+        finally:
+            conn.close()
+
+    def close(self) -> None:
+        """Release backend resources. SQLite uses short-lived connections, so this is a no-op."""
+        return None
+
 
 __all__ = [
+    "ControlDeadLetterRecord",
     "ControlJobRecord",
     "ControlOutboxRecord",
     "ControlPlaneStore",

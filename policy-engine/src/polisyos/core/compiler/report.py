@@ -1,17 +1,21 @@
 """Compiler report contracts plus CAS persistence helpers for link and compile results."""
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from typing import TYPE_CHECKING
+
+from pydantic import Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.ir.linker import LinkReport
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.ir.kernel.base import KernelModel
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.ir.linker import LinkReport
 
 
-class CompileReport(BaseModel):
+class CompileReport(KernelModel):
     """High-level status report emitted by Foundry compilation and lowering workflows."""
-    model_config = ConfigDict(extra="forbid")
-
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     ok: bool
     policy_ref: ArtifactRef | None = None
@@ -27,12 +31,12 @@ class CompileReport(BaseModel):
 
 
 def put_link_report(
-    store: FileSystemCAS, report: LinkReport, *, inputs: list[InputRef] | None = None
+    store: ArtifactStore, report: LinkReport, *, inputs: list[InputRef] | None = None
 ) -> ArtifactRef:
     """Persist an IR linker report into CAS with the compiler link-report schema metadata."""
     return store.put_json(
         report,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="compiler.link_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.ir.LinkReport", version=report.schema_version),
@@ -42,12 +46,12 @@ def put_link_report(
 
 
 def put_compile_report(
-    store: FileSystemCAS, report: CompileReport, *, inputs: list[InputRef] | None = None
+    store: ArtifactStore, report: CompileReport, *, inputs: list[InputRef] | None = None
 ) -> ArtifactRef:
     """Persist a compile report into CAS so runtime and audit surfaces can reference it."""
     return store.put_json(
         report,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="compiler.compile_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.CompileReport", version=report.schema_version),

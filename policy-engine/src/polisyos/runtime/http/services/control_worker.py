@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import threading
-import time
 import uuid
 from collections.abc import Callable
 from contextlib import suppress
 
 from polisyos.common.logger import get_logger
+from polisyos.runtime.http.errors import (
+    RuntimeDependencyTimeoutError,
+    RuntimeDependencyUnavailableError,
+)
 
 from .control_plane_store import ControlJobRecord, ControlPlaneStore
 
@@ -70,7 +73,10 @@ class ControlWorker:
     def dispatch_once(self) -> bool:
         """Lease and process one job, returning `True` when work was executed."""
         self._heartbeat(state="idle")
-        job = self._store.lease_next_job(worker_id=self._worker_id, lease_seconds=self._lease_seconds)
+        job = self._store.lease_next_job(
+            worker_id=self._worker_id,
+            lease_seconds=self._lease_seconds,
+        )
         if job is None:
             return False
         logger.debug("Control worker %s picked job %s", self._worker_id, job.job_id)
@@ -82,6 +88,8 @@ class ControlWorker:
             ran = False
             try:
                 ran = self.dispatch_once()
+            except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError) as exc:
+                logger.warning("Control worker dependency unavailable: %s", exc)
             except Exception as exc:  # pragma: no cover - defensive loop guard
                 logger.exception("Control worker loop failed: %s", exc)
             if ran:
@@ -105,8 +113,22 @@ class ControlWorker:
                         active_job_id=job.job_id,
                         metadata={"job_kind": job.kind},
                     )
+                except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError) as exc:
+                    if self._stop.is_set():
+                        return
+                    logger.warning(
+                        "Control worker heartbeat stopped for job %s because the store "
+                        "became unavailable: %s",
+                        job.job_id,
+                        exc,
+                    )
+                    return
                 except Exception as exc:  # pragma: no cover - defensive loop guard
-                    logger.exception("Control worker heartbeat failed for job %s: %s", job.job_id, exc)
+                    logger.exception(
+                        "Control worker heartbeat failed for job %s: %s",
+                        job.job_id,
+                        exc,
+                    )
 
         self._heartbeat(
             state="running",
@@ -125,10 +147,14 @@ class ControlWorker:
             stop_heartbeat.set()
             with suppress(RuntimeError):
                 heartbeat_thread.join(timeout=max(self._heartbeat_interval_s * 2.0, 0.2))
-            self._heartbeat(
-                state="idle",
-                metadata={"last_job_id": job.job_id},
-            )
+            try:
+                self._heartbeat(
+                    state="idle",
+                    metadata={"last_job_id": job.job_id},
+                )
+            except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError):
+                if not self._stop.is_set():
+                    raise
 
     def _heartbeat(
         self,

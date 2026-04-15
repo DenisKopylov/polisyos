@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -20,6 +22,7 @@ from polisyos.foundry.methods.catalog.causal.strategic import evaluate_strategic
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     build_runtime_abstraction_metadata,
@@ -55,6 +58,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 logger = get_logger(__name__)
+
+_SIMULATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_SIMULATION_LOAD_ERRORS = (
+    TypeError,
+    ValueError,
+    ValidationError,
+    FileNotFoundError,
+    OSError,
+)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_simulation@1.0.1"),
@@ -131,7 +143,7 @@ class RunSimulationNode:
     def bind(self, params: dict[str, Any]) -> "RunSimulationNode":
         if not params:
             return self
-        config = self.exec_config.model_copy(deep=True)
+        config = self.exec_config.model_copy(deep=False)
         for key, value in params.items():
             if key in config.model_fields:
                 setattr(config, key, value)
@@ -140,8 +152,26 @@ class RunSimulationNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         metrics = get_metrics()
         method = str(state.params.get("simulation_method", "foundry.execute"))
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=(
+                f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
+                f"artifacts_index.{ARTIFACT_METRICS_REF}",
+                f"artifacts_index.{ARTIFACT_STATE_DELTA_REF}",
+                f"artifacts_index.{ARTIFACT_STATE_SNAPSHOT_REF}",
+                f"artifacts_index.{ARTIFACT_CONSTRAINT_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_ENVIRONMENT_MANIFEST_REF}",
+                f"artifacts_index.{ARTIFACT_TEE_ATTESTATION_REF}",
+                f"artifacts_index.{ARTIFACT_SBOM_REF}",
+                f"artifacts_index.{ARTIFACT_STRATEGIC_SCM_REF}",
+                f"artifacts_index.{ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF}",
+                "params.strategic_response",
+                "params.strategic_response_source",
+            ),
+        ).state
         materialized_artifacts = []
+        runtime_events: list[NodeEvent] = []
 
         if ctx.foundry is None:
             error = NodeError(
@@ -153,7 +183,7 @@ class RunSimulationNode:
 
         try:
             materialized = maybe_materialize_policy_override_bundle(ctx, new_state)
-        except ValueError as exc:
+        except _SIMULATION_VALIDATION_ERRORS as exc:
             error = NodeError(
                 code=node_errors.ERROR_INVALID_STATE,
                 message=f"Failed to materialize policy override bundle: {exc}",
@@ -189,21 +219,29 @@ class RunSimulationNode:
         registry_ref = new_state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
         parameter_override_bundle_ref = new_state.inputs.get(INPUT_PARAMETER_OVERRIDE_BUNDLE_REF)
 
-        request = ExecuteRequest(
-            exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref.model_dump(mode="json")),
-            input_bindings_ref=FoundryInputBindingsRef.model_validate(
-                input_bindings_ref.model_dump(mode="json")
-            ),
-            registry_bundle_ref=registry_ref,
-            parameter_override_bundle_ref=(
-                ParameterOverrideBundleRef.model_validate(
-                    parameter_override_bundle_ref.model_dump(mode="json")
-                )
-                if parameter_override_bundle_ref is not None
-                else None
-            ),
-            exec_config=self.exec_config,
-        )
+        try:
+            request = ExecuteRequest(
+                exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref.model_dump(mode="json")),
+                input_bindings_ref=FoundryInputBindingsRef.model_validate(
+                    input_bindings_ref.model_dump(mode="json")
+                ),
+                registry_bundle_ref=registry_ref,
+                parameter_override_bundle_ref=(
+                    ParameterOverrideBundleRef.model_validate(
+                        parameter_override_bundle_ref.model_dump(mode="json")
+                    )
+                    if parameter_override_bundle_ref is not None
+                    else None
+                ),
+                exec_config=self.exec_config,
+            )
+        except _SIMULATION_VALIDATION_ERRORS as exc:
+            error = NodeError(
+                code=node_errors.ERROR_INVALID_STATE,
+                message=f"Simulation request is invalid: {exc}",
+            )
+            metrics.record_slo_simulation_run("error", method=method)
+            return NodeOutcome(status="fail", state=new_state, error=error)
 
         result = ctx.foundry.execute(ctx.store, request)
 
@@ -225,8 +263,20 @@ class RunSimulationNode:
                     new_state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF] = (
                         sim_result.state_snapshot_ref
                     )
-            except Exception as exc:
-                logger.debug("Ignored exception: %s", exc)
+            except _SIMULATION_LOAD_ERRORS as exc:
+                logger.debug(
+                    "Failed to load simulation result payload for runtime bookkeeping: %s",
+                    exc,
+                    exc_info=True,
+                )
+                runtime_events.append(
+                    NodeEvent(
+                        level="warn",
+                        code="simulation_result_payload_invalid",
+                        message="Simulation result payload could not be loaded for state snapshot bookkeeping",
+                        attrs={"reason": str(exc)},
+                    )
+                )
 
         for item in result.derived_refs:
             artifacts.append(item.ref)
@@ -263,7 +313,7 @@ class RunSimulationNode:
                 status="fail",
                 state=new_state,
                 artifacts=artifacts,
-                events=[event],
+                events=[*runtime_events, event],
                 error=error,
             )
 
@@ -350,7 +400,7 @@ class RunSimulationNode:
             status="ok",
             state=new_state,
             artifacts=artifacts,
-            events=strategic_events,
+            events=[*runtime_events, *strategic_events],
         )
 
 
@@ -370,5 +420,5 @@ def _coerce_policy_candidate(payload: Any) -> PolicyCandidateSchema | None:
         return None
     try:
         return PolicyCandidateSchema.model_validate(payload)
-    except Exception:
+    except _SIMULATION_VALIDATION_ERRORS:
         return None

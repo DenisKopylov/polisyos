@@ -45,7 +45,7 @@ class ParallelTrendsCheck:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="parallel_trends_check",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -169,7 +169,7 @@ class PositivityDiagnostic:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="positivity_check",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -364,7 +364,7 @@ class SupportMismatchDiagnostic:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="support_mismatch",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

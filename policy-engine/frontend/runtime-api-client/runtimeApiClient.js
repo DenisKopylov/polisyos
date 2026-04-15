@@ -8,10 +8,17 @@ export class RuntimeApiClient {
     this.fetchImpl = options.fetchImpl || fetch;
   }
 
-  async request(method, path, query) {
+  async request(method, path, query, body) {
     const suffix = query && query.toString() ? `?${query.toString()}` : '';
     const url = `${this.baseUrl}${path}${suffix}`;
-    const response = await this.fetchImpl(url, { method, headers: this.headers });
+    const headers = body === undefined
+      ? this.headers
+      : { 'Content-Type': 'application/json', ...this.headers };
+    const response = await this.fetchImpl(url, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
     if (!response.ok) {
       const body = await response.text();
       throw new Error(
@@ -42,9 +49,16 @@ export class RuntimeApiClient {
     return query;
   }
 
+  async getArtifactBatch() {
+    const path = `/api/v1/artifacts/batch`;
+    const query = undefined;
+    return this.request('POST', path, query, params?.body);
+  }
+
   async getArtifactManifest(params) {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getArtifactContent(params) {
@@ -52,6 +66,12 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       max_bytes: params?.max_bytes,
     });
+    return this.request('GET', path, query);
+  }
+
+  async downloadArtifactContent(params) {
+    const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/download`;
+    const query = undefined;
     return this.request('GET', path, query);
   }
 
@@ -66,27 +86,32 @@ export class RuntimeApiClient {
 
   async getArtifactSchema(params) {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getAuthMe() {
     const path = `/api/v1/auth/me`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getControlCapabilities() {
     const path = `/api/v1/control/capabilities`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async listBindingProfiles() {
     const path = `/api/v1/control/data/binding-profiles`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getCacheStatus() {
     const path = `/api/v1/control/data/cache`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async searchDataCatalog(params) {
@@ -101,32 +126,38 @@ export class RuntimeApiClient {
 
   async listConnectors() {
     const path = `/api/v1/control/data/connectors`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getDataIndexStats() {
     const path = `/api/v1/control/data/index/stats`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async listSourceProfiles() {
     const path = `/api/v1/control/data/profiles`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async listDataPromotionCandidates() {
     const path = `/api/v1/control/data/promotion/candidates`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getPacketDecisionValidity(params) {
     const path = `/api/v1/control/decision-packets/${encodeURIComponent(String(params.decision_packet_ref))}/decision-validity`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getControlJobStatus(params) {
     const path = `/api/v1/control/jobs/${encodeURIComponent(String(params.job_id))}`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getLexGraphStats(params) {
@@ -139,12 +170,14 @@ export class RuntimeApiClient {
 
   async getLexPipelineStatus(params) {
     const path = `/api/v1/control/lex/status/${encodeURIComponent(String(params.pipeline_id))}`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async listLlmProfiles() {
     const path = `/api/v1/control/llm/profiles`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async listControlOutbox(params) {
@@ -158,7 +191,8 @@ export class RuntimeApiClient {
 
   async getRunDecisionValidity(params) {
     const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/decision-validity`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async listControlWorkers(params) {
@@ -171,32 +205,38 @@ export class RuntimeApiClient {
 
   async getRunCompare(params) {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.left_run_id))}/compare/${encodeURIComponent(String(params.right_run_id))}`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getRunErrors(params) {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/errors`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getRunFeedback(params) {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/feedback`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getGovernanceDebug(params) {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/governance`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getNodeDebug(params) {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/nodes/${encodeURIComponent(String(params.alias))}`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async runtimeApiHealth() {
     const path = `/api/v1/health`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async listRuns(params) {
@@ -204,6 +244,7 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       limit: params?.limit,
       cursor: params?.cursor,
+      q: params?.q,
       status: params?.status,
       from_ts: params?.from_ts,
       to_ts: params?.to_ts,
@@ -211,19 +252,28 @@ export class RuntimeApiClient {
     return this.request('GET', path, query);
   }
 
+  async getRunsBatch() {
+    const path = `/api/v1/runs/batch`;
+    const query = undefined;
+    return this.request('POST', path, query, params?.body);
+  }
+
   async getRunDetails(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getRunAgents(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getRunEvidenceContext(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/evidence-context`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getRunLineage(params) {
@@ -238,27 +288,32 @@ export class RuntimeApiClient {
 
   async getRunNodes(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/nodes`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getRunTimeline(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/timeline`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async getRunWorkflow(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/workflow`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async health() {
     const path = `/health`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
   async ready() {
     const path = `/ready`;
-    return this.request('GET', path);
+    const query = undefined;
+    return this.request('GET', path, query);
   }
 
 }

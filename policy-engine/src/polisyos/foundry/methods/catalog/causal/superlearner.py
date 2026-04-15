@@ -612,7 +612,7 @@ class SuperLearnerNuisanceModel:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="super_learner",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="covariates", slot_type=SlotType.MATRIX,

@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
@@ -11,6 +13,7 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_response_bundle,
 )
 from polisyos.ir.refs import StrategicResponseBundleRef
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 
 class StrategicResponsePass(ValidatorPass):
@@ -155,7 +158,14 @@ def _resolve_strategic_summary(ctx: PassContext) -> dict[str, Any] | None:
     try:
         ref = StrategicResponseBundleRef.model_validate(raw_ref)
         bundle = load_strategic_response_bundle(store, ref)
-    except Exception:
+    except (AttributeError, TypeError, ValidationError, ValueError) as exc:
+        emit_degraded_path(
+            component="governance.strategic_response_pass",
+            operation="resolve_strategic_summary",
+            reason="artifact_load_failed",
+            exc=exc,
+            details={"raw_ref": raw_ref},
+        )
         return None
     return _bundle_summary(bundle)
 

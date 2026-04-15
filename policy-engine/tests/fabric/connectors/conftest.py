@@ -92,20 +92,14 @@ def mock_registry() -> ConnectorRegistry:
 
 
 @pytest.fixture(scope="session")
-def event_loop_policy():
-    """Return the default asyncio event loop policy."""
-    return asyncio.DefaultEventLoopPolicy()
-
-
-@pytest.fixture(scope="session")
-def event_loop(event_loop_policy):
+def event_loop():
     """
     Session-scoped event loop for pytest-asyncio.
 
     A single loop for the entire test session avoids the overhead of
     creating and tearing down loops per test while still being safe.
     """
-    loop = event_loop_policy.new_event_loop()
+    loop = asyncio.new_event_loop()
     yield loop
     loop.close()
 

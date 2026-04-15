@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Iterable, Sequence
 
 import pandas as pd
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world.store.validate import (
     validate_claim_id,
@@ -30,6 +31,140 @@ from polisyos.ir.world.trust import TrustAssessment
 from .errors import WorldArtifactReadError, WorldMergeConflict
 
 
+@dataclass(frozen=True)
+class ProjectionRefreshStep:
+    """Explain one impacted projection refresh step."""
+
+    name: str
+    target_tables: tuple[str, ...]
+    depends_on: tuple[str, ...] = ()
+    impacted_node_kinds: tuple[str, ...] = ()
+    supports_incremental: bool = True
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class ProjectionRefreshPlan:
+    """Topologically ordered projection refresh plan."""
+
+    steps: tuple[ProjectionRefreshStep, ...] = ()
+
+    @property
+    def impacted_projection_names(self) -> tuple[str, ...]:
+        return tuple(step.name for step in self.steps)
+
+    def explain(self) -> tuple[str, ...]:
+        lines: list[str] = []
+        for step in self.steps:
+            kind_list = ", ".join(step.impacted_node_kinds) or "n/a"
+            deps = ", ".join(step.depends_on) or "none"
+            lines.append(
+                f"{step.name}: kinds=[{kind_list}] depends_on=[{deps}] "
+                f"incremental={step.supports_incremental} targets={','.join(step.target_tables)}"
+            )
+        return tuple(lines)
+
+
+@dataclass(frozen=True)
+class _ProjectionSpec:
+    name: str
+    target_tables: tuple[str, ...]
+    impacted_node_kinds: tuple[str, ...]
+    depends_on: tuple[str, ...] = ()
+    supports_incremental: bool = True
+
+
+_PROJECTION_SPECS: tuple[_ProjectionSpec, ...] = (
+    _ProjectionSpec(
+        name="doc_versions",
+        target_tables=("world.doc_versions",),
+        impacted_node_kinds=("doc.version",),
+    ),
+    _ProjectionSpec(
+        name="doc_sources",
+        target_tables=("world.doc_sources",),
+        impacted_node_kinds=("doc.version",),
+        depends_on=("doc_versions",),
+    ),
+    _ProjectionSpec(
+        name="doc_fragments",
+        target_tables=("world.doc_fragments",),
+        impacted_node_kinds=("doc.fragment",),
+    ),
+    _ProjectionSpec(
+        name="claims",
+        target_tables=("world.claims",),
+        impacted_node_kinds=("claim",),
+    ),
+    _ProjectionSpec(
+        name="conflict_sets",
+        target_tables=("world.conflict_sets",),
+        impacted_node_kinds=("conflict_set",),
+    ),
+    _ProjectionSpec(
+        name="trust_assessments",
+        target_tables=("world.trust_assessments",),
+        impacted_node_kinds=("trust.assessment",),
+    ),
+    _ProjectionSpec(
+        name="quality_reports",
+        target_tables=("world.quality_reports",),
+        impacted_node_kinds=("quality.report",),
+    ),
+    _ProjectionSpec(
+        name="world_events",
+        target_tables=("world.world_events",),
+        impacted_node_kinds=("world.event",),
+    ),
+    _ProjectionSpec(
+        name="claim_citations",
+        target_tables=("world.claim_citations",),
+        impacted_node_kinds=("claim", "doc.fragment"),
+        depends_on=("claims", "doc_fragments"),
+    ),
+    _ProjectionSpec(
+        name="conflict_members",
+        target_tables=("world.conflict_members",),
+        impacted_node_kinds=("claim", "conflict_set"),
+        depends_on=("claims", "conflict_sets"),
+    ),
+)
+
+
+def build_projection_refresh_plan(
+    *,
+    touched_node_kinds: Iterable[str],
+) -> ProjectionRefreshPlan:
+    """Return the explainable, topologically sorted projection refresh plan."""
+
+    normalized_kinds = {
+        str(kind).strip()
+        for kind in touched_node_kinds
+        if str(kind).strip()
+    }
+    steps: list[ProjectionRefreshStep] = []
+    for spec in _PROJECTION_SPECS:
+        impacted = tuple(
+            kind for kind in spec.impacted_node_kinds if kind in normalized_kinds
+        )
+        if not impacted:
+            continue
+        steps.append(
+            ProjectionRefreshStep(
+                name=spec.name,
+                target_tables=spec.target_tables,
+                depends_on=spec.depends_on,
+                impacted_node_kinds=impacted,
+                supports_incremental=spec.supports_incremental,
+                reason=(
+                    "impacted by touched node kinds: "
+                    + ", ".join(impacted)
+                ),
+            )
+        )
+    return ProjectionRefreshPlan(steps=tuple(steps))
+
+
 @dataclass
 class ProjectionUpdateStats:
     """Projection update stats public type."""
@@ -43,6 +178,7 @@ class ProjectionUpdateStats:
     world_events: int = 0
     claim_citations: int = 0
     conflict_members: int = 0
+    plan: ProjectionRefreshPlan = field(default_factory=ProjectionRefreshPlan)
 
     @property
     def total_updates(self) -> int:
@@ -66,7 +202,18 @@ def _canonical_json(value) -> str | None:
     return to_canonical_bytes(value).decode("utf-8")
 
 
-def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
+def _is_newer_retrieval(
+    candidate: datetime | None,
+    previous: datetime | None,
+) -> bool:
+    if previous is None:
+        return True
+    if candidate is None:
+        return False
+    return candidate > previous
+
+
+def _load_json_artifact(cas: ArtifactStore, artifact_id: str) -> dict:
     try:
         aid = ArtifactID.model_validate(artifact_id)
         payload = from_canonical_bytes(cas.get_bytes(aid))
@@ -79,7 +226,7 @@ def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
         ) from exc
 
 
-def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
+def _load_doc_meta(cas: ArtifactStore, artifact_id: str) -> DocMeta:
     try:
         payload = _load_json_artifact(cas, artifact_id)
         meta = DocMeta.model_validate(payload)
@@ -93,7 +240,7 @@ def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
         ) from exc
 
 
-def _load_doc_fragment(cas: FileSystemCAS, artifact_id: str) -> DocFragment:
+def _load_doc_fragment(cas: ArtifactStore, artifact_id: str) -> DocFragment:
     try:
         payload = _load_json_artifact(cas, artifact_id)
         fragment = DocFragment.model_validate(payload)
@@ -107,7 +254,7 @@ def _load_doc_fragment(cas: FileSystemCAS, artifact_id: str) -> DocFragment:
         ) from exc
 
 
-def _load_claim(cas: FileSystemCAS, artifact_id: str) -> Claim:
+def _load_claim(cas: ArtifactStore, artifact_id: str) -> Claim:
     try:
         payload = _load_json_artifact(cas, artifact_id)
         claim = Claim.model_validate(payload)
@@ -121,7 +268,7 @@ def _load_claim(cas: FileSystemCAS, artifact_id: str) -> Claim:
         ) from exc
 
 
-def _load_conflict_set(cas: FileSystemCAS, artifact_id: str) -> ConflictSet:
+def _load_conflict_set(cas: ArtifactStore, artifact_id: str) -> ConflictSet:
     try:
         payload = _load_json_artifact(cas, artifact_id)
         conflict_set = ConflictSet.model_validate(payload)
@@ -135,7 +282,7 @@ def _load_conflict_set(cas: FileSystemCAS, artifact_id: str) -> ConflictSet:
         ) from exc
 
 
-def _load_trust_assessment(cas: FileSystemCAS, artifact_id: str) -> TrustAssessment:
+def _load_trust_assessment(cas: ArtifactStore, artifact_id: str) -> TrustAssessment:
     try:
         payload = _load_json_artifact(cas, artifact_id)
         assessment = TrustAssessment.model_validate(payload)
@@ -149,7 +296,7 @@ def _load_trust_assessment(cas: FileSystemCAS, artifact_id: str) -> TrustAssessm
         ) from exc
 
 
-def _load_quality_report(cas: FileSystemCAS, artifact_id: str) -> QualityReport:
+def _load_quality_report(cas: ArtifactStore, artifact_id: str) -> QualityReport:
     try:
         payload = _load_json_artifact(cas, artifact_id)
         report = QualityReport.model_validate(payload)
@@ -163,7 +310,7 @@ def _load_quality_report(cas: FileSystemCAS, artifact_id: str) -> QualityReport:
         ) from exc
 
 
-def _load_world_event(cas: FileSystemCAS, artifact_id: str) -> WorldEvent:
+def _load_world_event(cas: ArtifactStore, artifact_id: str) -> WorldEvent:
     try:
         payload = _load_json_artifact(cas, artifact_id)
         event = WorldEvent.model_validate(payload)
@@ -206,11 +353,11 @@ def _apply_rows(conn, table: str, pk_col: str, rows: list[dict]) -> int:
         conn.execute(f"INSERT INTO {table} ({cols}) SELECT {cols} FROM {data_name}")
     finally:
         conn.unregister(data_name)
-    return 1
+    return int(len(df.index))
 
 
 def _build_doc_version_rows(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     artifact_ids: Iterable[str],
 ) -> tuple[list[dict], list[DocMeta]]:
     rows: list[dict] = []
@@ -268,13 +415,13 @@ def _build_doc_source_rows(metas: Iterable[DocMeta]) -> list[dict]:
 
         if meta.jurisdiction is not None:
             prev = entry.get("_jurisdiction_time")
-            if prev is None or meta.retrieved_at > prev:
+            if _is_newer_retrieval(meta.retrieved_at, prev):
                 entry["jurisdiction"] = meta.jurisdiction
                 entry["_jurisdiction_time"] = meta.retrieved_at
 
         if meta.language is not None:
             prev = entry.get("_language_time")
-            if prev is None or meta.retrieved_at > prev:
+            if _is_newer_retrieval(meta.retrieved_at, prev):
                 entry["language"] = meta.language
                 entry["_language_time"] = meta.retrieved_at
 
@@ -287,7 +434,7 @@ def _build_doc_source_rows(metas: Iterable[DocMeta]) -> list[dict]:
 
 
 def _build_doc_fragment_rows(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     artifact_ids: Iterable[str],
 ) -> list[dict]:
     rows: list[dict] = []
@@ -314,7 +461,7 @@ def _build_doc_fragment_rows(
 
 
 def _build_claim_rows(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     artifact_ids: Iterable[str],
 ) -> list[dict]:
     rows: list[dict] = []
@@ -346,7 +493,7 @@ def _build_claim_rows(
 
 
 def _build_conflict_set_rows(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     artifact_ids: Iterable[str],
 ) -> list[dict]:
     rows: list[dict] = []
@@ -385,7 +532,7 @@ def _build_conflict_set_rows(
 
 
 def _build_trust_assessment_rows(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     artifact_ids: Iterable[str],
 ) -> list[dict]:
     rows: list[dict] = []
@@ -409,7 +556,7 @@ def _build_trust_assessment_rows(
 
 
 def _build_quality_report_rows(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     artifact_ids: Iterable[str],
 ) -> list[dict]:
     rows: list[dict] = []
@@ -434,7 +581,7 @@ def _build_quality_report_rows(
 
 
 def _build_world_event_rows(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     artifact_ids: Iterable[str],
 ) -> list[dict]:
     rows: list[dict] = []
@@ -480,6 +627,25 @@ def _update_claim_citations(
     claim_name = _register_df(conn, claim_df, prefix="claim_ids")
     fragment_name = _register_df(conn, fragment_df, prefix="fragment_ids")
     try:
+        affected = int(
+            conn.execute(
+                f"""
+                SELECT COUNT(*)
+                FROM (
+                    SELECT
+                        src_id AS claim_id,
+                        dst_id AS fragment_id
+                    FROM world.world_edges
+                    WHERE kind = 'claim.cites'
+                      AND (
+                        src_id IN (SELECT claim_id FROM {claim_name})
+                        OR dst_id IN (SELECT fragment_id FROM {fragment_name})
+                      )
+                    GROUP BY src_id, dst_id
+                ) impacted
+                """
+            ).fetchone()[0]
+        )
         conn.execute(
             f"""
             DELETE FROM world.claim_citations
@@ -507,7 +673,7 @@ def _update_claim_citations(
     finally:
         conn.unregister(claim_name)
         conn.unregister(fragment_name)
-    return 1
+    return affected
 
 
 def _update_conflict_members(
@@ -529,6 +695,25 @@ def _update_conflict_members(
     conflict_name = _register_df(conn, conflict_df, prefix="conflict_set_ids")
     claim_name = _register_df(conn, claim_df, prefix="claim_ids")
     try:
+        affected = int(
+            conn.execute(
+                f"""
+                SELECT COUNT(*)
+                FROM (
+                    SELECT
+                        dst_id AS conflict_set_id,
+                        src_id AS claim_id
+                    FROM world.world_edges
+                    WHERE kind = 'claim.in_conflict_set'
+                      AND (
+                        dst_id IN (SELECT conflict_set_id FROM {conflict_name})
+                        OR src_id IN (SELECT claim_id FROM {claim_name})
+                      )
+                    GROUP BY dst_id, src_id
+                ) impacted
+                """
+            ).fetchone()[0]
+        )
         conn.execute(
             f"""
             DELETE FROM world.conflict_members
@@ -564,16 +749,32 @@ def _update_conflict_members(
     finally:
         conn.unregister(conflict_name)
         conn.unregister(claim_name)
-    return 1
+    return affected
 
 
 def update_projections(
     conn,
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     *,
     touched_node_ids: Sequence[str],
+    in_transaction: bool = False,
 ) -> ProjectionUpdateStats:
     """Update projections helper."""
+    if not in_transaction:
+        conn.execute("BEGIN")
+        try:
+            stats = update_projections(
+                conn,
+                cas,
+                touched_node_ids=touched_node_ids,
+                in_transaction=True,
+            )
+            conn.execute("COMMIT")
+            return stats
+        except Exception:
+            conn.execute("ROLLBACK")
+            raise
+
     stats = ProjectionUpdateStats()
     if not touched_node_ids:
         return stats
@@ -595,42 +796,56 @@ def update_projections(
     if nodes_df.empty:
         return stats
 
+    touched_node_kinds = [
+        str(kind)
+        for kind in nodes_df["kind"].dropna().tolist()
+        if str(kind).strip()
+    ]
+    plan = build_projection_refresh_plan(touched_node_kinds=touched_node_kinds)
+    stats.plan = plan
+    planned_steps = set(plan.impacted_projection_names)
+    if not planned_steps:
+        return stats
+
     def _artifact_ids_for(kind_value: str) -> list[str]:
         subset = nodes_df[(nodes_df["kind"] == kind_value) & nodes_df["artifact_id"].notna()]
         return [str(value) for value in subset["artifact_id"].tolist()]
 
     doc_version_artifacts = _artifact_ids_for("doc.version")
-    if doc_version_artifacts:
+    if "doc_versions" in planned_steps and doc_version_artifacts:
         doc_version_rows, metas = _build_doc_version_rows(cas, doc_version_artifacts)
         stats.doc_versions = _apply_rows(
             conn, "world.doc_versions", "doc_version_id", doc_version_rows
         )
+    else:
+        metas = []
+    if "doc_sources" in planned_steps and metas:
         doc_source_rows = _build_doc_source_rows(metas)
         stats.doc_sources = _apply_rows(
             conn, "world.doc_sources", "doc_source_id", doc_source_rows
         )
 
     doc_fragment_artifacts = _artifact_ids_for("doc.fragment")
-    if doc_fragment_artifacts:
+    if "doc_fragments" in planned_steps and doc_fragment_artifacts:
         doc_fragment_rows = _build_doc_fragment_rows(cas, doc_fragment_artifacts)
         stats.doc_fragments = _apply_rows(
             conn, "world.doc_fragments", "fragment_id", doc_fragment_rows
         )
 
     claim_artifacts = _artifact_ids_for("claim")
-    if claim_artifacts:
+    if "claims" in planned_steps and claim_artifacts:
         claim_rows = _build_claim_rows(cas, claim_artifacts)
         stats.claims = _apply_rows(conn, "world.claims", "claim_id", claim_rows)
 
     conflict_set_artifacts = _artifact_ids_for("conflict_set")
-    if conflict_set_artifacts:
+    if "conflict_sets" in planned_steps and conflict_set_artifacts:
         conflict_set_rows = _build_conflict_set_rows(cas, conflict_set_artifacts)
         stats.conflict_sets = _apply_rows(
             conn, "world.conflict_sets", "conflict_set_id", conflict_set_rows
         )
 
     trust_assessment_artifacts = _artifact_ids_for("trust.assessment")
-    if trust_assessment_artifacts:
+    if "trust_assessments" in planned_steps and trust_assessment_artifacts:
         trust_rows = _build_trust_assessment_rows(cas, trust_assessment_artifacts)
         stats.trust_assessments = _apply_rows(
             conn,
@@ -640,7 +855,7 @@ def update_projections(
         )
 
     quality_report_artifacts = _artifact_ids_for("quality.report")
-    if quality_report_artifacts:
+    if "quality_reports" in planned_steps and quality_report_artifacts:
         quality_rows = _build_quality_report_rows(cas, quality_report_artifacts)
         stats.quality_reports = _apply_rows(
             conn,
@@ -650,7 +865,7 @@ def update_projections(
         )
 
     event_artifacts = _artifact_ids_for("world.event")
-    if event_artifacts:
+    if "world_events" in planned_steps and event_artifacts:
         event_rows = _build_world_event_rows(cas, event_artifacts)
         stats.world_events = _apply_rows(
             conn, "world.world_events", "event_id", event_rows
@@ -660,24 +875,29 @@ def update_projections(
     touched_fragment_ids = nodes_df[nodes_df["kind"] == "doc.fragment"][
         "node_id"
     ].tolist()
-    stats.claim_citations = _update_claim_citations(
-        conn,
-        touched_claim_ids=touched_claim_ids,
-        touched_fragment_ids=touched_fragment_ids,
-    )
+    if "claim_citations" in planned_steps:
+        stats.claim_citations = _update_claim_citations(
+            conn,
+            touched_claim_ids=touched_claim_ids,
+            touched_fragment_ids=touched_fragment_ids,
+        )
     touched_conflict_set_ids = nodes_df[nodes_df["kind"] == "conflict_set"][
         "node_id"
     ].tolist()
-    stats.conflict_members = _update_conflict_members(
-        conn,
-        touched_conflict_set_ids=touched_conflict_set_ids,
-        touched_claim_ids=touched_claim_ids,
-    )
+    if "conflict_members" in planned_steps:
+        stats.conflict_members = _update_conflict_members(
+            conn,
+            touched_conflict_set_ids=touched_conflict_set_ids,
+            touched_claim_ids=touched_claim_ids,
+        )
 
     return stats
 
 
 __all__ = [
+    "ProjectionRefreshPlan",
+    "ProjectionRefreshStep",
     "ProjectionUpdateStats",
+    "build_projection_refresh_plan",
     "update_projections",
 ]

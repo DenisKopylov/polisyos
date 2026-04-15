@@ -32,6 +32,9 @@ class SecuritySettings:
     POLISYOS_KEYCLOAK_CLIENT_ID: str = "polisyos-web"
     POLISYOS_KEYCLOAK_AUDIENCE: str = "polisyos-web"
     POLISYOS_JWT_REQUIRED_MFA_ROLES: str = "admin,analyst"
+    POLISYOS_JWT_ALLOWED_KIDS: str = ""
+    POLISYOS_JWT_REVOKED_KIDS: str = ""
+    POLISYOS_JWKS_CACHE_TTL_SECONDS: int = 300
 
     POLISYOS_OPA_URL: str = "http://localhost:8181"
     POLISYOS_OPA_POLICY_PATH: str = "polisyos/authz/decision"
@@ -93,6 +96,24 @@ class SecuritySettings:
         return frozenset(
             item.strip().lower()
             for item in self.POLISYOS_JWT_REQUIRED_MFA_ROLES.split(",")
+            if item.strip()
+        )
+
+    @lru_cache(maxsize=1)
+    def allowed_jwt_kids(self) -> frozenset[str]:
+        """Return JWT signing key IDs accepted during the current rotation window."""
+        return frozenset(
+            item.strip()
+            for item in self.POLISYOS_JWT_ALLOWED_KIDS.split(",")
+            if item.strip()
+        )
+
+    @lru_cache(maxsize=1)
+    def revoked_jwt_kids(self) -> frozenset[str]:
+        """Return JWT signing key IDs that must be rejected even if JWKS exposes them."""
+        return frozenset(
+            item.strip()
+            for item in self.POLISYOS_JWT_REVOKED_KIDS.split(",")
             if item.strip()
         )
 
@@ -227,6 +248,12 @@ def get_security_settings() -> SecuritySettings:
         POLISYOS_KEYCLOAK_AUDIENCE=os.getenv("POLISYOS_KEYCLOAK_AUDIENCE", "polisyos-web"),
         POLISYOS_JWT_REQUIRED_MFA_ROLES=os.getenv(
             "POLISYOS_JWT_REQUIRED_MFA_ROLES", "admin,analyst"
+        ),
+        POLISYOS_JWT_ALLOWED_KIDS=os.getenv("POLISYOS_JWT_ALLOWED_KIDS", ""),
+        POLISYOS_JWT_REVOKED_KIDS=os.getenv("POLISYOS_JWT_REVOKED_KIDS", ""),
+        POLISYOS_JWKS_CACHE_TTL_SECONDS=_parse_int(
+            os.getenv("POLISYOS_JWKS_CACHE_TTL_SECONDS"),
+            300,
         ),
         POLISYOS_OPA_URL=os.getenv("POLISYOS_OPA_URL", "http://localhost:8181"),
         POLISYOS_OPA_POLICY_PATH=os.getenv("POLISYOS_OPA_POLICY_PATH", "polisyos/authz/decision"),

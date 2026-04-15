@@ -738,7 +738,7 @@ class GCMQuery:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gcm_query",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

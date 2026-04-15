@@ -14,10 +14,11 @@ from typing import Any, Mapping, Sequence
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.canon import content_hash as compute_content_hash
+from polisyos.fabric.finite import ensure_probability
 from polisyos.ir.kernel.units import UnitRef
 
 from ._schema_field import FieldSpec, SchemaVersion
-from ._schema_types import GeoGranularity, SchemaType, TimeGranularity
+from ._schema_types import GeoGranularity, TimeGranularity
 
 __all__ = [
     "DataSchema",
@@ -64,7 +65,11 @@ def _field_hash_payload(field: FieldSpec) -> dict[str, Any]:
         "additivity": field.additivity.value if field.additivity else None,
         "nullable": field.nullable,
         "bounds": [_number_token(field.bounds[0]), _number_token(field.bounds[1])],
-        "allowed_values": _sorted_list(field.allowed_values) if field.allowed_values else None,
+        "allowed_values": (
+            _sorted_list(field.allowed_values)
+            if field.allowed_values is not None
+            else None
+        ),
         "pattern": field.pattern,
         "max_length": field.max_length,
         "precision": field.precision,
@@ -100,7 +105,7 @@ class DataSchema(BaseModel):
     # Identity
     schema_id: str = Field(
         ...,
-        pattern=r"^[a-z][a-z0-9_.]*$",
+        pattern=r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)*(?:\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*)*$",
         description="Unique schema identifier (e.g., 'worldbank.wdi.gdp')",
     )
     version: SchemaVersion = Field(..., description="Semantic version")
@@ -164,6 +169,11 @@ class DataSchema(BaseModel):
         if isinstance(value, Mapping):
             return SchemaVersion(**value)
         raise TypeError("version must be SchemaVersion or version string")
+
+    @field_validator("required_completeness", mode="after")
+    @classmethod
+    def _validate_required_completeness(cls, value: float) -> float:
+        return ensure_probability(value, what="required_completeness")
 
     @model_validator(mode="after")
     def validate_field_references(self) -> DataSchema:

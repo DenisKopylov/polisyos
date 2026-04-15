@@ -51,7 +51,7 @@ class VECMEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="vecm",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -152,7 +152,7 @@ class BayesianVAREstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="bayesian_var",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -294,7 +294,7 @@ class SyntheticDiDEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="synthetic_did",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -407,7 +407,7 @@ class SpatialAutoregressiveEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="spatial_autoregressive",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

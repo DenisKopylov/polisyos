@@ -22,10 +22,10 @@ Canonical operator path:
 
 ```bash
 cd policy-engine
-./scripts/bootstrap
-./scripts/doctor --list-surfaces
-./scripts/doctor --surface runtime-research-postgres --surface runtime-signing
-./scripts/verify
+python3 -m tools.cli workspace bootstrap
+python3 -m tools.cli workspace doctor --list-surfaces
+python3 -m tools.cli workspace doctor --surface runtime-research-postgres --surface runtime-signing
+python3 -m tools.cli workspace verify
 ```
 
 Observability local stack:

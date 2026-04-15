@@ -47,7 +47,7 @@ class CallawaySantAnnaEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="callaway_santanna",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_panel_did_slots(),
         output_slots=_result_slot(),
@@ -162,7 +162,7 @@ class SunAbrahamEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="sun_abraham",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_panel_did_slots(),
         output_slots=_result_slot(),
@@ -276,7 +276,7 @@ class DeChaisemartinDHaultfoeuilleEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="dechaisemartin",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -389,7 +389,7 @@ class BorusyakJaravelSpiessEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="borusyak_jaravel_spiess",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_panel_did_slots(),
         output_slots=_result_slot(),

@@ -272,7 +272,7 @@ class CausalFairnessEngine:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="causal_fairness_engine",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

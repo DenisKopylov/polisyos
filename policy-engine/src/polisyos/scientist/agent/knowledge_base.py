@@ -3,19 +3,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.observability import get_metrics
-from polisyos.scientist.agent.failure_card import FailureCard
+from polisyos.core.observability import MetricsRegistry, get_metrics
 from polisyos.scientist.agent.failure_index import (
     FailurePatternIndex,
     build_failure_signature,
     normalize_location,
     normalize_message,
 )
-from polisyos.scientist.agent.protocols import CritiqueReport, ProblemFrame
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.scientist.agent.failure_card import FailureCard
+    from polisyos.scientist.agent.protocols import CritiqueReport, ProblemFrame
 
 logger = get_logger(__name__)
 
@@ -42,12 +44,14 @@ class CriticKnowledgeBase:
         cas: FileSystemCAS,
         *,
         index: FailurePatternIndex | None = None,
+        metrics: MetricsRegistry | None = None,
         max_patterns: int = 100,
         gc_max_age_days: int = 30,
         persist_threshold: int = 5,
     ) -> None:
         self._cas = cas
         self._index = index or FailurePatternIndex()
+        self._metrics = metrics if metrics is not None else get_metrics()
         self._max_patterns = max(10, max_patterns)
         self._gc_max_age_days = max(1, gc_max_age_days)
         self._persist_threshold = max(1, persist_threshold)
@@ -60,7 +64,7 @@ class CriticKnowledgeBase:
         cas: FileSystemCAS,
         artifact_id: str | None,
         **kwargs: Any,
-    ) -> "CriticKnowledgeBase":
+    ) -> CriticKnowledgeBase:
         index = FailurePatternIndex.load_or_create(cas, artifact_id)
         kb = cls(cas, index=index, **kwargs)
         kb._last_artifact_id = artifact_id
@@ -97,10 +101,13 @@ class CriticKnowledgeBase:
         self._mark_dirty()
 
     def record_failure_card(self, card: FailureCard, *, domain: str) -> None:
+        field_path = ""
+        if card.violations and card.violations[0].field_path:
+            field_path = card.violations[0].field_path
         signature_id = build_failure_signature(
             error_code=card.error_code,
             category=card.source_step.value,
-            location=(card.violations[0].field_path if card.violations else ""),
+            location=field_path,
             message=card.violation_summary,
             source_step=card.source_step.value,
             domain=domain,
@@ -111,9 +118,7 @@ class CriticKnowledgeBase:
             category=card.source_step.value,
             domain=domain,
             source_step=card.source_step.value,
-            normalized_location=normalize_location(
-                card.violations[0].field_path if card.violations and card.violations[0].field_path else ""
-            ),
+            normalized_location=normalize_location(field_path),
             normalized_message=normalize_message(card.violation_summary),
             remediation_advice=card.remediation_advice,
             card_ref=card.content_hash,
@@ -203,22 +208,22 @@ class CriticKnowledgeBase:
         return "\n".join(lines)
 
     def garbage_collect(self) -> int:
-        removed = self._index.garbage_collect(max_age_days=self._gc_max_age_days)
+        removed = int(self._index.garbage_collect(max_age_days=self._gc_max_age_days))
         if len(self._index.entries) > self._max_patterns:
             before = len(self._index.entries)
             self._index.entries = self._index.top_patterns(self._max_patterns)
             removed += max(0, before - len(self._index.entries))
         if removed > 0:
             self.persist()
-            get_metrics().record_knowledge_base_gc_removed(removed)
+            self._metrics.record_knowledge_base_gc_removed(removed)
             logger.info("CriticKnowledgeBase GC removed %s stale entries", removed)
         return removed
 
     def persist(self) -> str:
-        artifact_id = self._index.persist(self._cas)
+        artifact_id = str(self._index.persist(self._cas))
         self._last_artifact_id = artifact_id
         self._unsaved_updates = 0
-        get_metrics().set_failure_pattern_index_size(self.pattern_count)
+        self._metrics.set_failure_pattern_index_size(self.pattern_count)
         return artifact_id
 
     def _mark_dirty(self) -> None:

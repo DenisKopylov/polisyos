@@ -7,6 +7,7 @@ import dataclasses
 import json
 from collections import OrderedDict
 from pathlib import Path
+from tools._lib.imports import repo_root_from
 
 
 VALIDATION_CONTOURS = ("legacy", "production", "academic")
@@ -33,10 +34,11 @@ class SuiteSpec:
     required_comparators: tuple[str, ...] = ()
     primary_metrics: tuple[str, ...] = ()
     supports_shadow: bool = False
+    memory_gib_hint: float = 2.0
 
     @property
     def script_path(self) -> Path:
-        return Path(__file__).resolve().parent / self.script_relpath
+        return repo_root_from(__file__) / "benchmarks" / self.script_relpath
 
 
 _SUITES: tuple[SuiteSpec, ...] = (
@@ -57,6 +59,7 @@ _SUITES: tuple[SuiteSpec, ...] = (
         claim_profiles=("full_stack_publication_claim",),
         proof_class="publication_benchmark",
         headline=True,
+        memory_gib_hint=14.0,
     ),
     SuiteSpec(
         suite_id="estimation_lbidd",
@@ -66,6 +69,7 @@ _SUITES: tuple[SuiteSpec, ...] = (
         claim_profiles=("full_stack_publication_claim",),
         proof_class="publication_benchmark",
         headline=True,
+        memory_gib_hint=13.0,
     ),
     SuiteSpec(
         suite_id="estimation_realcause",
@@ -75,6 +79,7 @@ _SUITES: tuple[SuiteSpec, ...] = (
         claim_profiles=("full_stack_publication_claim",),
         proof_class="publication_benchmark",
         headline=True,
+        memory_gib_hint=14.0,
     ),
     SuiteSpec(
         suite_id="hte_interpretable",
@@ -84,6 +89,7 @@ _SUITES: tuple[SuiteSpec, ...] = (
         claim_profiles=("full_stack_publication_claim",),
         proof_class="publication_benchmark",
         headline=True,
+        memory_gib_hint=8.0,
     ),
     SuiteSpec(
         suite_id="discovery_sachs",
@@ -818,6 +824,19 @@ def suites_for_profile(
     )
 
 
+def filtered_suite_specs(
+    *,
+    profile: str | None = None,
+    validation_contour: str | None = None,
+    visibility: str | None = None,
+) -> list[SuiteSpec]:
+    return _filtered_specs(
+        profile=profile,
+        validation_contour=validation_contour,
+        visibility=visibility,
+    )
+
+
 def canonical_suite_id(suite_id: str) -> str:
     return _LEGACY_ID_ALIASES.get(suite_id, suite_id)
 
@@ -900,6 +919,7 @@ __all__ = [
     "all_suite_specs",
     "canonical_suite_id",
     "emit_registry_tsv",
+    "filtered_suite_specs",
     "spec_by_suite_id",
     "suites_for_claim_profile",
     "suites_for_profile",
@@ -908,7 +928,7 @@ __all__ = [
 ]
 
 
-def _main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Print benchmark suite registry.")
     parser.add_argument("--profile", choices=("air-m2", "extended"))
     parser.add_argument("--format", choices=("tsv", "json"), default="tsv")
@@ -916,7 +936,7 @@ def _main() -> int:
     parser.add_argument("--claim-profile")
     parser.add_argument("--validation-contour", choices=VALIDATION_CONTOURS)
     parser.add_argument("--visibility", choices=VISIBILITY_LANES)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.alias and args.claim_profile:
         parser.error("--alias and --claim-profile are mutually exclusive")
@@ -960,6 +980,7 @@ def _main() -> int:
                 "required_comparators": list(spec.required_comparators),
                 "primary_metrics": list(spec.primary_metrics),
                 "supports_shadow": spec.supports_shadow,
+                "memory_gib_hint": spec.memory_gib_hint,
             }
             for spec in specs
         ]
@@ -977,4 +998,4 @@ def _main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(_main())
+    raise SystemExit(main())

@@ -6,6 +6,7 @@ from typing import Any
 
 import pandas as pd
 
+from polisyos.core.observability import get_metrics
 from polisyos.fabric.connectors.transform.pipeline import (
     CopyPolicy,
     TransformContext,
@@ -47,9 +48,10 @@ def build_lineage(
     input_data: pd.DataFrame,
     output_data: pd.DataFrame,
     parameters: dict[str, Any],
+    context: TransformContext | None = None,
 ) -> TransformLineage:
     """Construct standard TransformLineage object for a stage."""
-    return TransformLineage(
+    lineage = TransformLineage(
         stage_name=stage_name,
         started_at=started_at,
         completed_at=datetime.now(timezone.utc),
@@ -57,3 +59,24 @@ def build_lineage(
         output_row_count=len(output_data),
         parameters=parameters,
     )
+    if context is not None:
+        tracker = context.metadata.get("lineage_tracker")
+        if tracker is not None and hasattr(tracker, "record_transform_stage"):
+            tracker.record_transform_stage(
+                stage_name=stage_name,
+                started_at=lineage.started_at,
+                completed_at=lineage.completed_at,
+                input_columns=[str(col) for col in input_data.columns],
+                output_columns=[str(col) for col in output_data.columns],
+                parameters=parameters,
+                evidence_refs=context.evidence_refs,
+            )
+            graph = getattr(tracker, "graph", None)
+            metrics = get_metrics()
+            if graph is not None and getattr(metrics, "record_fabric_lineage_graph", None):
+                metrics.record_fabric_lineage_graph(
+                    graph_id=graph.graph_id,
+                    node_count=len(graph.entities) + len(graph.activities) + len(graph.agents),
+                    edge_count=len(graph.edges),
+                )
+    return lineage

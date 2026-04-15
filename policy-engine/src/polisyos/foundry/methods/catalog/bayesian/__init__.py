@@ -12,6 +12,16 @@ from .advanced import (
     DirichletProcessMixtureEstimator,
 )
 from ._registry_boot import register_bayesian_methods
+from .frontier import (
+    AffineNormalizingFlowPosteriorAdapter,
+    BayesianBARTRegressorEstimator,
+    ExpectationPropagationGaussianEstimator,
+    FactorGraphBeliefPropagationEstimator,
+    SimulationBasedNLEEstimator,
+    SimulationBasedNPEEstimator,
+    SimulationBasedNREEstimator,
+    SVGDRegressionEstimator,
+)
 from .protocols import PosteriorResult
 from .regression import BayesianLinearRegressionEstimator
 from .timeseries import BayesianAutoregressionEstimator
@@ -28,14 +38,22 @@ def ensure_bayesian_methods_registered(registry: MethodRegistry | None = None) -
 
 
 __all__ = [
+    "AffineNormalizingFlowPosteriorAdapter",
     "BayesianAutoregressionEstimator",
+    "BayesianBARTRegressorEstimator",
     "BayesianGaussianMixtureEstimator",
     "BayesianHMCRegressionEstimator",
     "BayesianHierarchicalRegressionEstimator",
     "BayesianNUTSRegressionEstimator",
     "BayesianLinearRegressionEstimator",
     "DirichletProcessMixtureEstimator",
+    "ExpectationPropagationGaussianEstimator",
+    "FactorGraphBeliefPropagationEstimator",
     "PosteriorResult",
+    "SimulationBasedNLEEstimator",
+    "SimulationBasedNPEEstimator",
+    "SimulationBasedNREEstimator",
+    "SVGDRegressionEstimator",
     "ensure_bayesian_methods_registered",
     "register_bayesian_methods",
 ]

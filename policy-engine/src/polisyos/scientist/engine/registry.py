@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterable
 
+from pydantic import ValidationError
+
 from polisyos.core.components import (
     ENTRY_POINT_GROUP_SCIENTIST_NODES,
     Capability,
@@ -18,6 +20,16 @@ from polisyos.core.components.protocols import ComponentProvider
 from polisyos.core.registry import BaseRegistry
 from polisyos.scientist.engine.errors import UnknownNodeError
 from polisyos.scientist.engine.protocol import Node, NodeSpec
+
+_NODE_DISCOVERY_ERRORS = (
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 
 @dataclass(slots=True)
@@ -180,7 +192,7 @@ def discover_nodes(
                 raise TypeError("ComponentProvider.create() must return a Node instance")
             registry.register(node, override=override)
             bootstrap_report.registered.append(component_id)
-        except Exception as exc:
+        except _NODE_DISCOVERY_ERRORS as exc:
             bootstrap_report.errors.append(f"{component_id}: {exc}")
 
     bootstrap_report.registered.sort()

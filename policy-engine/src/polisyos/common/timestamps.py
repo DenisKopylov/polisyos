@@ -4,6 +4,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+_NAIVE_DATETIME_ERROR = "Naive datetimes are not allowed; supply a timezone-aware UTC value."
+
 
 def utc_now(*, drop_microseconds: bool = False) -> datetime:
     """Return the current UTC datetime, optionally dropping microseconds."""
@@ -14,9 +16,9 @@ def utc_now(*, drop_microseconds: bool = False) -> datetime:
 
 
 def ensure_utc(value: datetime) -> datetime:
-    """Convert naive/aware datetimes to UTC while preserving the instant."""
-    if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
+    """Convert an aware datetime to UTC while preserving the instant."""
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise ValueError(_NAIVE_DATETIME_ERROR)
     return value.astimezone(timezone.utc)
 
 
@@ -31,15 +33,18 @@ def to_iso_utc(value: datetime, *, z_suffix: bool = True) -> str:
 def parse_iso_datetime(value: Any) -> datetime | None:
     """Parse ISO-8601 strings or datetimes into UTC, returning `None` on failure."""
     if isinstance(value, datetime):
-        return ensure_utc(value)
+        try:
+            return ensure_utc(value)
+        except ValueError:
+            return None
     if not isinstance(value, str):
         return None
     normalized = value[:-1] + "+00:00" if value.endswith("Z") else value
     try:
         parsed = datetime.fromisoformat(normalized)
+        return ensure_utc(parsed)
     except ValueError:
         return None
-    return ensure_utc(parsed)
 
 
 def to_epoch_seconds(value: datetime) -> float:

@@ -87,6 +87,26 @@ def test_linker_reports_unknown_mechanism() -> None:
     )
 
 
+def test_linker_reports_unknown_mechanism_without_skipping_selector_validation() -> None:
+    bundle = _bundle_with_interventions(
+        [
+            InterventionSpec(
+                intervention_id="int_1",
+                kind="unknown_mech",
+                target=SelectorPredicate(field="ghost", operator="==", value="all"),
+                schedule=_base_schedule(),
+                params={},
+            )
+        ]
+    )
+    registries = _default_registries()
+    _, report = link_trinity(bundle, registries)
+    codes = {issue.code for issue in report.issues}
+
+    assert LinkIssueCode.UNKNOWN_MECHANISM in codes
+    assert LinkIssueCode.UNKNOWN_SELECTOR_FIELD in codes
+
+
 def test_linker_reports_missing_param() -> None:
     bundle = _bundle_with_interventions(
         [
@@ -102,6 +122,60 @@ def test_linker_reports_missing_param() -> None:
     registries = _default_registries()
     _, report = link_trinity(bundle, registries)
     assert any(issue.code == LinkIssueCode.MISSING_PARAM for issue in report.issues)
+
+
+def test_linker_resolves_nested_param_paths_and_rejects_dotted_field_names() -> None:
+    mech_registry = MechanismTypeRegistry(
+        mechanisms={
+            "custom": MechanismTypeSpec(
+                mechanism_id="custom",
+                params={
+                    "config.rate": ParamSpec(
+                        param_id="config.rate",
+                        required=True,
+                        value_type=ParamType.DECIMAL,
+                    )
+                },
+            )
+        }
+    )
+    nested_bundle = _bundle_with_interventions(
+        [
+            InterventionSpec(
+                intervention_id="int_nested",
+                kind="custom",
+                target=_base_selector(),
+                schedule=_base_schedule(),
+                params={"config": {"rate": Decimal("0.2")}},
+            )
+        ]
+    )
+    dotted_bundle = _bundle_with_interventions(
+        [
+            InterventionSpec(
+                intervention_id="int_dotted",
+                kind="custom",
+                target=_base_selector(),
+                schedule=_base_schedule(),
+                params={"config.rate": Decimal("0.2")},
+            )
+        ]
+    )
+    registries = RegistryBundle(
+        mechanisms=mech_registry,
+        slots=DEFAULT_SLOT_REGISTRY,
+        merge_rules=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_fields=DEFAULT_SELECTOR_FIELD_REGISTRY,
+        units=DEFAULT_UNITS_REGISTRY,
+        metrics=DEFAULT_METRIC_REGISTRY,
+        constraints=ConstraintRegistry(constraints={}),
+    )
+
+    _, nested_report = link_trinity(nested_bundle, registries)
+    _, dotted_report = link_trinity(dotted_bundle, registries)
+
+    assert not any(issue.code == LinkIssueCode.MISSING_PARAM for issue in nested_report.issues)
+    assert any(issue.code == LinkIssueCode.PARAM_PATH for issue in dotted_report.issues)
 
 
 def test_linker_reports_missing_slot() -> None:
@@ -136,6 +210,88 @@ def test_linker_reports_missing_slot() -> None:
     )
     _, report = link_trinity(bundle, registries)
     assert any(issue.code == LinkIssueCode.MISSING_SLOT for issue in report.issues)
+
+
+def test_linker_schedule_overlap_uses_inclusive_interval_boundaries() -> None:
+    slot_registry = DEFAULT_SLOT_REGISTRY.model_copy(
+        update={
+            "slots": {
+                "conflict.slot": DEFAULT_SLOT_REGISTRY.slots["global.tax_rate"].model_copy(
+                    update={
+                        "slot_id": "conflict.slot",
+                        "merge_rule": DEFAULT_SLOT_REGISTRY.slots["global.tax_rate"].merge_rule.model_copy(
+                            update={"rule_id": "error"}
+                        ),
+                    }
+                )
+            }
+        }
+    )
+    mech_registry = MechanismTypeRegistry(
+        mechanisms={
+            "custom": MechanismTypeSpec(
+                mechanism_id="custom",
+                writes_slots=["conflict.slot"],
+            )
+        }
+    )
+    registries = RegistryBundle(
+        mechanisms=mech_registry,
+        slots=slot_registry,
+        merge_rules=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_fields=DEFAULT_SELECTOR_FIELD_REGISTRY,
+        units=DEFAULT_UNITS_REGISTRY,
+        metrics=DEFAULT_METRIC_REGISTRY,
+        constraints=ConstraintRegistry(constraints={}),
+    )
+    non_overlapping = _bundle_with_interventions(
+        [
+            InterventionSpec(
+                intervention_id="left",
+                kind="custom",
+                target=_base_selector(),
+                schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                params={},
+            ),
+            InterventionSpec(
+                intervention_id="right",
+                kind="custom",
+                target=_base_selector(),
+                schedule=ScheduleSpec(start_step=1, duration_steps=1),
+                params={},
+            ),
+        ]
+    )
+    overlapping = _bundle_with_interventions(
+        [
+            InterventionSpec(
+                intervention_id="left",
+                kind="custom",
+                target=_base_selector(),
+                schedule=ScheduleSpec(start_step=0, duration_steps=2),
+                params={},
+            ),
+            InterventionSpec(
+                intervention_id="right",
+                kind="custom",
+                target=_base_selector(),
+                schedule=ScheduleSpec(start_step=1, duration_steps=1),
+                params={},
+            ),
+        ]
+    )
+
+    _, non_overlapping_report = link_trinity(non_overlapping, registries)
+    _, overlapping_report = link_trinity(overlapping, registries)
+
+    assert not any(
+        issue.code == LinkIssueCode.MERGE_RULE_CONFLICT
+        for issue in non_overlapping_report.issues
+    )
+    assert any(
+        issue.code == LinkIssueCode.MERGE_RULE_CONFLICT
+        for issue in overlapping_report.issues
+    )
 
 
 def test_linker_reports_unknown_selector_field() -> None:
@@ -195,6 +351,85 @@ def test_linker_reports_unknown_unit() -> None:
     )
     _, report = link_trinity(bundle, registries)
     assert any(issue.code == LinkIssueCode.UNKNOWN_UNIT for issue in report.issues)
+
+
+def test_linker_emits_unused_registry_diagnostics() -> None:
+    registries = RegistryBundle(
+        mechanisms=MechanismTypeRegistry(
+            mechanisms={
+                "custom": MechanismTypeSpec(
+                    mechanism_id="custom",
+                    writes_slots=["global.tax_rate"],
+                )
+            }
+        ),
+        slots=DEFAULT_SLOT_REGISTRY,
+        merge_rules=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_fields=DEFAULT_SELECTOR_FIELD_REGISTRY,
+        units=DEFAULT_UNITS_REGISTRY,
+        metrics=DEFAULT_METRIC_REGISTRY,
+        constraints=ConstraintRegistry(
+            constraints={
+                "custom_limit": ConstraintSpec(constraint_id="custom_limit")
+            }
+        ),
+    )
+    bundle = TrinityBundle(
+        problem_frame=_base_problem_frame(),
+        policy_spec=PolicySpec(policy_id="policy_unused", interventions=[]),
+        model_spec=_base_model_spec(),
+    )
+
+    _, report = link_trinity(bundle, registries)
+    codes = {issue.code for issue in report.issues}
+
+    assert LinkIssueCode.UNUSED_REGISTRY in codes
+    assert LinkIssueCode.UNUSED_MECHANISM in codes
+    assert LinkIssueCode.UNUSED_SLOT in codes
+    assert LinkIssueCode.UNUSED_CONSTRAINT in codes
+
+
+def test_linker_outputs_are_deterministic_across_repeated_runs() -> None:
+    registries = RegistryBundle(
+        mechanisms=MechanismTypeRegistry(
+            mechanisms={
+                "custom": MechanismTypeSpec(
+                    mechanism_id="custom",
+                    writes_slots=["global.tax_rate"],
+                    params={
+                        "config.rate": ParamSpec(
+                            param_id="config.rate",
+                            required=True,
+                            value_type=ParamType.DECIMAL,
+                        )
+                    },
+                )
+            }
+        ),
+        slots=DEFAULT_SLOT_REGISTRY,
+        merge_rules=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_fields=DEFAULT_SELECTOR_FIELD_REGISTRY,
+        units=DEFAULT_UNITS_REGISTRY,
+        metrics=DEFAULT_METRIC_REGISTRY,
+        constraints=ConstraintRegistry(constraints={}),
+    )
+    bundle = _bundle_with_interventions(
+        [
+            InterventionSpec(
+                intervention_id="int_1",
+                kind="custom",
+                target=SelectorPredicate(field="ghost", operator="==", value="all"),
+                schedule=_base_schedule(),
+                params={"config.rate": Decimal("0.1")},
+            )
+        ]
+    )
+
+    linked_a, report_a = link_trinity(bundle, registries)
+    linked_b, report_b = link_trinity(bundle, registries)
+
+    assert linked_a.model_dump(mode="json") == linked_b.model_dump(mode="json")
+    assert report_a.model_dump(mode="json") == report_b.model_dump(mode="json")
 
 
 def test_linker_reports_incompatible_constraint() -> None:

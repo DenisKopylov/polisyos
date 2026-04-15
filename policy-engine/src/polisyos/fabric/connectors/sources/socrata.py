@@ -19,6 +19,12 @@ from typing import Any, AsyncIterator, ClassVar
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
+from polisyos.fabric.safety import (
+    UnsafeFilterExpressionError,
+    UnsafeIdentifierError,
+    escape_soql_literal,
+    safe_path_segment,
+)
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
@@ -45,6 +51,7 @@ from polisyos.ir.connectors import (
 
 _DEFAULT_LIMIT = 10000
 _MAX_LIMIT = 50000
+_SYSTEM_SOQL_FIELDS = frozenset({":id", ":updated_at"})
 
 
 class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
@@ -171,8 +178,14 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
         base = self._base_url(handle)
-        url = f"{base}/resource/{request.dataset_id}.json"
-        params = self._build_soql_params(request)
+        dataset_segment = safe_path_segment(request.dataset_id, what="Socrata dataset id")
+        url = f"{base}/resource/{dataset_segment}.json"
+        schema_fields = (
+            await self._get_schema_fields(handle, request.dataset_id)
+            if request.filters
+            else None
+        )
+        params = self._build_soql_params(request, schema_fields=schema_fields)
 
         started = time.monotonic()
         all_records: list[dict[str, Any]] = []
@@ -229,7 +242,8 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
         dataset_id: str,
     ) -> dict[str, Any]:
         base = self._base_url(handle)
-        url = f"{base}/api/views/{dataset_id}.json"
+        dataset_segment = safe_path_segment(dataset_id, what="Socrata dataset id")
+        url = f"{base}/api/views/{dataset_segment}.json"
         body, _headers, _raw = await self._resilient_request_json(
             handle, url, params={},
         )
@@ -254,8 +268,30 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
     # SoQL param builder
     # ------------------------------------------------------------------
 
+    async def _get_schema_fields(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+    ) -> set[str]:
+        cache = handle.setdefault_state("socrata_schema_fields", {})
+        cached = cache.get(dataset_id)
+        if isinstance(cached, set):
+            return cached
+        schema = await self.get_dataset_schema(handle, dataset_id)
+        fields = {
+            str(field.get("name"))
+            for field in schema.get("fields", [])
+            if isinstance(field, dict) and field.get("name")
+        }
+        cache[dataset_id] = fields
+        return fields
+
     @staticmethod
-    def _build_soql_params(request: FetchRequest) -> dict[str, str]:
+    def _build_soql_params(
+        request: FetchRequest,
+        *,
+        schema_fields: set[str] | None = None,
+    ) -> dict[str, str]:
         params: dict[str, str] = {
             "$limit": str(_DEFAULT_LIMIT),
             "$order": ":id",
@@ -266,41 +302,133 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
         # Dimension filters
         for key, values in request.filters:
             if key == "$select":
-                params["$select"] = ",".join(values)
+                params["$select"] = ",".join(
+                    SocrataConnector._validate_select_fields(
+                        values,
+                        schema_fields=schema_fields,
+                    )
+                )
             elif key == "$order":
-                params["$order"] = ",".join(values)
+                params["$order"] = ",".join(
+                    SocrataConnector._validate_order_terms(
+                        values,
+                        schema_fields=schema_fields,
+                    )
+                )
             elif key == "$limit":
-                params["$limit"] = values[0] if values else str(_DEFAULT_LIMIT)
+                params["$limit"] = str(SocrataConnector._normalize_limit(values))
             elif key == "$where":
-                where_clauses.append(values[0] if values else "")
+                raise UnsafeFilterExpressionError(
+                    "Raw $where filters are not allowed; use structured request filters"
+                )
             else:
                 # Dimension filter → SoQL $where
-                quoted = [f"'{v}'" for v in values]
+                column = SocrataConnector._validate_filter_field(
+                    key,
+                    schema_fields=schema_fields,
+                )
+                quoted = [escape_soql_literal(v) for v in values]
                 if len(quoted) == 1:
-                    where_clauses.append(f"{key}={quoted[0]}")
+                    where_clauses.append(f"{column} = {quoted[0]}")
                 else:
-                    where_clauses.append(f"{key} in({','.join(quoted)})")
+                    where_clauses.append(f"{column} IN ({', '.join(quoted)})")
 
         # Time range
         if request.date_start is not None:
             where_clauses.append(
-                f":updated_at>='{request.date_start.strftime('%Y-%m-%dT%H:%M:%S')}'"
+                f":updated_at >= {escape_soql_literal(request.date_start.strftime('%Y-%m-%dT%H:%M:%S'))}"
             )
         if request.date_end is not None:
             where_clauses.append(
-                f":updated_at<='{request.date_end.strftime('%Y-%m-%dT%H:%M:%S')}'"
+                f":updated_at <= {escape_soql_literal(request.date_end.strftime('%Y-%m-%dT%H:%M:%S'))}"
             )
 
         # Incremental
         if request.incremental_since is not None:
             where_clauses.append(
-                f":updated_at>'{request.incremental_since.value}'"
+                f":updated_at > {escape_soql_literal(request.incremental_since.value)}"
             )
 
         if where_clauses:
             params["$where"] = " AND ".join(where_clauses)
 
         return params
+
+    @staticmethod
+    def _validate_filter_field(
+        field: str,
+        *,
+        schema_fields: set[str] | None,
+    ) -> str:
+        candidate = str(field or "").strip()
+        if candidate in _SYSTEM_SOQL_FIELDS:
+            return candidate
+        if schema_fields is not None and candidate not in schema_fields:
+            raise UnsafeIdentifierError(f"Unknown SoQL filter field: {field!r}")
+        if not candidate.isidentifier():
+            raise UnsafeIdentifierError(f"Unsafe SoQL filter field: {field!r}")
+        return candidate
+
+    @staticmethod
+    def _validate_select_fields(
+        values: tuple[str, ...] | list[str],
+        *,
+        schema_fields: set[str] | None,
+    ) -> list[str]:
+        fields: list[str] = []
+        for raw in values:
+            for item in str(raw).split(","):
+                candidate = item.strip()
+                if not candidate:
+                    continue
+                fields.append(
+                    SocrataConnector._validate_filter_field(
+                        candidate,
+                        schema_fields=schema_fields,
+                    )
+                )
+        return fields
+
+    @staticmethod
+    def _validate_order_terms(
+        values: tuple[str, ...] | list[str],
+        *,
+        schema_fields: set[str] | None,
+    ) -> list[str]:
+        terms: list[str] = []
+        for raw in values:
+            for item in str(raw).split(","):
+                candidate = item.strip()
+                if not candidate:
+                    continue
+                tokens = candidate.split()
+                if len(tokens) == 1:
+                    column = SocrataConnector._validate_filter_field(
+                        tokens[0],
+                        schema_fields=schema_fields,
+                    )
+                    direction = "ASC"
+                elif len(tokens) == 2:
+                    column = SocrataConnector._validate_filter_field(
+                        tokens[0],
+                        schema_fields=schema_fields,
+                    )
+                    direction = tokens[1].upper()
+                else:
+                    raise UnsafeIdentifierError(f"Unsafe SoQL order term: {item!r}")
+                if direction not in {"ASC", "DESC"}:
+                    raise UnsafeIdentifierError(f"Unsafe SoQL order direction: {direction!r}")
+                terms.append(f"{column} {direction}")
+        return terms
+
+    @staticmethod
+    def _normalize_limit(values: tuple[str, ...] | list[str]) -> int:
+        raw = values[0] if values else str(_DEFAULT_LIMIT)
+        try:
+            limit = int(raw)
+        except (TypeError, ValueError) as exc:
+            raise UnsafeFilterExpressionError(f"Unsafe SoQL limit: {raw!r}") from exc
+        return max(1, min(limit, _MAX_LIMIT))
 
 
 __all__ = ["SocrataConnector"]

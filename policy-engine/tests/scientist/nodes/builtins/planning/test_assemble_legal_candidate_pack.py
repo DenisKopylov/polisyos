@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack import (
     AssembleLegalCandidatePackNode,
 )
@@ -57,3 +58,51 @@ def test_assemble_already_exists(execution_context, minimal_state, artifact_ref_
     outcome = AssembleLegalCandidatePackNode().execute(execution_context, state)
     assert outcome.status == "ok"
     assert outcome.state is state
+
+
+def test_assemble_pack_uses_branch_state_for_declared_outputs(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    request_ref = artifact_ref_factory(kind="scientist.policy_request_frame")
+    pack_ref = artifact_ref_factory(kind="scientist.legal_candidate_pack")
+    mock_pack = MagicMock()
+    mock_pack.fact_hits = []
+    mock_pack.provision_hits = []
+    state = minimal_state.model_copy(deep=True)
+    state.policy_request_ref = request_ref
+    state.artifacts_index[ARTIFACT_POLICY_REQUEST_FRAME_REF] = request_ref
+    state.params["nested"] = {"baseline": True}
+    observed: dict[str, tuple[str, ...]] = {}
+
+    def _spy_branch(base_state, *, write_paths=()):
+        observed["write_paths"] = tuple(write_paths)
+        return real_branch_state(base_state, write_paths=write_paths)
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack.branch_state",
+            _spy_branch,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack.load_policy_request_frame",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack.assemble_legal_candidate_pack",
+            return_value=mock_pack,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack.persist_legal_candidate_pack",
+            return_value=pack_ref,
+        ),
+    ):
+        outcome = AssembleLegalCandidatePackNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert observed["write_paths"] == (
+        "legal_candidate_pack_ref",
+        "artifacts_index.legal_candidate_pack_ref",
+    )
+    assert state.params["nested"] == {"baseline": True}
+    assert ARTIFACT_LEGAL_CANDIDATE_PACK_REF not in state.artifacts_index
+    assert outcome.state.legal_candidate_pack_ref == pack_ref

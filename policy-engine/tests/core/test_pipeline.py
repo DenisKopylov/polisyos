@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import threading
+import time
 
 import pytest
 
@@ -80,3 +82,32 @@ def test_dag_pipeline_cycle_detection() -> None:
 
     with pytest.raises(PipelineCycleError, match="contains cycles"):
         pipeline.compile()
+
+
+def test_dag_pipeline_branching_is_thread_safe() -> None:
+    pipeline = DagPipeline[str](auto_chain=True)
+    pipeline.add_stage("root", name="root")
+
+    def _build_branch(prefix: str):
+        def _builder(local_pipeline: DagPipeline[str]) -> None:
+            local_pipeline.add_stage(f"{prefix}.1", name=f"{prefix}.1")
+            time.sleep(0.01)
+            local_pipeline.add_stage(f"{prefix}.2", name=f"{prefix}.2")
+
+        return _builder
+
+    threads = [
+        threading.Thread(target=lambda: pipeline.branch(_build_branch("left"), depends_on=["root"])),
+        threading.Thread(target=lambda: pipeline.branch(_build_branch("right"), depends_on=["root"])),
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    compiled = pipeline.compile()
+    stages = {stage.name: stage for stage in compiled.stages}
+    assert stages["left.1"].dependencies == ("root",)
+    assert stages["left.2"].dependencies == ("left.1",)
+    assert stages["right.1"].dependencies == ("root",)
+    assert stages["right.2"].dependencies == ("right.1",)

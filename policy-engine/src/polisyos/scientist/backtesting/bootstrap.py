@@ -3,9 +3,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Callable
 
 import numpy as np
+
+from polisyos.core.errors import ErrorCategory, PolicyOSError
+
+
+class BootstrapValidationError(PolicyOSError):
+    """Raised when bootstrap inputs are invalid for statistical evaluation."""
+
+    default_stage = "scientist.backtesting.bootstrap"
+    default_category = ErrorCategory.VALIDATION
+
+
+StatisticFn = Callable[[np.ndarray], float]
 
 
 @dataclass(frozen=True)
@@ -24,7 +36,7 @@ def bootstrap_metric(
     values: list[float] | np.ndarray,
     *,
     metric: str = "mean",
-    statistic: str = "mean",
+    statistic: str | StatisticFn = "mean",
     confidence_level: float = 0.95,
     n_bootstrap: int = 1000,
     seed: int | None = None,
@@ -48,17 +60,25 @@ def bootstrap_metric(
     """
     arr = np.asarray(values, dtype=float)
     if arr.size == 0:
-        return BootstrapCI(
-            metric=metric,
-            point_estimate=0.0,
-            lower=0.0,
-            upper=0.0,
-            confidence_level=confidence_level,
-            n_bootstrap=n_bootstrap,
+        raise BootstrapValidationError(
+            "bootstrap_metric requires at least one observed value",
+            code="empty_values",
+        )
+    if n_bootstrap <= 0:
+        raise BootstrapValidationError(
+            "n_bootstrap must be greater than zero",
+            code="invalid_n_bootstrap",
+            details={"n_bootstrap": n_bootstrap},
+        )
+    if not 0.0 < confidence_level < 1.0:
+        raise BootstrapValidationError(
+            "confidence_level must be between 0 and 1",
+            code="invalid_confidence_level",
+            details={"confidence_level": confidence_level},
         )
 
     rng = np.random.default_rng(seed)
-    stat_fn = _STAT_FNS.get(statistic, np.mean)
+    stat_fn = _resolve_statistic(statistic)
     point = float(stat_fn(arr))
 
     boot_stats = np.empty(n_bootstrap)
@@ -96,21 +116,23 @@ def bootstrap_scenario_metrics(
         confidence_level=confidence_level, n_bootstrap=n_bootstrap, seed=seed,
     )
     results["rmse"] = bootstrap_metric(
-        arr ** 2, metric="rmse", statistic="mean",
-        confidence_level=confidence_level, n_bootstrap=n_bootstrap, seed=seed,
-    )
-    # Transform RMSE point/bounds to actual RMSE scale
-    rmse = results["rmse"]
-    results["rmse"] = BootstrapCI(
+        arr,
         metric="rmse",
-        point_estimate=float(np.sqrt(max(0, rmse.point_estimate))),
-        lower=float(np.sqrt(max(0, rmse.lower))),
-        upper=float(np.sqrt(max(0, rmse.upper))),
-        confidence_level=rmse.confidence_level,
-        n_bootstrap=rmse.n_bootstrap,
+        statistic=_rmse_statistic,
+        confidence_level=confidence_level, n_bootstrap=n_bootstrap, seed=seed,
     )
 
     return results
+
+
+def _resolve_statistic(statistic: str | StatisticFn) -> StatisticFn:
+    if callable(statistic):
+        return statistic
+    return _STAT_FNS.get(statistic, np.mean)
+
+
+def _rmse_statistic(values: np.ndarray) -> float:
+    return float(np.sqrt(np.mean(values ** 2)))
 
 
 _STAT_FNS = {

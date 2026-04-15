@@ -15,12 +15,15 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.contracts.mechanism import Mechanism, PatchMap
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.methods.exceptions import ActionRoutingError, ObservationBindingError
 
 
 def _activation_from_name(name: str) -> Callable[[jnp.ndarray], jnp.ndarray]:
     if name == "tanh":
         return jax.nn.tanh
-    return jax.nn.relu
+    if name in {"", "relu"}:
+        return jax.nn.relu
+    raise ValueError(f"Unsupported activation '{name}'")
 
 
 def _cas_root() -> Path:
@@ -67,6 +70,50 @@ def _combine_masks(
     return jnp.asarray(target_mask, dtype=jnp.bool_) & jnp.asarray(active_mask, dtype=jnp.bool_)
 
 
+def _resolve_observation_value(
+    state: GlobalState,
+    field: str,
+    overrides: Mapping[str, Any],
+) -> Any:
+    if field.startswith("agents."):
+        subfield = field.split("agents.", 1)[1]
+        value = getattr(state.agents, subfield, None)
+        if value is None and field in overrides:
+            value = overrides[field]
+        if value is None:
+            raise ObservationBindingError(field, "agents field is missing from state")
+        return value
+    if field.startswith(("global.", "policy.")):
+        name = field.split(".", 1)[1]
+        if name in overrides:
+            value = overrides[name]
+        else:
+            value = getattr(state, name, None)
+        if value is None and field in overrides:
+            value = overrides[field]
+        if value is None:
+            raise ObservationBindingError(field, "global/policy field is missing from state")
+        return value
+    if "." in field:
+        scope, slot = field.split(".", 1)
+        container = getattr(state, scope, None)
+        if container is not None and hasattr(container, slot):
+            value = getattr(container, slot)
+        elif field in overrides:
+            value = overrides[field]
+        else:
+            value = None
+        if value is None:
+            raise ObservationBindingError(field, "scoped field is missing from state")
+        return value
+    if field in overrides:
+        return overrides[field]
+    value = getattr(state, field, None)
+    if value is None:
+        raise ObservationBindingError(field, "field is missing from state")
+    return value
+
+
 def build_observations(
     state: GlobalState,
     observation_space: Iterable[str],
@@ -78,46 +125,7 @@ def build_observations(
     override_values = overrides or {}
     features: list[jnp.ndarray] = []
     for field in observation_space:
-        if field.startswith("agents."):
-            subfield = field.split("agents.", 1)[1]
-            value = getattr(state.agents, subfield, None)
-            if value is None and field in override_values:
-                value = override_values[field]
-            if value is None:
-                value = jnp.array(0.0, dtype=jnp.float32)
-            features.append(_as_feature(value, n_agents))
-            continue
-        if field.startswith(("global.", "policy.")):
-            name = field.split(".", 1)[1]
-            if name in override_values:
-                value = override_values[name]
-            else:
-                value = getattr(state, name, None)
-            if value is None and field in override_values:
-                value = override_values[field]
-            if value is None:
-                value = jnp.array(0.0, dtype=jnp.float32)
-            features.append(_as_feature(value, n_agents))
-            continue
-        if "." in field:
-            scope, slot = field.split(".", 1)
-            container = getattr(state, scope, None)
-            if container is not None and hasattr(container, slot):
-                value = getattr(container, slot)
-            else:
-                value = None
-            if value is None and field in override_values:
-                value = override_values[field]
-            if value is None:
-                value = jnp.array(0.0, dtype=jnp.float32)
-            features.append(_as_feature(value, n_agents))
-            continue
-        if field in override_values:
-            value = override_values[field]
-        else:
-            value = getattr(state, field, None)
-        if value is None:
-            value = jnp.array(0.0, dtype=jnp.float32)
+        value = _resolve_observation_value(state, field, override_values)
         features.append(_as_feature(value, n_agents))
     if not features:
         return jnp.zeros((n_agents, 0), dtype=jnp.float32)
@@ -125,13 +133,15 @@ def build_observations(
 
 
 def _range_scale(range_spec: Any, values: jnp.ndarray) -> jnp.ndarray:
+    if range_spec is None:
+        return values
     if not isinstance(range_spec, (list, tuple)) or len(range_spec) != 2:
-        return values
-    try:
-        lower = float(range_spec[0])
-        upper = float(range_spec[1])
-    except (TypeError, ValueError):
-        return values
+        raise ActionRoutingError("range", "range must be a 2-item list or tuple")
+    lower_raw, upper_raw = range_spec
+    if not isinstance(lower_raw, (int, float)) or not isinstance(upper_raw, (int, float)):
+        raise ActionRoutingError("range", "range endpoints must be numeric")
+    lower = float(lower_raw)
+    upper = float(upper_raw)
     return lower + (upper - lower) * values
 
 
@@ -241,6 +251,8 @@ class AdaptiveAgentMechanism(Mechanism):
             observation_space = []
         if not isinstance(observation_space, list):
             raise ValueError("AdaptiveAgentMechanism observation_space must be a list")
+        if any(not isinstance(field, str) or not field.strip() for field in observation_space):
+            raise ObservationBindingError("observation_space", "all observation fields must be non-empty strings")
         if not isinstance(action_space, dict):
             raise ValueError("AdaptiveAgentMechanism action_space must be a dict")
 
@@ -253,7 +265,19 @@ class AdaptiveAgentMechanism(Mechanism):
 
         obs_dim = len(self.observation_space)
         action_type = action_space.get("type", "continuous")
+        if action_type not in {"continuous", "discrete"}:
+            raise ActionRoutingError(str(action_type), "unsupported action type")
         affects = action_space.get("affects")
+        if isinstance(affects, str):
+            affects_values = [affects]
+        elif isinstance(affects, list):
+            affects_values = affects
+        else:
+            affects_values = []
+        if not affects_values or any(not isinstance(item, str) or not item.strip() for item in affects_values):
+            raise ActionRoutingError("affects", "must contain at least one non-empty slot target")
+        if any(not item.startswith("agents.") for item in affects_values):
+            raise ActionRoutingError("affects", "all action targets must use the agents.* namespace")
         out_dim = None
         if action_type == "discrete":
             out_dim = (
@@ -307,6 +331,15 @@ class AdaptiveAgentMechanism(Mechanism):
                 eqx.filter(self.policy, eqx.is_inexact_array)
             )
 
+    def with_runtime_overrides(self, **overrides: Any) -> "AdaptiveAgentMechanism":
+        """Return a copy with explicit runtime override fields applied."""
+        updated: AdaptiveAgentMechanism = self
+        for field_name, value in overrides.items():
+            if not hasattr(updated, field_name):
+                raise ObservationBindingError(field_name, "runtime override field does not exist")
+            updated = eqx.tree_at(lambda mech: getattr(mech, field_name), updated, value)
+        return updated
+
     def init_state(self, state: GlobalState, key: jax.Array) -> tuple[GlobalState, jax.Array]:
         if hasattr(state.agents, "reported_income"):
             new_agents = state.agents.replace(reported_income=state.agents.income)
@@ -344,7 +377,9 @@ class AdaptiveAgentMechanism(Mechanism):
             affects_list = [item for item in affects if isinstance(item, str)]
 
         patches: PatchMap = {}
-        if n_agents == 0 or not affects_list:
+        if not affects_list:
+            raise ActionRoutingError("affects", "no valid action targets were configured")
+        if n_agents == 0:
             return patches, key
         if action_type == "discrete":
             probs = jax.nn.softmax(logits, axis=-1)
@@ -358,11 +393,11 @@ class AdaptiveAgentMechanism(Mechanism):
             action_idx = action_idx.astype(jnp.int32)
             for slot_id in affects_list:
                 if not slot_id.startswith("agents."):
-                    continue
+                    raise ActionRoutingError(slot_id, "only agents.* targets are supported")
                 field_name = slot_id.split("agents.", 1)[1]
                 current = getattr(state.agents, field_name, None)
                 if current is None:
-                    continue
+                    raise ActionRoutingError(slot_id, "target field is missing from state.agents")
                 if jnp.issubdtype(current.dtype, jnp.bool_):
                     new_value = (
                         action_idx.astype(jnp.bool_)
@@ -387,11 +422,11 @@ class AdaptiveAgentMechanism(Mechanism):
 
         for idx, slot_id in enumerate(affects_list or []):
             if not slot_id.startswith("agents."):
-                continue
+                raise ActionRoutingError(slot_id, "only agents.* targets are supported")
             field_name = slot_id.split("agents.", 1)[1]
             current = getattr(state.agents, field_name, None)
             if current is None:
-                continue
+                raise ActionRoutingError(slot_id, "target field is missing from state.agents")
             if action_val.ndim == 1:
                 chosen_val = action_val
             else:

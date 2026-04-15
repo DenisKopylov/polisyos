@@ -22,7 +22,9 @@ export type ConfirmDialogOptions = {
 };
 
 type PendingDialogState = ConfirmDialogOptions & {
+  id: number;
   resolve: (value: boolean) => void;
+  trigger: HTMLElement | null;
 };
 
 type AlertDialogContextValue = {
@@ -127,30 +129,63 @@ function AlertDialogSurface({
 }
 
 export function AlertDialogProvider({ children }: PropsWithChildren) {
-  const [pending, setPending] = useState<PendingDialogState | null>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
+  const [queue, setQueue] = useState<PendingDialogState[]>([]);
+  const queueRef = useRef<PendingDialogState[]>([]);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const nextDialogIdRef = useRef(1);
+
+  useEffect(() => {
+    queueRef.current = queue;
+  }, [queue]);
+
+  useEffect(
+    () => () => {
+      queueRef.current.forEach((pending) => pending.resolve(false));
+      queueRef.current = [];
+    },
+    [],
+  );
 
   const confirm = useCallback((options: ConfirmDialogOptions) => {
-    triggerRef.current =
+    const trigger =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
 
     return new Promise<boolean>((resolve) => {
-      setPending({
-        ...options,
-        resolve,
-      });
+      setQueue((current) => [
+        ...current,
+        {
+          id: nextDialogIdRef.current++,
+          ...options,
+          resolve,
+          trigger,
+        },
+      ]);
     });
   }, []);
 
   const resolvePending = useCallback((value: boolean) => {
-    setPending((current) => {
-      current?.resolve(value);
-      return null;
-    });
-    triggerRef.current?.focus();
+    const [resolvedDialog] = queueRef.current;
+    if (!resolvedDialog) {
+      return;
+    }
+
+    queueRef.current = queueRef.current.slice(1);
+    setQueue((current) => (current.length > 0 ? current.slice(1) : current));
+    restoreFocusRef.current = resolvedDialog.trigger;
+    resolvedDialog.resolve(value);
   }, []);
+
+  useEffect(() => {
+    if (queue.length > 0) {
+      return;
+    }
+
+    const target = restoreFocusRef.current;
+    restoreFocusRef.current = null;
+    target?.focus();
+  }, [queue.length]);
 
   const value = useMemo<AlertDialogContextValue>(
     () => ({
@@ -159,11 +194,14 @@ export function AlertDialogProvider({ children }: PropsWithChildren) {
     [confirm],
   );
 
+  const pending = queue[0] ?? null;
+
   return (
     <AlertDialogContext.Provider value={value}>
       {children}
       {pending ? (
         <AlertDialogSurface
+          key={pending.id}
           pending={pending}
           onCancel={() => resolvePending(false)}
           onConfirm={() => resolvePending(true)}

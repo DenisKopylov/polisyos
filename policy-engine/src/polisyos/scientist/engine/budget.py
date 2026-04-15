@@ -82,15 +82,21 @@ class BudgetState(BaseModel):
         self.reserved[key] = self.reserved.get(key, Decimal(0)) + amount
         return True
 
-    def release(self, key: str, amount: Decimal) -> None:
-        """Release previously reserved budget."""
+    def release(self, key: str, amount: Decimal) -> Decimal:
+        """Release previously reserved budget and return the actual released amount."""
         current = self.reserved.get(key, Decimal(0))
-        self.reserved[key] = max(Decimal(0), current - amount)
+        released = min(current, max(Decimal(0), amount))
+        self.reserved[key] = max(Decimal(0), current - released)
+        return released
 
-    def commit_reservation(self, key: str, amount: Decimal) -> None:
-        """Convert a reservation into actual spend."""
-        self.release(key, amount)
-        self.record_spend(key, amount)
+    def commit_reservation(
+        self, key: str, amount: Decimal, *, provider: str | None = None,
+    ) -> Decimal:
+        """Convert a reservation into actual spend and return the committed amount."""
+        committed = self.release(key, amount)
+        if committed > 0:
+            self.record_spend(key, committed, provider=provider)
+        return committed
 
     def is_soft_limit_exceeded(self, key: str) -> bool:
         """Check if soft limit has been crossed for *key*."""

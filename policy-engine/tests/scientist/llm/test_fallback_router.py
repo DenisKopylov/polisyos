@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from polisyos.scientist.llm.fallback_router import (
     EndpointConfig,
-    EndpointHealth,
     FallbackRouter,
 )
 from polisyos.scientist.llm.gateway_client import GatewayLLMResponse, GatewayUsage
@@ -73,6 +72,40 @@ class TestFallbackRouter:
             with pytest.raises(RuntimeError, match="All LLM endpoints exhausted"):
                 await router.generate(user="hi")
 
+    @pytest.mark.asyncio
+    async def test_failover_emits_degraded_path(self, two_endpoints):
+        call_count = 0
+
+        async def _mock_generate(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise RuntimeError("primary down")
+            return _ok_response("secondary")
+
+        router = FallbackRouter(two_endpoints)
+        with patch(
+            "polisyos.scientist.llm.fallback_router.GatewayLLMClient.generate",
+            side_effect=_mock_generate,
+        ), patch(
+            "polisyos.scientist.llm.fallback_router.emit_degraded_path",
+        ) as degraded:
+            result = await router.generate(user="hi")
+
+        assert result.content == "secondary"
+        degraded.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_keyboard_interrupt_is_not_swallowed(self, two_endpoints):
+        router = FallbackRouter(two_endpoints)
+        with patch(
+            "polisyos.scientist.llm.fallback_router.GatewayLLMClient.generate",
+            new_callable=AsyncMock,
+            side_effect=KeyboardInterrupt("stop"),
+        ):
+            with pytest.raises(KeyboardInterrupt, match="stop"):
+                await router.generate(user="hi")
+
     def test_endpoint_health_reporting(self, two_endpoints):
         router = FallbackRouter(two_endpoints)
         health = router.endpoint_health()
@@ -102,7 +135,15 @@ class TestFallbackRouter:
         # Wait for recovery
         await asyncio.sleep(0.1)
 
+        # Health reporting is read-only; recovery transition happens in routing.
+        health = router.endpoint_health()
+        primary_health = next(h for h in health if h["url"] == "http://primary.test")
+        assert primary_health["health"] == "unhealthy"
+
         # Should now be available (degraded)
         available = router._available_endpoints()
         urls = {s.config.url for s in available}
         assert "http://primary.test" in urls
+        health = router.endpoint_health()
+        primary_health = next(h for h in health if h["url"] == "http://primary.test")
+        assert primary_health["health"] == "degraded"

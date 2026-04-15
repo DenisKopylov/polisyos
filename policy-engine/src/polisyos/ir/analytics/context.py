@@ -1,10 +1,14 @@
 """Public analytics context module API."""
 from __future__ import annotations
 
+import logging
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+
+logger = logging.getLogger(__name__)
+_EXPECTED_ENRICHMENT_ERRORS = (LookupError, OSError, RuntimeError, TypeError, ValueError)
 
 
 class ContextProfileInferenceLevel(str, Enum):
@@ -24,10 +28,40 @@ class IncomeLevel(str, Enum):
     UNKNOWN = "unknown"
 
 
+class ContextEnrichmentIssueCode(str, Enum):
+    """Typed degraded outcomes for optional datasource enrichment."""
+
+    FETCH_FAILED = "fetch_failed"
+    FINDER_FAILED = "finder_failed"
+    INVALID_PAYLOAD = "invalid_payload"
+
+
+class ContextEnrichmentIssue(BaseModel):
+    """Structured diagnostic for degraded datasource enrichment."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source: str = Field(..., min_length=1, max_length=32)
+    code: ContextEnrichmentIssueCode
+    context_id: str = Field(default="", max_length=128)
+    year: int = Field(..., ge=0, le=9999)
+    detail: str = Field(..., min_length=1, max_length=512)
+
+
+class _DatasourceFetchResult(BaseModel):
+    """Internal envelope for best-effort datasource fetches."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    payload: dict[str, Any] | None = None
+    issues: tuple[ContextEnrichmentIssue, ...] = ()
+
+
 class ContextProfile(BaseModel):
     """Context profile for transport-aware literature reuse."""
 
     model_config = ConfigDict(extra="forbid")
+    _enrichment_issues: list[ContextEnrichmentIssue] = PrivateAttr(default_factory=list)
 
     context_id: str = ""
     context_label: str = ""
@@ -46,6 +80,12 @@ class ContextProfile(BaseModel):
     post_conflict: bool = False
     inference_level: ContextProfileInferenceLevel = ContextProfileInferenceLevel.INFERRED_BASIC
     data_sources: list[str] = Field(default_factory=list)
+
+    @property
+    def enrichment_issues(self) -> tuple[ContextEnrichmentIssue, ...]:
+        """Structured diagnostics emitted by the last datasource enrichment attempt."""
+
+        return tuple(self._enrichment_issues)
 
     def distance_to(self, other: "ContextProfile") -> float:
         """
@@ -117,19 +157,34 @@ class ContextProfile(BaseModel):
             or _extract_year_from_period(self.time_period)
             or 2020
         )
-        wgi_data = _safe_get_indicators(wgi, self.context_id, resolved_year)
-        wdi_data = _safe_get_indicators(wdi, self.context_id, resolved_year)
-        wvs_data = _safe_get_wvs_indicators(wvs, self.context_id, resolved_year)
+        wgi_result = _safe_get_indicators(wgi, "wgi", self.context_id, resolved_year)
+        wdi_result = _safe_get_indicators(wdi, "wdi", self.context_id, resolved_year)
+        wvs_result = _safe_get_wvs_indicators(wvs, self.context_id, resolved_year)
+        wgi_data = wgi_result.payload
+        wdi_data = wdi_result.payload
+        wvs_data = wvs_result.payload
+        successful_sources = sorted(
+            {
+                *self.data_sources,
+                *(
+                    source
+                    for source, result in (
+                        ("wgi", wgi_result),
+                        ("wdi", wdi_result),
+                        ("wvs", wvs_result),
+                    )
+                    if result.payload
+                ),
+            }
+        )
 
         update = {
-            "inference_level": ContextProfileInferenceLevel.ENRICHED,
-            "data_sources": sorted(
-                set(self.data_sources)
-                | {"wgi" if wgi_data else ""}
-                | {"wvs" if wvs_data else ""}
-                | {"wdi" if wdi_data else ""}
-                - {""}
+            "inference_level": (
+                ContextProfileInferenceLevel.ENRICHED
+                if successful_sources
+                else self.inference_level
             ),
+            "data_sources": successful_sources,
             "institutional_quality": _coalesce_numeric(
                 wgi_data.get("institutional_quality") if wgi_data else None,
                 self.institutional_quality,
@@ -160,7 +215,14 @@ class ContextProfile(BaseModel):
                 self.economic_openness,
             ),
         }
-        return self.model_copy(update=update)
+        profile = self.model_copy(update=update)
+        profile._enrichment_issues = [
+            *self.enrichment_issues,
+            *wgi_result.issues,
+            *wdi_result.issues,
+            *wvs_result.issues,
+        ]
+        return profile
 
 
 def _income_level_score(value: IncomeLevel | str | None) -> float | None:
@@ -191,27 +253,102 @@ def _extract_year_from_period(value: str) -> int | None:
     return None
 
 
-def _safe_get_indicators(client: Any, context_id: str, year: int) -> dict[str, Any]:
+def _issue(
+    *,
+    source: str,
+    code: ContextEnrichmentIssueCode,
+    context_id: str,
+    year: int,
+    detail: str,
+) -> ContextEnrichmentIssue:
+    return ContextEnrichmentIssue(
+        source=source,
+        code=code,
+        context_id=context_id,
+        year=year,
+        detail=detail,
+    )
+
+
+def _invalid_payload_result(
+    *,
+    source: str,
+    context_id: str,
+    year: int,
+    payload: Any,
+) -> _DatasourceFetchResult:
+    payload_type = type(payload).__name__
+    logger.warning(
+        "Context enrichment %s returned non-mapping payload for context_id=%s year=%s: %s",
+        source,
+        context_id,
+        year,
+        payload_type,
+    )
+    return _DatasourceFetchResult(
+        issues=(
+            _issue(
+                source=source,
+                code=ContextEnrichmentIssueCode.INVALID_PAYLOAD,
+                context_id=context_id,
+                year=year,
+                detail=f"expected mapping payload, got {payload_type}",
+            ),
+        )
+    )
+
+
+def _safe_get_indicators(
+    client: Any,
+    source: str,
+    context_id: str,
+    year: int,
+) -> _DatasourceFetchResult:
     if client is None:
-        return {}
+        return _DatasourceFetchResult()
     getter = getattr(client, "get_indicators", None)
     if not callable(getter):
-        return {}
+        return _DatasourceFetchResult()
     try:
         payload = getter(context_id, year)
-    except Exception:
-        return {}
-    return payload if isinstance(payload, dict) else {}
+    except _EXPECTED_ENRICHMENT_ERRORS as exc:
+        logger.warning(
+            "Context enrichment %s get_indicators failed for context_id=%s year=%s: %s",
+            source,
+            context_id,
+            year,
+            exc,
+        )
+        return _DatasourceFetchResult(
+            issues=(
+                _issue(
+                    source=source,
+                    code=ContextEnrichmentIssueCode.FETCH_FAILED,
+                    context_id=context_id,
+                    year=year,
+                    detail=str(exc),
+                ),
+            )
+        )
+    if not isinstance(payload, dict):
+        return _invalid_payload_result(
+            source=source,
+            context_id=context_id,
+            year=year,
+            payload=payload,
+        )
+    return _DatasourceFetchResult(payload=payload)
 
 
-def _safe_get_wvs_indicators(client: Any, context_id: str, year: int) -> dict[str, Any]:
+def _safe_get_wvs_indicators(client: Any, context_id: str, year: int) -> _DatasourceFetchResult:
     if client is None:
-        return {}
+        return _DatasourceFetchResult()
     finder = getattr(client, "find_closest_in_wave", None)
     getter = getattr(client, "get_indicators", None)
     if not callable(getter):
-        return {}
+        return _DatasourceFetchResult()
     survey_year = year
+    issues: list[ContextEnrichmentIssue] = []
     if callable(finder):
         try:
             result = finder(context_id, year, max_distance_years=3)
@@ -219,18 +356,74 @@ def _safe_get_wvs_indicators(client: Any, context_id: str, year: int) -> dict[st
                 candidate = result[0]
                 if isinstance(candidate, int):
                     survey_year = candidate
-        except Exception:
+        except _EXPECTED_ENRICHMENT_ERRORS as exc:
+            logger.warning(
+                "Context enrichment find_closest_in_wave failed for context_id=%s year=%s: %s",
+                context_id,
+                year,
+                exc,
+            )
+            issues.append(
+                _issue(
+                    source="wvs",
+                    code=ContextEnrichmentIssueCode.FINDER_FAILED,
+                    context_id=context_id,
+                    year=year,
+                    detail=str(exc),
+                )
+            )
             survey_year = year
     try:
         payload = getter(context_id, survey_year=survey_year)
     except TypeError:
         try:
             payload = getter(context_id, survey_year)
-        except Exception:
-            return {}
-    except Exception:
-        return {}
-    return payload if isinstance(payload, dict) else {}
+        except _EXPECTED_ENRICHMENT_ERRORS as exc:
+            logger.warning(
+                "Context enrichment WVS getter failed for context_id=%s survey_year=%s: %s",
+                context_id,
+                survey_year,
+                exc,
+            )
+            issues.append(
+                _issue(
+                    source="wvs",
+                    code=ContextEnrichmentIssueCode.FETCH_FAILED,
+                    context_id=context_id,
+                    year=survey_year,
+                    detail=str(exc),
+                )
+            )
+            return _DatasourceFetchResult(issues=tuple(issues))
+    except _EXPECTED_ENRICHMENT_ERRORS as exc:
+        logger.warning(
+            "Context enrichment WVS getter failed for context_id=%s survey_year=%s: %s",
+            context_id,
+            survey_year,
+            exc,
+        )
+        issues.append(
+            _issue(
+                source="wvs",
+                code=ContextEnrichmentIssueCode.FETCH_FAILED,
+                context_id=context_id,
+                year=survey_year,
+                detail=str(exc),
+            )
+        )
+        return _DatasourceFetchResult(issues=tuple(issues))
+    if not isinstance(payload, dict):
+        invalid = _invalid_payload_result(
+            source="wvs",
+            context_id=context_id,
+            year=survey_year,
+            payload=payload,
+        )
+        return _DatasourceFetchResult(
+            payload=None,
+            issues=tuple([*issues, *invalid.issues]),
+        )
+    return _DatasourceFetchResult(payload=payload, issues=tuple(issues))
 
 
 def _coalesce_numeric(candidate: Any, fallback: float | None) -> float | None:
@@ -242,4 +435,10 @@ def _coalesce_numeric(candidate: Any, fallback: float | None) -> float | None:
         return fallback
 
 
-__all__ = ["ContextProfile", "ContextProfileInferenceLevel", "IncomeLevel"]
+__all__ = [
+    "ContextEnrichmentIssue",
+    "ContextEnrichmentIssueCode",
+    "ContextProfile",
+    "ContextProfileInferenceLevel",
+    "IncomeLevel",
+]

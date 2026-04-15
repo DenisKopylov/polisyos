@@ -7,6 +7,8 @@ from urllib.request import Request, urlopen
 from polisyos.core.contracts.scholar import SourceSpec
 from polisyos.fabric.docs import DocSourceSpec
 from polisyos.scholar.errors import ScholarAcquireError, ScholarValidationError
+from polisyos.scholar.search.models import SearchConstraints
+from polisyos.scholar.search.security import validate_content_type, validate_fetch_url
 from polisyos.scholar.types import AcquireResult
 
 
@@ -39,6 +41,7 @@ def fetch_url(
     timeout_s: float,
     user_agent: str,
     max_bytes: int | None,
+    constraints: SearchConstraints | None = None,
 ) -> AcquireResult:
     """Download a URL seed source, enforce byte limits, and return an ``AcquireResult``."""
     if source.kind != "url":
@@ -56,6 +59,15 @@ def fetch_url(
             stage="acquire",
             source_identity=source.canonical_url,
         )
+
+    try:
+        validate_fetch_url(request_url, constraints or SearchConstraints())
+    except ValueError as exc:
+        raise ScholarAcquireError(
+            f"blocked URL fetch: {exc}",
+            source_identity=canonical_url,
+            details={"url": request_url},
+        ) from exc
 
     request = Request(request_url, headers={"User-Agent": user_agent})
     try:
@@ -82,7 +94,17 @@ def fetch_url(
             details={"url": request_url},
         ) from exc
 
-    mime = _extract_mime(content_type, source.mime_hint)
+    try:
+        mime = validate_content_type(
+            _extract_mime(content_type, source.mime_hint),
+            constraints or SearchConstraints(),
+        )
+    except ValueError as exc:
+        raise ScholarAcquireError(
+            f"blocked content type: {exc}",
+            source_identity=canonical_url,
+            details={"url": request_url, "content_type": content_type},
+        ) from exc
     doc_source = _doc_source_from_source(source, canonical_url=canonical_url)
     return AcquireResult(
         source=source,

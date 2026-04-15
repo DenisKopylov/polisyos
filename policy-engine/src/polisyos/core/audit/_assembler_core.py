@@ -8,24 +8,21 @@ import subprocess
 import tempfile
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.graph import resolve_dependency_graph
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactManifest
 from polisyos.core.artifacts.signing import (
     DetachedSignature,
     SigningConfig,
     load_signer_from_config,
 )
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon.canon_json import from_canonical_bytes
-from polisyos.core.contracts.provenance import ProvenanceCoreGraph
+from polisyos.core.run.context import recover_pending_run_finalize
 from polisyos.core.run.manifest import RunManifest
 from polisyos.core.trace.record import TraceRecord
 
@@ -55,6 +52,12 @@ from ._assembler_slsa import (
 )
 from .models import AuditExportResult, ExportOptions, ExportProfile, SigningPolicy
 from .prov_json import ProvJsonConverter, prov_json_to_dot
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactManifest
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.contracts.provenance import ProvenanceCoreGraph
 
 __all__ = [
     "AuditPackageAssembler",
@@ -112,7 +115,7 @@ class AuditPackageAssembler:
             include_bundle=True,
         ).convert(merged_graph)
 
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         archive_path = output_path or Path(
             f"audit_{run_data.run_id}_{timestamp}.polisyos-audit.tar.gz"
         )
@@ -174,6 +177,7 @@ class AuditPackageAssembler:
         return _RunData(run_id=run_id, run_dir=run_dir, manifest=manifest, roots=roots)
 
     def _load_manifest_from_trace(self, run_dir: Path, run_id: str) -> RunManifest:
+        recover_pending_run_finalize(self._cas, run_dir)
         trace_path = run_dir / "trace.jsonl"
         if not trace_path.exists():
             raise RunNotFoundError(
@@ -462,7 +466,7 @@ class AuditPackageAssembler:
             "algorithm": "Ed25519",
             "key_id": signer.key_id,
             "signature_hex": signature_hex,
-            "signed_at": datetime.now(timezone.utc).isoformat(),
+            "signed_at": datetime.now(UTC).isoformat(),
             "target": "verification/checksums.sha256",
         }
         write_json(signature_path, data)

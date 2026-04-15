@@ -463,7 +463,7 @@ class MetaLearnerEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="meta_learner",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

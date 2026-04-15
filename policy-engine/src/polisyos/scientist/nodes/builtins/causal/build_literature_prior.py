@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.methods.catalog.causal.invariance_tests import (
@@ -19,6 +21,7 @@ from polisyos.ir.analytics.literature import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_GRAPH_REF,
@@ -65,6 +68,9 @@ _SPEC = NodeSpec(
     produces=[ARTIFACT_LITERATURE_PRIOR_REF, ARTIFACT_LITERATURE_PRIOR_GRAPH_REF],
 )
 
+_LITERATURE_PRIOR_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_LITERATURE_PRIOR_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
+
 
 def _resolve_variables(state: ExperimentState) -> list[str]:
     raw = state.params.get("causal_variables")
@@ -79,14 +85,14 @@ def _resolve_variables(state: ExperimentState) -> list[str]:
 def _optional_int(value: Any, *, default: int) -> int:
     try:
         return int(value)
-    except Exception:
+    except _LITERATURE_PRIOR_VALIDATION_ERRORS:
         return int(default)
 
 
 def _optional_float(value: Any, *, default: float) -> float:
     try:
         return float(value)
-    except Exception:
+    except _LITERATURE_PRIOR_VALIDATION_ERRORS:
         return float(default)
 
 
@@ -178,7 +184,7 @@ class BuildLiteraturePriorNode:
                 ),
             )
             result = BuildLiteraturePrior.pure_step(request, params={})
-        except Exception as exc:
+        except _LITERATURE_PRIOR_EXECUTION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -229,7 +235,16 @@ class BuildLiteraturePriorNode:
         ]
         graph_ref = persist_causal_graph_model(ctx.store, graph, inputs=graph_inputs)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=(
+                f"artifacts_index.{ARTIFACT_LITERATURE_PRIOR_REF}",
+                f"artifacts_index.{ARTIFACT_LITERATURE_PRIOR_GRAPH_REF}",
+                "params.literature_prior_warnings",
+                "params.environment_audit_summary",
+                "params.environment_audit_status",
+            ),
+        ).state
         new_state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF] = prior_ref
         new_state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_GRAPH_REF] = graph_ref
         new_state.params["literature_prior_warnings"] = [

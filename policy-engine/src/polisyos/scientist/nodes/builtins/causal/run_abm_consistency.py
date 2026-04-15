@@ -7,15 +7,10 @@ from dataclasses import dataclass
 from statistics import mean, pstdev, stdev
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.ir.analytics.abstraction import (
-    FiniteStateAbstractionMap,
-    load_finite_state_abstraction_map,
-    persist_abstraction_certificate,
-    persist_finite_state_abstraction_map,
-    verify_finite_state_exact_abstraction,
-)
 from polisyos.ir.analytics.abm_bridge import (
     ABMAlignmentReport,
     AlignmentResult,
@@ -25,8 +20,15 @@ from polisyos.ir.analytics.abm_bridge import (
     ToleranceMethod,
     persist_abm_alignment_report,
 )
-from polisyos.ir.analytics.causal_graph import persist_causal_graph_model
+from polisyos.ir.analytics.abstraction import (
+    FiniteStateAbstractionMap,
+    load_finite_state_abstraction_map,
+    persist_abstraction_certificate,
+    persist_finite_state_abstraction_map,
+    verify_finite_state_exact_abstraction,
+)
 from polisyos.ir.analytics.causal import load_causal_effect_report
+from polisyos.ir.analytics.causal_graph import persist_causal_graph_model
 from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     load_structural_causal_model_spec,
@@ -37,8 +39,8 @@ from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
+    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
@@ -89,6 +91,15 @@ _SPEC = NodeSpec(
     ],
 )
 
+_ABM_CONSISTENCY_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_ABM_CONSISTENCY_RUNTIME_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+
 
 @dataclass(frozen=True)
 class _BridgeConfig:
@@ -110,7 +121,7 @@ class _BridgeConfig:
             raw = payload.get(key)
             try:
                 parsed = int(raw)
-            except Exception:
+            except _ABM_CONSISTENCY_VALIDATION_ERRORS:
                 return default
             return max(lower, parsed)
 
@@ -118,7 +129,7 @@ class _BridgeConfig:
             raw = payload.get(key)
             try:
                 parsed = float(raw)
-            except Exception:
+            except _ABM_CONSISTENCY_VALIDATION_ERRORS:
                 return default
             if not math.isfinite(parsed):
                 return default
@@ -189,7 +200,7 @@ def _parse_scm_effects(raw: Any) -> dict[str, float]:
             continue
         try:
             numeric = float(value)
-        except Exception:
+        except _ABM_CONSISTENCY_VALIDATION_ERRORS:
             continue
         if math.isfinite(numeric):
             parsed[name] = numeric
@@ -206,7 +217,7 @@ def _extract_effects(stats_entry: Any) -> list[float]:
     for item in raw:
         try:
             numeric = float(item)
-        except Exception:
+        except _ABM_CONSISTENCY_VALIDATION_ERRORS:
             continue
         if math.isfinite(numeric):
             effects.append(numeric)
@@ -229,7 +240,7 @@ def _extract_response_curve(stats_entry: Any) -> list[tuple[float, float]]:
         try:
             x = float(intervention)
             y = float(effect)
-        except Exception:
+        except _ABM_CONSISTENCY_VALIDATION_ERRORS:
             continue
         if math.isfinite(x) and math.isfinite(y):
             points.append((x, y))
@@ -285,7 +296,7 @@ def _load_single_fallback_effect(
         return None
     try:
         report = load_causal_effect_report(ctx.store, report_ref)
-    except Exception:
+    except _ABM_CONSISTENCY_RUNTIME_ERRORS:
         return None
     if report.point_estimate is None:
         return None
@@ -431,7 +442,7 @@ class RunABMConsistencyCheckNode:
 
         try:
             mappings = _parse_mappings(state.params.get("abm_macro_micro_mappings"))
-        except Exception as exc:
+        except _ABM_CONSISTENCY_VALIDATION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -473,7 +484,7 @@ class RunABMConsistencyCheckNode:
         exact_inputs: _ExactAbstractionInputs | None = None
         try:
             exact_inputs = _load_exact_abstraction_inputs(ctx, state)
-        except Exception as exc:
+        except _ABM_CONSISTENCY_RUNTIME_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,

@@ -77,3 +77,18 @@ def test_resolve_dependency_graph_reports_corruption(store: FileSystemCAS) -> No
     graph = resolve_dependency_graph(store, root.artifact_id)
 
     assert graph.nodes[child.artifact_id.hex].status == NodeStatus.CORRUPTED
+
+
+def test_resolve_dependency_graph_respects_timeout_budget(store: FileSystemCAS) -> None:
+    root = _put_json(store, {"root": True}, kind="test.root")
+
+    graph = resolve_dependency_graph(
+        store,
+        root.artifact_id,
+        timeout_seconds=0.0,
+        batch_size=1,
+    )
+
+    assert graph.timed_out is True
+    assert graph.nodes[root.artifact_id.hex].status == NodeStatus.SKIPPED_TIMEOUT
+    assert graph.is_complete is False

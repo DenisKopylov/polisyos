@@ -5,12 +5,15 @@ from __future__ import annotations
 import json
 import os
 import socket
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from polisyos.scientist.engine.checkpoint import RUN_LOCK_FILENAME, RunLockError
+
+_FCNTL_IMPORT_ERRORS = (ImportError, ModuleNotFoundError)
 
 
 @dataclass
@@ -25,7 +28,7 @@ class FcntlLockHandle:
     def release(self) -> None:
         try:
             import fcntl
-        except Exception as exc:  # pragma: no cover
+        except _FCNTL_IMPORT_ERRORS as exc:  # pragma: no cover
             raise RunLockError("fcntl is unavailable on this platform") from exc
         try:
             fcntl.flock(self.fd, fcntl.LOCK_UN)
@@ -84,11 +87,16 @@ class FcntlRunLock:
         self._run_dir = run_dir
 
     def acquire(
-        self, *, run_id: str, mode: str, force: bool = False
+        self,
+        *,
+        run_id: str,
+        mode: str,
+        force: bool = False,
+        owner_token: str | None = None,
     ) -> FcntlLockHandle:
         try:
             import fcntl
-        except Exception as exc:  # pragma: no cover
+        except _FCNTL_IMPORT_ERRORS as exc:  # pragma: no cover
             raise RunLockError("fcntl is unavailable on this platform") from exc
 
         self._run_dir.mkdir(parents=True, exist_ok=True)
@@ -100,6 +108,16 @@ class FcntlRunLock:
         except BlockingIOError as exc:
             current = _read_lock_metadata(lock_path)
             if force and current is not None:
+                if not owner_token:
+                    os.close(fd)
+                    raise RunLockError(
+                        f"run {run_id} force acquisition requires owner_token"
+                    ) from exc
+                if current.get("owner_token") != owner_token:
+                    os.close(fd)
+                    raise RunLockError(
+                        f"run {run_id} force acquisition rejected: owner token mismatch"
+                    ) from exc
                 same_host = current.get("hostname") == socket.gethostname()
                 stale = (
                     same_host
@@ -120,11 +138,13 @@ class FcntlRunLock:
                 f"run {run_id} is already active.{holder}"
             ) from exc
 
+        token = f"{socket.gethostname()}:{os.getpid()}:{uuid.uuid4().hex}"
         metadata = {
             "run_id": run_id,
             "pid": os.getpid(),
             "hostname": socket.gethostname(),
             "mode": mode,
+            "owner_token": token,
             "started_at": datetime.now(timezone.utc).isoformat(),
         }
         os.ftruncate(fd, 0)

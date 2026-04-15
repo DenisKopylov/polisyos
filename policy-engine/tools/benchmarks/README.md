@@ -1,20 +1,42 @@
 # tools/benchmarks
 
-Ручные benchmark/smoke-скрипты для JAX-сценариев.
+`tools/benchmarks` is the stable public compatibility package for benchmark
+execution.
 
-## Скрипты
+Canonical implementation lives under `tools/research/benchmarks/`.
 
-| Скрипт | Что проверяет | Текущее состояние |
-|---|---|---|
-| `bench_domain.py` | Векторизованные операции на большом состоянии агентов | legacy imports (`foundry.domain.state`) |
-| `bench_simulation.py` | Пропускная способность simulation loop на фиксированных параметрах | legacy imports (`foundry.domain.state`, `foundry.engine.kernel`) |
+## Ownership Boundary
 
-## Роль в системе
+- `tools/research/benchmarks/` owns executable/orchestration code:
+  `run_all`, `run_parallel`, local SOTA profile runners, release summary
+  generation, real-data preparation, JAX/lex smoke probes.
+- root `benchmarks/` owns benchmark-domain code:
+  suites, fixtures, comparators, scorecards, reporting, runtime helpers,
+  `harness.py`, `metrics.py`, `suite_registry.py`, and other support modules
+  imported by suites.
+- root `benchmarks/*.py` and `benchmarks/*.sh` executables are deprecated
+  compatibility wrappers.
 
-- вспомогательные инженерные тесты производительности;
-- не входят в обязательный CI-контур.
+## Canonical Commands
 
-## Ограничения
+```bash
+uv run polisyos-tools benchmarks run-all
+uv run polisyos-tools benchmarks build-release-summary --help
+uv run polisyos-tools benchmarks prepare-real-benchmark-data --help
+uv run polisyos-tools benchmarks run-parallel --help
+uv run polisyos-tools benchmarks run-local-sota-profile --help
+uv run polisyos-tools benchmarks benchmark-lex-llm-steady-state --help
+uv run polisyos-tools benchmarks benchmark-lex-llm-sweep --help
+```
 
-- оба скрипта используют фиксированные параметры в коде (без CLI-конфигурации);
-- в текущем дереве `src/polisyos` часть импортов недоступна как `.py`-исходники, поэтому запуск требует актуализации скриптов.
+## Compatibility Notes
+
+- `tools/benchmarks/*` top-level modules remain importable for one deprecation window.
+- `python -m tools.benchmarks.run_all` and similar module paths still work through shims.
+- `benchmarks/run_all_benchmarks.sh` and related root wrappers print a deprecation warning and forward to the canonical zoned tooling surface.
+
+## Reports
+
+- default benchmark orchestration reports still land in `benchmarks/_reports/`
+  or `tools/research/benchmarks/_reports/` depending on the entry point;
+- report schemas are preserved across the reorganization.

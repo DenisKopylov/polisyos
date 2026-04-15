@@ -8,6 +8,8 @@ const en = {
     enabled: "Enabled",
     disabled: "Disabled",
     refresh: "Refresh",
+    pullToRefresh: "Pull to refresh",
+    releaseToRefresh: "Release to refresh",
     open: "Open",
     sourceText: "Source text",
     requestFailed: "Request failed",
@@ -30,6 +32,8 @@ const en = {
     output: "Output",
     openArtifact: "Open artifact",
     inspect: "Inspect",
+    drawer: "Drawer",
+    bottomSheet: "Bottom sheet",
     loadLargerPreview: "Load larger preview",
     maxPreviewReached: "Max preview reached.",
     skipToContent: "Skip to content",
@@ -40,6 +44,11 @@ const en = {
     shareView: "Share view",
     copyLink: "Copy link",
     notifications: "Notifications",
+    freshness: {
+      missing: "No freshness metadata",
+      invalid: "Unknown freshness",
+      updated: "Updated {{value}}",
+    },
     exportCsv: "Export CSV",
     exportJson: "Export JSON",
     lineageGraph: {
@@ -48,6 +57,7 @@ const en = {
         "Graph has {{nodes}} nodes, which is above render threshold ({{maxNodes}}).",
       thresholdHint:
         "Narrow the lineage scope (`max_depth`/`max_nodes`) for interactive rendering.",
+      ariaLabel: "Artifact lineage graph",
       unknownKind: "Unknown kind",
     },
     locale: {
@@ -86,6 +96,7 @@ const en = {
       launchScenario: "Launch scenario",
       live: "Live SSE",
       liveFallback: "Polling fallback",
+      updatedAt: "Updated {{time}}",
       theme: "Theme",
       themeMode: {
         dark: "Theme: dark",
@@ -188,6 +199,20 @@ const en = {
         "The control plane did not return promotion candidates for the current sample.",
       promotionMeta: "lane {{lane}} · confidence {{confidence}}",
       noPromotionCandidates: "No pending promotion candidates.",
+      recentRuns: {
+        empty: "No recent runs to display.",
+      },
+      toolbar: {
+        addWidget: "+ Add widget ({{count}})",
+        customize: "Customize",
+        deleteView: "Delete {{view}}",
+        doneEditing: "Done editing",
+        reset: "Reset",
+        save: "Save",
+        saveView: "Save view",
+        viewNamePlaceholder: "View name",
+        views: "Views ({{count}})",
+      },
       graph: "Graph",
       graphReady: "Ready",
       graphPending: "Pending",
@@ -350,6 +375,8 @@ const en = {
         "The API returned no records for current filters, or local search excluded all rows.",
       keyboardHint:
         "Keyboard: j/k or arrows to move, Enter to open the selected run.",
+      activeRunAnnouncement:
+        "Selected run {{runId}}, status {{status}}, row {{position}} of {{count}}.",
       pageCount: "page count={{count}}",
       pageCountWithTotal: "page count={{count}} of {{total}}",
       prev: "Prev",
@@ -402,6 +429,7 @@ const en = {
       missingRefs: "missing refs {{count}}",
       transport: "Transport",
       blockers: "blockers {{count}}",
+      diagnostics: "Diagnostics",
       rootArtifacts: "Root artifacts",
       tabs: {
         overview: "overview",
@@ -546,6 +574,7 @@ const en = {
         workflow: "Workflow",
         agents: "Agent Trace",
         debug: "Debug",
+        explainability: "Explainability",
       },
       sectionBodies: {
         decision:
@@ -565,6 +594,7 @@ const en = {
         debug:
           "Timeline, node debug, and aggregated runtime errors for operator investigation.",
       },
+      explainabilitySubtitle: "Decision transparency and trust signals",
       governanceEmptyTitle: "Governance data unavailable",
       governanceEmptyBody: "No governance payload was returned for this run.",
       evidenceLoading: "Loading evidence context...",
@@ -1035,6 +1065,28 @@ const en = {
       openDebug: "open debug",
     },
   },
+  shared: {
+    uncertainty: {
+      confidence: "Confidence",
+      defaultFraming: {
+        confidenceOnly: "{{confidence}}% confidence in this estimate.",
+        range:
+          "In {{confidence}} out of 100 scenarios, the effect falls between {{lower}} and {{upper}}.",
+      },
+      direction: {
+        negative: "NEGATIVE",
+        positive: "POSITIVE",
+        uncertain: "UNCERTAIN",
+      },
+      method: "Method: {{methodology}}",
+      mode: {
+        intuitive: "Intuitive",
+        statistical: "Statistical",
+      },
+      policyEffect: "Policy effect:",
+      title: "Uncertainty Analysis",
+    },
+  },
   labels: {
     workflowStates: {
       plan_created: "Plan created",
@@ -1074,6 +1126,28 @@ const en = {
       healthy: "Healthy",
       unavailable: "Unavailable",
     },
+    runStatuses: {
+      accepted: "Accepted",
+      blocked: "Blocked",
+      blocked_preflight: "Blocked preflight",
+      completed: "Completed",
+      done: "Done",
+      error: "Error",
+      fail: "Failed",
+      failed: "Failed",
+      pending: "Pending",
+      rejected: "Rejected",
+      review_required: "Review required",
+      running: "Running",
+    },
+    runSourceKinds: {
+      core_run: "Core run",
+      etl: "ETL",
+      natural_language: "Natural language",
+      operator: "Operator",
+      policy: "Policy",
+      workflow: "Workflow",
+    },
     artifactKinds: {
       "scientist.decision_packet": "Decision packet",
       "scientist.decision_card": "Decision card",
@@ -1098,6 +1172,308 @@ const en = {
       strict: "Strict",
       lenient: "Lenient",
       disabled: "Disabled",
+    },
+  },
+  mode: {
+    clerk: "Clerk",
+    analyst: "Analyst",
+    interfaceLabel: "Interface mode",
+    switchToAnalyst: "Switch to Analyst",
+    switchToClerk: "Switch to Clerk",
+    clerkDescription: "Simplified chat interface",
+    analystDescription: "Full analytical dashboard",
+  },
+  landing: {
+    heroTitle: "PolicyOS",
+    heroSubtitle:
+      "Causal analysis and simulation platform for government policy evaluation",
+    heroCta: "Get Started",
+    heroExploreCta: "Quick Analysis",
+    capabilitiesTitle: "Core Capabilities",
+    causalAnalysis: {
+      title: "Causal Analysis",
+      description:
+        "Discovery, identification, estimation, and bounds for causal effects with full uncertainty quantification",
+    },
+    policySimulation: {
+      title: "Policy Simulation",
+      description:
+        "Agent-based models with JAX-compiled calibration, sensitivity analysis, and counterfactual evaluation",
+    },
+    dataFabric: {
+      title: "Data Fabric",
+      description:
+        "Unified connectors to international statistical portals with provenance tracking and freshness monitoring",
+    },
+    governanceEngine: {
+      title: "Governance Engine",
+      description:
+        "20 automated governance passes with human gate protocol and tamper-evident audit trail",
+    },
+    howItWorksTitle: "How It Works",
+    stepQuestion: "Question",
+    stepQuestionDescription: "Formulate a policy question in natural language",
+    stepAnalysis: "Analysis",
+    stepAnalysisDescription:
+      "System builds causal graph and identifies effects",
+    stepEvidence: "Evidence",
+    stepEvidenceDescription:
+      "Data collected from international sources with provenance",
+    stepDecision: "Decision",
+    stepDecisionDescription:
+      "Verified decision packet with uncertainty envelope",
+    ctaTitle: "Ready to evaluate policy impact?",
+    ctaSubtitle: "Start your first analysis in minutes",
+  },
+  clerk: {
+    chatPlaceholder: "Ask a policy question...",
+    chatSubmit: "Analyze",
+    chatStreaming: "Analyzing...",
+    chatDomainHint: "Domain",
+    chatDomainAuto: "Auto-detect",
+    resultVerdict: "Verdict",
+    resultConfidence: "Confidence",
+    viewFullAnalysis: "View Full Analysis",
+    returnToChat: "Return to Chat",
+    newAnalysis: "New Analysis",
+    myAnalyses: "My Analyses",
+    welcomeTitle: "What policy would you like to analyze?",
+    welcomeSubtitle:
+      "Describe your question in natural language. The system will collect data, build causal models, and produce a verified decision.",
+    statusPlanning: "Planning analysis...",
+    statusCollecting: "Collecting evidence...",
+    statusSimulating: "Running simulation...",
+    statusGovernance: "Governance review...",
+    statusComplete: "Analysis complete",
+    statusFailed: "Analysis failed",
+    followUp: "Follow up",
+    followUpActions: "Follow-up actions",
+    history: "History",
+    export: "Export",
+    conversationHistory: "Conversation History",
+    newConversation: "New Conversation",
+    searchConversations: "Search conversations...",
+    noSearchResults: "No conversations match your search.",
+    noConversations: "No saved conversations yet.",
+    loadConversation: "Load",
+    deleteConversation: "Delete conversation",
+    messageCount: "{{count}} messages",
+    moreMatches: "+{{count}} more matches",
+    started: "Started",
+    duration: "Duration",
+  },
+  commandPalette: {
+    placeholder: "Type a command or search...",
+    noResults: "No results found.",
+    navigation: "Navigation",
+    appearance: "Appearance",
+    toggleTheme: "Toggle theme",
+  },
+  collaboration: {
+    presence: {
+      you: "You",
+      online: "Online",
+      offline: "Offline",
+      editor: "Editor",
+      viewer: "Viewer",
+      activeUsers: "{{count}} active user(s)",
+    },
+    toolbar: {
+      connected: "Connected — real-time sync active",
+      connecting: "Connecting...",
+      disconnected: "Disconnected",
+      onlineCount: "{{count}} online",
+      comments: "Comments",
+      activity: "Activity",
+      share: "Share",
+    },
+    comments: {
+      title: "Comments",
+      empty: "No comments yet. Start the conversation.",
+      placeholder: "Add a comment... (Ctrl+Enter to send)",
+      replyPlaceholder: "Reply... (Ctrl+Enter to send)",
+      reply: "Reply",
+      resolve: "Resolve",
+      resolved: "Resolved",
+    },
+    activity: {
+      title: "Activity",
+      empty: "No recent activity.",
+    },
+    share: {
+      title: "Share this view",
+      description: "Share the current analysis with your team.",
+      access: "Who can access",
+      anyoneWithLink: "Anyone with the link",
+      restricted: "Specific people",
+      permission: "Link permission",
+      canView: "Can view",
+      canEdit: "Can edit",
+      shareButton: "Share",
+    },
+  },
+  whatIf: {
+    title: "What-If Analysis",
+    subtitle: "Explore counterfactual scenarios by adjusting treatment parameters and observing projected impacts.",
+    panelTitle: "Scenario Parameters",
+    baseRun: "Base run",
+    selectBaseRun: "Select a base run for counterfactual analysis",
+    noBaseRun: "No base run selected. Choose a run to begin what-if exploration.",
+    parameters: "Parameters",
+    adjustParameter: "Adjust parameter",
+    resetAll: "Reset all",
+    resetToDefault: "Reset to default",
+    sensitivity: "Sensitivity",
+    sensitivityZone: {
+      low: "Low sensitivity",
+      medium: "Medium sensitivity",
+      high: "High sensitivity",
+    },
+    impact: {
+      title: "Projected Impact",
+      baseline: "Baseline",
+      projected: "Projected",
+      delta: "Delta",
+      confidence: "Confidence interval",
+      noData: "Impact data is not yet available for the current parameter set.",
+    },
+    scenarios: {
+      title: "Saved Scenarios",
+      save: "Save scenario",
+      saveCurrent: "Save current scenario",
+      nameLabel: "Scenario name",
+      namePlaceholder: "Enter a descriptive name for this scenario",
+      load: "Load",
+      delete: "Delete",
+      compare: "Compare",
+      empty: "No saved scenarios yet. Adjust parameters and save your first scenario.",
+      confirmDelete: "Delete scenario \"{{name}}\"?",
+      saved: "Scenario saved",
+    },
+    methodology: "Methodology",
+    methodNote: "What-if projections use the causal model from the base run. Results assume no unmeasured confounding beyond the identified adjustment set.",
+    exportScenario: "Export scenario",
+  },
+  causal: {
+    title: "Causal Graph",
+    subtitle: "Directed acyclic graph of causal relationships identified in this analysis.",
+    nodeTypes: {
+      treatment: "Treatment",
+      outcome: "Outcome",
+      confounder: "Confounder",
+      mediator: "Mediator",
+      collider: "Collider",
+      instrument: "Instrument",
+      selection: "Selection",
+    },
+    edgeStatus: {
+      identified: "Identified",
+      unidentified: "Unidentified",
+      boundsOnly: "Bounds only",
+    },
+    overlay: {
+      none: "No overlay",
+      identification: "Identification status",
+      transport: "Transportability",
+      adjustmentSet: "Adjustment set",
+      interference: "Interference pattern",
+    },
+    layout: {
+      hierarchical: "Hierarchical",
+      force: "Force-directed",
+      sugiyama: "Sugiyama",
+    },
+    panels: {
+      nodeDetail: "Node details",
+      edgeDetail: "Edge details",
+      pathAnalysis: "Path analysis",
+    },
+    methods: {
+      did: "Difference-in-Differences",
+      syntheticControl: "Synthetic Control",
+      rdd: "Regression Discontinuity",
+      bsts: "Bayesian Structural Time Series",
+      metaLearner: "Meta-Learner (CATE)",
+      forestPlot: "Forest Plot",
+    },
+    compare: {
+      title: "Compare Graphs",
+      overlay: "Overlay mode",
+      sideBySide: "Side by side",
+      diff: "Diff view",
+    },
+    empty: "No causal graph data available for this run.",
+  },
+  mobile: {
+    nav: {
+      ariaLabel: "Main navigation",
+      home: "Home",
+      runs: "Runs",
+      evidence: "Evidence",
+      compose: "Compose",
+      chat: "Chat",
+    },
+  },
+  onboarding: {
+    tourLabel: "Guided tour",
+    prev: "Previous",
+    next: "Next",
+    finish: "Finish",
+    welcome: {
+      sidebar: {
+        title: "Navigation",
+        description:
+          "Use the sidebar to switch between workspaces: dashboard, runs, evidence, and more.",
+      },
+      mode: {
+        title: "Interface mode",
+        description:
+          "Switch between Clerk (simplified) and Analyst (full power) modes depending on your role.",
+      },
+      header: {
+        title: "System status",
+        description:
+          "The header shows API health, live data status, and active capabilities at a glance.",
+      },
+      main: {
+        title: "Main workspace",
+        description:
+          "This is where your analysis, runs, and evidence are displayed. Explore and interact with your data here.",
+      },
+    },
+    analyst: {
+      runs: {
+        title: "Runs & Decisions",
+        description:
+          "View all analysis runs, their governance status, and drill into detailed results.",
+      },
+      evidence: {
+        title: "Evidence Fabric",
+        description:
+          "Discover, review, and promote evidence from data sources for your analyses.",
+      },
+      composer: {
+        title: "Scenario Composer",
+        description:
+          "Design and launch new analysis scenarios with custom parameters and data sources.",
+      },
+    },
+  },
+  compliance: {
+    badgeLabel: "Compliant",
+    badgeAriaLabel: "View compliance status for accessibility and security standards",
+    tooltipTitle: "Compliance Standards",
+    eaa: {
+      description:
+        "EU European Accessibility Act — WCAG 2.2 AA compliant for all user flows.",
+    },
+    ada: {
+      description:
+        "US ADA Title II Web Accessibility Rule — WCAG 2.1 AA for government-facing tools.",
+    },
+    nist: {
+      description:
+        "NIST SP 800-53 Rev. 5 controls: Account Management, Auditable Events, Auth, Encryption.",
     },
   },
 } as const;

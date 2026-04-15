@@ -102,7 +102,7 @@ class ElasticNetEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="elastic_net",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -189,7 +189,7 @@ class RandomForestEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="random_forest",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -279,7 +279,7 @@ class GradientBoostingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gradient_boosting",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

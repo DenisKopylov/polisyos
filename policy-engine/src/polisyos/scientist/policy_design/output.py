@@ -15,6 +15,7 @@ from polisyos.core.contracts.scientist import (
     ChampionPolicyDossierRef,
     ConstraintSatisfactionReportRef,
     DecisionReadinessContractRef,
+    GovernanceAccountabilityArtifactRef,
     GovernanceGatePacketRef,
     ImplementationPlanRef,
     PolicyArtifactBundleRef,
@@ -29,7 +30,6 @@ from polisyos.core.contracts.scientist import (
 )
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, TransportStatus
 from polisyos.ir.analytics.distributional import (
-    CohortImpact,
     DistributionalReport,
     ImpactDirection,
 )
@@ -189,6 +189,7 @@ class ChampionPolicyDossier(ArtifactMinimalityMixin):
     governance_summary: dict[str, Any] = Field(default_factory=dict)
     stress_summary: dict[str, Any] = Field(default_factory=dict)
     calibration_validation_summary: dict[str, Any] = Field(default_factory=dict)
+    accountability_summary: dict[str, Any] = Field(default_factory=dict)
     recommended_actions: list[RecommendedAction] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -382,6 +383,7 @@ class PolicyArtifactBundle(ArtifactMinimalityMixin):
     replayable_audit_bundle_ref: ReplayableAuditBundleRef
     decision_readiness_contract_ref: DecisionReadinessContractRef | None = None
     stress_test_report_ref: StressTestReportRef | None = None
+    governance_accountability_artifact_ref: GovernanceAccountabilityArtifactRef | None = None
     audit_refs: list[ArtifactRef] = Field(default_factory=list)
     actionable_side_information_refs: list[ArtifactRef] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -560,6 +562,14 @@ class PolicyArtifactBuilder:
             stress_test_report_ref=_maybe_validate_ref(
                 source.stress_test_report_ref,
                 StressTestReportRef,
+            ),
+            governance_accountability_artifact_ref=_maybe_validate_ref(
+                (
+                    None
+                    if source.calibration_validation_bundle is None
+                    else source.calibration_validation_bundle.governance_accountability_ref
+                ),
+                GovernanceAccountabilityArtifactRef,
             ),
             audit_refs=upstream_audit_refs,
             actionable_side_information_refs=actionable_side_information_refs,
@@ -1009,6 +1019,11 @@ class PolicyArtifactBuilder:
                 if source.calibration_validation_bundle is not None
                 else {}
             ),
+            accountability_summary=(
+                dict(source.calibration_validation_bundle.governance_accountability_summary)
+                if source.calibration_validation_bundle is not None
+                else {}
+            ),
             recommended_actions=recommended_actions,
             metadata={
                 "candidate_metadata": dict(source.candidate.metadata),
@@ -1016,6 +1031,14 @@ class PolicyArtifactBuilder:
                     None
                     if source.calibration_validation_bundle_ref is None
                     else str(source.calibration_validation_bundle_ref.artifact_id)
+                ),
+                "governance_accountability_artifact_ref": (
+                    None
+                    if source.calibration_validation_bundle is None
+                    or source.calibration_validation_bundle.governance_accountability_ref is None
+                    else str(
+                        source.calibration_validation_bundle.governance_accountability_ref.artifact_id
+                    )
                 ),
             },
         )
@@ -1399,6 +1422,16 @@ def _bundle_inputs(source: PolicyArtifactBuildInput) -> list[InputRef]:
             InputRef(
                 artifact_id=source.calibration_validation_bundle_ref.artifact_id,
                 role="calibration_validation_bundle",
+            )
+        )
+    if (
+        source.calibration_validation_bundle is not None
+        and source.calibration_validation_bundle.governance_accountability_ref is not None
+    ):
+        inputs.append(
+            InputRef(
+                artifact_id=source.calibration_validation_bundle.governance_accountability_ref.artifact_id,
+                role="governance_accountability_artifact",
             )
         )
     for index, ref in enumerate(_dedupe_artifact_refs(source.audit_refs)):

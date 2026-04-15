@@ -219,7 +219,7 @@ def test_equity_pass_vulnerable_exactly_at_threshold_no_issue() -> None:
 
 
 def test_equity_pass_invalid_dict_report_returns_empty() -> None:
-    """Invalid dict for distributional_report should be silently skipped."""
+    """Invalid distributional payload should emit an explicit governance issue."""
     ctx = PassContext(
         ir=None,
         state={"distributional_report": {"invalid": True}},
@@ -228,4 +228,6 @@ def test_equity_pass_invalid_dict_report_returns_empty() -> None:
         run_id="R_equity_bad_dict",
     )
     issues = EquityPass().validate(ctx)
-    assert issues == []
+    assert len(issues) == 1
+    assert issues[0].code == "EQUITY_REPORT_INVALID"
+    assert issues[0].severity == IssueSeverity.BLOCKER

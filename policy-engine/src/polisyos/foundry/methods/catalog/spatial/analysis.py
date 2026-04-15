@@ -99,7 +99,7 @@ class MoranIEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="moran_i",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -178,7 +178,7 @@ class GWREstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gwr",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -258,7 +258,7 @@ class SpatialDurbinEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="spatial_durbin",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -338,7 +338,7 @@ class GravityModelEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gravity_model",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -430,7 +430,7 @@ class AccessibilityIndexEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="accessibility_index",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

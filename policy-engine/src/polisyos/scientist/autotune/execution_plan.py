@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -37,6 +37,18 @@ from .registry import ChampionRegistry
 from .runtime import PydanticMutationCodec
 
 EXECUTION_PLAN_LOOP_ID = "execution_plan"
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
+def _resolve_registry(
+    registry: MethodRegistry | None,
+    registry_provider: Callable[[], MethodRegistry] | None,
+) -> MethodRegistry:
+    if registry is not None:
+        return registry
+    return (registry_provider or MethodRegistry.get_instance)()
 
 
 class ExecutionPlanSearchMode(str, Enum):
@@ -111,8 +123,9 @@ class ExecutionPlanSearchConfig(MutationArtifact):
         mutation: TopologyMutation,
         *,
         registry: MethodRegistry | None = None,
+        registry_provider: Callable[[], MethodRegistry] | None = None,
     ) -> "ExecutionPlanSearchConfig":
-        reg = registry or MethodRegistry.get_instance()
+        reg = _resolve_registry(registry, registry_provider)
         nodes = [node.model_copy(deep=True) for node in self.method_dag]
         node_by_id = {node.node_id: node for node in nodes}
         target = node_by_id.get(mutation.node_id)
@@ -208,9 +221,10 @@ def suggest_execution_plan_topology_mutations(
     catalog: MethodCatalogSnapshot,
     limit: int = 8,
     registry: MethodRegistry | None = None,
+    registry_provider: Callable[[], MethodRegistry] | None = None,
 ) -> list[TopologyMutation]:
     """Suggest execution plan topology mutations helper."""
-    reg = registry or MethodRegistry.get_instance()
+    reg = _resolve_registry(registry, registry_provider)
     mutations: list[TopologyMutation] = []
     seen: set[tuple[str, str, str, str]] = set()
     node_by_id = {node.node_id: node for node in config.method_dag}

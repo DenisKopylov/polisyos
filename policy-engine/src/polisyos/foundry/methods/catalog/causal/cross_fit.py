@@ -217,7 +217,7 @@ class CrossFitOrchestrator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="cross_fit",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -418,7 +418,7 @@ class CrossFitContinuousOrchestrator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="cross_fit_continuous",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="covariates", slot_type=SlotType.MATRIX,

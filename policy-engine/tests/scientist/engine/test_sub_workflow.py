@@ -5,10 +5,10 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.executor import WorkflowExecutor
 from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
@@ -72,7 +72,7 @@ class TestStateMappingModel:
         assert m.source_path == "params.x"
 
     def test_extra_forbidden(self) -> None:
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             StateMapping(source_path="a", target_path="b", bad="field")
 
 
@@ -87,7 +87,7 @@ class TestSubWorkflowConfigModel:
 
     def test_extra_forbidden(self) -> None:
         wf = WorkflowSpec(workflow_id="child", nodes=[])
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             SubWorkflowConfig(workflow=wf, bad="field")
 
     def test_roundtrip(self) -> None:
@@ -237,6 +237,16 @@ class TestStateMapping:
 
 
 class TestDepthEnforcement:
+    def test_negative_depth_is_rejected(self) -> None:
+        child_wf = WorkflowSpec(workflow_id="child_negative_depth", nodes=[])
+        cfg = SubWorkflowConfig(workflow=child_wf, max_depth=2)
+        node = SubWorkflowNode(cfg, _make_registry(_make_mock_node()))
+
+        outcome = node.execute(_make_ctx(depth=-1), ExperimentState(run_id="r_neg"))
+        assert outcome.status == "fail"
+        assert outcome.error is not None
+        assert outcome.error.code == "sub_workflow.invalid_depth"
+
     def test_max_depth_exceeded(self) -> None:
         child_wf = WorkflowSpec(workflow_id="child_depth", nodes=[])
         cfg = SubWorkflowConfig(workflow=child_wf, max_depth=2)
@@ -292,6 +302,72 @@ class TestChildFailure:
         assert outcome.status == "fail"
         assert outcome.error is not None
 
+    def test_child_failure_does_not_apply_output_mappings(self) -> None:
+        """Failed child workflows must not partially mutate the parent state."""
+
+        def _execute_fail_after_write(ctx, state):
+            state.params["result"] = "should_not_leak"
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(code="test.fail", message="fail", details={}),
+            )
+
+        failing_node = _make_mock_node()
+        failing_node.execute.side_effect = _execute_fail_after_write
+        child_wf = WorkflowSpec(
+            workflow_id="child_fail_after_write",
+            nodes=[NodeInvocation(alias="bad_step", node_id="test.node@1.0.0")],
+        )
+        cfg = SubWorkflowConfig(
+            workflow=child_wf,
+            output_mappings=[
+                StateMapping(source_path="params.result", target_path="params.child_result"),
+            ],
+        )
+        registry = _make_registry(failing_node)
+        node = SubWorkflowNode(cfg, registry)
+        state = ExperimentState(run_id="r8b", params={"existing": "kept"})
+
+        outcome = node.execute(_make_ctx(), state)
+
+        assert outcome.status == "fail"
+        assert outcome.error is not None
+        assert outcome.error.code == "sub_workflow.child_failed"
+        assert outcome.state.params == {"existing": "kept"}
+
+    def test_overlapping_output_mappings_fail_atomically(self) -> None:
+        """Overlapping output targets must fail before any parent mutation is applied."""
+
+        def _execute(ctx, state):
+            state.params["summary"] = "value"
+            state.params["detail"] = {"nested": True}
+            return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
+
+        task_node = _make_mock_node()
+        task_node.execute.side_effect = _execute
+        child_wf = WorkflowSpec(
+            workflow_id="child_conflict",
+            nodes=[NodeInvocation(alias="compute", node_id="test.node@1.0.0")],
+        )
+        cfg = SubWorkflowConfig(
+            workflow=child_wf,
+            output_mappings=[
+                StateMapping(source_path="params.summary", target_path="params.result"),
+                StateMapping(source_path="params.detail", target_path="params.result.detail"),
+            ],
+        )
+        registry = _make_registry(task_node)
+        node = SubWorkflowNode(cfg, registry)
+        state = ExperimentState(run_id="r8c", params={"existing": "kept"})
+
+        outcome = node.execute(_make_ctx(), state)
+
+        assert outcome.status == "fail"
+        assert outcome.error is not None
+        assert outcome.error.code == "sub_workflow.output_conflict"
+        assert outcome.state.params == {"existing": "kept"}
+
 
 # ---------------------------------------------------------------------------
 # Error policy override
@@ -332,7 +408,7 @@ class TestErrorPolicyOverride:
         registry = _make_registry(task_node)
         node = SubWorkflowNode(cfg, registry)
         state = ExperimentState(run_id="r9")
-        outcome = node.execute(_make_ctx(), state)
+        node.execute(_make_ctx(), state)
         # With continue policy, step_b still runs even after step_a fails
         assert task_node.execute.call_count == 2
 

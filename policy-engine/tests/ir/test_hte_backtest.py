@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
@@ -84,6 +87,91 @@ def test_policy_recommendation_persist_round_trip(tmp_path) -> None:
     loaded = load_policy_recommendation(store, ref)
     assert loaded.n_targeted_units == 5
     assert loaded.targeting_rules[0].rule_id == "r1"
+
+
+def test_hte_result_normalizes_n_samples_consistently() -> None:
+    payload = {
+        "method": CausalMethod.DOUBLE_ML,
+        "ate": 0.2,
+        "ate_ci_lower": 0.1,
+        "ate_ci_upper": 0.3,
+        "cate_values": [0.1, 0.2, 0.4],
+    }
+    normalized = HTEResult.normalize_payload(payload)
+    result = HTEResult.from_estimates(**payload)
+
+    assert "n_samples" not in payload
+    assert normalized["n_samples"] == 3
+    assert result.n_samples == 3
+    assert result.model_copy(deep=True).n_samples == 3
+    assert HTEResult.model_validate(result.model_dump(mode="json")).n_samples == 3
+
+
+def test_hte_result_is_frozen_report_contract() -> None:
+    result = HTEResult.from_estimates(
+        method=CausalMethod.DOUBLE_ML,
+        ate=0.2,
+        ate_ci_lower=0.1,
+        ate_ci_upper=0.3,
+        cate_values=[0.1, 0.2, 0.4],
+    )
+
+    with pytest.raises(ValidationError, match="frozen"):
+        result.n_samples = 99
+
+
+def test_policy_recommendation_normalizes_targeting_efficiency_consistently() -> None:
+    payload = {
+        "total_expected_effect": 6.0,
+        "total_cost": 3.0,
+        "n_targeted_units": 3,
+        "n_total_units": 5,
+        "targeting_rules": [
+            TargetingRule(
+                rule_id="r1",
+                predicate="cate > 0",
+                priority=1,
+                expected_cate=2.0,
+                expected_cost_per_unit=1.0,
+                n_eligible_units=3,
+                cumulative_budget_share=1.0,
+            )
+        ],
+    }
+    normalized = PolicyRecommendation.normalize_payload(payload)
+    recommendation = PolicyRecommendation.from_totals(**payload)
+
+    assert "targeting_efficiency" not in payload
+    assert normalized["targeting_efficiency"] == pytest.approx(2.0)
+    assert recommendation.targeting_efficiency == pytest.approx(2.0)
+    assert recommendation.model_copy(deep=True).targeting_efficiency == pytest.approx(2.0)
+    assert (
+        PolicyRecommendation.model_validate(recommendation.model_dump(mode="json")).targeting_efficiency
+        == pytest.approx(2.0)
+    )
+
+
+def test_policy_recommendation_is_frozen_report_contract() -> None:
+    recommendation = PolicyRecommendation.from_totals(
+        total_expected_effect=6.0,
+        total_cost=3.0,
+        n_targeted_units=3,
+        n_total_units=5,
+        targeting_rules=[
+            TargetingRule(
+                rule_id="r1",
+                predicate="cate > 0",
+                priority=1,
+                expected_cate=2.0,
+                expected_cost_per_unit=1.0,
+                n_eligible_units=3,
+                cumulative_budget_share=1.0,
+            )
+        ],
+    )
+
+    with pytest.raises(ValidationError, match="frozen"):
+        recommendation.total_cost = 4.0
 
 
 def test_backtest_report_persist_round_trip(tmp_path) -> None:

@@ -11,6 +11,9 @@ from typing import Annotated, List
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from polisyos.fabric.connectors.contracts.schema import normalize_unit_id
+from polisyos.fabric.finite import ensure_finite_float
+
 
 class DataType(str, Enum):
     """Supported data types for metrics."""
@@ -182,19 +185,33 @@ class DataContract(BaseModel):
             return []
         return [alias.lower().strip() for alias in v if alias.strip()]
 
+    @field_validator("unit", mode="before")
+    @classmethod
+    def normalize_unit(cls, v: str | None) -> str | None:
+        """Normalize unit IDs the same way dataset schema fields do."""
+        if v is None:
+            return None
+        unit_id = normalize_unit_id(v)
+        return unit_id or None
+
     @field_validator("valid_range", mode="before")
     @classmethod
     def validate_range(
-        cls, v: tuple[float, float] | None
+        cls, v: object
     ) -> tuple[float, float] | None:
         """Ensure min <= max in valid_range."""
 
         if v is not None:
+            if not isinstance(v, (list, tuple)) or len(v) != 2:
+                raise ValueError("valid_range must contain exactly two values")
             min_val, max_val = v
+            min_val = ensure_finite_float(min_val, what="valid_range min")
+            max_val = ensure_finite_float(max_val, what="valid_range max")
             if min_val > max_val:
                 raise ValueError(
                     f"valid_range min ({min_val}) must be <= max ({max_val})"
                 )
+            return (min_val, max_val)
         return v
 
     def __hash__(self) -> int:

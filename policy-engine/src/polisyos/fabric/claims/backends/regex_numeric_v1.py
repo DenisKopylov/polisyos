@@ -10,7 +10,8 @@ from ..canonicalize import canonical_unit, canonicalize_id, parse_decimal_value_
 from ..types import ChunkContext, ClaimCandidate, ClaimExtractOptions
 
 _NUMERIC_RE = re.compile(
-    r"(?P<num>[+-]?\d+(?:[.,]\d+)?)\s*(?P<unit>percent|pct|%|usd|uah|m|km|year|month)\b",
+    r"(?P<num>[+-]?(?:\d{1,3}(?:[.,\u00a0\u202f\s]\d{3})+|\d+)(?:[.,]\d+)?(?:[eE][+-]?\d+)?)"
+    r"\s*(?P<unit>percent|pct|usd|uah|year|month|km|m|%)(?=\b|[^0-9A-Za-z_]|$)",
     flags=re.IGNORECASE,
 )
 
@@ -28,8 +29,7 @@ def extract(
 
     out: list[ClaimCandidate] = []
     for match in _NUMERIC_RE.finditer(chunk_text):
-        num_raw = match.group("num")
-        value_text = num_raw.replace(",", ".")
+        value_text = match.group("num").strip()
         value_decimal = parse_decimal_value_text(value_text)
         if value_decimal is None:
             continue

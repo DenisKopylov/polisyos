@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 
 class TestReviewCollaborationApi:
     def test_presence_snapshot_tracks_active_reviewers(self, runtime_api_env):
@@ -54,6 +56,12 @@ class TestReviewCollaborationApi:
             assert bob_snapshot["cursors"][0]["x"] == 0.25
             assert bob_snapshot["cursors"][0]["y"] == 0.5
 
+            alice_cursor.send_json({"type": "cursor.leave"})
+            left_for_alice = alice_cursor.receive_json()
+            left_for_bob = bob_cursor.receive_json()
+            assert left_for_alice["cursors"] == []
+            assert left_for_bob["cursors"] == []
+
         with client.websocket_connect(
             f"/api/v1/review/live?channel=review.lock&review_id={review_id}"
             "&participant_id=alice&display_name=Alice"
@@ -69,6 +77,19 @@ class TestReviewCollaborationApi:
             mirrored_snapshot = bob_lock.receive_json()
             assert owned_snapshot["lock"]["participant_id"] == "alice"
             assert mirrored_snapshot["lock"]["participant_id"] == "alice"
+            initial_expires_at = datetime.fromisoformat(
+                owned_snapshot["lock"]["expires_at"].replace("Z", "+00:00")
+            )
+
+            alice_lock.send_json({"type": "lock.renew"})
+            renewed_for_alice = alice_lock.receive_json()
+            renewed_for_bob = bob_lock.receive_json()
+            renewed_expires_at = datetime.fromisoformat(
+                renewed_for_alice["lock"]["expires_at"].replace("Z", "+00:00")
+            )
+            assert renewed_for_alice["lock"]["participant_id"] == "alice"
+            assert renewed_for_bob["lock"]["participant_id"] == "alice"
+            assert renewed_expires_at >= initial_expires_at
 
             bob_lock.send_json({"type": "lock.acquire"})
             denied_snapshot = bob_lock.receive_json()

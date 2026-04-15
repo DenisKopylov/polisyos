@@ -5,6 +5,7 @@ import {
   resolveWorkspaceKey,
   WORKSPACES,
 } from "./workspaces";
+import { buildFeatureFlags } from "@/test/featureFlags";
 
 describe("workspace registry", () => {
   it("resolves canonical and alias paths", () => {
@@ -66,13 +67,11 @@ describe("workspace registry", () => {
   });
 
   it("filters navigation by feature flags and keeps flagless workspaces enabled", () => {
-    const flags = {
-      enableDarkMode: true,
+    const flags = buildFeatureFlags({
+      enableClerkMode: true,
       enableLexKnowledge: false,
-      enablePlatformHealth: true,
-      enableRunsWorkspace: true,
       enableScenarioComposer: false,
-    };
+    });
 
     expect(isWorkspaceEnabled(WORKSPACES.commandCenter, flags)).toBe(true);
     expect(isWorkspaceEnabled(WORKSPACES.lexKnowledge, flags)).toBe(false);

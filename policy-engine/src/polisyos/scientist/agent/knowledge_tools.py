@@ -40,6 +40,7 @@ if TYPE_CHECKING:
         LegalSourceBundle,
     )
     from polisyos.scientist.policy_verified.models import LegalCandidatePack, LegalSourcePack
+    from polisyos.scholar.search.models import WebEvidenceBundle
 
 
 class KnowledgeToolkit:
@@ -604,4 +605,39 @@ class KnowledgeToolkit:
                 lines.append(f"  Quote: {result.source_quote_uk[:240]}")
             if result.top_domain:
                 lines.append(f"  Domain: {result.top_domain}")
+        return "\n".join(lines)
+
+    def format_web_evidence_context(
+        self,
+        bundle: "WebEvidenceBundle",
+        *,
+        max_claims: int = 8,
+        max_snippets: int = 8,
+    ) -> str:
+        """Format deep-search claim snippets with source URLs for prompt injection."""
+        if not bundle.sources and not bundle.snippets and not bundle.claim_supports:
+            return ""
+
+        source_by_id = {source.source_id: source for source in bundle.sources}
+        snippet_by_id = {snippet.snippet_id: snippet for snippet in bundle.snippets}
+        lines = ["## WEB EVIDENCE"]
+
+        for support in bundle.claim_supports[:max_claims]:
+            lines.append(f"- Claim: {support.claim_text}")
+            if support.uncertainty_note:
+                lines.append(f"  Uncertainty: {support.uncertainty_note}")
+            for snippet_id in support.snippet_ids[:max_snippets]:
+                snippet = snippet_by_id.get(snippet_id)
+                if snippet is None:
+                    continue
+                source = source_by_id.get(snippet.source_id)
+                title = source.title if source is not None and source.title else str(snippet.url)
+                url = str(source.url if source is not None else snippet.url)
+                text = snippet.text.replace("\n", " ").strip()
+                lines.append(
+                    f"  [{title}]({url}) [{snippet.start_char}:{snippet.end_char}] {text}"
+                )
+
+        if bundle.uncertainty_notes:
+            lines.append(f"Bundle notes: {', '.join(bundle.uncertainty_notes[:8])}")
         return "\n".join(lines)

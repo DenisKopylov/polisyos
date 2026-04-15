@@ -9,6 +9,7 @@ from polisyos.core.contracts.scientist import PolicyRequestFrameRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_LEGAL_CANDIDATE_PACK_REF,
@@ -76,7 +77,7 @@ class AssembleLegalCandidatePackNode:
         if profile_ref is not None:
             inputs.append(InputRef(artifact_id=profile_ref.artifact_id, role="cross_graph_evidence_profile"))
         pack_ref = persist_legal_candidate_pack(ctx.store, pack, inputs=inputs)
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.legal_candidate_pack_ref = pack_ref
         new_state.artifacts_index[ARTIFACT_LEGAL_CANDIDATE_PACK_REF] = pack_ref
         return NodeOutcome(

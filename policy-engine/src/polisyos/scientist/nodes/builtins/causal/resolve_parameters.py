@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.academic.knowledge.parameter_selector import ParameterSelector
 from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -65,6 +67,14 @@ _SPEC = NodeSpec(
     produces=[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
 )
 
+_RESOLVE_PARAMETERS_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+
 
 @dataclass(frozen=True)
 class ResolveParametersNode:
@@ -105,7 +115,7 @@ class ResolveParametersNode:
 
         try:
             causal_graph = load_causal_graph_model(ctx.store, graph_ref)
-        except Exception:
+        except _RESOLVE_PARAMETERS_LOAD_ERRORS:
             return _skip(
                 state,
                 "Failed to load causal graph artifact; parameter resolution skipped.",
@@ -223,7 +233,7 @@ def _resolve_target_context(state: ExperimentState) -> ContextProfile | None:
         return None
     try:
         return ContextProfile.model_validate(payload)
-    except Exception:
+    except _RESOLVE_PARAMETERS_LOAD_ERRORS:
         return None
 
 
@@ -248,7 +258,7 @@ def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | N
         payload = raw
     try:
         return CausalGraphModelRef.model_validate(payload)
-    except Exception:
+    except _RESOLVE_PARAMETERS_LOAD_ERRORS:
         return None
 
 
@@ -263,7 +273,7 @@ def _resolve_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
             payload = raw
         ref = CrossGraphEvidenceProfileRef.model_validate(payload)
         return load_cross_graph_evidence_profile(ctx.store, ref)
-    except Exception:
+    except _RESOLVE_PARAMETERS_LOAD_ERRORS:
         return None
 
 

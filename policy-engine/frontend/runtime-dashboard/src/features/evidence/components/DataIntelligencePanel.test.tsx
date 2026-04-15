@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders } from "@/test/render";
@@ -350,6 +350,33 @@ describe("DataIntelligencePanel", () => {
     expect(screen.getByText("Review source freshness")).toBeInTheDocument();
     expect(screen.getAllByText(/world-bank/).length).toBeGreaterThan(0);
   }, 15_000);
+
+  it("debounces catalog search inputs before updating the query hook", async () => {
+    renderWithProviders(<DataIntelligencePanel />, {
+      interactiveProviders: true,
+    });
+
+    const metricInput = screen.getByLabelText(
+      "panels.dataIntelligence.metric",
+    );
+    for (const value of ["i", "in", "inf", "inflation"]) {
+      fireEvent.change(metricInput, { target: { value } });
+    }
+
+    const queriesBeforeDebounce = useDataCatalogSearchMock.mock.calls
+      .map(([params]) => (params as { metricQuery: string }).metricQuery)
+      .filter(Boolean);
+    expect(queriesBeforeDebounce).toEqual([]);
+
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 300));
+    });
+
+    const nonEmptyQueries = useDataCatalogSearchMock.mock.calls
+      .map(([params]) => (params as { metricQuery: string }).metricQuery)
+      .filter(Boolean);
+    expect(nonEmptyQueries).toEqual(["inflation"]);
+  });
 
   it("hydrates context mode from selected run surfaces and auto-previews the selected plan", async () => {
     const onResetContext = vi.fn();

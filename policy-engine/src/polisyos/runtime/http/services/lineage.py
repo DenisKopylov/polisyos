@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.runtime import (
     ArtifactLineageEdge,
     ArtifactLineageNode,
@@ -21,13 +21,17 @@ class LineageService:
     def __init__(
         self,
         *,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         default_max_depth: int = 64,
         default_max_nodes: int = 2000,
+        default_timeout_seconds: float = 1.5,
+        traversal_batch_size: int = 128,
     ) -> None:
         self._store = store
         self._default_max_depth = max(default_max_depth, 1)
         self._default_max_nodes = max(default_max_nodes, 1)
+        self._default_timeout_seconds = max(default_timeout_seconds, 0.01)
+        self._traversal_batch_size = max(traversal_batch_size, 1)
 
     def build_for_artifact_ids(
         self,
@@ -35,6 +39,7 @@ class LineageService:
         *,
         max_depth: int | None = None,
         max_nodes: int | None = None,
+        timeout_seconds: float | None = None,
     ) -> ArtifactLineageView:
         """Return a merged lineage graph for one or more root artifacts."""
         if not artifact_ids:
@@ -42,6 +47,11 @@ class LineageService:
 
         depth_limit = max_depth if max_depth is not None else self._default_max_depth
         node_limit = max_nodes if max_nodes is not None else self._default_max_nodes
+        timeout_budget = (
+            max(float(timeout_seconds), 0.01)
+            if timeout_seconds is not None
+            else self._default_timeout_seconds
+        )
 
         node_map: dict[str, ArtifactLineageNode] = {}
         edge_map: dict[tuple[str, str, str], ArtifactLineageEdge] = {}
@@ -56,8 +66,10 @@ class LineageService:
                 max_depth=depth_limit,
                 max_nodes=node_limit,
                 verify_integrity=True,
+                timeout_seconds=timeout_budget,
+                batch_size=self._traversal_batch_size,
             )
-            if not graph.is_complete:
+            if graph.timed_out or not graph.is_complete:
                 is_complete = False
 
             for node in graph.nodes.values():

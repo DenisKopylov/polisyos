@@ -233,7 +233,7 @@ class SyntheticControlMethod:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="synthetic_control",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

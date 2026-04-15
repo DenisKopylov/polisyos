@@ -69,3 +69,17 @@ def test_load_governance_passes_fails_fast_on_duplicate_pass_id(monkeypatch) -> 
 
     with pytest.raises(ValueError, match="Duplicate governance pass_id 'budget'"):
         load_governance_passes()
+
+
+def test_load_governance_passes_wraps_entry_point_load_error(monkeypatch) -> None:
+    class _BrokenEntryPoint(_FakeEntryPoint):
+        def load(self):
+            raise ImportError("plugin missing")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.governance.pass_registry.list_entry_points",
+        lambda *, group: [_BrokenEntryPoint("broken", None)],
+    )
+
+    with pytest.raises(RuntimeError, match="Failed to load governance pass from entry_point:broken"):
+        load_governance_passes()

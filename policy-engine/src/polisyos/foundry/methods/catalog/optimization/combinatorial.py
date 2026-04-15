@@ -36,7 +36,7 @@ class KnapsackEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="knapsack",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -152,7 +152,7 @@ class VehicleRoutingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="vehicle_routing",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

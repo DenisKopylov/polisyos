@@ -48,6 +48,25 @@ class EngineMetricsCollector(Protocol):
         self, *, run_id: str, workflow_id: str, state: str,
     ) -> None: ...  # pragma: no cover
 
+    def record_trace_correlation(
+        self,
+        *,
+        runner_backend: str,
+        workflow_id: str,
+        run_id: str,
+        trace_id: str | None = None,
+        span_id: str | None = None,
+    ) -> None: ...  # pragma: no cover
+
+    def record_operational_alert(
+        self,
+        *,
+        alert_type: str,
+        severity: str,
+        workflow_id: str | None = None,
+        run_id: str | None = None,
+    ) -> None: ...  # pragma: no cover
+
 
 class NoopEngineMetrics:
     """No-op implementation for cases when metrics are disabled."""
@@ -71,4 +90,10 @@ class NoopEngineMetrics:
         pass
 
     def record_workflow_state(self, **kw: object) -> None:
+        pass
+
+    def record_trace_correlation(self, **kw: object) -> None:
+        pass
+
+    def record_operational_alert(self, **kw: object) -> None:
         pass

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from collections import Counter, defaultdict
 from datetime import UTC, datetime
+from functools import lru_cache
 from statistics import median
 from typing import Any
 
@@ -20,6 +21,13 @@ from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
 
 logger = get_logger(__name__)
+
+_FuzzyCandidate = tuple[frozenset[str], frozenset[str], list[dict[str, Any]]]
+_FuzzyIndex = tuple[
+    list[_FuzzyCandidate],
+    dict[str, set[int]],
+    dict[str, set[int]],
+]
 
 
 def _context_attr_filter_clause(
@@ -79,16 +87,27 @@ def _apply_moderation_penalty(base_confidence: float, moderators: list[dict[str,
 def _build_context_profiles(
     con: duckdb.DuckDBPyConnection,
     skg_version: int,
+    *,
+    evidence_filter: str | None = None,
+    country_filter: tuple[str, ...] | None = None,
 ) -> int:
     """Aggregate context attributes into context profiles by country+time_period."""
-    evidence_filter = _context_attr_filter_clause(con, skg_version=skg_version)
+    evidence_filter = evidence_filter if evidence_filter is not None else _context_attr_filter_clause(con, skg_version=skg_version)
+    country_values = tuple(country for country in (country_filter or ()) if country)
+    country_clause = ""
+    params: list[Any] = [skg_version]
+    if country_values:
+        country_clause = " AND country_code IN ({placeholders}) ".format(
+            placeholders=",".join("?" for _ in country_values),
+        )
+        params.extend(country_values)
     rows = con.execute(
         "SELECT country_code, time_period, canonical_name, attribute_value, "
         "value_qualitative, confidence, COUNT(*) as n_articles "
         "FROM ac_skg_context_attributes "
-        f"WHERE skg_version = ? {evidence_filter} AND country_code IS NOT NULL AND country_code != '' "
+        f"WHERE skg_version = ? {evidence_filter} AND country_code IS NOT NULL AND country_code != '' {country_clause}"
         "GROUP BY country_code, time_period, canonical_name, attribute_value, value_qualitative, confidence"
-    , [skg_version]).fetchall()
+    , params).fetchall()
 
     if not rows:
         return 0
@@ -149,23 +168,60 @@ def _build_context_profiles(
     return len(profile_batch)
 
 
-def _tokenize(value: str) -> set[str]:
+@lru_cache(maxsize=100_000)
+def _tokenize(value: str) -> frozenset[str]:
     tokens = [token for token in str(value or "").lower().replace(".", "_").split("_") if token]
-    return set(tokens)
+    return frozenset(tokens)
 
 
 def _token_overlap(left: str, right: str) -> float:
     lt = _tokenize(left)
     rt = _tokenize(right)
+    return _token_overlap_sets(lt, rt)
+
+
+def _token_overlap_sets(left: frozenset[str], right: frozenset[str]) -> float:
+    lt = left
+    rt = right
     if not lt or not rt:
         return 0.0
     return len(lt & rt) / max(1, len(lt | rt))
+
+
+def _build_fuzzy_moderator_index(
+    mod_index: dict[tuple[str, str], list[dict[str, Any]]],
+) -> _FuzzyIndex:
+    candidates: list[_FuzzyCandidate] = []
+    by_src_token: dict[str, set[int]] = defaultdict(set)
+    by_dst_token: dict[str, set[int]] = defaultdict(set)
+
+    for (mod_src, mod_dst), moderators in mod_index.items():
+        src_tokens = _tokenize(mod_src)
+        dst_tokens = _tokenize(mod_dst)
+        if not src_tokens or not dst_tokens:
+            continue
+        candidate_id = len(candidates)
+        candidates.append((src_tokens, dst_tokens, moderators))
+        for token in src_tokens:
+            by_src_token[token].add(candidate_id)
+        for token in dst_tokens:
+            by_dst_token[token].add(candidate_id)
+
+    return candidates, by_src_token, by_dst_token
+
+
+def _candidate_ids_for_tokens(tokens: frozenset[str], index: dict[str, set[int]]) -> set[int]:
+    candidate_ids: set[int] = set()
+    for token in tokens:
+        candidate_ids.update(index.get(token, ()))
+    return candidate_ids
 
 
 def _match_moderators_for_edge(
     src: str,
     dst: str,
     mod_index: dict[tuple[str, str], list[dict[str, Any]]],
+    fuzzy_index: _FuzzyIndex | None = None,
 ) -> tuple[list[dict[str, Any]], str]:
     exact = mod_index.get((str(src), str(dst)), [])
     if exact:
@@ -177,9 +233,22 @@ def _match_moderators_for_edge(
 
     best_score = 0.0
     best_match: list[dict[str, Any]] = []
-    for (mod_src, mod_dst), moderators in mod_index.items():
-        src_score = _token_overlap(str(src), mod_src)
-        dst_score = _token_overlap(str(dst), mod_dst)
+    src_tokens = _tokenize(str(src))
+    dst_tokens = _tokenize(str(dst))
+    if fuzzy_index is None:
+        candidates = [
+            (_tokenize(mod_src), _tokenize(mod_dst), moderators)
+            for (mod_src, mod_dst), moderators in mod_index.items()
+        ]
+        candidate_ids: range | set[int] = range(len(candidates))
+    else:
+        candidates, by_src_token, by_dst_token = fuzzy_index
+        candidate_ids = _candidate_ids_for_tokens(src_tokens, by_src_token) & _candidate_ids_for_tokens(dst_tokens, by_dst_token)
+
+    for candidate_id in candidate_ids:
+        mod_src_tokens, mod_dst_tokens, moderators = candidates[candidate_id]
+        src_score = _token_overlap_sets(src_tokens, mod_src_tokens)
+        dst_score = _token_overlap_sets(dst_tokens, mod_dst_tokens)
         score = (src_score + dst_score) / 2.0
         if score > best_score:
             best_score = score
@@ -243,6 +312,7 @@ def _load_target_context_profile(
     config: AcademicBatchConfig,
     *,
     skg_version: int,
+    evidence_filter: str | None = None,
 ) -> tuple[str, dict[str, Any] | None]:
     target_context_id = str(config.transport_target_context_id or "").strip()
     if target_context_id:
@@ -259,7 +329,7 @@ def _load_target_context_profile(
 
     countries = list(config.transport_target_country_codes)
     time_period = str(config.transport_target_time_period or "")
-    evidence_filter = _context_attr_filter_clause(con, skg_version=skg_version)
+    evidence_filter = evidence_filter if evidence_filter is not None else _context_attr_filter_clause(con, skg_version=skg_version)
     rows = con.execute(
         """
         SELECT canonical_name, attribute_value, value_qualitative, confidence
@@ -285,10 +355,11 @@ def _load_source_context_for_edge(
     article_refs: list[str],
     *,
     skg_version: int,
+    evidence_filter: str | None = None,
 ) -> dict[str, Any] | None:
     if not article_refs:
         return None
-    evidence_filter = _context_attr_filter_clause(con, skg_version=skg_version)
+    evidence_filter = evidence_filter if evidence_filter is not None else _context_attr_filter_clause(con, skg_version=skg_version)
     rows = con.execute(
         """
         SELECT canonical_name, attribute_value, value_qualitative, confidence
@@ -300,6 +371,41 @@ def _load_source_context_for_edge(
         ),
         [skg_version, *article_refs],
     ).fetchall()
+    if not rows:
+        return None
+    return _aggregate_context_rows(rows, context_id="source", time_period="")
+
+
+def _load_context_rows_by_article(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    skg_version: int,
+    evidence_filter: str,
+) -> dict[str, list[tuple[Any, ...]]]:
+    rows = con.execute(
+        """
+        SELECT openalex_id, canonical_name, attribute_value, value_qualitative, confidence
+        FROM ac_skg_context_attributes
+        WHERE skg_version = ? {evidence_filter}
+          AND openalex_id IS NOT NULL AND openalex_id != ''
+        """.format(evidence_filter=evidence_filter),
+        [skg_version],
+    ).fetchall()
+    by_article: dict[str, list[tuple[Any, ...]]] = defaultdict(list)
+    for openalex_id, canonical_name, value, value_qualitative, confidence in rows:
+        by_article[str(openalex_id)].append((canonical_name, value, value_qualitative, confidence))
+    return by_article
+
+
+def _source_context_from_article_index(
+    article_refs: list[str],
+    context_rows_by_article: dict[str, list[tuple[Any, ...]]],
+) -> dict[str, Any] | None:
+    if not article_refs:
+        return None
+    rows: list[tuple[Any, ...]] = []
+    for article_ref in article_refs:
+        rows.extend(context_rows_by_article.get(article_ref, ()))
     if not rows:
         return None
     return _aggregate_context_rows(rows, context_id="source", time_period="")
@@ -391,7 +497,13 @@ def run_transport_score(config: AcademicBatchConfig) -> dict[str, int]:
             logger.info("No SKG version found, skipping transport_score")
             return result
 
-        result["profiles_built"] = _build_context_profiles(con, skg_version)
+        evidence_filter = _context_attr_filter_clause(con, skg_version=skg_version)
+        result["profiles_built"] = _build_context_profiles(
+            con,
+            skg_version,
+            evidence_filter=evidence_filter,
+            country_filter=config.transport_target_country_codes or None,
+        )
 
         mod_rows = con.execute(
             "SELECT base_cause, base_effect, moderator, direction_of_mod, interaction_coeff, "
@@ -415,8 +527,19 @@ def run_transport_score(config: AcademicBatchConfig) -> dict[str, int]:
                 }
             )
 
-        target_context_id, target_context_profile = _load_target_context_profile(con, config, skg_version=skg_version)
+        fuzzy_index = _build_fuzzy_moderator_index(mod_index)
+        target_context_id, target_context_profile = _load_target_context_profile(
+            con,
+            config,
+            skg_version=skg_version,
+            evidence_filter=evidence_filter,
+        )
         target_context_key = target_context_id or ""
+        context_rows_by_article = _load_context_rows_by_article(
+            con,
+            skg_version=skg_version,
+            evidence_filter=evidence_filter,
+        )
 
         edges = con.execute(
             "SELECT edge_id, src, dst, confidence, article_refs FROM ac_skg_edges"
@@ -426,7 +549,12 @@ def run_transport_score(config: AcademicBatchConfig) -> dict[str, int]:
         con.execute("DELETE FROM ac_skg_transport_scores WHERE skg_version = ?", [skg_version])
 
         for edge_id, src, dst, confidence, article_refs_json in edges:
-            moderators, match_mode = _match_moderators_for_edge(str(src), str(dst), mod_index)
+            moderators, match_mode = _match_moderators_for_edge(
+                str(src),
+                str(dst),
+                mod_index,
+                fuzzy_index=fuzzy_index,
+            )
             matched_count = len(moderators)
             if matched_count:
                 result["moderators_applied"] += matched_count
@@ -435,7 +563,7 @@ def run_transport_score(config: AcademicBatchConfig) -> dict[str, int]:
             penalty = _moderation_penalty_amount(moderators)
             source_refs = json.loads(str(article_refs_json or "[]"))
             article_refs = [str(item) for item in source_refs if item]
-            source_context_profile = _load_source_context_for_edge(con, article_refs, skg_version=skg_version)
+            source_context_profile = _source_context_from_article_index(article_refs, context_rows_by_article)
             similarity = _context_similarity(source_context_profile, target_context_profile, moderators)
             has_relevant = any(_has_significance_signal(m) for m in moderators)
             if target_context_profile is not None and has_relevant:

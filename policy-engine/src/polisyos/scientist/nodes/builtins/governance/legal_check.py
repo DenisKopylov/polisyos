@@ -4,11 +4,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts.foundry import SimulationResultRef
 from polisyos.core.contracts.lex import LegalEvaluationRequest
 from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef, TrinityBundleRef
 from polisyos.lex.api import assemble_norm_pack, evaluate_legality
@@ -16,6 +19,8 @@ from polisyos.lex.types import NormPackBuildRequest
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_MODEL_SPEC_REF,
@@ -27,6 +32,24 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 logger = get_logger(__name__)
+_LEGAL_CHECK_READ_ERRORS = (
+    AttributeError,
+    KeyError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
+_LEGAL_EVALUATION_ERRORS = (
+    AttributeError,
+    KeyError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_legal_check@1.0.1"),
@@ -78,6 +101,12 @@ def _coerce_model_ref(value: ArtifactRef | None) -> ModelSpecRef | None:
     return ModelSpecRef.model_validate(value.model_dump())
 
 
+def _coerce_simulation_result_ref(value: ArtifactRef | None) -> SimulationResultRef | None:
+    if value is None:
+        return None
+    return SimulationResultRef.model_validate(value.model_dump())
+
+
 def _fact_log_root(ctx: ExecutionContext, state: ExperimentState) -> Path:
     candidate = state.params.get("fact_log_root")
     if isinstance(candidate, str) and candidate.strip():
@@ -85,25 +114,35 @@ def _fact_log_root(ctx: ExecutionContext, state: ExperimentState) -> Path:
     return Path(ctx.store.root).parent
 
 
-def _read_compliance_grade(ctx: ExecutionContext, report_ref: ArtifactRef) -> str | None:
+def _read_compliance_grade(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    report_ref: ArtifactRef,
+) -> tuple[str | None, dict[str, object] | None]:
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
-    except Exception:
-        logger.debug(
-            "Failed to read compliance grade from report ref %s",
-            report_ref,
-            exc_info=True,
+    except _LEGAL_CHECK_READ_ERRORS as exc:
+        return None, emit_degraded_path(
+            component="scientist.legal_check",
+            operation="read_compliance_grade",
+            reason="legal_report_grade_load_failed",
+            exc=exc,
+            details={
+                "run_id": state.run_id,
+                "artifact_id": str(report_ref.artifact_id),
+            },
+            log=logger,
+            metrics=ctx.metrics,
         )
-        return None
     if not isinstance(payload, dict):
-        return None
+        return None, None
     summary = payload.get("summary")
     if not isinstance(summary, dict):
-        return None
+        return None, None
     grade = summary.get("compliance_grade")
     if isinstance(grade, str):
-        return grade
-    return None
+        return grade, None
+    return None, None
 
 
 def _skip_legal_check(
@@ -131,13 +170,24 @@ class LegalCheckNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        simulation_result_ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
-        if simulation_result_ref is None:
+        simulation_result_artifact_ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
+        if simulation_result_artifact_ref is None:
             return _skip_legal_check(
                 state=state,
                 message="Legal check skipped: missing simulation_result_ref",
                 reason="missing_simulation_result",
                 details={"required": ARTIFACT_SIMULATION_RESULT_REF},
+            )
+        simulation_result_ref = _coerce_simulation_result_ref(simulation_result_artifact_ref)
+        if simulation_result_ref is None:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="lex.invalid_simulation_result_ref",
+                    message="Legal check received an invalid simulation_result_ref",
+                    details={"required": ARTIFACT_SIMULATION_RESULT_REF},
+                ),
             )
 
         jurisdiction = state.params.get("jurisdiction")
@@ -172,7 +222,7 @@ class LegalCheckNode:
             )
 
         norm_pack_ref = state.inputs.get(INPUT_NORM_PACK_REF)
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         fact_log_root = _fact_log_root(ctx, state)
 
         if norm_pack_ref is None:
@@ -212,13 +262,17 @@ class LegalCheckNode:
                 fact_log_root=fact_log_root,
                 request=request,
             )
-        except Exception as exc:
+        except _LEGAL_EVALUATION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
                 error=NodeError(
                     code="lex.evaluate_failed",
                     message=f"Legal evaluation failed: {exc}",
+                    details={
+                        "error_type": exc.__class__.__name__,
+                        "run_id": state.run_id,
+                    },
                 ),
             )
 
@@ -230,7 +284,21 @@ class LegalCheckNode:
             artifacts.extend(proposal_refs)
 
         events: list[NodeEvent] = []
-        grade = _read_compliance_grade(ctx, report_ref)
+        grade, degraded = _read_compliance_grade(ctx, state, report_ref)
+        if degraded is not None:
+            events.append(
+                NodeEvent(
+                    level="warn",
+                    code="legal_check.report_degraded",
+                    message="Legal check report grade degraded",
+                    attrs={
+                        "reason": str(degraded.get("reason", "legal_report_grade_load_failed")),
+                        "error_type": str(
+                            degraded.get("error_type", "runtime_error")
+                        ),
+                    },
+                )
+            )
         if strict and grade is not None and grade != "pass":
             events.append(
                 NodeEvent(

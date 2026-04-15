@@ -6,8 +6,10 @@ import logging
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.scientist.engine.builtins import builtin_nodes
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.errors import CycleDetectedError, UnknownNodeError
 from polisyos.scientist.engine.executor import WorkflowExecutor
@@ -15,8 +17,6 @@ from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
-from polisyos.scientist.engine.builtins import builtin_nodes
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 
 
 class AlwaysFailNode:
@@ -41,6 +41,108 @@ class AlwaysFailNode:
             state=state,
             error=NodeError(code="node.fail", message="boom"),
         )
+
+
+class MutatesNestedDeclaredWriteNode:
+    def __init__(self) -> None:
+        metadata = ComponentMetadata(
+            component_id=ComponentId.parse("scientist.node_mutate_nested@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            display_name="Mutate Nested",
+            description="Mutates a declared nested write path",
+            capabilities=Capability.SCIENTIST_NODE,
+        )
+        self._spec = NodeSpec(
+            metadata=metadata,
+            state_reads=["params.nested"],
+            state_writes=["params.nested.items"],
+        )
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        state.params["nested"]["items"].append("node")
+        return NodeOutcome(status="ok", state=state)
+
+
+class CacheableSuccessNode:
+    def __init__(self) -> None:
+        metadata = ComponentMetadata(
+            component_id=ComponentId.parse("scientist.node_cacheable_success@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            display_name="Cacheable Success",
+            description="Succeeds and remains cache-enabled",
+            capabilities=Capability.SCIENTIST_NODE,
+        )
+        self._spec = NodeSpec(metadata=metadata)
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        return NodeOutcome(status="ok", state=state)
+
+
+class BindFailNode:
+    def __init__(self) -> None:
+        metadata = ComponentMetadata(
+            component_id=ComponentId.parse("scientist.node_bind_fail@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            display_name="Bind Fail",
+            description="Raises during bind",
+            capabilities=Capability.SCIENTIST_NODE,
+        )
+        self._spec = NodeSpec(metadata=metadata)
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def bind(self, params):
+        raise RuntimeError(f"bind exploded for {sorted(params)}")
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        raise AssertionError("execute should not be called when bind fails")
+
+
+class ExecuteLookupFailNode:
+    def __init__(self) -> None:
+        metadata = ComponentMetadata(
+            component_id=ComponentId.parse("scientist.node_execute_lookup_fail@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            display_name="Execute Lookup Fail",
+            description="Raises LookupError during execute",
+            capabilities=Capability.SCIENTIST_NODE,
+        )
+        self._spec = NodeSpec(metadata=metadata)
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        raise KeyError("missing dependency")
+
+
+class FailingProvenanceDag:
+    def record_node_execution(self, **kwargs) -> None:
+        raise OSError("provenance unavailable")
+
+    def record_node_failure(self, **kwargs) -> None:
+        raise OSError("provenance unavailable")
+
+    def finalize(self) -> None:
+        return None
+
+    def to_prov_json(self) -> dict[str, object]:
+        return {"records": []}
 
 
 def _ctx_and_registry(tmp_path):
@@ -166,3 +268,147 @@ def test_skip_propagation_continue_policy(tmp_path):
     assert statuses["downstream"] == "skip"
     downstream = next(rec for rec in result.report.nodes if rec.alias == "downstream")
     assert downstream.skip_reason == "upstream_failed"
+
+
+def test_executor_branch_state_isolates_declared_nested_writes(tmp_path):
+    _, bundle, ctx, registry = _ctx_and_registry(tmp_path)
+    registry.register(MutatesNestedDeclaredWriteNode())
+
+    workflow = WorkflowSpec(
+        workflow_id="branch_state",
+        nodes=[
+            NodeInvocation(
+                alias="mutate",
+                node_id=ComponentId.parse("scientist.node_mutate_nested@1.0.0"),
+            )
+        ],
+    )
+    state = ExperimentState(
+        run_id="R_test",
+        inputs={"registry_bundle_ref": bundle.bundle_ref},
+        params={"nested": {"items": ["base"]}},
+    )
+
+    executor = WorkflowExecutor(ctx, registry)
+    result = executor.execute(workflow, state)
+
+    assert result.state.params["nested"]["items"] == ["base", "node"]
+    assert state.params["nested"]["items"] == ["base"]
+
+
+def test_executor_logs_cache_write_bypass_as_node_event(tmp_path, monkeypatch, caplog):
+    _, bundle, ctx, registry = _ctx_and_registry(tmp_path)
+    registry.register(CacheableSuccessNode())
+
+    workflow = WorkflowSpec(
+        workflow_id="cache_bypass_warning",
+        nodes=[
+            NodeInvocation(
+                alias="cacheable",
+                node_id=ComponentId.parse("scientist.node_cacheable_success@1.0.0"),
+            )
+        ],
+    )
+    state = ExperimentState(run_id="R_test", inputs={"registry_bundle_ref": bundle.bundle_ref})
+
+    def _raise_put(self, key, node_id, outcome):
+        raise OSError("cache store unavailable")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.engine.idempotency.NodeResultCache.put",
+        _raise_put,
+    )
+
+    executor = WorkflowExecutor(ctx, registry)
+    with caplog.at_level(logging.WARNING, logger="test"):
+        result = executor.execute(workflow, state)
+
+    assert result.report.status == "ok"
+    assert any(
+        "Node result cache write bypassed" in record.getMessage()
+        for record in caplog.records
+    )
+
+
+def test_executor_logs_provenance_recording_degraded_as_node_event(tmp_path, caplog):
+    _, bundle, ctx, registry = _ctx_and_registry(tmp_path)
+    registry.register(CacheableSuccessNode())
+
+    workflow = WorkflowSpec(
+        workflow_id="provenance_warning",
+        nodes=[
+            NodeInvocation(
+                alias="cacheable",
+                node_id=ComponentId.parse("scientist.node_cacheable_success@1.0.0"),
+            )
+        ],
+    )
+    state = ExperimentState(run_id="R_test", inputs={"registry_bundle_ref": bundle.bundle_ref})
+
+    executor = WorkflowExecutor(ctx, registry, provenance_dag=FailingProvenanceDag())
+    with caplog.at_level(logging.WARNING, logger="test"):
+        result = executor.execute(workflow, state)
+
+    assert result.report.status == "ok"
+    assert any(
+        "Node provenance recording degraded" in record.getMessage()
+        for record in caplog.records
+    )
+
+
+def test_executor_reports_bind_failure_as_typed_node_error(tmp_path):
+    _, bundle, ctx, registry = _ctx_and_registry(tmp_path)
+    node = BindFailNode()
+    registry.register(node)
+
+    workflow = WorkflowSpec(
+        workflow_id="bind_failure",
+        nodes=[
+            NodeInvocation(
+                alias="bind_fail",
+                node_id=ComponentId.parse("scientist.node_bind_fail@1.0.0"),
+                params={"country": "UA"},
+            )
+        ],
+        error_policy="continue",
+    )
+    state = ExperimentState(run_id="R_test", inputs={"registry_bundle_ref": bundle.bundle_ref})
+
+    executor = WorkflowExecutor(ctx, registry)
+    result = executor.execute(workflow, state)
+
+    assert result.report.status == "fail"
+    record = result.report.nodes[0]
+    assert record.status == "fail"
+    assert record.error is not None
+    assert record.error.code == "node.bind_failed"
+    assert record.error.details["type"] == "RuntimeError"
+    assert state.params == {}
+
+
+def test_executor_reports_lookup_runtime_failure_as_typed_node_error(tmp_path):
+    _, bundle, ctx, registry = _ctx_and_registry(tmp_path)
+    registry.register(ExecuteLookupFailNode())
+
+    workflow = WorkflowSpec(
+        workflow_id="execute_lookup_failure",
+        nodes=[
+            NodeInvocation(
+                alias="lookup_fail",
+                node_id=ComponentId.parse("scientist.node_execute_lookup_fail@1.0.0"),
+            )
+        ],
+        error_policy="continue",
+    )
+    state = ExperimentState(run_id="R_test", inputs={"registry_bundle_ref": bundle.bundle_ref})
+
+    executor = WorkflowExecutor(ctx, registry)
+    result = executor.execute(workflow, state)
+
+    assert result.report.status == "fail"
+    record = result.report.nodes[0]
+    assert record.status == "fail"
+    assert record.error is not None
+    assert record.error.code == "node.exception"
+    assert record.error.details["type"] == "KeyError"
+    assert result.state.params == {}

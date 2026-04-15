@@ -21,6 +21,7 @@ from polisyos.fabric.connectors.federation.types import (
     ConflictContext,
     ConflictPolicy,
     ConflictResolution,
+    ConflictResolutionError,
     CoverageProfile,
     ExecutionPlan,
     FederationError,
@@ -56,6 +57,7 @@ __all__ = [
     "ConflictCandidate",
     "ConflictContext",
     "ConflictResolution",
+    "ConflictResolutionError",
     "MergeLogEntry",
     "MergeLogSummary",
     # Evidence

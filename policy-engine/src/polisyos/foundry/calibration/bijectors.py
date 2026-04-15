@@ -12,6 +12,14 @@ from typing import Callable, Iterable, List, Sequence
 import jax
 import jax.numpy as jnp
 
+from polisyos.foundry._numeric import (
+    NumericDomain,
+    clip_probability,
+    epsilon_for,
+    softplus_inverse,
+    stable_logit,
+)
+
 
 @dataclass
 class Bijector:
@@ -51,33 +59,37 @@ def make_bijector(lower: float | None, upper: float | None, eps: float = 1e-6) -
         Identity, softplus, reverse-softplus, or logistic box bijector matching
         the supplied bounds.
     """
+    eps = max(float(eps), epsilon_for(NumericDomain.POSITIVE))
     if lower is None and upper is None:
         return _identity()
     if lower is not None and upper is None:
         # [lower, +inf) -> lower + softplus
         return Bijector(
             forward=lambda u: lower + jax.nn.softplus(u),
-            inverse=lambda x: jnp.log(jnp.exp(jnp.maximum(x - lower, 0.0)) - 1.0 + eps),
+            inverse=lambda x: softplus_inverse(jnp.asarray(x) - lower, eps=eps),
             log_det_jacobian=lambda u: jnp.log(jax.nn.sigmoid(u)),
         )
     if lower is None and upper is not None:
         # (-inf, upper] -> upper - softplus
         return Bijector(
             forward=lambda u: upper - jax.nn.softplus(u),
-            inverse=lambda x: jnp.log(jnp.exp(jnp.maximum(upper - x, 0.0)) - 1.0 + eps),
+            inverse=lambda x: softplus_inverse(upper - jnp.asarray(x), eps=eps),
             log_det_jacobian=lambda u: jnp.log(jax.nn.sigmoid(u)),
         )
     if lower is not None and upper is not None:
         width = upper - lower
-        # Lower sigmoid temperature sharpens gradients inside the bounded domain.
-        temperature = 0.5
+        if width <= 0.0:
+            raise ValueError("upper bound must exceed lower bound")
         return Bijector(
-            forward=lambda u: jax.nn.sigmoid(u / temperature) * width + lower,
-            inverse=lambda x: temperature * jnp.log((x - lower) / (upper - x + eps)),
+            forward=lambda u: jax.nn.sigmoid(u) * width + lower,
+            inverse=lambda x: stable_logit(
+                clip_probability((jnp.asarray(x) - lower) / width, eps=eps),
+                eps=eps,
+            ),
             log_det_jacobian=lambda u: (
-                jnp.log(jax.nn.sigmoid(u / temperature))
-                + jnp.log(1.0 - jax.nn.sigmoid(u / temperature))
-                + jnp.log(width / temperature)
+                jnp.log(jax.nn.sigmoid(u))
+                + jnp.log1p(-jax.nn.sigmoid(u))
+                + jnp.log(width)
             ),
         )
     return _identity()
@@ -90,6 +102,7 @@ def make_bijector(lower: float | None, upper: float | None, eps: float = 1e-6) -
 
 def log_bijector(eps: float = 1e-8) -> Bijector:
     """Bijector: unconstrained -> positive via exp/log."""
+    eps = max(float(eps), epsilon_for(NumericDomain.POSITIVE))
     return Bijector(
         forward=lambda u: jnp.exp(u),
         inverse=lambda x: jnp.log(jnp.maximum(x, eps)),
@@ -99,9 +112,10 @@ def log_bijector(eps: float = 1e-8) -> Bijector:
 
 def logit_bijector(eps: float = 1e-8) -> Bijector:
     """Bijector: unconstrained -> (0, 1) via sigmoid/logit."""
+    eps = max(float(eps), epsilon_for(NumericDomain.PROBABILITY))
     return Bijector(
         forward=lambda u: jax.nn.sigmoid(u),
-        inverse=lambda x: jnp.log(x / (1.0 - x + eps) + eps),
+        inverse=lambda x: stable_logit(x, eps=eps),
         log_det_jacobian=lambda u: (
             jnp.log(jax.nn.sigmoid(u)) + jnp.log(1.0 - jax.nn.sigmoid(u))
         ),
@@ -112,7 +126,7 @@ def softplus_bijector(lower: float = 0.0) -> Bijector:
     """Bijector: unconstrained -> (lower, +inf) via softplus."""
     return Bijector(
         forward=lambda u: lower + jax.nn.softplus(u),
-        inverse=lambda x: jnp.log(jnp.exp(jnp.maximum(x - lower, 0.0)) - 1.0 + 1e-8),
+        inverse=lambda x: softplus_inverse(jnp.asarray(x) - lower),
         log_det_jacobian=lambda u: jnp.log(jax.nn.sigmoid(u)),
     )
 

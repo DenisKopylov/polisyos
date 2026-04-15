@@ -41,7 +41,7 @@ class TOPSISEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="topsis",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -145,7 +145,7 @@ class AHPEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ahp",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -242,7 +242,7 @@ class ELECTREEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="electre",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

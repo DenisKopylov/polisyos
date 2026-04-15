@@ -16,6 +16,10 @@ export type RunDetailsResponse = {
   meta: components["schemas"]["ApiMeta"];
   run: components["schemas"]["RunDetails"];
 };
+export type RunEvidenceContextResponse = {
+  context: components["schemas"]["RunEvidenceContextView"];
+  meta: components["schemas"]["ApiMeta"];
+};
 export type RunsQueryData = {
   meta: components["schemas"]["ApiMeta"];
   page: components["schemas"]["CursorPage"];
@@ -252,6 +256,35 @@ export function updatePromotionCandidateStatus(
             ? { ...candidate, status }
             : candidate,
         ),
+      };
+    },
+  );
+}
+
+export function updateRunEvidencePromotionStatus(
+  queryClient: QueryClient,
+  runId: string,
+  promotionId: string,
+  status: components["schemas"]["PromotionDecisionResponse"]["status"],
+) {
+  queryClient.setQueryData<RunEvidenceContextResponse | undefined>(
+    queryKeys.runEvidenceContext(runId),
+    (current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        context: {
+          ...current.context,
+          promotion_candidates: (
+            current.context.promotion_candidates ?? []
+          ).map((candidate) =>
+            candidate.promotion_id === promotionId
+              ? { ...candidate, status }
+              : candidate,
+          ),
+        },
       };
     },
   );

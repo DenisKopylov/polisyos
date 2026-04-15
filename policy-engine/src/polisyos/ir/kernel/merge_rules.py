@@ -1,8 +1,8 @@
 """Public kernel merge rules module API."""
 from __future__ import annotations
 
-from enum import Enum
 import logging
+from enum import Enum
 from typing import Any, Literal
 
 from pydantic import Field, model_validator
@@ -117,7 +117,7 @@ class MergeRuleSpec(KernelModel):
             return data
         try:
             kind_enum = kind if isinstance(kind, MergeRuleKind) else MergeRuleKind(kind)
-        except Exception as exc:
+        except ValueError as exc:
             logger.debug(
                 "Failed to resolve MergeRuleKind from %r, skipping defaults: %s", kind, exc,
             )

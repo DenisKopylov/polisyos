@@ -160,7 +160,8 @@ function RunInspectorContent() {
     <div className="space-y-5" data-testid="run-detail-page">
       <DetailLayout
         sidebar={
-          <aside
+          <section
+            data-testid="run-detail-summary"
             className="border-line bg-panel rounded-[28px] border p-5"
             aria-label={t("pages.runs.detailTitle", { runId })}
           >
@@ -201,7 +202,7 @@ function RunInspectorContent() {
               </div>
               <details className="bg-surface/80 border-line rounded-2xl border p-3">
                 <summary className="text-muted cursor-pointer list-none text-xs tracking-wide uppercase">
-                  Diagnostics
+                  {t("pages.runs.diagnostics")}
                 </summary>
                 <div className="mt-3 space-y-3">
                   <div>
@@ -231,7 +232,7 @@ function RunInspectorContent() {
                 </div>
               </details>
             </div>
-          </aside>
+          </section>
         }
         content={
           <div className="space-y-5">
@@ -244,9 +245,11 @@ function RunInspectorContent() {
                 </div>
                 <div className="topbar-actions">
                   <Badge kind={badgeKind(getRunBadgeKind(run.status))}>
-                    {run.status}
+                    {label("runStatuses", run.status, run.status)}
                   </Badge>
-                  <Badge kind="neutral">{run.source_kind}</Badge>
+                  <Badge kind="neutral">
+                    {label("runSourceKinds", run.source_kind, run.source_kind)}
+                  </Badge>
                   {pipelineState ? (
                     <Badge kind="neutral">
                       {label("workflowStates", pipelineState, pipelineState)}

@@ -81,14 +81,14 @@ def train_actor_critic(
 
         params_out, opt_state_out = jax.lax.fori_loop(
             0,
-            int(config.ppo_epochs),
+            config.ppo_epochs,
             epoch_body,
             (params, opt_state),
         )
         actor_out = eqx.combine(static, params_out)
         return params_out, opt_state_out, actor_out
 
-    for episode in range(int(config.n_episodes)):
+    for episode in range(config.n_episodes):
         current_actor = eqx.combine(static, params)
         if make_executor is not None:
             current_executor = make_executor(current_actor)
@@ -103,7 +103,7 @@ def train_actor_critic(
         )
         params, opt_state, _ = update_step(params, opt_state, trajectory)
 
-        if config.log_interval and episode % int(config.log_interval) == 0:
+        if config.log_interval and episode % config.log_interval == 0:
             _ = trajectory
 
     return eqx.combine(static, params)
@@ -119,16 +119,7 @@ def collect_trajectory(
     mech = _find_temporal_mechanism(executor)
     salt = executor.prng_config.get(mech.spec.name, 0)
 
-    observations = []
-    actions = []
-    rewards = []
-    values = []
-    log_probs = []
-    dones = []
-    active_masks = []
-
-    state = initial_state
-    for _ in range(int(config.steps_per_episode)):
+    def _step_fn(state, _):
         obs = build_temporal_observations(
             state,
             horizon=config.horizon,
@@ -145,15 +136,23 @@ def collect_trajectory(
         next_state, _ = executor.step(state, fidelity=config.fidelity)
         reward = compute_agent_reward(state, next_state, utility_type=config.utility_type)
 
-        observations.append(obs)
-        actions.append(action)
-        rewards.append(reward)
-        values.append(value)
-        log_probs.append(log_prob)
-        dones.append(jnp.zeros_like(state.agents.active, dtype=jnp.bool_))
-        active_masks.append(state.agents.active)
+        transition = {
+            "observations": obs,
+            "actions": action,
+            "rewards": reward,
+            "values": value,
+            "log_probs": log_prob,
+            "dones": jnp.zeros_like(state.agents.active, dtype=jnp.bool_),
+            "active_mask": state.agents.active,
+        }
+        return next_state, transition
 
-        state = next_state
+    state, transitions = jax.lax.scan(
+        _step_fn,
+        initial_state,
+        None,
+        length=config.steps_per_episode,
+    )
 
     final_obs = build_temporal_observations(
         state,
@@ -162,14 +161,14 @@ def collect_trajectory(
     )
 
     return Trajectory(
-        observations=jnp.stack(observations),
-        actions=jnp.stack(actions),
-        rewards=jnp.stack(rewards),
-        values=jnp.stack(values),
-        dones=jnp.stack(dones),
-        log_probs=jnp.stack(log_probs),
+        observations=transitions["observations"],
+        actions=transitions["actions"],
+        rewards=transitions["rewards"],
+        values=transitions["values"],
+        dones=transitions["dones"],
+        log_probs=transitions["log_probs"],
         final_observation=final_obs,
-        active_mask=jnp.stack(active_masks),
+        active_mask=transitions["active_mask"],
     )
 
 
@@ -267,14 +266,14 @@ def train_actor_critic_with_artifact(
     artifact = AgentPolicyArtifact.from_trained_policy(
         policy=trained_policy,
         run_id=run_id,
-        steps=int(config.n_episodes) * int(config.steps_per_episode),
+        steps=config.n_episodes * config.steps_per_episode,
         loss=float(final_loss),
         fingerprint=fingerprint,
         best_loss=float(best_loss) if best_loss is not None else None,
         extended_metrics={
-            "total_episodes": int(config.n_episodes),
+            "total_episodes": config.n_episodes,
             "learning_rate": config.learning_rate,
-            "ppo_epochs": int(config.ppo_epochs),
+            "ppo_epochs": config.ppo_epochs,
         },
     )
 

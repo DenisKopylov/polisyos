@@ -1,117 +1,8 @@
-"""Scientist workflow engine (v0)."""
+"""Scientist workflow engine public facade with lazy exports."""
 
 from __future__ import annotations
 
-from polisyos.scientist.engine.runner import (
-    RemoteNodeExecutor,
-    WorkflowRunnerBackend,
-    WorkflowRunnerConfig,
-    build_workflow_runner,
-)
-from polisyos.scientist.engine.trace_attributes import (
-    ATTR_CACHE_HIT,
-    ATTR_CELL_ID,
-    ATTR_DURATION_MS,
-    ATTR_ERROR_POLICY,
-    ATTR_NODE_ALIAS,
-    ATTR_NODE_ID,
-    ATTR_NODE_STATUS,
-    ATTR_RETRY_COUNT,
-    ATTR_RUN_ID,
-    ATTR_TENANT_ID,
-    ATTR_TIER_INDEX,
-    ATTR_WORKFLOW_ID,
-    build_node_span_attributes,
-    enrich_node_span_result,
-)
-from polisyos.scientist.engine.fan_out import (
-    FanOutConfig,
-    FanOutNode,
-    FanOutResult,
-    MergeConflictPolicy,
-)
-from polisyos.scientist.engine.sub_workflow import (
-    StateMapping,
-    SubWorkflowConfig,
-    SubWorkflowNode,
-)
-from polisyos.scientist.engine.convergence import (
-    ConvergenceConfig,
-    ConvergenceDetector,
-    ConvergenceState,
-    ConvergenceStrategy,
-)
-from polisyos.scientist.engine.condition import (
-    ConditionSyntaxError,
-    NodeCondition,
-    evaluate_condition,
-)
-from polisyos.scientist.engine.checkpoint import (
-    CHECKPOINT_HEAD_FILENAME,
-    CHECKPOINT_KIND,
-    CHECKPOINT_SCHEMA_VERSION,
-    CASCheckpointHook,
-    CheckpointArtifact,
-    CheckpointCorruptedError,
-    CheckpointError,
-    CheckpointHead,
-    CheckpointMetadata,
-    CheckpointNotFoundError,
-    CheckpointPolicy,
-    CheckpointWriteResult,
-    RunLockError,
-    WorkflowMismatchError,
-    acquire_run_lock,
-    compute_workflow_fingerprint,
-    normalize_checkpoint_policy,
-    resolve_latest_checkpoint,
-    resume_from_checkpoint,
-)
-from polisyos.scientist.engine.errors import (
-    CircuitBreakerOpenError,
-    CycleDetectedError,
-    DuplicateAliasError,
-    EngineError,
-    MissingDependencyError,
-    NodeExecutionError,
-    NodeTimeoutError,
-    RetryExhaustedError,
-    UnknownNodeError,
-    WorkflowSpecError,
-    WorkflowTimeoutError,
-)
-from polisyos.scientist.engine.async_executor import AsyncWorkflowExecutor
-from polisyos.scientist.engine.executor import WorkflowExecutor
-from polisyos.scientist.engine.budget import (
-    BudgetExhaustedError,
-    BudgetLimit,
-    BudgetState,
-)
-from polisyos.scientist.engine.budget_middleware import BudgetMiddleware
-from polisyos.scientist.engine.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
-from polisyos.scientist.engine.metrics_protocol import (
-    EngineMetricsCollector,
-    NoopEngineMetrics,
-)
-from polisyos.scientist.engine.idempotency import (
-    IDEMPOTENCY_CONTRACT_VERSION,
-    NodeCacheEntry,
-    NodeResultCache,
-    compute_idempotency_key,
-    compute_idempotency_payload,
-    extract_state_slice,
-)
-from polisyos.scientist.engine.protocol import (
-    Node,
-    NodeError,
-    NodeEvent,
-    NodeOutcome,
-    NodeSpec,
-    NodeStatus,
-)
-from polisyos.scientist.engine.registry import NodeRegistry, discover_nodes
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from importlib import import_module
 
 __all__ = [
     "Node",
@@ -147,7 +38,9 @@ __all__ = [
     "CheckpointMetadata",
     "CheckpointArtifact",
     "CheckpointHead",
+    "CheckpointSnapshotMode",
     "CheckpointWriteResult",
+    "CreatedCheckpoint",
     "CASCheckpointHook",
     "CHECKPOINT_KIND",
     "CHECKPOINT_SCHEMA_VERSION",
@@ -155,6 +48,7 @@ __all__ = [
     "compute_workflow_fingerprint",
     "normalize_checkpoint_policy",
     "acquire_run_lock",
+    "materialize_checkpoint_state",
     "resolve_latest_checkpoint",
     "resume_from_checkpoint",
     "IDEMPOTENCY_CONTRACT_VERSION",
@@ -164,13 +58,22 @@ __all__ = [
     "NodeCacheEntry",
     "NodeResultCache",
     "EngineMetricsCollector",
+    "MetricsExporterHealth",
     "NoopEngineMetrics",
+    "OTelEngineMetrics",
+    "TraceCorrelationRecord",
+    "build_engine_metrics",
+    "get_metrics_exporter_health",
     "BudgetState",
     "BudgetLimit",
     "BudgetExhaustedError",
     "BudgetMiddleware",
+    "BudgetLedger",
+    "FileBudgetLedger",
     "CircuitBreaker",
     "CircuitBreakerConfig",
+    "RollbackCompensationEvent",
+    "RollbackCompensationHook",
     "NodeCondition",
     "ConditionSyntaxError",
     "evaluate_condition",
@@ -185,12 +88,10 @@ __all__ = [
     "StateMapping",
     "SubWorkflowConfig",
     "SubWorkflowNode",
-    # Runner backends
     "WorkflowRunnerBackend",
     "RemoteNodeExecutor",
     "WorkflowRunnerConfig",
     "build_workflow_runner",
-    # Trace attributes
     "ATTR_NODE_ID",
     "ATTR_NODE_ALIAS",
     "ATTR_TIER_INDEX",
@@ -206,3 +107,121 @@ __all__ = [
     "build_node_span_attributes",
     "enrich_node_span_result",
 ]
+
+_EXPORTS = {
+    "Node": ("polisyos.scientist.engine.protocol", "Node"),
+    "NodeSpec": ("polisyos.scientist.engine.protocol", "NodeSpec"),
+    "NodeOutcome": ("polisyos.scientist.engine.protocol", "NodeOutcome"),
+    "NodeStatus": ("polisyos.scientist.engine.protocol", "NodeStatus"),
+    "NodeEvent": ("polisyos.scientist.engine.protocol", "NodeEvent"),
+    "NodeError": ("polisyos.scientist.engine.protocol", "NodeError"),
+    "ExperimentState": ("polisyos.scientist.engine.state", "ExperimentState"),
+    "WorkflowSpec": ("polisyos.scientist.engine.workflow_spec", "WorkflowSpec"),
+    "NodeInvocation": ("polisyos.scientist.engine.workflow_spec", "NodeInvocation"),
+    "NodeRegistry": ("polisyos.scientist.engine.registry", "NodeRegistry"),
+    "discover_nodes": ("polisyos.scientist.engine.registry", "discover_nodes"),
+    "AsyncWorkflowExecutor": ("polisyos.scientist.engine.async_executor", "AsyncWorkflowExecutor"),
+    "WorkflowExecutor": ("polisyos.scientist.engine.executor", "WorkflowExecutor"),
+    "EngineError": ("polisyos.scientist.engine.errors", "EngineError"),
+    "WorkflowSpecError": ("polisyos.scientist.engine.errors", "WorkflowSpecError"),
+    "UnknownNodeError": ("polisyos.scientist.engine.errors", "UnknownNodeError"),
+    "DuplicateAliasError": ("polisyos.scientist.engine.errors", "DuplicateAliasError"),
+    "MissingDependencyError": ("polisyos.scientist.engine.errors", "MissingDependencyError"),
+    "CycleDetectedError": ("polisyos.scientist.engine.errors", "CycleDetectedError"),
+    "NodeExecutionError": ("polisyos.scientist.engine.errors", "NodeExecutionError"),
+    "NodeTimeoutError": ("polisyos.scientist.engine.errors", "NodeTimeoutError"),
+    "RetryExhaustedError": ("polisyos.scientist.engine.errors", "RetryExhaustedError"),
+    "CircuitBreakerOpenError": ("polisyos.scientist.engine.errors", "CircuitBreakerOpenError"),
+    "WorkflowTimeoutError": ("polisyos.scientist.engine.errors", "WorkflowTimeoutError"),
+    "CheckpointError": ("polisyos.scientist.engine.checkpoint", "CheckpointError"),
+    "CheckpointNotFoundError": ("polisyos.scientist.engine.checkpoint", "CheckpointNotFoundError"),
+    "CheckpointCorruptedError": ("polisyos.scientist.engine.checkpoint", "CheckpointCorruptedError"),
+    "WorkflowMismatchError": ("polisyos.scientist.engine.checkpoint", "WorkflowMismatchError"),
+    "RunLockError": ("polisyos.scientist.engine.checkpoint", "RunLockError"),
+    "CheckpointPolicy": ("polisyos.scientist.engine.checkpoint", "CheckpointPolicy"),
+    "CheckpointMetadata": ("polisyos.scientist.engine.checkpoint", "CheckpointMetadata"),
+    "CheckpointArtifact": ("polisyos.scientist.engine.checkpoint", "CheckpointArtifact"),
+    "CheckpointHead": ("polisyos.scientist.engine.checkpoint", "CheckpointHead"),
+    "CheckpointSnapshotMode": ("polisyos.scientist.engine.checkpoint", "CheckpointSnapshotMode"),
+    "CheckpointWriteResult": ("polisyos.scientist.engine.checkpoint", "CheckpointWriteResult"),
+    "CreatedCheckpoint": ("polisyos.scientist.engine.checkpoint", "CreatedCheckpoint"),
+    "CASCheckpointHook": ("polisyos.scientist.engine.checkpoint", "CASCheckpointHook"),
+    "CHECKPOINT_KIND": ("polisyos.scientist.engine.checkpoint", "CHECKPOINT_KIND"),
+    "CHECKPOINT_SCHEMA_VERSION": ("polisyos.scientist.engine.checkpoint", "CHECKPOINT_SCHEMA_VERSION"),
+    "CHECKPOINT_HEAD_FILENAME": ("polisyos.scientist.engine.checkpoint", "CHECKPOINT_HEAD_FILENAME"),
+    "compute_workflow_fingerprint": ("polisyos.scientist.engine.checkpoint", "compute_workflow_fingerprint"),
+    "normalize_checkpoint_policy": ("polisyos.scientist.engine.checkpoint", "normalize_checkpoint_policy"),
+    "acquire_run_lock": ("polisyos.scientist.engine.checkpoint", "acquire_run_lock"),
+    "materialize_checkpoint_state": ("polisyos.scientist.engine.checkpoint", "materialize_checkpoint_state"),
+    "resolve_latest_checkpoint": ("polisyos.scientist.engine.checkpoint", "resolve_latest_checkpoint"),
+    "resume_from_checkpoint": ("polisyos.scientist.engine.checkpoint", "resume_from_checkpoint"),
+    "IDEMPOTENCY_CONTRACT_VERSION": ("polisyos.scientist.engine.idempotency", "IDEMPOTENCY_CONTRACT_VERSION"),
+    "compute_idempotency_key": ("polisyos.scientist.engine.idempotency", "compute_idempotency_key"),
+    "compute_idempotency_payload": ("polisyos.scientist.engine.idempotency", "compute_idempotency_payload"),
+    "extract_state_slice": ("polisyos.scientist.engine.idempotency", "extract_state_slice"),
+    "NodeCacheEntry": ("polisyos.scientist.engine.idempotency", "NodeCacheEntry"),
+    "NodeResultCache": ("polisyos.scientist.engine.idempotency", "NodeResultCache"),
+    "EngineMetricsCollector": ("polisyos.scientist.engine.metrics_protocol", "EngineMetricsCollector"),
+    "MetricsExporterHealth": ("polisyos.scientist.engine.metrics", "MetricsExporterHealth"),
+    "NoopEngineMetrics": ("polisyos.scientist.engine.metrics", "NoopEngineMetrics"),
+    "OTelEngineMetrics": ("polisyos.scientist.engine.metrics", "OTelEngineMetrics"),
+    "TraceCorrelationRecord": ("polisyos.scientist.engine.metrics", "TraceCorrelationRecord"),
+    "build_engine_metrics": ("polisyos.scientist.engine.metrics", "build_engine_metrics"),
+    "get_metrics_exporter_health": (
+        "polisyos.scientist.engine.metrics",
+        "get_metrics_exporter_health",
+    ),
+    "BudgetState": ("polisyos.scientist.engine.budget", "BudgetState"),
+    "BudgetLimit": ("polisyos.scientist.engine.budget", "BudgetLimit"),
+    "BudgetExhaustedError": ("polisyos.scientist.engine.budget", "BudgetExhaustedError"),
+    "BudgetMiddleware": ("polisyos.scientist.engine.budget_middleware", "BudgetMiddleware"),
+    "BudgetLedger": ("polisyos.scientist.engine.budget_ledger", "BudgetLedger"),
+    "FileBudgetLedger": ("polisyos.scientist.engine.budget_ledger", "FileBudgetLedger"),
+    "CircuitBreaker": ("polisyos.scientist.engine.circuit_breaker", "CircuitBreaker"),
+    "CircuitBreakerConfig": ("polisyos.scientist.engine.circuit_breaker", "CircuitBreakerConfig"),
+    "RollbackCompensationEvent": ("polisyos.scientist.engine.compensation", "RollbackCompensationEvent"),
+    "RollbackCompensationHook": ("polisyos.scientist.engine.compensation", "RollbackCompensationHook"),
+    "NodeCondition": ("polisyos.scientist.engine.condition", "NodeCondition"),
+    "ConditionSyntaxError": ("polisyos.scientist.engine.condition", "ConditionSyntaxError"),
+    "evaluate_condition": ("polisyos.scientist.engine.condition", "evaluate_condition"),
+    "ConvergenceConfig": ("polisyos.scientist.engine.convergence", "ConvergenceConfig"),
+    "ConvergenceDetector": ("polisyos.scientist.engine.convergence", "ConvergenceDetector"),
+    "ConvergenceState": ("polisyos.scientist.engine.convergence", "ConvergenceState"),
+    "ConvergenceStrategy": ("polisyos.scientist.engine.convergence", "ConvergenceStrategy"),
+    "FanOutConfig": ("polisyos.scientist.engine.fan_out", "FanOutConfig"),
+    "FanOutNode": ("polisyos.scientist.engine.fan_out", "FanOutNode"),
+    "FanOutResult": ("polisyos.scientist.engine.fan_out", "FanOutResult"),
+    "MergeConflictPolicy": ("polisyos.scientist.engine.fan_out", "MergeConflictPolicy"),
+    "StateMapping": ("polisyos.scientist.engine.sub_workflow", "StateMapping"),
+    "SubWorkflowConfig": ("polisyos.scientist.engine.sub_workflow", "SubWorkflowConfig"),
+    "SubWorkflowNode": ("polisyos.scientist.engine.sub_workflow", "SubWorkflowNode"),
+    "WorkflowRunnerBackend": ("polisyos.scientist.engine.runner", "WorkflowRunnerBackend"),
+    "RemoteNodeExecutor": ("polisyos.scientist.engine.runner", "RemoteNodeExecutor"),
+    "WorkflowRunnerConfig": ("polisyos.scientist.engine.runner", "WorkflowRunnerConfig"),
+    "build_workflow_runner": ("polisyos.scientist.engine.runner", "build_workflow_runner"),
+    "ATTR_NODE_ID": ("polisyos.scientist.engine.trace_attributes", "ATTR_NODE_ID"),
+    "ATTR_NODE_ALIAS": ("polisyos.scientist.engine.trace_attributes", "ATTR_NODE_ALIAS"),
+    "ATTR_TIER_INDEX": ("polisyos.scientist.engine.trace_attributes", "ATTR_TIER_INDEX"),
+    "ATTR_RETRY_COUNT": ("polisyos.scientist.engine.trace_attributes", "ATTR_RETRY_COUNT"),
+    "ATTR_CACHE_HIT": ("polisyos.scientist.engine.trace_attributes", "ATTR_CACHE_HIT"),
+    "ATTR_WORKFLOW_ID": ("polisyos.scientist.engine.trace_attributes", "ATTR_WORKFLOW_ID"),
+    "ATTR_RUN_ID": ("polisyos.scientist.engine.trace_attributes", "ATTR_RUN_ID"),
+    "ATTR_ERROR_POLICY": ("polisyos.scientist.engine.trace_attributes", "ATTR_ERROR_POLICY"),
+    "ATTR_TENANT_ID": ("polisyos.scientist.engine.trace_attributes", "ATTR_TENANT_ID"),
+    "ATTR_CELL_ID": ("polisyos.scientist.engine.trace_attributes", "ATTR_CELL_ID"),
+    "ATTR_NODE_STATUS": ("polisyos.scientist.engine.trace_attributes", "ATTR_NODE_STATUS"),
+    "ATTR_DURATION_MS": ("polisyos.scientist.engine.trace_attributes", "ATTR_DURATION_MS"),
+    "build_node_span_attributes": ("polisyos.scientist.engine.trace_attributes", "build_node_span_attributes"),
+    "enrich_node_span_result": ("polisyos.scientist.engine.trace_attributes", "enrich_node_span_result"),
+}
+
+
+def __getattr__(name: str):
+    try:
+        module_name, attr_name = _EXPORTS[name]
+    except KeyError as exc:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from exc
+    module = import_module(module_name)
+    value = getattr(module, attr_name)
+    globals()[name] = value
+    return value

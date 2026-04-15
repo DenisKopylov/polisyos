@@ -36,7 +36,7 @@ class PoissonRegressionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="poisson",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -116,7 +116,7 @@ class NegativeBinomialEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="negative_binomial",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -197,7 +197,7 @@ class ZeroInflatedPoissonEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="zero_inflated_poisson",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

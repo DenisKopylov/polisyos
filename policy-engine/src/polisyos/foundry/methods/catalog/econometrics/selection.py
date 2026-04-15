@@ -44,7 +44,7 @@ class HeckmanSelectionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="heckman",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -139,7 +139,7 @@ class TobitEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="tobit",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -214,7 +214,7 @@ class TruncatedRegressionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="truncated",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

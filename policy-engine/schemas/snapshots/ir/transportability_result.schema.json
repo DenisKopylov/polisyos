@@ -681,7 +681,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Persist the transportability decision, formula, and fallback diagnostics.\n\nReadiness gates and reporting layers inspect ``status`` and\n``transport_mode`` to decide whether a query can be transported directly,\nrequires a transport formula, falls back to bounds, or is unsupported. The\nmodel also upgrades legacy payload aliases so older persisted artifacts can\nstill be read during migration.",
+  "description": "Persist the transportability decision, formula, and fallback diagnostics.\n\nReadiness gates and reporting layers inspect ``status`` and\n``transport_mode`` to decide whether a query can be transported directly,\nrequires a transport formula, falls back to bounds, or is unsupported. The\nmodel also upgrades legacy payload aliases so older persisted artifacts can\nstill be read during migration. Normalization happens before instance\ncreation so validated models no longer rewrite their own fields.",
   "properties": {
     "algorithm_version": {
       "default": "trso_v2",

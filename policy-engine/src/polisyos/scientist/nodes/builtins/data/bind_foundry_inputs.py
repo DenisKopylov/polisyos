@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -13,6 +15,7 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_INPUT_BINDING_REPORT_REF,
@@ -26,6 +29,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 logger = get_logger(__name__)
 
 _ZERO_HASH = f"sha256:{'0' * 64}"
+_BINDING_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_BINDING_LOAD_ERRORS = (TypeError, ValueError, ValidationError, FileNotFoundError, OSError)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_bind_foundry_inputs@1.0.0"),
@@ -116,7 +121,7 @@ class BindFoundryInputsNode:
                 rules=rules,
                 notes=["scientist.node_bind_foundry_inputs"],
             )
-        except Exception as exc:
+        except _BINDING_VALIDATION_ERRORS as exc:
             error = NodeError(
                 code=node_errors.ERROR_DATA_PLANE_BIND_FAILED,
                 message=f"Failed to build foundry.input_bindings: {exc}",
@@ -124,7 +129,14 @@ class BindFoundryInputsNode:
             event = NodeEvent(level="error", message="Input binding materialization failed")
             return NodeOutcome(status="fail", state=state, error=error, events=[event])
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=(
+                f"inputs.{INPUT_INPUT_BINDINGS_REF}",
+                f"artifacts_index.{ARTIFACT_STATE_SNAPSHOT_REF}",
+                f"artifacts_index.{ARTIFACT_INPUT_BINDING_REPORT_REF}",
+            ),
+        ).state
         new_state.inputs[INPUT_INPUT_BINDINGS_REF] = result.input_bindings_ref
         new_state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF] = result.bound_state_snapshot_ref
         new_state.artifacts_index[ARTIFACT_INPUT_BINDING_REPORT_REF] = (
@@ -156,7 +168,7 @@ def _parse_binding_rules(value: Any) -> list[FoundryInputBindingRule] | None:
         for item in value:
             try:
                 rules.append(FoundryInputBindingRule.model_validate(item))
-            except (TypeError, ValueError):
+            except _BINDING_VALIDATION_ERRORS:
                 logger.debug(
                     "Failed to validate binding rule item: %s",
                     item,
@@ -178,7 +190,7 @@ def _check_model_spec_consistency(
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
         trinity = TrinityBundle.model_validate(payload)
-    except Exception:
+    except _BINDING_LOAD_ERRORS:
         logger.debug(
             "Failed to load trinity bundle for model-spec consistency check from ref %s",
             trinity_ref,

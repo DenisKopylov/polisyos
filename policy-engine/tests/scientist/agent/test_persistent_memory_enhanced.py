@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
+import concurrent.futures
 import json
 import math
 from datetime import datetime, timedelta, timezone
-
-import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.agent.persistent_memory import (
@@ -15,10 +14,7 @@ from polisyos.scientist.agent.persistent_memory import (
     MemoryQuery,
     PersistentMemoryStore,
     _content_hash,
-    _keyword_score,
-    _tokenize,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -30,6 +26,7 @@ class FakeArtifactStore:
     def __init__(self):
         self._data: dict[str, bytes] = {}
         self._counter = 0
+        self.get_bytes_calls = 0
 
     def put_json(self, data, options=None):
         self._counter += 1
@@ -43,6 +40,7 @@ class FakeArtifactStore:
         return ArtifactRef(artifact_id=aid, kind=kind, media_type=media_type)
 
     def get_bytes(self, artifact_id) -> bytes:
+        self.get_bytes_calls += 1
         key = str(artifact_id)
         if key not in self._data:
             raise KeyError(key)
@@ -63,7 +61,7 @@ class FakeVectorStore:
         results = []
         for key, emb, meta in self._items[:top_k]:
             # Fake distance = 1 - cosine_sim (approx)
-            dot = sum(a * b for a, b in zip(embedding, emb))
+            dot = sum(a * b for a, b in zip(embedding, emb, strict=True))
             norm_a = math.sqrt(sum(x * x for x in embedding))
             norm_b = math.sqrt(sum(x * x for x in emb))
             if norm_a > 0 and norm_b > 0:
@@ -129,8 +127,8 @@ class TestDeduplication:
         e1 = _make_entry("same content here")
         e2 = _make_entry("same content here")
 
-        ref1 = mem.store_memory(e1)
-        ref2 = mem.store_memory(e2)
+        mem.store_memory(e1)
+        mem.store_memory(e2)
 
         assert len(mem.index.entries) == 1
 
@@ -142,6 +140,30 @@ class TestDeduplication:
         mem.store_memory(_make_entry("content B"))
 
         assert len(mem.index.entries) == 2
+
+    def test_long_content_dedup_uses_full_content_hash(self):
+        store = FakeArtifactStore()
+        mem = PersistentMemoryStore(store)
+        long_content = "x" * 240 + "suffix"
+
+        ref1 = mem.store_memory(_make_entry(long_content))
+        ref2 = mem.store_memory(_make_entry(long_content))
+
+        assert str(ref1.artifact_id) == str(ref2.artifact_id)
+        assert len(mem.index.entries) == 1
+
+    def test_concurrent_duplicate_content_stored_once(self):
+        store = FakeArtifactStore()
+        mem = PersistentMemoryStore(store)
+
+        def _store_same_content():
+            return mem.store_memory(_make_entry("same concurrent content"))
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+            refs = list(executor.map(lambda _: _store_same_content(), range(24)))
+
+        assert len(mem.index.entries) == 1
+        assert {str(ref.artifact_id) for ref in refs} == {str(refs[0].artifact_id)}
 
 
 # ---------------------------------------------------------------------------
@@ -190,6 +212,19 @@ class TestConfidenceWeighting:
         # Higher confidence should be first
         assert results[0].confidence >= results[1].confidence
 
+    def test_index_confidence_prevents_loading_filtered_entries(self):
+        store = FakeArtifactStore()
+        mem = PersistentMemoryStore(store)
+        mem.store_memory(_make_entry("low confidence", confidence=0.1))
+        mem.store_memory(_make_entry("high confidence", confidence=0.9))
+
+        store.get_bytes_calls = 0
+        results = mem.query(MemoryQuery(query_text="confidence", min_confidence=0.5))
+
+        assert len(results) == 1
+        assert results[0].confidence == 0.9
+        assert store.get_bytes_calls == 1
+
 
 # ---------------------------------------------------------------------------
 # TTL pruning
@@ -222,6 +257,25 @@ class TestTTLPruning:
         count = mem.prune_expired()
         assert count == 0
 
+    def test_prune_expired_does_not_load_each_payload_when_index_has_ttl(self):
+        store = FakeArtifactStore()
+        mem = PersistentMemoryStore(store)
+
+        mem.store_memory(_make_entry(
+            "expired",
+            expires_at=datetime.now(timezone.utc) - timedelta(hours=1),
+        ))
+        mem.store_memory(_make_entry(
+            "fresh",
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+        ))
+
+        store.get_bytes_calls = 0
+        removed = mem.prune_expired()
+
+        assert removed == 1
+        assert store.get_bytes_calls == 0
+
 
 # ---------------------------------------------------------------------------
 # Consolidation
@@ -243,7 +297,6 @@ class TestConsolidation:
         mem._content_hashes.discard(_content_hash(e2.content))  # force bypass dedup
         mem.store_memory(e2)
 
-        before = len(mem.index.entries)
         removed = mem.consolidate(similarity_threshold=0.0)  # very low threshold
         assert removed >= 0  # May or may not merge depending on embeddings
 
@@ -271,6 +324,7 @@ class TestIndexPersistence:
         mem2 = PersistentMemoryStore(store)
         mem2.load_index(ref)
         assert len(mem2._content_hashes) == 1
+        assert _content_hash("unique content") in mem2._content_hashes
 
     def test_save_and_load_roundtrip(self):
         store = FakeArtifactStore()
@@ -283,3 +337,16 @@ class TestIndexPersistence:
         mem2 = PersistentMemoryStore(store)
         mem2.load_index(ref)
         assert len(mem2.index.entries) == 2
+
+    def test_load_restores_full_hash_for_long_content(self):
+        store = FakeArtifactStore()
+        mem = PersistentMemoryStore(store)
+        long_content = "long-content-" * 30
+
+        mem.store_memory(_make_entry(long_content))
+        ref = mem.save_index()
+
+        mem2 = PersistentMemoryStore(store)
+        mem2.load_index(ref)
+
+        assert mem2.index.entries[0].full_content_hash == _content_hash(long_content)

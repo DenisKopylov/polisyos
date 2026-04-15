@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-import math
-
 import pytest
 
 from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
     PropagateUncertaintyNode,
+    _collect_input_envelopes,
     _extract_numeric_metrics,
+    _load_config,
 )
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_SIMULATION_RESULT_REF,
+    INPUT_DATA_SNAPSHOT_REF,
+)
 
 
 def test_skip_when_no_simulation_result_ref(execution_context, minimal_state):
@@ -112,3 +115,44 @@ def test_extract_numeric_metrics_empty_values():
     mock_metrics.values = {"status": "complete", "category": "test"}
     result = _extract_numeric_metrics(mock_metrics)
     assert result == {}
+
+
+def test_collect_input_envelopes_snapshot_assertion_is_not_swallowed(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_DATA_SNAPSHOT_REF] = artifact_ref_factory(kind="fabric.data_snapshot")
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("propagation snapshot invariant")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty._load_model",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="propagation snapshot invariant"):
+        _collect_input_envelopes(execution_context, state)
+
+
+def test_load_config_assertion_is_not_swallowed(
+    minimal_state,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    state = minimal_state.model_copy(update={"params": {"propagation_config": {"method": "sobol"}}})
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("propagation config invariant")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty.PropagationConfig.model_validate",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="propagation config invariant"):
+        _load_config(state)

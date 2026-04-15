@@ -127,7 +127,7 @@ _METHOD_MAP: dict[str, CausalMethod] = {
 def _base_signature() -> MethodSignature:
     return MethodSignature(
         name="dowhy_identify_estimate",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

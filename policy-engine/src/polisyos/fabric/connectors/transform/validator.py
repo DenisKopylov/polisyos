@@ -103,6 +103,10 @@ class ValidationTransform(DataTransform):
     rules: list[ValidationRule]
     strict: bool = False
 
+    def __post_init__(self) -> None:
+        if self.strict and not self.rules:
+            raise ValueError("strict validation requires at least one rule")
+
     @property
     def name(self) -> str:
         return "validate"
@@ -114,6 +118,23 @@ class ValidationTransform(DataTransform):
     ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
         start_time = stage_started_at()
         copy_policy = resolve_copy_policy(context)
+
+        if not self.rules:
+            result = data.copy() if copy_policy == CopyPolicy.COPY else data
+            lineage = build_lineage(
+                stage_name=self.name,
+                started_at=start_time,
+                input_data=data,
+                output_data=result,
+                parameters={
+                    "rules": [],
+                    "rule_count": 0,
+                    "strict": self.strict,
+                    "skipped": True,
+                },
+                context=context,
+            )
+            return result, lineage, ["No validation rules configured; validation skipped"]
 
         warnings: list[str] = []
         for rule in self.rules:
@@ -134,6 +155,7 @@ class ValidationTransform(DataTransform):
                 "rule_count": len(self.rules),
                 "strict": self.strict,
             },
+            context=context,
         )
 
         return result, lineage, warnings

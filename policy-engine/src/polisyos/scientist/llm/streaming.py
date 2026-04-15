@@ -8,6 +8,11 @@ from typing import Any, AsyncIterator
 
 import aiohttp
 
+from polisyos.common.logger import get_logger
+from polisyos.scientist.error_semantics import emit_degraded_path
+
+logger = get_logger(__name__)
+
 
 @dataclass(slots=True)
 class StreamChunk:
@@ -20,6 +25,7 @@ class StreamChunk:
     tool_call_name: str | None = None
     tool_call_arguments: str | None = None
     usage_delta: dict[str, int] | None = None
+    error_envelope: dict[str, Any] | None = None
 
 
 @dataclass(slots=True)
@@ -54,10 +60,11 @@ async def parse_sse_stream(
     """Parse an SSE stream from an OpenAI-compatible endpoint.
 
     Yields ``StreamChunk`` objects for each ``data:`` line that contains
-    a valid JSON payload.  Stops on ``data: [DONE]`` or stream end.
+    a valid JSON payload. Malformed JSON is surfaced as empty degraded
+    chunks with an ``error_envelope``. Stops on ``data: [DONE]`` or stream end.
     """
     buffer = b""
-    async for raw_bytes, end_of_http_chunk in response.content.iter_chunks():
+    async for raw_bytes, _end_of_http_chunk in response.content.iter_chunks():
         buffer += raw_bytes
         while b"\n" in buffer:
             line_bytes, buffer = buffer.split(b"\n", 1)
@@ -74,7 +81,17 @@ async def parse_sse_stream(
 
             try:
                 payload = json.loads(data_str)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as exc:
+                yield StreamChunk(
+                    error_envelope=emit_degraded_path(
+                        component="llm.streaming",
+                        operation="parse_sse_stream",
+                        reason="json_decode_error",
+                        exc=exc,
+                        details={"payload_preview": data_str[:200]},
+                        log=logger,
+                    )
+                )
                 continue
 
             chunk = _parse_sse_payload(payload)
@@ -92,8 +109,17 @@ async def parse_sse_stream(
                     chunk = _parse_sse_payload(payload)
                     if chunk is not None:
                         yield chunk
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as exc:
+                    yield StreamChunk(
+                        error_envelope=emit_degraded_path(
+                            component="llm.streaming",
+                            operation="parse_sse_stream",
+                            reason="trailing_json_decode_error",
+                            exc=exc,
+                            details={"payload_preview": data_str[:200]},
+                            log=logger,
+                        )
+                    )
 
 
 def _parse_sse_payload(payload: dict[str, Any]) -> StreamChunk | None:

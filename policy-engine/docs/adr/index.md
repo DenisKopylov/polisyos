@@ -1,10 +1,10 @@
 # ADR Index
 
-> Index of 93 ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
+> Index of 107 ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
 
 ## Status Summary
 
-- Accepted: 24
+- Accepted: 38
 - Proposed: 68
 - Deprecated: 0
 - Superseded: 1
@@ -46,6 +46,8 @@
 | [0078](0078-phase-8-split-8a-8b.md) | proposed | Phase 8 split into 8A + 8B; TransportabilityRequiredPass moved to end of Phase 12 | Phase 8 currently bundles two conceptually distinct concerns: (8A) constructing the transportability diagram by annotating S-nodes for do... | — |
 | [0080](0080-tech-consolidation-stack.md) | proposed | Tech consolidation stack for causal inference, discovery, and graphs | The causal-methods landscape in PolicyOS has grown organically, accumulating overlapping dependencies: DoWhy and EconML for inference, ti... | 0026 |
 | [0096](0096-canonical-product-root-and-workspace-boundary.md) | accepted | Canonical Product Root and Workspace Boundary | Repository root and `policy-engine/` accumulated overlapping product signals, making the real source of truth hard to identify quickly. | 0053 |
+| [0098](0098-cas-abstraction-boundary.md) | accepted | CAS Abstraction Boundary for Runtime Services | Runtime read/write services had grown concrete coupling to `FileSystemCAS`, backend-specific helpers, and filesystem layout assumptions. | 0021, 0096 |
+| [0099](0099-runtime-lifecycle-and-di-container.md) | accepted | Runtime Lifecycle and Dependency-Injection Container | Runtime app assembly relied on ad-hoc `app.state` mutation, implicit startup ordering, and import-time bootstrap side effects. | 0096 |
 
 ## Governance
 
@@ -107,6 +109,7 @@
 |-----|--------|-------|---------|---------|
 | [0010](0010-cas-artifact-signing-ed25519.md) | accepted | CAS Artifact Signing (Ed25519) | CAS в Policy OS уже гарантирует integrity (`sha256(blob)`), но не гарантирует authenticity и non-repudiation. | 0006 |
 | [0023](0023-cell-based-tenant-isolation.md) | accepted | Cell-Based Tenant Isolation Foundation | PolicyOS needs tenant isolation suitable for government workloads. | — |
+| [0102](0102-key-rotation-lifecycle-and-trust-store-policy.md) | accepted | Key Rotation Lifecycle and Trust Store Policy | Artifact signing requires a formal lifecycle for trust transitions, not only manual key replacement steps. | 0010 |
 
 ## Data
 
@@ -132,6 +135,13 @@
 | [0036](0036-variable-canonizer-hierarchical-names.md) | proposed | Variable Canonizer with Hierarchical Names | Phase 0 knowledge pipeline must merge causal claims from multiple studies into a unified Structured Knowledge Graph. | — |
 | [0071](0071-intervention-spec-soft-stochastic.md) | proposed | InterventionSpec for soft/stochastic interventions from Legal Graph (Phase 11) | Phase 11 integrates legal constraints from Lex into causal inference via the Legal Graph. | — |
 | [0084](0084-formal-grammar-canonical-variable-names.md) | proposed | Formal BNF grammar for canonical variable names + seed 200 vars | PolicyOS merges causal graphs from multiple discovery methods, literature priors, and dataset catalogs. | — |
+| [0104](0104-ir-canonical-cas-policy.md) | accepted | IR Canonical JSON and CAS Hash Policy | Canonical bytes now fail closed on unknown `_type`, use explicit None/depth/hash/time/float policies, and preserve migration schema semantics. | 0005, 0098 |
+| [0105](0105-trinity-linking-validation-policy.md) | accepted | Trinity Linking, Dependency Ordering, and Validation Containment | Registry fragments compose in validate-then-apply topo order, linker diagnostics stay fail-complete, schedules use inclusive bounds, and malformed analytics input must error or degrade with telemetry. | 0005, 0104 |
+| [0106](0106-ir-shared-validation-and-id-policy.md) | accepted | IR Shared Validation Toolkit and Identifier Policy | Shared invariant helpers now govern uniqueness, numeric/path/selector checks, nested float rejection, and the distinction between generic IDs and stricter slot IDs. | 0104, 0105 |
+| [0107](0107-ir-analytics-normalization-and-schema-compatibility.md) | accepted | IR Analytics Normalization and Schema Compatibility Policy | Analytics report models are frozen by default, derived fields use explicit normalizers/factories, and schema producer/consumer mismatches are answered through compatibility modes and negotiation results. | 0005, 0104, 0106 |
+| [0108](0108-ir-schema-catalog-and-reflection.md) | accepted | IR Schema Catalog and Reflection API | A unified reflection layer now enumerates IR types, fields, refs, exports, and ABI linkage, and the schema build also regenerates IR reference pages from that catalog. | 0005, 0104, 0107 |
+| [0109](0109-ir-transport-and-interoperability-bridges.md) | accepted | IR Transport and Interoperability Bridges | IR stays JSON-first, observation batches get an Arrow sidecar/delta pilot with explicit relink manifests, and standards/causal-tool bridges remain contract-first and dependency-light. | 0005, 0098, 0104, 0108 |
+| [0110](0110-ir-frontier-governance-and-causal-contracts.md) | accepted | IR Frontier Governance and Causal Contracts | Phase 5 adds typed temporal logic, policy composition, mechanism-design, frontier causal, and recourse surfaces so governance/analytics research contracts are discoverable without unstructured metadata blobs. | 0107, 0108, 0109 |
 | [ADR-004](ADR-004-policy-surface-removal.md) | accepted | Trinity-Only IR Runtime | Legacy surface IR support had already been disabled in runtime execution paths, but dead code, tests, and docs still referenced it. | 0003 |
 
 ## Scientist
@@ -170,3 +180,7 @@
 | ADR | Status | Title | Summary | Related |
 |-----|--------|-------|---------|---------|
 | [0006](0006-slo-definitions.md) | accepted | SLO Definitions for Scientist DAG | До изменения observability покрывала операционные метрики (`workflow_runs_total`, `llm_tokens_total`, `governance_pass_duration_seconds`)... | — |
+| [0097](0097-runtime-rate-limiting-and-idempotency.md) | accepted | Runtime Rate Limiting and Idempotency | Runtime control paths create durable side effects and cannot rely on client or proxy retry discipline alone. | 0008 |
+| [0100](0100-runtime-api-versioning-and-deprecation-policy.md) | accepted | Runtime API Versioning and Deprecation Policy | External dashboards, operator tools, and generated clients need a stable compatibility line and visible deprecation signals. | 0005 |
+| [0101](0101-runtime-audit-trail-model.md) | accepted | Runtime Audit Trail Model | Stronger tenant isolation and mutation hardening require a durable answer to who read or changed what and when. | 0006, 0023 |
+| [0103](0103-async-cas-adapter-roadmap.md) | accepted | Async CAS Adapter Roadmap | Storage hot paths are still primarily synchronous, but a direct rewrite would destabilize runtime contracts without staged boundaries and metrics. | 0098 |

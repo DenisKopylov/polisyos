@@ -405,10 +405,11 @@ class TransportabilityResult(BaseModel):
     ``transport_mode`` to decide whether a query can be transported directly,
     requires a transport formula, falls back to bounds, or is unsupported. The
     model also upgrades legacy payload aliases so older persisted artifacts can
-    still be read during migration.
+    still be read during migration. Normalization happens before instance
+    creation so validated models no longer rewrite their own fields.
     """
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
     query: str = ""
@@ -487,6 +488,17 @@ class TransportabilityResult(BaseModel):
         cls,
         payload: Any,
     ) -> Any:
+        return cls.normalize_payload(payload)
+
+    @classmethod
+    def normalize_payload(cls, payload: Any) -> Any:
+        """Return a normalized transportability payload without mutating input.
+
+        This is the explicit compatibility boundary for legacy aliases
+        (``formula``), legacy statuses, v1.0 schema stamps, and derived runtime
+        signals. It is also used by the validation shim so re-parsing old
+        artifacts remains deterministic.
+        """
         if not isinstance(payload, dict):
             return payload
         payload = dict(payload)
@@ -504,29 +516,16 @@ class TransportabilityResult(BaseModel):
         payload["identification_engine"] = _normalize_identification_engine(payload)
         if str(payload.get("schema_version", "")).strip() in {"", "1.0"}:
             payload["schema_version"] = "2.0"
-        return payload
+        return _normalize_transportability_payload(payload)
+
+    @classmethod
+    def from_payload(cls, payload: dict[str, Any]) -> "TransportabilityResult":
+        """Construct a result after applying explicit compatibility normalization."""
+
+        return cls.model_validate(cls.normalize_payload(payload))
 
     @model_validator(mode="after")
-    def _normalize_contract(self) -> "TransportabilityResult":
-        self.base_confidence = _clamp01(self.base_confidence)
-        self.context_distance_penalty = _clamp01(self.context_distance_penalty)
-        self.data_availability_penalty = _clamp01(self.data_availability_penalty)
-        self.final_confidence = _clamp01(self.final_confidence)
-        self.lagged_edges_in_query = bool(self.lagged_edge_count > 0)
-        if self.lagged_edges_in_query:
-            self.assumes_time_stationarity = True
-        if self.lagged_edges_in_query and not self.time_stationarity_warning:
-            self.time_stationarity_warning = (
-                "Lagged transport path detected; assumes_time_stationarity=True."
-            )
-        if self.outer_search_truncated:
-            self.search_budget_exhausted = True
-        if self.search_budget_exhausted and "search_budget_exhausted" not in self.search_events:
-            self.search_events = [*self.search_events, "search_budget_exhausted"]
-        if self.outer_search_truncated and "outer_search_truncated" not in self.search_events:
-            self.search_events = [*self.search_events, "outer_search_truncated"]
-        if self.id_confidence_under_pag is not None:
-            self.id_confidence_under_pag = _clamp01(self.id_confidence_under_pag)
+    def _validate_contract(self) -> "TransportabilityResult":
         if (
             self.pag_dag_sample_size is not None
             and self.pag_transportable_count is not None
@@ -535,7 +534,9 @@ class TransportabilityResult(BaseModel):
             raise ValueError("pag_transportable_count cannot exceed pag_dag_sample_size")
         if self.status is TransportabilityStatus.IDENTIFIED:
             if self.transport_mode is TransportMode.NONE:
-                raise ValueError("identified transportability result cannot use transport_mode=none")
+                raise ValueError(
+                    "identified transportability result cannot use transport_mode=none"
+                )
             if (
                 self.transport_mode is TransportMode.TRANSPORT_FORMULA
                 and self.transport_formula is None
@@ -551,17 +552,25 @@ class TransportabilityResult(BaseModel):
                     "partially_identified requires transport_formula or identified_region"
                 )
         if self.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED:
-            self.transport_mode = TransportMode.BOUNDS_ONLY
             if self.partial_identification_result is None:
                 raise ValueError(
                     "bounded_non_identified requires partial_identification_result"
                 )
-            self.transport_formula = None
+            if self.transport_mode is not TransportMode.BOUNDS_ONLY:
+                raise ValueError(
+                    "bounded_non_identified requires transport_mode=bounds_only"
+                )
+            if self.transport_formula is not None:
+                raise ValueError("bounded_non_identified must not include transport_formula")
         if self.status is TransportabilityStatus.UNSUPPORTED:
-            self.transport_mode = TransportMode.NONE
-            self.transport_formula = None
             if not self.unsupported_reason:
-                self.unsupported_reason = "transport_unsupported"
+                raise ValueError("unsupported transportability result requires unsupported_reason")
+            if self.transport_mode is not TransportMode.NONE:
+                raise ValueError("unsupported transportability result must use transport_mode=none")
+            if self.transport_formula is not None:
+                raise ValueError(
+                    "unsupported transportability result must not include transport_formula"
+                )
         return self
 
     def is_identified(self) -> bool:
@@ -704,6 +713,58 @@ def _clamp01(value: float) -> float:
     return float(value)
 
 
+def _normalize_transportability_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+    for field_name in (
+        "base_confidence",
+        "context_distance_penalty",
+        "data_availability_penalty",
+        "final_confidence",
+        "temporal_distance_penalty",
+    ):
+        if field_name in normalized and normalized[field_name] is not None:
+            normalized[field_name] = _clamp01(float(normalized[field_name]))
+    if normalized.get("id_confidence_under_pag") is not None:
+        normalized["id_confidence_under_pag"] = _clamp01(
+            float(normalized["id_confidence_under_pag"])
+        )
+
+    lagged_edge_count = int(normalized.get("lagged_edge_count", 0) or 0)
+    normalized["lagged_edge_count"] = lagged_edge_count
+    normalized["lagged_edges_in_query"] = lagged_edge_count > 0
+    if normalized["lagged_edges_in_query"]:
+        normalized["assumes_time_stationarity"] = True
+        if not str(normalized.get("time_stationarity_warning") or "").strip():
+            normalized["time_stationarity_warning"] = (
+                "Lagged transport path detected; assumes_time_stationarity=True."
+            )
+
+    outer_search_truncated = bool(normalized.get("outer_search_truncated"))
+    normalized["outer_search_truncated"] = outer_search_truncated
+    normalized["search_budget_exhausted"] = (
+        bool(normalized.get("search_budget_exhausted")) or outer_search_truncated
+    )
+    search_events = _dedupe_str_items(normalized.get("search_events"))
+    if normalized["search_budget_exhausted"]:
+        search_events = _append_unique(search_events, "search_budget_exhausted")
+    if outer_search_truncated:
+        search_events = _append_unique(search_events, "outer_search_truncated")
+    normalized["search_events"] = search_events
+
+    status_raw = str(
+        normalized.get("status", TransportabilityStatus.IDENTIFIED.value)
+    ).strip().lower()
+    if status_raw == TransportabilityStatus.BOUNDED_NON_IDENTIFIED.value:
+        normalized["transport_mode"] = TransportMode.BOUNDS_ONLY.value
+        normalized["transport_formula"] = None
+    elif status_raw == TransportabilityStatus.UNSUPPORTED.value:
+        normalized["transport_mode"] = TransportMode.NONE.value
+        normalized["transport_formula"] = None
+        if not str(normalized.get("unsupported_reason") or "").strip():
+            normalized["unsupported_reason"] = "transport_unsupported"
+    return normalized
+
+
 def _derive_transport_mode(payload: dict[str, Any]) -> TransportMode:
     if payload.get("partial_identification_result") is not None:
         return TransportMode.BOUNDS_ONLY
@@ -739,7 +800,6 @@ def _map_legacy_status_payload(
         except (ValueError, TypeError):
             parsed = None
         if parsed is not None and parsed.is_informative:
-            payload["partial_identification_result"] = parsed.model_dump(mode="json")
             return (
                 TransportabilityStatus.BOUNDED_NON_IDENTIFIED,
                 TransportMode.BOUNDS_ONLY,
@@ -770,6 +830,23 @@ def _normalize_identification_engine(payload: dict[str, Any]) -> str:
             return "y0"
         return "y0"
     return raw
+
+
+def _append_unique(items: list[str], value: str) -> list[str]:
+    if value in items:
+        return items
+    return [*items, value]
+
+
+def _dedupe_str_items(items: Any) -> list[str]:
+    if not isinstance(items, (list, tuple)):
+        return []
+    out: list[str] = []
+    for item in items:
+        text = str(item).strip()
+        if text and text not in out:
+            out.append(text)
+    return out
 
 
 __all__ = [

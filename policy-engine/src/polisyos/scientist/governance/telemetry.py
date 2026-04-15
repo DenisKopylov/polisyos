@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Dict, List, Optional
 
 from polisyos.core.canon import truncated_hash
@@ -32,7 +32,7 @@ class PassSpan:
 
     def close(self) -> None:
         """Close the span and calculate duration."""
-        self.end_time = datetime.utcnow()
+        self.end_time = datetime.now(UTC)
         if self.start_time:
             delta = (self.end_time - self.start_time).total_seconds()
             self.duration_ms = int(delta * 1000)
@@ -53,7 +53,7 @@ class ValidationTrace:
 
     run_id: str
     profile: str
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     completed_at: Optional[datetime] = None
     spans: List[PassSpan] = field(default_factory=list)
     total_issues: int = 0
@@ -68,7 +68,7 @@ class ValidationTrace:
 
     def complete(self, short_circuited: bool = False) -> None:
         """Mark the trace as complete."""
-        self.completed_at = datetime.utcnow()
+        self.completed_at = datetime.now(UTC)
         self.short_circuited = short_circuited
 
     @property

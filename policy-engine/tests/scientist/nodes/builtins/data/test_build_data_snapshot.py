@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from polisyos.scientist.nodes.builtins.data.build_data_snapshot import BuildDataSnapshotNode
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -45,3 +45,30 @@ def test_snapshot_already_exists(execution_context, minimal_state, artifact_ref_
     outcome = BuildDataSnapshotNode().execute(execution_context, state)
     assert outcome.status == "ok"
     assert outcome.state is state
+
+
+def test_snapshot_pii_summary_load_failure_degrades(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+):
+    view_ref = artifact_ref_factory(kind="ir.data_view_request")
+    snapshot_ref = artifact_ref_factory(kind="fabric.data_snapshot")
+
+    mock_fabric = MagicMock()
+    mock_fabric.snapshot.return_value = snapshot_ref
+    store = MagicMock()
+    store.get_bytes.side_effect = RuntimeError("snapshot read failed")
+    ctx = replace(execution_context, fabric=mock_fabric, store=store, metrics=None)
+
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_DATA_VIEW_REQUEST_REF] = view_ref
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.data.build_data_snapshot.emit_degraded_path",
+    ) as degraded:
+        outcome = BuildDataSnapshotNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    assert "pii_scan_results" not in outcome.state.params
+    degraded.assert_called_once()

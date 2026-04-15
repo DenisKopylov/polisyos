@@ -3,7 +3,9 @@ from typing import Any
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 
+from polisyos.foundry._numeric import is_jax_tracer
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 from polisyos.foundry.contracts.mechanism import Mechanism, PatchMap
 from polisyos.foundry.contracts.state import GlobalState
@@ -19,8 +21,21 @@ def _combine_masks(
     return jnp.asarray(target_mask, dtype=jnp.bool_) & jnp.asarray(active_mask, dtype=jnp.bool_)
 
 
+def _validate_rate(rate: jnp.ndarray | float, *, label: str = "rate") -> jnp.ndarray:
+    rate_arr = jnp.asarray(rate, dtype=jnp.float32)
+    if is_jax_tracer(rate_arr):
+        return rate_arr
+    rate_np = np.asarray(rate_arr)
+    if not np.all(np.isfinite(rate_np)):
+        raise ValueError(f"{label} must be finite")
+    if np.any((rate_np < 0.0) | (rate_np > 1.0)):
+        raise ValueError(f"{label} must lie in [0, 1]")
+    return rate_arr
+
+
 def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
     """Compute per-agent tax liabilities from reported income and an applied rate."""
+    rate = _validate_rate(rate, label="tax rate")
     tax = state.agents.reported_income * rate
     active_mask = getattr(state.agents, "active", None)
     if active_mask is None:
@@ -39,7 +54,7 @@ class TaxSubsidy(Mechanism):
     target_sector_mask: jnp.ndarray
 
     def __init__(self, rate: float, n_agents: int, **kwargs: Any):
-        self.rate = jnp.array(rate)  # Конвертируем в JAX array
+        self.rate = _validate_rate(rate, label="subsidy rate")
         self.target_sector_mask = jnp.ones(n_agents)
         self.fidelity = FidelityLevel.SURROGATE_FLUID
 
@@ -53,14 +68,13 @@ class TaxSubsidy(Mechanism):
         *,
         target_mask=None,
     ) -> tuple[PatchMap, jax.Array]:
-        clamped_rate = jnp.clip(self.rate, 0.0, 1.0)
-        subsidy_amount = state.agents.income * clamped_rate * self.target_sector_mask
+        subsidy_amount = state.agents.income * self.rate * self.target_sector_mask
         mask = _combine_masks(target_mask, getattr(state.agents, "active", None))
         if mask is not None:
             subsidy_amount = jnp.where(mask, subsidy_amount, 0.0)
         total_cost = jnp.sum(subsidy_amount)
         if self.debug_mode:
-            jax.debug.print("TaxSubsidy rate={r}, total_cost={c}", r=clamped_rate, c=total_cost)
+            jax.debug.print("TaxSubsidy rate={r}, total_cost={c}", r=self.rate, c=total_cost)
         return (
             {
                 "agents.income": [{"delta": subsidy_amount}],
@@ -84,7 +98,7 @@ class IncomeTax(Mechanism):
     rate: jnp.ndarray
 
     def __init__(self, rate: float, n_agents: int, **kwargs: Any):
-        self.rate = jnp.array(rate)
+        self.rate = _validate_rate(rate, label="income tax rate")
         self.fidelity = FidelityLevel.SURROGATE_FLUID
 
     def init_state(self, state: GlobalState, key: jax.Array) -> tuple[GlobalState, jax.Array]:

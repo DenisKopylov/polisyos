@@ -10,6 +10,14 @@ from .evaluation import (
     ExAnteSimulationEstimator,
     PolicyScorecardEstimator,
 )
+from .frontier import (
+    FiscalMultiplierEstimator,
+    FoundationModelPolicyAnalysisEstimator,
+    KrusellSmithLiteEstimator,
+    MeanFieldEquilibriumEstimator,
+    OptimalLinearTaxEstimator,
+    SufficientStatisticsWelfareEstimator,
+)
 from .mcda import (
     AHPEstimator,
     ELECTREEstimator,
@@ -43,9 +51,15 @@ __all__ = [
     "CostEffectivenessEstimator",
     "ELECTREEstimator",
     "ExAnteSimulationEstimator",
+    "FiscalMultiplierEstimator",
+    "FoundationModelPolicyAnalysisEstimator",
+    "KrusellSmithLiteEstimator",
+    "MeanFieldEquilibriumEstimator",
+    "OptimalLinearTaxEstimator",
     "PolicyScorecardEstimator",
     "RawlsianSWFEstimator",
     "SenCapabilityEstimator",
+    "SufficientStatisticsWelfareEstimator",
     "TOPSISEstimator",
     "UtilitarianSWFEstimator",
     "ensure_policy_methods_registered",

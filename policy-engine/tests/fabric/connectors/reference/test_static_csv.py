@@ -62,7 +62,7 @@ class TestStaticCSVCompliance(ConnectorTestHarness):
         connector = StaticCSVConnector()
 
         async def mock_fetch(handle, request):
-            state = handle.state.setdefault("static_csv", {})
+            state = handle.setdefault_state("static_csv", {})
             state["schema_by_dataset"] = {
                 "test_dataset": {
                     "schema_id": "reference.static_csv.test_dataset",
@@ -135,7 +135,7 @@ class TestSchemaInference:
     async def test_cached_schema_returned_on_repeat(self, connector: StaticCSVConnector) -> None:
         df = pd.read_csv(io.StringIO(SAMPLE_CSV))
         handle = await connector.connect(ConnectionConfig(url="http://localhost"))
-        state = handle.state.setdefault("static_csv", {})
+        state = handle.setdefault_state("static_csv", {})
         state["schema_by_dataset"] = {"ds": connector._infer_schema(df, "ds")}
         result = await connector.get_dataset_schema(handle, "ds")
         assert result == state["schema_by_dataset"]["ds"]

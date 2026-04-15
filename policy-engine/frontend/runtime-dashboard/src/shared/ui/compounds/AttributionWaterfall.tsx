@@ -1,0 +1,116 @@
+import { useMemo } from "react";
+
+import { cn } from "@/lib/utils";
+import { Card } from "@/shared/ui/primitives";
+import { WaterfallChart, type WaterfallStep } from "@/shared/charts";
+
+export type AttributionStep = {
+  label: string;
+  value: number;
+  detail?: string;
+};
+
+type AttributionWaterfallProps = {
+  baseValue: number;
+  baseLabel?: string;
+  contributions: AttributionStep[];
+  totalLabel?: string;
+  title?: string;
+  onStepClick?: (step: AttributionStep) => void;
+  className?: string;
+};
+
+export function AttributionWaterfall({
+  baseValue,
+  baseLabel = "Base prediction",
+  contributions,
+  totalLabel = "Final estimate",
+  title = "Attribution Waterfall",
+  onStepClick,
+  className,
+}: AttributionWaterfallProps) {
+  const finalValue =
+    baseValue + contributions.reduce((sum, c) => sum + c.value, 0);
+
+  const steps: WaterfallStep[] = [
+    { label: baseLabel, value: baseValue, isTotal: true },
+    ...contributions.map((c) => ({ label: c.label, value: c.value })),
+    { label: totalLabel, value: finalValue, isTotal: true },
+  ];
+
+  const sorted = useMemo(
+    () => [...contributions].sort((a, b) => Math.abs(b.value) - Math.abs(a.value)),
+    [contributions],
+  );
+
+  return (
+    <Card className={cn("space-y-4", className)}>
+      <h3 className="text-lg font-semibold">{title}</h3>
+
+      <WaterfallChart steps={steps} height={280} />
+
+      {/* Detailed breakdown */}
+      <div className="border-line rounded-2xl border">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-line border-b">
+              <th className="text-muted px-4 py-2 text-start text-xs font-medium uppercase">
+                Factor
+              </th>
+              <th className="text-muted px-4 py-2 text-end text-xs font-medium uppercase">
+                Contribution
+              </th>
+              <th className="text-muted hidden px-4 py-2 text-start text-xs font-medium uppercase md:table-cell">
+                Detail
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-line border-b bg-surface/50">
+              <td className="px-4 py-2.5 font-semibold">{baseLabel}</td>
+              <td className="px-4 py-2.5 text-end font-mono font-semibold">
+                {baseValue.toFixed(4)}
+              </td>
+              <td className="hidden px-4 py-2.5 md:table-cell" />
+            </tr>
+            {sorted.map((c) => (
+              <tr
+                key={c.label}
+                className={cn(
+                  "border-line border-b last:border-0",
+                  onStepClick && "cursor-pointer hover:bg-surface/50",
+                )}
+                onClick={onStepClick ? () => onStepClick(c) : undefined}
+              >
+                <td className="px-4 py-2.5 font-medium">{c.label}</td>
+                <td
+                  className={cn(
+                    "px-4 py-2.5 text-end font-mono font-semibold",
+                    c.value > 0
+                      ? "text-[var(--color-status-approved)]"
+                      : c.value < 0
+                        ? "text-[var(--color-status-rejected)]"
+                        : "text-muted",
+                  )}
+                >
+                  {c.value >= 0 ? "+" : ""}
+                  {c.value.toFixed(4)}
+                </td>
+                <td className="text-muted hidden px-4 py-2.5 text-sm md:table-cell">
+                  {c.detail}
+                </td>
+              </tr>
+            ))}
+            <tr className="bg-surface/50">
+              <td className="px-4 py-2.5 font-bold">{totalLabel}</td>
+              <td className="px-4 py-2.5 text-end font-mono font-bold">
+                {finalValue.toFixed(4)}
+              </td>
+              <td className="hidden px-4 py-2.5 md:table-cell" />
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}

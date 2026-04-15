@@ -12,6 +12,14 @@ from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
+from polisyos.fabric._numeric_parsing import parse_decimal_text
+from polisyos.fabric.temporal import (
+    FutureTimestampError,
+    from_unix_timestamp_utc,
+    normalize_reference_datetime,
+    parse_datetime_utc,
+)
+
 from ._coercion_policies import CoercionPolicy, CoercionResult
 
 __all__ = [
@@ -172,6 +180,8 @@ def coerce_to_int(
     # From string
     if isinstance(value, str):
         value = value.strip()
+        if not value:
+            return CoercionResult.fail("string", target_type, "cannot parse empty string as integer")
 
         # Try integer parsing
         try:
@@ -185,15 +195,12 @@ def coerce_to_int(
         except ValueError:
             pass
 
-        # Try float parsing (for "1.0" -> 1)
-        try:
-            float_val = float(value)
-            if _is_exact_integer(float_val):
-                int_val = int(float_val)
-                if min_val <= int_val <= max_val:
-                    return CoercionResult.ok(int_val, "string", target_type)
-        except ValueError:
-            pass
+        # Try locale-aware decimal parsing (for "1.0" / "1.000,0" -> 1)
+        decimal_val = parse_decimal_text(value)
+        if decimal_val is not None and decimal_val == decimal_val.to_integral_value():
+            int_val = int(decimal_val)
+            if min_val <= int_val <= max_val:
+                return CoercionResult.ok(int_val, "string", target_type)
 
         return CoercionResult.fail(
             "string", target_type, f"cannot parse '{value}' as integer"
@@ -293,13 +300,14 @@ def coerce_to_float(
     # From string
     if isinstance(value, str):
         value = value.strip()
-        try:
-            float_val = float(value)
-            return CoercionResult.ok(float_val, "string", target_type)
-        except ValueError:
+        if not value:
+            return CoercionResult.fail("string", target_type, "cannot parse empty string as float")
+        decimal_val = parse_decimal_text(value)
+        if decimal_val is None:
             return CoercionResult.fail(
                 "string", target_type, f"cannot parse '{value}' as float"
             )
+        return CoercionResult.ok(float(decimal_val), "string", target_type)
 
     return CoercionResult.fail(
         source_type, target_type, f"unsupported source type {source_type}"
@@ -346,14 +354,17 @@ def coerce_to_decimal(
     # From string
     if isinstance(value, str):
         value = value.strip()
-        # Remove currency symbols and thousand separators
-        cleaned = re.sub(r'[,$\u20ac\u00a3\u00a5\u20b4\s]', '', value)
-        try:
-            return CoercionResult.ok(Decimal(cleaned), "string", target_type)
-        except InvalidOperation:
+        if not value:
+            return CoercionResult.fail(
+                "string", target_type, "cannot parse empty string as Decimal"
+            )
+        cleaned = re.sub(r"[$\u20ac\u00a3\u00a5\u20b4]", "", value)
+        decimal_val = parse_decimal_text(cleaned)
+        if decimal_val is None:
             return CoercionResult.fail(
                 "string", target_type, f"cannot parse '{value}' as Decimal"
             )
+        return CoercionResult.ok(decimal_val, "string", target_type)
 
     return CoercionResult.fail(
         source_type, target_type, f"unsupported source type {source_type}"
@@ -400,12 +411,18 @@ def coerce_to_boolean(value: Any, policy: CoercionPolicy) -> CoercionResult:
     if isinstance(value, str):
         value_lower = value.strip().lower()
         true_values = {"true", "yes", "1", "on", "t", "y"}
-        false_values = {"false", "no", "0", "off", "f", "n", ""}
+        false_values = {"false", "no", "0", "off", "f", "n"}
 
         if value_lower in true_values:
             return CoercionResult.ok(True, "string", "boolean")
         if value_lower in false_values:
             return CoercionResult.ok(False, "string", "boolean")
+        if value_lower == "":
+            return CoercionResult.fail(
+                "string",
+                "boolean",
+                "empty string must be treated as missing, not false",
+            )
 
         return CoercionResult.fail(
             "string", "boolean", f"cannot interpret '{value}' as boolean"
@@ -521,17 +538,34 @@ def coerce_to_datetime(value: Any, policy: CoercionPolicy) -> CoercionResult:
     """Coerce a value to datetime type."""
     source_type = type(value).__name__
 
+    def _normalize_result(parsed: datetime, parsed_source_type: str) -> CoercionResult:
+        try:
+            normalized, warning = normalize_reference_datetime(
+                parsed,
+                what="datetime value",
+                clamp_future=policy != CoercionPolicy.STRICT,
+            )
+        except FutureTimestampError as exc:
+            return CoercionResult.fail(parsed_source_type, "datetime", str(exc))
+        warnings = [warning] if warning else []
+        return CoercionResult.ok(
+            normalized,
+            parsed_source_type,
+            "datetime",
+            warnings=warnings,
+        )
+
     if value is None:
         return CoercionResult.fail(source_type, "datetime", "cannot convert None")
 
     # From datetime (identity)
     if isinstance(value, datetime):
-        return CoercionResult.ok(value, "datetime", "datetime")
+        return _normalize_result(value, "datetime")
 
     # From date (add midnight time)
     if isinstance(value, date):
         result = datetime.combine(value, time.min)
-        return CoercionResult.ok(result, "date", "datetime")
+        return _normalize_result(result, "date")
 
     # From string
     if isinstance(value, str):
@@ -550,15 +584,14 @@ def coerce_to_datetime(value: Any, policy: CoercionPolicy) -> CoercionResult:
         for fmt in datetime_patterns:
             try:
                 parsed = datetime.strptime(value, fmt)
-                return CoercionResult.ok(parsed, "string", "datetime")
+                return _normalize_result(parsed, "string")
             except ValueError:
                 continue
 
         # Try ISO parsing
         try:
-            # Handle timezone-aware strings
-            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-            return CoercionResult.ok(parsed, "string", "datetime")
+            parsed = parse_datetime_utc(value, what="datetime value")
+            return _normalize_result(parsed, "string")
         except ValueError:
             pass
 
@@ -566,7 +599,7 @@ def coerce_to_datetime(value: Any, policy: CoercionPolicy) -> CoercionResult:
         try:
             parsed_date = date.fromisoformat(value)
             result = datetime.combine(parsed_date, time.min)
-            return CoercionResult.ok(result, "string", "datetime")
+            return _normalize_result(result, "string")
         except ValueError:
             pass
 
@@ -577,8 +610,8 @@ def coerce_to_datetime(value: Any, policy: CoercionPolicy) -> CoercionResult:
     # From int/float (Unix timestamp)
     if isinstance(value, (int, float)):
         try:
-            result = datetime.fromtimestamp(value)
-            return CoercionResult.ok(result, source_type, "datetime")
+            result = from_unix_timestamp_utc(value)
+            return _normalize_result(result, source_type)
         except (ValueError, OSError, OverflowError):
             return CoercionResult.fail(
                 source_type, "datetime", f"invalid timestamp {value}"

@@ -113,6 +113,27 @@ class TestFreshnessChecker:
         )
         assert status.ttl_seconds == 300
 
+    def test_future_timestamps_are_clamped_to_now(self):
+        checker = FreshnessChecker()
+        status = checker.check_freshness(
+            dataset_id="future_dataset",
+            metadata=SimpleNamespace(schedule="daily", capabilities=0),
+            fetched_at=datetime.now(timezone.utc) + timedelta(days=2),
+            last_updated=datetime.now(timezone.utc) + timedelta(days=10),
+        )
+
+        assert status.cache_age_seconds == 0
+        assert status.data_age_seconds == 0
+        assert "clock-skew tolerance" in status.message
+
+    def test_policy_rejects_non_finite_thresholds(self):
+        with pytest.raises(ValueError, match="finite"):
+            FreshnessPolicy(
+                ttl=timedelta(minutes=5),
+                schedule="daily",
+                multiplier=float("inf"),
+            )
+
 
 class TestCompletenessAnalyzer:
     def test_missing_required_field_hard_fail(self):
@@ -151,6 +172,18 @@ class TestCompletenessAnalyzer:
         result = analyzer.analyze(df, schema)
         assert result.gaps_detected > 0
 
+    def test_no_schema_fields_is_not_applicable(self):
+        analyzer = CompletenessAnalyzer(confidence=0.75)
+        result = analyzer.analyze(
+            pd.DataFrame({"value": [1, 2, 3]}),
+            SimpleNamespace(fields=(), required_completeness=None),
+        )
+
+        assert result.score == 1.0
+        assert not result.applicable
+        assert result.confidence == 0.0
+        assert result.not_applicable_reason == "schema has no fields"
+
 
 class TestConsistencyChecker:
     def test_bounds_violation(self):
@@ -177,6 +210,14 @@ class TestConsistencyChecker:
         checker = ConsistencyChecker()
         result = checker.check_consistency(df, schema)
         assert len(result.violations) == 1
+
+    def test_non_finite_numeric_values_are_violations(self):
+        df = pd.DataFrame({"value": [1.0, float("inf"), 3.0]})
+        schema = make_schema([FieldSpec(name="value", data_type=SchemaType.FLOAT64)])
+        checker = ConsistencyChecker()
+        result = checker.check_consistency(df, schema)
+
+        assert any("non-finite" in violation.message for violation in result.violations)
 
 
 class TestDataQualityValidator:
@@ -264,6 +305,32 @@ class TestDataQualityValidator:
 
 
 class TestQualityGateIntegration:
+    def test_report_rejects_non_finite_scores(self):
+        freshness_status = SimpleNamespace(
+            level=FreshnessLevel.FRESH,
+            is_fresh=True,
+            cache_age_seconds=0,
+            data_age_seconds=None,
+            ttl_seconds=3600,
+            schedule="daily",
+            last_updated=None,
+            fetched_at=datetime.now(timezone.utc),
+            message="fresh",
+        )
+
+        with pytest.raises(ValueError, match="finite"):
+            DataQualityReport(
+                dataset_id="test.dataset",
+                schema_id="test.schema",
+                validated_at=datetime.now(timezone.utc),
+                score=float("nan"),
+                tier=QualityTier.BRONZE,
+                grade="F",
+                freshness_status=freshness_status,
+                completeness_score=1.0,
+                consistency_score=1.0,
+            )
+
     def test_quality_gate_blocks_bronze_in_strict(self):
         try:
             from polisyos.scientist.governance.passes.quality_gate_pass import (

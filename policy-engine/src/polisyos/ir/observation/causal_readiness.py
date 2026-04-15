@@ -11,6 +11,7 @@ from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
+from polisyos.ir._validation import ensure_non_empty_dotted_path, ensure_unique_ids
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.kernel.base import KernelModel
@@ -109,6 +110,15 @@ class InterferenceReadinessEntry(KernelModel):
     notes: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="after")
+    def validate_entry(self) -> "InterferenceReadinessEntry":
+        ensure_non_empty_dotted_path(
+            self.predicted_metric_path,
+            field_name="predicted_metric_path",
+            max_depth=16,
+        )
+        return self
+
 
 class CausalReadinessBundle(KernelModel):
     """Persist the complete pre-execution readiness ledger for causal runners.
@@ -128,13 +138,31 @@ class CausalReadinessBundle(KernelModel):
 
     @model_validator(mode="after")
     def _validate_unique_ids(self) -> "CausalReadinessBundle":
-        def _ensure_unique(values: list[str], *, label: str) -> None:
-            if len(set(values)) != len(values):
-                raise ValueError(f"{label} must be unique")
-
-        _ensure_unique([item.check_id for item in self.transport_results], label="transport_results.check_id")
-        _ensure_unique([item.query_id for item in self.counterfactual_results], label="counterfactual_results.query_id")
-        _ensure_unique([item.spec_id for item in self.interference_specs], label="interference_specs.spec_id")
+        ensure_unique_ids(
+            self.proxy_results,
+            key_fn=lambda item: (item.family.value, item.proxy_variable, item.latent_variable),
+            label="proxy_results",
+        )
+        ensure_unique_ids(
+            self.transport_results,
+            key_fn=lambda item: item.check_id,
+            label="transport_results.check_id",
+        )
+        ensure_unique_ids(
+            self.strategic_results,
+            key_fn=lambda item: (item.channel.value, item.intervention_kind or ""),
+            label="strategic_results",
+        )
+        ensure_unique_ids(
+            self.counterfactual_results,
+            key_fn=lambda item: item.query_id,
+            label="counterfactual_results.query_id",
+        )
+        ensure_unique_ids(
+            self.interference_specs,
+            key_fn=lambda item: item.spec_id,
+            label="interference_specs.spec_id",
+        )
         return self
 
 

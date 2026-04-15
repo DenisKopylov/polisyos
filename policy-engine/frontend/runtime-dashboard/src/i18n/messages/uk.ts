@@ -8,6 +8,8 @@ const uk = {
     enabled: "Увімкнено",
     disabled: "Вимкнено",
     refresh: "Оновити",
+    pullToRefresh: "Потягніть, щоб оновити",
+    releaseToRefresh: "Відпустіть, щоб оновити",
     open: "Відкрити",
     sourceText: "Текст джерела",
     requestFailed: "Запит не вдався",
@@ -30,6 +32,8 @@ const uk = {
     output: "Вихід",
     openArtifact: "Відкрити артефакт",
     inspect: "Переглянути",
+    drawer: "Шухляда",
+    bottomSheet: "Нижня панель",
     loadLargerPreview: "Завантажити більший preview",
     maxPreviewReached: "Досягнуто максимального preview.",
     skipToContent: "Перейти до вмісту",
@@ -40,6 +44,11 @@ const uk = {
     shareView: "Поділитися виглядом",
     copyLink: "Скопіювати посилання",
     notifications: "Сповіщення",
+    freshness: {
+      missing: "Немає метаданих про актуальність",
+      invalid: "Невідома актуальність",
+      updated: "Оновлено {{value}}",
+    },
     exportCsv: "Експортувати CSV",
     exportJson: "Експортувати JSON",
     lineageGraph: {
@@ -48,6 +57,7 @@ const uk = {
         "У графі {{nodes}} вузлів, що перевищує поріг рендерингу ({{maxNodes}}).",
       thresholdHint:
         "Звузьте scope lineage через `max_depth`/`max_nodes` для інтерактивного рендерингу.",
+      ariaLabel: "Граф lineage артефактів",
       unknownKind: "Невідомий тип",
     },
     locale: {
@@ -88,6 +98,7 @@ const uk = {
       launchScenario: "Запустити сценарій",
       live: "Live SSE",
       liveFallback: "Fallback polling",
+      updatedAt: "Оновлено {{time}}",
       theme: "Тема",
       themeMode: {
         dark: "Тема: темна",
@@ -191,6 +202,20 @@ const uk = {
         "Control plane не повернув promotion candidates для поточної вибірки.",
       promotionMeta: "lane {{lane}} · confidence {{confidence}}",
       noPromotionCandidates: "Немає кандидатів на промоцію.",
+      recentRuns: {
+        empty: "Немає останніх запусків для відображення.",
+      },
+      toolbar: {
+        addWidget: "+ Додати віджет ({{count}})",
+        customize: "Налаштувати",
+        deleteView: "Видалити {{view}}",
+        doneEditing: "Завершити редагування",
+        reset: "Скинути",
+        save: "Зберегти",
+        saveView: "Зберегти вигляд",
+        viewNamePlaceholder: "Назва вигляду",
+        views: "Вигляди ({{count}})",
+      },
       graph: "Граф",
       graphReady: "Готово",
       graphPending: "В очікуванні",
@@ -355,6 +380,8 @@ const uk = {
         "API не повернув записів для поточних фільтрів або локальний пошук відфільтрував усі рядки.",
       keyboardHint:
         "Клавіатура: j/k або стрілки для навігації, Enter щоб відкрити вибраний запуск.",
+      activeRunAnnouncement:
+        "Вибрано запуск {{runId}}, статус {{status}}, рядок {{position}} з {{count}}.",
       pageCount: "елементів на сторінці={{count}}",
       pageCountWithTotal: "елементів на сторінці={{count}} із {{total}}",
       prev: "Назад",
@@ -407,6 +434,7 @@ const uk = {
       missingRefs: "missing refs {{count}}",
       transport: "Transport",
       blockers: "blockers {{count}}",
+      diagnostics: "Diagnostics",
       rootArtifacts: "Кореневі артефакти",
       tabs: {
         overview: "огляд",
@@ -551,6 +579,7 @@ const uk = {
         workflow: "Workflow",
         agents: "Agent Trace",
         debug: "Debug",
+        explainability: "Пояснюваність",
       },
       sectionBodies: {
         decision:
@@ -570,6 +599,7 @@ const uk = {
         debug:
           "Timeline, node debug і зведені runtime errors для розслідування оператором.",
       },
+      explainabilitySubtitle: "Прозорість рішень та сигнали довіри",
       governanceEmptyTitle: "Дані governance недоступні",
       governanceEmptyBody:
         "Для цього запуску не повернувся payload governance.",
@@ -1042,6 +1072,28 @@ const uk = {
       openDebug: "відкрити debug",
     },
   },
+  shared: {
+    uncertainty: {
+      confidence: "Впевненість",
+      defaultFraming: {
+        confidenceOnly: "{{confidence}}% впевненості в цій оцінці.",
+        range:
+          "У {{confidence}} зі 100 сценаріїв ефект потрапляє між {{lower}} та {{upper}}.",
+      },
+      direction: {
+        negative: "НЕГАТИВНИЙ",
+        positive: "ПОЗИТИВНИЙ",
+        uncertain: "НЕВИЗНАЧЕНИЙ",
+      },
+      method: "Метод: {{methodology}}",
+      mode: {
+        intuitive: "Інтуїтивний",
+        statistical: "Статистичний",
+      },
+      policyEffect: "Ефект політики:",
+      title: "Аналіз невизначеності",
+    },
+  },
   labels: {
     workflowStates: {
       plan_created: "План створено",
@@ -1081,6 +1133,28 @@ const uk = {
       healthy: "Справно",
       unavailable: "Недоступно",
     },
+    runStatuses: {
+      accepted: "Прийнято",
+      blocked: "Заблоковано",
+      blocked_preflight: "Preflight заблоковано",
+      completed: "Завершено",
+      done: "Завершено",
+      error: "Помилка",
+      fail: "Помилка",
+      failed: "Не вдалося",
+      pending: "В очікуванні",
+      rejected: "Відхилено",
+      review_required: "Потрібен review",
+      running: "Виконується",
+    },
+    runSourceKinds: {
+      core_run: "Core run",
+      etl: "ETL",
+      natural_language: "Natural language",
+      operator: "Operator",
+      policy: "Policy",
+      workflow: "Workflow",
+    },
     artifactKinds: {
       "scientist.decision_packet": "Decision packet",
       "scientist.decision_card": "Decision card",
@@ -1105,6 +1179,308 @@ const uk = {
       strict: "Строгий",
       lenient: "Пом'якшений",
       disabled: "Вимкнений",
+    },
+  },
+  mode: {
+    clerk: "Службовець",
+    analyst: "Аналітик",
+    interfaceLabel: "Режим інтерфейсу",
+    switchToAnalyst: "Режим аналітика",
+    switchToClerk: "Режим службовця",
+    clerkDescription: "Спрощений чат-інтерфейс",
+    analystDescription: "Повна аналітична панель",
+  },
+  landing: {
+    heroTitle: "PolicyOS",
+    heroSubtitle:
+      "Платформа каузального аналізу та симуляції для оцінки державних політик",
+    heroCta: "Почати роботу",
+    heroExploreCta: "Швидкий аналіз",
+    capabilitiesTitle: "Ключові можливості",
+    causalAnalysis: {
+      title: "Каузальний аналіз",
+      description:
+        "Виявлення, ідентифікація, оцінка та межі каузальних ефектів з повною квантифікацією невизначеності",
+    },
+    policySimulation: {
+      title: "Симуляція політик",
+      description:
+        "Агентні моделі з JAX-калібруванням, аналіз чутливості та контрфактична оцінка",
+    },
+    dataFabric: {
+      title: "Data Fabric",
+      description:
+        "Уніфіковані конектори до міжнародних статистичних порталів з відстеженням провенансу та моніторингом актуальності",
+    },
+    governanceEngine: {
+      title: "Governance Engine",
+      description:
+        "20 автоматизованих governance-перевірок з протоколом людського затвердження та захищеним аудит-трейлом",
+    },
+    howItWorksTitle: "Як це працює",
+    stepQuestion: "Питання",
+    stepQuestionDescription: "Сформулюйте питання щодо політики природною мовою",
+    stepAnalysis: "Аналіз",
+    stepAnalysisDescription:
+      "Система будує каузальний граф та ідентифікує ефекти",
+    stepEvidence: "Дані",
+    stepEvidenceDescription:
+      "Збір даних з міжнародних джерел з відстеженням провенансу",
+    stepDecision: "Рішення",
+    stepDecisionDescription:
+      "Верифікований пакет рішення з конвертом невизначеності",
+    ctaTitle: "Готові оцінити вплив політики?",
+    ctaSubtitle: "Почніть перший аналіз за декілька хвилин",
+  },
+  clerk: {
+    chatPlaceholder: "Задайте питання щодо політики...",
+    chatSubmit: "Аналізувати",
+    chatStreaming: "Аналіз...",
+    chatDomainHint: "Домен",
+    chatDomainAuto: "Автовизначення",
+    resultVerdict: "Вердикт",
+    resultConfidence: "Впевненість",
+    viewFullAnalysis: "Детальний аналіз",
+    returnToChat: "Повернутися до чату",
+    newAnalysis: "Новий аналіз",
+    myAnalyses: "Мої аналізи",
+    welcomeTitle: "Яку політику ви хочете проаналізувати?",
+    welcomeSubtitle:
+      "Опишіть питання природною мовою. Система збере дані, побудує каузальні моделі та сформує верифіковане рішення.",
+    statusPlanning: "Планування аналізу...",
+    statusCollecting: "Збір даних...",
+    statusSimulating: "Запуск симуляції...",
+    statusGovernance: "Перевірка governance...",
+    statusComplete: "Аналіз завершено",
+    statusFailed: "Аналіз не вдався",
+    followUp: "Продовжити",
+    followUpActions: "Дії продовження",
+    history: "Історія",
+    export: "Експорт",
+    conversationHistory: "Історія розмов",
+    newConversation: "Нова розмова",
+    searchConversations: "Пошук розмов...",
+    noSearchResults: "Жодна розмова не відповідає запиту.",
+    noConversations: "Збережених розмов поки немає.",
+    loadConversation: "Завантажити",
+    deleteConversation: "Видалити розмову",
+    messageCount: "{{count}} повідомлень",
+    moreMatches: "+{{count}} збігів",
+    started: "Початок",
+    duration: "Тривалість",
+  },
+  commandPalette: {
+    placeholder: "Введіть команду або пошук...",
+    noResults: "Результатів не знайдено.",
+    navigation: "Навігація",
+    appearance: "Зовнішній вигляд",
+    toggleTheme: "Перемкнути тему",
+  },
+  collaboration: {
+    presence: {
+      you: "Ви",
+      online: "Онлайн",
+      offline: "Офлайн",
+      editor: "Редактор",
+      viewer: "Переглядач",
+      activeUsers: "{{count}} активних користувачів",
+    },
+    toolbar: {
+      connected: "Підключено — синхронізація в реальн��му часі",
+      connecting: "Підключення...",
+      disconnected: "Відключено",
+      onlineCount: "{{count}} онлайн",
+      comments: "Коментарі",
+      activity: "Активність",
+      share: "Поділитися",
+    },
+    comments: {
+      title: "Коментарі",
+      empty: "Коментарів поки немає. Розпочніть обговорення.",
+      placeholder: "Додати ком��нтар... (Ctrl+Enter для надси��ання)",
+      replyPlaceholder: "Відповісти... (Ctrl+Enter для надсилання)",
+      reply: "Відпові��ти",
+      resolve: "Вирішити",
+      resolved: "Вирішено",
+    },
+    activity: {
+      title: "Активність",
+      empty: "Немає нещодавньої ��ктивності.",
+    },
+    share: {
+      title: "Поділитися цим видом",
+      description: "Поділіться поточним аналізом з вашою командою.",
+      access: "Хто має доступ",
+      anyoneWithLink: "Будь-хто з посиланням",
+      restricted: "Конкретні люди",
+      permission: "Дозвіл посилання",
+      canView: "Може переглядати",
+      canEdit: "Може редагувати",
+      shareButton: "Поділитися",
+    },
+  },
+  whatIf: {
+    title: "Аналіз «Що, якщо»",
+    subtitle: "Дослідіть контрфактуальні сценарії, змінюючи параметри та спостерігаючи прогнозований вплив.",
+    panelTitle: "Параметри сценарію",
+    baseRun: "Базовий запуск",
+    selectBaseRun: "Оберіть базовий запуск для контрфактуального аналізу",
+    noBaseRun: "Базовий запуск не обрано. Оберіть запуск для початку what-if аналізу.",
+    parameters: "Параметри",
+    adjustParameter: "Налаштувати параметр",
+    resetAll: "Скинути все",
+    resetToDefault: "Повернути до стандартних",
+    sensitivity: "Чутливість",
+    sensitivityZone: {
+      low: "Низька чутливість",
+      medium: "Середня чутливість",
+      high: "Висока чутливість",
+    },
+    impact: {
+      title: "Прогнозований вплив",
+      baseline: "Базовий рівень",
+      projected: "Прогнозований",
+      delta: "Дельта",
+      confidence: "Довірчий інтервал",
+      noData: "Дані впливу ще недоступні для поточного набору параметрів.",
+    },
+    scenarios: {
+      title: "Збережені сценарії",
+      save: "Зберегти сценарій",
+      saveCurrent: "Зберегти поточний сценарій",
+      nameLabel: "Назва сценарію",
+      namePlaceholder: "Введіть описову назву для цього сценарію",
+      load: "Завантажити",
+      delete: "Видалити",
+      compare: "Порівняти",
+      empty: "Збережених сценаріїв ще немає. Змініть параметри та збережіть свій перший сценарій.",
+      confirmDelete: "Видалити сценарій «{{name}}»?",
+      saved: "Сценарій збережено",
+    },
+    methodology: "Методологія",
+    methodNote: "Прогнози what-if використовують каузальну модель із базового запуску. Результати передбачають відсутність невиміряних confounders за межами ідентифікованого adjustment set.",
+    exportScenario: "Експортувати сценарій",
+  },
+  causal: {
+    title: "Каузальний граф",
+    subtitle: "Спрямований ациклічний граф каузальних зв'язків, виявлених у цьому аналізі.",
+    nodeTypes: {
+      treatment: "Лікування (treatment)",
+      outcome: "Результат (outcome)",
+      confounder: "Confounder",
+      mediator: "Медіатор",
+      collider: "Collider",
+      instrument: "Інструмент",
+      selection: "Вибірка (selection)",
+    },
+    edgeStatus: {
+      identified: "Ідентифіковано",
+      unidentified: "Не ідентифіковано",
+      boundsOnly: "Лише межі",
+    },
+    overlay: {
+      none: "Без overlay",
+      identification: "Статус ідентифікації",
+      transport: "Транспортабельність",
+      adjustmentSet: "Adjustment set",
+      interference: "Патерн інтерференції",
+    },
+    layout: {
+      hierarchical: "Ієрархічний",
+      force: "Силовий",
+      sugiyama: "Sugiyama",
+    },
+    panels: {
+      nodeDetail: "Деталі вузла",
+      edgeDetail: "Деталі ребра",
+      pathAnalysis: "Аналіз шляхів",
+    },
+    methods: {
+      did: "Різниця в різницях (DiD)",
+      syntheticControl: "Синтетичний контроль",
+      rdd: "Регресійна нерозривність (RDD)",
+      bsts: "Байєсівські структурні часові ряди (BSTS)",
+      metaLearner: "Мета-навчання (CATE)",
+      forestPlot: "Forest Plot",
+    },
+    compare: {
+      title: "Порівняння графів",
+      overlay: "Режим overlay",
+      sideBySide: "Поруч",
+      diff: "Diff вигляд",
+    },
+    empty: "Дані каузального графу відсутні для цього запуску.",
+  },
+  mobile: {
+    nav: {
+      ariaLabel: "Основна навігація",
+      home: "Головна",
+      runs: "Запуски",
+      evidence: "Докази",
+      compose: "Створити",
+      chat: "Чат",
+    },
+  },
+  onboarding: {
+    tourLabel: "Інтерактивний тур",
+    prev: "Назад",
+    next: "Далі",
+    finish: "Завершити",
+    welcome: {
+      sidebar: {
+        title: "Навігація",
+        description:
+          "Використовуйте бічну панель для переходу між робочими просторами: панель, запуски, докази тощо.",
+      },
+      mode: {
+        title: "Режим інтерфейсу",
+        description:
+          "Перемикайтеся між режимами Клерк (спрощений) та Аналітик (повний) залежно від вашої ролі.",
+      },
+      header: {
+        title: "Стан системи",
+        description:
+          "Заголовок показує стан API, дані в реальному часі та активні можливості.",
+      },
+      main: {
+        title: "Основний робочий простір",
+        description:
+          "Тут відображаються ваші аналізи, запуски та докази. Досліджуйте та взаємодійте з даними.",
+      },
+    },
+    analyst: {
+      runs: {
+        title: "Запуски та рішення",
+        description:
+          "Перегляд усіх аналітичних запусків, їх стан управління та детальні результати.",
+      },
+      evidence: {
+        title: "Доказова база",
+        description:
+          "Знаходьте, перевіряйте та просувайте докази з джерел даних для ваших аналізів.",
+      },
+      composer: {
+        title: "Конструктор сценаріїв",
+        description:
+          "Проектуйте та запускайте нові аналітичні сценарії з власними параметрами та джерелами даних.",
+      },
+    },
+  },
+  compliance: {
+    badgeLabel: "Відповідність",
+    badgeAriaLabel: "Переглянути стан відповідності стандартам доступності та безпеки",
+    tooltipTitle: "Стандарти відповідності",
+    eaa: {
+      description:
+        "EU European Accessibility Act — відповідність WCAG 2.2 AA для всіх потоків користувачів.",
+    },
+    ada: {
+      description:
+        "US ADA Title II — WCAG 2.1 AA для урядових інструментів.",
+    },
+    nist: {
+      description:
+        "NIST SP 800-53 Rev. 5: керування обліковими записами, аудит подій, автентифікація, шифрування.",
     },
   },
 } as const;

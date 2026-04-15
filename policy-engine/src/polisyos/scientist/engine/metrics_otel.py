@@ -5,22 +5,49 @@ Bridges :class:`EngineMetricsCollector` to the existing global
 """
 from __future__ import annotations
 
+from collections import deque
+from dataclasses import dataclass
+
+from polisyos.core.observability import MetricsRegistry, get_metrics
+
+
+@dataclass(frozen=True, slots=True)
+class TraceCorrelationRecord:
+    """Bounded trace-correlation breadcrumb retained for runtime inspection."""
+
+    runner_backend: str
+    workflow_id: str
+    run_id: str
+    trace_id: str | None = None
+    span_id: str | None = None
+
 
 class OTelEngineMetrics:
     """Records engine metrics via the PolicyOS MetricsRegistry singleton."""
 
-    def __init__(self) -> None:
-        from polisyos.core.observability import get_metrics
-
-        self._m = get_metrics()
+    def __init__(
+        self,
+        *,
+        metrics: MetricsRegistry | None = None,
+        max_trace_correlations: int = 256,
+    ) -> None:
+        self._m = metrics if metrics is not None else get_metrics()
+        self._recent_trace_correlations: deque[TraceCorrelationRecord] = deque(
+            maxlen=max(1, int(max_trace_correlations)),
+        )
 
     def record_node_started(
         self, *, alias: str, node_id: str, workflow_id: str,
     ) -> None:
-        # Node start is a lightweight event — no counter needed beyond the
-        # existing NODE_STARTED run-context emission.  Kept for protocol
-        # completeness; could be wired to a counter later.
-        pass
+        if self._m.scientist_node_starts_total is not None:
+            self._m.scientist_node_starts_total.add(
+                1,
+                {
+                    "alias": alias,
+                    "node_id": node_id,
+                    "workflow_id": workflow_id,
+                },
+            )
 
     def record_node_completed(
         self,
@@ -62,7 +89,11 @@ class OTelEngineMetrics:
         if self._m.scientist_tier_duration_seconds is not None:
             self._m.scientist_tier_duration_seconds.record(
                 duration_ms / 1000.0,
-                {"tier_index": str(tier_index), "tier_size": str(tier_size), "workflow_id": workflow_id},
+                {
+                    "tier_index": str(tier_index),
+                    "tier_size": str(tier_size),
+                    "workflow_id": workflow_id,
+                },
             )
 
     def record_workflow_completed(
@@ -102,3 +133,48 @@ class OTelEngineMetrics:
             self._m.scientist_workflow_state.add(
                 1, {"run_id": run_id, "workflow_id": workflow_id, "state": state},
             )
+
+    def record_trace_correlation(
+        self,
+        *,
+        runner_backend: str,
+        workflow_id: str,
+        run_id: str,
+        trace_id: str | None = None,
+        span_id: str | None = None,
+    ) -> None:
+        self._recent_trace_correlations.append(
+            TraceCorrelationRecord(
+                runner_backend=runner_backend,
+                workflow_id=workflow_id,
+                run_id=run_id,
+                trace_id=trace_id,
+                span_id=span_id,
+            )
+        )
+        self._m.record_scientist_trace_correlation(
+            runner_backend=runner_backend,
+            workflow_id=workflow_id,
+            run_id=run_id,
+            trace_id=trace_id,
+            span_id=span_id,
+        )
+
+    def record_operational_alert(
+        self,
+        *,
+        alert_type: str,
+        severity: str,
+        workflow_id: str | None = None,
+        run_id: str | None = None,
+    ) -> None:
+        self._m.record_scientist_operational_alert(
+            alert_type=alert_type,
+            severity=severity,
+            workflow_id=workflow_id,
+            run_id=run_id,
+        )
+
+    def recent_trace_correlations(self) -> list[TraceCorrelationRecord]:
+        """Return a bounded snapshot of recent runner trace correlations."""
+        return list(self._recent_trace_correlations)

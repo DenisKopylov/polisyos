@@ -1,0 +1,419 @@
+{
+  "failures": [],
+  "generated_at": "2026-04-15T15:15:02.740591+00:00",
+  "reports": [
+    {
+      "avg_iteration_ms": 9.788,
+      "current_memory_kib": 33.75,
+      "details": {
+        "listed_runs": 1
+      },
+      "duration_seconds": 1.8792,
+      "error": null,
+      "iterations": 192,
+      "memory_samples": [
+        {
+          "current_kib": 14.68,
+          "iteration": 16,
+          "peak_kib": 164.73
+        },
+        {
+          "current_kib": 17.12,
+          "iteration": 32,
+          "peak_kib": 180.99
+        },
+        {
+          "current_kib": 19.21,
+          "iteration": 48,
+          "peak_kib": 183.79
+        },
+        {
+          "current_kib": 20.9,
+          "iteration": 64,
+          "peak_kib": 185.48
+        },
+        {
+          "current_kib": 22.59,
+          "iteration": 80,
+          "peak_kib": 187.17
+        },
+        {
+          "current_kib": 24.54,
+          "iteration": 96,
+          "peak_kib": 188.72
+        },
+        {
+          "current_kib": 26.11,
+          "iteration": 112,
+          "peak_kib": 190.8
+        },
+        {
+          "current_kib": 27.62,
+          "iteration": 128,
+          "peak_kib": 192.26
+        },
+        {
+          "current_kib": 29.43,
+          "iteration": 144,
+          "peak_kib": 194.12
+        },
+        {
+          "current_kib": 31.12,
+          "iteration": 160,
+          "peak_kib": 195.24
+        },
+        {
+          "current_kib": 32.46,
+          "iteration": 176,
+          "peak_kib": 197.09
+        },
+        {
+          "current_kib": 33.39,
+          "iteration": 192,
+          "peak_kib": 198.06
+        }
+      ],
+      "peak_memory_kib": 198.06,
+      "plateau": {
+        "allowance_kib": 1024.0,
+        "head_max_kib": 24.54,
+        "passed": true,
+        "tail_max_kib": 33.39
+      },
+      "scenario_id": "run_index_incremental_refresh",
+      "status": "pass",
+      "title": "Run index incremental refresh"
+    },
+    {
+      "avg_iteration_ms": 9.356,
+      "current_memory_kib": 326.27,
+      "details": {
+        "timeline_events": 5
+      },
+      "duration_seconds": 1.7964,
+      "error": null,
+      "iterations": 192,
+      "memory_samples": [
+        {
+          "current_kib": 28.8,
+          "iteration": 16,
+          "peak_kib": 166.13
+        },
+        {
+          "current_kib": 56.88,
+          "iteration": 32,
+          "peak_kib": 197.23
+        },
+        {
+          "current_kib": 85.25,
+          "iteration": 48,
+          "peak_kib": 225.53
+        },
+        {
+          "current_kib": 113.21,
+          "iteration": 64,
+          "peak_kib": 254.01
+        },
+        {
+          "current_kib": 139.95,
+          "iteration": 80,
+          "peak_kib": 280.86
+        },
+        {
+          "current_kib": 167.15,
+          "iteration": 96,
+          "peak_kib": 308.08
+        },
+        {
+          "current_kib": 194.04,
+          "iteration": 112,
+          "peak_kib": 335.03
+        },
+        {
+          "current_kib": 220.44,
+          "iteration": 128,
+          "peak_kib": 361.52
+        },
+        {
+          "current_kib": 246.81,
+          "iteration": 144,
+          "peak_kib": 387.95
+        },
+        {
+          "current_kib": 273.02,
+          "iteration": 160,
+          "peak_kib": 414.23
+        },
+        {
+          "current_kib": 300.08,
+          "iteration": 176,
+          "peak_kib": 440.57
+        },
+        {
+          "current_kib": 325.92,
+          "iteration": 192,
+          "peak_kib": 467.23
+        }
+      ],
+      "peak_memory_kib": 467.23,
+      "plateau": {
+        "allowance_kib": 1024.0,
+        "head_max_kib": 167.15,
+        "passed": true,
+        "tail_max_kib": 325.92
+      },
+      "scenario_id": "timeline_build_loops",
+      "status": "pass",
+      "title": "Timeline query/build loops"
+    },
+    {
+      "avg_iteration_ms": 10.373,
+      "current_memory_kib": 68.0,
+      "details": {
+        "concurrency": 4,
+        "payload_bytes": 6226
+      },
+      "duration_seconds": 1.9916,
+      "error": null,
+      "iterations": 192,
+      "memory_samples": [
+        {
+          "current_kib": 35.3,
+          "iteration": 16,
+          "peak_kib": 505.0
+        },
+        {
+          "current_kib": 39.86,
+          "iteration": 32,
+          "peak_kib": 637.94
+        },
+        {
+          "current_kib": 44.15,
+          "iteration": 48,
+          "peak_kib": 653.93
+        },
+        {
+          "current_kib": 47.81,
+          "iteration": 64,
+          "peak_kib": 662.05
+        },
+        {
+          "current_kib": 51.38,
+          "iteration": 80,
+          "peak_kib": 662.05
+        },
+        {
+          "current_kib": 56.57,
+          "iteration": 96,
+          "peak_kib": 662.05
+        },
+        {
+          "current_kib": 60.22,
+          "iteration": 112,
+          "peak_kib": 674.07
+        },
+        {
+          "current_kib": 63.81,
+          "iteration": 128,
+          "peak_kib": 674.07
+        },
+        {
+          "current_kib": 67.33,
+          "iteration": 144,
+          "peak_kib": 674.07
+        },
+        {
+          "current_kib": 70.48,
+          "iteration": 160,
+          "peak_kib": 674.07
+        },
+        {
+          "current_kib": 76.71,
+          "iteration": 176,
+          "peak_kib": 674.07
+        },
+        {
+          "current_kib": 79.67,
+          "iteration": 192,
+          "peak_kib": 681.29
+        }
+      ],
+      "peak_memory_kib": 681.29,
+      "plateau": {
+        "allowance_kib": 1024.0,
+        "head_max_kib": 56.57,
+        "passed": true,
+        "tail_max_kib": 79.67
+      },
+      "scenario_id": "async_cas_round_trip",
+      "status": "pass",
+      "title": "Async CAS repeated round trips"
+    },
+    {
+      "avg_iteration_ms": 14.09,
+      "current_memory_kib": 65.51,
+      "details": {
+        "completed_nodes": 192,
+        "last_sequence": 191
+      },
+      "duration_seconds": 2.7053,
+      "error": null,
+      "iterations": 192,
+      "memory_samples": [
+        {
+          "current_kib": 38.62,
+          "iteration": 16,
+          "peak_kib": 218.69
+        },
+        {
+          "current_kib": 45.81,
+          "iteration": 32,
+          "peak_kib": 239.22
+        },
+        {
+          "current_kib": 51.93,
+          "iteration": 48,
+          "peak_kib": 246.02
+        },
+        {
+          "current_kib": 55.67,
+          "iteration": 64,
+          "peak_kib": 251.38
+        },
+        {
+          "current_kib": 60.15,
+          "iteration": 80,
+          "peak_kib": 256.51
+        },
+        {
+          "current_kib": 62.83,
+          "iteration": 96,
+          "peak_kib": 261.43
+        },
+        {
+          "current_kib": 64.68,
+          "iteration": 112,
+          "peak_kib": 264.05
+        },
+        {
+          "current_kib": 66.93,
+          "iteration": 128,
+          "peak_kib": 267.17
+        },
+        {
+          "current_kib": 68.97,
+          "iteration": 144,
+          "peak_kib": 271.62
+        },
+        {
+          "current_kib": 71.72,
+          "iteration": 160,
+          "peak_kib": 275.14
+        },
+        {
+          "current_kib": 73.14,
+          "iteration": 176,
+          "peak_kib": 277.73
+        },
+        {
+          "current_kib": 76.87,
+          "iteration": 192,
+          "peak_kib": 281.68
+        }
+      ],
+      "peak_memory_kib": 281.68,
+      "plateau": {
+        "allowance_kib": 1024.0,
+        "head_max_kib": 62.83,
+        "passed": true,
+        "tail_max_kib": 76.87
+      },
+      "scenario_id": "async_checkpoint_restore",
+      "status": "pass",
+      "title": "Async checkpoint restore cycles"
+    },
+    {
+      "avg_iteration_ms": 14.549,
+      "current_memory_kib": 94.8,
+      "details": {
+        "last_offset": 191
+      },
+      "duration_seconds": 2.7934,
+      "error": null,
+      "iterations": 192,
+      "memory_samples": [
+        {
+          "current_kib": 23.49,
+          "iteration": 16,
+          "peak_kib": 436.38
+        },
+        {
+          "current_kib": 31.87,
+          "iteration": 32,
+          "peak_kib": 450.06
+        },
+        {
+          "current_kib": 40.55,
+          "iteration": 48,
+          "peak_kib": 458.8
+        },
+        {
+          "current_kib": 47.47,
+          "iteration": 64,
+          "peak_kib": 465.67
+        },
+        {
+          "current_kib": 54.15,
+          "iteration": 80,
+          "peak_kib": 472.35
+        },
+        {
+          "current_kib": 63.87,
+          "iteration": 96,
+          "peak_kib": 482.13
+        },
+        {
+          "current_kib": 69.53,
+          "iteration": 112,
+          "peak_kib": 487.79
+        },
+        {
+          "current_kib": 75.58,
+          "iteration": 128,
+          "peak_kib": 493.78
+        },
+        {
+          "current_kib": 81.7,
+          "iteration": 144,
+          "peak_kib": 499.9
+        },
+        {
+          "current_kib": 87.35,
+          "iteration": 160,
+          "peak_kib": 505.61
+        },
+        {
+          "current_kib": 99.27,
+          "iteration": 176,
+          "peak_kib": 517.53
+        },
+        {
+          "current_kib": 104.46,
+          "iteration": 192,
+          "peak_kib": 522.72
+        }
+      ],
+      "peak_memory_kib": 522.72,
+      "plateau": {
+        "allowance_kib": 1024.0,
+        "head_max_kib": 63.87,
+        "passed": true,
+        "tail_max_kib": 104.46
+      },
+      "scenario_id": "async_cursor_store_stream_progress",
+      "status": "pass",
+      "title": "Async cursor-store stream progress"
+    }
+  ],
+  "sample_every": 16
+}

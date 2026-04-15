@@ -1578,9 +1578,9 @@ def build_interpretable_hte_harness(
 
 def _component_summary(report: BenchmarkReport) -> dict[str, Any]:
     buckets: dict[str, dict[str, Any]] = {
-        "cate_quality": {"passed": 0, "total": 0, "cases": []},
-        "modifier_detection": {"passed": 0, "total": 0, "cases": []},
-        "pipeline_integrity": {"passed": 0, "total": 0, "cases": []},
+        "cate_quality": {"passed": 0, "total": 0, "cases": [], "over_budget": 0},
+        "modifier_detection": {"passed": 0, "total": 0, "cases": [], "over_budget": 0},
+        "pipeline_integrity": {"passed": 0, "total": 0, "cases": [], "over_budget": 0},
     }
     for case in report.cases:
         if case.name.startswith("hte_cate::"):
@@ -1593,11 +1593,19 @@ def _component_summary(report: BenchmarkReport) -> dict[str, Any]:
             continue
         buckets[key]["total"] += 1
         buckets[key]["passed"] += int(case.passed)
-        buckets[key]["cases"].append({"name": case.name, "verdict": case.verdict.value})
+        buckets[key]["over_budget"] += int(getattr(case, "runtime_budget_exceeded", False))
+        buckets[key]["cases"].append(
+            {
+                "name": case.name,
+                "verdict": case.verdict.value,
+                "over_budget": bool(getattr(case, "runtime_budget_exceeded", False)),
+            }
+        )
     for payload in buckets.values():
         total = payload["total"]
         payload["pass_rate"] = payload["passed"] / total if total else 0.0
         payload["failed_cases"] = [case["name"] for case in payload["cases"] if case["verdict"] != Verdict.PASS.value]
+        payload["over_budget_cases"] = [case["name"] for case in payload["cases"] if case["over_budget"]]
     thresholds = {
         "cate_quality": {"min_passed": 4, "min_total": 5},
         "modifier_detection": {"min_passed": 4, "min_total": 4},
@@ -1626,6 +1634,8 @@ def _hte_case_details(case: Any) -> dict[str, Any]:
         "passed": bool(case.passed),
         "verdict": case.verdict.value if hasattr(case.verdict, "value") else str(case.verdict),
         "reason": case.error_msg,
+        "over_budget": bool(getattr(case, "runtime_budget_exceeded", False)),
+        "runtime_budget_note": getattr(case, "runtime_budget_note", None),
     }
     metrics: dict[str, Any] = {}
     if isinstance(payload, dict):

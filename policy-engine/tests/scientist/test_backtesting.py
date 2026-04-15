@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+import polisyos.scientist.backtesting.orchestrator as orchestrator_module
 from polisyos.ir.analytics.backtest import BacktestScenario
 from polisyos.scientist.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
@@ -73,3 +74,41 @@ def test_backtesting_scientist_fallback_marks_report_degraded(tmp_path) -> None:
     assert report.trust_eligible is False
     assert report.trust_score is None
     assert report.degraded_reasons
+
+
+def test_backtesting_orchestrator_accepts_injected_store_factory(monkeypatch, tmp_path) -> None:
+    history = {"tax_revenue": [10.0, 11.0, 12.0, 12.5, 13.0]}
+    history_path = tmp_path / "history.json"
+    history_path.write_text(json.dumps(history), encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="bt_injected_factory",
+        plan_label="injected store factory",
+        historical_data_path=str(history_path),
+        intervention_step=3,
+        target_metrics=["tax_revenue"],
+        ground_truth_outcomes={"tax_revenue": [13.2, 13.4]},
+        prediction_source=PredictionSource.NAIVE,
+    )
+    captured_roots = []
+
+    def _unexpected_default(root):
+        del root
+        raise AssertionError("default backtest store factory should not run")
+
+    def _store_factory(root):
+        captured_roots.append(root)
+        return orchestrator_module.build_ir_artifact_store(root)
+
+    monkeypatch.setattr(
+        orchestrator_module,
+        "_default_backtest_store_factory",
+        _unexpected_default,
+    )
+
+    report = BacktestOrchestrator(
+        cas_root=str(tmp_path / ".polisyos"),
+        store_factory=_store_factory,
+    ).run([plan])
+
+    assert captured_roots == [tmp_path / ".polisyos"]
+    assert report.cas_artifact_id is not None

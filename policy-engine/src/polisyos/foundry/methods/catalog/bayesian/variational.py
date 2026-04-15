@@ -32,6 +32,13 @@ from polisyos.foundry.methods.catalog.ml.regression import (
     _build_prediction_result,
     _tabular_payload,
 )
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    PropagationMethod,
+    UncertaintyEnvelope,
+    UncertaintySource,
+)
 
 from .protocols import PosteriorResult
 
@@ -104,7 +111,7 @@ class MeanFieldVIEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="mean_field_vi",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
@@ -188,49 +195,59 @@ class MeanFieldVIEstimator:
         y_pred = X @ mu_q
 
         result = PosteriorResult(
-            model_type="mean_field_vi",
-            converged=len(elbos) > 1 and abs(elbos[-1] - elbos[-2]) < 100 * tol if len(elbos) > 1 else True,
-            diagnostics={"final_elbo": elbos[-1] if elbos else float("nan"),
-                         "n_iter": len(elbos)},
-            posterior_mean={f"beta_{i}": float(mu_q[i]) for i in range(d)},
-            posterior_std={f"beta_{i}": float(sigma_q[i]) for i in range(d)},
+            method_name="mean_field_vi",
+            diagnostics={
+                "credible_mass": 0.95,
+                "final_elbo": float(elbos[-1]) if elbos else float("nan"),
+                "n_iter": float(len(elbos)),
+                "converged": float(
+                    len(elbos) <= 1
+                    or abs(elbos[-1] - elbos[-2]) < 100 * tol
+                ),
+            },
+            posterior_means={f"beta_{i}": float(mu_q[i]) for i in range(d)},
+            posterior_stds={f"beta_{i}": float(sigma_q[i]) for i in range(d)},
             credible_intervals={
                 f"beta_{i}": (float(mu_q[i] - 1.96 * sigma_q[i]),
                               float(mu_q[i] + 1.96 * sigma_q[i]))
                 for i in range(d)
             },
-            n_samples=0,
+            metadata={"noise_variance": sigma2},
         )
 
         pred_result = _build_prediction_result(
-            y_pred=y_pred,
-            y_true=y,
-            feature_names=list(getattr(data, "feature_names", None) or []),
-            method="mean_field_vi",
-            coef=mu_q,
+            method_name="mean_field_vi",
+            predictions=y_pred,
+            target=y,
+            coefficients={
+                name: float(mu_q[idx])
+                for idx, name in enumerate(
+                    list(getattr(data, "feature_names", None) or [f"x{idx}" for idx in range(d)])
+                )
+            },
+            model_info={"library": "numpy", "estimator": "MeanFieldVI"},
+            metadata={"final_elbo": float(elbos[-1]) if elbos else float("nan")},
         )
 
-        from polisyos.ir.analytics.uncertainty import (
-            IntervalSemantics,
-            PropagationMethod,
-            UncertaintyEnvelope,
-            UncertaintySource,
-        )
-        avg_sigma = float(np.mean(sigma_q))
-        envelope = UncertaintyEnvelope(
-            method=PropagationMethod.VARIATIONAL,
-            source=UncertaintySource.EPISTEMIC,
-            semantics=IntervalSemantics.CREDIBLE,
-            central=float(np.mean(y_pred)),
-            lower=float(np.mean(y_pred) - 1.96 * avg_sigma),
-            upper=float(np.mean(y_pred) + 1.96 * avg_sigma),
-            mass=0.95,
-        )
-
+        beta0_interval = result.credible_intervals.get("beta_0")
         return {
             "result": result,
-            "prediction_result": pred_result,
-            "uncertainty_envelope": envelope,
+            "prediction_result": pred_result["result"],
+            "uncertainty_envelope": (
+                None
+                if beta0_interval is None
+                else UncertaintyEnvelope(
+                    point_estimate=float(result.posterior_means["beta_0"]),
+                    confidence_interval=beta0_interval,
+                    confidence_level=0.95,
+                    distribution_family=DistributionFamily.BAYESIAN,
+                    source=UncertaintySource.CALIBRATION,
+                    propagation_method=PropagationMethod.ANALYTICAL,
+                    interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
+                    sample_size=int(X.shape[0]),
+                    metadata={"method_name": "mean_field_vi", "parameter": "beta_0"},
+                )
+            ),
             "posterior_mean": mu_q.tolist(),
             "posterior_std": sigma_q.tolist(),
             "elbo_history": elbos,
@@ -264,7 +281,7 @@ class BBVIEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="bbvi",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
@@ -388,45 +405,57 @@ class BBVIEstimator:
         y_pred = X @ mu
 
         result = PosteriorResult(
-            model_type="bbvi",
-            converged=True,
-            diagnostics={"final_elbo": elbos[-1] if elbos else float("nan"),
-                         "n_iter": n_iter},
-            posterior_mean={f"beta_{i}": float(mu[i]) for i in range(d)},
-            posterior_std={f"beta_{i}": float(sigma_final[i]) for i in range(d)},
-            credible_intervals={},
-            n_samples=n_samples,
+            method_name="bbvi",
+            diagnostics={
+                "credible_mass": 0.95,
+                "final_elbo": float(elbos[-1]) if elbos else float("nan"),
+                "n_iter": float(n_iter),
+                "num_samples": float(n_samples),
+            },
+            posterior_means={f"beta_{i}": float(mu[i]) for i in range(d)},
+            posterior_stds={f"beta_{i}": float(sigma_final[i]) for i in range(d)},
+            credible_intervals={
+                f"beta_{i}": (
+                    float(mu[i] - 1.96 * sigma_final[i]),
+                    float(mu[i] + 1.96 * sigma_final[i]),
+                )
+                for i in range(d)
+            },
         )
 
         pred_result = _build_prediction_result(
-            y_pred=y_pred,
-            y_true=y,
-            feature_names=list(getattr(data, "feature_names", None) or []),
-            method="bbvi",
-            coef=mu,
+            method_name="bbvi",
+            predictions=y_pred,
+            target=y,
+            coefficients={
+                name: float(mu[idx])
+                for idx, name in enumerate(
+                    list(getattr(data, "feature_names", None) or [f"x{idx}" for idx in range(d)])
+                )
+            },
+            model_info={"library": "numpy", "estimator": "BlackBoxVI"},
+            metadata={"final_elbo": float(elbos[-1]) if elbos else float("nan")},
         )
 
-        from polisyos.ir.analytics.uncertainty import (
-            IntervalSemantics,
-            PropagationMethod,
-            UncertaintyEnvelope,
-            UncertaintySource,
-        )
-        avg_s = float(np.mean(sigma_final))
-        envelope = UncertaintyEnvelope(
-            method=PropagationMethod.VARIATIONAL,
-            source=UncertaintySource.EPISTEMIC,
-            semantics=IntervalSemantics.CREDIBLE,
-            central=float(np.mean(y_pred)),
-            lower=float(np.mean(y_pred) - 1.96 * avg_s),
-            upper=float(np.mean(y_pred) + 1.96 * avg_s),
-            mass=0.95,
-        )
-
+        beta0_interval = result.credible_intervals.get("beta_0")
         return {
             "result": result,
-            "prediction_result": pred_result,
-            "uncertainty_envelope": envelope,
+            "prediction_result": pred_result["result"],
+            "uncertainty_envelope": (
+                None
+                if beta0_interval is None
+                else UncertaintyEnvelope(
+                    point_estimate=float(result.posterior_means["beta_0"]),
+                    confidence_interval=beta0_interval,
+                    confidence_level=0.95,
+                    distribution_family=DistributionFamily.BAYESIAN,
+                    source=UncertaintySource.CALIBRATION,
+                    propagation_method=PropagationMethod.ANALYTICAL,
+                    interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
+                    sample_size=int(X.shape[0]),
+                    metadata={"method_name": "bbvi", "parameter": "beta_0"},
+                )
+            ),
             "posterior_mean": mu.tolist(),
             "posterior_std": sigma_final.tolist(),
             "elbo_history": elbos,

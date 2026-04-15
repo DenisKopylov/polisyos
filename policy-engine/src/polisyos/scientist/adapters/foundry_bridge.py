@@ -15,6 +15,7 @@ from polisyos.core.contracts.foundry import (
     ExecuteRequest,
     ExecuteResult,
 )
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.core.security.settings import SecuritySettings, get_security_settings
 from polisyos.core.security.tee import AttestationResult
 from polisyos.core.security.tee_middleware import TEEGatekeeper
@@ -23,12 +24,19 @@ from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.scientist.engine.context import FoundryPort
 
 
+class FoundryBridgeSecurityError(PolicyOSError):
+    """Raised when Foundry bridge environment writes are unsafe."""
+
+    default_stage = "scientist.adapters.foundry_bridge"
+    default_category = ErrorCategory.VALIDATION
+
+
 class DefaultFoundryPort(FoundryPort):
-    """Bridge Scientist node requests to Foundry compile/execute APIs with optional TEE/SBOM artifacts.
+    """Bridge Scientist node requests to Foundry compile/execute APIs.
 
     `compile()` forwards `CompileRequest` contracts to Foundry unchanged.
-    `execute()` optionally enforces TEE attestation, injects attestation details
-    into the process environment for downstream runtime hooks, and appends
+    `execute()` optionally enforces TEE attestation, injects sanitized attestation
+    details into the process environment for downstream runtime hooks, and appends
     derived attestation/SBOM refs to the returned `ExecuteResult`.
     """
 
@@ -125,18 +133,20 @@ def _tee_env_scope(attestation: AttestationResult | None):
         yield
         return
 
-    keys = {
-        "POLISYOS_TEE_ATTESTATION_STATUS": attestation.status.value,
-        "POLISYOS_TEE_PLATFORM": (
-            attestation.platform.value if attestation.platform is not None else ""
-        ),
-        "POLISYOS_TEE_REPORT_HASH": attestation.report_hash or "",
-        "POLISYOS_TEE_MEASUREMENT": attestation.measurement or "",
-        "POLISYOS_TEE_TCB_VERSION": (
-            str(attestation.tcb_version) if attestation.tcb_version is not None else ""
-        ),
-        "POLISYOS_TEE_VERIFIED_AT": attestation.verified_at.isoformat(),
-    }
+    keys = _sanitize_env_mapping(
+        {
+            "POLISYOS_TEE_ATTESTATION_STATUS": attestation.status.value,
+            "POLISYOS_TEE_PLATFORM": (
+                attestation.platform.value if attestation.platform is not None else ""
+            ),
+            "POLISYOS_TEE_REPORT_HASH": attestation.report_hash or "",
+            "POLISYOS_TEE_MEASUREMENT": attestation.measurement or "",
+            "POLISYOS_TEE_TCB_VERSION": (
+                str(attestation.tcb_version) if attestation.tcb_version is not None else ""
+            ),
+            "POLISYOS_TEE_VERIFIED_AT": attestation.verified_at.isoformat(),
+        }
+    )
     old_values = {key: os.environ.get(key) for key in keys}
     try:
         for key, value in keys.items():
@@ -148,6 +158,30 @@ def _tee_env_scope(attestation: AttestationResult | None):
                 os.environ.pop(key, None)
             else:
                 os.environ[key] = value
+
+
+def _sanitize_env_mapping(values: dict[str, str]) -> dict[str, str]:
+    return {
+        key: _sanitize_env_value(key, value)
+        for key, value in values.items()
+    }
+
+
+def _sanitize_env_value(key: str, value: str) -> str:
+    text = str(value)
+    if len(text) > 1024:
+        raise FoundryBridgeSecurityError(
+            f"Unsafe environment value for {key}: value is too long",
+            code="env_value_too_long",
+            details={"key": key, "length": len(text)},
+        )
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in text):
+        raise FoundryBridgeSecurityError(
+            f"Unsafe environment value for {key}: control characters are not allowed",
+            code="env_value_control_chars",
+            details={"key": key},
+        )
+    return text
 
 
 __all__ = ["DefaultFoundryPort"]

@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
-from dataclasses import dataclass, field
 import importlib
+import logging
+import threading
+from collections import defaultdict
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, field
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
-from typing import Any, Mapping, Sequence
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -21,7 +24,6 @@ from polisyos.foundry.methods.catalog.ml.protocols import (
     TabularData,
 )
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.observation.bundles import (
     AgentFactorEmbeddingsBundleManifest,
     BilevelProblemBundle,
@@ -43,7 +45,12 @@ from polisyos.ir.observation.contract_compilers import (
     write_parquet_rows,
 )
 
-from .runner import MethodBackend
+from .runner import MethodBackend, MethodRuntimeProviders
+
+if TYPE_CHECKING:
+    from polisyos.ir.kernel.base import KernelModel
+
+_LOGGER = logging.getLogger(__name__)
 
 _RESERVED_ID_FIELDS = {
     "agent_id",
@@ -74,6 +81,7 @@ _METHOD_MODULES = {
     "sensitivity.global": "polisyos.foundry.methods.catalog.sensitivity.sobol",
     "sensitivity.specification": "polisyos.foundry.methods.catalog.sensitivity.specification",
 }
+_METHOD_MODULE_LOAD_LOCK = threading.RLock()
 
 
 @dataclass(frozen=True)
@@ -193,9 +201,12 @@ def _numeric_feature_fields(
 
 
 def _rows_to_matrix(rows: Sequence[Mapping[str, Any]], fields: Sequence[str]) -> np.ndarray:
-    return np.asarray(
-        [[_coerce_float(row.get(field)) for field in fields] for row in rows],
-        dtype=float,
+    return cast(
+        "np.ndarray",
+        np.asarray(
+            [[_coerce_float(row.get(field)) for field in fields] for row in rows],
+            dtype=float,
+        ).astype(float, copy=False),
     )
 
 
@@ -290,9 +301,23 @@ def _persist_parquet_rows_bundle(
 
 
 class _AdvancedMethodBase:
-    def __init__(self, store: FileSystemCAS, backend: MethodBackend | None = None) -> None:
+    def __init__(
+        self,
+        store: FileSystemCAS,
+        backend: MethodBackend | None = None,
+        *,
+        method_registry: MethodRegistry | None = None,
+        method_registry_provider: Callable[[], MethodRegistry] | None = None,
+    ) -> None:
         self.store = store
         self.backend = backend or MethodBackend()
+        self._method_registry = method_registry
+        if method_registry_provider is not None:
+            self._method_registry_provider = method_registry_provider
+        elif method_registry is not None:
+            self._method_registry_provider = lambda: method_registry
+        else:
+            self._method_registry_provider = None
 
     def _run_method(
         self,
@@ -303,7 +328,11 @@ class _AdvancedMethodBase:
         seed: int,
         input_refs: Mapping[str, ArtifactRef] | None = None,
     ) -> tuple[dict[str, Any], ArtifactRef, ArtifactRef]:
-        _ensure_method_module_loaded(method_fqn)
+        _ensure_method_module_loaded(
+            method_fqn,
+            registry=self._method_registry,
+            registry_provider=self._method_registry_provider,
+        )
         execution = self.backend.run(
             cas_root=self.store.root,
             method_fqn=method_fqn,
@@ -314,10 +343,7 @@ class _AdvancedMethodBase:
             input_refs=input_refs,
         )
         final_state = execution.final_state
-        if isinstance(final_state, Mapping):
-            payload = dict(final_state)
-        else:
-            payload = {"result": final_state}
+        payload = dict(final_state) if isinstance(final_state, Mapping) else {"result": final_state}
         return (
             payload,
             execution.exec_artifacts.result_ref,
@@ -325,18 +351,39 @@ class _AdvancedMethodBase:
         )
 
 
-def _ensure_method_module_loaded(method_fqn: str) -> None:
+def _ensure_method_module_loaded(
+    method_fqn: str,
+    *,
+    registry: MethodRegistry | None = None,
+    registry_provider: Callable[[], MethodRegistry] | None = None,
+) -> None:
     for namespace, module_name in _METHOD_MODULES.items():
         if method_fqn.startswith(namespace):
-            module = importlib.import_module(module_name)
-            registry = MethodRegistry.get_instance()
-            for attr_name in dir(module):
-                candidate = getattr(module, attr_name)
-                if isinstance(candidate, type) and hasattr(candidate, "signature") and hasattr(candidate, "pure_step"):
-                    try:
-                        registry.register(candidate)
-                    except Exception:
-                        continue
+            with _METHOD_MODULE_LOAD_LOCK:
+                module = importlib.import_module(module_name)
+                if registry is not None:
+                    resolved_registry = registry
+                elif registry_provider is not None:
+                    resolved_registry = registry_provider()
+                else:
+                    resolved_registry = MethodRegistry.get_instance()
+                for attr_name in dir(module):
+                    candidate = getattr(module, attr_name)
+                    if (
+                        isinstance(candidate, type)
+                        and hasattr(candidate, "signature")
+                        and hasattr(candidate, "pure_step")
+                    ):
+                        try:
+                            resolved_registry.register(candidate)
+                        except Exception as exc:
+                            _LOGGER.debug(
+                                "advanced_methods_registry_register_failed method=%s attr=%s error=%s",
+                                method_fqn,
+                                attr_name,
+                                exc,
+                            )
+                            continue
             return
 
 
@@ -450,15 +497,15 @@ class CellPrototypeBuilder(_AdvancedMethodBase):
         for row in inputs.household_cell_rows:
             cell_id = str(row.get("cell_id", ""))
             hh_counts[cell_id] += 1
-            for field in hh_numeric_fields:
-                hh_aggregates[cell_id][field] += _coerce_float(row.get(field))
+            for field_name in hh_numeric_fields:
+                hh_aggregates[cell_id][field_name] += _coerce_float(row.get(field_name))
         merged_rows: list[dict[str, Any]] = []
         for row in cell_rows:
             merged = dict(row)
             cell_id = str(row["cell_id"])
             count = max(hh_counts.get(cell_id, 0), 1)
-            for field in hh_numeric_fields:
-                merged[f"hh_{field}"] = hh_aggregates[cell_id][field] / count
+            for field_name in hh_numeric_fields:
+                merged[f"hh_{field_name}"] = hh_aggregates[cell_id][field_name] / count
             merged_rows.append(merged)
         feature_fields = tuple(cell_feature_fields) + tuple(f"hh_{field}" for field in hh_numeric_fields)
         matrix = _rows_to_matrix(merged_rows, feature_fields)
@@ -780,7 +827,7 @@ class SobolDiagnosticsAdapter(_AdvancedMethodBase):
         bundle_ref = _persist_json_model(
             self.store,
             bundle=bundle,
-            inputs=tuple([*method_result_refs, *method_evidence_refs]),
+            inputs=(*method_result_refs, *method_evidence_refs),
         )
         return C7PersistedArtifact(
             artifact_name=bundle.artifact_name,
@@ -825,7 +872,14 @@ class SpecificationCurveAdapter(_AdvancedMethodBase):
         )
 
 
-def run_c7_advanced_suite(store: FileSystemCAS, *, inputs: C7AdvancedInputs) -> C7AdvancedSuiteResult:
+def run_c7_advanced_suite(
+    store: FileSystemCAS,
+    *,
+    inputs: C7AdvancedInputs,
+    backend: MethodBackend | None = None,
+    method_registry: MethodRegistry | None = None,
+    method_runtime_providers: MethodRuntimeProviders | None = None,
+) -> C7AdvancedSuiteResult:
     """Run the full C7 advanced-method bundle build in a fixed order.
 
     Args:
@@ -838,14 +892,63 @@ def run_c7_advanced_suite(store: FileSystemCAS, *, inputs: C7AdvancedInputs) -> 
         survival hazards, Sobol diagnostics, and specification-curve outputs.
     """
 
-    backend = MethodBackend()
-    factor_embeddings = FactorModelEmbeddingBuilder(store, backend).run(inputs)
-    cell_prototypes = CellPrototypeBuilder(store, backend).run(inputs)
-    bilevel_problem = BilevelOptimizationAdapter(store, backend).run(inputs)
-    heckman_correction = HeckmanCorrectionAdapter(store, backend).run(inputs)
-    survival_hazards = SurvivalModelAdapter(store, backend).run(inputs)
-    sobol_diagnostics = SobolDiagnosticsAdapter(store, backend).run(inputs)
-    specification_curve = SpecificationCurveAdapter(store, backend).run(inputs)
+    registry_provider: Callable[[], MethodRegistry] | None = None
+    if method_registry is not None:
+        resolved_registry = method_registry
+
+        def _registry_provider() -> MethodRegistry:
+            return resolved_registry
+
+        registry_provider = _registry_provider
+    elif method_runtime_providers is not None:
+        registry_provider = method_runtime_providers.registry_provider
+
+    resolved_backend = backend or MethodBackend(
+        providers=method_runtime_providers,
+        registry_provider=registry_provider,
+    )
+    factor_embeddings = FactorModelEmbeddingBuilder(
+        store,
+        resolved_backend,
+        method_registry=method_registry,
+        method_registry_provider=registry_provider,
+    ).run(inputs)
+    cell_prototypes = CellPrototypeBuilder(
+        store,
+        resolved_backend,
+        method_registry=method_registry,
+        method_registry_provider=registry_provider,
+    ).run(inputs)
+    bilevel_problem = BilevelOptimizationAdapter(
+        store,
+        resolved_backend,
+        method_registry=method_registry,
+        method_registry_provider=registry_provider,
+    ).run(inputs)
+    heckman_correction = HeckmanCorrectionAdapter(
+        store,
+        resolved_backend,
+        method_registry=method_registry,
+        method_registry_provider=registry_provider,
+    ).run(inputs)
+    survival_hazards = SurvivalModelAdapter(
+        store,
+        resolved_backend,
+        method_registry=method_registry,
+        method_registry_provider=registry_provider,
+    ).run(inputs)
+    sobol_diagnostics = SobolDiagnosticsAdapter(
+        store,
+        resolved_backend,
+        method_registry=method_registry,
+        method_registry_provider=registry_provider,
+    ).run(inputs)
+    specification_curve = SpecificationCurveAdapter(
+        store,
+        resolved_backend,
+        method_registry=method_registry,
+        method_registry_provider=registry_provider,
+    ).run(inputs)
     return C7AdvancedSuiteResult(
         factor_embeddings=factor_embeddings,
         cell_prototypes=cell_prototypes,
@@ -858,10 +961,10 @@ def run_c7_advanced_suite(store: FileSystemCAS, *, inputs: C7AdvancedInputs) -> 
 
 
 __all__ = [
+    "BilevelOptimizationAdapter",
     "C7AdvancedInputs",
     "C7AdvancedSuiteResult",
     "C7PersistedArtifact",
-    "BilevelOptimizationAdapter",
     "CellPrototypeBuilder",
     "FactorModelEmbeddingBuilder",
     "HeckmanCorrectionAdapter",

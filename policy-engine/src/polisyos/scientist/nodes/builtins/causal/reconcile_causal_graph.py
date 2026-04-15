@@ -4,26 +4,28 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
-    ComposeSCMFragments,
-    ReconcileCausalGraph,
-)
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
     CompositionFailureCardBundle,
     persist_composition_failure_card_bundle,
 )
-from polisyos.foundry.methods.catalog.causal.query_preservation import (
-    evaluate_query_preservation_batch,
-    update_query_preservation_cache,
+from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
+    ComposeSCMFragments,
+    ReconcileCausalGraph,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import (
     FragmentCompositionData,
     GraphReconciliationData,
     LLMStructuralHint,
+)
+from polisyos.foundry.methods.catalog.causal.query_preservation import (
+    evaluate_query_preservation_batch,
+    update_query_preservation_cache,
 )
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentVerificationConfig,
@@ -69,6 +71,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 logger = get_logger(__name__)
+
+_RECONCILE_NUMERIC_ERRORS = (TypeError, ValueError, OverflowError)
+_RECONCILE_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_RECONCILE_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
+_RECONCILE_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_reconcile_causal_graph@1.0.0"),
@@ -117,14 +124,14 @@ _SPEC = NodeSpec(
 def _optional_float(value: Any, *, default: float) -> float:
     try:
         return float(value)
-    except Exception:
+    except _RECONCILE_NUMERIC_ERRORS:
         return float(default)
 
 
 def _optional_int(value: Any, *, default: int) -> int:
     try:
         return int(value)
-    except Exception:
+    except _RECONCILE_NUMERIC_ERRORS:
         return int(default)
 
 
@@ -135,14 +142,14 @@ def _extract_graph(payload: Any) -> CausalGraphModel | None:
         if {"graph_type", "nodes", "edges"}.issubset(payload.keys()):
             try:
                 return CausalGraphModel.model_validate(payload)
-            except Exception:
+            except _RECONCILE_VALIDATION_ERRORS:
                 return None
         for key in ("graph", "causal_graph", "reconciled_graph", "literature_prior_graph"):
             if key not in payload:
                 continue
             try:
                 return CausalGraphModel.model_validate(payload[key])
-            except Exception:
+            except _RECONCILE_VALIDATION_ERRORS:
                 continue
     return None
 
@@ -160,8 +167,12 @@ def _load_data_graph(ctx: ExecutionContext, state: ExperimentState) -> tuple[Cau
             graph = _extract_graph(payload)
             if graph is not None:
                 return graph, method_ref
-        except Exception as exc:
-            logger.debug("Ignored exception: %s", exc)
+        except _RECONCILE_LOAD_ERRORS:
+            logger.debug(
+                "Failed to load data causal graph from causal method result %s",
+                method_ref,
+                exc_info=True,
+            )
 
     return None, None
 
@@ -173,7 +184,7 @@ def _parse_llm_hints(raw: Any) -> list[LLMStructuralHint]:
     for item in raw:
         try:
             hints.append(LLMStructuralHint.model_validate(item))
-        except Exception:
+        except _RECONCILE_VALIDATION_ERRORS:
             continue
     return hints
 
@@ -187,7 +198,7 @@ def _parse_fragment_ref(value: Any) -> SCMFragmentRef | None:
         if isinstance(value, str):
             return SCMFragmentRef.model_validate({"artifact_id": value})
         return SCMFragmentRef.model_validate(value)
-    except Exception:
+    except _RECONCILE_VALIDATION_ERRORS:
         return None
 
 
@@ -198,7 +209,7 @@ def _load_scm_fragments(ctx: ExecutionContext, state: ExperimentState) -> list[S
         for item in raw_fragments:
             try:
                 fragments.append(item if isinstance(item, SCMFragment) else SCMFragment.model_validate(item))
-            except Exception:
+            except _RECONCILE_VALIDATION_ERRORS:
                 continue
         return fragments
 
@@ -212,7 +223,7 @@ def _load_scm_fragments(ctx: ExecutionContext, state: ExperimentState) -> list[S
             continue
         try:
             fragments.append(load_scm_fragment(ctx.store, ref))
-        except Exception:
+        except _RECONCILE_LOAD_ERRORS:
             continue
     return fragments
 
@@ -242,7 +253,7 @@ def _resolve_fragment_provenance(
                 continue
             try:
                 fragment = load_scm_fragment(ctx.store, ref)
-            except Exception:
+            except _RECONCILE_LOAD_ERRORS:
                 continue
             source_fragment_refs[fragment.fragment_id] = str(ref.artifact_id)
 
@@ -270,12 +281,12 @@ def _load_precomputed_alignment(
     if report_ref is not None:
         try:
             report = load_alignment_report(ctx.store, AlignmentReportRef.model_validate(report_ref))
-        except Exception:
+        except _RECONCILE_LOAD_ERRORS:
             report = None
     if mapping_ref is not None:
         try:
             mapping = load_interface_mapping(ctx.store, InterfaceMappingRef.model_validate(mapping_ref))
-        except Exception:
+        except _RECONCILE_LOAD_ERRORS:
             mapping = None
     return report, mapping, report_ref, mapping_ref
 
@@ -287,7 +298,7 @@ def _parse_query_preservation_queries(raw: Any) -> list[CausalQuery]:
     for item in raw:
         try:
             queries.append(item if isinstance(item, CausalQuery) else CausalQuery.model_validate(item))
-        except Exception:
+        except _RECONCILE_VALIDATION_ERRORS:
             continue
     return queries
 
@@ -333,7 +344,7 @@ def _apply_query_preservation_hook(
             ctx.store,
             InterfaceMappingRef.model_validate(mapping_ref_payload),
         )
-    except Exception as exc:
+    except _RECONCILE_LOAD_ERRORS as exc:
         return NodeOutcome(
             status="fail",
             state=state,
@@ -371,13 +382,13 @@ def _apply_query_preservation_hook(
             }
             if provenance_fragments:
                 fragments = provenance_fragments
-        except Exception:
+        except _RECONCILE_LOAD_ERRORS:
             fragment_graphs = {}
 
     if not fragment_graphs and fragments:
         try:
             fragment_graphs = _load_fragment_graphs(ctx, fragments)
-        except Exception:
+        except _RECONCILE_LOAD_ERRORS:
             fragment_graphs = {}
 
     traces = evaluate_query_preservation_batch(
@@ -461,7 +472,7 @@ class ReconcileCausalGraphNode:
                 )
             try:
                 fragment_graphs = _load_fragment_graphs(ctx, fragments)
-            except Exception as exc:
+            except _RECONCILE_LOAD_ERRORS as exc:
                 return NodeOutcome(
                     status="fail",
                     state=state,
@@ -503,7 +514,7 @@ class ReconcileCausalGraphNode:
                         config=verification_config,
                         stitch_pairs=direct_stitch_pairs,
                     )
-                except Exception as exc:
+                except _RECONCILE_VALIDATION_ERRORS as exc:
                     return NodeOutcome(
                         status="fail",
                         state=state,
@@ -535,7 +546,7 @@ class ReconcileCausalGraphNode:
                     direct_stitch_pairs=direct_stitch_pairs,
                 )
                 result = ComposeSCMFragments.pure_step(composition_request, params={})
-            except Exception as exc:
+            except _RECONCILE_EXECUTION_ERRORS as exc:
                 return NodeOutcome(
                     status="fail",
                     state=state,
@@ -673,7 +684,7 @@ class ReconcileCausalGraphNode:
         if literature_prior_ref is not None:
             try:
                 literature_prior = load_literature_causal_prior(ctx.store, literature_prior_ref)
-            except Exception:
+            except _RECONCILE_LOAD_ERRORS:
                 literature_prior = None
 
         llm_hints = _parse_llm_hints(state.params.get("llm_structural_hints"))
@@ -701,7 +712,7 @@ class ReconcileCausalGraphNode:
                 ),
             )
             result = ReconcileCausalGraph.pure_step(request, params={})
-        except Exception as exc:
+        except _RECONCILE_EXECUTION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,

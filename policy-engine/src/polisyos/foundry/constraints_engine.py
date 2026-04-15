@@ -18,6 +18,7 @@ from polisyos.core.contracts.foundry import (
 from polisyos.ir.kernel import SlotRegistry
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 
+from ._numeric import decimal_from_numeric, require_finite_numpy, validate_quantile
 from ._executor_models import get_state_path
 
 
@@ -67,7 +68,7 @@ def check_constraints(
         extra_events: list[dict[str, Any]] = []
 
         if np.ndim(state_value) == 0:
-            actual = Decimal(str(float(state_value)))
+            actual = decimal_from_numeric(state_value, label=f"constraint '{constraint.constraint_id}' actual")
             violated_override = None
         else:
             actual, extra_events, violated_override = _aggregate(
@@ -149,7 +150,10 @@ def check_composite_constraints(
                 raise ValueError(
                     f"CompositeConstraint '{constraint.constraint_id}' slot '{slot_id}' must be scalar"
                 )
-            slot_values[slot_id] = Decimal(str(float(sv)))
+            slot_values[slot_id] = decimal_from_numeric(
+                sv,
+                label=f"composite constraint '{constraint.constraint_id}' slot '{slot_id}'",
+            )
 
         actual = _safe_eval_expression(constraint.expression, slot_values)
         expected = _coerce_number(constraint.expected)
@@ -243,7 +247,10 @@ def _aggregate(
     Returns ``(aggregated_value, extra_events, violated_override)``.
     """
     events: list[dict[str, Any]] = []
-    flat = np.asarray(state_value).ravel()
+    flat = require_finite_numpy(
+        np.asarray(state_value).ravel(),
+        label=f"constraint '{constraint.constraint_id}' state values",
+    )
     violated_override: bool | None = None
 
     if aggregation == AggregationFunction.SCALAR:
@@ -253,18 +260,27 @@ def _aggregate(
         )
 
     if aggregation == AggregationFunction.MIN:
-        actual = Decimal(str(float(np.min(flat))))
+        actual = decimal_from_numeric(np.min(flat), label=f"constraint '{constraint.constraint_id}' min")
     elif aggregation == AggregationFunction.MAX:
-        actual = Decimal(str(float(np.max(flat))))
+        actual = decimal_from_numeric(np.max(flat), label=f"constraint '{constraint.constraint_id}' max")
     elif aggregation == AggregationFunction.MEAN:
-        actual = Decimal(str(float(np.mean(flat))))
+        actual = decimal_from_numeric(np.mean(flat), label=f"constraint '{constraint.constraint_id}' mean")
     elif aggregation == AggregationFunction.MEDIAN:
-        actual = Decimal(str(float(np.median(flat))))
+        actual = decimal_from_numeric(
+            np.median(flat),
+            label=f"constraint '{constraint.constraint_id}' median",
+        )
     elif aggregation == AggregationFunction.SUM:
-        actual = Decimal(str(float(np.sum(flat))))
+        actual = decimal_from_numeric(np.sum(flat), label=f"constraint '{constraint.constraint_id}' sum")
     elif aggregation == AggregationFunction.QUANTILE:
-        q = constraint.quantile_param if constraint.quantile_param is not None else 0.5
-        actual = Decimal(str(float(np.quantile(flat, q))))
+        q = validate_quantile(
+            constraint.quantile_param,
+            label=f"constraint '{constraint.constraint_id}' quantile_param",
+        )
+        actual = decimal_from_numeric(
+            np.quantile(flat, q),
+            label=f"constraint '{constraint.constraint_id}' quantile",
+        )
     elif aggregation == AggregationFunction.WEIGHTED_MEAN:
         weights = _resolve_weights(
             constraint=constraint,
@@ -272,7 +288,10 @@ def _aggregate(
             state=state,
             expected_size=flat.size,
         )
-        actual = Decimal(str(float(np.average(flat, weights=weights))))
+        actual = decimal_from_numeric(
+            np.average(flat, weights=weights),
+            label=f"constraint '{constraint.constraint_id}' weighted mean",
+        )
         events.append(
             {
                 "event": "weighted_aggregation",
@@ -296,7 +315,7 @@ def _aggregate(
     elif aggregation == AggregationFunction.COUNT_VIOLATING:
         element_violations = _check_elementwise(flat, constraint.operator, expected)
         n_violating = sum(element_violations)
-        actual = Decimal(str(n_violating))
+        actual = Decimal(n_violating)
         events.append(_build_elementwise_event(element_violations))
     else:
         raise ValueError(f"Unsupported aggregation: {aggregation}")
@@ -323,14 +342,14 @@ def _resolve_weights(
             f"'{constraint.weights_slot_id}'"
         )
     weights = np.asarray(get_state_path(state, weight_slot.state_path), dtype=float).ravel()
+    weights = require_finite_numpy(
+        weights,
+        label=f"constraint '{constraint.constraint_id}' weights",
+    )
     if weights.size != expected_size:
         raise ValueError(
             f"Constraint '{constraint.constraint_id}' weights shape mismatch: "
             f"expected {expected_size}, got {weights.size}"
-        )
-    if not np.all(np.isfinite(weights)):
-        raise ValueError(
-            f"Constraint '{constraint.constraint_id}' weights must be finite"
         )
     if np.any(weights < 0):
         raise ValueError(
@@ -364,7 +383,11 @@ def _check_elementwise(
 ) -> list[bool]:
     """Return per-element violation flags (True = violated)."""
     return [
-        _is_violated(operator, current=Decimal(str(float(v))), expected=expected)
+        _is_violated(
+            operator,
+            current=decimal_from_numeric(v.item(), label="constraint element"),
+            expected=expected,
+        )
         for v in np.nditer(values)
     ]
 
@@ -401,7 +424,7 @@ def _safe_eval_expression(expression: str, slot_values: dict[str, Decimal]) -> D
         if isinstance(node, ast.Expression):
             return _eval_node(node.body)
         if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
-            return Decimal(str(node.value))
+            return decimal_from_numeric(node.value, label="constraint constant")
         if isinstance(node, ast.Name):
             if node.id not in slot_values:
                 raise ValueError(
@@ -416,14 +439,30 @@ def _safe_eval_expression(expression: str, slot_values: dict[str, Decimal]) -> D
                 )
             left = _eval_node(node.left)
             right = _eval_node(node.right)
-            return Decimal(str(float(op_func(float(left), float(right)))))
+            if isinstance(node.op, ast.Add):
+                return left + right
+            if isinstance(node.op, ast.Sub):
+                return left - right
+            if isinstance(node.op, ast.Mult):
+                return left * right
+            if isinstance(node.op, ast.Div):
+                if right == 0:
+                    raise ValueError(f"Division by zero in expression '{expression}'")
+                return left / right
+            return decimal_from_numeric(
+                op_func(float(left), float(right)),
+                label=f"expression '{expression}'",
+            )
         if isinstance(node, ast.UnaryOp):
             op_func = _ALLOWED_UNARYOPS.get(type(node.op))
             if op_func is None:
                 raise ValueError(
                     f"Unsupported unary operator {type(node.op).__name__} in expression '{expression}'"
                 )
-            return Decimal(str(float(op_func(float(_eval_node(node.operand))))))
+            return decimal_from_numeric(
+                op_func(float(_eval_node(node.operand))),
+                label=f"expression '{expression}'",
+            )
         raise ValueError(
             f"Disallowed AST node {type(node).__name__} in expression '{expression}'"
         )

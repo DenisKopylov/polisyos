@@ -483,9 +483,14 @@ class StateSnapshot(BaseModel):
     """Reference bundle for a materialized execution state at a particular simulation step."""
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
     state_ref: ArtifactRef
     schema_ref: ArtifactRef | None = None
     step: int | None = None
+    format_version: str = "npz-v2"
+    checksum_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    entry_count: int | None = Field(default=None, ge=0)
+    codec: str = "numpy-npz"
     notes: list[str] = Field(default_factory=list)
 
 

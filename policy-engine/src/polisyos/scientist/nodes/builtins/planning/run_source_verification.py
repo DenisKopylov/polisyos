@@ -13,6 +13,7 @@ from polisyos.core.contracts.scientist import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LEGAL_CANDIDATE_PACK_REF,
     ARTIFACT_LEGAL_SOURCE_PACK_REF,
@@ -96,7 +97,7 @@ class RunSourceVerificationNode:
                 InputRef(artifact_id=source_ref.artifact_id, role="legal_source_pack"),
             ],
         )
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.source_verification_report_ref = report_ref
         new_state.artifacts_index[ARTIFACT_SOURCE_VERIFICATION_REPORT_REF] = report_ref
         new_state.params["verification_cycles_completed"] = report.verification_cycles_completed

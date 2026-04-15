@@ -1602,7 +1602,7 @@ class PartialInterferenceEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="partial",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -1773,7 +1773,7 @@ class NetworkAIPWEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="network_aipw",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -1915,7 +1915,7 @@ class SpatialInterferenceEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="spatial",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -2053,7 +2053,7 @@ class BipartiteInterferenceEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="bipartite",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

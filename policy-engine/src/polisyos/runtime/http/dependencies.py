@@ -1,17 +1,22 @@
 """Provide FastAPI dependencies and tenant guards for the Runtime API boundary."""
 from __future__ import annotations
 
+import time
 import uuid
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    build_async_artifact_store,
+)
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.runtime import ApiMeta, SourceKind
 from polisyos.core.security.access_scope import AccessScope
 
-from .errors import forbidden
+from .errors import forbidden, unauthorized
+from .resilience import guard_runtime_cas
 from .services.artifact_inspector import ArtifactInspectorService
 from .services.debug import DebugService
 from .services.feedback import FeedbackService
@@ -19,10 +24,18 @@ from .services.lineage import LineageService
 from .services.run_index import IndexedRunRecord, RunIndexService
 from .services.timeline import TimelineService
 
-try:  # pragma: no cover - optional runtime dependency
+if TYPE_CHECKING:
+    from pathlib import Path
+
     from fastapi import Request
-except ModuleNotFoundError:  # pragma: no cover
-    Request = Any  # type: ignore[assignment]
+
+    from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from fastapi import Request
+    except ModuleNotFoundError:  # pragma: no cover
+        Request = Any
 
 
 @dataclass(frozen=True)
@@ -30,7 +43,8 @@ class RuntimeApiContext:
     """Bundle stateful services and policy knobs shared by runtime route handlers."""
     cas_root: Path
     core_runs_root: Path
-    store: FileSystemCAS
+    store: ArtifactStore
+    async_store: AsyncArtifactStore
     run_index: RunIndexService
     timeline: TimelineService
     debug: DebugService
@@ -52,10 +66,22 @@ def build_runtime_api_context(
     lineage_max_nodes: int = 2000,
     allow_unscoped_artifacts: bool = False,
     artifact_redaction_hooks: dict[str, Any] | None = None,
+    metrics: MetricsRegistry | None = None,
+    tracer: PolicyOSTracer | None = None,
 ) -> RuntimeApiContext:
     """Create the service graph used by read-only runtime routes and artifact inspection."""
-    store = FileSystemCAS(cas_root)
-    timeline = TimelineService()
+    store_config = ArtifactStoreConfig.from_env().model_copy(update={"root": str(cas_root)})
+    store = cast(
+        "ArtifactStore",
+        guard_runtime_cas(build_artifact_store(store_config, metrics=metrics, tracer=tracer)),
+    )
+    async_store = build_async_artifact_store(
+        store_config,
+        metrics=metrics,
+        tracer=tracer,
+        sync_store=store,
+    )
+    timeline = TimelineService(metrics=metrics)
     lineage = LineageService(
         store=store,
         default_max_depth=lineage_max_depth,
@@ -64,6 +90,7 @@ def build_runtime_api_context(
     run_index = RunIndexService(
         store=store,
         core_runs_root=core_runs_root,
+        metrics=metrics,
     )
     debug = DebugService(store=store, timeline_service=timeline)
     feedback = FeedbackService(store=store, run_index=run_index)
@@ -77,6 +104,7 @@ def build_runtime_api_context(
         cas_root=cas_root,
         core_runs_root=core_runs_root,
         store=store,
+        async_store=async_store,
         run_index=run_index,
         timeline=timeline,
         debug=debug,
@@ -92,7 +120,12 @@ def build_runtime_api_context(
 
 def get_runtime_api_context(request: Request) -> RuntimeApiContext:  # pragma: no cover
     """Return the application-scoped runtime context created during API bootstrap."""
-    return request.app.state.runtime_api_ctx
+    from .container import resolve_runtime_api_context
+
+    context = resolve_runtime_api_context(request)
+    if context is None:
+        raise RuntimeError("RuntimeApiContext was not initialized during application startup")
+    return context
 
 
 def ensure_request_id(request: Request) -> str:  # pragma: no cover
@@ -101,7 +134,7 @@ def ensure_request_id(request: Request) -> str:  # pragma: no cover
     if isinstance(request_id, str) and request_id:
         return request_id
     header_id = request.headers.get("X-Request-ID")
-    if header_id:
+    if isinstance(header_id, str) and header_id:
         request.state.request_id = header_id
         return header_id
     generated = uuid.uuid4().hex
@@ -135,10 +168,86 @@ def set_authz_resource(
     }
 
 
+def record_data_access_audit(
+    request: Request,
+    *,
+    resource_id: str | None = None,
+    tenant_id: str | None = None,
+    outcome: str = "success",
+    metadata: dict[str, Any] | None = None,
+) -> None:
+    """Append a read-path audit entry and emit matching telemetry if configured."""
+    from .container import resolve_runtime_access_audit, resolve_runtime_metrics
+
+    authz_resource = getattr(request.state, "authz_resource", None)
+    resource_kind = (
+        str(authz_resource.get("kind", "runtime.unknown"))
+        if isinstance(authz_resource, dict)
+        else "runtime.unknown"
+    )
+    resolved_resource_id = resource_id
+    if not resolved_resource_id and isinstance(authz_resource, dict):
+        candidate = authz_resource.get("artifact_id")
+        if isinstance(candidate, str) and candidate:
+            resolved_resource_id = candidate
+
+    scope = get_access_scope(request)
+    resolved_tenant = tenant_id or (
+        scope.tenant_id if scope is not None else getattr(request.state, "tenant_id", None)
+    )
+    claims = getattr(request.state, "user_claims", None)
+    actor = (
+        getattr(claims, "sub", None)
+        or getattr(request.state, "authenticated_tenant_id", None)
+        or "anonymous"
+    )
+    entry = {
+        "timestamp": time.time(),
+        "request_id": ensure_request_id(request),
+        "tenant_id": resolved_tenant or "",
+        "actor": actor,
+        "method": request.method.upper(),
+        "endpoint": str(getattr(request.url, "path", "")),
+        "operation": f"READ {resource_kind}",
+        "resource_kind": resource_kind,
+        "resource_id": resolved_resource_id or "",
+        "outcome": outcome,
+        "metadata": metadata or {},
+    }
+    audit_trail = resolve_runtime_access_audit(request)
+    append = getattr(audit_trail, "append", None)
+    if callable(append):
+        append(entry)
+
+    metrics = resolve_runtime_metrics(request)
+    record_access_metric = getattr(metrics, "record_runtime_data_access", None)
+    if callable(record_access_metric):
+        record_access_metric(
+            resource_kind=resource_kind,
+            endpoint=entry["endpoint"],
+            outcome=outcome,
+            tenant_scoped=bool(resolved_tenant),
+        )
+    record_audit_metric = getattr(metrics, "record_audit_entry", None)
+    if callable(record_audit_metric):
+        record_audit_metric(chain_id="runtime.data_access", event_type="read")
+
+
 def get_access_scope(request: Request) -> AccessScope | None:  # pragma: no cover
     """Return the resolved request scope from JWT/SPIFFE middleware, if present."""
     scope = getattr(request.state, "access_scope", None)
     return scope if isinstance(scope, AccessScope) else None
+
+
+def require_access_scope(request: Request) -> AccessScope:  # pragma: no cover
+    """Return the resolved request scope or fail closed."""
+    scope = get_access_scope(request)
+    if scope is None:
+        raise unauthorized(
+            "Authenticated access scope is required for this endpoint",
+            code="missing_access_scope",
+        )
+    return scope
 
 
 def enforce_run_tenant_access(
@@ -148,9 +257,7 @@ def enforce_run_tenant_access(
     run: IndexedRunRecord,
 ) -> None:  # pragma: no cover
     """Deny cross-tenant run access and fail closed when tenant metadata is missing."""
-    scope = get_access_scope(request)
-    if scope is None:
-        return
+    scope = require_access_scope(request)
 
     # Core runs include tenant metadata and must match access scope.
     if run.details.tenant_id:
@@ -174,10 +281,8 @@ def enforce_artifact_tenant_access(
     artifact_id: ArtifactID,
 ) -> str | None:  # pragma: no cover
     """Deny cross-tenant artifact access unless unscoped CAS objects are explicitly allowed."""
-    scope = get_access_scope(request)
+    scope = require_access_scope(request)
     tenant_id = ctx.run_index.get_artifact_tenant(str(artifact_id))
-    if scope is None:
-        return tenant_id
     if tenant_id is None:
         if ctx.allow_unscoped_artifacts:
             return None
@@ -190,7 +295,7 @@ def enforce_artifact_tenant_access(
             "Artifact belongs to a different tenant",
             code="artifact_tenant_mismatch",
         )
-    return tenant_id
+    return cast("str | None", tenant_id)
 
 
 def parse_artifact_ids(values: list[str]) -> list[ArtifactID]:

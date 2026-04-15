@@ -431,6 +431,18 @@ wheels = [
 ]
 
 [[package]]
+name = "basedpyright"
+version = "1.39.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nodejs-wheel-binaries" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ac/f4/4a77cc1ffb3dab7391642cde30163961d8ee973e9e6b6740c7d15aa3d3ba/basedpyright-1.39.0.tar.gz", hash = "sha256:6666f51c378c7ac45877c4c1c7041ee0b5b83d755ebc82f898f47b6fafe0cc4f", size = 25357403, upload-time = "2026-04-01T12:27:41.92Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/97/47/08145d1bcc3083ed20059bdecbde404bd767f91b91e2764ec01cffec9f4b/basedpyright-1.39.0-py3-none-any.whl", hash = "sha256:91b8ad50bc85ee4a985b928f9368c35c99eee5a56c44e99b2442fa12ecc3d670", size = 12353868, upload-time = "2026-04-01T12:27:38.495Z" },
+]
+
+[[package]]
 name = "beartype"
 version = "0.22.9"
 source = { registry = "https://pypi.org/simple" }
@@ -3120,6 +3132,22 @@ wheels = [
 ]
 
 [[package]]
+name = "nodejs-wheel-binaries"
+version = "24.14.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f1/87/e5755ad739daafce2e152ab609293d65e6c663b399e28a4bbcd0f4af1f45/nodejs_wheel_binaries-24.14.1.tar.gz", hash = "sha256:d00ae0c86d7e1bfa798e8f8ad282db751af157cdcaa1208a1b9a2cf2a85ac821", size = 8056, upload-time = "2026-03-31T14:07:27Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8b/b7/9765d9a5d3b95475829ef5965d4a4f6f4badb034ee4e18c2d5f8b9b65d6f/nodejs_wheel_binaries-24.14.1-py2.py3-none-macosx_13_0_arm64.whl", hash = "sha256:d9e856ba0f2d3d2659869e6e0f4cae6874faeeeca7f879131a88451356373ac4", size = 54945603, upload-time = "2026-03-31T14:06:58.526Z" },
+    { url = "https://files.pythonhosted.org/packages/6f/15/bc2fa51ee31ce597b2af1905081e5a5add07fe0cf619bfa531d7df2f1f1b/nodejs_wheel_binaries-24.14.1-py2.py3-none-macosx_13_0_x86_64.whl", hash = "sha256:634f57829ebfdfe95d096f32a50c5cdd3a6c72a94dcf2b92a8bef9868cccb13e", size = 55119951, upload-time = "2026-03-31T14:07:02.597Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/dd/92ff0831262af4bbb5473d4e7964fd27afb0901a2690a6ff7bc3d220d97f/nodejs_wheel_binaries-24.14.1-py2.py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:404b563467129e6a0ea7006a38b3d8af0ebfbc340b31a6a0af2c59ea3af90b7c", size = 59487620, upload-time = "2026-03-31T14:07:06.198Z" },
+    { url = "https://files.pythonhosted.org/packages/45/36/bbbee3adf6afd00944e5a86ebd64987dea90bd347090155a4989dc3e8594/nodejs_wheel_binaries-24.14.1-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:7863c62f8a3946b727831f71375a9ae00205b3258478476034b49c3a1d57ac12", size = 59986044, upload-time = "2026-03-31T14:07:09.846Z" },
+    { url = "https://files.pythonhosted.org/packages/05/16/119e4168bf7ed17ad7961d122701c75ac86135fa243a958b960a3f1b7055/nodejs_wheel_binaries-24.14.1-py2.py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:a3f64daa1235fa6a83c778ded98d5fe4e74979ca54aa2ffb807f0805c57c3abe", size = 61489823, upload-time = "2026-03-31T14:07:13.378Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/a6/d581996827b9d1133094dc347f1c4e3d2a70557973ce7a427a03337b1427/nodejs_wheel_binaries-24.14.1-py2.py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:810a48ce096925ead0690f7d143e48fb902ebfc9212097e8f6cb3ac6cbe8f314", size = 62069740, upload-time = "2026-03-31T14:07:17.006Z" },
+    { url = "https://files.pythonhosted.org/packages/27/da/396d1a48cbf3d5899461bda12fa97ae4010d7e4013e7f28230cb04af5818/nodejs_wheel_binaries-24.14.1-py2.py3-none-win_amd64.whl", hash = "sha256:7a087b6a727fb9242d1cc83c8b121711bd0e9686408d27de48b34b23dfb26ac5", size = 41400067, upload-time = "2026-03-31T14:07:20.513Z" },
+    { url = "https://files.pythonhosted.org/packages/13/b7/adb21cf549934579e98934531e7f9b038d583fc9c2dd4b82ea01cc31bdd2/nodejs_wheel_binaries-24.14.1-py2.py3-none-win_arm64.whl", hash = "sha256:978fdfe76624c48111ab99ed0f99f9d4c1c682e420b0212ac9e1daee52f20283", size = 39096873, upload-time = "2026-03-31T14:07:23.977Z" },
+]
+
+[[package]]
 name = "notebook-shim"
 version = "0.2.4"
 source = { registry = "https://pypi.org/simple" }
@@ -3767,6 +3795,7 @@ source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
     { name = "chex" },
+    { name = "click" },
     { name = "cryptography" },
     { name = "diffrax" },
     { name = "duckdb" },
@@ -3798,6 +3827,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "tiktoken" },
     { name = "xlrd" },
+    { name = "zstandard" },
 ]
 
 [package.optional-dependencies]
@@ -3894,6 +3924,7 @@ causal-symbolic-y0 = [
     { name = "y0" },
 ]
 dev = [
+    { name = "basedpyright" },
     { name = "jupyterlab" },
     { name = "matplotlib" },
     { name = "mkdocs" },
@@ -3919,6 +3950,7 @@ kuzu = [
     { name = "kuzu" },
 ]
 lint = [
+    { name = "basedpyright" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "ruff" },
@@ -4107,6 +4139,7 @@ test = [
     { name = "pytest-asyncio" },
     { name = "pytest-benchmark" },
     { name = "pytest-xdist" },
+    { name = "rdflib" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -4116,12 +4149,14 @@ requires-dist = [
     { name = "arch", marker = "extra == 'analytics'", specifier = ">=8.0.0" },
     { name = "arviz", marker = "extra == 'bayesian'", specifier = ">=1.0.0" },
     { name = "asyncpg", marker = "extra == 'multi-tenant'", specifier = ">=0.29.0" },
+    { name = "basedpyright", marker = "extra == 'lint'", specifier = ">=1.34.0" },
     { name = "beartype", marker = "extra == 'shapesafe'", specifier = ">=0.18.0" },
     { name = "boto3", marker = "extra == 'security'", specifier = ">=1.34.0" },
     { name = "botorch", marker = "extra == 'search-bo'", specifier = ">=0.9.0" },
     { name = "botorch", marker = "extra == 'search-mo'", specifier = ">=0.9.0" },
     { name = "causal-learn", marker = "extra == 'causal-discovery'", specifier = ">=0.1.3.8" },
     { name = "chex", specifier = ">=0.1.91" },
+    { name = "click", specifier = ">=8.1.7" },
     { name = "cryptography", specifier = ">=42.0.0" },
     { name = "cvxpy", marker = "python_full_version < '3.13' and extra == 'causal-dowhy'", specifier = "<1.5" },
     { name = "cvxpy", marker = "python_full_version < '3.13' and extra == 'causal-full'", specifier = "<1.5" },
@@ -4242,6 +4277,7 @@ requires-dist = [
     { name = "pytest-benchmark", marker = "extra == 'test'", specifier = ">=4.0.0" },
     { name = "pytest-xdist", marker = "extra == 'test'", specifier = ">=3.6.1" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "rdflib", marker = "extra == 'test'", specifier = ">=7.0.0" },
     { name = "restrictedpython", marker = "extra == 'agent-quality'", specifier = ">=7.0,<8.0" },
     { name = "restrictedpython", marker = "extra == 'sandbox'", specifier = ">=7.0,<8.0" },
     { name = "rpy2", marker = "extra == 'causal-symbolic-r'", specifier = ">=3.5,<4.0" },
@@ -4274,6 +4310,7 @@ requires-dist = [
     { name = "y0", marker = "extra == 'causal-symbolic-y0'", specifier = ">=0.2,<0.3" },
     { name = "zepid", marker = "extra == 'causal-full'", specifier = ">=0.9" },
     { name = "zepid", marker = "extra == 'causal-nuisance'", specifier = ">=0.9" },
+    { name = "zstandard", specifier = ">=0.23.0" },
 ]
 provides-extras = ["core", "lint", "docs", "notebooks", "mutation", "agent-sim", "apple-metal", "kuzu", "analytics", "ml", "deep-learning", "optimization-advanced", "bayesian", "sensitivity", "causal", "causal-core", "causal-dowhy", "causal-bcf", "causal-nuisance", "causal-discovery", "causal-discovery-scale", "causal-symbolic", "causal-symbolic-y0", "causal-symbolic-r", "causal-full", "table-extraction", "solvers", "methods-full", "methods-milestone2", "methods-milestone3", "methods-milestone4", "observability", "runtime-http", "runtime", "multi-tenant", "security", "rag", "rag-local", "academic-skg", "sandbox", "shapesafe", "hotreload", "research", "agent-quality", "test", "dev", "all", "structured-logging", "search-bo", "search-mo"]
 
@@ -5042,6 +5079,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/a1/d1/5ab148e03f7e6ec8cd220ccf7af74d3aaa4de26dd96df58936beb7cba820/rapidfuzz-3.14.3-cp314-cp314t-win32.whl", hash = "sha256:7ccbf68100c170e9a0581accbe9291850936711548c6688ce3bfb897b8c589ad", size = 1793465, upload-time = "2025-11-01T11:54:35.331Z" },
     { url = "https://files.pythonhosted.org/packages/cd/97/433b2d98e97abd9fff1c470a109b311669f44cdec8d0d5aa250aceaed1fb/rapidfuzz-3.14.3-cp314-cp314t-win_amd64.whl", hash = "sha256:9ec02e62ae765a318d6de38df609c57fc6dacc65c0ed1fd489036834fd8a620c", size = 1623491, upload-time = "2025-11-01T11:54:38.085Z" },
     { url = "https://files.pythonhosted.org/packages/e2/f6/e2176eb94f94892441bce3ddc514c179facb65db245e7ce3356965595b19/rapidfuzz-3.14.3-cp314-cp314t-win_arm64.whl", hash = "sha256:e805e52322ae29aa945baf7168b6c898120fbc16d2b8f940b658a5e9e3999253", size = 851487, upload-time = "2025-11-01T11:54:40.176Z" },
+]
+
+[[package]]
+name = "rdflib"
+version = "7.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyparsing" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/98/f5/18bb77b7af9526add0c727a3b2048959847dc5fb030913e2918bf384fec3/rdflib-7.6.0.tar.gz", hash = "sha256:6c831288d5e4a5a7ece85d0ccde9877d512a3d0f02d7c06455d00d6d0ea379df", size = 4943826, upload-time = "2026-02-13T07:15:55.938Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/10/c2/6604a71269e0c1bd75656d5a001432d16f2cc5b8c057140ec797155c295e/rdflib-7.6.0-py3-none-any.whl", hash = "sha256:30c0a3ebf4c0e09215f066be7246794b6492e054e782d7ac2a34c9f70a15e0dd", size = 615416, upload-time = "2026-02-13T07:15:46.487Z" },
 ]
 
 [[package]]

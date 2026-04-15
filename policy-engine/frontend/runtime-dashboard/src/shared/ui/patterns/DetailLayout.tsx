@@ -26,7 +26,7 @@ export function DetailLayout({
           sidebar ? "xl:grid-cols-[280px,1fr]" : "grid-cols-1",
         )}
       >
-        {sidebar ? <aside>{sidebar}</aside> : null}
+        {sidebar ? <div>{sidebar}</div> : null}
         <div>{content}</div>
       </div>
       {footer}

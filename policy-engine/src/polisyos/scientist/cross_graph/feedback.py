@@ -35,7 +35,7 @@ class BenchmarkScholarQuery(BaseModel):
     effect: str
     min_trust: float = Field(default=0.5, ge=0.0, le=1.0)
     support_mode: str = "hybrid"
-    min_results: int = 2
+    min_results: int = 1
 
 
 class BenchmarkCredibilityPolicy(BaseModel):

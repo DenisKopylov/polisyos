@@ -5,6 +5,7 @@ from polisyos.foundry.calibration.report import (
     CalibrationUncertainty,
 )
 from polisyos.foundry.calibration.uncertainty_adapter import (
+    summarize_bayesian_calibration_posterior,
     envelope_from_calibration_param,
     envelopes_from_calibration,
 )
@@ -28,7 +29,11 @@ def test_envelope_from_calibration_param() -> None:
     assert env.point_estimate == 0.25
     assert env.ci_lower < env.point_estimate < env.ci_upper
     assert env.source == UncertaintySource.CALIBRATION
-    assert env.interval_semantics == IntervalSemantics.CONFIDENCE_INTERVAL
+    assert env.interval_semantics == IntervalSemantics.HEURISTIC_RANGE
+    assert env.is_heuristic_ci is True
+    assert env.gate_eligible is False
+    assert env.confidence_level is None
+    assert env.metadata["requested_confidence_level"] == 0.95
 
 
 def test_envelope_from_calibration_param_none_when_uncertainty_missing() -> None:
@@ -54,3 +59,21 @@ def test_envelopes_from_calibration_filters_missing_std() -> None:
     )
     envelopes = envelopes_from_calibration(report)
     assert set(envelopes.keys()) == {"node.tax_rate"}
+
+
+def test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics() -> None:
+    summary = summarize_bayesian_calibration_posterior(
+        {
+            "node.tax_rate": [0.21, 0.24, 0.25, 0.23, 0.22],
+            "node.transfer": [1.1, 1.0, 1.2, 1.05, 0.98],
+        },
+        credible_mass=0.9,
+        emulator_diagnostics={"emulator_name": "gp_surrogate", "emulator_noise_std": {"node.tax_rate": 0.01}},
+        posterior_diagnostics={"r_hat_max": 1.01},
+    )
+
+    assert summary.posterior_means["node.tax_rate"] > 0.0
+    assert summary.parameter_envelopes["node.tax_rate"].interval_semantics == IntervalSemantics.CREDIBLE_INTERVAL
+    assert summary.parameter_envelopes["node.tax_rate"].source == UncertaintySource.CALIBRATION
+    assert summary.diagnostics["calibration_mode"] == "bayesian_emulator"
+    assert summary.uncertainty_decomposition["node.tax_rate"]["aleatoric"] is not None

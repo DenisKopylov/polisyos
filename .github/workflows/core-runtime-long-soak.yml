@@ -1,0 +1,56 @@
+name: Core Runtime Long Soak
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * 1"
+
+permissions:
+  contents: read
+
+env:
+  JAX_PLATFORM_NAME: cpu
+  XLA_PYTHON_CLIENT_PREALLOCATE: "false"
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  NUMEXPR_NUM_THREADS: "1"
+  VECLIB_MAXIMUM_THREADS: "1"
+  BLIS_NUM_THREADS: "1"
+
+jobs:
+  long-soak:
+    name: Core Runtime / Long Soak Evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: policy-engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          python-version: "3.11"
+          extras: "test runtime causal-discovery"
+
+      - name: Run core-runtime long soak
+        run: |
+          mkdir -p .tmp/reports
+          uv run polisyos-tools workspace core-runtime-long-soak \
+            --summary .tmp/reports/core-runtime-long-soak.md \
+            --json-output .tmp/reports/core-runtime-long-soak.json
+
+      - name: Upload long-soak evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: core-runtime-long-soak
+          path: |
+            policy-engine/.tmp/reports/core-runtime-long-soak.md
+            policy-engine/.tmp/reports/core-runtime-long-soak.json
+          if-no-files-found: warn
+          retention-days: 30

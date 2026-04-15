@@ -36,7 +36,7 @@ class RobinsonEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="robinson",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -128,7 +128,7 @@ class KernelRegressionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="kernel_regression",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

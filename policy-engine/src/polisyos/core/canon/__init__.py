@@ -6,11 +6,18 @@ from .canon_json import (
     from_canonical_obj,
     to_canonical_bytes,
 )
-from .hashing import content_hash, fingerprint, streaming_hash, truncated_hash
+from .hashing import (
+    DeprecatedHashAlgorithm,
+    content_hash,
+    fingerprint,
+    streaming_hash,
+    truncated_hash,
+)
 
 __all__ = [
     "CanonSpec",
     "CanonViolation",
+    "DeprecatedHashAlgorithm",
     "content_hash",
     "fingerprint",
     "from_canonical_bytes",

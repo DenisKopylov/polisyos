@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+from unittest.mock import MagicMock
+
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -73,3 +76,49 @@ def test_non_policy_workflows_reject_mismatched_registry_refs_before_execution(
             state,
             store=FileSystemCAS(tmp_path),
         )
+
+
+def test_default_workflow_accepts_injected_store_factory_and_quota_registry(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    state = ExperimentState(run_id="R_provider_builder")
+    store = FileSystemCAS(tmp_path)
+    registry_bundle_ref = _ref("a", "core.registry_bundle")
+    enforcer = MagicMock()
+    quota_registry = SimpleNamespace(get_enforcer=lambda tenant_id: enforcer)
+    store_factory = MagicMock(return_value=store)
+    lock = SimpleNamespace(release=MagicMock())
+    execution_result = MagicMock(report=MagicMock(status="ok"), state=state)
+    executor = MagicMock()
+    executor.execute.return_value = execution_result
+
+    import polisyos.scientist.workflows.builder as builder
+
+    def _unexpected_quota_registry():
+        raise AssertionError("global quota registry fallback should not run")
+
+    monkeypatch.setattr(builder, "_build_quota_registry", _unexpected_quota_registry)
+    monkeypatch.setattr(builder, "build_default_registry", lambda _store: registry_bundle_ref)
+    monkeypatch.setattr(builder, "_ensure_snapshot_bind", lambda _state: None)
+    monkeypatch.setattr(builder, "acquire_run_lock", lambda *args, **kwargs: lock)
+    monkeypatch.setattr(builder, "build_execution_context", lambda *args, **kwargs: object())
+    monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
+    monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())
+    monkeypatch.setattr(builder, "WorkflowExecutor", lambda *args, **kwargs: executor)
+    monkeypatch.setattr(builder, "default_workflow_spec", lambda: object())
+    monkeypatch.setattr(builder, "get_current_tenant_id_or_none", lambda: "tenant-fixture")
+
+    result = run_default_workflow(
+        state,
+        store_factory=store_factory,
+        quota_registry=quota_registry,
+        foundry=object(),
+    )
+
+    assert result is execution_result
+    store_factory.assert_called_once_with()
+    enforcer.check_run_start.assert_called_once_with()
+    enforcer.record_run_start.assert_called_once_with()
+    enforcer.record_run_end.assert_called_once_with()
+    lock.release.assert_called_once_with()

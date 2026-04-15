@@ -54,12 +54,7 @@ class TestStochasticProgrammingProperties:
     @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_two_stage_sp_output_dict(self, data, isolated_registry):
         fqn = "optimization.stochastic.two_stage_stochastic_program@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {
             "c_first": data["c"],
             "A_first": data["A_ub"],
@@ -76,12 +71,7 @@ class TestStochasticProgrammingProperties:
     @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_two_stage_sp_keys_stable(self, data, isolated_registry):
         fqn = "optimization.stochastic.two_stage_stochastic_program@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"c_first": data["c"], "A_first": data["A_ub"], "b_first": data["b_ub"]}
         try:
             r1 = method.pure_step(state, {"n_scenarios": 5, "seed": 42})
@@ -100,12 +90,7 @@ class TestCombinationalProperties:
     def test_knapsack_output_finite(self, n_items, capacity, isolated_registry):
         assume(capacity / n_items > 1.0)
         fqn = "optimization.combinatorial.knapsack@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         rng = np.random.default_rng(42)
         state = {
             "values": rng.uniform(1.0, 10.0, n_items),
@@ -126,12 +111,7 @@ class TestCombinationalProperties:
     def test_knapsack_result_is_dict(self, n_items, capacity, isolated_registry):
         assume(capacity / n_items > 1.0)
         fqn = "optimization.combinatorial.knapsack@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         rng = np.random.default_rng(0)
         state = {
             "values": rng.uniform(1.0, 10.0, n_items),
@@ -152,12 +132,7 @@ class TestLPProperties:
     @settings(max_examples=30, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_lp_solution_feasible(self, data, isolated_registry):
         fqn = "optimization.linear.resource_lp@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"c": data["c"], "A_ub": data["A_ub"], "b_ub": data["b_ub"]}
         try:
             result = method.pure_step(state, {})

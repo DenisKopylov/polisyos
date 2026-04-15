@@ -8,6 +8,10 @@ import { useRunAgents } from "@/api/hooks/useRunAgents";
 import { useRunDetails } from "@/api/hooks/useRunDetails";
 import { useRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
 import {
+  LEGACY_RUN_DETAIL_TAB_MAP,
+  RUN_DETAIL_TABS,
+} from "@/features/runs/domain/runDetailTabs";
+import {
   type EvidenceArtifactRef,
   findRunEvidenceNeed,
   findRunEvidencePlan,
@@ -20,39 +24,6 @@ import {
   summarizeGovernanceIssues,
 } from "@/lib/domain/governance";
 import { formatNumber } from "@/lib/utils";
-
-export type RunDetailTab =
-  | "overview"
-  | "governance"
-  | "evidence"
-  | "workflow"
-  | "artifacts"
-  | "agents"
-  | "debug";
-
-export const RUN_DETAIL_TABS: RunDetailTab[] = [
-  "overview",
-  "governance",
-  "evidence",
-  "workflow",
-  "artifacts",
-  "agents",
-  "debug",
-];
-
-export const LEGACY_RUN_DETAIL_TAB_MAP: Record<string, RunDetailTab> = {
-  decision: "overview",
-  governance: "governance",
-  evidence: "evidence",
-  lineage: "workflow",
-  workflow: "workflow",
-  artifacts: "artifacts",
-  agents: "agents",
-  models: "agents",
-  timeline: "debug",
-  nodes: "debug",
-  debug: "debug",
-};
 
 function dedupeArtifactRefs(
   refs: Array<EvidenceArtifactRef | null | undefined>,
@@ -284,4 +255,7 @@ export function useRunDetailSummary(
   };
 }
 
-export type RunDetailSummary = ReturnType<typeof useRunDetailSummary>;
+export type RunInspectorSummary = ReturnType<typeof useRunDetailSummary>;
+export type RunDetailSummary = RunInspectorSummary;
+
+export { LEGACY_RUN_DETAIL_TAB_MAP, RUN_DETAIL_TABS };

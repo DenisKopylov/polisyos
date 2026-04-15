@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 import numpy.testing as npt
 import pytest
 
@@ -115,6 +116,30 @@ class TestMonteCarloPropagator:
         assert len(results) == 1
         assert results[0].envelope.is_heuristic_ci is True
 
+    def test_mc_qmc_failure_path_counts_failures_and_avoids_input_metric_fallback(self) -> None:
+        def always_fail(**params: float) -> dict[str, float]:
+            raise RuntimeError("sim exploded")
+
+        config = PropagationConfig(
+            mc_n_samples=128,
+            mc_seed=7,
+            mc_sampling_method="sobol",
+        )
+        envelopes = {"x": _normal_env(1.0, 0.5)}
+
+        result = MonteCarloPropagator(config).propagate(
+            always_fail,
+            {"x": 1.0},
+            envelopes,
+            ["y"],
+        )[0]
+
+        assert result.diagnostics["n_failed"] == 128
+        assert result.diagnostics["executor_failed_batches"] == 128
+        assert result.envelope.metadata["failure"] == "insufficient_valid_samples"
+        assert result.envelope.metadata["fallback_point_estimate_source"] != "nominal_params"
+        assert result.envelope.point_estimate == pytest.approx(0.0)
+
     def test_mc_empty_metrics_returns_empty(self) -> None:
         config = PropagationConfig(mc_n_samples=100)
         mc = MonteCarloPropagator(config)
@@ -125,3 +150,41 @@ class TestMonteCarloPropagator:
         )
 
         assert results == []
+
+    def test_mc_sobol_chunking_preserves_requested_sample_count(self) -> None:
+        config = PropagationConfig(
+            mc_n_samples=130,
+            mc_batch_size=70,
+            mc_seed=11,
+            mc_sampling_method="sobol",
+        )
+        result = MonteCarloPropagator(config).propagate(
+            lambda x=0.0: {"y": x},
+            {"x": 0.0},
+            {"x": _normal_env(0.0, 1.0)},
+            ["y"],
+        )[0]
+
+        assert result.diagnostics["n_samples"] == 130
+        assert result.diagnostics["n_failed"] == 0
+
+    def test_qmc_sampler_state_reuses_buffered_chunk(self) -> None:
+        propagator = MonteCarloPropagator(
+            PropagationConfig(
+                mc_n_samples=140,
+                mc_batch_size=70,
+                mc_seed=5,
+                mc_sampling_method="sobol",
+            )
+        )
+
+        state = propagator._create_qmc_sampler_state(2)
+        first, state = propagator._next_qmc_uniform_chunk(state, 70)
+        second, state = propagator._next_qmc_uniform_chunk(state, 70)
+
+        assert first.shape == (70, 2)
+        assert second.shape == (70, 2)
+        assert np.all((first >= 0.0) & (first <= 1.0))
+        assert np.all((second >= 0.0) & (second <= 1.0))
+        assert int(state["generated"]) == 140
+        assert state["buffer"].shape[0] < 128

@@ -5,8 +5,8 @@ import asyncio
 import json
 import time
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import TYPE_CHECKING, Any
+from enum import StrEnum
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.cache import TTLCache
@@ -17,10 +17,12 @@ from polisyos.core.security.access_scope import AccessScope
 if TYPE_CHECKING:
     import aiohttp
 
+    from polisyos.core.observability import MetricsRegistry
+
 logger = get_logger("polisyos.security.authz")
 
 
-class AuthzDecision(str, Enum):
+class AuthzDecision(StrEnum):
     """Represent the policy decision returned by OPA or the fail-closed fallback."""
     ALLOW = "allow"
     DENY = "deny"
@@ -88,7 +90,7 @@ class AuthzInput:
         resource_metric_id: str = "",
         resource_columns: tuple[dict[str, str], ...] = (),
         resource_requires_anonymization: bool = False,
-    ) -> "AuthzInput":
+    ) -> AuthzInput:
         """Build the default OPA input from a resolved request scope and HTTP metadata."""
         return cls(
             request_method=request_method,
@@ -122,7 +124,7 @@ class AuthzInput:
         artifact_id: str,
         owner_tenant_id: str,
         peer_spiffe_id: str = "",
-    ) -> "AuthzInput":
+    ) -> AuthzInput:
         """Build a CAS-specific authorization input bound to artifact ownership."""
         return cls.for_http_request(
             request_method=request_method,
@@ -148,7 +150,7 @@ class AuthzInput:
         columns: tuple[dict[str, str], ...] = (),
         requires_anonymization: bool = False,
         peer_spiffe_id: str = "",
-    ) -> "AuthzInput":
+    ) -> AuthzInput:
         """Build a data-plane authorization input with PII and column-level context."""
         return cls.for_http_request(
             request_method=request_method,
@@ -198,7 +200,7 @@ class AuthzInput:
     def cache_key(self) -> str:
         """Return a deterministic short hash for TTL caching identical OPA checks."""
         raw = json.dumps(self.to_opa_input(), sort_keys=True, separators=(",", ":"))
-        return truncated_hash(raw, length=16)
+        return cast("str", truncated_hash(raw, length=16))
 
 
 class OPAClient:
@@ -212,12 +214,14 @@ class OPAClient:
         cache_max_size: int = 1000,
         cache_ttl_seconds: float = 30.0,
         timeout_seconds: float = 2.0,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self._opa_url = opa_url.rstrip("/")
         self._policy_path = policy_path.strip("/")
         self._cache_max_size = max(cache_max_size, 1)
         self._cache_ttl = max(cache_ttl_seconds, 0.0)
         self._timeout = max(timeout_seconds, 0.1)
+        self._metrics = metrics or get_metrics()
 
         self._cache = TTLCache[str, AuthzResult](
             ttl_seconds=self._cache_ttl,
@@ -254,7 +258,7 @@ class OPAClient:
         cached = self._cache.get(cache_key)
         if cached is not None:
             result = cached
-            get_metrics().record_authz_cache_hit(policy=self._policy_path)
+            self._metrics.record_authz_cache_hit(policy=self._policy_path)
             return AuthzResult(
                 decision=result.decision,
                 policy=result.policy,
@@ -267,18 +271,26 @@ class OPAClient:
         started = time.monotonic()
         try:
             payload = await self._query_opa(authz_input)
-        except (AttributeError, KeyError, OSError, RuntimeError, TimeoutError, TypeError, ValueError) as exc:
+        except (
+            AttributeError,
+            KeyError,
+            OSError,
+            RuntimeError,
+            TimeoutError,
+            TypeError,
+            ValueError,
+        ) as exc:
             latency_ms = (time.monotonic() - started) * 1000.0
             logger.error("OPA authorization query failed, deny-by-default: %s", exc)
-            get_metrics().record_authz_error(policy=self._policy_path, reason="opa_unreachable")
-            get_metrics().record_authz_latency(self._policy_path, latency_ms / 1000.0)
+            self._metrics.record_authz_error(policy=self._policy_path, reason="opa_unreachable")
+            self._metrics.record_authz_latency(self._policy_path, latency_ms / 1000.0)
             deny_result = AuthzResult(
                 decision=AuthzDecision.DENY,
                 policy=self._policy_path,
                 reasons=("OPA_UNREACHABLE",),
                 latency_ms=latency_ms,
             )
-            get_metrics().record_authz_decision(
+            self._metrics.record_authz_decision(
                 policy=self._policy_path,
                 decision=deny_result.decision.value,
                 cached=False,
@@ -286,7 +298,7 @@ class OPAClient:
             return deny_result
 
         latency_ms = (time.monotonic() - started) * 1000.0
-        get_metrics().record_authz_latency(self._policy_path, latency_ms / 1000.0)
+        self._metrics.record_authz_latency(self._policy_path, latency_ms / 1000.0)
 
         decision = AuthzDecision.ALLOW if bool(payload.get("allow", False)) else AuthzDecision.DENY
         audit_entry = payload.get("audit_entry", {})
@@ -307,7 +319,7 @@ class OPAClient:
             cached=False,
             audit_entry=audit_entry,
         )
-        get_metrics().record_authz_decision(
+        self._metrics.record_authz_decision(
             policy=self._policy_path,
             decision=result.decision.value,
             cached=False,
@@ -324,7 +336,8 @@ class OPAClient:
 
     async def _query_opa(self, authz_input: AuthzInput) -> dict[str, Any]:
         await self._ensure_session()
-        assert self._session is not None
+        if self._session is None:
+            raise RuntimeError("OPA client session was not initialized")
 
         url = f"{self._opa_url}/v1/data/{self._policy_path}"
         body = {"input": authz_input.to_opa_input()}

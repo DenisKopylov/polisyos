@@ -47,10 +47,7 @@ class TestCountDataProperties:
     @settings(max_examples=30, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_poisson_output_finite(self, data, isolated_registry):
         fqn = "econometrics.count.poisson@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"outcome": data["outcome"], "covariates": data["covariates"]}
         try:
             result = method.pure_step(state, {})
@@ -63,10 +60,7 @@ class TestCountDataProperties:
     @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_negbin_output_dict(self, data, isolated_registry):
         fqn = "econometrics.count.negative_binomial@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"outcome": data["outcome"], "covariates": data["covariates"]}
         try:
             result = method.pure_step(state, {})
@@ -79,10 +73,7 @@ class TestCountDataProperties:
     def test_output_keys_stable(self, data, isolated_registry):
         """Poisson always returns same set of keys."""
         fqn = "econometrics.count.poisson@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"outcome": data["outcome"], "covariates": data["covariates"]}
         try:
             result = method.pure_step(state, {})
@@ -97,10 +88,7 @@ class TestDiscreteChoiceProperties:
     @settings(max_examples=25, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_logit_output_finite(self, data, isolated_registry):
         fqn = "econometrics.discrete_choice.logit@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"choice": data["choice"], "attributes": data["attributes"]}
         try:
             result = method.pure_step(state, {})
@@ -112,10 +100,7 @@ class TestDiscreteChoiceProperties:
     @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_logit_result_is_dict(self, data, isolated_registry):
         fqn = "econometrics.discrete_choice.logit@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"choice": data["choice"], "attributes": data["attributes"]}
         try:
             result = method.pure_step(state, {})
@@ -129,10 +114,7 @@ class TestGARCHProperties:
     @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_garch_output_finite(self, data, isolated_registry):
         fqn = "econometrics.timeseries.garch@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"endog": data["endog"]}
         try:
             result = method.pure_step(state, {"p": 1, "q": 1})
@@ -144,10 +126,7 @@ class TestGARCHProperties:
     @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_garch_returns_dict(self, data, isolated_registry):
         fqn = "econometrics.timeseries.garch@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"endog": data["endog"]}
         try:
             result = method.pure_step(state, {"p": 1, "q": 1})
@@ -161,10 +140,7 @@ class TestPanelModelProperties:
     @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_fixed_effects_output_finite(self, data, isolated_registry):
         fqn = "econometrics.panel.fixed_effects@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         n_obs = data["n_obs"]
         n_entities = max(5, n_obs // 4)
         state = {

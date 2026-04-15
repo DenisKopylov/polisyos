@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any
+from collections.abc import Mapping, Sequence
+from functools import lru_cache
+from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -91,7 +93,10 @@ class PriorMiner:
         index_dir = str(self._config.academic_index_dir or "").strip() or None
         query: SKGQuery | None = None
         try:
-            query = SKGQuery(db_path=db_path, index_dir=index_dir or ".")
+            query = SKGQuery(
+                db_path=Path(db_path),
+                index_dir=Path(index_dir or "."),
+            )
             variables = sorted({node for edge_key in target_edge_keys for node in _edge_nodes(edge_key)})
             rows = query.query_prior_for_variables(
                 variables,
@@ -134,15 +139,19 @@ class PriorMiner:
             support_rows.append(
                 PriorKnowledgeSupport(
                     edge_key=edge_key,
-                    src=str(row["src"]),
-                    dst=str(row["dst"]),
-                    direction=str(row.get("direction") or "mixed"),
-                    confidence=float(row.get("confidence") or 0.0),
-                    n_articles=int(row.get("n_articles") or 0),
-                    evidence_strength=str(row.get("evidence_strength") or "unknown"),
-                    candidate_layer=str(row.get("candidate_layer") or self._config.support_mode),
-                    article_refs=[str(item) for item in row.get("article_refs", [])],
-                    quality_signals=dict(row.get("quality_signals") or {}),
+                    src=_row_string(row, "src"),
+                    dst=_row_string(row, "dst"),
+                    direction=_row_string(row, "direction", default="mixed"),
+                    confidence=_row_float(row, "confidence"),
+                    n_articles=_row_int(row, "n_articles"),
+                    evidence_strength=_row_string(row, "evidence_strength", default="unknown"),
+                    candidate_layer=_row_string(
+                        row,
+                        "candidate_layer",
+                        default=self._config.support_mode,
+                    ),
+                    article_refs=_row_string_list(row, "article_refs"),
+                    quality_signals=_row_object_map(row, "quality_signals"),
                     metadata={
                         "domain": self._config.domain,
                         "support_mode": self._config.support_mode,
@@ -186,11 +195,18 @@ def _target_edge_keys(bundle: GraphPriorBundle) -> set[str]:
     return edge_keys
 
 
-def _row_edge_key(row: dict[str, object]) -> str:
-    edge_key = f"{row['src']}->{row['dst']}"
-    lag = row.get("lag")
-    if lag not in (None, "", 0):
-        edge_key = f"{edge_key}@lag={int(lag)}"
+def _row_edge_key(row: Mapping[str, object]) -> str:
+    src = _row_string(row, "src")
+    dst = _row_string(row, "dst")
+    lag = _row_int(row, "lag")
+    return _cached_row_edge_key(src, dst, lag)
+
+
+@lru_cache(maxsize=4096)
+def _cached_row_edge_key(src: str, dst: str, lag: int) -> str:
+    edge_key = f"{src}->{dst}"
+    if lag != 0:
+        return f"{edge_key}@lag={lag}"
     return edge_key
 
 
@@ -198,6 +214,81 @@ def _edge_nodes(edge_key: str) -> tuple[str, str]:
     base, _, _ = edge_key.partition("@lag=")
     src, _, dst = base.partition("->")
     return src, dst
+
+
+def _row_string(
+    row: Mapping[str, object],
+    key: str,
+    *,
+    default: str = "",
+) -> str:
+    value = row.get(key)
+    normalized = str(value).strip() if value is not None else ""
+    return normalized or default
+
+
+def _row_int(
+    row: Mapping[str, object],
+    key: str,
+    *,
+    default: int = 0,
+) -> int:
+    value = row.get(key)
+    if value in (None, ""):
+        return default
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            return default
+    try:
+        return int(str(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def _row_float(
+    row: Mapping[str, object],
+    key: str,
+    *,
+    default: float = 0.0,
+) -> float:
+    value = row.get(key)
+    if value in (None, ""):
+        return default
+    if isinstance(value, bool):
+        return float(value)
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return default
+    try:
+        return float(str(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def _row_string_list(row: Mapping[str, object], key: str) -> list[str]:
+    value = row.get(key)
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
+        return []
+    return [str(item) for item in value]
+
+
+def _row_object_map(row: Mapping[str, object], key: str) -> dict[str, object]:
+    value = row.get(key)
+    if not isinstance(value, Mapping):
+        return {}
+    return {str(item_key): item_value for item_key, item_value in value.items()}
 
 
 __all__ = [

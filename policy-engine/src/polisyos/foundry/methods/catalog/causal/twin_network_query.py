@@ -285,7 +285,7 @@ class TwinNetworkQuery:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="twin_network_query",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

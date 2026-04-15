@@ -75,10 +75,7 @@ class TestSeedDeterminism:
     ])
     def test_same_seed_same_output(self, fqn, registered_registry):
         """Running the same method twice with the same seed yields identical outputs."""
-        try:
-            method_cls = registered_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"Method {fqn} not registered")
+        method_cls = registered_registry.get(fqn)
 
         state = {"values": np.linspace(1.0, 50.0, 25)}
         params = {}
@@ -128,10 +125,7 @@ class TestCrossBackendEquivalence:
     def test_numpy_runner_produces_finite_output(self, registered_registry):
         """Smoke test: NumPy runner produces finite results for regression methods."""
         fqn = "distributional.inequality.theil@1.0.0"
-        try:
-            method_cls = registered_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method_cls = registered_registry.get(fqn)
 
         result = method_cls.pure_step({"values": np.linspace(1.0, 75.0, 30)}, {"seed": 42})
         for key, val in result.items():
@@ -144,14 +138,10 @@ class TestCrossBackendEquivalence:
         from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 
         fqn = "distributional.inequality.theil@1.0.0"
-        try:
-            entry = registered_registry.get_entry(fqn)
-            if entry is None:
-                pytest.skip(f"{fqn} not registered")
-            method_cls = registered_registry.get(fqn)
-            sig = entry.signature
-        except Exception as e:
-            pytest.skip(f"Could not load {fqn}: {e}")
+        entry = registered_registry.get_entry(fqn)
+        assert entry is not None, f"{fqn} not registered"
+        method_cls = registered_registry.get(fqn)
+        sig = entry.signature
 
         dispatcher = MethodDispatcher.get_instance()
         state = {"values": np.linspace(1.0, 75.0, 30)}

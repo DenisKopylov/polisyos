@@ -136,13 +136,13 @@ class MergeEngine:
                     report,
                 )
                 report.merged_values[slot_id] = merged
-            except Exception as exc:
+            except (TypeError, ValueError) as exc:
                 report.conflicts.append(
                     MergeConflict(
                         slot_id=slot_id,
-                        kind=MergeConflictKind.UNSUPPORTED_RULE,
+                        kind=_classify_merge_exception(exc),
                         writers=tuple(record.node_id for record in slot_records),
-                        values=tuple(record.value or record.delta for record in slot_records),
+                        values=tuple(_record_payload_value(record) for record in slot_records),
                         message=str(exc),
                     )
                 )
@@ -268,17 +268,19 @@ class MergeEngine:
 
         missing_priority = [record.node_id for record in records if record.priority is None]
         if missing_priority:
-            if rule.default_priority is not None:
-                for record in records:
-                    if record.priority is None:
-                        record.priority = rule.default_priority
-            else:
+            if rule.default_priority is None:
                 raise ValueError(
                     f"PRIORITY merge requires 'priority' for slot '{slot_id}'. "
                     f"Missing from: {', '.join(missing_priority)}"
                 )
 
-        sorted_records = sorted(records, key=lambda record: (-int(record.priority), record.node_id))
+        def priority(record: MergeRecord) -> int:
+            if record.priority is not None:
+                return int(record.priority)
+            assert rule.default_priority is not None
+            return int(rule.default_priority)
+
+        sorted_records = sorted(records, key=lambda record: (-priority(record), record.node_id))
         winner = sorted_records[0]
         value = winner.value
         if value is None:
@@ -300,7 +302,7 @@ class MergeEngine:
                 slot_id=slot_id,
                 kind=MergeConflictKind.MULTIPLE_WRITERS,
                 writers=tuple(record.node_id for record in records),
-                values=tuple(record.value or record.delta for record in records),
+                values=tuple(_record_payload_value(record) for record in records),
                 message=f"ERROR merge detected {len(records)} concurrent writers",
             )
             report.conflicts.append(conflict)
@@ -321,6 +323,24 @@ class MergeEngine:
                 f"ERROR merge requires 'value' for slot '{slot_id}' from '{records[0].node_id}'"
             )
         return value
+
+
+def _record_payload_value(record: MergeRecord) -> Any:
+    """Select the conflict payload without relying on ambiguous array truthiness."""
+    if record.value is not None:
+        return record.value
+    return record.delta
+
+
+def _classify_merge_exception(exc: TypeError | ValueError) -> MergeConflictKind:
+    message = str(exc).lower()
+    if "value_type" in message or "not allowed" in message:
+        return MergeConflictKind.TYPE_MISMATCH
+    if "priority" in message:
+        return MergeConflictKind.MISSING_PRIORITY
+    if "value" in message or "delta" in message:
+        return MergeConflictKind.MISSING_VALUE
+    return MergeConflictKind.UNSUPPORTED_RULE
 
 
 class JAXMergeEngine:

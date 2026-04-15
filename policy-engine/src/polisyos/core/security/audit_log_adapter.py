@@ -18,7 +18,7 @@ def _get_current_trace_context() -> tuple[str, str]:
         ctx = span.get_span_context()
         if ctx and ctx.trace_id:
             return format(ctx.trace_id, "032x"), format(ctx.span_id, "016x")
-    except Exception:  # noqa: BLE001
+    except (AttributeError, ImportError, RuntimeError, TypeError, ValueError):
         pass
     return "", ""
 

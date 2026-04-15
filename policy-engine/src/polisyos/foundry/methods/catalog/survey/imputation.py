@@ -36,7 +36,7 @@ class MICEEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="mice",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -156,7 +156,7 @@ class NonresponseAdjustmentEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="nonresponse_adjustment",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

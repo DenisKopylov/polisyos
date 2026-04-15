@@ -136,6 +136,8 @@ class HistoricalSemanticDiffSummary(BaseModel):
     manual_review_required: bool = False
     key_fields: list[str] = Field(default_factory=list)
     schema_change_types: list[str] = Field(default_factory=list)
+    duplicate_keys_left: int = Field(default=0, ge=0)
+    duplicate_keys_right: int = Field(default=0, ge=0)
 
 
 class HistoricalSemanticDiffReport(BaseModel):

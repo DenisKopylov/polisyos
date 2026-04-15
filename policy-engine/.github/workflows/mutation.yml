@@ -1,0 +1,43 @@
+name: Mutation Testing
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * 1"
+
+jobs:
+  critical-mutation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          pip install -e ".[dev,test]"
+
+      - name: Run Priority Mutation Suite
+        run: |
+          mutmut run \
+            --paths-to-mutate src/polisyos/common/serialization.py \
+            --paths-to-mutate src/polisyos/core/security/authz.py \
+            --paths-to-mutate src/polisyos/runtime/http/dependencies.py \
+            --runner "python -m pytest tests/common/test_serialization_properties.py tests/runtime/http/test_access_invariants_properties.py tests/runtime/http/test_runtime_api_authz.py -x -q --no-header"
+
+      - name: Export Mutation Results
+        run: |
+          mutmut results > mutation-results.txt
+
+      - name: Upload Mutation Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-results
+          path: mutation-results.txt
+          retention-days: 14

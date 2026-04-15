@@ -18,6 +18,7 @@ from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     SchemaType,
     SchemaVersion,
+    normalize_unit_id,
 )
 
 if TYPE_CHECKING:
@@ -121,13 +122,6 @@ class MetricBinding:
         )
 
 
-def _normalize_unit_id(value: str) -> str:
-    value = value.strip().lower()
-    value = value.replace("/", "_per_")
-    value = value.replace(" ", "_")
-    return value
-
-
 def _map_contract_dtype(dtype: "ContractDataType") -> SchemaType:
     mapping = {
         "int": SchemaType.INT64,
@@ -189,7 +183,7 @@ class DataContractSchemaBinding(BaseModel):
             )
 
         contract_unit = (
-            _normalize_unit_id(contract.unit) if contract.unit else None
+            normalize_unit_id(contract.unit) if contract.unit else None
         )
         schema_unit = field.unit.unit_id if field.unit else None
         if contract_unit and schema_unit and contract_unit != schema_unit:

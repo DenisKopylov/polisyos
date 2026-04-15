@@ -5,6 +5,7 @@ from decimal import Decimal
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.contracts.scientist import GovernanceAccountabilityArtifactRef
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
@@ -17,18 +18,6 @@ from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection, SelectorOperator
-from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
-from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
-    BuildPolicyOutputBundleNode,
-)
-from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
-    ARTIFACT_POLICY_BRIEF_REF,
-    ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
-    INPUT_DATA_SNAPSHOT_REF,
-    INPUT_REGISTRY_BUNDLE_REF,
-    INPUT_TRINITY_BUNDLE_REF,
-)
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboardEntry,
@@ -39,22 +28,20 @@ from polisyos.scientist.governance.calibration_validation import (
     persist_calibration_validation_bundle,
 )
 from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
-from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.scientist.policy_design.output import (
-    PolicyBrief,
-    load_champion_policy_dossier,
-    load_policy_artifact_bundle,
-    load_replayable_audit_bundle,
+from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
+from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
+    BuildPolicyOutputBundleNode,
 )
-from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
-from polisyos.scientist.search import (
-    ActionableSideInformation,
-    persist_actionable_side_information,
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
+    ARTIFACT_CAUSAL_ENVELOPE_REF,
+    ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+    ARTIFACT_POLICY_BRIEF_REF,
+    ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+    INPUT_DATA_SNAPSHOT_REF,
+    INPUT_REGISTRY_BUNDLE_REF,
+    INPUT_TRINITY_BUNDLE_REF,
 )
-from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.search.funnel.types import FunnelStageResult, UncertaintyEnvelope
-from polisyos.scientist.search.readiness import DecisionReadiness
-
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveChannelValue,
@@ -62,10 +49,21 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveKind,
     PolicyEvaluationVector,
 )
-
-from polisyos.scientist.policy_design.schema import TargetPopulationSpec
-
-from polisyos.scientist.search.readiness import DecisionReadinessContract
+from polisyos.scientist.policy_design.output import (
+    PolicyBrief,
+    load_champion_policy_dossier,
+    load_policy_artifact_bundle,
+    load_replayable_audit_bundle,
+)
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema, TargetPopulationSpec
+from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
+from polisyos.scientist.search import (
+    ActionableSideInformation,
+    persist_actionable_side_information,
+)
+from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.search.funnel.types import FunnelStageResult, UncertaintyEnvelope
+from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
 
 
 def _bundle() -> TrinityBundle:
@@ -354,6 +352,14 @@ def test_build_policy_output_bundle_embeds_calibration_validation_summary(
                 worst_backtest_kind=BacktestKind.DISTRESS,
                 worst_stress_scenario=StressScenarioKind.TRADE_DISRUPTION,
             ),
+            governance_accountability_ref=GovernanceAccountabilityArtifactRef(
+                artifact_id="sha256:" + "9" * 64
+            ),
+            governance_accountability_summary={
+                "risk_weighted_verdict": "needs_revision",
+                "requires_human_review": False,
+                "selected_threshold": 0.55,
+            },
         ),
     )
     state.params.update(
@@ -379,6 +385,78 @@ def test_build_policy_output_bundle_embeds_calibration_validation_summary(
     dossier = load_champion_policy_dossier(cas_store, bundle.champion_policy_dossier_ref)
     assert dossier.calibration_validation_summary["composite_score"] == 0.8
     assert dossier.calibration_validation_summary["worst_backtest_kind"] == "distress"
+    assert dossier.accountability_summary["risk_weighted_verdict"] == "needs_revision"
+    assert bundle.governance_accountability_artifact_ref is not None
+
+
+def test_build_policy_output_bundle_degrades_invalid_distributional_report(
+    execution_context,
+    minimal_state,
+    cas_store,
+) -> None:
+    candidate = _candidate()
+    invalid_ref = cas_store.put_json(
+        ["invalid"],
+        PutOptions(kind="ir.distributional_report", media_type="application/json"),
+    )
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": candidate.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(candidate).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+        }
+    )
+    state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF] = invalid_ref
+
+    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in outcome.state.artifacts_index
+    assert any(
+        event.code == "policy_output_bundle.optional_artifact_degraded"
+        and event.attrs.get("reason") == "distributional_report_load_failed"
+        for event in outcome.events
+    )
+
+
+def test_build_policy_output_bundle_degrades_invalid_uncertainty_envelope(
+    execution_context,
+    minimal_state,
+    cas_store,
+) -> None:
+    candidate = _candidate()
+    invalid_ref = cas_store.put_json(
+        ["invalid"],
+        PutOptions(kind="ir.uncertainty_envelope", media_type="application/json"),
+    )
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": candidate.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(candidate).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+        }
+    )
+    state.artifacts_index[ARTIFACT_CAUSAL_ENVELOPE_REF] = invalid_ref
+
+    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in outcome.state.artifacts_index
+    assert any(
+        event.code == "policy_output_bundle.optional_artifact_degraded"
+        and event.attrs.get("reason") == "uncertainty_envelope_load_failed"
+        for event in outcome.events
+    )
 
 
 def test_decision_packet_not_mutated_when_policy_bundle_absent(tmp_path) -> None:
@@ -421,3 +499,57 @@ def test_decision_packet_not_mutated_when_policy_bundle_absent(tmp_path) -> None
     payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
 
     assert "policy_output_bundle" not in payload
+
+
+def test_decision_packet_records_degraded_path_for_invalid_policy_bundle(tmp_path) -> None:
+    import logging
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.run.context import RunContext
+    from polisyos.scientist.engine.context import ExecutionContext
+    from polisyos.scientist.engine.state import ExperimentState
+
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_invalid_policy_bundle",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.policy"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    invalid_policy_bundle_ref = store.put_json(
+        ["invalid"],
+        PutOptions(kind="scientist.policy_output_bundle", media_type="application/json"),
+    )
+    state = ExperimentState(
+        run_id="R_packet_invalid_policy_bundle",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_POLICY_OUTPUT_BUNDLE_REF: invalid_policy_bundle_ref},
+        params={"random_seed": 1},
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    degraded_reasons = [item["reason"] for item in payload["degraded_paths"]]
+
+    assert "policy_output_bundle" not in payload
+    assert "policy_output_bundle_load_failed" in degraded_reasons
+    assert payload["analysis_limits"]["decision_packet_degraded"] is True

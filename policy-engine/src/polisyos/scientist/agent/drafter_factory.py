@@ -4,16 +4,11 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.norm_pack import NormPack
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.scientist.agent.code_verifier import CodeVerificationSandbox, SandboxConfig
-from polisyos.scientist.agent.constitution import ConstitutionGenerator
-from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
-from polisyos.scientist.agent.memory import ShortTermMemory
 from polisyos.scientist.agent.protocols import DrafterAgent
 from polisyos.scientist.agent.rag import (
     CASRAGIndex,
@@ -26,7 +21,24 @@ from .drafter_clients import LLMDrafterAgent, MockDrafterAgent
 from .drafter_models import MultiPassConfig
 from .drafter_multipass import MultiPassLLMDrafter
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.ir.model_spec import ModelSpec
+    from polisyos.ir.norm_pack import NormPack
+    from polisyos.scientist.agent.constitution import ConstitutionGenerator
+    from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
+    from polisyos.scientist.agent.memory import ShortTermMemory
+
 logger = get_logger(__name__)
+
+
+def _build_rag_filesystem_store(root: Path) -> FileSystemCAS:
+    store = build_artifact_store(
+        ArtifactStoreConfig(backend="filesystem", root=str(root)),
+    )
+    return cast("FileSystemCAS", store)
 
 
 def create_drafter_agent(
@@ -39,6 +51,7 @@ def create_drafter_agent(
     knowledge_base: CriticKnowledgeBase | None = None,
     constitution_norm_pack: NormPack | None = None,
     constitution_model_spec: ModelSpec | None = None,
+    rag_store_factory: Callable[[Path], FileSystemCAS] | None = None,
 ) -> DrafterAgent:
     """
     Build drafter according to feature flag `POLISYOS_DRAFTER_MULTIPASS_MODE`.
@@ -71,7 +84,9 @@ def create_drafter_agent(
             }
         )
         try:
-            cas = FileSystemCAS(Path(rag_config.cas_root))
+            cas = (rag_store_factory or _build_rag_filesystem_store)(
+                Path(rag_config.cas_root)
+            )
             embedder = build_default_embedder(rag_config)
             rag_index = build_or_load_rag_index(
                 cas,

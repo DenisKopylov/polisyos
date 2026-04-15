@@ -75,7 +75,7 @@ class ResourceLP:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="resource_lp",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

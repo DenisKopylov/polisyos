@@ -16,7 +16,7 @@ from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
@@ -89,7 +89,7 @@ class DebugService:
     def __init__(
         self,
         *,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         timeline_service: TimelineService,
         sensitive_keys: tuple[str, ...] = _DEFAULT_SENSITIVE_KEYS,
     ) -> None:

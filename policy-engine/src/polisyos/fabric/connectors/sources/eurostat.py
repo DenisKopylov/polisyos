@@ -10,6 +10,7 @@ from typing import Any, AsyncIterator, ClassVar
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
+from polisyos.fabric.safety import safe_path_segment
 from polisyos.fabric.connectors.base import (
     AsyncFetchLease,
     ConnectionHandle,
@@ -98,7 +99,10 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
 
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         base_url = self._base_url(handle)
-        dataset = handle.config.headers.get("X-EUROSTAT-HEALTH-DATASET", "nama_10_gdp")
+        dataset = safe_path_segment(
+            handle.config.headers.get("X-EUROSTAT-HEALTH-DATASET", "nama_10_gdp"),
+            what="Eurostat dataset id",
+        )
         url = f"{base_url}/{dataset}"
         params = {"format": "JSON", "lang": "en"}
         started = time.monotonic()
@@ -146,7 +150,8 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
     ) -> FetchResult[pd.DataFrame]:
         base_url = self._base_url(handle)
         dataset_id = request.dataset_id
-        url = f"{base_url}/{dataset_id}"
+        dataset_segment = safe_path_segment(dataset_id, what="Eurostat dataset id")
+        url = f"{base_url}/{dataset_segment}"
         params = self._build_params(request)
         started = time.monotonic()
 
@@ -194,7 +199,8 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
     ) -> DatasetCapabilitySnapshot:
         session = await self._get_session(handle)
         base = handle.config.headers.get("X-EUROSTAT-SDMX-BASE-URL", self._SDMX_BASE_URL).rstrip("/")
-        url = f"{base}/structure/dataflow/ESTAT/{dataset_id}"
+        dataset_segment = safe_path_segment(dataset_id, what="Eurostat dataset id")
+        url = f"{base}/structure/dataflow/ESTAT/{dataset_segment}"
         params = {"references": "descendants", "detail": "referencepartial"}
         body, _headers, raw = await self._request_json(
             session,
@@ -408,7 +414,8 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
     ) -> tuple[str, dict[str, str]]:
         key = self._build_sdmx_key(request, snapshot=snapshot)
         base = self._sdmx_base_url(handle)
-        url = f"{base}/data/{request.dataset_id}"
+        dataset_segment = safe_path_segment(request.dataset_id, what="Eurostat dataset id")
+        url = f"{base}/data/{dataset_segment}"
         if key:
             url = f"{url}/{key}"
         params = {"format": "JSON"}
@@ -436,7 +443,14 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
                 or filter_map.get(dimension.lower())
                 or filter_map.get(dimension.upper())
             )
-            segments.append("+".join(values) if values else "")
+            segments.append(
+                "+".join(
+                    safe_path_segment(value, what=f"Eurostat dimension '{dimension}'")
+                    for value in values
+                )
+                if values
+                else ""
+            )
         while segments and segments[-1] == "":
             segments.pop()
         return ".".join(segments)

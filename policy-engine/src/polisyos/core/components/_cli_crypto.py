@@ -12,12 +12,9 @@ from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.signing import (
-    DEFAULT_IDENTITIES_PATH,
     DEFAULT_PRIVATE_KEY_ENV,
     DEFAULT_PRIVATE_KEY_FILE_ENV,
     DEFAULT_PRIVATE_KEY_PATH,
-    DEFAULT_REVOKED_DIR,
-    DEFAULT_TRUST_DIR,
     Ed25519Signer,
     Ed25519Verifier,
     KeyPair,
@@ -25,11 +22,12 @@ from polisyos.core.artifacts.signing import (
     ensure_private_key_permissions,
     safe_short_key_id,
 )
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components._cli_store import build_cli_filesystem_cas
 
 _SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 
 __all__ = [
+    "_SHA256_HEX_RE",
     "_cmd_keygen",
     "_cmd_sign",
     "_cmd_verify",
@@ -37,7 +35,6 @@ __all__ = [
     "_resolve_key_paths",
     "_write_private_key",
     "_write_public_key",
-    "_SHA256_HEX_RE",
 ]
 
 
@@ -166,7 +163,7 @@ def _cmd_sign(args: Any) -> int:
         print(f"ERROR: cannot load private signing key: {exc}", file=sys.stderr)
         return 2
 
-    store = FileSystemCAS(Path(args.cas_root))
+    store = build_cli_filesystem_cas(Path(args.cas_root))
     identity = args.identity
 
     if args.all:
@@ -224,7 +221,7 @@ def _cmd_verify(args: Any) -> int:
         print("ERROR: artifact_ref is required unless --all is set", file=sys.stderr)
         return 2
 
-    store = FileSystemCAS(Path(args.cas_root))
+    store = build_cli_filesystem_cas(Path(args.cas_root))
     verifier = Ed25519Verifier(strict_identity=bool(args.strict_identity))
 
     try:

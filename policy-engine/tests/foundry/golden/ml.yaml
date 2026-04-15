@@ -4,39 +4,141 @@ cases:
   - id: elastic_net_simple
     method_fqn: "ml.regression.elastic_net@1.0.0"
     description: "ElasticNet on y = 2*x1 + 3*x2 + noise"
-    skip_reason: "Requires TabularData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      features:
+        - [0.0, 0.0]
+        - [1.0, 0.0]
+        - [0.0, 1.0]
+        - [1.0, 1.0]
+        - [2.0, 1.0]
+        - [1.0, 2.0]
+        - [2.0, 2.0]
+        - [3.0, 2.0]
+      target: [0.0, 2.0, 3.0, 5.0, 7.0, 8.0, 10.0, 12.0]
+      feature_names: [x0, x1]
+    input_params:
+      l1_ratio: 0.5
+      cv: 2
+      random_state: 0
+      max_iter: 4000
+    expected_output:
+      result:
+        method_name: "elastic_net"
+        coefficients:
+          x0: 2.0004
+          x1: 2.9782
+        metrics:
+          r_squared: 0.99998
+        metadata:
+          l1_ratio: 0.5
+    tolerances: {rtol: 0.03, atol: 0.03}
     tags: [regression]
 
   - id: random_forest_deterministic
     method_fqn: "ml.regression.random_forest@1.0.0"
     description: "Random forest on simple linear data"
-    skip_reason: "Requires TabularData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      features:
+        - [0.0, 0.0]
+        - [1.0, 0.0]
+        - [0.0, 1.0]
+        - [1.0, 1.0]
+        - [2.0, 1.0]
+        - [1.0, 2.0]
+        - [2.0, 2.0]
+        - [3.0, 2.0]
+      target: [0.0, 2.0, 3.0, 5.0, 7.0, 8.0, 10.0, 12.0]
+      feature_names: [x0, x1]
+    input_params:
+      n_estimators: 80
+      random_state: 0
+      max_depth: 4
+    expected_output:
+      result:
+        method_name: "random_forest"
+        metrics:
+          r_squared: 0.9735
+        metadata:
+          n_estimators: 80
+          max_depth: 4
+    tolerances: {rtol: 0.05, atol: 0.05}
     tags: [regression]
 
   - id: kmeans_two_clusters
     method_fqn: "ml.clustering.kmeans@1.0.0"
     description: "KMeans on two well-separated clusters"
-    skip_reason: "Requires TabularData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      features:
+        - [0.0, 0.0]
+        - [0.1, 0.2]
+        - [0.2, -0.1]
+        - [5.0, 5.0]
+        - [5.2, 4.9]
+        - [4.8, 5.1]
+      feature_names: [x, y]
+    input_params:
+      n_clusters: 2
+      random_state: 0
+    expected_output:
+      result:
+        method_name: "kmeans"
+        metrics:
+          silhouette_score: 0.9604
+        metadata:
+          estimator: "KMeans"
+    tolerances: {rtol: 0.02, atol: 0.02}
     tags: [clustering]
 
   - id: pca_two_components
     method_fqn: "ml.decomposition.pca@1.0.0"
     description: "PCA on 2D data with known principal direction"
-    skip_reason: "Requires TabularData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      features:
+        - [1.0, 2.0]
+        - [2.0, 4.0]
+        - [3.0, 6.0]
+        - [4.0, 8.0]
+        - [5.0, 10.0]
+      feature_names: [x, y]
+    input_params:
+      n_components: 2
+    expected_output:
+      result:
+        method_name: "pca"
+        explained_variance_ratio: [1.0, 0.0]
+        metadata:
+          estimator: "PCA"
+    tolerances: {rtol: 0.02, atol: 0.02}
     tags: [decomposition]
 
   - id: gradient_boosting_simple
     method_fqn: "ml.regression.gradient_boosting@1.0.0"
     description: "GBM on simple regression task"
-    skip_reason: "Requires TabularData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      features:
+        - [0.0, 0.0]
+        - [1.0, 0.0]
+        - [0.0, 1.0]
+        - [1.0, 1.0]
+        - [2.0, 1.0]
+        - [1.0, 2.0]
+        - [2.0, 2.0]
+        - [3.0, 2.0]
+      target: [0.0, 2.0, 3.0, 5.0, 7.0, 8.0, 10.0, 12.0]
+      feature_names: [x0, x1]
+    input_params:
+      n_estimators: 80
+      random_state: 0
+      max_depth: 2
+      learning_rate: 0.1
+    expected_output:
+      result:
+        method_name: "gradient_boosting"
+        metrics:
+          r_squared: 0.999999
+        metadata:
+          n_estimators: 80
+          learning_rate: 0.1
+          max_depth: 2
+    tolerances: {rtol: 0.02, atol: 0.02}
     tags: [regression]

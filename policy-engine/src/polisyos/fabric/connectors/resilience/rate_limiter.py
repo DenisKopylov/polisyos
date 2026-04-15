@@ -13,18 +13,28 @@ import asyncio
 import threading
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import wraps
-from typing import Any, Awaitable, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from opentelemetry import trace
-from opentelemetry.trace import Status, StatusCode
+from opentelemetry.trace import Status, StatusCode, Tracer
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
+from polisyos.fabric.connectors.resilience._bounded_registry import (
+    BoundedResourceRegistry,
+)
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+    from types import TracebackType
+
+    from polisyos.core.observability import MetricsRegistry
 
 logger = get_logger(__name__)
-tracer = trace.get_tracer(__name__)
+DEFAULT_TRACER = trace.get_tracer(__name__)
 
 T = TypeVar("T")
 
@@ -87,6 +97,8 @@ class RateLimiter:
         burst_size: float | None = None,
         *,
         limiter_id: str | None = None,
+        metrics: MetricsRegistry | None = None,
+        tracer: Tracer | None = None,
     ) -> None:
         self.rate_limit_rps = rate_limit_rps
         self.burst_size = burst_size or rate_limit_rps
@@ -103,8 +115,10 @@ class RateLimiter:
         # Statistics
         self._total_requests = 0
         self._total_wait_time = 0.0
+        self._total_acquire_duration = 0.0
 
-        self._metrics = get_metrics()
+        self._metrics = metrics or get_metrics()
+        self._tracer = tracer or DEFAULT_TRACER
 
         logger.debug(
             "Rate limiter initialized",
@@ -130,13 +144,31 @@ class RateLimiter:
             if self._blocked_until is None or blocked_until > self._blocked_until:
                 self._blocked_until = blocked_until
 
+    def _acquire_or_wait_locked(self, *, tokens: float) -> tuple[bool, float, float]:
+        now = _monotonic()
+        self._refill_tokens(now)
+
+        if self._blocked_until is not None:
+            if now < self._blocked_until:
+                return False, self._blocked_until - now, self._tokens
+            self._blocked_until = None
+
+        available_tokens = max(self._tokens, 0.0)
+        if available_tokens >= tokens:
+            self._tokens = max(available_tokens - tokens, 0.0)
+            self._total_requests += 1
+            return True, 0.0, self._tokens
+
+        deficit = max(tokens - available_tokens, 0.0)
+        return False, deficit / self.rate_limit_rps, available_tokens
+
     async def acquire(self, tokens: float = 1.0) -> None:
         """Acquire tokens, waiting if necessary."""
         if tokens <= 0:
             raise ValueError("tokens must be > 0")
 
-        with tracer.start_as_current_span(
-            "connector.rate_limiter.acquire",
+        with self._tracer.start_as_current_span(
+            FABRIC_TRACE_NAMES["rate_limit_acquire"],
             attributes={
                 "rate_limiter.rate_rps": self.rate_limit_rps,
                 "rate_limiter.tokens_requested": tokens,
@@ -144,85 +176,97 @@ class RateLimiter:
         ) as span:
             start_time = _monotonic()
             total_wait = 0.0
+            tokens_remaining = 0.0
 
             while True:
-                # Respect any Retry-After cooldown
-                blocked_until = None
                 with self._lock:
-                    blocked_until = self._blocked_until
+                    acquired, wait_time, tokens_remaining = self._acquire_or_wait_locked(
+                        tokens=tokens
+                    )
+                    blocked = self._blocked_until is not None and wait_time > 0.0
 
-                if blocked_until is not None:
-                    now = _monotonic()
-                    if now < blocked_until:
-                        wait_time = blocked_until - now
-                        logger.debug(
-                            "Rate limiter cooldown",
-                            wait_seconds=wait_time,
-                            limiter_id=self.limiter_id,
-                        )
-                        await asyncio.sleep(wait_time)
-                        total_wait += wait_time
-                        continue
+                if acquired:
+                    break
 
-                with self._lock:
-                    now = _monotonic()
-                    self._refill_tokens(now)
-
-                    if self._tokens >= tokens:
-                        self._tokens -= tokens
-                        self._total_requests += 1
-                        break
-
-                    deficit = tokens - self._tokens
-                    wait_time = deficit / self.rate_limit_rps
-
-                logger.debug(
-                    "Rate limit throttle",
-                    wait_seconds=wait_time,
-                    tokens_available=self._tokens,
-                    tokens_requested=tokens,
-                    limiter_id=self.limiter_id,
-                )
+                if blocked:
+                    logger.debug(
+                        "Rate limiter cooldown",
+                        wait_seconds=wait_time,
+                        limiter_id=self.limiter_id,
+                    )
+                else:
+                    logger.debug(
+                        "Rate limit throttle",
+                        wait_seconds=wait_time,
+                        tokens_available=tokens_remaining,
+                        tokens_requested=tokens,
+                        limiter_id=self.limiter_id,
+                    )
                 await asyncio.sleep(wait_time)
                 total_wait += wait_time
 
-            total_wait = _monotonic() - start_time
+            acquire_duration = _monotonic() - start_time
 
             with self._lock:
                 self._total_wait_time += total_wait
+                self._total_acquire_duration += acquire_duration
 
             span.set_attribute("rate_limiter.wait_seconds", total_wait)
+            span.set_attribute("rate_limiter.acquire_duration_seconds", acquire_duration)
             span.set_status(Status(StatusCode.OK))
 
-            if self._metrics and getattr(self._metrics, "connector_rate_limit_wait_seconds", None):
+            wait_metric = getattr(self._metrics, "connector_rate_limit_wait_seconds", None)
+            if wait_metric is not None:
                 labels = {}
                 if self.limiter_id:
                     labels["connector_id"] = self.limiter_id
-                self._metrics.connector_rate_limit_wait_seconds.record(total_wait, labels)  # type: ignore[union-attr]
+                wait_metric.record(total_wait, labels)
 
-            if self._metrics and getattr(self._metrics, "connector_rate_limit_tokens", None):
+            acquire_metric = getattr(
+                self._metrics,
+                "connector_rate_limit_acquire_duration_seconds",
+                None,
+            )
+            if acquire_metric is not None:
+                labels = {}
+                if self.limiter_id:
+                    labels["connector_id"] = self.limiter_id
+                acquire_metric.record(
+                    acquire_duration,
+                    labels,
+                )
+
+            tokens_metric = getattr(self._metrics, "connector_rate_limit_tokens", None)
+            if tokens_metric is not None:
                 labels = {}
                 if self.limiter_id:
                     labels["connector_id"] = self.limiter_id
                 with self._lock:
-                    self._metrics.connector_rate_limit_tokens.set(self._tokens, labels)  # type: ignore[union-attr]
+                    tokens_metric.set(self._tokens, labels)
 
     async def __aenter__(self) -> RateLimiter:
         await self.acquire()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        del exc_type, exc_val, exc_tb
         return None
 
     def record_rate_limit(self, retry_after_seconds: float | None = None) -> None:
         """Record a rate limit signal (e.g., HTTP 429) and apply cooldown."""
         self._set_blocked_until(retry_after_seconds)
 
-        if self._metrics and getattr(self._metrics, "connector_rate_limit_throttled_total", None):
+        throttled_metric = getattr(self._metrics, "connector_rate_limit_throttled_total", None)
+        if throttled_metric is not None:
             labels = {}
             if self.limiter_id:
                 labels["connector_id"] = self.limiter_id
-            self._metrics.connector_rate_limit_throttled_total.add(1, labels)  # type: ignore[union-attr]
+            throttled_metric.add(1, labels)
 
     def get_stats(self) -> dict[str, Any]:
         with self._lock:
@@ -232,8 +276,14 @@ class RateLimiter:
                 "tokens_available": self._tokens,
                 "total_requests": self._total_requests,
                 "total_wait_time_seconds": self._total_wait_time,
+                "total_acquire_duration_seconds": self._total_acquire_duration,
                 "average_wait_seconds": (
                     self._total_wait_time / self._total_requests
+                    if self._total_requests > 0
+                    else 0.0
+                ),
+                "average_acquire_duration_seconds": (
+                    self._total_acquire_duration / self._total_requests
                     if self._total_requests > 0
                     else 0.0
                 ),
@@ -253,12 +303,16 @@ class AdaptiveRateLimiter(RateLimiter):
         config: RateLimiterConfig | None = None,
         *,
         limiter_id: str | None = None,
+        metrics: MetricsRegistry | None = None,
+        tracer: Tracer | None = None,
     ) -> None:
         self.config = config or RateLimiterConfig(rate_limit_rps=initial_rate_rps)
         super().__init__(
             rate_limit_rps=initial_rate_rps,
             burst_size=self.config.burst_size,
             limiter_id=limiter_id,
+            metrics=metrics,
+            tracer=tracer,
         )
 
         self._current_rate = initial_rate_rps
@@ -271,7 +325,9 @@ class AdaptiveRateLimiter(RateLimiter):
         if new_rate <= 0:
             raise ValueError("new_rate must be > 0")
 
-        new_rate = max(self.config.min_rate_rps, min(new_rate, self.config.max_rate_rps))
+        min_rate = self.config.min_rate_rps or (self.config.rate_limit_rps / 10.0)
+        max_rate = self.config.max_rate_rps or self.config.rate_limit_rps
+        new_rate = max(min_rate, min(new_rate, max_rate))
 
         with self._lock:
             old_rate = self._current_rate
@@ -332,8 +388,7 @@ def with_rate_limit(
     Decorator to add rate limiting to async functions.
     """
     def decorator(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
-        limiters: dict[str, RateLimiter] = {}
-        lock = threading.Lock()
+        limiters = BoundedResourceRegistry[RateLimiter]()
 
         def _default_limiter_id(args: tuple[Any, ...], kwargs: dict[str, Any]) -> str:
             connector_id = None
@@ -377,19 +432,21 @@ def with_rate_limit(
 
         def _get_limiter(args: tuple[Any, ...], kwargs: dict[str, Any]) -> RateLimiter:
             limiter_id = _default_limiter_id(args, kwargs)
-            with lock:
-                limiter = limiters.get(limiter_id)
-                if limiter is None:
-                    if adaptive:
-                        limiter = AdaptiveRateLimiter(
-                            initial_rate_rps=rate_limit_rps,
-                            config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
-                            limiter_id=limiter_id,
-                        )
-                    else:
-                        limiter = RateLimiter(rate_limit_rps=rate_limit_rps, limiter_id=limiter_id)
-                    limiters[limiter_id] = limiter
-                return limiter
+            return cast(
+                "RateLimiter",
+                limiters.get_or_create(
+                limiter_id,
+                lambda: (
+                    AdaptiveRateLimiter(
+                        initial_rate_rps=rate_limit_rps,
+                        config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
+                        limiter_id=limiter_id,
+                    )
+                    if adaptive
+                    else RateLimiter(rate_limit_rps=rate_limit_rps, limiter_id=limiter_id)
+                ),
+                ),
+            )
 
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
@@ -418,8 +475,8 @@ def parse_retry_after_header(header_value: str | int | None) -> float | None:
 
         parsed = parsedate_to_datetime(str(header_value))
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
-        delta = (parsed - datetime.now(timezone.utc)).total_seconds()
+            parsed = parsed.replace(tzinfo=UTC)
+        delta = (parsed - datetime.now(UTC)).total_seconds()
         return max(0.0, delta)
     except Exception:
         logger.warning(

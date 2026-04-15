@@ -7,6 +7,7 @@ import { llmProfilesQueryOptions } from "@/api/hooks/useLlmProfiles";
 import { runsQueryOptions } from "@/api/hooks/useRuns";
 import { sourceProfilesQueryOptions } from "@/api/hooks/useSourceProfiles";
 import { runsSampleQueryOptions } from "@/features/runs";
+import type { InterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import type { FeatureFlagKey, FeatureFlags } from "@/lib/featureFlags";
 
 export type WorkspaceKey =
@@ -21,7 +22,8 @@ export type WorkspaceLayout =
   | "overview"
   | "form"
   | "master-detail"
-  | "full-width";
+  | "full-width"
+  | "chat";
 
 export type WorkspacePrefetchKey =
   | "capabilities"
@@ -56,6 +58,7 @@ export type WorkspaceConfig = {
   aliases: string[];
   featureFlag?: FeatureFlagKey;
   layout: WorkspaceLayout;
+  modeVisibility?: InterfaceMode[];
   requiredCapabilities: string[];
   resolveHeader: (pathname: string) => WorkspaceHeader;
 };
@@ -75,6 +78,7 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     path: "/",
     aliases: [],
     layout: "overview",
+    modeVisibility: ["clerk", "analyst"],
     requiredCapabilities: [],
     resolveHeader: () => ({
       eyebrowKey: "shell.routes.commandCenterEyebrow",
@@ -88,6 +92,7 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     aliases: ["/launch"],
     featureFlag: "enableScenarioComposer",
     layout: "form",
+    modeVisibility: ["analyst"],
     requiredCapabilities: ["workflow_runs"],
     resolveHeader: () => ({
       eyebrowKey: "pages.composer.title",
@@ -101,6 +106,7 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     aliases: [],
     featureFlag: "enableRunsWorkspace",
     layout: "master-detail",
+    modeVisibility: ["clerk", "analyst"],
     requiredCapabilities: ["workflow_runs"],
     resolveHeader: (pathname) => ({
       eyebrowKey: pathname.startsWith("/runs/")
@@ -117,6 +123,7 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     path: "/evidence",
     aliases: ["/sources", "/data"],
     layout: "full-width",
+    modeVisibility: ["analyst"],
     requiredCapabilities: ["source_profiles"],
     resolveHeader: () => ({
       eyebrowKey: "shell.routes.evidenceEyebrow",
@@ -130,6 +137,7 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     aliases: ["/lex"],
     featureFlag: "enableLexKnowledge",
     layout: "full-width",
+    modeVisibility: ["analyst"],
     requiredCapabilities: ["lex_pipeline"],
     resolveHeader: () => ({
       eyebrowKey: "shell.nav.lexKnowledge",
@@ -143,6 +151,7 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     aliases: ["/health"],
     featureFlag: "enablePlatformHealth",
     layout: "full-width",
+    modeVisibility: ["analyst"],
     requiredCapabilities: [],
     resolveHeader: () => ({
       eyebrowKey: "shell.header.runtime",
@@ -190,12 +199,16 @@ export function getWorkspaceNavigationWithOptions(
   flags: FeatureFlags,
   options?: {
     isAllowed?: (workspace: WorkspaceConfig) => boolean;
+    mode?: InterfaceMode;
   },
 ) {
   return WORKSPACE_ORDER.map((key) => WORKSPACES[key]).filter(
     (workspace) =>
       isWorkspaceEnabled(workspace, flags) &&
-      (options?.isAllowed ? options.isAllowed(workspace) : true),
+      (options?.isAllowed ? options.isAllowed(workspace) : true) &&
+      (options?.mode && workspace.modeVisibility
+        ? workspace.modeVisibility.includes(options.mode)
+        : true),
   );
 }
 

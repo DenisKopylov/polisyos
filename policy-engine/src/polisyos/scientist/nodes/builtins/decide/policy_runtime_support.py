@@ -2,24 +2,25 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
-from polisyos.core.contracts.scientist import DiscoveryArtifactBundleRef, PriorKnowledgeBundleRef
 from polisyos.core.contracts.foundry import Metrics
+from polisyos.core.contracts.scientist import DiscoveryArtifactBundleRef, PriorKnowledgeBundleRef
 from polisyos.ir.analytics.causal import CausalEffectReport, load_data_readiness_report
+from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     TransportStatus,
     load_cross_graph_evidence_profile,
 )
-from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
 from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.autotune.models import (
@@ -29,8 +30,6 @@ from polisyos.scientist.autotune.models import (
     PromotionPolicy,
 )
 from polisyos.scientist.autotune.registry import ChampionRegistry
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.discovery.output import (
     load_discovery_artifact_bundle,
     load_merged_latent_discovery_bundle,
@@ -39,14 +38,16 @@ from polisyos.scientist.discovery.priors import (
     PriorKnowledgeBundle,
     load_prior_knowledge_bundle,
 )
+from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+    ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_METRICS_REF,
-    ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF,
     INPUT_PRIOR_KNOWLEDGE_BUNDLE_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
@@ -59,20 +60,29 @@ from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
 )
-from polisyos.scientist.search.failure_cards import FailureSeverity
-from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.search.judge_stack import to_search_uncertainty_envelope
-from polisyos.scientist.search.judge_stack import (
-    PolicyPromotionCoordinator,
-    PolicyPromotionResult,
-)
-from polisyos.scientist.search.promotion_evidence import PromotionEvidenceBundle
-from polisyos.scientist.search.uncertainty import UncertaintyEnvelope, UncertaintyType
-from polisyos.scientist.search.adversarial import load_platform_meta_evaluation_report
 from polisyos.scientist.replay.verification import (
     ReplayRegistry,
     load_replay_verification_report,
     verify_and_persist_replay_bundle,
+)
+from polisyos.scientist.search.adversarial import load_platform_meta_evaluation_report
+from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.search.judge_stack import (
+    PolicyPromotionCoordinator,
+    PolicyPromotionResult,
+    to_search_uncertainty_envelope,
+)
+from polisyos.scientist.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.search.uncertainty import UncertaintyEnvelope, UncertaintyType
+
+_POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
+_POLICY_RUNTIME_LOAD_ERRORS = (
+    AttributeError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
 )
 
 
@@ -618,7 +628,7 @@ def load_prior_knowledge_bundle_for_state(
                 )
             )
             return load_prior_knowledge_bundle(ctx.store, ref)
-        except Exception:
+        except _POLICY_RUNTIME_LOAD_ERRORS:
             return None
 
     bundle_ref = state.artifacts_index.get(ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF) or state.params.get(
@@ -638,7 +648,7 @@ def load_prior_knowledge_bundle_for_state(
         )
         bundle = load_discovery_artifact_bundle(ctx.store, discovery_ref)
         return load_prior_knowledge_bundle(ctx.store, bundle.prior_knowledge_bundle_ref)
-    except Exception:
+    except _POLICY_RUNTIME_LOAD_ERRORS:
         return None
 
 
@@ -670,7 +680,7 @@ def resolve_latent_discovery_bundle_for_state(
             status="ok" if latent_bundle is not None else "missing",
             source_bundle_ref=discovery_ref,
         )
-    except Exception as exc:
+    except _POLICY_RUNTIME_LOAD_ERRORS as exc:
         return LatentDiscoveryBundleResolution(
             bundle=None,
             status="unreadable",
@@ -805,7 +815,7 @@ def maybe_artifact_ref(value: Any) -> ArtifactRef | None:
     if isinstance(value, dict):
         try:
             return ArtifactRef.model_validate(value)
-        except Exception:
+        except _POLICY_RUNTIME_VALIDATION_ERRORS:
             return None
     return None
 
@@ -929,7 +939,7 @@ def run_promotion_with_evidence(
                 ctx.store,
                 data_readiness_report_ref,
             )
-        except Exception:
+        except _POLICY_RUNTIME_LOAD_ERRORS:
             data_readiness_report = None
     proof_bundle_ref = maybe_artifact_ref(l2_feedback.get("proof_bundle_ref"))
     bounds_bundle_ref = maybe_artifact_ref(l2_feedback.get("bounds_bundle_ref"))
@@ -1216,7 +1226,7 @@ def _parse_policy_evaluation(value: Any) -> PolicyEvaluationVector | None:
     if isinstance(value, dict):
         try:
             return PolicyEvaluationVector.model_validate(value)
-        except Exception:
+        except _POLICY_RUNTIME_VALIDATION_ERRORS:
             return None
     return None
 

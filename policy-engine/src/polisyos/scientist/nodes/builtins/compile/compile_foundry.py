@@ -13,6 +13,7 @@ from polisyos.core.contracts.foundry import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
@@ -81,8 +82,8 @@ class CompileFoundryNode:
     def bind(self, params: dict[str, Any]) -> "CompileFoundryNode":
         if not params:
             return self
-        config = self.compile_config.model_copy(deep=True)
-        flags = self.validation_flags.model_copy(deep=True)
+        config = self.compile_config.model_copy(deep=False)
+        flags = self.validation_flags.model_copy(deep=False)
         for key, value in params.items():
             if key in config.model_fields:
                 setattr(config, key, value)
@@ -131,7 +132,7 @@ class CompileFoundryNode:
 
         result = ctx.foundry.compile(ctx.store, request)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.reports_index[REPORT_COMPILE_REPORT_REF] = result.compile_report_ref
 
         if result.exec_plan_ref is not None:

@@ -138,6 +138,12 @@ class TestEvidenceBundleNewFields:
         summary = bundle.to_summary()
         assert "abc123" in summary
 
+    def test_fingerprint_rejects_unsupported_payloads(self):
+        from polisyos.ir.analytics.evidence_bundle import EvidenceFingerprintError, _fingerprint
+
+        with pytest.raises(EvidenceFingerprintError):
+            _fingerprint(object())
+
 
 # ===========================================================================
 # 5.2 — Diagnostic models
@@ -306,6 +312,27 @@ class TestDiagnosticDashboardData:
         assert dashboard.has_overlap_issues is True
         assert dashboard.overall_passed is False
 
+    def test_from_node_outputs_preserves_parse_warnings(self):
+        from polisyos.ir.analytics.diagnostic_dashboard import DiagnosticDashboardData
+
+        class BrokenSensitivity:
+            def model_dump(self, *, mode: str) -> dict[str, object]:
+                raise ValueError("boom")
+
+        dashboard = DiagnosticDashboardData.from_node_outputs(
+            run_id="r4",
+            query_str="P(Y|do(X))",
+            node_outputs={
+                "diag": {
+                    "sensitivity_result": BrokenSensitivity(),
+                    "covariate_balance": {"variable_smd": "not-a-dict"},
+                }
+            },
+        )
+
+        assert any(warning.startswith("sensitivity_serialize_fallback:diag") for warning in dashboard.warnings)
+        assert any(warning.startswith("covariate_balance_parse_failed:diag") for warning in dashboard.warnings)
+
 
 # ===========================================================================
 # 5.3 — CausalRunSnapshot
@@ -379,6 +406,16 @@ class TestCausalRunSnapshot:
         with tempfile.TemporaryDirectory() as tmp:
             result = lookup_snapshot("nonexistent-run", tmp)
             assert result is None
+
+    def test_build_records_snapshot_warnings_for_unfingerprintable_estimand(self):
+        from polisyos.ir.analytics.causal_run_snapshot import CausalRunSnapshot
+
+        snap = CausalRunSnapshot.build(
+            run_id="warn-001",
+            estimand_ast_dict={"bad": object()},
+        )
+
+        assert any(warning == "estimand_fingerprint_unavailable" for warning in snap.warnings)
 
     def test_method_invocation_record(self):
         from polisyos.ir.analytics.causal_run_snapshot import MethodInvocationRecord

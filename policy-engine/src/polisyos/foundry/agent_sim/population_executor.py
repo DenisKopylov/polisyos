@@ -149,8 +149,9 @@ class PopulationAwareExecutor(GraphAwareExecutor):
         old_active = state.agents.active
         births_mask = jnp.zeros_like(old_active, dtype=jnp.bool_)
 
-        if self.lifecycle_frequency > 0 and (state.time_step % self.lifecycle_frequency) == 0:
-            state, lifecycle_metrics, births_mask = lifecycle_step(
+        if self.lifecycle_frequency > 0:
+            should_run_lifecycle = (state.time_step % self.lifecycle_frequency) == 0
+            next_state, next_metrics, next_births_mask = lifecycle_step(
                 state,
                 lifecycle_key,
                 self.lifecycle_config,
@@ -160,6 +161,20 @@ class PopulationAwareExecutor(GraphAwareExecutor):
                 inheritance_mech=self.inheritance_mech,
                 gift_mech=self.gift_mech,
                 fidelity=fidelity,
+            )
+            state = jax.tree_util.tree_map(
+                lambda updated, current: jnp.where(should_run_lifecycle, updated, current),
+                next_state,
+                state,
+            )
+            lifecycle_metrics = {
+                key: jnp.where(should_run_lifecycle, value, jnp.zeros_like(value))
+                for key, value in next_metrics.items()
+            }
+            births_mask = jnp.where(
+                should_run_lifecycle,
+                next_births_mask,
+                births_mask,
             )
 
         if self.graph_sync_config is not None:

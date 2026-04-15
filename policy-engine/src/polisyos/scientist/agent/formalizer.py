@@ -4,16 +4,16 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import truncated_hash
 from polisyos.ir.governance.policy_spec import InterventionSpec as TrinityInterventionSpec
 from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import (
-    ConstraintType,
     ObjectiveSpec,
     ProblemDomain,
 )
@@ -30,10 +30,12 @@ from polisyos.ir.model_spec import (
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.prompts import get_formalizer_prompt
 from polisyos.scientist.agent.protocols import DraftResult, FormalizerAgent
+from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.llm import TracedLLMClient
 
 ZERO_ARTIFACT_REF = f"sha256:{'0' * 64}"
 _ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+logger = get_logger(__name__)
 
 
 def _normalize_id(raw: str, *, prefix: str) -> str:
@@ -115,7 +117,11 @@ def _draft_interventions_to_policy_spec(
                 "target": item.get("target") or _default_target(),
                 "schedule": item.get("schedule") or _default_schedule(),
                 "params": params,
-                "notes": [str(item.get("description", "")).strip()] if item.get("description") else [],
+                "notes": (
+                    [str(item.get("description", "")).strip()]
+                    if item.get("description")
+                    else []
+                ),
             }
         )
         interventions.append(intervention)
@@ -277,8 +283,15 @@ class MockFormalizerAgent:
                 errors.append("No interventions defined")
             if not bundle.model_spec.data_snapshot_ref:
                 errors.append("Missing model_spec.data_snapshot_ref")
-        except Exception as exc:
-            errors.append(f"Validation error: {exc}")
+        except (AttributeError, TypeError, ValidationError, ValueError) as exc:
+            envelope = emit_degraded_path(
+                component="agent.formalizer",
+                operation="validate_structure",
+                reason="structure_validation_failed",
+                exc=exc,
+                log=logger,
+            )
+            errors.append(f"Validation error: {envelope['message']}")
 
         return len(errors) == 0, errors
 
@@ -306,6 +319,7 @@ class LLMFormalizerAgent:
         model_name: str | None = None,
         *,
         method_catalog_snapshot: dict[str, Any] | None = None,
+        enable_response_healing: bool = False,
     ) -> None:
         if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
             self._llm = TracedLLMClient(llm_client, model_name=model_name)
@@ -313,6 +327,7 @@ class LLMFormalizerAgent:
             self._llm = llm_client
         self._fallback = MockFormalizerAgent()
         self._method_catalog_snapshot = dict(method_catalog_snapshot or {})
+        self._enable_response_healing = bool(enable_response_healing)
 
     def set_method_catalog_snapshot(self, payload: dict[str, Any] | None) -> None:
         self._method_catalog_snapshot = dict(payload or {})
@@ -352,9 +367,22 @@ Generate a valid TrinityBundle v{schema_version} JSON.
                     system=prompt,
                     user=attempt_message,
                     response_format={"type": "json_object"},
+                    plugins=(
+                        [{"id": "response-healing"}]
+                        if self._enable_response_healing
+                        else None
+                    ),
                 )
-            except Exception as exc:
-                last_error = f"LLM call failed: {exc}"
+            except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
+                envelope = emit_degraded_path(
+                    component="agent.formalizer",
+                    operation="formalize",
+                    reason="llm_call_failed",
+                    exc=exc,
+                    details={"attempt": attempt + 1, "draft_id": draft.draft_id},
+                    log=logger,
+                )
+                last_error = f"LLM call failed: {envelope['message']}"
                 continue
 
             content = response.content if hasattr(response, "content") else str(response)
@@ -374,6 +402,15 @@ Generate a valid TrinityBundle v{schema_version} JSON.
                 last_error = str(exc)
 
         # Fallback to deterministic formalizer if LLM output is unusable.
+        emit_degraded_path(
+            component="agent.formalizer",
+            operation="formalize",
+            reason="deterministic_fallback",
+            message=last_error or "LLM formalization did not yield a valid TrinityBundle",
+            error_type="FormalizerFallback",
+            details={"draft_id": draft.draft_id, "max_retries": self.MAX_RETRIES},
+            log=logger,
+        )
         return await self._fallback.formalize(
             draft,
             schema_version=schema_version,
@@ -416,7 +453,7 @@ def create_mock_draft(
         interventions=interventions or [],
         rationale="Mock rationale for testing",
         confidence=0.85,
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
 
 

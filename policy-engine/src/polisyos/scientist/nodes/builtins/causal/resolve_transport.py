@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.common.logger import get_logger
@@ -83,6 +83,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 logger = get_logger(__name__)
+
+_TRANSPORT_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_TRANSPORT_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
+_TRANSPORT_NUMERIC_PARSE_ERRORS = (TypeError, ValueError, OverflowError)
 
 MAX_ROUNDS = 3
 PROXY_FALLBACK_THRESHOLD = 0.3
@@ -661,7 +665,7 @@ class RunTransportabilityNode:
                 report_ref_raw.model_dump(mode="json")
             )
             causal_report = load_causal_effect_report(ctx.store, report_ref)
-        except Exception as exc:
+        except _TRANSPORT_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -1262,7 +1266,7 @@ def _resolve_context_profile(raw: Any) -> ContextProfile | None:
     if isinstance(raw, Mapping):
         try:
             return ContextProfile.model_validate(raw)
-        except Exception:
+        except _TRANSPORT_VALIDATION_ERRORS:
             return None
     return None
 
@@ -1310,7 +1314,7 @@ def _resolve_or_build_capability_contract(
         try:
             ref = CausalCapabilityContractRef.model_validate(raw_ref.model_dump(mode="json"))
             return load_causal_capability_contract(ctx.store, ref), ref
-        except Exception:
+        except _TRANSPORT_LOAD_ERRORS:
             logger.debug(
                 "Failed to load causal capability contract from ref %s, rebuilding",
                 raw_ref,
@@ -1334,7 +1338,7 @@ def _resolve_pag_max_dag_samples(state: ExperimentState) -> int:
     raw = state.params.get("pag_max_dag_samples")
     try:
         parsed = int(raw) if raw is not None else 100
-    except Exception:
+    except _TRANSPORT_NUMERIC_PARSE_ERRORS:
         return 100
     if parsed < 1:
         return 1
@@ -1345,7 +1349,7 @@ def _resolve_pag_threshold(state: ExperimentState) -> float:
     raw = state.params.get("pag_threshold")
     try:
         parsed = float(raw) if raw is not None else 0.5
-    except Exception:
+    except _TRANSPORT_NUMERIC_PARSE_ERRORS:
         return 0.5
     if parsed < 0.0:
         return 0.0
@@ -1359,8 +1363,8 @@ def _resolve_pag_seed(state: ExperimentState, graph: CausalGraphModel) -> int:
     if raw is not None:
         try:
             return int(raw)
-        except Exception as exc:
-            logger.debug("Ignored exception: %s", exc)
+        except _TRANSPORT_NUMERIC_PARSE_ERRORS:
+            logger.debug("Failed to parse pag_seed override; deriving deterministic seed", exc_info=True)
     payload = f"{state.run_id}|{graph.model_dump_json(exclude_none=False, by_alias=True)}"
     return int(hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16], 16) % (2**31 - 1)
 
@@ -1374,7 +1378,7 @@ def _build_graph_ref_from_artifact_id(artifact_id: str) -> CausalGraphModelRef |
                 "media_type": "application/json",
             }
         )
-    except Exception:
+    except _TRANSPORT_VALIDATION_ERRORS:
         return None
 
 
@@ -1390,8 +1394,12 @@ def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> Caus
                 consensus_ref = _build_graph_ref_from_artifact_id(ensemble.consensus_graph_ref)
                 if consensus_ref is not None:
                     return load_causal_graph_model(ctx.store, consensus_ref)
-        except Exception as exc:
-            logger.debug("Ignored exception: %s", exc)
+        except _TRANSPORT_LOAD_ERRORS:
+            logger.debug(
+                "Failed to load causal graph from ensemble ref %s; trying fallback refs",
+                ensemble_ref_raw,
+                exc_info=True,
+            )
 
     for key in (ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF, "causal_graph_ref"):
         ref_raw = state.artifacts_index.get(key)
@@ -1400,7 +1408,7 @@ def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> Caus
         try:
             graph_ref = CausalGraphModelRef.model_validate(ref_raw.model_dump(mode="json"))
             return load_causal_graph_model(ctx.store, graph_ref)
-        except Exception:
+        except _TRANSPORT_LOAD_ERRORS:
             continue
     return None
 
@@ -1419,7 +1427,7 @@ def _build_skg_query(db_path: Any, index_dir: Any) -> SKGQuery | _NullSKG:
     index = _coerce_path(index_dir) or db.parent
     try:
         return SKGQuery(db_path=db, index_dir=index)
-    except Exception:
+    except _TRANSPORT_LOAD_ERRORS:
         return _NullSKG()
 
 

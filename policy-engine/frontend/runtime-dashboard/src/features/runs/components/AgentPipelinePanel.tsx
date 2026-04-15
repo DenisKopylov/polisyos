@@ -566,7 +566,7 @@ export default function AgentPipelinePanel({
           ))}
         </div>
 
-        <aside className="bg-panel/85 border-line rounded-xl border p-3">
+        <section className="bg-panel/85 border-line rounded-xl border p-3">
           {selectedStep ? (
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
@@ -673,7 +673,7 @@ export default function AgentPipelinePanel({
               {t("panels.agentPipeline.selectStep")}
             </p>
           )}
-        </aside>
+        </section>
       </div>
     </div>
   );

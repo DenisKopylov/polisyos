@@ -26,7 +26,7 @@ def test_component_id_parsing_and_semver() -> None:
         "a.b@1",
         "a@1.0.0",
     ]:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="validation error"):
             ComponentId.parse(invalid)
 
     assert SemVer.parse("1.2.10") > SemVer.parse("1.2.3")

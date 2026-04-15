@@ -270,6 +270,62 @@ class TestPersistentMemoryStoreCRUD:
         assert len(results) == 2
         assert "wage" in results[0].content
 
+    def test_query_filters_ttl_and_confidence_from_index_before_extra_cas_reads(self) -> None:
+        store = _make_store()
+        mem = PersistentMemoryStore(store)
+        now = datetime.now(timezone.utc)
+        mem.store_memory(MemoryEntry(
+            kind=MemoryKind.EPISODIC,
+            content="expired memory",
+            source_run_id="r1",
+            confidence=0.9,
+            expires_at=now - timedelta(hours=1),
+        ))
+        mem.store_memory(MemoryEntry(
+            kind=MemoryKind.EPISODIC,
+            content="low confidence memory",
+            source_run_id="r1",
+            confidence=0.2,
+        ))
+        mem.store_memory(MemoryEntry(
+            kind=MemoryKind.EPISODIC,
+            content="usable memory",
+            source_run_id="r1",
+            confidence=0.8,
+            expires_at=now + timedelta(hours=1),
+        ))
+
+        store.get_bytes.reset_mock()
+        results = mem.query(MemoryQuery(min_confidence=0.5, max_results=1))
+
+        assert len(results) == 1
+        assert results[0].content == "usable memory"
+        assert store.get_bytes.call_count == 1
+
+    def test_prune_expired_uses_index_metadata_without_loading_payloads(self) -> None:
+        store = _make_store()
+        mem = PersistentMemoryStore(store)
+        now = datetime.now(timezone.utc)
+        mem.store_memory(MemoryEntry(
+            kind=MemoryKind.EPISODIC,
+            content="expired memory",
+            source_run_id="r1",
+            expires_at=now - timedelta(hours=1),
+        ))
+        mem.store_memory(MemoryEntry(
+            kind=MemoryKind.EPISODIC,
+            content="fresh memory",
+            source_run_id="r1",
+            expires_at=now + timedelta(hours=1),
+        ))
+
+        store.get_bytes.reset_mock()
+        removed = mem.prune_expired()
+
+        assert removed == 1
+        assert len(mem.index.entries) == 1
+        assert store.get_bytes.call_count == 0
+
 
 # ---------------------------------------------------------------------------
 # Index persistence
@@ -324,6 +380,36 @@ class TestIndexPersistence:
         mem3 = PersistentMemoryStore(store)
         mem3.load_index(idx_ref_2)
         assert len(mem3.index.entries) == 2
+
+    def test_long_content_dedup_survives_save_and_load(self) -> None:
+        store = _make_store()
+        content = "A" * 260 + " unique suffix"
+
+        mem1 = PersistentMemoryStore(store)
+        ref1 = mem1.store_memory(MemoryEntry(
+            kind=MemoryKind.SEMANTIC,
+            content=content,
+            source_run_id="run_1",
+        ))
+        ref2 = mem1.store_memory(MemoryEntry(
+            kind=MemoryKind.SEMANTIC,
+            content=content,
+            source_run_id="run_1",
+        ))
+        idx_ref = mem1.save_index()
+
+        mem2 = PersistentMemoryStore(store)
+        mem2.load_index(idx_ref)
+        ref3 = mem2.store_memory(MemoryEntry(
+            kind=MemoryKind.SEMANTIC,
+            content=content,
+            source_run_id="run_2",
+        ))
+
+        assert str(ref1.artifact_id) == str(ref2.artifact_id)
+        assert str(ref1.artifact_id) == str(ref3.artifact_id)
+        assert len(mem2.index.entries) == 1
+        assert mem2.index.entries[0].full_content_hash
 
 
 # ---------------------------------------------------------------------------

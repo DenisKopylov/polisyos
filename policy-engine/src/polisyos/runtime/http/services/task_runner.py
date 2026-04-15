@@ -4,14 +4,18 @@ from __future__ import annotations
 
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, field
-from typing import Any, Callable, Literal
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Literal
 
+from polisyos.common.async_tools import get_shared_executor
 from polisyos.common.logger import get_logger
 
 logger = get_logger(__name__)
 
 TaskState = Literal["pending", "running", "completed", "failed"]
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 @dataclass
@@ -30,11 +34,23 @@ class TaskRunner:
     with a proper job queue (Celery, etc.).
     """
 
-    def __init__(self, max_workers: int | None = None) -> None:
-        if max_workers is None:
-            import os
-            max_workers = int(os.environ.get("POLISYOS_CONTROL_MAX_WORKERS", "0")) or min(os.cpu_count() or 2, 4)
-        self._executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="ctrl")
+    def __init__(
+        self,
+        max_workers: int | None = None,
+        *,
+        executor: ThreadPoolExecutor | None = None,
+    ) -> None:
+        self._owns_executor = False
+        if executor is not None:
+            self._executor = executor
+        elif max_workers is None:
+            self._executor = get_shared_executor()
+        else:
+            self._executor = ThreadPoolExecutor(
+                max_workers=max(max_workers, 1),
+                thread_name_prefix="ctrl",
+            )
+            self._owns_executor = True
         self._tasks: dict[str, TaskRecord] = {}
         self._lock = threading.Lock()
 
@@ -76,6 +92,11 @@ class TaskRunner:
             record.state = "failed"
             record.error = str(exc)
             logger.exception("task %s (run %s) failed: %s", record.task_id, record.run_id, exc)
+
+    def close(self, *, wait: bool = True, cancel_futures: bool = False) -> None:
+        """Shut down the shared thread pool cleanly during runtime teardown."""
+        if self._owns_executor:
+            self._executor.shutdown(wait=wait, cancel_futures=cancel_futures)
 
 
 __all__ = ["TaskRecord", "TaskRunner"]

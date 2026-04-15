@@ -76,16 +76,16 @@ def _attention_importance(attention: np.ndarray, feature_names: list[str]) -> di
 @foundry_method(
     namespace="ml.deep",
     version="1.0.0",
-    tags={"ml", "deep-learning", "tabular-transformer"},
+    tags={"ml", "tabular-transformer", "heuristic", "random_feature", "attention"},
 )
 class TabularTransformerEstimator:
-    """Learn contextual tabular embeddings for prediction tasks; avoid very small datasets where attention models overfit."""
+    """Use a frozen attention-style encoder plus ridge head as a fast tabular baseline."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scikit-learn")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="tabular_transformer",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -107,15 +107,27 @@ class TabularTransformerEstimator:
     )
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
-        description="Transformer-style tabular regressor using a self-attention encoder with a ridge head.",
-        tags=frozenset({"ml", "deep-learning", "tabular-transformer"}),
-        when_to_use="Sequence modeling with long-range dependencies; NLP tasks; tabular data with attention",
+        description=(
+            "Random-feature transformer-style tabular regressor using a frozen self-attention "
+            "encoder with a ridge head."
+        ),
+        tags=frozenset({"ml", "tabular-transformer", "heuristic", "random_feature", "attention"}),
+        when_to_use=(
+            "Need a fast attention-shaped tabular baseline with richer interactions than linear models, "
+            "without claiming full trainable transformer depth."
+        ),
         citations=(
             "Vaswani, A. et al. (2017). Attention is all you need. NeurIPS, 30.",
             "Gorishniy, Y. et al. (2021). Revisiting deep learning models for tabular data. NeurIPS, 34.",
         ),
-        when_not_to_use="Very small datasets (<50 obs); need simple interpretable model; no GPU available for large models",
-        output_interpretation="Task-specific output (classification logits, regression values, generated text). Attention weights for interpretability.",
+        when_not_to_use=(
+            "Need a fully trainable transformer; need production-grade deep learning capacity; "
+            "very small datasets (<50 obs) where even this baseline will be unstable."
+        ),
+        output_interpretation=(
+            "Regression predictions from a ridge head fit on frozen attention-style features. "
+            "Attention weights are heuristic diagnostics, not causal explanations."
+        ),
         typical_min_obs=50,
     )
 

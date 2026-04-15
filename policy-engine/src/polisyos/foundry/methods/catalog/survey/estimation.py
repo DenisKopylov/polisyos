@@ -36,7 +36,7 @@ class FayHerriotEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="fay_herriot",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -130,7 +130,7 @@ class CalibrationGREGEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="calibration_greg",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -2,7 +2,50 @@
 
 from __future__ import annotations
 
+import os
+
+from polisyos.scientist.llm.provider_verification import is_provider_capability_verified
+
 from .models import ModelProfile
+
+
+def _env_text(name: str, default: str) -> str:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    stripped = value.strip()
+    return stripped or default
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+_QWEN_GONKA_MODEL_ID = _env_text(
+    "POLISYOS_QWEN_GONKA_MODEL_ID",
+    "qwen/qwen3-235b-a22b-instruct-2507-fp8",
+)
+_QWEN_GONKA_BASE_URL = _env_text(
+    "POLISYOS_QWEN_GONKA_BASE_URL",
+    "https://api.gonkagate.com/v1",
+)
+_QWEN_GONKA_PRESET_ID = _env_text(
+    "POLISYOS_QWEN_GONKA_PRESET_ID",
+    "",
+)
+_QWEN_GONKA_CAPABILITIES = ["json"]
+if _env_bool("POLISYOS_QWEN_GONKA_TOOL_CALLING_EMERGENCY_OVERRIDE", default=False) or _env_bool(
+    "POLISYOS_QWEN_GONKA_TOOL_CALLING_VERIFIED",
+    default=False,
+) or is_provider_capability_verified(
+    provider="gonka",
+    model_id=_QWEN_GONKA_MODEL_ID,
+    capability="tool_calling",
+):
+    _QWEN_GONKA_CAPABILITIES.append("tool_calling")
 
 BUILTIN_MODEL_PROFILES: list[ModelProfile] = [
     ModelProfile(
@@ -50,10 +93,13 @@ BUILTIN_MODEL_PROFILES: list[ModelProfile] = [
         display_name="Qwen3-235B (Gonka)",
         description="Gonka-focused ultra-cheap profile for bulk experiment runs.",
         provider="gonka",
-        model_id="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
-        base_url="https://gonka-gateway.mingles.ai/v1",
+        model_id=_QWEN_GONKA_MODEL_ID,
+        base_url=_QWEN_GONKA_BASE_URL,
+        preset_id=_QWEN_GONKA_PRESET_ID or None,
         tags=["gonka", "ultra-cheap", "experimental"],
-        capabilities=["json"],
+        capabilities=_QWEN_GONKA_CAPABILITIES,
+        input_cost_per_mtoken_usd=0.0006,
+        output_cost_per_mtoken_usd=0.0006,
     ),
 ]
 

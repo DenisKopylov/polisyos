@@ -37,6 +37,7 @@ from polisyos.ir.analytics.transportability import (
     TransportabilityResult,
     TransportabilityStatus,
     TransportFormula,
+    TransportMode,
 )
 from polisyos.lex.legal_evaluation.transport_constraints import (
     ConstraintSeverity,
@@ -423,6 +424,7 @@ def test_run_transportability_symbolic_mode_records_backend_issue(
         result = TransportabilityResult(
             query="P*(gdp_growth|do(tax_rate))",
             status=TransportabilityStatus.UNSUPPORTED,
+            transport_mode=TransportMode.NONE,
             final_confidence=0.0,
             source_context_id=diagram.source_context.context_id,
             target_context_id=diagram.target_context.context_id,
@@ -490,6 +492,7 @@ def test_run_transportability_solver_mode_maps_symbolic_backend_params(
         result = TransportabilityResult(
             query="P*(gdp_growth|do(tax_rate))",
             status=TransportabilityStatus.UNSUPPORTED,
+            transport_mode=TransportMode.NONE,
             final_confidence=0.0,
             source_context_id=diagram.source_context.context_id,
             target_context_id=diagram.target_context.context_id,
@@ -748,6 +751,7 @@ def test_resolution_loop_non_transportable_adds_manski_fallback(
         result = TransportabilityResult(
             query="P*(gdp_growth|do(tax_rate))",
             status=TransportabilityStatus.UNSUPPORTED,
+            transport_mode=TransportMode.NONE,
             final_confidence=0.0,
             source_context_id=diagram.source_context.context_id,
             target_context_id=diagram.target_context.context_id,

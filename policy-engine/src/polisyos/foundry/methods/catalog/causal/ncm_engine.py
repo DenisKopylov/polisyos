@@ -990,7 +990,7 @@ class NCMEngineMethod:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ncm_engine",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("ncm_query_data", SlotType.SCALAR, Unit("query", "json")),

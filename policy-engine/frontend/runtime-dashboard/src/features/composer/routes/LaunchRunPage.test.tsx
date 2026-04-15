@@ -279,6 +279,116 @@ describe("LaunchRunPage", () => {
     expect(deleteComposerDraftMock).toHaveBeenCalledWith("nl:new");
   }, 15_000);
 
+  it("keeps one editable required output and governance constraint when removing rows", async () => {
+    const user = userEvent.setup();
+    renderLaunchRunPage("/compose?mode=workflow");
+
+    await screen.findAllByPlaceholderText(
+      "pages.composer.expectedOutputKindPlaceholder",
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /common.remove pages\.composer\.expectedOutputs 1/,
+      }),
+    );
+    expect(
+      screen.getAllByPlaceholderText(
+        "pages.composer.expectedOutputKindPlaceholder",
+      ),
+    ).toHaveLength(1);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /common.remove pages\.composer\.expectedOutputs 1/,
+      }),
+    );
+    expect(
+      screen.getAllByPlaceholderText(
+        "pages.composer.expectedOutputKindPlaceholder",
+      ),
+    ).toHaveLength(1);
+    expect(
+      screen.getByPlaceholderText(
+        "pages.composer.expectedOutputKindPlaceholder",
+      ),
+    ).toHaveValue("");
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /common.remove pages\.composer\.governanceConstraints 1/,
+      }),
+    );
+    expect(
+      screen.getAllByPlaceholderText(
+        "pages.composer.constraintScopePlaceholder",
+      ),
+    ).toHaveLength(1);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /common.remove pages\.composer\.governanceConstraints 1/,
+      }),
+    );
+    expect(
+      screen.getAllByPlaceholderText(
+        "pages.composer.constraintScopePlaceholder",
+      ),
+    ).toHaveLength(1);
+    expect(
+      screen.getByPlaceholderText("pages.composer.constraintScopePlaceholder"),
+    ).toHaveValue("");
+  });
+
+  it("keeps one editable required output and governance constraint in NL mode", async () => {
+    const user = userEvent.setup();
+    renderLaunchRunPage("/compose?mode=nl");
+
+    await screen.findAllByPlaceholderText(
+      "pages.composer.expectedOutputKindPlaceholder",
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /common.remove pages\.composer\.expectedOutputs 1/,
+      }),
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: /common.remove pages\.composer\.expectedOutputs 1/,
+      }),
+    );
+    expect(
+      screen.getAllByPlaceholderText(
+        "pages.composer.expectedOutputKindPlaceholder",
+      ),
+    ).toHaveLength(1);
+    expect(
+      screen.getByPlaceholderText(
+        "pages.composer.expectedOutputKindPlaceholder",
+      ),
+    ).toHaveValue("");
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /common.remove pages\.composer\.governanceConstraints 1/,
+      }),
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: /common.remove pages\.composer\.governanceConstraints 1/,
+      }),
+    );
+    expect(
+      screen.getAllByPlaceholderText(
+        "pages.composer.constraintScopePlaceholder",
+      ),
+    ).toHaveLength(1);
+    expect(
+      screen.getByPlaceholderText("pages.composer.constraintScopePlaceholder"),
+    ).toHaveValue("");
+  });
+
   it("submits workflow launches and surfaces runtime API errors", async () => {
     const workflowMutateMock = vi.fn();
     useLaunchRunMock.mockReturnValue({

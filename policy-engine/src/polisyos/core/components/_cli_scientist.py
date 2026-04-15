@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import importlib
 import json
 import sys
@@ -9,15 +10,19 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.components._cli_store import build_cli_filesystem_cas
 
 __all__ = [
-    "_cmd_scientist_sensitivity_run",
-    "_cmd_scientist_stress_test",
+    "_cmd_scientist_agent_eval",
+    "_cmd_scientist_agent_smoke",
     "_cmd_scientist_backtest",
     "_cmd_scientist_burn_in",
     "_cmd_scientist_calibration_report",
+    "_cmd_scientist_provider_verify",
+    "_cmd_scientist_sensitivity_run",
+    "_cmd_scientist_stress_test",
 ]
 
 
@@ -31,6 +36,16 @@ def _validate_output_extension(output_path: str | None, output_format: str) -> N
             f"output extension '{suffix}' does not match --format {output_format!r} "
             f"(expected '{expected}')"
         )
+
+
+def _emit_json_output(payload: dict[str, Any], output_path: str | None) -> int:
+    rendered = json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
+    if output_path:
+        Path(output_path).write_text(rendered, encoding="utf-8")
+        print(f"output={output_path}")
+    else:
+        print(rendered)
+    return 0
 
 
 def _evaluate_builtin_sensitivity_objective(samples: Any, objective_spec: Any) -> Any:
@@ -168,7 +183,7 @@ def _cmd_scientist_sensitivity_run(args: Any) -> int:
         print(f"ERROR: sensitivity analysis failed: {exc}", file=sys.stderr)
         return 1
 
-    cas = FileSystemCAS(Path(args.cas_root))
+    cas = build_cli_filesystem_cas(Path(args.cas_root))
     ref = cas.put_json(
         result.model_dump(mode="json"),
         PutOptions(
@@ -220,10 +235,10 @@ def _cmd_scientist_stress_test(args: Any) -> int:
 
     class _RandomGenerator:
         def __init__(self, specs: list[Any], seed: int | None) -> None:
-            import random
+            import numpy as np
 
             self._specs = specs
-            self._rng = random.Random(seed)
+            self._rng = np.random.default_rng(seed)
 
         def generate(self, history: list[Any], current_best: dict[str, Any] | None, context: dict[str, Any]) -> dict[str, Any]:
             del history, current_best, context
@@ -236,7 +251,7 @@ def _cmd_scientist_stress_test(args: Any) -> int:
         del context
         return {"simulation_results": {"stress_objective": objective_callable(candidate)}}
 
-    cas = FileSystemCAS(Path(args.cas_root))
+    cas = build_cli_filesystem_cas(Path(args.cas_root))
     report = search_adversarial.run_stress_test(
         adversarial_plan=plan,
         base_objective=composite_objective,
@@ -253,6 +268,86 @@ def _cmd_scientist_stress_test(args: Any) -> int:
     else:
         print(rendered)
     return 0
+
+
+def _cmd_scientist_provider_verify(args: Any) -> int:
+    try:
+        _validate_output_extension(args.output, "json")
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
+    from polisyos.scientist.llm import run_gonka_provider_smoke
+
+    try:
+        report = asyncio.run(
+            run_gonka_provider_smoke(
+                model_id=args.model_id,
+                base_url=args.base_url,
+                verification_dir=args.verification_dir,
+                include_web_search_smoke=not bool(args.no_web_search),
+            )
+        )
+    except Exception as exc:
+        print(f"ERROR: provider verify failed: {exc}", file=sys.stderr)
+        return 1
+
+    payload = report.model_dump(mode="json", exclude_none=True)
+    payload["verification_path"] = str(
+        Path(args.verification_dir or ".polisyos/provider_verification").resolve()
+    )
+    return _emit_json_output(payload, args.output)
+
+
+def _cmd_scientist_agent_smoke(args: Any) -> int:
+    return _cmd_scientist_provider_verify(args)
+
+
+def _cmd_scientist_agent_eval(args: Any) -> int:
+    try:
+        _validate_output_extension(args.output, "json")
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
+    from polisyos.scientist.agent.eval_harness import run_starter_eval_harness
+
+    try:
+        report = asyncio.run(
+            run_starter_eval_harness(
+                cas_root=args.cas_root,
+                include_live_provider=bool(args.live_provider),
+                model_id=args.model_id,
+                base_url=args.base_url,
+                verification_dir=args.verification_dir,
+            )
+        )
+    except Exception as exc:
+        print(f"ERROR: agent eval failed: {exc}", file=sys.stderr)
+        return 1
+    return _emit_json_output(
+        report.model_dump(mode="json", exclude_none=True),
+        args.output,
+    )
+
+
+def _cmd_scientist_reflexion_replay_eval(args: Any) -> int:
+    try:
+        _validate_output_extension(args.output, "json")
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
+    from polisyos.scientist.agent.reflexion_evaluator import evaluate_reflexion_replay_cases
+
+    try:
+        payload = json.loads(Path(args.input).read_text(encoding="utf-8"))
+        cases = payload.get("cases") if isinstance(payload, dict) else payload
+        report = evaluate_reflexion_replay_cases(cases or [])
+    except Exception as exc:
+        print(f"ERROR: reflexion replay eval failed: {exc}", file=sys.stderr)
+        return 1
+    return _emit_json_output(report.model_dump(mode="json"), args.output)
 
 
 def _cmd_scientist_burn_in(args: Any) -> int:
@@ -274,7 +369,7 @@ def _cmd_scientist_burn_in(args: Any) -> int:
         print(f"ERROR: invalid burn-in config: {exc}", file=sys.stderr)
         return 2
 
-    cas = FileSystemCAS(Path(args.cas_root))
+    cas = build_cli_filesystem_cas(Path(args.cas_root))
     tracker = search_stages.CorrelationTracker()
     lesson_registry = search_lessons.LessonRegistry(store=cas)
     sentinel_set = None
@@ -322,7 +417,7 @@ def _cmd_scientist_calibration_report(args: Any) -> int:
         return 2
 
     payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
-    cas = FileSystemCAS(Path(args.cas_root))
+    cas = build_cli_filesystem_cas(Path(args.cas_root))
     search_calibration = importlib.import_module("polisyos.scientist.search.calibration_report")
     search_cold_start = importlib.import_module("polisyos.scientist.search.cold_start")
     search_lessons = importlib.import_module("polisyos.scientist.search.lessons")

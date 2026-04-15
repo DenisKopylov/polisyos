@@ -26,9 +26,13 @@ Related explanation: [Architecture](../explanation/architecture.md).
 | [Configuration](configuration.md) | Variable-by-variable environment reference |
 | [Dependency Platform](dependency-platform.md) | Dependency tiers, extras policy, compatibility notes |
 | [Environment Matrix](environment-matrix.md) | Supported OS/Python/Node/runtime surfaces |
+| [Configuration Environment Registry](configuration-env-registry.md) | Ownership, defaults, validation, and conflict rules for bootstrap env vars |
 | [Configuration Profiles](configuration-profiles.md) | Env taxonomy, profile examples, secret governance |
+| [Logging and Trace Context](logging.md) | Explicit bootstrap model, trace correlation fields, and operator logging posture |
+| [Security and Compliance Operations](security-compliance.md) | Key rotation, CSRF cookie-mode posture, audit retention/export, and compliance query workflow |
 | [Ownership](ownership.md) | Subsystem owners, fallback owners, and boundary approval rules |
 | [Quality Gates](quality-gates.md) | PR taxonomy, labels, compatibility classes, and review expectations |
 | [Merge Governance](merge-governance.md) | Default-branch merge contract, required checks, and ruleset policy |
 | [Ratchet Policy](ratchet-policy.md) | Required evidence for any new subsystem or major surface after Phase 7 closeout |
 | [Operations](operations/index.md) | SLOs, observability, retention/recovery, handoff and scorecard policy |
+| [Platform Changelog](changelog.md) | Operator-facing summary of major platform-contract changes across remediation waves |

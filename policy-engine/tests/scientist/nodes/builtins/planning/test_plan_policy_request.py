@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.planning.plan_policy_request import PlanPolicyRequestNode
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_POLICY_REQUEST_FRAME_REF
 
@@ -55,3 +56,46 @@ def test_plan_policy_request_error(execution_context, minimal_state):
         except (ValueError, Exception):
             raised = True
     assert raised
+
+
+def test_plan_policy_request_uses_branch_state_for_declared_outputs(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    frame_ref = artifact_ref_factory(kind="scientist.policy_request_frame")
+    mock_frame = MagicMock()
+    mock_frame.jurisdiction = "US"
+    mock_frame.request_id = "req-branch"
+    state = minimal_state.model_copy(deep=True)
+    state.params["nested"] = {"baseline": True}
+    observed: dict[str, tuple[str, ...]] = {}
+
+    def _spy_branch(base_state, *, write_paths=()):
+        observed["write_paths"] = tuple(write_paths)
+        return real_branch_state(base_state, write_paths=write_paths)
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.plan_policy_request.branch_state",
+            _spy_branch,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.plan_policy_request.build_policy_request_frame",
+            return_value=mock_frame,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.plan_policy_request.persist_policy_request_frame",
+            return_value=frame_ref,
+        ),
+    ):
+        outcome = PlanPolicyRequestNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert observed["write_paths"] == (
+        "policy_request_ref",
+        "artifacts_index.policy_request_frame_ref",
+        "params.policy_answer_mode",
+        "execution_profile",
+    )
+    assert state.params["nested"] == {"baseline": True}
+    assert ARTIFACT_POLICY_REQUEST_FRAME_REF not in state.artifacts_index
+    assert outcome.state.policy_request_ref == frame_ref

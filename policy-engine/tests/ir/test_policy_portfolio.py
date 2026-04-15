@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from polisyos.ir.portfolio import InteractionMatrix, PolicyInteraction, PolicyPortfolio
 from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.portfolio import InteractionMatrix, PolicyInteraction, PolicyPortfolio
 
 
 def _portfolio_three() -> PolicyPortfolio:
@@ -90,6 +90,16 @@ def test_total_benefit_supports_legacy_multiplicative_with_clamp() -> None:
     )
     # unclamped per-policy multiplier would be 1.4*1.4=1.96, clamped to 1.5
     assert abs(total - 450.0) < 1e-9
+
+
+def test_total_benefit_rejects_unknown_interaction_mode() -> None:
+    portfolio = PolicyPortfolio(
+        portfolio_id="mode_guard",
+        policies=[PolicySpec(policy_id="a")],
+    )
+
+    with pytest.raises(ValueError, match="interaction_mode"):
+        portfolio.total_benefit({"a": 1.0}, interaction_mode="unknown")
 
 
 def test_matrix_completeness_warning_when_density_low() -> None:

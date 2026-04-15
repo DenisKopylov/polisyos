@@ -5,6 +5,7 @@ from typing import Any, Sequence
 
 import numpy as np
 
+from polisyos.foundry._numeric import economic_percent_delta
 from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CohortImpact,
@@ -50,6 +51,8 @@ def compute_palma_ratio(values: np.ndarray, *, eps: float = 1e-9) -> float | Non
         return None
     if np.any(~np.isfinite(arr)):
         return None
+    if np.any(arr < 0):
+        return None
     sorted_values = np.sort(arr)
     n = sorted_values.size
     bottom_40 = float(np.sum(sorted_values[: int(n * 0.4)]))
@@ -77,7 +80,6 @@ def build_income_quintile_breakdown(
     if n < 10:
         raise ValueError("income breakdown requires at least 10 agents")
 
-    edges = np.percentile(incomes_before, [0, 20, 40, 60, 80, 100])
     labels = [
         "Q1 (0-20%)",
         "Q2 (20-40%)",
@@ -85,25 +87,16 @@ def build_income_quintile_breakdown(
         "Q4 (60-80%)",
         "Q5 (80-100%)",
     ]
+    order = np.argsort(incomes_before, kind="stable")
+    quintile_indices = np.array_split(order, 5)
 
     cohorts: list[CohortImpact] = []
     for idx in range(5):
-        lo = edges[idx]
-        hi = edges[idx + 1]
-        if idx == 4:
-            mask = incomes_before >= lo
-        else:
-            mask = (incomes_before >= lo) & (incomes_before < hi)
-        count = int(np.sum(mask))
-        if count == 0:
-            continue
-
-        before_mean = float(np.mean(incomes_before[mask]))
-        after_mean = float(np.mean(incomes_after[mask]))
-        if abs(before_mean) < 1e-12:
-            delta_pct = 0.0
-        else:
-            delta_pct = (after_mean - before_mean) / abs(before_mean) * 100.0
+        cohort_idx = quintile_indices[idx]
+        count = int(cohort_idx.size)
+        before_mean = float(np.mean(incomes_before[cohort_idx]))
+        after_mean = float(np.mean(incomes_after[cohort_idx]))
+        delta_pct = economic_percent_delta(before_mean, after_mean)
         direction = (
             ImpactDirection.POSITIVE
             if delta_pct > 0.5
@@ -167,10 +160,7 @@ def build_geography_breakdown(
             continue
         before_mean = float(np.mean(metric_before[mask]))
         after_mean = float(np.mean(metric_after[mask]))
-        if abs(before_mean) < 1e-12:
-            delta_pct = 0.0
-        else:
-            delta_pct = (after_mean - before_mean) / abs(before_mean) * 100.0
+        delta_pct = economic_percent_delta(before_mean, after_mean)
         direction = (
             ImpactDirection.POSITIVE
             if delta_pct > 0.5

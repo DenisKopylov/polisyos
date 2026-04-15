@@ -45,7 +45,7 @@ class HorvitzThompsonEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="horvitz_thompson",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -111,7 +111,7 @@ class RakingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="raking",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -197,7 +197,7 @@ class PropensityWeightingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="propensity",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

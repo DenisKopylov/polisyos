@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
     RunCausalEvaluationNode,
 )
-from polisyos.scientist.nodes.builtins import errors as node_errors
 
 
 def test_skip_when_no_observational_data_ref(execution_context, minimal_state):
@@ -129,3 +133,74 @@ def test_fail_when_method_output_missing_report(
     assert outcome.error is not None
     assert outcome.error.code == node_errors.ERROR_FOUNDRY_EXECUTE_FAILED
     assert "missing report" in outcome.error.message
+
+
+def test_assertion_in_observational_data_load_is_not_swallowed(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    ref = artifact_ref_factory(kind="ir.observational_data", data={"dummy": 1})
+    state = minimal_state.model_copy(
+        update={
+            "observational_data_ref": ref,
+            "params": {
+                "causal_method_fqn": "causal.inference.synthetic_control",
+            },
+        },
+    )
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.ensure_causal_methods_registered",
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation._load_observational_data",
+            side_effect=AssertionError("observational invariant"),
+        ),
+    ):
+        with pytest.raises(AssertionError, match="observational invariant"):
+            RunCausalEvaluationNode().execute(execution_context, state)
+
+
+def test_fail_when_method_output_report_is_invalid(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    ref = artifact_ref_factory(kind="ir.observational_data", data={"dummy": 1})
+    state = minimal_state.model_copy(
+        update={
+            "observational_data_ref": ref,
+            "params": {
+                "causal_method_fqn": "causal.inference.synthetic_control",
+            },
+        },
+    )
+
+    mock_job_result = MagicMock()
+    mock_job_result.issues = []
+    mock_job_result.final_state = {"report": {"broken": True}}
+    mock_job_result.method_result_ref = None
+    mock_job_result.method_evidence_ref = None
+    mock_data = MagicMock()
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation._load_observational_data",
+            return_value=mock_data,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.ensure_causal_methods_registered",
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.run_job",
+            return_value=mock_job_result,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.CausalEffectReport.model_validate",
+            side_effect=ValueError("bad report"),
+        ),
+    ):
+        outcome = RunCausalEvaluationNode().execute(execution_context, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == node_errors.ERROR_FOUNDRY_EXECUTE_FAILED
+    assert "report is invalid" in outcome.error.message

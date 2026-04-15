@@ -9,7 +9,7 @@ reference: [Ownership](../reference/ownership.md). Related how-to:
 
 ## Symptom
 
-- `runtime-signing` surface не проходит в `./scripts/doctor`;
+- `runtime-signing` surface не проходит в `polisyos-tools workspace doctor`;
 - CI/release gate сообщает про unsigned artifacts, invalid signature, untrusted
   key или revoked signer;
 - Sigstore/cosign verification of release assets or `SHA256SUMS` fails;
@@ -47,7 +47,7 @@ reference: [Ownership](../reference/ownership.md). Related how-to:
 
    ```bash
    cd policy-engine
-   ./scripts/doctor --surface runtime-signing
+   uv run polisyos-tools workspace doctor --surface runtime-signing
    ```
 
 2. Проверьте signing inputs:

@@ -5,13 +5,14 @@ import re
 from enum import Enum
 from typing import Any
 
-from polisyos.ir.canon import content_hash, to_canonical_bytes
+from polisyos.ir.canon import CanonViolation, content_hash, to_canonical_bytes
 from polisyos.ir.citations import FragmentLocator
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
 
 _ARTIFACT_RE = re.compile(ARTIFACT_ID_PATTERN)
 _ID_RE = re.compile(ID_PATTERN)
 _SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
+_MAX_WORLD_ID_PAYLOAD_DEPTH = 128
 
 
 def _validate_prefix(prefix: str) -> None:
@@ -54,17 +55,37 @@ def _enum_value(value: Any) -> Any:
     return value
 
 
-def _normalize_payload_value(value: Any) -> Any:
+def _normalize_payload_value(
+    value: Any,
+    *,
+    max_depth: int = _MAX_WORLD_ID_PAYLOAD_DEPTH,
+    _depth: int = 0,
+) -> Any:
+    if _depth > max_depth:
+        raise CanonViolation(f"World ID payload depth exceeds max_depth={max_depth}")
     value = _enum_value(value)
     if isinstance(value, dict):
-        return {key: _normalize_payload_value(item) for key, item in value.items()}
+        return {
+            key: _normalize_payload_value(item, max_depth=max_depth, _depth=_depth + 1)
+            for key, item in value.items()
+        }
     if isinstance(value, list):
-        return [_normalize_payload_value(item) for item in value]
+        return [
+            _normalize_payload_value(item, max_depth=max_depth, _depth=_depth + 1)
+            for item in value
+        ]
     if isinstance(value, tuple):
-        return [_normalize_payload_value(item) for item in value]
+        return [
+            _normalize_payload_value(item, max_depth=max_depth, _depth=_depth + 1)
+            for item in value
+        ]
     model_dump = getattr(value, "model_dump", None)
     if callable(model_dump):
-        return _normalize_payload_value(model_dump())
+        return _normalize_payload_value(
+            model_dump(),
+            max_depth=max_depth,
+            _depth=_depth + 1,
+        )
     return value
 
 

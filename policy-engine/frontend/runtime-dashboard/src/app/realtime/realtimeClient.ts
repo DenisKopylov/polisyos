@@ -12,11 +12,28 @@ class DefaultRealtimeClient implements RealtimeTransport {
     request: RealtimeSubscriptionRequest,
     handlers: RealtimeSubscriptionHandlers,
   ): RealtimeSubscription {
-    if (request.channel.startsWith("runs.")) {
-      return getSseRealtimeTransport().subscribe(request, handlers);
+    switch (request.channel) {
+      case "runs.global":
+      case "runs.byId":
+        return getSseRealtimeTransport().subscribe(request, handlers);
+      case "collab.activity":
+      case "collab.comments":
+      case "collab.cursors":
+      case "collab.presence":
+      case "review.cursor":
+      case "review.lock":
+      case "review.presence":
+        return getWebSocketRealtimeTransport().subscribe(request, handlers);
+      default:
+        return assertNever(request);
     }
-    return getWebSocketRealtimeTransport().subscribe(request, handlers);
   }
+}
+
+function assertNever(value: never): never {
+  throw new Error(
+    `Unsupported realtime subscription channel: ${JSON.stringify(value)}`,
+  );
 }
 
 let sharedRealtimeClient: DefaultRealtimeClient | null = null;
@@ -26,4 +43,9 @@ export function getRealtimeClient() {
     sharedRealtimeClient = new DefaultRealtimeClient();
   }
   return sharedRealtimeClient;
+}
+
+/** Reset the shared singleton — useful for tests and HMR. */
+export function resetRealtimeClient() {
+  sharedRealtimeClient = null;
 }

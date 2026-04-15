@@ -11,11 +11,13 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.fabric.connectors.base import FetchRequest
 from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric.connectors.quality.report import DataQualityReport
+from polisyos.fabric.finite import ensure_probability
+from polisyos.fabric.temporal import utc_now
 from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
 
 if TYPE_CHECKING:
@@ -84,6 +86,7 @@ class CompositionRequest:
     # Audit and determinism
     audit_level: AuditLevel = AuditLevel.SUMMARY
     audit_sample_size: int = 50
+    audit_max_entries: int = 5_000
     audit_seed: str | None = None
     strict_conflicts: bool = False
     tie_breaker_seed: str | None = None
@@ -215,7 +218,7 @@ class CompositionResult:
     quality_report: DataQualityReport | None = None
 
     # Metadata
-    composed_at: datetime = field(default_factory=datetime.utcnow)
+    composed_at: datetime = field(default_factory=utc_now)
     execution_time_ms: float = 0.0
 
     def summary(self) -> dict[str, Any]:
@@ -274,6 +277,11 @@ class RankingWeights(BaseModel):
     freshness: float = Field(default=0.2, ge=0.0, le=1.0)
     latency: float = Field(default=0.1, ge=0.0, le=1.0)
 
+    @field_validator("trust", "completeness", "freshness", "latency", mode="after")
+    @classmethod
+    def _validate_finite_weight(cls, value: float) -> float:
+        return ensure_probability(value, what="ranking weight")
+
     def validate_sum(self) -> None:
         """Ensure weights sum to approximately 1.0."""
         total = self.trust + self.completeness + self.freshness + self.latency
@@ -328,7 +336,7 @@ class ExecutionPlan:
     estimated_cost_ms: float | None = None
 
     # Provenance
-    planning_timestamp: datetime = field(default_factory=datetime.utcnow)
+    planning_timestamp: datetime = field(default_factory=utc_now)
     planner_version: str = "1.0"
 
     def total_sources(self) -> int:

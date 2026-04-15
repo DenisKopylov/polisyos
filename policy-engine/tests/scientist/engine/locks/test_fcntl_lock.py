@@ -26,6 +26,7 @@ class TestFcntlRunLock:
         assert isinstance(handle, RunLockHandle)
         assert handle.run_id == "test-001"
         assert "mode" in handle.metadata
+        assert "owner_token" in handle.metadata
         handle.release()
 
     def test_double_acquire_raises(self, tmp_path: Path):
@@ -36,6 +37,33 @@ class TestFcntlRunLock:
         try:
             with pytest.raises(RunLockError):
                 lock_backend.acquire(run_id="test-002", mode="run")
+        finally:
+            handle.release()
+
+    def test_force_requires_owner_token(self, tmp_path: Path):
+        from polisyos.scientist.engine.locks.fcntl_lock import FcntlRunLock
+
+        lock_backend = FcntlRunLock(run_dir=tmp_path)
+        handle = lock_backend.acquire(run_id="test-002", mode="run")
+        try:
+            with pytest.raises(RunLockError, match="requires owner_token"):
+                lock_backend.acquire(run_id="test-002", mode="run", force=True)
+        finally:
+            handle.release()
+
+    def test_force_rejects_owner_token_mismatch(self, tmp_path: Path):
+        from polisyos.scientist.engine.locks.fcntl_lock import FcntlRunLock
+
+        lock_backend = FcntlRunLock(run_dir=tmp_path)
+        handle = lock_backend.acquire(run_id="test-002", mode="run")
+        try:
+            with pytest.raises(RunLockError, match="owner token mismatch"):
+                lock_backend.acquire(
+                    run_id="test-002",
+                    mode="run",
+                    force=True,
+                    owner_token="wrong-token",
+                )
         finally:
             handle.release()
 
@@ -69,5 +97,6 @@ class TestFcntlRunLock:
             assert "mode" in handle.metadata
             assert "pid" in handle.metadata
             assert "hostname" in handle.metadata
+            assert "owner_token" in handle.metadata
         finally:
             handle.release()

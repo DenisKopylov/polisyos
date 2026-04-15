@@ -4,7 +4,8 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Iterable
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -13,7 +14,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, CanonViolation
 from polisyos.scientist.engine.checkpoint import compute_workflow_fingerprint
-from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.condition import ConditionSyntaxError, evaluate_condition
 from polisyos.scientist.engine.errors import (
     CycleDetectedError,
     DuplicateAliasError,
@@ -23,20 +24,26 @@ from polisyos.scientist.engine.errors import (
     WorkflowSpecError,
 )
 from polisyos.scientist.engine.idempotency import NodeResultCache, compute_idempotency_key
-from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeStatus
-from polisyos.scientist.engine.registry import NodeRegistry
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeStatus
+from polisyos.scientist.engine.retry import RetryPolicy, execute_with_retry_sync
+from polisyos.scientist.engine.state_branching import branch_state, snapshot_state
+from polisyos.scientist.engine.state_merge import merge_parallel_outcomes
 from polisyos.scientist.engine.telemetry import (
     add_span_events,
     set_span_attribute,
     start_node_span,
 )
-from polisyos.scientist.engine.condition import ConditionSyntaxError, evaluate_condition
-from polisyos.scientist.engine.retry import RetryPolicy, execute_with_retry_sync
-from polisyos.scientist.engine.workflow_spec import ErrorPolicy, NodeInvocation, WorkflowSpec
+from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.workflow_spec import ErrorPolicy
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from polisyos.scientist.engine.checkpoint import CheckpointHook
+    from polisyos.scientist.engine.context import ExecutionContext
+    from polisyos.scientist.engine.registry import NodeRegistry
+    from polisyos.scientist.engine.state import ExperimentState
+    from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 _CACHE_BYPASS_DISABLED = 1
 _CACHE_BYPASS_KEY_ERROR = 2
@@ -51,6 +58,19 @@ _CACHE_DISABLED_NODE_IDS = frozenset(
         "scientist.node_enrich_knowledge@1.1.0",
     }
 )
+_EXECUTOR_DEGRADED_ERRORS = (
+    ArithmeticError,
+    AssertionError,
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
+_NODE_BIND_ERRORS = _EXECUTOR_DEGRADED_ERRORS
+_NODE_EXECUTION_ERRORS = _EXECUTOR_DEGRADED_ERRORS
 
 
 class NodeRunRecord(BaseModel):
@@ -86,6 +106,22 @@ class WorkflowExecutionResult:
     run_ref: ArtifactRef | None = None
 
 
+class NodeBindError(RuntimeError):
+    """Binding runtime parameters to a node failed."""
+
+    def __init__(
+        self,
+        *,
+        node_label: str,
+        param_keys: tuple[str, ...],
+        cause: BaseException,
+    ) -> None:
+        self.node_label = node_label
+        self.param_keys = param_keys
+        self.error_type = cause.__class__.__name__
+        super().__init__(f"Node bind failed for {node_label}: {cause}")
+
+
 def _node_level_to_logging(level: str) -> int:
     return {
         "debug": logging.DEBUG,
@@ -111,7 +147,24 @@ def _log_node_events(logger: logging.Logger, alias: str, events: Iterable[Any]) 
 _module_logger = get_logger(__name__)
 
 
-def _bind_node_params(node: Any, params: dict[str, Any]) -> Any:
+def _executor_degraded(
+    *,
+    operation: str,
+    reason: str,
+    exc: BaseException,
+    details: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return emit_degraded_path(
+        component="engine.executor",
+        operation=operation,
+        reason=reason,
+        exc=exc,
+        details=details,
+        log=_module_logger,
+    )
+
+
+def bind_node_params(node: Any, params: dict[str, Any]) -> Any:
     if not params:
         return node
     binder = getattr(node, "bind", None)
@@ -119,12 +172,32 @@ def _bind_node_params(node: Any, params: dict[str, Any]) -> Any:
         try:
             bound = binder(params)
             return bound if bound is not None else node
-        except Exception as exc:  # noqa: BLE001
-            _module_logger.debug(
-                "Node bind failed (%s), using unbound node: %s", type(exc).__name__, exc,
-            )
-            return node
+        except _NODE_BIND_ERRORS as exc:
+            raise NodeBindError(
+                node_label=str(getattr(node, "spec", node.__class__.__name__)),
+                param_keys=tuple(sorted(params)),
+                cause=exc,
+            ) from exc
     return node
+
+
+_bind_node_params = bind_node_params
+
+
+def _merge_cached_outcome_state(
+    *,
+    alias: str,
+    node: Any,
+    base_state: ExperimentState,
+    outcome: NodeOutcome,
+) -> ExperimentState:
+    """Apply cached branch-local state onto the current base state by declared writes."""
+    merge_result = merge_parallel_outcomes(
+        base_state,
+        {alias: outcome},
+        {alias: list(getattr(node.spec, "state_writes", ()))},
+    )
+    return merge_result.state
 
 
 def _validate_required_binds(required: list[str], state: ExperimentState) -> None:
@@ -168,7 +241,7 @@ def _should_cache(node_id: str) -> bool:
 
 
 def _topo_sort(invocations: dict[str, NodeInvocation]) -> list[str]:
-    indegree: dict[str, int] = {alias: 0 for alias in invocations}
+    indegree: dict[str, int] = dict.fromkeys(invocations, 0)
     edges: dict[str, list[str]] = {alias: [] for alias in invocations}
     order_index = {alias: idx for idx, alias in enumerate(invocations.keys())}
 
@@ -228,7 +301,7 @@ class WorkflowExecutor:
         order = _topo_sort(invocations)
         workflow_started = time.perf_counter()
 
-        initial_state = state.model_copy(deep=True)
+        initial_state = snapshot_state(state)
         workflow_ref = self._persist_workflow_spec(workflow)
         self._ctx.run.add_input(workflow_ref)
         state_input_ref = self._persist_state(initial_state)
@@ -321,7 +394,45 @@ class WorkflowExecutor:
                         break
                     continue
 
-            node = _bind_node_params(self._registry.get(inv.node_id), inv.params)
+            try:
+                node = _bind_node_params(self._registry.get(inv.node_id), inv.params)
+            except NodeBindError as exc:
+                self._ctx.logger.exception("Node %s bind failed", alias)
+                record = NodeRunRecord(
+                    alias=alias,
+                    node_id=str(inv.node_id),
+                    status="fail",
+                    duration_ms=0,
+                    error=NodeError(
+                        code="node.bind_failed",
+                        message=str(exc),
+                        details={
+                            "node": exc.node_label,
+                            "param_keys": list(exc.param_keys),
+                            "type": exc.error_type,
+                        },
+                    ),
+                )
+                records.append(record)
+                failed.add(alias)
+                self._ctx.run.emit(
+                    f"scientist.node.{alias}",
+                    "NODE_FAIL",
+                    metrics={"duration_ms": 0, "status_ok": 0},
+                )
+                if self._ctx.metrics is not None:
+                    self._ctx.metrics.record_node_completed(
+                        alias=alias,
+                        node_id=str(inv.node_id),
+                        workflow_id=workflow.workflow_id,
+                        status="fail",
+                        duration_ms=0,
+                        cache_hit=False,
+                        retry_count=0,
+                    )
+                if workflow.error_policy == "fail_fast":
+                    break
+                continue
             span_attrs = {
                 "polisyos.run_id": state.run_id,
                 "polisyos.workflow_id": workflow.workflow_id,
@@ -372,12 +483,13 @@ class WorkflowExecutor:
                             alias,
                             exc,
                         )
-                    except Exception as exc:  # noqa: BLE001
+                    except _EXECUTOR_DEGRADED_ERRORS as exc:
                         cache_bypass_reason = _CACHE_BYPASS_KEY_ERROR
-                        self._ctx.logger.warning(
-                            "Unexpected idempotency key generation failure for node %s: %s",
-                            alias,
-                            exc,
+                        _executor_degraded(
+                            operation="compute_idempotency_key",
+                            reason="unexpected_cache_key_failure",
+                            exc=exc,
+                            details={"alias": alias, "node_id": node_id},
                         )
                 else:
                     cache_bypass_reason = _CACHE_BYPASS_DISABLED
@@ -413,12 +525,31 @@ class WorkflowExecutor:
                         )
 
                 if cached_outcome is not None:
-                    outcome = cached_outcome
+                    outcome = cached_outcome.model_copy(
+                        update={
+                            "state": _merge_cached_outcome_state(
+                                alias=alias,
+                                node=node,
+                                base_state=state,
+                                outcome=cached_outcome,
+                            )
+                        }
+                    )
                 else:
                     retry_policy = inv.retry or RetryPolicy()
+                    branched_state = branch_state(
+                        state,
+                        write_paths=getattr(node.spec, "state_writes", ()),
+                    )
+                    node_state = branched_state.state
+                    set_span_attribute(
+                        span,
+                        "polisyos.node.state_branch.isolated_paths",
+                        ",".join(branched_state.journal.isolated_paths),
+                    )
                     try:
                         raw_outcome = execute_with_retry_sync(
-                            node, self._ctx, state,
+                            node, self._ctx, node_state,
                             retry_policy=retry_policy,
                             timeout_s=inv.timeout_s,
                             alias=alias,
@@ -457,7 +588,7 @@ class WorkflowExecutor:
                                 details={"error": str(exc)},
                             ),
                         )
-                    except Exception as exc:  # noqa: BLE001
+                    except _NODE_EXECUTION_ERRORS as exc:
                         self._ctx.logger.exception("Node %s failed", alias)
                         outcome = NodeOutcome(
                             status="fail",
@@ -483,11 +614,27 @@ class WorkflowExecutor:
                                     "cache_store": 1,
                                 },
                             )
-                        except Exception as exc:  # noqa: BLE001
-                            self._ctx.logger.warning(
-                                "Failed to persist node cache entry for %s: %s",
-                                alias,
-                                exc,
+                        except _EXECUTOR_DEGRADED_ERRORS as exc:
+                            envelope = _executor_degraded(
+                                operation="store_cache_entry",
+                                reason="cache_bypass",
+                                exc=exc,
+                                details={"alias": alias, "node_id": node_id},
+                            )
+                            outcome.events.append(
+                                NodeEvent(
+                                    level="warn",
+                                    message="Node result cache write bypassed",
+                                    code="node.cache_bypass",
+                                    attrs={
+                                        "reason": str(
+                                            envelope.get("reason", "cache_bypass")
+                                        ),
+                                        "error_type": str(
+                                            envelope.get("error_type", "runtime_error")
+                                        ),
+                                    },
+                                )
                             )
                             self._ctx.run.emit(
                                 f"scientist.node.{alias}",
@@ -515,7 +662,63 @@ class WorkflowExecutor:
                         cache_hit=cache_hit,
                         retry_count=0,
                     )
-                state = outcome.state
+                if outcome.status == "ok":
+                    state = outcome.state
+
+                # Record provenance
+                if self._provenance_dag is not None:
+                    try:
+                        ended_at = datetime.now(UTC)
+                        started_at_dt = datetime.fromtimestamp(
+                            ended_at.timestamp() - duration_ms / 1000, tz=UTC,
+                        )
+                        if outcome.status == "ok":
+                            input_refs: list[Any] = []
+                            for dep in (inv.depends_on or []):
+                                input_refs.extend(self._node_outputs.get(dep, []))
+                            self._provenance_dag.record_node_execution(
+                                alias=alias, node_id=node_id,
+                                started_at=started_at_dt, ended_at=ended_at,
+                                input_refs=input_refs,
+                                output_refs=list(outcome.artifacts),
+                                params=dict(inv.params) if inv.params else {},
+                            )
+                            self._node_outputs[alias] = list(outcome.artifacts)
+                        elif outcome.status == "fail":
+                            self._provenance_dag.record_node_failure(
+                                alias=alias, node_id=node_id,
+                                error=str(outcome.error.message) if outcome.error else "Unknown",
+                                traceback=(
+                                    outcome.error.details.get("type", "")
+                                    if outcome.error and outcome.error.details
+                                    else None
+                                ),
+                                started_at=started_at_dt, ended_at=ended_at,
+                            )
+                    except _EXECUTOR_DEGRADED_ERRORS as exc:
+                        envelope = _executor_degraded(
+                            operation="record_provenance",
+                            reason="provenance_record_failed",
+                            exc=exc,
+                            details={"alias": alias, "node_id": node_id},
+                        )
+                        outcome.events.append(
+                            NodeEvent(
+                                level="warn",
+                                message="Node provenance recording degraded",
+                                code="node.provenance_degraded",
+                                attrs={
+                                    "reason": str(
+                                        envelope.get(
+                                            "reason", "provenance_record_failed"
+                                        )
+                                    ),
+                                    "error_type": str(
+                                        envelope.get("error_type", "runtime_error")
+                                    ),
+                                },
+                            )
+                        )
 
                 _log_node_events(self._ctx.logger, alias, outcome.events)
                 add_span_events(span, outcome.events)
@@ -555,36 +758,6 @@ class WorkflowExecutor:
                         },
                     )
 
-                # Record provenance
-                if self._provenance_dag is not None:
-                    try:
-                        from datetime import datetime, timezone as tz
-                        ended_at = datetime.now(tz.utc)
-                        started_at_dt = datetime.fromtimestamp(
-                            ended_at.timestamp() - duration_ms / 1000, tz=tz.utc,
-                        )
-                        if outcome.status == "ok":
-                            input_refs: list[Any] = []
-                            for dep in (inv.depends_on or []):
-                                input_refs.extend(self._node_outputs.get(dep, []))
-                            self._provenance_dag.record_node_execution(
-                                alias=alias, node_id=node_id,
-                                started_at=started_at_dt, ended_at=ended_at,
-                                input_refs=input_refs,
-                                output_refs=list(outcome.artifacts),
-                                params=dict(inv.params) if inv.params else {},
-                            )
-                            self._node_outputs[alias] = list(outcome.artifacts)
-                        elif outcome.status == "fail":
-                            self._provenance_dag.record_node_failure(
-                                alias=alias, node_id=node_id,
-                                error=str(outcome.error.message) if outcome.error else "Unknown",
-                                traceback=outcome.error.details.get("type", "") if outcome.error and outcome.error.details else None,
-                                started_at=started_at_dt, ended_at=ended_at,
-                            )
-                    except Exception:  # noqa: BLE001
-                        _module_logger.debug("Provenance recording failed for node %s", alias)
-
                 if outcome.status == "fail":
                     failed.add(alias)
 
@@ -601,9 +774,12 @@ class WorkflowExecutor:
                             cache_entry_ref=cache_entry_ref,
                         )
                         if checkpoint_result is not None:
-                            state = state.model_copy(
-                                update={"last_checkpoint_ref": checkpoint_result.checkpoint_ref}
-                            )
+                            checkpoint_state = branch_state(
+                                state,
+                                write_paths=("last_checkpoint_ref",),
+                            ).state
+                            checkpoint_state.last_checkpoint_ref = checkpoint_result.checkpoint_ref
+                            state = checkpoint_state
                             self._ctx.run.emit(
                                 "scientist.checkpoint",
                                 "CHECKPOINT_CREATED",
@@ -654,7 +830,10 @@ class WorkflowExecutor:
         )
 
         report_ref = self._persist_report(report)
-        final_state = state.model_copy(deep=True)
+        final_state = branch_state(
+            state,
+            write_paths=("reports_index.workflow_report",),
+        ).state
         final_state.reports_index["workflow_report"] = report_ref
         final_state_ref = self._persist_state(final_state)
 
@@ -674,8 +853,13 @@ class WorkflowExecutor:
                     ),
                 )
                 self._ctx.run.add_output(prov_ref)
-            except Exception:  # noqa: BLE001
-                _module_logger.debug("Provenance DAG finalization failed")
+            except _EXECUTOR_DEGRADED_ERRORS as exc:
+                _executor_degraded(
+                    operation="finalize_provenance",
+                    reason="provenance_finalize_failed",
+                    exc=exc,
+                    details={"workflow_id": workflow.workflow_id},
+                )
 
         errors_payload = [
             {
@@ -705,6 +889,7 @@ class WorkflowExecutor:
                     version="1.0",
                 ),
             ),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
 
     def _persist_state(self, state: ExperimentState) -> ArtifactRef:

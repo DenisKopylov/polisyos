@@ -8,6 +8,7 @@ comprehensive quality reports.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -15,6 +16,7 @@ import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.evaluation import ThresholdBand, ThresholdMapper, WeightedScorer
+from polisyos.fabric.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.fabric.tabular import require_dataframe
 from polisyos.ir.connectors import QualityTier
 
@@ -22,6 +24,15 @@ from .completeness import CompletenessAnalyzer, SamplingStrategy
 from .consistency import ConsistencyChecker
 from .freshness import FreshnessChecker, FreshnessPolicy
 from .report import DataQualityReport
+from .statistics import (
+    QualityTrendPoint,
+    build_quality_trend_report,
+    detect_anomalies,
+    detect_drift,
+    evaluate_quality_contract,
+    load_quality_contract,
+    profile_dataframe,
+)
 
 logger = get_logger(__name__)
 
@@ -64,22 +75,38 @@ class QualityScorer:
     )
 
     def __init__(self, weights: dict[str, float] | None = None) -> None:
-        defaults = {"freshness": 0.3, "completeness": 0.4, "consistency": 0.3}
+        defaults = {
+            "freshness": 0.25,
+            "completeness": 0.3,
+            "consistency": 0.25,
+            "profile": 0.08,
+            "anomaly": 0.06,
+            "drift": 0.04,
+            "contract": 0.02,
+        }
         if weights:
             for key, value in weights.items():
                 if key in defaults and isinstance(value, (int, float)):
-                    defaults[key] = float(value)
-        if sum(max(float(value), 0.0) for value in defaults.values()) <= 0:
+                    defaults[key] = ensure_non_negative_finite(
+                        value,
+                        what=f"quality weight {key}",
+                    )
+        if sum(max(value, 0.0) for value in defaults.values()) <= 0:
             defaults = {"freshness": 0.3, "completeness": 0.4, "consistency": 0.3}
         self._scorer = WeightedScorer(defaults)
         self.weights = self._scorer.weights
 
-    def compute_score(
+    def compute_breakdown(
         self,
         freshness_status: Any,
         completeness_score: float,
         consistency_score: float,
-    ) -> float:
+        *,
+        profile_score: float | None = None,
+        anomaly_score: float | None = None,
+        drift_score: float | None = None,
+        contract_score: float | None = None,
+    ) -> Any:
         from .report import FreshnessLevel
 
         freshness_scores = {
@@ -93,10 +120,58 @@ class QualityScorer:
         return self._scorer.score(
             {
                 "freshness": freshness_score,
-                "completeness": completeness_score,
-                "consistency": consistency_score,
+                "completeness": ensure_probability(
+                    completeness_score,
+                    what="quality completeness_score",
+                ),
+                "consistency": ensure_probability(
+                    consistency_score,
+                    what="quality consistency_score",
+                ),
+                "profile": (
+                    ensure_probability(profile_score, what="quality profile_score")
+                    if profile_score is not None
+                    else None
+                ),
+                "anomaly": (
+                    ensure_probability(anomaly_score, what="quality anomaly_score")
+                    if anomaly_score is not None
+                    else None
+                ),
+                "drift": (
+                    ensure_probability(drift_score, what="quality drift_score")
+                    if drift_score is not None
+                    else None
+                ),
+                "contract": (
+                    ensure_probability(contract_score, what="quality contract_score")
+                    if contract_score is not None
+                    else None
+                ),
             }
-        ).score
+        )
+
+    def compute_score(
+        self,
+        freshness_status: Any,
+        completeness_score: float,
+        consistency_score: float,
+        *,
+        profile_score: float | None = None,
+        anomaly_score: float | None = None,
+        drift_score: float | None = None,
+        contract_score: float | None = None,
+    ) -> float:
+        breakdown = self.compute_breakdown(
+            freshness_status=freshness_status,
+            completeness_score=completeness_score,
+            consistency_score=consistency_score,
+            profile_score=profile_score,
+            anomaly_score=anomaly_score,
+            drift_score=drift_score,
+            contract_score=contract_score,
+        )
+        return ensure_probability(breakdown.score, what="quality aggregate score", clamp=True)
 
     def assign_tier(self, score: float) -> QualityTier:
         return self._tier_mapper.map(score)
@@ -124,6 +199,11 @@ class DataQualityValidator:
         self,
         fetch_result: Any,
         schema: Any,
+        *,
+        baseline_data: Any | None = None,
+        quality_contract: str | Path | dict[str, Any] | None = None,
+        trend_history: list[Any] | tuple[Any, ...] | None = None,
+        enable_isolation_forest: bool = False,
     ) -> DataQualityReport:
         try:
             data = self._extract_dataframe(fetch_result)
@@ -144,22 +224,102 @@ class DataQualityValidator:
                 full_data=data if was_sampled else None,
             )
 
-            score = self.scorer.compute_score(
+            profiled_data = sampled_data if was_sampled else data
+            dataset_profile = profile_dataframe(profiled_data, schema=schema)
+            anomaly_report = detect_anomalies(
+                profiled_data,
+                enable_isolation_forest=enable_isolation_forest,
+            )
+            drift_report = (
+                detect_drift(
+                    current_data=profiled_data,
+                    baseline_data=baseline_data,
+                    schema=schema,
+                    baseline_dataset_id=getattr(fetch_result, "schema_id", None),
+                )
+                if baseline_data is not None
+                else None
+            )
+
+            base_breakdown = self.scorer.compute_breakdown(
                 freshness_status=freshness_status,
                 completeness_score=completeness_result.score,
                 consistency_score=consistency_result.score,
+                profile_score=dataset_profile.profile_score,
+                anomaly_score=anomaly_report.score,
+                drift_score=drift_report.score if drift_report is not None else None,
             )
+            score = ensure_probability(base_breakdown.score, what="quality score", clamp=True)
+            final_breakdown = base_breakdown
 
-            if completeness_result.hard_fail or consistency_result.hard_fail:
+            contract_result = None
+            contract_violations = []
+            contract_warnings = []
+            if quality_contract is not None:
+                contract = load_quality_contract(quality_contract)
+                contract_result = evaluate_quality_contract(
+                    contract,
+                    dataset_id=fetch_result.schema_id,
+                    schema_id=schema.schema_id,
+                    source_id=self._resolve_source_id(fetch_result),
+                    score=score,
+                    completeness_score=completeness_result.score,
+                    consistency_score=consistency_result.score,
+                    row_count=len(data),
+                    dataset_profile=dataset_profile,
+                    anomaly_report=anomaly_report,
+                    drift_report=drift_report,
+                )
+                final_breakdown = self.scorer.compute_breakdown(
+                    freshness_status=freshness_status,
+                    completeness_score=completeness_result.score,
+                    consistency_score=consistency_result.score,
+                    profile_score=dataset_profile.profile_score,
+                    anomaly_score=anomaly_report.score,
+                    drift_score=drift_report.score if drift_report is not None else None,
+                    contract_score=contract_result.score,
+                )
+                score = ensure_probability(
+                    final_breakdown.score,
+                    what="quality score",
+                    clamp=True,
+                )
+                for failure in contract_result.failures:
+                    message = failure.message
+                    if failure.severity == "error":
+                        contract_violations.append(
+                            self._contract_failure_to_violation(failure)
+                        )
+                    else:
+                        contract_warnings.append(message)
+
+            if (
+                completeness_result.hard_fail
+                or consistency_result.hard_fail
+                or (
+                    contract_result is not None
+                    and contract_result.blocking_rules > 0
+                )
+            ):
                 score = min(score, 0.69)
 
             tier = self.scorer.assign_tier(score)
             grade = self.scorer.assign_grade(score)
 
-            violations = completeness_result.violations + consistency_result.violations
-            warnings = self._generate_warnings(
-                freshness_status, completeness_result, consistency_result
+            violations = (
+                completeness_result.violations
+                + consistency_result.violations
+                + contract_violations
             )
+            warnings = self._generate_warnings(
+                freshness_status,
+                completeness_result,
+                consistency_result,
+                anomaly_report=anomaly_report,
+                drift_report=drift_report,
+                contract_result=contract_result,
+            )
+            warnings.extend(contract_warnings)
 
             quality_indicators = self._compute_quality_indicators(
                 data=sampled_data if was_sampled else data,
@@ -167,10 +327,30 @@ class DataQualityValidator:
                 fetch_result=fetch_result,
             )
 
+            source_id = self._resolve_source_id(fetch_result)
+            current_trend_point = QualityTrendPoint(
+                dataset_id=fetch_result.schema_id,
+                schema_id=schema.schema_id,
+                source_id=source_id,
+                validated_at=datetime.now(timezone.utc),
+                score=score,
+                row_count=len(data),
+                completeness_score=completeness_result.score,
+                consistency_score=consistency_result.score,
+                tier=tier.value,
+            )
+            trend_report = build_quality_trend_report(
+                dataset_id=fetch_result.schema_id,
+                schema_id=schema.schema_id,
+                source_id=source_id,
+                current_point=current_trend_point,
+                history=trend_history,
+            )
+
             return DataQualityReport(
                 dataset_id=fetch_result.schema_id,
                 schema_id=schema.schema_id,
-                validated_at=datetime.now(timezone.utc),
+                validated_at=current_trend_point.validated_at,
                 score=score,
                 tier=tier,
                 grade=grade,
@@ -183,6 +363,13 @@ class DataQualityValidator:
                 row_count=len(data),
                 sampled=was_sampled,
                 sample_size=len(sampled_data) if was_sampled else None,
+                source_id=source_id,
+                component_scores=dict(final_breakdown.components),
+                dataset_profile=dataset_profile,
+                anomaly_report=anomaly_report,
+                drift_report=drift_report,
+                quality_contract_result=contract_result,
+                trend_report=trend_report,
             )
 
         except Exception as exc:
@@ -320,13 +507,17 @@ class DataQualityValidator:
         freshness_status: Any,
         completeness_result: Any,
         consistency_result: Any,
+        *,
+        anomaly_report: Any | None = None,
+        drift_report: Any | None = None,
+        contract_result: Any | None = None,
     ) -> list[str]:
         warnings: list[str] = []
 
         if not freshness_status.is_fresh:
             warnings.append(freshness_status.message)
 
-        if completeness_result.score < 0.9:
+        if getattr(completeness_result, "applicable", True) and completeness_result.score < 0.9:
             warnings.append(
                 f"Completeness score {completeness_result.score:.1%} below 90%"
             )
@@ -339,6 +530,23 @@ class DataQualityValidator:
         if consistency_result.score < 0.9:
             warnings.append(
                 f"Consistency score {consistency_result.score:.1%} below 90%"
+            )
+
+        if anomaly_report is not None and anomaly_report.findings:
+            warnings.append(
+                f"Detected {len(anomaly_report.findings)} statistical anomaly findings"
+            )
+
+        if drift_report is not None and drift_report.findings:
+            detected = sum(1 for finding in drift_report.findings if finding.detected)
+            warnings.append(
+                f"Detected {detected}/{len(drift_report.findings)} drift findings"
+            )
+
+        if contract_result is not None and not contract_result.passed:
+            warnings.append(
+                f"Quality contract {contract_result.contract_name} failed "
+                f"{contract_result.failed_rules}/{contract_result.evaluated_rules} rules"
             )
 
         return warnings
@@ -375,6 +583,34 @@ class DataQualityValidator:
             quality_indicators=None,
             row_count=0,
             sampled=False,
+        )
+
+    @staticmethod
+    def _resolve_source_id(fetch_result: Any) -> str | None:
+        metadata = getattr(fetch_result, "metadata", None)
+        if metadata is not None:
+            for attr_name in ("source_id", "source", "connector_id"):
+                value = getattr(metadata, attr_name, None)
+                if isinstance(value, str) and value:
+                    return value
+        for attr_name in ("source_id", "source", "connector_id"):
+            value = getattr(fetch_result, attr_name, None)
+            if isinstance(value, str) and value:
+                return value
+        return None
+
+    @staticmethod
+    def _contract_failure_to_violation(failure: Any) -> Any:
+        from .report import RuleViolation
+
+        return RuleViolation(
+            rule_type=f"quality_contract:{failure.rule_id}",
+            field_name=failure.field_name,
+            severity=failure.severity,
+            message=failure.message,
+            expected=failure.expected,
+            actual=failure.actual,
+            sample_values=None,
         )
 
     @staticmethod

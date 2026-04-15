@@ -53,7 +53,7 @@ class TaxBenefitCalculatorEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="tax_benefit_calculator",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -176,7 +176,7 @@ class BehavioralResponseEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="behavioral_response",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -264,7 +264,7 @@ class ImputationModelEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="imputation_model",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -368,7 +368,7 @@ class DynamicMicrosimEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="dynamic_microsim",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

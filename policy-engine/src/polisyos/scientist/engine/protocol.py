@@ -1,14 +1,16 @@
 """Runtime protocol types for Scientist nodes, outcomes, and state contracts."""
 from __future__ import annotations
 
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import ComponentMetadata
-from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
+
+if TYPE_CHECKING:
+    from polisyos.scientist.engine.context import ExecutionContext
 
 NodeStatus = Literal["ok", "skip", "fail"]
 

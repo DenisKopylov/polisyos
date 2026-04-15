@@ -133,7 +133,7 @@ class RegressionDiscontinuity:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="regression_discontinuity",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

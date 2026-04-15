@@ -5,8 +5,8 @@ from __future__ import annotations
 import argparse
 import importlib
 import sys
-from importlib.metadata import PackageNotFoundError, version
 from datetime import datetime, timezone
+from importlib.metadata import PackageNotFoundError, version
 
 from polisyos.core.artifacts.signing import (
     DEFAULT_IDENTITIES_PATH,
@@ -14,6 +14,7 @@ from polisyos.core.artifacts.signing import (
     DEFAULT_TRUST_DIR,
 )
 from polisyos.core.components import ComponentKind
+from polisyos.core.security.rotation import DEFAULT_JWT_TRUST_ANCHORS_PATH
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -81,6 +82,22 @@ def main(argv: list[str] | None = None) -> int:
         from ._cli_scientist import _cmd_scientist_stress_test
 
         return _cmd_scientist_stress_test(args)
+    if args.command == "scientist" and args.scientist_command == "provider-verify":
+        from ._cli_scientist import _cmd_scientist_provider_verify
+
+        return _cmd_scientist_provider_verify(args)
+    if args.command == "scientist" and args.scientist_command == "agent-smoke":
+        from ._cli_scientist import _cmd_scientist_agent_smoke
+
+        return _cmd_scientist_agent_smoke(args)
+    if args.command == "scientist" and args.scientist_command == "agent-eval":
+        from ._cli_scientist import _cmd_scientist_agent_eval
+
+        return _cmd_scientist_agent_eval(args)
+    if args.command == "scientist" and args.scientist_command == "reflexion-replay-eval":
+        from ._cli_scientist import _cmd_scientist_reflexion_replay_eval
+
+        return _cmd_scientist_reflexion_replay_eval(args)
     if args.command == "scientist" and args.scientist_command == "backtest":
         from ._cli_scientist import _cmd_scientist_backtest
 
@@ -113,6 +130,22 @@ def main(argv: list[str] | None = None) -> int:
         from ._cli_audit import _cmd_audit_verify
 
         return _cmd_audit_verify(args)
+    if args.command == "audit" and args.audit_command == "runtime-query":
+        from ._cli_audit import _cmd_audit_runtime_query
+
+        return _cmd_audit_runtime_query(args)
+    if args.command == "audit" and args.audit_command == "runtime-retention":
+        from ._cli_audit import _cmd_audit_runtime_retention
+
+        return _cmd_audit_runtime_retention(args)
+    if args.command == "security" and args.security_command == "rotate-jwt":
+        from ._cli_security import _cmd_security_rotate_jwt
+
+        return _cmd_security_rotate_jwt(args)
+    if args.command == "security" and args.security_command == "rotate-ed25519":
+        from ._cli_security import _cmd_security_rotate_ed25519
+
+        return _cmd_security_rotate_ed25519(args)
 
     parser.print_help()
     return 2
@@ -213,6 +246,63 @@ def _build_parser() -> argparse.ArgumentParser:
     stress_test.add_argument("--output", default=None)
     stress_test.add_argument("--format", choices=["json"], default="json")
     stress_test.add_argument("--cas-root", default=".polisyos")
+
+    provider_verify = scientist_sub.add_parser("provider-verify")
+    provider_verify.add_argument(
+        "--model-id",
+        default="qwen/qwen3-235b-a22b-instruct-2507-fp8",
+    )
+    provider_verify.add_argument(
+        "--base-url",
+        default="https://api.gonkagate.com/v1",
+    )
+    provider_verify.add_argument(
+        "--verification-dir",
+        default=".polisyos/provider_verification",
+    )
+    provider_verify.add_argument("--no-web-search", action="store_true")
+    provider_verify.add_argument("--output", default=None)
+    provider_verify.add_argument("--format", choices=["json"], default="json")
+
+    agent_smoke = scientist_sub.add_parser("agent-smoke")
+    agent_smoke.add_argument(
+        "--model-id",
+        default="qwen/qwen3-235b-a22b-instruct-2507-fp8",
+    )
+    agent_smoke.add_argument(
+        "--base-url",
+        default="https://api.gonkagate.com/v1",
+    )
+    agent_smoke.add_argument(
+        "--verification-dir",
+        default=".polisyos/provider_verification",
+    )
+    agent_smoke.add_argument("--no-web-search", action="store_true")
+    agent_smoke.add_argument("--output", default=None)
+    agent_smoke.add_argument("--format", choices=["json"], default="json")
+
+    agent_eval = scientist_sub.add_parser("agent-eval")
+    agent_eval.add_argument("--cas-root", default=".polisyos")
+    agent_eval.add_argument(
+        "--model-id",
+        default="qwen/qwen3-235b-a22b-instruct-2507-fp8",
+    )
+    agent_eval.add_argument(
+        "--base-url",
+        default="https://api.gonkagate.com/v1",
+    )
+    agent_eval.add_argument(
+        "--verification-dir",
+        default=".polisyos/provider_verification",
+    )
+    agent_eval.add_argument("--live-provider", action="store_true")
+    agent_eval.add_argument("--output", default=None)
+    agent_eval.add_argument("--format", choices=["json"], default="json")
+
+    reflexion_replay_eval = scientist_sub.add_parser("reflexion-replay-eval")
+    reflexion_replay_eval.add_argument("--input", required=True, help="JSON file with replay cases")
+    reflexion_replay_eval.add_argument("--output", default=None)
+    reflexion_replay_eval.add_argument("--format", choices=["json"], default="json")
 
     backtesting_cli = importlib.import_module("polisyos.scientist.backtesting.cli")
     backtesting_cli.add_backtest_subparser(scientist_sub)
@@ -427,6 +517,61 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     audit_verify.add_argument("--output", "-o", default=None, help="Report output path")
     audit_verify.add_argument("--json", action="store_true")
+
+    audit_runtime_query = audit_sub.add_parser("runtime-query")
+    audit_runtime_query.add_argument("--cas-root", default=".polisyos")
+    audit_runtime_query.add_argument(
+        "--stream",
+        choices=["access", "mutation", "all"],
+        default="all",
+    )
+    audit_runtime_query.add_argument("--tenant-id", default=None)
+    audit_runtime_query.add_argument("--actor", default=None)
+    audit_runtime_query.add_argument("--resource-id", default=None)
+    audit_runtime_query.add_argument("--endpoint", default=None)
+    audit_runtime_query.add_argument("--operation", default=None)
+    audit_runtime_query.add_argument("--outcome", default=None)
+    audit_runtime_query.add_argument("--since", default=None)
+    audit_runtime_query.add_argument("--until", default=None)
+    audit_runtime_query.add_argument("--output", "-o", default=None)
+    audit_runtime_query.add_argument(
+        "--format",
+        choices=["json", "jsonl", "csv"],
+        default="json",
+    )
+    audit_runtime_query.add_argument("--json", action="store_true")
+
+    audit_runtime_retention = audit_sub.add_parser("runtime-retention")
+    audit_runtime_retention.add_argument("--cas-root", default=".polisyos")
+    audit_runtime_retention.add_argument("--retention-days", type=int, required=True)
+    audit_runtime_retention.add_argument("--archive-dir", default=None)
+    audit_runtime_retention.add_argument("--dry-run", action="store_true")
+    audit_runtime_retention.add_argument("--json", action="store_true")
+
+    cmd_security = components.add_parser("security")
+    security_sub = cmd_security.add_subparsers(dest="security_command")
+
+    rotate_jwt = security_sub.add_parser("rotate-jwt")
+    rotate_jwt.add_argument("--manifest", default=str(DEFAULT_JWT_TRUST_ANCHORS_PATH))
+    rotate_jwt.add_argument("--issuer", required=True)
+    rotate_jwt.add_argument("--jwks-uri", required=True)
+    rotate_jwt.add_argument("--audience", required=True)
+    rotate_jwt.add_argument("--active-kid", action="append", default=[])
+    rotate_jwt.add_argument("--next-kid", action="append", default=[])
+    rotate_jwt.add_argument("--retire-kid", action="append", default=[])
+    rotate_jwt.add_argument("--revoke-kid", action="append", default=[])
+    rotate_jwt.add_argument("--rotated-by", default=None)
+    rotate_jwt.add_argument("--json", action="store_true")
+
+    rotate_ed = security_sub.add_parser("rotate-ed25519")
+    rotate_ed.add_argument("--output", required=True, help="Base output path for .pem/.pub")
+    rotate_ed.add_argument("--identity", required=True)
+    rotate_ed.add_argument("--trust-dir", default=str(DEFAULT_TRUST_DIR))
+    rotate_ed.add_argument("--revoked-dir", default=str(DEFAULT_REVOKED_DIR))
+    rotate_ed.add_argument("--identities", default=str(DEFAULT_IDENTITIES_PATH))
+    rotate_ed.add_argument("--revoke-public-key", action="append", default=[])
+    rotate_ed.add_argument("--force", action="store_true")
+    rotate_ed.add_argument("--json", action="store_true")
 
     return parser
 

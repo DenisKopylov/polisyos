@@ -267,6 +267,28 @@ EVIDENCE_WEIGHTS: dict[str, float] = {
     EvidenceStrength.UNKNOWN.value: 0.15,
 }
 
+# Minimum confidence floor for aggregate_edge_confidence, keyed by
+# the strongest evidence type present among the evidence items.
+# This prevents the noisy-OR formula from producing unreasonably low
+# confidence when multiplicative penalty factors (temporal decay,
+# missing sample size, low extraction confidence) stack up.
+#
+# Floors are meaningful only for strong designs (panel_fe+).
+# Weaker evidence types use 0.0 so quality differentiation
+# (e.g. abstract-only penalty, temporal decay) is preserved.
+_CONFIDENCE_FLOOR: dict[str, float] = {
+    EvidenceStrength.RCT.value: 0.55,
+    EvidenceStrength.META_ANALYSIS.value: 0.55,
+    EvidenceStrength.QUASI_NATURAL.value: 0.45,
+    EvidenceStrength.QUASI_NATURAL_EVENT.value: 0.40,
+    EvidenceStrength.PANEL_FE.value: 0.35,
+    EvidenceStrength.STRUCTURAL.value: 0.30,
+    EvidenceStrength.OBSERVATIONAL.value: 0.0,
+    EvidenceStrength.CROSS_SECTIONAL.value: 0.0,
+    EvidenceStrength.THEORETICAL.value: 0.0,
+    EvidenceStrength.UNKNOWN.value: 0.0,
+}
+
 ABSTRACT_ONLY_PENALTY = 0.5
 TEMPORAL_HALF_LIFE_YEARS = 20.0
 TEMPORAL_FLOOR = 0.30
@@ -381,7 +403,14 @@ def _effective_evidence_weight(evidence: ArticleEvidence) -> float:
 
 
 def aggregate_edge_confidence(articles: Iterable[ArticleEvidence | tuple[Any, ...]]) -> float:
-    """Aggregate edge confidence using evidence-weighted noisy-OR."""
+    """Aggregate edge confidence using evidence-weighted noisy-OR with strength floor.
+
+    The noisy-OR formula ``1 - prod(1 - w_i)`` can yield unreasonably low
+    confidence when multiplicative penalty factors stack up (temporal decay,
+    missing sample size, fallback extraction confidence).  We apply a minimum
+    floor based on the strongest evidence type present so that, e.g., a single
+    RCT never scores below 0.55 regardless of penalty stacking.
+    """
     rows = [_coerce_article_evidence(row) for row in articles]
     valid = [row for row in rows if not row.retracted]
     if not valid:
@@ -391,7 +420,22 @@ def aggregate_edge_confidence(articles: Iterable[ArticleEvidence | tuple[Any, ..
     if not weights:
         return 0.0
     combined = 1.0 - math.prod(1.0 - min(weight, 0.99) for weight in weights)
-    return min(1.0, max(0.0, combined))
+
+    # Determine floor from strongest evidence type present
+    strongest_base = max(
+        EVIDENCE_WEIGHTS.get(str(row.strength), 0.0) for row in valid
+    )
+    # Find the matching floor key
+    floor = 0.10
+    for strength_key, base_weight in EVIDENCE_WEIGHTS.items():
+        if abs(base_weight - strongest_base) < 1e-6:
+            floor = _CONFIDENCE_FLOOR.get(strength_key, 0.10)
+            break
+    # Multi-article bonus: +0.06 per extra article, cap at +0.30
+    n_bonus = min(0.30, 0.06 * max(0, len(valid) - 1))
+    floor = min(0.95, floor + n_bonus)
+
+    return min(1.0, max(floor, combined))
 
 
 def weighted_direction_summary(

@@ -30,6 +30,9 @@ export function GlobalRuntimeBanner() {
   return (
     <div
       data-testid="runtime-banner"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
       className={`mx-6 mt-5 rounded-3xl border px-5 py-4 ${resolveBannerTone(incident.status)}`}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">

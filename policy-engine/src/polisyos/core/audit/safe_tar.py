@@ -1,8 +1,10 @@
 """Public audit safe tar module API."""
 from __future__ import annotations
 
+import os
 import shutil
 import tarfile
+import tempfile
 from pathlib import Path
 
 
@@ -24,35 +26,50 @@ def safe_extract_tar(
     - reject symlink/hardlink/device entries
     - enforce uncompressed size limit
     """
-    target_dir.mkdir(parents=True, exist_ok=True)
-
-    with tarfile.open(archive_path, "r:*") as tar:
-        members = tar.getmembers()
-        _validate_members(members, target_dir, max_total_bytes=max_total_bytes)
+    target_dir.parent.mkdir(parents=True, exist_ok=True)
+    if target_dir.exists():
         try:
-            # Python 3.12+: built-in hardened extraction that blocks path traversal and links.
-            tar.extractall(target_dir, members=members, filter="data")
-            return target_dir
-        except TypeError:
-            # Python <3.12 fallback: rely on explicit member validation above.
+            next(target_dir.iterdir())
+        except StopIteration:
             pass
+        else:
+            raise UnsafeArchiveError("target_dir must be empty for atomic safe extraction")
 
-        for member in members:
-            rel = Path(member.name)
-            out_path = target_dir / rel
-            if member.isdir():
-                out_path.mkdir(parents=True, exist_ok=True)
-                continue
-            if not member.isfile():
-                continue
-            out_path.parent.mkdir(parents=True, exist_ok=True)
-            extracted = tar.extractfile(member)
-            if extracted is None:
-                continue
-            with extracted, out_path.open("wb") as handle:
-                shutil.copyfileobj(extracted, handle)
+    staging_dir = Path(
+        tempfile.mkdtemp(prefix=f"{target_dir.name}.extract-", dir=str(target_dir.parent))
+    )
 
-    return target_dir
+    try:
+        with tarfile.open(archive_path, "r:*") as tar:
+            members = tar.getmembers()
+            _validate_members(members, staging_dir, max_total_bytes=max_total_bytes)
+            try:
+                # Python 3.12+: built-in hardened extraction that blocks path traversal and links.
+                tar.extractall(staging_dir, members=members, filter="data")
+            except TypeError:
+                # Python <3.12 fallback: rely on explicit member validation above.
+                for member in members:
+                    rel = Path(member.name)
+                    out_path = staging_dir / rel
+                    if member.isdir():
+                        out_path.mkdir(parents=True, exist_ok=True)
+                        continue
+                    if not member.isfile():
+                        continue
+                    out_path.parent.mkdir(parents=True, exist_ok=True)
+                    extracted = tar.extractfile(member)
+                    if extracted is None:
+                        continue
+                    with extracted, out_path.open("wb") as handle:
+                        shutil.copyfileobj(extracted, handle)
+
+        if target_dir.exists():
+            target_dir.rmdir()
+        os.replace(staging_dir, target_dir)
+        return target_dir
+    except Exception:
+        shutil.rmtree(staging_dir, ignore_errors=True)
+        raise
 
 
 def _validate_members(

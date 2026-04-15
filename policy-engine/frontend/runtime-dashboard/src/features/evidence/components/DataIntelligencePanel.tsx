@@ -34,6 +34,7 @@ import {
   formatNumber,
   formatPercent,
 } from "@/lib/utils";
+import { useDebouncedValue } from "@/lib/hooks";
 import { useAlertDialog } from "@/app/providers/AlertDialogProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import {
@@ -42,6 +43,7 @@ import {
   Card,
   exportCsv,
   exportJson,
+  Label,
   VirtualList,
   VIRTUALIZATION_THRESHOLD,
 } from "@/shared/ui";
@@ -133,9 +135,6 @@ export default function DataIntelligencePanel({
     null,
   );
   const [promotionReason, setPromotionReason] = useState("");
-  const [promotionStatusOverrides, setPromotionStatusOverrides] = useState<
-    Record<string, string>
-  >({});
 
   const indexStatsQuery = useDataIndexStats();
   const promotionCandidatesQuery = useDataPromotionCandidates();
@@ -178,10 +177,6 @@ export default function DataIntelligencePanel({
   }, [selectedPlan]);
 
   useEffect(() => {
-    setPromotionStatusOverrides({});
-  }, [runId]);
-
-  useEffect(() => {
     if (mode !== "context" || !selectedPlan) {
       return;
     }
@@ -198,11 +193,14 @@ export default function DataIntelligencePanel({
     });
   }, [lastPreviewPlanId, mode, previewMutation, selectedPlan]);
 
+  const debouncedMetricQuery = useDebouncedValue(metric.trim(), 250);
+  const debouncedGeography = useDebouncedValue(geography.trim(), 250);
+
   const catalogQuery = useDataCatalogSearch({
-    metricQuery: metric,
-    geography: geography || null,
+    metricQuery: debouncedMetricQuery,
+    geography: debouncedGeography || null,
     limit: 20,
-    enabled: metric.trim().length >= 2,
+    enabled: debouncedMetricQuery.length >= 2,
   });
 
   const canRun = metric.trim().length > 0;
@@ -254,7 +252,6 @@ export default function DataIntelligencePanel({
     ...candidate,
     queuedState: queuedStateByPromotionId.get(candidate.promotionId) ?? null,
     status:
-      promotionStatusOverrides[candidate.promotionId] ??
       queuedStateByPromotionId.get(candidate.promotionId)?.decision ??
       candidate.status,
   }));
@@ -399,26 +396,16 @@ export default function DataIntelligencePanel({
       return;
     }
 
-    const nextStatus = decision === "approve" ? "approved" : "rejected";
     const mutation = decision === "approve" ? approve : reject;
 
     mutation(
       {
         promotionId: candidate.promotionId,
         reason: promotionReason.trim() || undefined,
+        ...(runId ? { runId } : {}),
       },
       {
-        onError: () => {
-          setPromotionStatusOverrides((current) => {
-            const { [candidate.promotionId]: _removed, ...next } = current;
-            return next;
-          });
-        },
         onQueued: () => {
-          setPromotionStatusOverrides((current) => ({
-            ...current,
-            [candidate.promotionId]: nextStatus,
-          }));
           pushToast({
             title:
               decision === "approve"
@@ -429,12 +416,6 @@ export default function DataIntelligencePanel({
             ),
             tone: "warning",
           });
-        },
-        onSuccess: () => {
-          setPromotionStatusOverrides((current) => ({
-            ...current,
-            [candidate.promotionId]: nextStatus,
-          }));
         },
       },
     );
@@ -578,10 +559,14 @@ export default function DataIntelligencePanel({
 
         <div className="grid gap-3 md:grid-cols-3">
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-metric-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.metric")}
-            </label>
+            </Label>
             <input
+              id="evidence-metric-input"
               type="text"
               value={metric}
               onChange={(event) => setMetric(event.target.value)}
@@ -592,10 +577,14 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-geography-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.geography")}
-            </label>
+            </Label>
             <input
+              id="evidence-geography-input"
               type="text"
               value={geography}
               onChange={(event) => setGeography(event.target.value)}
@@ -605,10 +594,14 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-granularity-select"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.granularity")}
-            </label>
+            </Label>
             <select
+              id="evidence-granularity-select"
               value={granularity}
               onChange={(event) => setGranularity(event.target.value)}
               aria-label={t("panels.dataIntelligence.granularity")}
@@ -620,10 +613,14 @@ export default function DataIntelligencePanel({
             </select>
           </div>
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-time-start-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.timeStart")}
-            </label>
+            </Label>
             <input
+              id="evidence-time-start-input"
               type="text"
               value={timeStart}
               onChange={(event) => setTimeStart(event.target.value)}
@@ -633,10 +630,14 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-time-end-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.timeEnd")}
-            </label>
+            </Label>
             <input
+              id="evidence-time-end-input"
               type="text"
               value={timeEnd}
               onChange={(event) => setTimeEnd(event.target.value)}
@@ -646,10 +647,14 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-quality-min-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.qualityMin")}
-            </label>
+            </Label>
             <input
+              id="evidence-quality-min-input"
               type="number"
               min={0}
               max={1}
@@ -664,10 +669,14 @@ export default function DataIntelligencePanel({
 
         <div className="mt-3 grid gap-3 md:grid-cols-4">
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-retrieval-mode-select"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.retrievalMode")}
-            </label>
+            </Label>
             <select
+              id="evidence-retrieval-mode-select"
               value={modeSelection}
               onChange={(event) =>
                 setModeSelection(event.target.value as RetrievalMode)
@@ -1012,10 +1021,14 @@ export default function DataIntelligencePanel({
             <ApiErrorAlert error={promotionCandidatesQuery.error} />
           ) : null}
           <div className="mb-3">
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-decision-reason-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.decisionReason")}
-            </label>
+            </Label>
             <input
+              id="evidence-decision-reason-input"
               type="text"
               value={promotionReason}
               onChange={(event) => setPromotionReason(event.target.value)}
@@ -1143,10 +1156,14 @@ export default function DataIntelligencePanel({
         </h3>
         <div className="grid gap-3 md:grid-cols-4">
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-max-sources-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.maxSourcesPerQuery")}
-            </label>
+            </Label>
             <input
+              id="evidence-max-sources-input"
               type="number"
               min={1}
               max={50}
@@ -1159,10 +1176,14 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-max-calls-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.maxCallsPerSource")}
-            </label>
+            </Label>
             <input
+              id="evidence-max-calls-input"
               type="number"
               min={1}
               max={500}
@@ -1175,10 +1196,14 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-max-candidates-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.maxCandidatesTotal")}
-            </label>
+            </Label>
             <input
+              id="evidence-max-candidates-input"
               type="number"
               min={1}
               max={500}
@@ -1191,10 +1216,14 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="text-muted mb-1 block text-xs">
+            <Label
+              htmlFor="evidence-time-budget-input"
+              className="text-muted mb-1 block text-xs"
+            >
               {t("panels.dataIntelligence.timeBudgetMs")}
-            </label>
+            </Label>
             <input
+              id="evidence-time-budget-input"
               type="number"
               min={100}
               max={120000}

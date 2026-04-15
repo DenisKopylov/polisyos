@@ -1,9 +1,15 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.run.context import RunContext
+from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _bootstrap_registry_bundle(store: FileSystemCAS):
@@ -79,3 +85,55 @@ def test_run_context_emits_trace_and_writes_run_manifest(
     assert str(inp.artifact_id) in run_manifest
     assert str(out.artifact_id) in run_manifest
     assert '"trace_ref"' in run_manifest
+
+
+def test_run_context_finalize_recovery_repairs_pending_manifest(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store)
+    run_dir = tmp_path / "runs" / "R_recover"
+
+    ctx = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+    )
+    out = store.put_json(
+        {"result": "ok"},
+        PutOptions(kind="core.output", media_type="application/json"),
+    )
+    ctx.add_output(out)
+
+    original_put_json = store.put_json
+    should_fail = True
+
+    def _failing_put_json(obj, opts=None, canon_spec=None):
+        nonlocal should_fail
+        kind = getattr(opts, "kind", None)
+        if should_fail and kind == "core.run_manifest":
+            should_fail = False
+            raise OSError("simulated finalize crash")
+        return original_put_json(obj, opts, canon_spec=canon_spec)
+
+    monkeypatch.setattr(store, "put_json", _failing_put_json)
+
+    with pytest.raises(OSError, match="simulated finalize crash"):
+        ctx.finalize(status="ok")
+
+    journal_path = run_dir / ".finalize-journal.json"
+    assert journal_path.exists()
+
+    monkeypatch.setattr(store, "put_json", original_put_json)
+    loaded = load_core_run(store=store, run_dir=run_dir)
+
+    assert loaded is not None
+    assert loaded.status == "ok"
+    assert loaded.manifest_ref is not None
+    assert journal_path.exists() is False
+    assert "RUN_FINALIZED" in (run_dir / "trace.jsonl").read_text(encoding="utf-8")

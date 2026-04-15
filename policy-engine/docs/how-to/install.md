@@ -4,7 +4,9 @@
 
 !!! info "Проверенная поверхность установки"
     Канонический contributor path для текущего дерева:
-    `./scripts/bootstrap` -> `./scripts/doctor` -> `./scripts/verify`.
+    `python3 -m tools.cli workspace bootstrap` ->
+    `python3 -m tools.cli workspace doctor` ->
+    `python3 -m tools.cli workspace verify`.
     По состоянию на 2026-04-03 этот путь был проверен на macOS с Python 3.14
     и Node 22.
 
@@ -13,10 +15,10 @@
 Из корня `policy-engine/`:
 
 ```bash
-./scripts/bootstrap
-./scripts/doctor
-./scripts/verify
-./scripts/ci-parity --skip-browser
+python3 -m tools.cli workspace bootstrap
+python3 -m tools.cli workspace doctor
+python3 -m tools.cli workspace verify
+python3 -m tools.cli workspace ci-parity --skip-browser
 ```
 
 Что делает этот путь:
@@ -31,11 +33,11 @@
 
 | Tier | Команда | Когда выбирать |
 |---|---|---|
-| Minimal contributor | `./scripts/bootstrap --profile minimal --skip-frontend` | Core Python, lint, unit/property tests |
-| Docs contributor | `./scripts/bootstrap --profile docs --skip-frontend` | MkDocs, docstring quality, docs accuracy |
-| Runtime contributor | `./scripts/bootstrap --profile runtime --skip-frontend` | Runtime API, contracts, backend workflows |
-| Full research / causal contributor | `./scripts/bootstrap --profile research --skip-frontend` | Causal / Foundry / Scientist heavy workflows |
-| Frontend contributor | `./scripts/bootstrap --profile runtime` | Runtime contributor Python surface плюс `npm ci --ignore-scripts` для dashboard |
+| Minimal contributor | `python3 -m tools.cli workspace bootstrap --profile minimal --skip-frontend` | Core Python, lint, unit/property tests |
+| Docs contributor | `python3 -m tools.cli workspace bootstrap --profile docs --skip-frontend` | MkDocs, docstring quality, docs accuracy |
+| Runtime contributor | `python3 -m tools.cli workspace bootstrap --profile runtime --skip-frontend` | Runtime API, contracts, backend workflows |
+| Full research / causal contributor | `python3 -m tools.cli workspace bootstrap --profile research --skip-frontend` | Causal / Foundry / Scientist heavy workflows |
+| Frontend contributor | `python3 -m tools.cli workspace bootstrap --profile runtime` | Runtime contributor Python surface плюс `npm ci --ignore-scripts` для dashboard |
 
 ## Версия Python
 
@@ -160,9 +162,9 @@ cd frontend/runtime-dashboard && npm ci --ignore-scripts && npm run playwright:i
 Если хотите более узкий набор, используйте один из tiered profiles:
 
 ```bash
-./scripts/bootstrap --profile minimal --skip-frontend
-./scripts/bootstrap --profile docs --skip-frontend
-./scripts/bootstrap --profile research --skip-frontend
+python3 -m tools.cli workspace bootstrap --profile minimal --skip-frontend
+python3 -m tools.cli workspace bootstrap --profile docs --skip-frontend
+python3 -m tools.cli workspace bootstrap --profile research --skip-frontend
 ```
 
 ## Devcontainer And Cache Strategy
@@ -186,13 +188,13 @@ Cache policy:
 Локальная CI-подобная проверка:
 
 ```bash
-./scripts/ci-parity --skip-browser
+python3 -m tools.cli workspace ci-parity --skip-browser
 ```
 
 Для browser-backed parity-поверхности:
 
 ```bash
-./scripts/ci-parity --include-e2e-smoke --include-visual
+python3 -m tools.cli workspace ci-parity --include-e2e-smoke --include-visual
 ```
 
 ## Troubleshooting
@@ -244,5 +246,6 @@ xcode-select --install
 ### Только source-установка
 
 - Для этого репозитория сейчас не описан PyPI package path.
-- Поддерживаемый contributor path начинается с `./scripts/bootstrap`; `pip install -e ...`
+- Поддерживаемый contributor path начинается с
+  `python3 -m tools.cli workspace bootstrap`; `pip install -e ...`
   остаётся допустимым только как ручной editable package install.

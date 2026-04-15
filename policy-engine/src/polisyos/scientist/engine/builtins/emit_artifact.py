@@ -8,6 +8,7 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 
 _EMIT_METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_emit_artifact@1.0.0"),
@@ -64,6 +65,6 @@ class EmitArtifactNode:
             payload,
             PutOptions(kind="scientist.builtin.dummy", media_type="application/json"),
         )
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=("artifacts_index",)).state
         new_state.artifacts_index[key] = ref
         return NodeOutcome(status="ok", state=new_state, artifacts=[ref])

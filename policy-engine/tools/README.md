@@ -1,76 +1,80 @@
-# Tools — инженерный CLI-слой и quality gates
+# Tools
 
-`tools/` содержит standalone-скрипты, которые поддерживают архитектурные проверки, контрактные гейты, миграции и операционные задачи вокруг `policy-engine`.
+`tools/` is the canonical executable surface for `policy-engine`.
 
-Актуализировано: **3 марта 2026**.
+Public rule:
+- use `polisyos-tools <category> <command>` for human and CI entry points;
+- keep top-level `tools/<category>` imports as compatibility packages;
+- treat `scripts/` and root `benchmarks/*` executables as deprecated wrappers during the migration window.
 
-## Роль в архитектуре
+## Zones
+
+Internal implementation code now lives under zoned packages:
+
+| Zone | Categories | Purpose |
+|---|---|---|
+| `devx` | `workspace`, `architecture`, `connectors`, `foundry` | contributor setup, scaffolding, repo structure, codegen |
+| `quality` | `lint`, `diagnostics`, `validation`, `testing`, `ci` | quality gates, diagnostics, validation, mutation/integration checks |
+| `ops` | `cloud`, `release`, `migrations`, `runtime`, `data`, `ukraine_data`, `calibration` | operational tasks, runtime/release, data prep, migration and cloud workflows |
+| `research` | `benchmarks`, `demos` | benchmark orchestration and manual research/demo surfaces |
+
+Canonical implementation layout:
 
 ```text
-tools/* -> src/polisyos/*, schemas/*, frontend/*, docs/reports/*, runs/*, data/*
+tools/devx/<category>/
+tools/quality/<category>/
+tools/ops/<category>/
+tools/research/<category>/
 ```
 
-- `tools/` не является runtime-слоем приложения.
-- Базовое направление зависимостей: `tools/* -> src/polisyos/*`.
-- Исполнение: локально, в `pre-commit`, и в GitHub Actions.
+Compatibility layout retained for one deprecation window:
 
-## Карта подпапок
+```text
+tools/<category>/...
+```
 
-| Папка | Роль в системе | Auto/Manual |
-|---|---|---|
-| `tools/architecture` | Public-surface inventory, deep-import baseline, generated-artifact lifecycle, unified scaffolds | CI + local |
-| `tools/lint` | Архитектурные import-gates, freeze-метрики, debt/baseline контроль | CI + local |
-| `tools/diagnostics` | ABI/контрактные проверки, SCM v3 verification, env/provenance диагностика | CI + local |
-| `tools/workspace` | Repo-local bootstrap/doctor/verify path для contributor setup | local |
-| `tools/runtime` | Runtime API OpenAPI/client контур и cutover-утилиты для `runs/` | CI + release + ops |
-| `tools/connectors` | Контрактные проверки коннекторов и scaffold новых источников | CI + local |
-| `tools/migrations` | Миграции артефактов и перенос данных DuckDB -> PostgreSQL | ops/manual |
-| `tools/testing` | Local smoke stack, quarantine/economics reporting и sharding guidance | CI + local |
-| `tools/demos` | Демонстрационные и исследовательские сценарии | local only |
-| `tools/benchmarks` | Ручные JAX smoke/benchmark сценарии | local only |
+Those top-level packages are thin shims and documentation anchors. New tool code
+must be added only under the zoned implementation path.
 
-Подробности по каждой папке:
-- [`tools/lint/README.md`](./lint/README.md)
-- [`tools/architecture/README.md`](./architecture/README.md)
-- [`tools/diagnostics/README.md`](./diagnostics/README.md)
-- [`tools/workspace/README.md`](./workspace/README.md)
-- [`tools/runtime/README.md`](./runtime/README.md)
-- [`tools/connectors/README.md`](./connectors/README.md)
-- [`tools/migrations/README.md`](./migrations/README.md)
-- [`tools/testing/README.md`](./testing/README.md)
-- [`tools/demos/README.md`](./demos/README.md)
-- [`tools/benchmarks/README.md`](./benchmarks/README.md)
+## How To Add A Tool
 
-## Что запускается автоматически
+1. Choose the zone.
+2. Choose the category.
+3. Add the module under `tools/<zone>/<category>/`.
+4. Register the category in `tools.registry` if it is new.
+5. Expose the command through `main(argv: Sequence[str] | None = None) -> int`.
 
-| Контур | Основные скрипты |
-|---|---|
-| `pre-commit` | `tools/lint/lint_imports.py`, `uv run --extra ml python tools/diagnostics/gen_schema.py --check` |
-| `arch.yml` | import/foundry/scholar/state-reads/runtime/connectors gates |
-| `abi.yml` | `gen_schema.py`, `abi_diff.py` |
-| `arch-freeze.yml` | `lint_connector_hardening.py`, `collect_arch_metrics.py`, `compare_baseline.py` |
-| `perf.yml` | `check_perf_regression.py` |
+Do not create a new top-level `tools/<category>` package unless it is part of
+the zone manifest and the compatibility layer.
 
-## Связь с другими директориями
+## Benchmark Boundary
 
-- `src/polisyos/*`: источник правил, контрактов и runtime API, которые валидируют скрипты.
-- `schemas/snapshots/*`: ABI/connector/OpenAPI snapshots.
-- `frontend/runtime-api-client/*`: generated client из `tools/runtime`.
-- `docs/reports/*`: verification evidence/matrix, включая SCM v3 отчеты.
-- `runs/*`, `data/*`: операционные входы/выходы migration и diagnostics сценариев.
+- `tools/benchmarks` is the public executable surface for benchmarks.
+- `tools/research/benchmarks` contains the canonical benchmark orchestration implementation.
+- root `benchmarks/` is the benchmark-domain package:
+  suites, fixtures, comparators, support/runtime/reporting code.
+- root `benchmarks/*.py` and `benchmarks/*.sh` executables are compatibility wrappers only.
 
-## Базовый локальный запуск
+## Scripts Policy
 
-Рабочая директория: `policy-engine/`.
+- `scripts/` is no longer a place for new tool logic.
+- surviving script paths are explicit deprecation wrappers that print a replacement command.
+- wrappers stay only while workflows, docs, or external operator muscle memory still depend on them.
+- once a wrapper has zero references in workflows/docs/tests/generated reference, it can be removed.
+
+## Common Commands
 
 ```bash
-PYTHONPATH=src:. uv run python tools/<subdir>/<script>.py --help
+uv run polisyos-tools --help
+uv run polisyos-tools list
+uv run polisyos-tools list --by-zone
+uv run polisyos-tools graph --format mermaid
+uv run polisyos-tools docs --output docs/reference/tools.md
 ```
 
-В CI и editable окружениях допустим и формат `python3 tools/...`.
+## Reference
 
-## Актуальные ограничения
-
-- В `src/polisyos` отсутствуют `polisyos.fabric.udf.*` и `polisyos.fabric.io.graph_store`; UDF-скрипты в `tools/diagnostics` и часть `tools/demos` сейчас legacy.
-- `tools/migrations/migrate.py` импортирует `POLICY_IR_CURRENT_VERSION` из `polisyos.common.migrations`, но этот символ в пакете не экспортируется.
-- Значимая часть `tools/demos/*` и `tools/benchmarks/*` использует старые импорты `foundry` и не входит в обязательные CI-gates.
+- [tools/benchmarks/README.md](./benchmarks/README.md)
+- [tools/workspace/README.md](./workspace/README.md)
+- [tools/cloud/README.md](./cloud/README.md)
+- [docs/reference/tools.md](../docs/reference/tools.md)

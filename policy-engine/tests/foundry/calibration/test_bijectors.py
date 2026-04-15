@@ -100,6 +100,20 @@ def test_make_bijector_backward_compat() -> None:
     assert jnp.isfinite(ldj_val)
 
 
+def test_make_bijector_rejects_non_increasing_bounds() -> None:
+    with np.testing.assert_raises(ValueError):
+        make_bijector(lower=1.0, upper=1.0)
+
+
+def test_bounded_bijector_inverse_stays_finite_near_boundaries() -> None:
+    b = make_bijector(lower=0.0, upper=1.0)
+    x = jnp.array([1e-12, 1.0 - 1e-12], dtype=jnp.float32)
+    u = b.inverse(x)
+    x_roundtrip = b.forward(u)
+    assert bool(jnp.all(jnp.isfinite(u)))
+    assert bool(jnp.all((x_roundtrip > 0.0) & (x_roundtrip < 1.0)))
+
+
 def test_chain_ldj_accumulates_correctly() -> None:
     """Chain ldj should equal sum of individual ldjs at intermediate values."""
     b1 = log_bijector()

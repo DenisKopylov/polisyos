@@ -208,7 +208,7 @@ class MultinomialIPWEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ipw",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
@@ -372,7 +372,7 @@ class MultiArmAIPWEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="aipw",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="outcome", slot_type=SlotType.VECTOR,

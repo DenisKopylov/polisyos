@@ -1,14 +1,16 @@
 """Capability checking utilities and decorators."""
 from __future__ import annotations
 
+import ast
 import inspect
+import textwrap
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, ParamSpec, TypeVar
 
 from polisyos.ir.connectors import ConnectorCapability
 
 if TYPE_CHECKING:
-    from polisyos.fabric.connectors.base import BaseConnector, SourceConnector
+    from polisyos.fabric.connectors.base import SourceConnector
 
 
 P = ParamSpec("P")
@@ -47,6 +49,7 @@ def requires_capability(
                         connector_id=connector_id,
                         required=cap,
                         available=connector_caps,
+                        message=msg,
                     )
                 return await func(self, *args, **kwargs)  # type: ignore[misc]
 
@@ -65,6 +68,7 @@ def requires_capability(
                     connector_id=connector_id,
                     required=cap,
                     available=connector_caps,
+                    message=msg,
                 )
             return func(self, *args, **kwargs)  # type: ignore[misc]
 
@@ -75,6 +79,7 @@ def requires_capability(
 
 def requires_any_capability(
     *caps: ConnectorCapability,
+    error_message: str | None = None,
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """Decorator that validates connector has at least one of the required capabilities."""
 
@@ -93,10 +98,12 @@ def requires_any_capability(
                 connector_id = getattr(self, "connector_id", "unknown")
 
                 if not any(connector_caps & cap for cap in caps):
+                    cap_names = ", ".join(cap.name for cap in caps)
                     raise CapabilityError(
                         connector_id=connector_id,
                         required=caps[0],
                         available=connector_caps,
+                        message=error_message or f"Method requires one of: {cap_names}",
                     )
                 return await func(self, *args, **kwargs)  # type: ignore[misc]
 
@@ -110,10 +117,12 @@ def requires_any_capability(
             connector_id = getattr(self, "connector_id", "unknown")
 
             if not any(connector_caps & cap for cap in caps):
+                cap_names = ", ".join(cap.name for cap in caps)
                 raise CapabilityError(
                     connector_id=connector_id,
                     required=caps[0],
                     available=connector_caps,
+                    message=error_message or f"Method requires one of: {cap_names}",
                 )
             return func(self, *args, **kwargs)  # type: ignore[misc]
 
@@ -227,30 +236,53 @@ def _is_async_callable(method: Any, *, method_name: str | None = None) -> bool:
 
 
 def _is_protocol_stub(method: Any) -> bool:
-    """Check if a method is a Protocol stub (just '...' or 'pass')."""
+    """Check if a method body is effectively a stub."""
     try:
-        source = inspect.getsource(method)
-        lines = [
-            line.strip()
-            for line in source.split("\n")
-            if line.strip() and not line.strip().startswith("#")
-        ]
-
-        body_lines: list[str] = []
-        in_docstring = False
-        for line in lines:
-            if '"""' in line or "'''" in line:
-                in_docstring = not in_docstring
-                continue
-            if in_docstring:
-                continue
-            if line.startswith("@") or line.startswith("def ") or line.startswith("async def "):
-                continue
-            body_lines.append(line)
-
-        return len(body_lines) == 1 and body_lines[0] in ("...", "pass")
-    except (OSError, TypeError):
+        source = textwrap.dedent(inspect.getsource(inspect.unwrap(method)))
+        module = ast.parse(source)
+    except (OSError, TypeError, SyntaxError):
         return False
+
+    function_def = next(
+        (
+            node
+            for node in module.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        ),
+        None,
+    )
+    if function_def is None:
+        return False
+
+    body = list(function_def.body)
+    if (
+        body
+        and isinstance(body[0], ast.Expr)
+        and isinstance(body[0].value, ast.Constant)
+        and isinstance(body[0].value.value, str)
+    ):
+        body = body[1:]
+
+    if not body:
+        return True
+    if len(body) != 1:
+        return False
+
+    statement = body[0]
+    if isinstance(statement, ast.Pass):
+        return True
+    if (
+        isinstance(statement, ast.Expr)
+        and isinstance(statement.value, ast.Constant)
+        and statement.value.value is Ellipsis
+    ):
+        return True
+    if isinstance(statement, ast.Raise):
+        exc = statement.exc
+        if isinstance(exc, ast.Call):
+            exc = exc.func
+        return isinstance(exc, ast.Name) and exc.id == "NotImplementedError"
+    return False
 
 
 def _is_baseconnector_default(connector_class: type["SourceConnector"], method_name: str) -> bool:

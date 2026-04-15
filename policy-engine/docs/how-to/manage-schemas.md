@@ -48,6 +48,8 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 
 - `schemas/snapshots/<module>/*.schema.json`
 - `_manifest.json` для соответствующего snapshot bundle
+- `docs/reference/ir/schema-catalog.md`
+- `docs/reference/schemas.md`
 
 Полезное правило: смотрите не только на diff JSON, но и на semantic intent изменения. Snapshot update без понятного contract story почти всегда плохой знак.
 
@@ -76,7 +78,41 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate
 
 Первый случай обычно acceptable при правильном report/ADR. Второй требует явного compatibility decision. Третий лучше ловить и откатывать сразу.
 
-## 6. Что смотреть в PR
+## 6. Compatibility decision перед snapshot update
+
+Перед тем как принимать schema drift, задайте тот же вопрос, который будет
+использовать release review:
+
+```python
+from polisyos.ir.migrations import negotiate_schema_version
+
+decision = negotiate_schema_version(
+    "article_extraction_result",
+    producer_version="1.0",
+    consumer_version="1.5",
+)
+assert decision.can_read
+```
+
+IR registry использует четыре режима:
+
+- `FULL`: прямое чтение обещано в обе стороны в объявленной совместимой линии.
+- `BACKWARD`: новый consumer читает старый producer payload.
+- `FORWARD`: старый consumer читает объявленный новый producer payload.
+- `NONE`: прямое чтение не обещано; нужен migration edge или отказ.
+
+Изменения классифицируются так:
+
+- additive optional fields обычно `BACKWARD`, если старый payload валиден у
+  нового reader без silent defaults loss;
+- field removal и rename не считаются совместимыми сами по себе, им нужен
+  explicit dual-read alias или migration;
+- canonical defaults должны быть записаны в compatibility rule, если reader
+  проставляет или нормализует отсутствующее поле;
+- unknown canonical `_type` не является compatibility escape hatch и
+  fail-closed по ADR-0104.
+
+## 7. Что смотреть в PR
 
 Когда вы ревьюите schema-related PR, проверьте:
 
@@ -84,8 +120,9 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate
 - обновлены ли и ABI snapshots, и OpenAPI/client, если менялся runtime surface;
 - не затронуты ли unrelated snapshot bundles;
 - соответствуют ли docs/reference страницы новой форме контракта.
+- есть ли compatibility rule или ADR для producer/consumer mismatch.
 
-## 7. Минимальный рабочий набор перед merge
+## 8. Минимальный рабочий набор перед merge
 
 ```bash
 PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
@@ -97,5 +134,6 @@ uv run --extra docs python tools/validation/check_docstring_quality.py --repo-ro
 ## Что дальше
 
 - Для каталога текущих snapshots смотрите [Schemas reference](../reference/schemas.md)
+- Для полного generated inventory всех IR types и fields смотрите [IR Schema Catalog](../reference/ir/schema-catalog.md)
 - Для runtime contract tooling откройте `tools/runtime/README.md`
 - Для ABI tooling откройте `tools/diagnostics/README.md`

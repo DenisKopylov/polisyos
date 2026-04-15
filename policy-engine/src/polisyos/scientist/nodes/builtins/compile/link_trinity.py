@@ -15,6 +15,7 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
@@ -104,7 +105,7 @@ class LinkTrinityNode:
         )
         link_report_ref = put_link_report(ctx.store, link_report, inputs=link_inputs)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.reports_index[REPORT_LINK_REPORT_REF] = link_report_ref
 
         if self.strict and not link_report.ok:

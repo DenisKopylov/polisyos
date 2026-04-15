@@ -11,6 +11,7 @@ from enum import Enum
 
 from pydantic import Field, model_validator
 
+from polisyos.ir._validation import ensure_unique_ids
 from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.observation.contracts import IdentificationMode, ObservationFamily
 
@@ -157,8 +158,11 @@ class ObservationFamilyPolicy(KernelModel):
 
     @model_validator(mode="after")
     def validate_policy(self) -> "ObservationFamilyPolicy":
-        if len(set(self.mandatory_governance_passes)) != len(self.mandatory_governance_passes):
-            raise ValueError("mandatory_governance_passes must be unique")
+        ensure_unique_ids(
+            self.mandatory_governance_passes,
+            key_fn=lambda item: item,
+            label="mandatory_governance_passes",
+        )
         return self
 
 
@@ -338,8 +342,11 @@ class GovernancePassMappingRegistry(KernelModel):
 
     @model_validator(mode="after")
     def validate_mapping(self) -> "GovernancePassMappingRegistry":
-        if len(set(self.global_mandatory_passes)) != len(self.global_mandatory_passes):
-            raise ValueError("global_mandatory_passes must be unique")
+        ensure_unique_ids(
+            self.global_mandatory_passes,
+            key_fn=lambda item: item,
+            label="global_mandatory_passes",
+        )
         known_families = {family.value for family in ObservationFamily}
         for family in ObservationFamily:
             if family.value not in self.family_passes:
@@ -347,8 +354,11 @@ class GovernancePassMappingRegistry(KernelModel):
         for family_key, passes in self.family_passes.items():
             if family_key not in known_families:
                 raise ValueError(f"unknown observation family in mapping: {family_key}")
-            if len(set(passes)) != len(passes):
-                raise ValueError(f"family pass mapping must be unique for {family_key}")
+            ensure_unique_ids(
+                passes,
+                key_fn=lambda item: item,
+                label=f"family pass mapping for {family_key}",
+            )
         return self
 
     def for_family(self, family: ObservationFamily, *, include_global: bool = False) -> list[str]:

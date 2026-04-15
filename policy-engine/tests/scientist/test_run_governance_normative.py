@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import logging
+from unittest.mock import patch
 
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -20,6 +21,7 @@ from polisyos.ir.analytics.normative_arbitration import (
 from polisyos.ir.governance.problem_frame import NormativeArbitrationPolicy
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -78,6 +80,77 @@ def test_run_governance_preserves_human_gate_precedence(tmp_path) -> None:
     )
 
     assert report.verdict == "human_gate"
+
+
+def test_run_governance_uses_branch_state_for_params_and_report(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_governance_branch")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.governance.branch"))
+
+    normative_ref = persist_normative_arbitration_result(
+        store,
+        NormativeArbitrationResult(
+            model_completeness=NormativeModelCompleteness.COMPLETE,
+            option_matrix=[
+                OptionOutcomeMatrix(option=ArbitrationOption.BASELINE, binding_values={"a": 0.0}),
+                OptionOutcomeMatrix(option=ArbitrationOption.PROPOSAL, binding_values={"a": 1.0}),
+            ],
+            per_stakeholder_utility=[],
+            rights_audit=[],
+            hard_constraint_audit=[],
+            policy_outcomes=[
+                PolicyOutcome(
+                    policy=NormativeArbitrationPolicy.LEXICOGRAPHIC_RIGHTS,
+                    selected_option=ArbitrationOption.PROPOSAL,
+                    rationale="fixture",
+                )
+            ],
+            selected_policy=NormativeArbitrationPolicy.LEXICOGRAPHIC_RIGHTS,
+            selected_option=ArbitrationOption.PROPOSAL,
+            tradeoff_certificate=TradeoffCertificate(
+                selected_policy=NormativeArbitrationPolicy.LEXICOGRAPHIC_RIGHTS,
+                selected_option=ArbitrationOption.PROPOSAL,
+            ),
+        ),
+    )
+    state = ExperimentState(
+        run_id="R_governance_branch",
+        artifacts_index={ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF: normative_ref},
+        params={
+            "governance_profile": {
+                "level": "mvp",
+                "pass_ids": ["normative_arbitration"],
+                "thresholds": {},
+                "short_circuit_on_blocker": True,
+            },
+            "nested": {"baseline": True},
+        },
+    )
+    observed: dict[str, tuple[str, ...]] = {}
+
+    def _spy_branch(base_state, *, write_paths=()):
+        observed["write_paths"] = tuple(write_paths)
+        return real_branch_state(base_state, write_paths=write_paths)
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.governance.run_governance.branch_state",
+        _spy_branch,
+    ):
+        outcome = RunGovernanceNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    assert observed["write_paths"] == (
+        "params",
+        "params.validation_trace",
+        "params.human_review_request",
+        "params.human_review_request_ref",
+        "reports_index.governance_report_ref",
+    )
+    assert REPORT_GOVERNANCE_REPORT_REF not in state.reports_index
+    assert state.params["nested"] == {"baseline": True}
+    assert REPORT_GOVERNANCE_REPORT_REF in outcome.state.reports_index
+    assert "validation_trace" in outcome.state.params
 
 
 def _run_governance_with_normative_result(

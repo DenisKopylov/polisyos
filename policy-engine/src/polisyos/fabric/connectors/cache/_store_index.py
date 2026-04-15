@@ -36,6 +36,7 @@ class CacheIndex:
         self._path = path
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
+        self._closed = False
         self._conn = sqlite3.connect(
             str(self._path),
             check_same_thread=False,
@@ -109,10 +110,29 @@ class CacheIndex:
 
     def close(self) -> None:
         with self._lock:
+            if self._closed:
+                return
             self._conn.close()
+            self._closed = True
+
+    @property
+    def closed(self) -> bool:
+        return self._closed
+
+    def _ensure_open(self) -> None:
+        if self._closed:
+            raise RuntimeError(f"CacheIndex is closed: {self._path}")
+
+    def __enter__(self) -> "CacheIndex":
+        self._ensure_open()
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self.close()
 
     def get_entry(self, cache_key: str) -> CacheEntry | None:
         with self._lock:
+            self._ensure_open()
             row = self._conn.execute(
                 "SELECT * FROM cache_entries WHERE cache_key = ?",
                 (cache_key,),
@@ -123,6 +143,7 @@ class CacheIndex:
 
     def upsert_entry(self, entry: CacheEntry) -> None:
         with self._lock, self._conn:
+            self._ensure_open()
             existing = self._conn.execute(
                 "SELECT pinned FROM cache_entries WHERE cache_key = ?",
                 (entry.cache_key,),
@@ -173,6 +194,7 @@ class CacheIndex:
 
     def mark_stale(self, cache_key: str) -> None:
         with self._lock, self._conn:
+            self._ensure_open()
             self._conn.execute(
                 "UPDATE cache_entries SET is_stale = 1 WHERE cache_key = ?",
                 (cache_key,),
@@ -180,6 +202,7 @@ class CacheIndex:
 
     def delete_entry(self, cache_key: str) -> None:
         with self._lock, self._conn:
+            self._ensure_open()
             self._conn.execute(
                 "DELETE FROM cache_entries WHERE cache_key = ?",
                 (cache_key,),
@@ -188,6 +211,7 @@ class CacheIndex:
     def update_access(self, cache_key: str, accessed_at: datetime | None = None) -> None:
         accessed_at = accessed_at or _utc_now()
         with self._lock, self._conn:
+            self._ensure_open()
             self._conn.execute(
                 """
                 UPDATE cache_entries
@@ -200,6 +224,7 @@ class CacheIndex:
 
     def set_pinned(self, cache_key: str, pinned: bool) -> None:
         with self._lock, self._conn:
+            self._ensure_open()
             self._conn.execute(
                 "UPDATE cache_entries SET pinned = ? WHERE cache_key = ?",
                 (1 if pinned else 0, cache_key),
@@ -207,6 +232,7 @@ class CacheIndex:
 
     def list_datasets(self) -> list[str]:
         with self._lock:
+            self._ensure_open()
             rows = self._conn.execute(
                 "SELECT DISTINCT dataset_id FROM cache_entries",
             ).fetchall()
@@ -214,6 +240,7 @@ class CacheIndex:
 
     def list_dataset_connectors(self) -> list[tuple[str | None, str]]:
         with self._lock:
+            self._ensure_open()
             rows = self._conn.execute(
                 "SELECT DISTINCT connector_id, dataset_id FROM cache_entries",
             ).fetchall()
@@ -221,6 +248,7 @@ class CacheIndex:
 
     def list_expiring(self, threshold_ts: float) -> list[CacheEntry]:
         with self._lock:
+            self._ensure_open()
             rows = self._conn.execute(
                 """
                 SELECT * FROM cache_entries
@@ -266,11 +294,13 @@ class CacheIndex:
         sql = f"SELECT cache_key FROM cache_entries{where_clause}"
 
         with self._lock:
+            self._ensure_open()
             rows = self._conn.execute(sql, tuple(params)).fetchall()
         return [row["cache_key"] for row in rows]
 
     def get_latest_for_dataset(self, dataset_id: str) -> CacheEntry | None:
         with self._lock:
+            self._ensure_open()
             row = self._conn.execute(
                 """
                 SELECT * FROM cache_entries
@@ -284,6 +314,7 @@ class CacheIndex:
 
     def stats(self) -> tuple[int, int, float | None]:
         with self._lock:
+            self._ensure_open()
             row = self._conn.execute(
                 "SELECT COUNT(*) AS count, SUM(payload_size_bytes) AS total, MIN(cached_at) AS oldest FROM cache_entries"
             ).fetchone()
@@ -293,6 +324,7 @@ class CacheIndex:
 
     def total_size(self) -> int:
         with self._lock:
+            self._ensure_open()
             row = self._conn.execute(
                 "SELECT SUM(payload_size_bytes) AS total FROM cache_entries"
             ).fetchone()
@@ -300,6 +332,7 @@ class CacheIndex:
 
     def total_entries(self) -> int:
         with self._lock:
+            self._ensure_open()
             row = self._conn.execute(
                 "SELECT COUNT(*) AS count FROM cache_entries"
             ).fetchone()
@@ -314,6 +347,7 @@ class CacheIndex:
             "LIMIT ?"
         )
         with self._lock:
+            self._ensure_open()
             rows = self._conn.execute(sql, (limit,)).fetchall()
         return [self._row_to_entry(row) for row in rows]
 

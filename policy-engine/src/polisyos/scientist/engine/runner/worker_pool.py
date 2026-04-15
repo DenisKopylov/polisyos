@@ -38,6 +38,8 @@ class NodeTask:
     timeout_s: float | None = None
     context_meta: dict[str, Any] = field(default_factory=dict)
     resource_requirements: ResourceRequirements | None = None
+    priority: int = 0
+    queue_weight: float = 1.0
 
 
 class PoolCapacity(BaseModel):

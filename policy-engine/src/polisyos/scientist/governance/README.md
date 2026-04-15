@@ -19,6 +19,8 @@
 - **Calibration governance** — family-aware validation, adversarial suites и active disambiguation.
 - **Stress scenarios** — promotion-ориентированные robustness checks по baseline/scenario deltas.
 - **Calibration validation bundle** — backtest + stress + leaderboard readout, сохраняемый как artifact.
+- **Governance accountability artifact** — единый audit-friendly surface для calibration,
+  fairness, threshold rationale, risk-weighted verdict и probabilistic escalation policy.
 
 ## Public API
 
@@ -28,6 +30,8 @@
 - `StressScenarioRunner`, `StressScenarioResult`, `StressScenarioKind`
 - `CalibrationValidationRunner`, `CalibrationValidationBundle`,
   `persist_calibration_validation_bundle(...)`
+- `GovernanceAccountabilityArtifact`, `GovernanceAccountabilityInput`,
+  `build_governance_accountability_artifact(...)`
 - `CalibrationLeaderboard`, `CalibrationLeaderboardEntry`, `CalibrationLeaderboardMetrics`
 - `GovernanceReport`, `GovernanceReportLinks`
 
@@ -36,6 +40,7 @@
 ## Текущее состояние
 
 - Последнее обновление: 2026-04-03
+  - Accountability/doc surface обновлён: 2026-04-12
 - Python modules: 44
 - Exports: 27
 - Недавний delta: добавлены `backtest_matrix.py`, `calibration.py`,

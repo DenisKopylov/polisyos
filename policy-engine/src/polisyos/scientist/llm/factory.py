@@ -4,11 +4,17 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
+from polisyos.core.llm.sanitization import PromptSanitizer
 from polisyos.core.llm.traced_client import TracedLLMClient
 
+from .fallback_router import EndpointConfig, FallbackRouter
 from .gateway_client import GatewayLLMClient
+from .prompt_cache import CachingLLMClient, InMemoryPromptCache
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def _as_bool(value: str | None, *, default: bool) -> bool:
@@ -33,6 +39,11 @@ class GatewayLLMConfig:
     # Prompt caching
     cache_ttl_s: float = 300.0
     cache_maxsize: int = 128
+    # Provider policy
+    default_preset: str | None = None
+    enable_privacy_sanitization_plugin: bool = False
+    # First-party sanitization
+    enable_prompt_sanitizer: bool = True
 
     @classmethod
     def from_env(cls) -> GatewayLLMConfig | None:
@@ -80,6 +91,15 @@ class GatewayLLMConfig:
             fallback_urls=fallback_urls,
             cache_ttl_s=max(cache_ttl_s, 0.0),
             cache_maxsize=max(cache_maxsize, 0),
+            default_preset=(os.getenv("POLISYOS_LLM_GATEWAY_PRESET") or "").strip() or None,
+            enable_privacy_sanitization_plugin=_as_bool(
+                os.getenv("POLISYOS_LLM_GATEWAY_PRIVACY_SANITIZATION"),
+                default=False,
+            ),
+            enable_prompt_sanitizer=_as_bool(
+                os.getenv("POLISYOS_LLM_PROMPT_SANITIZER"),
+                default=True,
+            ),
         )
 
 
@@ -91,19 +111,68 @@ def create_traced_gateway_client(
     model_variant_id: str | None = None,
     call_observer: Callable[[dict[str, Any]], None] | None = None,
     config: GatewayLLMConfig | None = None,
+    tracer: Any | None = None,
+    metrics: Any | None = None,
 ) -> TracedLLMClient | None:
     """Create traced LLM client from env-backed gateway config."""
     cfg = config or GatewayLLMConfig.from_env()
     if cfg is None:
         return None
-    raw_client = GatewayLLMClient(
-        base_url=cfg.base_url,
-        api_key=cfg.api_key,
-        model=model_name,
-        timeout_s=cfg.timeout_s,
-        max_retries=cfg.max_retries,
-        provider_hint=provider_hint or cfg.default_provider,
-    )
+    resolved_provider = provider_hint or cfg.default_provider
+    default_plugins: tuple[dict[str, Any], ...] = ()
+    if cfg.enable_privacy_sanitization_plugin:
+        default_plugins = ({"id": "privacy-sanitization"},)
+    if cfg.fallback_urls:
+        endpoints = [
+            EndpointConfig(
+                url=cfg.base_url,
+                api_key=cfg.api_key,
+                model=model_name,
+                provider_hint=resolved_provider,
+                priority=0,
+                timeout_s=cfg.timeout_s,
+                max_retries=cfg.max_retries,
+                preset=cfg.default_preset,
+                default_plugins=default_plugins,
+            ),
+            *[
+                EndpointConfig(
+                    url=url,
+                    api_key=cfg.api_key,
+                    model=model_name,
+                    provider_hint=resolved_provider,
+                    priority=index + 1,
+                    timeout_s=cfg.timeout_s,
+                    max_retries=cfg.max_retries,
+                    preset=cfg.default_preset,
+                    default_plugins=default_plugins,
+                )
+                for index, url in enumerate(cfg.fallback_urls)
+            ],
+        ]
+        raw_client = FallbackRouter(endpoints)
+    else:
+        raw_client = GatewayLLMClient(
+            base_url=cfg.base_url,
+            api_key=cfg.api_key,
+            model=model_name,
+            timeout_s=cfg.timeout_s,
+            max_retries=cfg.max_retries,
+            provider_hint=resolved_provider,
+            preset=cfg.default_preset,
+            default_plugins=[dict(plugin) for plugin in default_plugins],
+        )
+    if cfg.cache_maxsize > 0 and cfg.cache_ttl_s > 0:
+        raw_client = CachingLLMClient(
+            raw_client,
+            cache=InMemoryPromptCache(
+                maxsize=cfg.cache_maxsize,
+                default_ttl_s=cfg.cache_ttl_s,
+            ),
+            model=model_name,
+            ttl_s=cfg.cache_ttl_s,
+        )
+    prompt_sanitizer = PromptSanitizer() if cfg.enable_prompt_sanitizer else None
     return TracedLLMClient(
         raw_client,
         model_name=model_name,
@@ -112,7 +181,10 @@ def create_traced_gateway_client(
         run_id=run_id,
         model_variant_id=model_variant_id,
         call_observer=call_observer,
-        provider_name=provider_hint or cfg.default_provider or "gateway",
+        provider_name=resolved_provider or "gateway",
+        prompt_sanitizer=prompt_sanitizer,
+        tracer=tracer,
+        metrics=metrics,
     )
 
 

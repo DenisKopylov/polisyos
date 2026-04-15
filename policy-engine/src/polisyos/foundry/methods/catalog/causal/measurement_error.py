@@ -676,7 +676,7 @@ class MeasurementErrorEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="measurement_error_proxy",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),

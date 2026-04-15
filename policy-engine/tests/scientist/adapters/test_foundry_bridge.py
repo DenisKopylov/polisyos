@@ -1,12 +1,20 @@
 """Tests for DefaultFoundryPort (foundry_bridge adapter)."""
 from __future__ import annotations
 
+import os
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.foundry import CompileRequest, CompileResult, ExecuteRequest, ExecuteResult
+from polisyos.core.contracts.foundry import (
+    CompileRequest,
+    CompileResult,
+    ExecuteRequest,
+    ExecuteResult,
+)
+from polisyos.core.security.tee import AttestationResult, AttestationStatus
 from polisyos.scientist.engine.context import FoundryPort
 
 
@@ -62,8 +70,6 @@ class TestDefaultFoundryPortExecute:
     @patch("polisyos.scientist.adapters.foundry_bridge.execute_foundry")
     @patch("polisyos.scientist.adapters.foundry_bridge.get_security_settings")
     def test_execute_with_tee_gatekeeper(self, mock_settings, mock_execute, tmp_path):
-        from polisyos.core.security.tee import AttestationResult, AttestationStatus
-
         mock_settings.return_value = MagicMock(tee_enabled=False, sbom_enabled=False)
         gatekeeper = MagicMock()
         attestation = AttestationResult(
@@ -85,7 +91,7 @@ class TestDefaultFoundryPortExecute:
         port = DefaultFoundryPort(gatekeeper=gatekeeper)
         store = FileSystemCAS(tmp_path)
 
-        result = port.execute(store, MagicMock(spec=ExecuteRequest))
+        port.execute(store, MagicMock(spec=ExecuteRequest))
         gatekeeper.enforce.assert_called_once()
 
 
@@ -93,7 +99,43 @@ class TestProtocolConformance:
     def test_implements_foundry_port_protocol(self):
         from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
         # FoundryPort is runtime_checkable
-        with patch("polisyos.scientist.adapters.foundry_bridge.get_security_settings") as mock_settings:
+        with patch(
+            "polisyos.scientist.adapters.foundry_bridge.get_security_settings",
+        ) as mock_settings:
             mock_settings.return_value = MagicMock(tee_enabled=False)
             port = DefaultFoundryPort()
             assert isinstance(port, FoundryPort)
+
+
+class TestTEEEnvScope:
+    def test_rejects_control_characters_in_env_values(self):
+        from polisyos.scientist.adapters.foundry_bridge import (
+            FoundryBridgeSecurityError,
+            _tee_env_scope,
+        )
+
+        attestation = AttestationResult(
+            status=AttestationStatus.VERIFIED,
+            measurement="good\nBAD=1",
+            verified_at=datetime.now(timezone.utc),
+        )
+
+        with pytest.raises(FoundryBridgeSecurityError, match="control characters"):
+            with _tee_env_scope(attestation):
+                pass
+
+    def test_sets_and_restores_sanitized_env_values(self):
+        from polisyos.scientist.adapters.foundry_bridge import _tee_env_scope
+
+        attestation = AttestationResult(
+            status=AttestationStatus.VERIFIED,
+            report_hash="abc123",
+            measurement="measurement-1",
+            verified_at=datetime.now(timezone.utc),
+        )
+
+        assert os.environ.get("POLISYOS_TEE_REPORT_HASH") is None
+        with _tee_env_scope(attestation):
+            assert os.environ["POLISYOS_TEE_REPORT_HASH"] == "abc123"
+            assert os.environ["POLISYOS_TEE_MEASUREMENT"] == "measurement-1"
+        assert os.environ.get("POLISYOS_TEE_REPORT_HASH") is None

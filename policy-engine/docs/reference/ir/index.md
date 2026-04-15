@@ -1,7 +1,7 @@
 # IR — Intermediate Representation
 Related explanation: [Trinity](../../explanation/trinity.md).
 
-> Canonical contract layer for 160 top-level exports covering policy authoring, analytics, and the new observation stack.
+> Canonical contract layer for 171 top-level exports covering policy authoring, analytics, observation, and reflection tooling.
 
 `polisyos.ir` holds schema-first contracts, enums, manifests, and typed artifact
 references. The package is intentionally execution-free: Scientist and Foundry
@@ -11,6 +11,10 @@ consume these models, but business logic lives outside the IR layer.
 
 | Page | Scope | Primary modules |
 |------|-------|-----------------|
+| [Public Surface](public-surface.md) | Documented package facades, naming rules, and export-audit policy | `ir.analytics`, `ir.kernel`, `ir.world`, `ir.public_surface` |
+| [Schema Catalog](schema-catalog.md) | Generated inventory of IR types, fields, refs, docs anchors, and ABI linkage | `ir.schema_catalog`, generated reference pages |
+| [Compiler Pipeline](compiler-pipeline.md) | Pass manager, analysis cache, estimand normalization, lineage graph, dead-artifact diagnostics | `ir.passes`, `ir.analytics.estimand`, `ir.artifacts.lineage` |
+| [Interoperability](interoperability.md) | Transport contracts, PROV-O mapping, standards bridges, and causal ecosystem exchange | `ir.artifacts.transport`, `ir.world.prov_o`, `ir.observation.bridges`, `ir.analytics.ecosystem_bridges` |
 | [Governance](governance.md) | Policy authoring, governance aliases, gate payloads | `ir.governance.*`, `ir.observation.governance` |
 | [Analytics](analytics.md) | Causal, HTE, backtest, uncertainty, strategic response | `ir.analytics.*` |
 | [Observation](observation.md) | Records, panels, manifests, routing, readiness, execution | `ir.observation.*` |
@@ -24,6 +28,7 @@ consume these models, but business logic lives outside the IR layer.
 | `polisyos.ir.analytics.data_views` | 4 | `AccessTier`, `DataFilter`, `DataViewRequest`, `DataViewType` |
 | `polisyos.ir.norm_pack` | 4 | `NormPack`, `NormRule`, `NormRef`, `RuleType` |
 | `polisyos.ir.loaders` | 1 | `load_policy` |
+| `polisyos.ir.schema_catalog` | 11 | `IRExportInfo`, `IRFieldInfo`, `IRPublicStatus`, `IRSchemaCatalog`, `IRTypeInfo`, `IRTypeKind`, `enumerate_ir_exports`, `get_ir_schema_catalog`, `get_ir_type`, `inspect_ir_schema`, `list_ir_types` |
 | `polisyos.ir.governance.problem_frame` | 7 | `ProblemFrame`, `ProblemDomain`, `KPISpec`, `SuccessCriterion`, `ProblemConstraintSpec`, `ConstraintType`, `StakeholderSpec` |
 | `polisyos.ir.governance.policy_spec` | 6 | `PolicySpec`, `PolicyInterventionSpec`, `MechanismBinding`, `ParameterSpec`, `TemporalInterventionSequence`, `TemporalInterventionStep` |
 | `polisyos.ir.governance.gate` | 7 | `GateContext`, `GateDecision`, `GateEvent`, `GateEventType`, `GatePriority`, `GateRequest`, `GateVerdict` |
@@ -62,5 +67,8 @@ consume these models, but business logic lives outside the IR layer.
 
 ## Notes
 
-- The root facade now exposes 160 unique names; the duplicated `GovernancePassMappingBundle` export was replaced with `GovernancePassAliasStatus`.
+- The root facade now exposes 171 unique names, including the reflection API in `polisyos.ir.schema_catalog`.
+- `docs/reference/ir/schema-catalog.md` is generated from the same reflection layer that powers export/schema inspection.
+- `docs/reference/ir/compiler-pipeline.md` documents the execution-free pass layer introduced for compiler-grade IR validation and normalization.
 - `docs/reference/ir/analytics.md` also documents `polisyos.ir.analytics.strategic`, which is new in code but not yet re-exported from the root `polisyos.ir` facade.
+- Package-level facades are audited separately from the root boundary; see [Public Surface](public-surface.md) for lazy-facade policy and naming conventions.

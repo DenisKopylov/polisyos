@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useMemo } from "react";
+import { useReducedMotion } from "motion/react";
 import {
   Bar,
   BarChart,
@@ -111,8 +112,11 @@ function DashboardHeroContent() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="eyebrow">{t("pages.dashboard.heroEyebrow")}</p>
-          <h2>{t("pages.dashboard.heroTitle")}</h2>
-          <p className="topbar-subtitle">{t("pages.dashboard.subtitle")}</p>
+          <h1>{t("pages.dashboard.title")}</h1>
+          <p className="topbar-subtitle">{t("pages.dashboard.heroTitle")}</p>
+          <p className="text-muted mt-2 max-w-3xl text-sm">
+            {t("pages.dashboard.subtitle")}
+          </p>
         </div>
         <div className="topbar-actions">
           <Badge kind={healthKind}>
@@ -259,6 +263,7 @@ function DashboardMetricsContent() {
 
 function DashboardStatusChartContent() {
   const { t } = useI18n();
+  const prefersReducedMotion = useReducedMotion();
   const runsQuery = useSuspenseRunsSample();
   const statusBreakdown = groupRunsByStatus(runsQuery.data?.runs ?? []);
 
@@ -293,6 +298,7 @@ function DashboardStatusChartContent() {
           <Bar
             dataKey="count"
             fill={chartTheme.primary}
+            isAnimationActive={!prefersReducedMotion}
             radius={[10, 10, 0, 0]}
           />
         </BarChart>
@@ -303,6 +309,7 @@ function DashboardStatusChartContent() {
 
 function DashboardDurationTrendContent() {
   const { t } = useI18n();
+  const prefersReducedMotion = useReducedMotion();
   const runsQuery = useSuspenseRunsSample();
   const durationTrend = (runsQuery.data?.runs ?? [])
     .filter(
@@ -351,6 +358,7 @@ function DashboardDurationTrendContent() {
             dataKey="durationMs"
             stroke={chartTheme.alert}
             strokeWidth={3}
+            isAnimationActive={!prefersReducedMotion}
             dot={{ r: 4 }}
           />
         </LineChart>
@@ -448,8 +456,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5" data-testid="dashboard-page">
-      <h1 className="sr-only">{t("pages.dashboard.title")}</h1>
-
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
         <Card>
           <FeatureAsyncBoundary
@@ -468,7 +474,7 @@ export default function DashboardPage() {
           <div className="panel-header">
             <div>
               <p className="eyebrow">{t("pages.dashboard.actionQueueTitle")}</p>
-              <h3>{t("pages.dashboard.actionQueueHeading")}</h3>
+              <h2>{t("pages.dashboard.actionQueueHeading")}</h2>
             </div>
           </div>
           <FeatureAsyncBoundary
@@ -498,7 +504,7 @@ export default function DashboardPage() {
           <div className="panel-header">
             <div>
               <p className="eyebrow">{t("pages.dashboard.statusChartTitle")}</p>
-              <h3>{t("pages.dashboard.statusChartHeading")}</h3>
+              <h2>{t("pages.dashboard.statusChartHeading")}</h2>
             </div>
           </div>
           <FeatureAsyncBoundary
@@ -517,7 +523,7 @@ export default function DashboardPage() {
           <div className="panel-header">
             <div>
               <p className="eyebrow">{t("pages.dashboard.trendTitle")}</p>
-              <h3>{t("pages.dashboard.trendHeading")}</h3>
+              <h2>{t("pages.dashboard.trendHeading")}</h2>
             </div>
           </div>
           <FeatureAsyncBoundary
@@ -538,7 +544,7 @@ export default function DashboardPage() {
           <div className="panel-header">
             <div>
               <p className="eyebrow">{t("pages.dashboard.coverageTitle")}</p>
-              <h3>{t("pages.dashboard.coverageHeading")}</h3>
+              <h2>{t("pages.dashboard.coverageHeading")}</h2>
             </div>
           </div>
           <FeatureAsyncBoundary
@@ -557,7 +563,7 @@ export default function DashboardPage() {
           <div className="panel-header">
             <div>
               <p className="eyebrow">{t("pages.dashboard.promotionsTitle")}</p>
-              <h3>{t("pages.dashboard.promotionsHeading")}</h3>
+              <h2>{t("pages.dashboard.promotionsHeading")}</h2>
             </div>
           </div>
           <FeatureAsyncBoundary

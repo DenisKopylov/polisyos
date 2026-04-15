@@ -143,7 +143,7 @@ class StockFlowSystemDynamicsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="stock_flow",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -222,7 +222,7 @@ class QueueDiscreteEventEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="queue",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({SlotSpec("queue_length", SlotType.SCALAR, Unit("queue", "count"))}),
         output_slots=_result_slot(),
@@ -294,7 +294,7 @@ class SIRCompartmentalEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="sir",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -374,7 +374,7 @@ class SEIRCompartmentalEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="seir",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -460,7 +460,7 @@ class AgentPopulationSimulationEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="population_dynamics",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

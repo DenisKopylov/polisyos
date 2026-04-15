@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
-from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import content_hash, to_canonical_bytes
@@ -21,6 +20,7 @@ from polisyos.fabric.connectors.federation.types import (
     CompositionStrategy,
     MergeLogEntry,
 )
+from polisyos.fabric.finite import ensure_probability
 from polisyos.fabric.evidence import persist_provenance_graph
 from polisyos.fabric.provenance.core import (
     ActivityType,
@@ -238,13 +238,27 @@ def _aggregate_quality_indicators(
         if not metric_values:
             continue
 
-        scores = [v.get("score", 0.0) for v in metric_values]
+        scores = []
+        invalid_scores = 0
+        for value in metric_values:
+            try:
+                scores.append(
+                    ensure_probability(
+                        value.get("score", 0.0),
+                        what=f"{metric_name} quality score",
+                        clamp=True,
+                    )
+                )
+            except ValueError:
+                invalid_scores += 1
+                scores.append(0.0)
         min_score = min(scores) if scores else 0.0
 
         aggregated[metric_name] = {
             "score": min_score,
             "method": "min_across_sources",
             "num_sources": len(metric_values),
+            "invalid_scores": invalid_scores,
         }
 
     return aggregated if aggregated else None

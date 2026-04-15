@@ -2,28 +2,43 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Callable, Generic, TypeVar
+from inspect import isawaitable
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-from polisyos.fabric.connectors.base import (
-    ConnectionConfig,
-    ConnectionHandle,
-    FetchRequest,
-    FetchResult,
-    HealthStatus,
-    SourceConnector,
-)
-from polisyos.ir.connectors import ConnectorCapability
 
-from .store import ConnectorCacheStore
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Awaitable, Callable
+
+    from polisyos.core.observability import MetricsRegistry
+    from polisyos.fabric.connectors.base import (
+        ConnectionConfig,
+        ConnectionHandle,
+        DatasetDescriptor,
+        FetchRequest,
+        FetchResult,
+        HealthStatus,
+        SourceConnector,
+    )
+    from polisyos.fabric.connectors.types import DataChunk, FreshnessResult
+    from polisyos.ir.connectors import ConnectorCapability
+
+    from .store import ConnectorCacheStore
 
 logger = get_logger(__name__)
 
 DataT = TypeVar("DataT")
 
 
-class CachingConnectorProxy(Generic[DataT]):
+async def _resolve_async_iterator[T](
+    candidate: AsyncIterator[T] | Awaitable[AsyncIterator[T]],
+) -> AsyncIterator[T]:
+    resolved = await candidate if isawaitable(candidate) else candidate
+    return resolved
+
+
+class CachingConnectorProxy[DataT]:
     """Transparent caching wrapper for any SourceConnector."""
 
     def __init__(
@@ -32,6 +47,8 @@ class CachingConnectorProxy(Generic[DataT]):
         cache: ConnectorCacheStore,
         enable_prefetch: bool = True,
         schema_hash_provider: Callable[[FetchRequest, FetchResult[DataT]], str | None] | None = None,
+        *,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self._connector = connector
         self._cache = cache
@@ -39,12 +56,12 @@ class CachingConnectorProxy(Generic[DataT]):
         self._schema_hash_provider = schema_hash_provider
         self._hits = 0
         self._misses = 0
-        self._metrics = get_metrics()
+        self._metrics = metrics or get_metrics()
 
     # Delegate all non-fetch methods
     @property
     def connector_id(self) -> str:
-        return self._connector.connector_id
+        return str(self._connector.connector_id)
 
     @property
     def capabilities(self) -> ConnectorCapability:
@@ -63,19 +80,37 @@ class CachingConnectorProxy(Generic[DataT]):
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         return await self._connector.health_check(handle)
 
-    async def list_datasets(self, handle: ConnectionHandle):
-        async for dataset in self._connector.list_datasets(handle):
+    async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator[DatasetDescriptor]:
+        datasets = await _resolve_async_iterator(self._connector.list_datasets(handle))
+        async for dataset in datasets:
             yield dataset
 
-    async def fetch_stream(self, handle: ConnectionHandle, request: FetchRequest):
-        async for chunk in self._connector.fetch_stream(handle, request):
+    async def fetch_stream(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> AsyncIterator[DataChunk[DataT]]:
+        chunks = await _resolve_async_iterator(self._connector.fetch_stream(handle, request))
+        async for chunk in chunks:
             yield chunk
 
-    async def check_freshness(self, handle: ConnectionHandle, dataset_id: str, cached_version):
+    async def check_freshness(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+        cached_version: Any,
+    ) -> FreshnessResult:
         return await self._connector.check_freshness(handle, dataset_id, cached_version)
 
-    async def get_dataset_schema(self, handle: ConnectionHandle, dataset_id: str):
-        return await self._connector.get_dataset_schema(handle, dataset_id)
+    async def get_dataset_schema(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+    ) -> dict[str, Any]:
+        return cast(
+            "dict[str, Any]",
+            await self._connector.get_dataset_schema(handle, dataset_id),
+        )
 
     async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[DataT]:
         start_time = time.perf_counter()
@@ -116,11 +151,14 @@ class CachingConnectorProxy(Generic[DataT]):
                 schema_hash = None
 
         try:
+            connector_metadata = getattr(self._connector, "metadata", None)
             self._cache.put(
                 request,
                 result,
                 connector_id=self.connector_id,
                 schema_hash=schema_hash,
+                classification=getattr(connector_metadata, "data_classification", None),
+                column_classification=getattr(connector_metadata, "column_classification", None),
             )
         except Exception as exc:
             logger.warning(
@@ -151,17 +189,19 @@ class CachingConnectorProxy(Generic[DataT]):
     def _record_metrics(self, status: str, latency_seconds: float | None) -> None:
         if not self._metrics:
             return
-        if getattr(self._metrics, "connector_cache_operations_total", None):
-            self._metrics.connector_cache_operations_total.add(
+        operations_total = getattr(self._metrics, "connector_cache_operations_total", None)
+        if operations_total is not None:
+            operations_total.add(
                 1,
                 {
                     "operation": "fetch",
                     "status": status,
                     "connector_id": self.connector_id,
                 },
-            )  # type: ignore[union-attr]
-        if latency_seconds is not None and getattr(self._metrics, "connector_cache_latency_seconds", None):
-            self._metrics.connector_cache_latency_seconds.record(
+            )
+        latency_metric = getattr(self._metrics, "connector_cache_latency_seconds", None)
+        if latency_seconds is not None and latency_metric is not None:
+            latency_metric.record(
                 latency_seconds,
                 {"operation": "fetch"},
-            )  # type: ignore[union-attr]
+            )

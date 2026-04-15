@@ -1,13 +1,14 @@
 """Resolve direct/transitive manifest inputs into an artifact dependency graph."""
 from __future__ import annotations
 
+import time
 from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any
 
 from .ids import ArtifactID
 from .manifest import ArtifactManifest
-from .store import FileSystemCAS
 
 
 class NodeStatus(str, Enum):
@@ -18,6 +19,7 @@ class NodeStatus(str, Enum):
     MISSING_MANIFEST = "missing_manifest"
     CORRUPTED = "corrupted"
     SKIPPED_MAX_DEPTH = "skipped_max_depth"
+    SKIPPED_TIMEOUT = "skipped_timeout"
 
 
 @dataclass(frozen=True)
@@ -51,6 +53,7 @@ class DependencyGraph:
     root_id: ArtifactID
     nodes: dict[str, DependencyNode] = field(default_factory=dict)
     edges: list[DependencyEdge] = field(default_factory=list)
+    timed_out: bool = False
 
     @property
     def total_size_bytes(self) -> int:
@@ -78,13 +81,15 @@ class DependencyGraph:
 
 
 def resolve_dependency_graph(
-    store: FileSystemCAS,
+    store: Any,
     root_id: ArtifactID,
     *,
     root_role: str = "root",
     max_depth: int = 200,
     max_nodes: int = 10_000,
     verify_integrity: bool = True,
+    timeout_seconds: float | None = None,
+    batch_size: int = 128,
 ) -> DependencyGraph:
     """
     Resolve transitive CAS dependencies through ArtifactManifest.inputs.
@@ -92,6 +97,13 @@ def resolve_dependency_graph(
     The traversal is iterative (stack-based) to avoid Python recursion limits.
     """
     graph = DependencyGraph(root_id=root_id)
+    deadline = (
+        time.monotonic() + max(float(timeout_seconds), 0.0)
+        if timeout_seconds is not None
+        else None
+    )
+    budget_check_interval = max(1, int(batch_size))
+    visited_since_budget_check = 0
     expanded: set[str] = set()
     stack: deque[tuple[ArtifactID, ArtifactID | None, str, int]] = deque(
         [(root_id, None, root_role, 0)]
@@ -101,7 +113,19 @@ def resolve_dependency_graph(
         artifact_id, parent_id, role, depth = stack.pop()
         hex_id = artifact_id.hex
 
-        if len(graph.nodes) > max_nodes:
+        visited_since_budget_check += 1
+        if deadline is not None and visited_since_budget_check >= budget_check_interval:
+            visited_since_budget_check = 0
+            if time.monotonic() >= deadline:
+                node = graph.nodes.get(hex_id)
+                if node is None:
+                    node = DependencyNode(artifact_id=artifact_id, role=role, depth=depth)
+                    graph.nodes[hex_id] = node
+                node.status = NodeStatus.SKIPPED_TIMEOUT
+                graph.timed_out = True
+                break
+
+        if len(graph.nodes) >= max_nodes and hex_id not in graph.nodes:
             raise ValueError(f"Dependency graph exceeded max_nodes={max_nodes}")
 
         node = graph.nodes.get(hex_id)
@@ -122,18 +146,13 @@ def resolve_dependency_graph(
             node.status = NodeStatus.SKIPPED_MAX_DEPTH
             continue
 
-        blob_path, manifest_path = store.get_paths(artifact_id)
-        blob_exists = blob_path.exists()
-        manifest_exists = manifest_path.exists()
-
-        if not blob_exists and not manifest_exists:
+        try:
+            exists = bool(store.has(artifact_id))
+        except Exception:
             node.status = NodeStatus.MISSING
             continue
-        if not blob_exists:
-            node.status = NodeStatus.MISSING_BLOB
-            continue
-        if not manifest_exists:
-            node.status = NodeStatus.MISSING_MANIFEST
+        if not exists:
+            node.status = NodeStatus.MISSING
             continue
 
         try:

@@ -25,7 +25,7 @@ def build_hnsw_index(
     embedding_batch_size: int = 32,
     embedding_device: str = "mps",
     thermal_pause_seconds: float = 0.0,
-) -> int:
+) -> tuple[int, int]:
     """Embed work title+abstract and build HNSW index."""
     import hnswlib
     from sentence_transformers import SentenceTransformer
@@ -37,7 +37,7 @@ def build_hnsw_index(
         con.close()
 
     if not rows:
-        return 0
+        return 0, int(embedding_dimension)
 
     ids: list[str] = []
     texts: list[str] = []
@@ -75,14 +75,14 @@ def build_hnsw_index(
     index.save_index(str(hnsw_path))
 
     logger.info("Academic embeddings complete: %d vectors", len(ids))
-    return len(ids)
+    return len(ids), int(dim)
 
 
 def run_embed(config: AcademicBatchConfig, *, thermal: bool = False) -> int:
     """Run embed."""
     started_at = datetime.now(UTC).isoformat()
     pause_s = 0.5 if thermal else 0.0
-    count = build_hnsw_index(
+    count, built_dimension = build_hnsw_index(
         db_path=config.db_path,
         index_dir=config.index_dir,
         embedding_model=config.embedding_model,
@@ -95,7 +95,13 @@ def run_embed(config: AcademicBatchConfig, *, thermal: bool = False) -> int:
         manifest_path=config.manifests_dir / "embed.json",
         stage="embed",
         status="ok",
-        metrics={"embedded": count, "thermal": thermal},
+        metrics={
+            "embedded": count,
+            "thermal": thermal,
+            "embedding_model": config.embedding_model,
+            "embedding_dimension": built_dimension,
+            "embedding_device": config.embedding_device,
+        },
         artifacts=[config.index_dir / "ac_work_embeddings.npz", config.index_dir / "ac_work_index.hnsw"],
         started_at=started_at,
     )

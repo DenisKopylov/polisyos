@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import graphlib
+import threading
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Generic, TypeVar
@@ -84,6 +85,7 @@ class DagPipeline(Generic[StageT]):
         self._deps: dict[str, list[str]] = {}
         self._stages: dict[str, DagStage[StageT]] = {}
         self._tail: list[str] = []
+        self._guard = threading.RLock()
 
     def _build_stage_name(self, stage: StageT, *, index: int) -> str:
         if self._name_factory is not None:
@@ -91,19 +93,23 @@ class DagPipeline(Generic[StageT]):
         return f"stage_{index}"
 
     def add_node(self, name: str) -> None:
-        if name not in self._deps:
-            self._deps[name] = []
+        with self._guard:
+            if name not in self._deps:
+                self._deps[name] = []
 
     def add_edge(self, dependency: str, node: str) -> None:
-        if node not in self._deps:
-            self._deps[node] = []
-        self._deps[node].append(dependency)
+        with self._guard:
+            if node not in self._deps:
+                self._deps[node] = []
+            self._deps[node].append(dependency)
 
     def has_node(self, name: str) -> bool:
-        return name in self._deps
+        with self._guard:
+            return name in self._deps
 
     def nodes(self) -> list[str]:
-        return list(self._deps.keys())
+        with self._guard:
+            return list(self._deps.keys())
 
     def add_stage(
         self,
@@ -112,36 +118,38 @@ class DagPipeline(Generic[StageT]):
         name: str | None = None,
         depends_on: Sequence[str] | None = None,
     ) -> DagStage[StageT]:
-        stage_name = name or self._build_stage_name(stage, index=len(self._stages))
-        if self.has_node(stage_name):
-            raise DuplicateStageError(f"Stage '{stage_name}' already exists")
+        with self._guard:
+            stage_name = name or self._build_stage_name(stage, index=len(self._stages))
+            if stage_name in self._deps:
+                raise DuplicateStageError(f"Stage '{stage_name}' already exists")
 
-        if depends_on is None:
-            if self._auto_chain and self._tail:
-                resolved_dependencies = list(self._tail)
+            if depends_on is None:
+                if self._auto_chain and self._tail:
+                    resolved_dependencies = list(self._tail)
+                else:
+                    resolved_dependencies = []
             else:
-                resolved_dependencies = []
-        else:
-            resolved_dependencies = list(depends_on)
+                resolved_dependencies = list(depends_on)
 
-        missing = [dep for dep in resolved_dependencies if dep not in self._deps]
-        if missing:
-            raise UnknownStageError(
-                f"Dependency '{missing[0]}' not found. Available stages: {self.nodes()}"
+            missing = [dep for dep in resolved_dependencies if dep not in self._deps]
+            if missing:
+                raise UnknownStageError(
+                    f"Dependency '{missing[0]}' not found. Available stages: {list(self._deps.keys())}"
+                )
+
+            dag_stage = DagStage(
+                name=stage_name,
+                stage=stage,
+                dependencies=tuple(resolved_dependencies),
+                order_index=len(self._stages),
             )
-
-        dag_stage = DagStage(
-            name=stage_name,
-            stage=stage,
-            dependencies=tuple(resolved_dependencies),
-            order_index=len(self._stages),
-        )
-        self._stages[stage_name] = dag_stage
-        self.add_node(stage_name)
-        for dep in resolved_dependencies:
-            self.add_edge(dep, stage_name)
-        self._tail = [stage_name]
-        return dag_stage
+            self._stages[stage_name] = dag_stage
+            if stage_name not in self._deps:
+                self._deps[stage_name] = []
+            for dep in resolved_dependencies:
+                self._deps[stage_name].append(dep)
+            self._tail = [stage_name]
+            return dag_stage
 
     def branch(
         self,
@@ -149,13 +157,15 @@ class DagPipeline(Generic[StageT]):
         *,
         depends_on: Sequence[str] | None = None,
     ) -> list[str]:
-        start = list(depends_on) if depends_on is not None else list(self._tail)
-        original_tail = list(self._tail)
-        self._tail = start
-        builder(self)
-        branch_tail = list(self._tail)
-        self._tail = original_tail
-        return branch_tail
+        with self._guard:
+            start = list(depends_on) if depends_on is not None else list(self._tail)
+            original_tail = list(self._tail)
+            self._tail = start
+            try:
+                builder(self)
+                return list(self._tail)
+            finally:
+                self._tail = original_tail
 
     def fork(
         self,
@@ -163,10 +173,11 @@ class DagPipeline(Generic[StageT]):
         *,
         depends_on: Sequence[str] | None = None,
     ) -> list[str]:
-        tails: list[str] = []
-        for builder in builders:
-            tails.extend(self.branch(builder, depends_on=depends_on))
-        return tails
+        with self._guard:
+            tails: list[str] = []
+            for builder in builders:
+                tails.extend(self.branch(builder, depends_on=depends_on))
+            return tails
 
     def join(
         self,
@@ -178,24 +189,26 @@ class DagPipeline(Generic[StageT]):
         return self.add_stage(stage, name=name, depends_on=depends_on)
 
     def topological_sort(self) -> list[str]:
-        try:
-            sorter = graphlib.TopologicalSorter(self._deps)
-            return list(sorter.static_order())
-        except graphlib.CycleError as exc:
-            cycle = exc.args[1] if len(exc.args) > 1 else []
-            raise PipelineCycleError(
-                f"Pipeline contains cycles: {cycle}. Pipeline must be a directed acyclic graph."
-            ) from exc
+        with self._guard:
+            try:
+                sorter = graphlib.TopologicalSorter(self._deps)
+                return list(sorter.static_order())
+            except graphlib.CycleError as exc:
+                cycle = exc.args[1] if len(exc.args) > 1 else []
+                raise PipelineCycleError(
+                    f"Pipeline contains cycles: {cycle}. Pipeline must be a directed acyclic graph."
+                ) from exc
 
     def compile(self) -> CompiledDagPipeline[StageT]:
-        execution_order = self.topological_sort()
-        ordered_stages: list[DagStage[StageT]] = []
-        for stage_name in execution_order:
-            stage = self._stages.get(stage_name)
-            if stage is None:
-                raise UnknownStageError(
-                    f"Node '{stage_name}' has no registered stage payload. "
-                    "Use add_stage() for executable nodes."
-                )
-            ordered_stages.append(stage)
-        return CompiledDagPipeline(stages=ordered_stages, execution_order=execution_order)
+        with self._guard:
+            execution_order = self.topological_sort()
+            ordered_stages: list[DagStage[StageT]] = []
+            for stage_name in execution_order:
+                stage = self._stages.get(stage_name)
+                if stage is None:
+                    raise UnknownStageError(
+                        f"Node '{stage_name}' has no registered stage payload. "
+                        "Use add_stage() for executable nodes."
+                    )
+                ordered_stages.append(stage)
+            return CompiledDagPipeline(stages=ordered_stages, execution_order=execution_order)

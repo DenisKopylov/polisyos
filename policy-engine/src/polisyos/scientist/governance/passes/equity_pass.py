@@ -1,8 +1,9 @@
 """Validate distributional fairness and vulnerable-group losses after simulation."""
 from __future__ import annotations
 
-from typing import Any, List
+from typing import List
 
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
@@ -11,6 +12,13 @@ from polisyos.ir.analytics.distributional import (
     MetricUnit,
     load_distributional_report,
 )
+from polisyos.ir.refs import DistributionalReportRef
+from polisyos.scientist.governance.accountability import resolve_governance_threshold
+from polisyos.scientist.governance.passes._artifact_resolution import (
+    resolve_optional_artifact_model,
+)
+
+logger = get_logger(__name__)
 
 
 class EquityPass(ValidatorPass):
@@ -35,18 +43,26 @@ class EquityPass(ValidatorPass):
         if self.pass_id not in ctx.profile.pass_ids:
             return []
 
-        report = self._resolve_report(ctx)
-        if report is None:
-            return []
-
-        issues: list[ComplianceIssue] = []
         severity = self._resolve_severity(ctx)
+        report_resolution = self._resolve_report(ctx, severity=severity)
+        report = report_resolution.value
+        if report is None:
+            return list(report_resolution.issues)
 
-        gini_threshold = float(ctx.profile.thresholds.get("equity_gini_increase_max", 0.02))
-        vulnerable_threshold_pct = float(
-            ctx.profile.thresholds.get("equity_vulnerable_loss_max_pct", -5.0)
+        issues: list[ComplianceIssue] = list(report_resolution.issues)
+
+        gini_threshold = resolve_governance_threshold(
+            "equity_gini_increase_max",
+            ctx.profile.thresholds,
         )
-        max_losers_share = float(ctx.profile.thresholds.get("equity_max_losers_share", 0.60))
+        vulnerable_threshold_pct = resolve_governance_threshold(
+            "equity_vulnerable_loss_max_pct",
+            ctx.profile.thresholds,
+        )
+        max_losers_share = resolve_governance_threshold(
+            "equity_max_losers_share",
+            ctx.profile.thresholds,
+        )
 
         if report.overall_gini_delta is not None and report.overall_gini_delta > gini_threshold:
             issues.append(
@@ -121,31 +137,29 @@ class EquityPass(ValidatorPass):
         return IssueSeverity.WARNING
 
     @staticmethod
-    def _resolve_report(ctx: PassContext) -> DistributionalReport | None:
-        direct = ctx.state.get("distributional_report")
-        if isinstance(direct, DistributionalReport):
-            return direct
-        if isinstance(direct, dict):
-            try:
-                return DistributionalReport.model_validate(direct)
-            except Exception:
-                return None
-
-        artifacts_index = ctx.state.get("artifacts_index")
-        if not isinstance(artifacts_index, dict):
-            return None
-
-        ref = artifacts_index.get("distributional_report_ref")
-        if ref is None:
-            return None
-
-        store = ctx.state.get("_store")
-        if store is None:
-            return None
-        try:
-            return load_distributional_report(store, ref)
-        except Exception:
-            return None
+    def _resolve_report(
+        ctx: PassContext,
+        *,
+        severity: IssueSeverity,
+    ):
+        return resolve_optional_artifact_model(
+            ctx=ctx,
+            pass_id="equity",
+            direct_key="distributional_report",
+            ref_key="distributional_report_ref",
+            model_cls=DistributionalReport,
+            ref_model=DistributionalReportRef,
+            load_model=load_distributional_report,
+            severity=severity,
+            code="EQUITY_REPORT_INVALID",
+            message=(
+                "Equity pass could not validate or load the distributional report."
+            ),
+            suggestion=(
+                "Rebuild the distributional report before fairness governance checks."
+            ),
+            log=logger,
+        )
 
 
 def _normalize_percent_delta(value: float, unit: MetricUnit) -> float | None:

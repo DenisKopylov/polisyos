@@ -57,7 +57,7 @@ def test_proof_closure_prod_smoke_emits_extended_fields(tmp_path: Path) -> None:
     assert payload["release_gate_results"]["passes_all"] is True
 
 
-def test_hidden_release_suite_requires_manifest_in_acceptance(tmp_path: Path) -> None:
+def test_hidden_release_suite_auto_skips_without_manifest_in_acceptance(tmp_path: Path) -> None:
     out = tmp_path / "proof_closure_hidden.json"
     result = _run(
         [
@@ -70,11 +70,14 @@ def test_hidden_release_suite_requires_manifest_in_acceptance(tmp_path: Path) ->
             str(out),
         ]
     )
-    assert result.returncode == 2
-    assert "hidden release manifest required" in (result.stdout + result.stderr)
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["overall_status"] == "skipped"
+    assert payload["n_skipped"] == 1
+    assert "hidden manifest unavailable" in payload["failure_reason"]
 
 
-def test_strategic_hidden_release_requires_manifest_in_acceptance(tmp_path: Path) -> None:
+def test_strategic_hidden_release_auto_skips_without_manifest_in_acceptance(tmp_path: Path) -> None:
     out = tmp_path / "strategic_hidden.json"
     result = _run(
         [
@@ -87,8 +90,11 @@ def test_strategic_hidden_release_requires_manifest_in_acceptance(tmp_path: Path
             str(out),
         ]
     )
-    assert result.returncode == 2
-    assert "hidden release manifest required" in (result.stdout + result.stderr)
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["overall_status"] == "skipped"
+    assert payload["n_skipped"] == 1
+    assert "hidden manifest unavailable" in payload["failure_reason"]
 
 
 def test_release_summary_merges_new_contours(tmp_path: Path) -> None:

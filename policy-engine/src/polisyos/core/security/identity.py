@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import os
+import threading
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Protocol, runtime_checkable
+from importlib import import_module
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol, runtime_checkable
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
@@ -20,6 +22,16 @@ from polisyos.core.security.exceptions import (
 )
 
 logger = get_logger("polisyos.security.identity")
+
+if TYPE_CHECKING:
+    from polisyos.core.observability import MetricsRegistry
+
+    class _PydanticBaseModel:
+        model_config: ClassVar[ConfigDict]
+
+        def __init__(self, /, **data: Any) -> None: ...
+else:
+    from pydantic import BaseModel as _PydanticBaseModel
 
 
 class PolicyOSRole(str, Enum):
@@ -94,7 +106,7 @@ class ServiceIdentityInfo:
         }
 
 
-class UserIdentityClaims(BaseModel):
+class UserIdentityClaims(_PydanticBaseModel):
     """Validated JWT claims normalized to PolicyOS identity model."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -238,6 +250,10 @@ class SPIFFEIdentityProvider:
         trust_domain: str = "polisyos.io",
         allowed_cell_ids: frozenset[str] | None = None,
         required_mfa_roles: frozenset[PolicyOSRole] | None = None,
+        allowed_jwt_kids: frozenset[str] | None = None,
+        revoked_jwt_kids: frozenset[str] | None = None,
+        jwks_cache_ttl_seconds: int = 300,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self._issuer = keycloak_issuer_url.rstrip("/")
         self._jwks_uri = keycloak_jwks_uri
@@ -249,23 +265,57 @@ class SPIFFEIdentityProvider:
         self._required_mfa_roles = required_mfa_roles or frozenset(
             {PolicyOSRole.ADMIN, PolicyOSRole.ANALYST}
         )
+        self._allowed_jwt_kids = allowed_jwt_kids or frozenset()
+        self._revoked_jwt_kids = revoked_jwt_kids or frozenset()
+        self._jwks_cache_ttl_seconds = max(1, int(jwks_cache_ttl_seconds))
+        self._metrics = metrics or get_metrics()
 
         self._workload_client: Any | None = None
         self._jwks_cache: dict[str, Any] = {}
         self._jwks_cache_expires: float = 0.0
+        self._jwks_lock = threading.Lock()
+
+    @classmethod
+    def from_settings(
+        cls,
+        settings: Any,
+        *,
+        metrics: MetricsRegistry | None = None,
+    ) -> SPIFFEIdentityProvider:
+        """Build an identity provider from resolved security settings.
+
+        This keeps JWT rotation policy (`kid` allow/revoke sets and JWKS TTL)
+        attached to the typed bootstrap settings instead of ad-hoc runtime
+        wiring.
+        """
+        return cls(
+            keycloak_issuer_url=str(settings.POLISYOS_KEYCLOAK_ISSUER_URL),
+            keycloak_jwks_uri=str(settings.POLISYOS_KEYCLOAK_JWKS_URI),
+            expected_audience=str(settings.POLISYOS_KEYCLOAK_AUDIENCE),
+            keycloak_client_id=str(settings.POLISYOS_KEYCLOAK_CLIENT_ID),
+            required_mfa_roles=frozenset(
+                PolicyOSRole(role) for role in settings.required_mfa_roles()
+            ),
+            allowed_jwt_kids=settings.allowed_jwt_kids(),
+            revoked_jwt_kids=settings.revoked_jwt_kids(),
+            jwks_cache_ttl_seconds=int(settings.POLISYOS_JWKS_CACHE_TTL_SECONDS),
+            metrics=metrics,
+        )
+
+    def _record_identity_failure(self, *, reason: str, provider: str) -> None:
+        self._metrics.record_identity_failure(reason=reason, provider=provider)
 
     def _ensure_workload_client(self) -> Any:
         if self._workload_client is not None:
             return self._workload_client
 
-        try:
-            from spiffe import WorkloadApiClient  # type: ignore
-        except ModuleNotFoundError:
+        workload_client_type = _load_spiffe_workload_client_type()
+        if workload_client_type is None:
             self._workload_client = None
             return None
 
         try:
-            self._workload_client = WorkloadApiClient(spiffe_socket=self._spiffe_socket)
+            self._workload_client = workload_client_type(spiffe_socket=self._spiffe_socket)
             return self._workload_client
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - depends on runtime SPIRE env
             raise IdentityNotAvailableError(
@@ -295,7 +345,7 @@ class SPIFFEIdentityProvider:
 
         workload = self._ensure_workload_client()
         if workload is None:
-            get_metrics().record_identity_failure(reason="spiffe_not_available", provider="spiffe")
+            self._record_identity_failure(reason="spiffe_not_available", provider="spiffe")
             raise IdentityNotAvailableError(
                 "No SPIFFE identity available: set POLISYOS_SERVICE_SPIFFE_ID or configure SPIRE"
             )
@@ -315,7 +365,7 @@ class SPIFFEIdentityProvider:
                 expires_at=cert.not_valid_after_utc.timestamp(),
             )
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - runtime SPIRE dependency
-            get_metrics().record_identity_failure(reason="spiffe_fetch_failed", provider="spiffe")
+            self._record_identity_failure(reason="spiffe_fetch_failed", provider="spiffe")
             raise IdentityNotAvailableError(str(exc)) from exc
 
     def verify_peer(self, peer_spiffe_id: str) -> ServiceIdentityInfo:
@@ -330,7 +380,7 @@ class SPIFFEIdentityProvider:
         parts = self._parse_spiffe_id(peer_spiffe_id)
 
         if parts["trust_domain"] != self._trust_domain:
-            get_metrics().record_identity_failure(
+            self._record_identity_failure(
                 reason="spiffe_trust_domain_mismatch",
                 provider="spiffe",
             )
@@ -347,7 +397,7 @@ class SPIFFEIdentityProvider:
                     parts["cell_id"],
                 )
             else:
-                get_metrics().record_identity_failure(reason="cross_cell_peer", provider="spiffe")
+                self._record_identity_failure(reason="cross_cell_peer", provider="spiffe")
                 raise CrossTenantAccessError(
                     requesting_tenant=own.cell_id,
                     target_tenant=parts["cell_id"],
@@ -392,6 +442,7 @@ class SPIFFEIdentityProvider:
                 "PyJWT is required for JWT validation. Install policy-engine[multi-tenant]."
             ) from exc
 
+        self._validated_jwt_key_id(pyjwt, jwt_token)
         jwks_client = self._get_jwks_client(pyjwt)
 
         try:
@@ -405,27 +456,27 @@ class SPIFFEIdentityProvider:
                 options={"require": ["exp", "iat", "iss", "aud", "sub"]},
             )
         except pyjwt.ExpiredSignatureError as exc:
-            get_metrics().record_identity_failure(reason="jwt_expired", provider="keycloak")
+            self._record_identity_failure(reason="jwt_expired", provider="keycloak")
             raise TokenValidationError("Token expired") from exc
         except pyjwt.InvalidTokenError as exc:
-            get_metrics().record_identity_failure(reason="jwt_invalid", provider="keycloak")
+            self._record_identity_failure(reason="jwt_invalid", provider="keycloak")
             raise TokenValidationError(f"Token validation failed: {exc}") from exc
 
         tenant_id = str(payload.get("tenant_id", "")).strip()
         if not tenant_id:
-            get_metrics().record_identity_failure(reason="jwt_missing_tenant", provider="keycloak")
+            self._record_identity_failure(reason="jwt_missing_tenant", provider="keycloak")
             raise TokenValidationError("Missing required claim: tenant_id")
 
         token_cell_id = payload.get("cell_id")
         if token_cell_id is not None and not isinstance(token_cell_id, str):
-            get_metrics().record_identity_failure(
+            self._record_identity_failure(
                 reason="jwt_invalid_cell_claim",
                 provider="keycloak",
             )
             raise TokenValidationError("Invalid claim type: cell_id")
 
         if expected_cell_id and token_cell_id and token_cell_id != expected_cell_id:
-            get_metrics().record_identity_failure(
+            self._record_identity_failure(
                 reason="jwt_cell_binding_mismatch",
                 provider="keycloak",
             )
@@ -436,7 +487,7 @@ class SPIFFEIdentityProvider:
         roles = map_roles_from_claims(payload, client_id=self._client_id)
         mfa_verified = infer_mfa_verified(payload)
         if roles & self._required_mfa_roles and not mfa_verified:
-            get_metrics().record_identity_failure(reason="jwt_mfa_required", provider="keycloak")
+            self._record_identity_failure(reason="jwt_mfa_required", provider="keycloak")
             raise MFARequiredError(
                 f"MFA is required for roles: {sorted(role.value for role in roles)}"
             )
@@ -461,16 +512,42 @@ class SPIFFEIdentityProvider:
             jti=str(payload.get("jti", "")),
         )
 
+    def _validated_jwt_key_id(self, pyjwt_module: Any, jwt_token: str) -> str:
+        """Validate JWT `kid` against active and revoked rotation sets."""
+        try:
+            header = pyjwt_module.get_unverified_header(jwt_token)
+        except Exception as exc:
+            self._record_identity_failure(reason="jwt_invalid_header", provider="keycloak")
+            raise TokenValidationError(f"Token header validation failed: {exc}") from exc
+        key_id = str(header.get("kid", "")).strip()
+        if not key_id:
+            self._record_identity_failure(reason="jwt_missing_kid", provider="keycloak")
+            raise TokenValidationError("Missing JWT key id (kid)")
+        if key_id in self._revoked_jwt_kids:
+            self._record_identity_failure(reason="jwt_revoked_kid", provider="keycloak")
+            raise TokenValidationError("JWT signing key has been revoked")
+        if self._allowed_jwt_kids and key_id not in self._allowed_jwt_kids:
+            self._record_identity_failure(reason="jwt_untrusted_kid", provider="keycloak")
+            raise TokenValidationError("JWT signing key is not in the active trust set")
+        return key_id
+
     def _get_jwks_client(self, pyjwt_module: Any) -> Any:
         now = time.time()
         cached = self._jwks_cache.get("client")
         if cached is not None and now < self._jwks_cache_expires:
             return cached
-
-        client = pyjwt_module.PyJWKClient(self._jwks_uri, cache_jwk_set=True, lifespan=300)
-        self._jwks_cache["client"] = client
-        self._jwks_cache_expires = now + 300.0
-        return client
+        with self._jwks_lock:
+            cached = self._jwks_cache.get("client")
+            if cached is not None and now < self._jwks_cache_expires:
+                return cached
+            client = pyjwt_module.PyJWKClient(
+                self._jwks_uri,
+                cache_jwk_set=True,
+                lifespan=self._jwks_cache_ttl_seconds,
+            )
+            self._jwks_cache["client"] = client
+            self._jwks_cache_expires = now + float(self._jwks_cache_ttl_seconds)
+            return client
 
     @staticmethod
     def _parse_spiffe_id(spiffe_id: str) -> dict[str, str]:
@@ -491,11 +568,20 @@ class SPIFFEIdentityProvider:
         }
 
 
+def _load_spiffe_workload_client_type() -> type[Any] | None:
+    try:
+        spiffe_module = import_module("spiffe")
+    except ModuleNotFoundError:
+        return None
+    workload_client_type = getattr(spiffe_module, "WorkloadApiClient", None)
+    return workload_client_type if isinstance(workload_client_type, type) else None
+
+
 __all__ = [
+    "ROLE_PII_CEILING",
     "MFARequiredError",
     "PIIAccessLevel",
     "PolicyOSRole",
-    "ROLE_PII_CEILING",
     "SPIFFEIdentityProvider",
     "ServiceIdentity",
     "ServiceIdentityInfo",

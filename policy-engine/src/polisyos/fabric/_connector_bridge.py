@@ -9,13 +9,74 @@ All imports of connector internals are local to functions in this module.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterable, Iterable
+
+    from polisyos.ir.connectors import FetchRequest, FetchResult
+
 logger = get_logger(__name__)
+
+
+class DatasetDescriptorLike(Protocol):
+    """Minimal dataset-descriptor shape required by the public bridge."""
+
+    dataset_id: str
+
+
+class ConnectorEntryLike(Protocol):
+    """Minimal connector-registry entry shape required by the bridge."""
+
+    short_id: str
+    known_datasets: Iterable[str]
+    dataset_descriptors: Iterable[DatasetDescriptorLike]
+    default_config: object | None
+
+
+class FetchConnectorLike(Protocol):
+    """Connector surface required by the public Scientist-to-Fabric bridge."""
+
+    def list_datasets(
+        self,
+        handle: object,
+    ) -> object: ...
+
+    async def fetch(
+        self,
+        handle: object,
+        request: FetchRequest,
+    ) -> FetchResult[object]: ...
+
+
+class ConnectorRegistryLike(Protocol):
+    """Connector-registry surface required by `fabric_get_data()`."""
+
+    def get(self, connector_id: str) -> FetchConnectorLike: ...
+    def get_entry(self, connector_id: str) -> object: ...
+    def query_entries(
+        self,
+        *,
+        capabilities: object | None = None,
+    ) -> Iterable[object]: ...
+    async def get_connection(self, connector_id: str, config: object) -> object: ...
+    async def release_connection(self, connector_id: str, handle: object) -> None: ...
+
+
+def resolve_connector_registry(
+    registry: ConnectorRegistryLike | None = None,
+) -> ConnectorRegistryLike:
+    """Resolve the connector registry, defaulting only at the public bridge boundary."""
+
+    if registry is not None:
+        return registry
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+
+    return cast("ConnectorRegistryLike", ConnectorRegistry.get_instance())
 
 
 def fabric_get_data(
@@ -23,7 +84,8 @@ def fabric_get_data(
     dataset_id: str,
     connector_id: str | None = None,
     constraints: dict[str, Any] | None = None,
-) -> "FetchResult[Any]":
+    registry: ConnectorRegistryLike | None = None,
+) -> FetchResult[Any]:
     """
     High-level data acquisition for the Scientist layer.
 
@@ -48,16 +110,15 @@ def fabric_get_data(
         The canonical result envelope.
     """
     # --- Local imports to maintain Law A at the module graph level ---
-    from polisyos.fabric.connectors.registry import ConnectorRegistry
-    from polisyos.ir.connectors import FetchRequest, FetchResult
+    from polisyos.ir.connectors import FetchRequest
 
     constraints = constraints or {}
-    registry = ConnectorRegistry.get_instance()
+    resolved_registry = resolve_connector_registry(registry)
 
     if connector_id is None:
-        connector_id = _resolve_connector_for_dataset(registry, dataset_id)
+        connector_id = _resolve_connector_for_dataset(resolved_registry, dataset_id)
 
-    connector = registry.get(connector_id)
+    connector = resolved_registry.get(connector_id)
 
     filters_raw: dict[str, list[str]] = constraints.get("filters", {})
     filter_tuple = tuple((k, tuple(v)) for k, v in sorted(filters_raw.items()))
@@ -72,7 +133,12 @@ def fabric_get_data(
         retryable=True,
     )
 
-    result: FetchResult[Any] = _sync_fetch(registry, connector_id, connector, request)
+    result: FetchResult[Any] = _sync_fetch(
+        resolved_registry,
+        connector_id,
+        connector,
+        request,
+    )
 
     logger.info(
         "fabric_get_data: fetched %d rows from %s:%s",
@@ -88,7 +154,10 @@ def fabric_get_data(
 # ---------------------------------------------------------------------------
 
 
-def _resolve_connector_for_dataset(registry: Any, dataset_id: str) -> str:
+def _resolve_connector_for_dataset(
+    registry: ConnectorRegistryLike,
+    dataset_id: str,
+) -> str:
     """
     Resolve a connector capable of serving *dataset_id*.
 
@@ -99,9 +168,10 @@ def _resolve_connector_for_dataset(registry: Any, dataset_id: str) -> str:
     from polisyos.fabric.connectors.registry import ConnectorNotFoundError
     from polisyos.ir.connectors import ConnectorCapability
 
-    candidates = list(
-        registry.query_entries(capabilities=ConnectorCapability.CATALOG_BROWSE)
-    )
+    candidates = [
+        _as_entry(entry)
+        for entry in registry.query_entries(capabilities=ConnectorCapability.CATALOG_BROWSE)
+    ]
     if not candidates:
         raise ConnectorNotFoundError(
             connector_id=dataset_id,
@@ -129,16 +199,24 @@ def _parse_dt(value: str | None) -> datetime | None:
     if value is None:
         return None
     dt = datetime.fromisoformat(value)
-    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    return dt if dt.tzinfo else dt.replace(tzinfo=UTC)
 
 
-def _probe_catalog(registry: Any, connector_id: str, dataset_id: str) -> bool:
+def _probe_catalog(
+    registry: ConnectorRegistryLike,
+    connector_id: str,
+    dataset_id: str,
+) -> bool:
     async def _check() -> bool:
         config = _default_config(registry, connector_id)
         handle = await registry.get_connection(connector_id, config)
         connector = registry.get(connector_id)
         try:
-            async for desc in connector.list_datasets(handle):
+            dataset_stream = cast(
+                "AsyncIterable[DatasetDescriptorLike]",
+                connector.list_datasets(handle),
+            )
+            async for desc in dataset_stream:
                 if desc.dataset_id == dataset_id:
                     return True
         finally:
@@ -158,12 +236,12 @@ def _probe_catalog(registry: Any, connector_id: str, dataset_id: str) -> bool:
 
 
 def _sync_fetch(
-    registry: Any,
+    registry: ConnectorRegistryLike,
     connector_id: str,
-    connector: Any,
-    request: Any,
-) -> Any:
-    async def _do() -> Any:
+    connector: FetchConnectorLike,
+    request: FetchRequest,
+) -> FetchResult[object]:
+    async def _do() -> FetchResult[object]:
         config = _default_config(registry, connector_id)
         handle = await registry.get_connection(connector_id, config)
         try:
@@ -174,8 +252,19 @@ def _sync_fetch(
     return run_coro_sync(_do())
 
 
-def _default_config(registry: Any, connector_id: str) -> Any:
-    entry = registry.get_entry(connector_id)
+def _default_config(registry: ConnectorRegistryLike, connector_id: str) -> object:
+    entry = _as_entry(registry.get_entry(connector_id))
     if entry.default_config is None:
         raise ValueError(f"No default_config registered for connector '{connector_id}'")
     return entry.default_config
+
+
+def _as_entry(entry: object) -> ConnectorEntryLike:
+    return cast("ConnectorEntryLike", entry)
+
+
+__all__ = [
+    "ConnectorRegistryLike",
+    "fabric_get_data",
+    "resolve_connector_registry",
+]

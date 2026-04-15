@@ -28,8 +28,10 @@ dependencies = [
     "openai",
     "pydantic>=2.5.0",
     "pydantic-settings>=2.0.0",
+    "click>=8.1.7",
     "tiktoken",
     "orjson>=3.10.0",
+    "zstandard>=0.23.0",
     "opt_einsum>=3.4.0",
     # Observability
     "opentelemetry-api>=1.20.0",
@@ -51,6 +53,7 @@ dependencies = [
 [project.optional-dependencies]
 core = []
 lint = [
+    "basedpyright>=1.34.0",
     "mypy>=1.19.1",
     "pre-commit>=4.5.1",
     "ruff>=0.14.10",
@@ -246,6 +249,7 @@ test = [
     "pytest-benchmark>=4.0.0",
     "pytest-xdist>=3.6.1",
     "hypothesis>=6.0.0",
+    "rdflib>=7.0.0",
     "policy-engine[runtime-http]",
 ]
 dev = [
@@ -291,6 +295,8 @@ polisy = "polisyos.foundry.plugins.cli:main"
 polisyos = "polisyos.core.components.cli:main"
 polisyos-causal-capabilities = "polisyos.foundry.methods.catalog.causal.capabilities:main"
 polisyos-foundry = "polisyos.foundry.methods.cli:main"
+polisyos-tools = "tools.cli:main"
+ukraine-data = "polisyos.ukraine_data.cli:main"
 
 [project.entry-points."polisyos.fabric_connectors"]
 "worldbank.wdi" = "polisyos.fabric.connectors.components:world_bank_connector_component"
@@ -327,7 +333,7 @@ polisyos-foundry = "polisyos.foundry.methods.cli:main"
 "normative_arbitration" = "polisyos.scientist.governance.pass_entrypoints:normative_arbitration_pass_factory"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/polisyos"]
+packages = ["src/polisyos", "tools"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -357,15 +363,42 @@ select = [
     "B",   # flake8-bugbear (catching common bugs)
     "T20", # flake8-print (FORBID PRINT STATEMENTS - требование ТЗ)
     "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "S",   # flake8-bandit
+    "PT",  # pytest style
+    "SIM", # simplify
+    "RUF", # ruff-native correctness rules
+    "ANN", # explicit annotations
+    "C4",  # comprehensions
+    "TCH", # type-checking import hygiene
 ]
 ignore = []
 
+# Suppression policy: new noqa/type-ignore entries require an ADR-style comment
+# in the touched file or an explicit per-file ignore here; blanket project-wide
+# ignores are intentionally left empty.
 # Запрещаем print только в продакшн коде (src), разрешаем в скриптах и утилитах
 [tool.ruff.lint.per-file-ignores]
 "notebooks/*" = ["T201"]
-"tests/*" = ["T201"]
-"tests/**" = ["T201"]
+"tests/*" = ["ANN", "S101", "T201"]
+"tests/**" = ["ANN", "S101", "T201"]
 "src/polisyos/common/*" = ["T201"]  # Разрешаем print в утилитах для отладки
+"src/polisyos/common/serialization.py" = ["ANN401"]
+"src/polisyos/core/artifacts/backends/caching_store.py" = ["ANN401", "TC001"]
+"src/polisyos/core/security/authz.py" = ["ANN401", "TC001"]
+"src/polisyos/runtime/http/errors.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/control_plane_store.py" = [
+    "ANN401",
+    "C416",
+    "E501",
+    "I001",
+    "S608",
+    "SIM117",
+    "SIM118",
+    "TC006",
+    "UP017",
+    "UP035",
+]
 "tools/*" = ["T201"]
 "tools/**" = ["T201"]
 
@@ -373,8 +406,113 @@ ignore = []
 [tool.mypy]
 python_version = "3.14"
 strict = true
-ignore_missing_imports = true # Для библиотек без типов (некоторые ML либы)
+ignore_missing_imports = false
 plugins = ["pydantic.mypy", "polisyos.foundry.methods.mypy_plugin"] # Плагин для корректной работы с Pydantic v2
+
+[tool.basedpyright]
+include = [
+    "src/polisyos/common/logger.py",
+    "src/polisyos/common/async_tools.py",
+    "src/polisyos/core/artifacts/ir_adapter.py",
+    "src/polisyos/runtime/http/app.py",
+    "src/polisyos/runtime/http/container.py",
+    "src/polisyos/runtime/http/cell_router_middleware.py",
+    "src/polisyos/runtime/http/jwt_auth_middleware.py",
+    "src/polisyos/runtime/http/errors.py",
+    "src/polisyos/runtime/http/resilience.py",
+    "src/polisyos/runtime/http/services/control.py",
+    "src/polisyos/runtime/http/services/task_runner.py",
+    "src/polisyos/runtime/api.py",
+    "src/polisyos/common/serialization.py",
+    "src/polisyos/core/artifacts/_integrity_ops.py",
+    "src/polisyos/core/artifacts/_signature_ops.py",
+    "src/polisyos/core/artifacts/_transfer_ops.py",
+    "src/polisyos/core/artifacts/async_store.py",
+    "src/polisyos/core/artifacts/store.py",
+    "src/polisyos/core/compiler/report.py",
+    "src/polisyos/core/registry/builder.py",
+    "src/polisyos/core/registry/builder_from_fragments.py",
+    "src/polisyos/core/registry/loader.py",
+    "src/polisyos/scholar/freshness.py",
+    "src/polisyos/scientist/api.py",
+    "src/polisyos/scientist/agent/drafter_factory.py",
+    "src/polisyos/scientist/compute/runner.py",
+    "src/polisyos/scientist/decision_validity.py",
+    "src/polisyos/scientist/error_semantics.py",
+    "src/polisyos/scientist/agent/knowledge_base.py",
+    "src/polisyos/scientist/autotune/models.py",
+    "src/polisyos/scientist/engine/checkpoint.py",
+    "src/polisyos/scientist/engine/metrics_otel.py",
+    "src/polisyos/scientist/engine/operational_monitoring.py",
+    "src/polisyos/scientist/engine/runner/_activity_worker.py",
+    "src/polisyos/scientist/governance/preflight.py",
+    "src/polisyos/scientist/governance/pipeline.py",
+    "src/polisyos/scientist/llm/budget_enforcer.py",
+    "src/polisyos/scientist/llm_cycle.py",
+    "src/polisyos/scientist/replay_backend.py",
+    "src/polisyos/scientist/workflows/builder.py",
+    "src/polisyos/core/components/_cli_store.py",
+    "src/polisyos/core/run/context.py",
+    "src/polisyos/core/security/authz.py",
+    "src/polisyos/core/security/audit_verifier.py",
+    "src/polisyos/core/security/audit_sink.py",
+    "src/polisyos/core/security/identity.py",
+    "src/polisyos/core/resilience/retry.py",
+    "src/polisyos/core/security/sbom.py",
+    "src/polisyos/core/security/tee_middleware.py",
+    "src/polisyos/core/artifacts/backends/config.py",
+    "src/polisyos/core/artifacts/backends/gcs_store.py",
+    "src/polisyos/core/llm/traced_client.py",
+    "src/polisyos/core/observability/decorators.py",
+    "src/polisyos/core/artifacts/protocol.py",
+    "src/polisyos/core/artifacts/backends/s3_store.py",
+    "src/polisyos/core/artifacts/write_contract.py",
+    "src/polisyos/core/artifacts/backends/caching_store.py",
+    "src/polisyos/fabric/_connector_bridge.py",
+    "src/polisyos/scientist/adapters/fabric_bridge.py",
+    "src/polisyos/fabric/catalog/providers.py",
+    "src/polisyos/fabric/catalog/resolver_fast_lane.py",
+    "src/polisyos/fabric/data_plane/cli.py",
+    "src/polisyos/fabric/ingestion_providers.py",
+    "src/polisyos/fabric/data_plane/cursor_store.py",
+    "src/polisyos/fabric/data_plane/quarantine.py",
+    "src/polisyos/fabric/data_plane/modes.py",
+    "src/polisyos/fabric/data_plane/orchestrator.py",
+    "src/polisyos/fabric/data_plane/streaming.py",
+    "src/polisyos/fabric/ingestion.py",
+    "src/polisyos/fabric/retrieval/providers.py",
+    "src/polisyos/fabric/retrieval/executor.py",
+    "src/polisyos/fabric/retrieval/explore_lane.py",
+    "src/polisyos/fabric/retrieval/service.py",
+    "src/polisyos/fabric/connectors/cache/_store_core.py",
+    "src/polisyos/fabric/connectors/cache/prefetch.py",
+    "src/polisyos/fabric/connectors/cache/proxy.py",
+    "src/polisyos/fabric/connectors/resilience/fallback.py",
+    "src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+    "src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+    "src/polisyos/fabric/storage/tenant_cas.py",
+    "src/polisyos/fabric/world/providers.py",
+    "src/polisyos/fabric/world/events.py",
+    "src/polisyos/fabric/world/store/segments.py",
+    "src/polisyos/fabric/world/store/persist.py",
+    "src/polisyos/fabric/connectors/profiles/registry.py",
+    "src/polisyos/fabric/connectors/bindings/registry.py",
+    "src/polisyos/fabric/connectors/bindings/resolver.py",
+    "src/polisyos/scholar/orchestrator/bundle.py",
+    "src/polisyos/scholar/api.py",
+    "src/polisyos/scientist/llm/factory.py",
+    "src/polisyos/scientist/llm/profiles/registry.py",
+    "src/polisyos/runtime/replay.py",
+    "src/polisyos/runtime/http/dependencies.py",
+    "src/polisyos/runtime/http/services/adapters/core_run.py",
+    "src/polisyos/runtime/http/services/control_plane_store.py",
+    "src/polisyos/runtime/http/services/control_registry_providers.py",
+]
+exclude = ["**/__pycache__", ".venv", ".venv_codex", ".mypy_cache"]
+pythonVersion = "3.14"
+typeCheckingMode = "standard"
+reportMissingTypeStubs = "warning"
+reportPrivateUsage = "warning"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

@@ -16,14 +16,17 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
 
 logger = get_logger(__name__)
 
@@ -63,14 +66,16 @@ class RecordSession:
 class ReplayStore:
     """Persistence layer for record/replay sessions in CAS."""
 
-    def __init__(self, store: FileSystemCAS) -> None:
+    def __init__(self, store: ArtifactStore) -> None:
         self._store = store
 
     def save_record_session(self, session: RecordSession) -> ArtifactRef:
         """Persist a RecordSession to CAS as a JSON artifact."""
+        from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+
         return self._store.put_json(
             session.to_dict(),
-            PutOptions(
+            ArtifactWriteOptions(
                 kind="fabric.record_session",
                 media_type="application/json",
                 schema=SchemaInfo(
@@ -143,7 +148,7 @@ def make_record_session(
         session_id=session_id,
         fixtures=fixtures,
         connector_datasets=connector_datasets or [],
-        recorded_at=datetime.now(timezone.utc).isoformat(),
+        recorded_at=datetime.now(UTC).isoformat(),
     )
 
 

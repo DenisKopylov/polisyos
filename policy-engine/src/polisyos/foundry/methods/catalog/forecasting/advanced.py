@@ -36,7 +36,7 @@ class STLDecompositionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="stl",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -117,7 +117,7 @@ class VECForecastEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="vec_forecast",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -211,7 +211,7 @@ class ProphetEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="prophet",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -16,6 +16,7 @@ from typing import Any
 import pandas as pd
 
 from polisyos.common.logger import get_logger
+from polisyos.fabric.finite import ensure_non_negative_finite, ensure_probability
 
 from .report import CompletenessResult, RuleViolation
 
@@ -45,6 +46,9 @@ class CompletenessAnalyzer:
     Uses vectorized pandas operations for efficiency.
     """
 
+    def __init__(self, *, confidence: float = 1.0) -> None:
+        self.confidence = ensure_probability(confidence, what="completeness confidence")
+
     def analyze(
         self,
         data: pd.DataFrame,
@@ -58,6 +62,19 @@ class CompletenessAnalyzer:
         hard_fail = False
 
         field_completeness: dict[str, float] = {}
+        schema_fields = tuple(getattr(schema, "fields", ()) or ())
+        if not schema_fields:
+            return CompletenessResult(
+                score=1.0,
+                field_completeness={},
+                violations=[],
+                gaps_detected=0,
+                penalty=0.0,
+                hard_fail=False,
+                applicable=False,
+                confidence=0.0,
+                not_applicable_reason="schema has no fields",
+            )
 
         null_violations, null_penalty, null_hard_fail = self._check_null_percentage(
             data, schema, field_completeness
@@ -91,8 +108,18 @@ class CompletenessAnalyzer:
                     )
                     penalty += missing_ratio * SEVERITY_WEIGHTS[severity]
 
-        if expected_row_count is not None and expected_row_count > 0:
-            coverage = len(data) / expected_row_count
+        if expected_row_count is not None:
+            expected_rows = ensure_non_negative_finite(
+                expected_row_count,
+                what="expected_row_count",
+            )
+            if expected_rows <= 0:
+                expected_rows = 0.0
+        else:
+            expected_rows = 0.0
+
+        if expected_rows > 0:
+            coverage = len(data) / expected_rows
             if coverage < 0.9:
                 severity = "warning" if coverage > 0.7 else "error"
                 violations.append(
@@ -135,7 +162,7 @@ class CompletenessAnalyzer:
                 )
                 penalty += gap * SEVERITY_WEIGHTS[severity]
 
-        score = max(0.0, avg_completeness - penalty)
+        score = ensure_probability(avg_completeness - penalty, what="completeness score", clamp=True)
         if hard_fail:
             score = 0.0
 
@@ -146,6 +173,8 @@ class CompletenessAnalyzer:
             gaps_detected=gaps_detected,
             penalty=penalty,
             hard_fail=hard_fail,
+            applicable=True,
+            confidence=self.confidence,
         )
 
     def _check_null_percentage(
@@ -177,13 +206,23 @@ class CompletenessAnalyzer:
                 hard_fail = True
                 continue
 
-            actual_completeness = 1.0 - data[field.name].isna().mean()
+            actual_completeness = (
+                0.0 if len(data[field.name]) == 0 else 1.0 - data[field.name].isna().mean()
+            )
+            actual_completeness = ensure_probability(
+                actual_completeness,
+                what=f"actual completeness {field.name}",
+            )
             field_completeness[field.name] = actual_completeness
 
             if field.name in allowed_null_fields:
                 continue
 
             expected_completeness = getattr(field, "expected_completeness", 1.0)
+            expected_completeness = ensure_probability(
+                expected_completeness,
+                what=f"expected completeness {field.name}",
+            )
             if actual_completeness < expected_completeness:
                 gap = expected_completeness - actual_completeness
                 if not getattr(field, "nullable", True) and actual_completeness < 1.0:

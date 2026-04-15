@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from polisyos.scientist.engine.protocol import NodeEvent
+from polisyos.scientist.nodes.builtins import tracing as tracing_module
 from polisyos.scientist.nodes.builtins.tracing import inject_trace_context
 
 
@@ -37,3 +38,17 @@ class TestInjectTraceContext:
         inject_trace_context(events, trace_id="t1", span_id="s1")
         assert events[0].attrs["custom"] == "val"
         assert events[0].attrs["trace_id"] == "t1"
+
+    def test_runtime_trace_access_failure_returns_none_ids(self, monkeypatch: pytest.MonkeyPatch):
+        class _BrokenTraceModule:
+            @staticmethod
+            def get_current_span():
+                raise RuntimeError("otel runtime unavailable")
+
+        monkeypatch.setattr(
+            tracing_module,
+            "_load_otel_trace_module",
+            lambda: _BrokenTraceModule(),
+        )
+
+        assert tracing_module._current_otel_ids() == (None, None)

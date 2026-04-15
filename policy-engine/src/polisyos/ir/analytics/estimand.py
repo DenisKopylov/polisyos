@@ -30,6 +30,14 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.ir.refs import EstimandASTRef
+
+_ESTIMAND_CANON_SPEC = CanonSpec(forbid_floats=False)
+_ESTIMAND_SCHEMA_NAME = "ir.estimand_ast"
+_ESTIMAND_SCHEMA_VERSION = "1.0"
+
 # ---------------------------------------------------------------------------
 # Enumerations
 # ---------------------------------------------------------------------------
@@ -669,6 +677,29 @@ class EstimandAST(BaseModel):
         _collect_dist_refs(self.root, refs)
         return refs
 
+    def normalize(self) -> "EstimandAST":
+        """Return the canonical algebraic form used for semantic dedupe."""
+        return normalize_estimand_ast(self)
+
+    def canonical_payload(self) -> dict[str, Any]:
+        """Return the hash-stable semantic payload for this estimand.
+
+        ``query_str`` is intentionally excluded from the semantic payload so
+        human-readable aliases do not prevent CAS dedupe of identical queries.
+        """
+        normalized = self.normalize()
+        payload = normalized.model_dump(mode="python", round_trip=True)
+        payload.pop("query_str", None)
+        return payload
+
+    def canonical_bytes(self) -> bytes:
+        """Return canonical bytes for the normalized semantic payload."""
+        return to_canonical_bytes(self.canonical_payload(), spec=_ESTIMAND_CANON_SPEC)
+
+    def content_hash(self, *, prefix: bool = False) -> str:
+        """Return a deterministic content hash of the normalized semantic payload."""
+        return content_hash(self.canonical_bytes(), prefix=prefix)
+
 
 # ---------------------------------------------------------------------------
 # Tree-walk helpers (module-level, cannot be methods due to forward refs)
@@ -842,6 +873,291 @@ def _collect_dist_refs(node: EstimandNode, out: list[DistributionRef]) -> None:
         _collect_dist_refs(node.denominator, out)
     elif isinstance(node, IntegralNode):
         _collect_dist_refs(node.operand, out)
+
+
+# ---------------------------------------------------------------------------
+# Canonical normalization helpers
+# ---------------------------------------------------------------------------
+
+
+def _unique_sorted(values: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(sorted(dict.fromkeys(values)))
+
+
+def _sorted_mapping(mapping: dict[str, Any]) -> dict[str, Any]:
+    return dict(sorted(mapping.items(), key=lambda entry: entry[0]))
+
+
+def _normalize_side_condition(side_condition: SideCondition) -> SideCondition:
+    return side_condition.model_copy(
+        update={"variables": _unique_sorted(side_condition.variables)}
+    )
+
+
+def _side_condition_sort_key(side_condition: SideCondition) -> bytes:
+    return to_canonical_bytes(
+        side_condition.model_dump(mode="python", round_trip=True),
+        spec=_ESTIMAND_CANON_SPEC,
+    )
+
+
+def _normalize_side_conditions(
+    side_conditions: tuple[SideCondition, ...],
+) -> tuple[SideCondition, ...]:
+    normalized = [_normalize_side_condition(condition) for condition in side_conditions]
+    unique_by_key = {
+        _side_condition_sort_key(condition): condition
+        for condition in normalized
+    }
+    return tuple(
+        condition
+        for _, condition in sorted(
+            unique_by_key.items(),
+            key=lambda item: item[0],
+        )
+    )
+
+
+def _node_sort_key(node: EstimandNode) -> bytes:
+    return to_canonical_bytes(
+        node.model_dump(mode="python", round_trip=True),
+        spec=_ESTIMAND_CANON_SPEC,
+    )
+
+
+def _normalize_node(node: EstimandNode) -> EstimandNode:
+    if isinstance(node, DistributionRef):
+        return node.model_copy(
+            update={
+                "variables": _unique_sorted(node.variables),
+                "conditioning": _unique_sorted(node.conditioning),
+                "intervention_set": _unique_sorted(node.intervention_set),
+                "side_conditions": _normalize_side_conditions(node.side_conditions),
+            }
+        )
+    if isinstance(node, SumNode):
+        operand = _normalize_node(node.operand)
+        summation_vars = _unique_sorted(node.summation_vars)
+        if isinstance(operand, SumNode):
+            summation_vars = _unique_sorted(summation_vars + operand.summation_vars)
+            operand = operand.operand
+        if not summation_vars:
+            return operand
+        return SumNode(summation_vars=summation_vars, operand=operand)
+    if isinstance(node, ProductNode):
+        flattened: list[EstimandNode] = []
+        for factor in node.factors:
+            normalized = _normalize_node(factor)
+            if isinstance(normalized, ProductNode):
+                flattened.extend(normalized.factors)
+            else:
+                flattened.append(normalized)
+        if len(flattened) == 1:
+            return flattened[0]
+        return ProductNode(factors=tuple(sorted(flattened, key=_node_sort_key)))
+    if isinstance(node, RatioNode):
+        return RatioNode(
+            numerator=_normalize_node(node.numerator),
+            denominator=_normalize_node(node.denominator),
+        )
+    if isinstance(node, NuisanceNode):
+        return node.model_copy(update={"conditioning": _unique_sorted(node.conditioning)})
+    if isinstance(node, ExpectationNode):
+        return node.model_copy(
+            update={
+                "conditioning": _unique_sorted(node.conditioning),
+                "intervention_set": _unique_sorted(node.intervention_set),
+            }
+        )
+    if isinstance(node, IntegralNode):
+        operand = _normalize_node(node.operand)
+        integration_vars = _unique_sorted(node.integration_vars)
+        if isinstance(operand, IntegralNode) and operand.measure == node.measure:
+            integration_vars = _unique_sorted(integration_vars + operand.integration_vars)
+            operand = operand.operand
+        if not integration_vars:
+            return operand
+        return IntegralNode(
+            integration_vars=integration_vars,
+            operand=operand,
+            measure=node.measure,
+        )
+    if isinstance(node, PathSpecificNode):
+        return node.model_copy(
+            update={
+                "active_paths": tuple(sorted(dict.fromkeys(node.active_paths))),
+                "frozen_paths": tuple(sorted(dict.fromkeys(node.frozen_paths))),
+            }
+        )
+    if isinstance(node, RecoveredDistNode):
+        return node.model_copy(update={"conditioning": _unique_sorted(node.conditioning)})
+    if isinstance(node, StochasticInterventionNode):
+        return StochasticInterventionNode(
+            treatment_var=node.treatment_var,
+            policy=node.policy.model_copy(
+                update={"conditioning_vars": _unique_sorted(node.policy.conditioning_vars)}
+            ),
+            inner_do_node=_normalize_node(node.inner_do_node),
+            integration_var=node.integration_var,
+            domain=node.domain,
+        )
+    if isinstance(node, ConditionalInterventionNode):
+        return ConditionalInterventionNode(
+            treatment=node.treatment,
+            outcome=node.outcome,
+            condition_vars=_unique_sorted(node.condition_vars),
+            inner_do_node=_normalize_node(node.inner_do_node),
+            domain=node.domain,
+            dataset_ref=node.dataset_ref,
+        )
+    if isinstance(node, ProxyAdjustmentNode):
+        return ProxyAdjustmentNode(
+            inner_do_node=_normalize_node(node.inner_do_node),
+            proxy_map=tuple(sorted(dict.fromkeys(node.proxy_map))),
+            measurement_model=node.measurement_model,
+            identification_theorem=node.identification_theorem,
+            domain=node.domain,
+            dataset_ref=node.dataset_ref,
+        )
+    if isinstance(node, CounterfactualNode):
+        return node.model_copy(
+            update={
+                "conditioning": _unique_sorted(node.conditioning),
+                "intervention": _sorted_mapping(node.intervention),
+            }
+        )
+    if isinstance(node, NestedCounterfactualNode):
+        normalized = NestedCounterfactualNode(
+            outer_variable=node.outer_variable,
+            outer_intervention=_sorted_mapping(node.outer_intervention),
+            inner_counterfactual=_normalize_node(node.inner_counterfactual),
+            world_indices=tuple(sorted(dict.fromkeys(node.world_indices))),
+            domain=node.domain,
+            dataset_ref=node.dataset_ref,
+        )
+        if len(normalized.world_indices) == 1:
+            return normalized
+        return normalized
+    if isinstance(node, CrossWorldNode):
+        normalized_worlds = tuple(_normalize_node(world) for world in node.worlds)
+        if len(normalized_worlds) == 1:
+            return normalized_worlds[0]
+        if node.joint:
+            normalized_worlds = tuple(sorted(normalized_worlds, key=_node_sort_key))
+        return CrossWorldNode(worlds=normalized_worlds, joint=node.joint)
+    if isinstance(node, CtfInterventionNode):
+        return CtfInterventionNode(
+            variable=node.variable,
+            intervention=_sorted_mapping(node.intervention),
+            ctf_context=_normalize_node(node.ctf_context),
+            domain=node.domain,
+            dataset_ref=node.dataset_ref,
+        )
+    return node
+
+
+def _collect_variable_names(node: EstimandNode, out: set[str]) -> None:
+    if isinstance(node, DistributionRef):
+        out.update(node.variables)
+        out.update(node.conditioning)
+        out.update(node.intervention_set)
+        for side_condition in node.side_conditions:
+            out.update(side_condition.variables)
+        return
+    if isinstance(node, SumNode):
+        out.update(node.summation_vars)
+        _collect_variable_names(node.operand, out)
+        return
+    if isinstance(node, ProductNode):
+        for factor in node.factors:
+            _collect_variable_names(factor, out)
+        return
+    if isinstance(node, RatioNode):
+        _collect_variable_names(node.numerator, out)
+        _collect_variable_names(node.denominator, out)
+        return
+    if isinstance(node, NuisanceNode):
+        out.add(node.target_variable)
+        out.update(node.conditioning)
+        return
+    if isinstance(node, ExpectationNode):
+        out.add(node.outcome)
+        out.update(node.conditioning)
+        out.update(node.intervention_set)
+        return
+    if isinstance(node, IntegralNode):
+        out.update(node.integration_vars)
+        _collect_variable_names(node.operand, out)
+        return
+    if isinstance(node, PathSpecificNode):
+        out.add(node.treatment)
+        out.add(node.outcome)
+        for path in node.active_paths + node.frozen_paths:
+            out.update(path)
+        return
+    if isinstance(node, RecoveredDistNode):
+        out.add(node.variable)
+        out.update(node.conditioning)
+        if node.missingness_indicator:
+            out.add(node.missingness_indicator)
+        if node.proxy_variable:
+            out.add(node.proxy_variable)
+        return
+    if isinstance(node, StochasticInterventionNode):
+        out.add(node.treatment_var)
+        out.add(node.integration_var)
+        out.update(node.policy.conditioning_vars)
+        _collect_variable_names(node.inner_do_node, out)
+        return
+    if isinstance(node, ConditionalInterventionNode):
+        out.add(node.treatment)
+        out.add(node.outcome)
+        out.update(node.condition_vars)
+        _collect_variable_names(node.inner_do_node, out)
+        return
+    if isinstance(node, ProxyAdjustmentNode):
+        for latent_var, proxy_var in node.proxy_map:
+            out.add(latent_var)
+            out.add(proxy_var)
+        _collect_variable_names(node.inner_do_node, out)
+        return
+    if isinstance(node, CounterfactualNode):
+        out.add(node.variable)
+        out.update(node.conditioning)
+        out.update(node.intervention)
+        return
+    if isinstance(node, NestedCounterfactualNode):
+        out.add(node.outer_variable)
+        out.update(node.outer_intervention)
+        _collect_variable_names(node.inner_counterfactual, out)
+        return
+    if isinstance(node, CrossWorldNode):
+        for world in node.worlds:
+            _collect_variable_names(world, out)
+        return
+    if isinstance(node, CtfInterventionNode):
+        out.add(node.variable)
+        out.update(node.intervention)
+        _collect_variable_names(node.ctf_context, out)
+
+
+def normalize_estimand_ast(estimand: EstimandAST) -> EstimandAST:
+    """Canonicalize an estimand AST for semantic dedupe and CAS hashing."""
+    normalized_root = _normalize_node(estimand.root)
+    all_variables: set[str] = set(filter(None, (estimand.treatment, estimand.outcome)))
+    _collect_variable_names(normalized_root, all_variables)
+    for side_condition in estimand.side_conditions:
+        all_variables.update(side_condition.variables)
+    return EstimandAST(
+        schema_version=estimand.schema_version,
+        query_str=_node_latex(normalized_root),
+        root=normalized_root,
+        treatment=estimand.treatment,
+        outcome=estimand.outcome,
+        all_variables=tuple(sorted(all_variables)),
+        side_conditions=_normalize_side_conditions(estimand.side_conditions),
+        identification_method=estimand.identification_method,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1179,6 +1495,37 @@ def make_recovery_estimand(
     )
 
 
+def persist_estimand_ast(
+    store: ArtifactStore,
+    estimand: EstimandAST,
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = _ESTIMAND_SCHEMA_NAME,
+    schema_version: str = _ESTIMAND_SCHEMA_VERSION,
+) -> EstimandASTRef:
+    """Persist a normalized estimand AST through the IR CAS boundary."""
+    normalized = normalize_estimand_ast(estimand)
+    ref = put_json_artifact(
+        store,
+        normalized.model_dump(mode="python", round_trip=True),
+        kind="ir.estimand_ast",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=_ESTIMAND_CANON_SPEC,
+    )
+    return EstimandASTRef.model_validate(ref)
+
+
+def load_estimand_ast(
+    store: ArtifactStore,
+    ref: EstimandASTRef,
+) -> EstimandAST:
+    """Load and validate a persisted estimand AST."""
+    payload = get_json_artifact(store, ref.artifact_id)
+    return EstimandAST.model_validate(payload)
+
+
 # ---------------------------------------------------------------------------
 # Forward reference resolution (Pydantic v2 requirement for recursive models)
 # ---------------------------------------------------------------------------
@@ -1230,4 +1577,7 @@ __all__ = [
     "make_transport_reweight_estimand",
     "make_z_transport_estimand",
     "make_recovery_estimand",
+    "normalize_estimand_ast",
+    "persist_estimand_ast",
+    "load_estimand_ast",
 ]

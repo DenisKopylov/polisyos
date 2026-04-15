@@ -14,10 +14,22 @@ import logging
 import time
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.scientist.engine.runner.local_runner import LocalWorkflowRunner
 from polisyos.scientist.engine.runner.protocol import RunnerHealth
+from polisyos.scientist.engine.state_merge import MergeConflictPolicy
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 _logger = logging.getLogger(__name__)
+_PRIMARY_EXECUTION_ERRORS = (
+    AttributeError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 
 class FallbackWorkflowRunner:
@@ -39,9 +51,13 @@ class FallbackWorkflowRunner:
         *,
         health_ttl_s: float = 30.0,
         max_parallelism: int = 4,
+        merge_conflict_policy: MergeConflictPolicy = MergeConflictPolicy.ERROR,
     ) -> None:
         self._primary = primary
-        self._fallback = LocalWorkflowRunner(max_parallelism=max_parallelism)
+        self._fallback = LocalWorkflowRunner(
+            max_parallelism=max_parallelism,
+            merge_conflict_policy=merge_conflict_policy,
+        )
         self._health_ttl_s = health_ttl_s
         self._last_health: RunnerHealth | None = None
         self._last_health_at: float = 0.0
@@ -68,6 +84,7 @@ class FallbackWorkflowRunner:
         registry: Any,
         *,
         checkpoint_hook: Any | None = None,
+        checkpoint_cache_seed_refs: Any | None = None,
         max_parallelism: int = 4,
     ) -> Any:
         """Execute workflow via the primary runner, falling back to local on failure."""
@@ -78,14 +95,32 @@ class FallbackWorkflowRunner:
                 return await self._primary.execute_workflow(
                     workflow, state, ctx, registry,
                     checkpoint_hook=checkpoint_hook,
+                    checkpoint_cache_seed_refs=checkpoint_cache_seed_refs,
                     max_parallelism=max_parallelism,
                 )
-            except Exception:  # noqa: BLE001
+            except _PRIMARY_EXECUTION_ERRORS as exc:
+                emit_degraded_path(
+                    component="engine.runner.fallback",
+                    operation="execute_primary",
+                    reason="primary_runner_execution_failed",
+                    exc=exc,
+                    details={"backend": health.backend, "message": health.message},
+                    log=_logger,
+                )
                 _logger.warning(
                     "Primary runner (%s) raised during execution; falling back to local",
                     health.backend,
                 )
         else:
+            emit_degraded_path(
+                component="engine.runner.fallback",
+                operation="probe_primary",
+                reason="primary_runner_unhealthy",
+                message=health.message,
+                error_type="runner_unhealthy",
+                details={"backend": health.backend},
+                log=_logger,
+            )
             _logger.warning(
                 "Primary runner (%s) unhealthy: %s — falling back to local",
                 health.backend,
@@ -97,5 +132,6 @@ class FallbackWorkflowRunner:
         return await self._fallback.execute_workflow(
             workflow, state, ctx, registry,
             checkpoint_hook=checkpoint_hook,
+            checkpoint_cache_seed_refs=checkpoint_cache_seed_refs,
             max_parallelism=max_parallelism,
         )

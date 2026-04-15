@@ -6,14 +6,15 @@ these contracts.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum, Flag, IntEnum, auto
+from functools import cached_property
 from typing import Any, Generic, TypeAlias, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from polisyos.ir.canon import content_hash
+from polisyos.ir.canon import content_hash, to_canonical_bytes
 from polisyos.ir.refs import EvidenceBundleRef
 
 
@@ -165,62 +166,51 @@ class FetchRequest:
 
     # Execution hints
     retryable: bool | None = None
+    _query_key: str = field(init=False, repr=False, compare=False)
+    _request_key: str = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "date_start", _coerce_datetime(self.date_start))
         object.__setattr__(self, "date_end", _coerce_datetime(self.date_end))
         object.__setattr__(self, "as_of", _coerce_datetime(self.as_of))
         object.__setattr__(self, "filters", _normalize_filters(self.filters))
+        object.__setattr__(self, "_query_key", _hash_request_payload(self._query_payload()))
+        object.__setattr__(self, "_request_key", _hash_request_payload(self._request_payload()))
 
-    @property
-    def query_key(self) -> str:
-        """Hash identifying the logical data request (pagination excluded)."""
-        from polisyos.ir.canon import to_canonical_bytes
+    def _incremental_dump(self) -> dict[str, Any] | None:
+        if self.incremental_since is None:
+            return None
+        return self.incremental_since.model_dump(mode="json")
 
-        incremental_dump = (
-            self.incremental_since.model_dump(mode="json")
-            if self.incremental_since
-            else None
-        )
-        canonical_data = {
+    def _query_payload(self) -> dict[str, Any]:
+        return {
             "dataset_id": self.dataset_id,
             "date_start": self.date_start,
             "date_end": self.date_end,
             "as_of": self.as_of,
             "filters": {key: list(values) for key, values in self.filters},
-            "incremental_since": incremental_dump,
+            "incremental_since": self._incremental_dump(),
             "min_quality_tier": self.min_quality_tier.value,
         }
-        canonical_bytes = to_canonical_bytes(canonical_data)
-        hash_hex = content_hash(canonical_bytes)
-        return f"sha256:{hash_hex}"
 
-    @property
-    def request_key(self) -> str:
-        """Hash for the full request (includes pagination and output prefs)."""
-        from polisyos.ir.canon import to_canonical_bytes
-
-        incremental_dump = (
-            self.incremental_since.model_dump(mode="json")
-            if self.incremental_since
-            else None
-        )
-        canonical_data = {
-            "dataset_id": self.dataset_id,
-            "date_start": self.date_start,
-            "date_end": self.date_end,
-            "as_of": self.as_of,
-            "filters": {key: list(values) for key, values in self.filters},
-            "incremental_since": incremental_dump,
-            "min_quality_tier": self.min_quality_tier.value,
+    def _request_payload(self) -> dict[str, Any]:
+        return {
+            **self._query_payload(),
             "include_metadata": self.include_metadata,
             "include_schema": self.include_schema,
             "page_size": self.page_size,
             "page_token": self.page_token,
         }
-        canonical_bytes = to_canonical_bytes(canonical_data)
-        hash_hex = content_hash(canonical_bytes)
-        return f"sha256:{hash_hex}"
+
+    @property
+    def query_key(self) -> str:
+        """Hash identifying the logical data request (pagination excluded)."""
+        return self._query_key
+
+    @property
+    def request_key(self) -> str:
+        """Hash for the full request (includes pagination and output prefs)."""
+        return self._request_key
 
     @property
     def cache_key(self) -> str:
@@ -325,6 +315,58 @@ class PIIScanSummary(BaseModel):
     scan_duration_ms: float = Field(default=0.0, ge=0.0)
     sampled: bool = False
     sample_rate: float = Field(default=1.0, ge=0.0, le=1.0)
+
+
+class FetchSchemaDescriptor(BaseModel):
+    """Schema boundary for a fetch payload."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    schema_id: str
+    schema_version: str
+
+
+class FetchProvenanceEnvelope(BaseModel):
+    """Versioning and evidence metadata attached to a fetch payload."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    version: DataVersion
+    fetched_at: datetime
+    source_updated_at: datetime | None = None
+    evidence_ref: EvidenceBundleRef | None = None
+
+
+class FetchQualityEnvelope(BaseModel):
+    """Quality assessment boundary for a fetch payload."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    completeness: float
+    quality_tier: QualityTier
+    quality_flags: frozenset[str] = frozenset()
+
+
+class FetchPaginationEnvelope(BaseModel):
+    """Pagination boundary for chunked fetch operations."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    has_more: bool = False
+    next_page_token: str | None = None
+    total_count: int | None = None
+
+
+class FetchTransferEnvelope(BaseModel):
+    """Transport/runtime metrics for one fetch invocation."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    fetch_duration_ms: float = 0.0
+    bytes_transferred: int = 0
+    not_modified: bool = False
+    resilience: ResilienceInfo | None = None
+    pii_scan: PIIScanSummary | None = None
 
 
 class FetchResult(BaseModel, Generic[DataT]):
@@ -438,6 +480,103 @@ class FetchResult(BaseModel, Generic[DataT]):
             and len(self.quality_flags) == 0
         )
 
+    @cached_property
+    def schema(self) -> FetchSchemaDescriptor:
+        """Structured schema boundary view for the fetched payload."""
+        return FetchSchemaDescriptor(
+            schema_id=self.schema_id,
+            schema_version=self.schema_version,
+        )
+
+    @cached_property
+    def provenance(self) -> FetchProvenanceEnvelope:
+        """Structured provenance boundary view for the fetched payload."""
+        return FetchProvenanceEnvelope(
+            version=self.version,
+            fetched_at=self.fetched_at,
+            source_updated_at=self.source_updated_at,
+            evidence_ref=self.evidence_ref,
+        )
+
+    @cached_property
+    def quality(self) -> FetchQualityEnvelope:
+        """Structured quality boundary view for the fetched payload."""
+        return FetchQualityEnvelope(
+            completeness=self.completeness,
+            quality_tier=self.quality_tier,
+            quality_flags=self.quality_flags,
+        )
+
+    @cached_property
+    def pagination(self) -> FetchPaginationEnvelope:
+        """Structured pagination boundary view for the fetched payload."""
+        return FetchPaginationEnvelope(
+            has_more=self.has_more,
+            next_page_token=self.next_page_token,
+            total_count=self.total_count,
+        )
+
+    @cached_property
+    def transfer(self) -> FetchTransferEnvelope:
+        """Structured transport/runtime boundary view for the fetched payload."""
+        return FetchTransferEnvelope(
+            fetch_duration_ms=self.fetch_duration_ms,
+            bytes_transferred=self.bytes_transferred,
+            not_modified=self.not_modified,
+            resilience=self.resilience,
+            pii_scan=self.pii_scan,
+        )
+
+
+class ConnectorIdentitySpec(BaseModel):
+    """Stable connector identity tuple."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    connector_id: str
+    version: str
+    namespace: str
+
+
+class ConnectorSourceSpec(BaseModel):
+    """Human-readable source provenance for a connector."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    source_name: str
+    source_organization: str
+    source_url: str | None = None
+
+
+class ConnectorGovernanceProfile(BaseModel):
+    """Trust/quality/capability profile advertised by a connector."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    trust_level: TrustLevel
+    quality_tier: QualityTier
+    capabilities: int
+
+
+class ConnectorOperationalProfile(BaseModel):
+    """Operational and freshness metadata for a connector."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    resilience_config: dict[str, Any] | None = None
+    last_updated: datetime | None = None
+    observed_latency_ms: float | None = None
+
+
+class ConnectorDocumentationSpec(BaseModel):
+    """Documentation boundary for connector discoverability."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    description: str
+    documentation_url: str | None = None
+
+
 class ConnectorMetadataSpec(BaseModel):
     """Define the immutable IR contract that registers one external data connector.
 
@@ -490,6 +629,14 @@ class ConnectorMetadataSpec(BaseModel):
     quality_tier: QualityTier = Field(
         default=QualityTier.UNVERIFIED,
         description="Default quality tier for data from this connector",
+    )
+    data_classification: str = Field(
+        default="public",
+        description="Governance classification propagated into cache/query layers",
+    )
+    column_classification: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional per-column governance classification mapping",
     )
 
     # Capabilities
@@ -557,6 +704,50 @@ class ConnectorMetadataSpec(BaseModel):
             new_caps |= cap.value
         return self.model_copy(update={"capabilities": new_caps})
 
+    @cached_property
+    def identity(self) -> ConnectorIdentitySpec:
+        """Structured identity boundary for registry/discovery code."""
+        return ConnectorIdentitySpec(
+            connector_id=self.connector_id,
+            version=self.version,
+            namespace=self.namespace,
+        )
+
+    @cached_property
+    def source(self) -> ConnectorSourceSpec:
+        """Structured source boundary for provenance/discovery code."""
+        return ConnectorSourceSpec(
+            source_name=self.source_name,
+            source_organization=self.source_organization,
+            source_url=self.source_url,
+        )
+
+    @cached_property
+    def governance(self) -> ConnectorGovernanceProfile:
+        """Structured governance profile for admission and filtering."""
+        return ConnectorGovernanceProfile(
+            trust_level=self.trust_level,
+            quality_tier=self.quality_tier,
+            capabilities=self.capabilities,
+        )
+
+    @cached_property
+    def operations(self) -> ConnectorOperationalProfile:
+        """Structured operational profile for freshness/resilience logic."""
+        return ConnectorOperationalProfile(
+            resilience_config=self.resilience_config,
+            last_updated=self.last_updated,
+            observed_latency_ms=self.observed_latency_ms,
+        )
+
+    @cached_property
+    def documentation(self) -> ConnectorDocumentationSpec:
+        """Structured documentation boundary for catalog UIs and tooling."""
+        return ConnectorDocumentationSpec(
+            description=self.description,
+            documentation_url=self.documentation_url,
+        )
+
 
 CapabilitySet: TypeAlias = int | ConnectorCapability
 
@@ -603,6 +794,11 @@ def _normalize_filters(
         normalized.append((key, tuple(sorted(merged[key]))))
 
     return tuple(normalized)
+
+
+def _hash_request_payload(canonical_data: dict[str, Any]) -> str:
+    canonical_bytes = to_canonical_bytes(canonical_data)
+    return f"sha256:{content_hash(canonical_bytes)}"
 
 
 FetchResult.model_rebuild()

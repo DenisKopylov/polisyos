@@ -2,19 +2,40 @@
 from __future__ import annotations
 
 import hashlib
+import warnings
 from collections.abc import Iterable
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 from .canon_json import CanonSpec, to_canonical_bytes
 
-HashAlgorithm = Literal["sha256", "sha1", "blake2b"]
+HashAlgorithm = Literal["sha256", "blake2b"]
+DeprecatedHashAlgorithm = Literal["sha1"]
 
 
-def _new_hasher(algorithm: HashAlgorithm, *, digest_size: int | None = None):
+class _Hasher(Protocol):
+    def update(self, data: bytes, /) -> None:
+        ...
+
+    def hexdigest(self) -> str:
+        ...
+
+
+def _new_hasher(
+    algorithm: HashAlgorithm | DeprecatedHashAlgorithm,
+    *,
+    digest_size: int | None = None,
+) -> _Hasher:
     if algorithm == "sha256":
         return hashlib.sha256()
     if algorithm == "sha1":
-        return hashlib.sha1()
+        warnings.warn(
+            "sha1 content hashing is deprecated and must be requested explicitly; "
+            "use sha256 for canonical CAS paths.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        # ADR-0104 keeps sha1 only for explicit legacy reads with a warning.
+        return hashlib.sha1()  # noqa: S324
     if algorithm == "blake2b":
         if digest_size is not None:
             return hashlib.blake2b(digest_size=digest_size)
@@ -37,7 +58,7 @@ def _to_bytes(value: bytes | bytearray | memoryview | str) -> bytes:
 def content_hash(
     payload: bytes | bytearray | memoryview | str,
     *,
-    algorithm: HashAlgorithm = "sha256",
+    algorithm: HashAlgorithm | DeprecatedHashAlgorithm = "sha256",
     prefix: bool = False,
     digest_size: int | None = None,
 ) -> str:
@@ -45,8 +66,9 @@ def content_hash(
     Hash byte/string payload with a consistent API.
 
     Args:
-        payload: Raw bytes or string.
-        algorithm: Hash algorithm.
+        payload: Raw bytes or UTF-8 string.
+        algorithm: Hash algorithm. sha1 is accepted only as an explicit
+            deprecated legacy branch; canonical CAS paths use sha256.
         prefix: If True, prepend '<algorithm>:'.
         digest_size: Optional digest size for blake2b.
     """
@@ -62,7 +84,7 @@ def content_hash(
 def fingerprint(
     value: Any,
     *,
-    algorithm: HashAlgorithm = "sha256",
+    algorithm: HashAlgorithm | DeprecatedHashAlgorithm = "sha256",
     prefix: bool = False,
     canon_spec: CanonSpec | None = None,
     digest_size: int | None = None,
@@ -87,7 +109,7 @@ def truncated_hash(
     payload: bytes | bytearray | memoryview | str,
     *,
     length: int = 16,
-    algorithm: HashAlgorithm = "sha256",
+    algorithm: HashAlgorithm | DeprecatedHashAlgorithm = "sha256",
     prefix: bool = False,
     digest_size: int | None = None,
 ) -> str:
@@ -111,7 +133,7 @@ def truncated_hash(
 def streaming_hash(
     chunks: Iterable[bytes | bytearray | memoryview],
     *,
-    algorithm: HashAlgorithm = "sha256",
+    algorithm: HashAlgorithm | DeprecatedHashAlgorithm = "sha256",
     prefix: bool = False,
     digest_size: int | None = None,
 ) -> str:

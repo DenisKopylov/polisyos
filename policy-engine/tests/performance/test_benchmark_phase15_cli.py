@@ -462,3 +462,59 @@ def test_run_all_temporal_filters_execute_single_suite(tmp_path: Path, suite_id:
     summary = json.loads((json_dir / "run_summary.json").read_text(encoding="utf-8"))
     assert summary["matched"] == 1
     assert summary["suite_results"][0]["suite_id"] == suite_id
+
+
+def test_honest_cli_supports_unified_benchmark_contract(tmp_path: Path, monkeypatch):
+    from benchmarks.honest_comparison.metrics import AggregatedMetrics
+    from benchmarks.honest_comparison import run_honest_benchmark as honest_cli
+
+    raw_result = {
+        "metrics": {
+            "best_effort": [
+                AggregatedMetrics(
+                    method_name="policyos_tmle",
+                    dataset_name="lalonde_n500",
+                    tier="best_effort",
+                    n_replications=3,
+                    n_failed=0,
+                    ate_bias=0.01,
+                    ate_bias_se=0.0,
+                    ate_rmse=0.02,
+                    ate_rmse_se=0.0,
+                    ci_coverage=1.0,
+                    ci_coverage_se=0.0,
+                    ci_width_mean=0.5,
+                    pehe=None,
+                    pehe_se=None,
+                    wall_time_mean=0.1,
+                    wall_time_p95=0.1,
+                    failure_rate=0.0,
+                    per_rep_ate_error=[],
+                    per_rep_sq_error=[],
+                )
+            ]
+        },
+        "pairwise": {},
+        "env": {"python_version": "test"},
+    }
+
+    monkeypatch.setattr(honest_cli, "run_benchmark", lambda cfg, output_path=None: raw_result)
+    out = tmp_path / "honest.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "run_honest_benchmark.py",
+            "--mode",
+            "smoke",
+            "--quiet",
+            "--json",
+            str(out),
+        ],
+    )
+
+    assert honest_cli.main() == 0
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["suite_id"] == "honest_comparison"
+    assert payload["overall_status"] == "passed"
+    assert payload["cases"]

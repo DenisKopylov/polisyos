@@ -12,6 +12,11 @@ from .graph import (
     NodeStatus,
     resolve_dependency_graph,
 )
+from .async_store import (
+    AsyncArtifactStoreAdapter,
+    AsyncFileSystemArtifactStore,
+    ensure_async_artifact_store,
+)
 from .ids import ArtifactID
 from .manifest import (
     ArtifactManifest,
@@ -25,7 +30,7 @@ from .manifest import (
     SchemaInfo,
     WarningRecord,
 )
-from .protocol import ArtifactStore
+from .protocol import ArtifactStore, AsyncArtifactStore
 from .registry import RegistryBundle
 from .signing import (
     ArtifactSigner,
@@ -57,6 +62,9 @@ __all__ = [
     "DependencyGraph",
     "DependencyNode",
     "ExportReport",
+    "AsyncArtifactStore",
+    "AsyncArtifactStoreAdapter",
+    "AsyncFileSystemArtifactStore",
     "ArtifactStore",
     "ArtifactSigner",
     "ArtifactSigningResult",
@@ -89,6 +97,7 @@ __all__ = [
     "VerificationReport",
     "WarningRecord",
     "compute_key_id",
+    "ensure_async_artifact_store",
     "ensure_private_key_permissions",
     "resolve_dependency_graph",
 ]

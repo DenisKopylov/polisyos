@@ -7,7 +7,8 @@ from typing import Any, Mapping, Sequence
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionTriggerRecord,
@@ -36,6 +37,21 @@ from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarg
 from polisyos.lex.simulator.cli import load_norm_pack
 from polisyos.lex.simulator.diff import diff_norm_packs
 from polisyos.scientist.decision_validity import DecisionValidityService
+from polisyos.scientist.engine.operational_monitoring import get_operational_monitor
+from polisyos.scientist.feedback_utils import (
+    _aggregate_monitoring_verdict,
+    _as_bool_or_none,
+    _as_float,
+    _as_str,
+    _extract_artifact_id,
+    _extract_feedback_ref,
+    _extract_metric_observation,
+    _extract_revised_metric_ids,
+    _extract_rows,
+    _outside_range,
+    _path_get,
+    _within_range,
+)
 
 
 @dataclass(frozen=True)
@@ -61,7 +77,11 @@ def build_monitoring_contract_from_packet(
         if isinstance(packet_payload.get("simulation_results"), Mapping)
         else {}
     )
-    backtest = packet_payload.get("backtest") if isinstance(packet_payload.get("backtest"), Mapping) else {}
+    backtest = (
+        packet_payload.get("backtest")
+        if isinstance(packet_payload.get("backtest"), Mapping)
+        else {}
+    )
     metrics: list[MonitoredMetric] = []
     overall_mae = _as_float(backtest.get("overall_mae")) or 0.0
     overall_rmse = _as_float(backtest.get("overall_rmse")) or overall_mae
@@ -136,7 +156,7 @@ def build_parameter_override_bundle(
 
 class DecisionFeedbackService:
     """Decision feedback service implementation."""
-    def __init__(self, store: FileSystemCAS) -> None:
+    def __init__(self, store: ArtifactStore) -> None:
         self._store = store
         self._decision_validity = DecisionValidityService(store)
 
@@ -162,6 +182,20 @@ class DecisionFeedbackService:
             monitoring_report_ref=refs["latest_monitoring_report_ref"],
             compare_report_ref=refs["latest_compare_report_ref"],
             reissue_plan_ref=refs["latest_reissue_plan_ref"],
+        )
+
+    def get_decision_validity_summary(
+        self,
+        packet_ref: str,
+        *,
+        packet_payload: Mapping[str, Any] | None = None,
+        force: bool = False,
+    ) -> dict[str, Any]:
+        """Return the decision-validity summary through the public feedback API."""
+        return self._decision_validity.get_summary(
+            packet_ref,
+            packet_payload=dict(packet_payload) if packet_payload is not None else None,
+            force=force,
         )
 
     def evaluate_packet(
@@ -248,14 +282,30 @@ class DecisionFeedbackService:
             schema_name="polisyos.scientist.DecisionMonitoringReport",
             schema_version=report.schema_version,
             inputs=[
-                InputRef(artifact_id=ArtifactID.model_validate(packet_ref), role="decision_packet"),
-                InputRef(artifact_id=ArtifactID.model_validate(contract_ref), role="monitoring_contract"),
+                InputRef(
+                    artifact_id=ArtifactID.model_validate(packet_ref),
+                    role="decision_packet",
+                ),
+                InputRef(
+                    artifact_id=ArtifactID.model_validate(contract_ref),
+                    role="monitoring_contract",
+                ),
             ],
         )
 
         compare_report_ref: str | None = None
         reissue_plan_ref: str | None = None
         if refuted_metric_ids:
+            workflow_id = (
+                str(packet_payload.get("workflow_id"))
+                if isinstance(packet_payload.get("workflow_id"), str)
+                else None
+            )
+            get_operational_monitor().ingest_metric_regressions(
+                refuted_metric_ids,
+                workflow_id=workflow_id,
+                run_id=run_id,
+            )
             trigger = DecisionTriggerRecord(
                 trigger_type=DecisionTriggerType.POST_DEPLOYMENT_REFUTATION,
                 status=DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
@@ -318,11 +368,24 @@ class DecisionFeedbackService:
             "data": self._data_delta(left_packet_payload, right_packet_payload),
             "evidence": self._evidence_delta(left_packet_payload, right_packet_payload),
             "model": self._model_delta(left_packet_payload, right_packet_payload),
-            "governance": self._governance_delta(left_packet_ref, right_packet_ref, left_packet_payload, right_packet_payload),
-            "outcome": self._outcome_delta(left_packet_payload, right_packet_payload, monitoring_report),
+            "governance": self._governance_delta(
+                left_packet_ref,
+                right_packet_ref,
+                left_packet_payload,
+                right_packet_payload,
+            ),
+            "outcome": self._outcome_delta(
+                left_packet_payload,
+                right_packet_payload,
+                monitoring_report,
+            ),
         }
         root_cause = [name for name, delta in deltas.items() if delta.changed]
-        if not root_cause and monitoring_report is not None and monitoring_report.refuted_metric_ids:
+        if (
+            not root_cause
+            and monitoring_report is not None
+            and monitoring_report.refuted_metric_ids
+        ):
             root_cause = ["outcome"]
         report = DecisionCompareReport(
             left_run_id=left_run_id,
@@ -343,8 +406,14 @@ class DecisionFeedbackService:
             schema_name="polisyos.scientist.DecisionCompareReport",
             schema_version=report.schema_version,
             inputs=[
-                InputRef(artifact_id=ArtifactID.model_validate(left_packet_ref), role="left_decision_packet"),
-                InputRef(artifact_id=ArtifactID.model_validate(right_packet_ref), role="right_decision_packet"),
+                InputRef(
+                    artifact_id=ArtifactID.model_validate(left_packet_ref),
+                    role="left_decision_packet",
+                ),
+                InputRef(
+                    artifact_id=ArtifactID.model_validate(right_packet_ref),
+                    role="right_decision_packet",
+                ),
             ],
         )
         return report, str(report_ref.artifact_id)
@@ -363,7 +432,11 @@ class DecisionFeedbackService:
         calibration_config_ref: str | None = None
         parameter_override_bundle_ref: str | None = None
 
-        refuted_metrics = [item for item in monitoring_report.metrics if item.verdict == MonitoringVerdict.REFUTED]
+        refuted_metrics = [
+            item
+            for item in monitoring_report.metrics
+            if item.verdict == MonitoringVerdict.REFUTED
+        ]
         if refuted_metrics:
             config = CalibrationConfig(
                 targets=[
@@ -382,12 +455,18 @@ class DecisionFeedbackService:
                 schema_name="polisyos.ir.CalibrationConfig",
                 schema_version=config.schema_version,
                 inputs=[
-                    InputRef(artifact_id=ArtifactID.model_validate(source_packet_ref), role="decision_packet"),
+                    InputRef(
+                        artifact_id=ArtifactID.model_validate(source_packet_ref),
+                        role="decision_packet",
+                    ),
                 ],
             )
             calibration_config_ref = str(config_ref.artifact_id)
 
-        calibration_report_ref = _path_get(source_packet_payload, ("inputs", "calibration_report_ref"))
+        calibration_report_ref = _path_get(
+            source_packet_payload,
+            ("inputs", "calibration_report_ref"),
+        )
         if isinstance(calibration_report_ref, str):
             try:
                 calibration_report = self._load_model(calibration_report_ref, CalibrationReport)
@@ -426,9 +505,18 @@ class DecisionFeedbackService:
             schema_name="polisyos.scientist.DecisionReissuePlan",
             schema_version=plan.schema_version,
             inputs=[
-                InputRef(artifact_id=ArtifactID.model_validate(source_packet_ref), role="decision_packet"),
-                InputRef(artifact_id=ArtifactID.model_validate(monitoring_report_ref), role="monitoring_report"),
-                InputRef(artifact_id=ArtifactID.model_validate(compare_report_ref), role="compare_report"),
+                InputRef(
+                    artifact_id=ArtifactID.model_validate(source_packet_ref),
+                    role="decision_packet",
+                ),
+                InputRef(
+                    artifact_id=ArtifactID.model_validate(monitoring_report_ref),
+                    role="monitoring_report",
+                ),
+                InputRef(
+                    artifact_id=ArtifactID.model_validate(compare_report_ref),
+                    role="compare_report",
+                ),
             ],
         )
         return plan, str(plan_ref.artifact_id)
@@ -471,7 +559,10 @@ class DecisionFeedbackService:
                 details["load_error"] = str(exc)
         return CompareDeltaSection(
             changed=changed,
-            refs={"left_norm_pack_ref": _as_str(left_ref), "right_norm_pack_ref": _as_str(right_ref)},
+            refs={
+                "left_norm_pack_ref": _as_str(left_ref),
+                "right_norm_pack_ref": _as_str(right_ref),
+            },
             summary=summary,
             details=details,
         )
@@ -492,7 +583,15 @@ class DecisionFeedbackService:
             right_data_ref = _extract_artifact_id(right_snapshot.get("data_ref"))
             left_schema_ref = _extract_artifact_id(left_snapshot.get("data_schema_ref"))
             right_schema_ref = _extract_artifact_id(right_snapshot.get("data_schema_ref"))
-            if all(isinstance(item, str) for item in (left_data_ref, right_data_ref, left_schema_ref, right_schema_ref)):
+            if all(
+                isinstance(item, str)
+                for item in (
+                    left_data_ref,
+                    right_data_ref,
+                    left_schema_ref,
+                    right_schema_ref,
+                )
+            ):
                 try:
                     left_schema = self._load_model(left_schema_ref, DataSchema)
                     right_schema = self._load_model(right_schema_ref, DataSchema)
@@ -510,13 +609,23 @@ class DecisionFeedbackService:
                         self._store,
                         semantic_diff,
                         inputs=[
-                            InputRef(artifact_id=ArtifactID.model_validate(left_data_ref), role="left_data"),
-                            InputRef(artifact_id=ArtifactID.model_validate(right_data_ref), role="right_data"),
+                            InputRef(
+                                artifact_id=ArtifactID.model_validate(left_data_ref),
+                                role="left_data",
+                            ),
+                            InputRef(
+                                artifact_id=ArtifactID.model_validate(right_data_ref),
+                                role="right_data",
+                            ),
                         ],
                     )
                     details["semantic_diff"] = semantic_diff.model_dump(mode="json")
                     details["semantic_diff_ref"] = str(diff_ref.artifact_id)
-                    changed = changed or semantic_diff.summary.material_revision or semantic_diff.summary.schema_only
+                    changed = (
+                        changed
+                        or semantic_diff.summary.material_revision
+                        or semantic_diff.summary.schema_only
+                    )
                 except Exception as exc:
                     details["semantic_diff_error"] = str(exc)
         return CompareDeltaSection(
@@ -525,7 +634,10 @@ class DecisionFeedbackService:
                 "left_data_snapshot_ref": _as_str(left_snapshot_ref),
                 "right_data_snapshot_ref": _as_str(right_snapshot_ref),
             },
-            summary={"left_data_snapshot_ref": left_snapshot_ref, "right_data_snapshot_ref": right_snapshot_ref},
+            summary={
+                "left_data_snapshot_ref": left_snapshot_ref,
+                "right_data_snapshot_ref": right_snapshot_ref,
+            },
             details=details,
         )
 
@@ -572,17 +684,31 @@ class DecisionFeedbackService:
             right_value = _path_get(right_packet_payload, (section, field_name))
             details[field_name] = {"left": left_value, "right": right_value}
             changed = changed or left_value != right_value
-        left_feedback = left_packet_payload.get("feedback_loop") if isinstance(left_packet_payload.get("feedback_loop"), Mapping) else {}
-        right_feedback = right_packet_payload.get("feedback_loop") if isinstance(right_packet_payload.get("feedback_loop"), Mapping) else {}
+        left_feedback = (
+            left_packet_payload.get("feedback_loop")
+            if isinstance(left_packet_payload.get("feedback_loop"), Mapping)
+            else {}
+        )
+        right_feedback = (
+            right_packet_payload.get("feedback_loop")
+            if isinstance(right_packet_payload.get("feedback_loop"), Mapping)
+            else {}
+        )
         model_posture = {
             "left_backtest_mode_effective": left_feedback.get("backtest_mode_effective"),
             "right_backtest_mode_effective": right_feedback.get("backtest_mode_effective"),
-            "left_backtest_trust_eligible": left_feedback.get("backtest_trust_eligible"),
-            "right_backtest_trust_eligible": right_feedback.get("backtest_trust_eligible"),
+            "left_backtest_trust_eligible": left_feedback.get(
+                "backtest_trust_eligible"
+            ),
+            "right_backtest_trust_eligible": right_feedback.get(
+                "backtest_trust_eligible"
+            ),
         }
         changed = changed or (
-            model_posture["left_backtest_mode_effective"] != model_posture["right_backtest_mode_effective"]
-            or model_posture["left_backtest_trust_eligible"] != model_posture["right_backtest_trust_eligible"]
+            model_posture["left_backtest_mode_effective"]
+            != model_posture["right_backtest_mode_effective"]
+            or model_posture["left_backtest_trust_eligible"]
+            != model_posture["right_backtest_trust_eligible"]
         )
         return CompareDeltaSection(
             changed=changed,
@@ -597,10 +723,24 @@ class DecisionFeedbackService:
         left_packet_payload: Mapping[str, Any],
         right_packet_payload: Mapping[str, Any],
     ) -> CompareDeltaSection:
-        left_governance = left_packet_payload.get("governance") if isinstance(left_packet_payload.get("governance"), Mapping) else {}
-        right_governance = right_packet_payload.get("governance") if isinstance(right_packet_payload.get("governance"), Mapping) else {}
-        left_validity = self._decision_validity.get_summary(left_packet_ref, packet_payload=dict(left_packet_payload))
-        right_validity = self._decision_validity.get_summary(right_packet_ref, packet_payload=dict(right_packet_payload))
+        left_governance = (
+            left_packet_payload.get("governance")
+            if isinstance(left_packet_payload.get("governance"), Mapping)
+            else {}
+        )
+        right_governance = (
+            right_packet_payload.get("governance")
+            if isinstance(right_packet_payload.get("governance"), Mapping)
+            else {}
+        )
+        left_validity = self._decision_validity.get_summary(
+            left_packet_ref,
+            packet_payload=dict(left_packet_payload),
+        )
+        right_validity = self._decision_validity.get_summary(
+            right_packet_ref,
+            packet_payload=dict(right_packet_payload),
+        )
         changed = (
             left_governance.get("verdict") != right_governance.get("verdict")
             or left_validity.get("status") != right_validity.get("status")
@@ -622,8 +762,16 @@ class DecisionFeedbackService:
         right_packet_payload: Mapping[str, Any],
         monitoring_report: DecisionMonitoringReport | None,
     ) -> CompareDeltaSection:
-        left_results = left_packet_payload.get("simulation_results") if isinstance(left_packet_payload.get("simulation_results"), Mapping) else {}
-        right_results = right_packet_payload.get("simulation_results") if isinstance(right_packet_payload.get("simulation_results"), Mapping) else {}
+        left_results = (
+            left_packet_payload.get("simulation_results")
+            if isinstance(left_packet_payload.get("simulation_results"), Mapping)
+            else {}
+        )
+        right_results = (
+            right_packet_payload.get("simulation_results")
+            if isinstance(right_packet_payload.get("simulation_results"), Mapping)
+            else {}
+        )
         keys = sorted(set(left_results) | set(right_results))
         deltas: dict[str, dict[str, Any]] = {}
         changed = False
@@ -660,7 +808,7 @@ class DecisionFeedbackService:
 
     def _put_model(
         self,
-        model: Any,
+        model: object,
         *,
         kind: str,
         schema_name: str,
@@ -669,7 +817,7 @@ class DecisionFeedbackService:
     ):
         return self._store.put_json(
             model,
-            PutOptions(
+            ArtifactWriteOptions(
                 kind=kind,
                 media_type="application/json",
                 schema=SchemaInfo(name=schema_name, version=schema_version),
@@ -678,166 +826,11 @@ class DecisionFeedbackService:
             canon_spec=CanonSpec(forbid_floats=False),
         )
 
-    def _load_json(self, ref: str) -> Any:
+    def _load_json(self, ref: str) -> object:
         return from_canonical_bytes(self._store.get_bytes(ArtifactID.model_validate(ref)))
 
     def _load_model(self, ref: str, model_cls):
         return model_cls.model_validate(self._load_json(ref))
-
-
-def _aggregate_monitoring_verdict(
-    metrics: Sequence[MonitoringMetricResult],
-    *,
-    degraded: bool,
-) -> MonitoringVerdict:
-    verdicts = {item.verdict for item in metrics}
-    if MonitoringVerdict.REFUTED in verdicts:
-        return MonitoringVerdict.REFUTED
-    if degraded:
-        return MonitoringVerdict.DEGRADED
-    if verdicts == {MonitoringVerdict.CONFIRMED} and verdicts:
-        return MonitoringVerdict.CONFIRMED
-    if verdicts == {MonitoringVerdict.INSUFFICIENT_DATA} and verdicts:
-        return MonitoringVerdict.INSUFFICIENT_DATA
-    if MonitoringVerdict.INCONCLUSIVE in verdicts:
-        return MonitoringVerdict.INCONCLUSIVE
-    return MonitoringVerdict.PENDING
-
-
-def _extract_metric_observation(payload: Any, metric_name: str) -> tuple[float | None, int]:
-    if isinstance(payload, Mapping):
-        direct = payload.get(metric_name)
-        numeric = _extract_numeric_value(direct)
-        if numeric is not None:
-            return numeric
-        values = payload.get("values")
-        if isinstance(values, Mapping):
-            numeric = _extract_numeric_value(values.get(metric_name))
-            if numeric is not None:
-                return numeric
-        rows = payload.get("rows")
-        if isinstance(rows, Sequence):
-            return _extract_metric_observation(rows, metric_name)
-    if isinstance(payload, Sequence) and not isinstance(payload, (str, bytes, bytearray)):
-        numeric_values: list[float] = []
-        for item in payload:
-            if isinstance(item, Mapping):
-                value = _as_float(item.get(metric_name))
-                if value is not None:
-                    numeric_values.append(value)
-        if numeric_values:
-            return numeric_values[-1], len(numeric_values)
-    return None, 0
-
-
-def _extract_numeric_value(value: Any) -> tuple[float | None, int] | None:
-    scalar = _as_float(value)
-    if scalar is not None:
-        return scalar, 1
-    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
-        numeric_values = [_as_float(item) for item in value]
-        finite_values = [item for item in numeric_values if item is not None]
-        if finite_values:
-            return finite_values[-1], len(finite_values)
-    return None
-
-
-def _extract_feedback_ref(packet_payload: Mapping[str, Any], key: str) -> str | None:
-    feedback_loop = packet_payload.get("feedback_loop")
-    if not isinstance(feedback_loop, Mapping):
-        return None
-    return _extract_artifact_id(feedback_loop.get(key))
-
-
-def _extract_artifact_id(value: Any) -> str | None:
-    if isinstance(value, str) and value.strip():
-        return value
-    if isinstance(value, Mapping):
-        artifact_id = value.get("artifact_id")
-        if isinstance(artifact_id, str) and artifact_id.strip():
-            return artifact_id
-    return None
-
-
-def _extract_rows(payload: Any) -> list[Mapping[str, Any]]:
-    if isinstance(payload, Sequence) and not isinstance(payload, (str, bytes, bytearray)):
-        return [item for item in payload if isinstance(item, Mapping)]
-    if isinstance(payload, Mapping):
-        rows = payload.get("rows")
-        if isinstance(rows, Sequence):
-            return [item for item in rows if isinstance(item, Mapping)]
-    return []
-
-
-def _extract_revised_metric_ids(compare_report: DecisionCompareReport) -> list[str]:
-    data_delta = compare_report.deltas.get("data")
-    if data_delta is None:
-        return []
-    semantic_diff = data_delta.details.get("semantic_diff")
-    if not isinstance(semantic_diff, Mapping):
-        return []
-    changes = semantic_diff.get("changes")
-    if not isinstance(changes, list):
-        return []
-    metric_ids: list[str] = []
-    for change in changes:
-        if not isinstance(change, Mapping):
-            continue
-        field_deltas = change.get("field_deltas")
-        if not isinstance(field_deltas, Mapping):
-            continue
-        for field_name in field_deltas:
-            if field_name not in metric_ids:
-                metric_ids.append(str(field_name))
-    return metric_ids
-
-
-def _within_range(value: float, range_: MonitoringRange) -> bool:
-    if range_.lower is not None and value < range_.lower:
-        return False
-    if range_.upper is not None and value > range_.upper:
-        return False
-    return True
-
-
-def _outside_range(value: float, range_: MonitoringRange) -> bool:
-    if range_.lower is not None and value < range_.lower:
-        return True
-    if range_.upper is not None and value > range_.upper:
-        return True
-    return False
-
-
-def _path_get(payload: Mapping[str, Any], path: Sequence[str]) -> Any:
-    current: Any = payload
-    for key in path:
-        if not isinstance(current, Mapping):
-            return None
-        current = current.get(key)
-    return current
-
-
-def _as_float(value: Any) -> float | None:
-    if isinstance(value, bool) or value is None:
-        return None
-    if isinstance(value, (int, float)):
-        return float(value)
-    if isinstance(value, str):
-        try:
-            return float(value)
-        except ValueError:
-            return None
-    return None
-
-
-def _as_str(value: Any) -> str | None:
-    return value if isinstance(value, str) else None
-
-
-def _as_bool_or_none(value: Any) -> bool | None:
-    if isinstance(value, bool):
-        return value
-    return None
 
 
 __all__ = [

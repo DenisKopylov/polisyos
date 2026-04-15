@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from polisyos.core.canon import truncated_hash
@@ -120,10 +120,13 @@ class MockDrafterAgent:
             interventions=interventions,
             rationale=rationale,
             domain_references=self._get_domain_references(problem_frame.domain),
+            citations=_context_citations(problem_frame),
+            claim_supports=_context_claim_supports(problem_frame),
+            grounding_notes=_context_grounding_notes(problem_frame),
             confidence=min(0.95, confidence),
             alternatives_considered=self._get_alternatives(problem_frame),
             raw_llm_response=None,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
     def _generate_interventions(self, problem_frame: ProblemFrame) -> list[dict[str, Any]]:
@@ -294,7 +297,7 @@ class MockDrafterAgent:
             confidence=min(0.95, draft.confidence + 0.05),
             alternatives_considered=draft.alternatives_considered,
             raw_llm_response=None,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
     @property
@@ -361,6 +364,9 @@ PRIOR DRAFTS:
 DATA CONTEXT:
 {json.dumps(data_context or {}, indent=2)}
 
+WEB EVIDENCE:
+{_web_evidence_prompt_block(problem_frame)}
+
 Generate a draft JSON object.
 """
 
@@ -379,10 +385,18 @@ Generate a draft JSON object.
                 narrative=data.get("narrative", ""),
                 interventions=data.get("interventions", []),
                 rationale=data.get("rationale", ""),
+                domain_references=(
+                    list(data.get("domain_references", []))
+                    if isinstance(data.get("domain_references"), list)
+                    else []
+                ),
+                citations=_context_citations(problem_frame),
+                claim_supports=_context_claim_supports(problem_frame),
+                grounding_notes=_context_grounding_notes(problem_frame),
                 alternatives_considered=data.get("alternatives_considered", []),
                 confidence=float(data.get("confidence", 0.6)),
                 raw_llm_response=content,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
         except (json.JSONDecodeError, TypeError, ValueError):
             fallback = MockDrafterAgent()
@@ -410,10 +424,13 @@ Generate a draft JSON object.
             interventions=draft.interventions,
             rationale=f"{draft.rationale} [Refined based on critique]",
             domain_references=draft.domain_references,
+            citations=list(draft.citations),
+            claim_supports=list(draft.claim_supports),
+            grounding_notes=list(draft.grounding_notes),
             confidence=min(0.95, draft.confidence + 0.05),
             alternatives_considered=draft.alternatives_considered,
             raw_llm_response=draft.raw_llm_response,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
     @staticmethod
@@ -425,6 +442,74 @@ Generate a draft JSON object.
         if not isinstance(value, str):
             return ""
         return value.strip()
+
+
+def _web_evidence_prompt_block(problem_frame: ProblemFrame) -> str:
+    context = getattr(problem_frame, "context", None)
+    if not isinstance(context, dict):
+        return "{}"
+    if isinstance(context.get("web_evidence_context"), str) and context["web_evidence_context"].strip():
+        return context["web_evidence_context"]
+    payload = context.get("web_evidence")
+    if isinstance(payload, dict) and payload:
+        return json.dumps(payload, indent=2, default=str)
+    return "{}"
+
+
+def _context_citations(problem_frame: ProblemFrame) -> list[dict[str, Any]]:
+    context = getattr(problem_frame, "context", None)
+    if not isinstance(context, dict):
+        return []
+    payload = context.get("web_evidence")
+    if not isinstance(payload, dict):
+        return []
+    snippets = payload.get("snippets")
+    if not isinstance(snippets, list):
+        return []
+    citations: list[dict[str, Any]] = []
+    for item in snippets[:12]:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "")
+        text = str(item.get("text") or "")
+        if not url or not text:
+            continue
+        citations.append(
+            {
+                "url": url,
+                "source_id": str(item.get("source_id") or ""),
+                "snippet": text,
+                "start_char": item.get("start_char"),
+                "end_char": item.get("end_char"),
+            }
+        )
+    return citations
+
+
+def _context_claim_supports(problem_frame: ProblemFrame) -> list[dict[str, Any]]:
+    context = getattr(problem_frame, "context", None)
+    if not isinstance(context, dict):
+        return []
+    payload = context.get("web_evidence")
+    if not isinstance(payload, dict):
+        return []
+    supports = payload.get("claim_supports")
+    if not isinstance(supports, list):
+        return []
+    return [dict(item) for item in supports if isinstance(item, dict)][:12]
+
+
+def _context_grounding_notes(problem_frame: ProblemFrame) -> list[str]:
+    context = getattr(problem_frame, "context", None)
+    if not isinstance(context, dict):
+        return []
+    payload = context.get("web_evidence")
+    if not isinstance(payload, dict):
+        return []
+    notes = payload.get("uncertainty_notes")
+    if not isinstance(notes, list):
+        return []
+    return [str(item) for item in notes[:12] if str(item).strip()]
 
 
 __all__ = ["LLMDrafterAgent", "MockDrafterAgent", "MockLLM"]

@@ -2,12 +2,11 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.exceptions import CrossTenantAccessError, TenantIsolationError
-from polisyos.core.security.registry import CellRegistry
 from polisyos.core.security.router import (
     TENANT_HEADER,
     MissingTenantHeaderError,
@@ -20,38 +19,61 @@ from polisyos.core.security.tenant_context import (
     tenant_scope,
 )
 from polisyos.runtime.http.errors import problem_response
+from polisyos.runtime.http.security import clear_request_auth_context
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from starlette.requests import Request as _Request
+    from starlette.responses import JSONResponse as _JSONResponse
+    from starlette.responses import Response as _Response
+    from starlette.types import ASGIApp as _ASGIApp
+
+    from polisyos.core.observability import MetricsRegistry
+    from polisyos.core.security.registry import CellRegistry
+
+    class _BaseHTTPMiddleware:
+        def __init__(self, app: _ASGIApp) -> None: ...
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
+        from starlette.requests import Request as _Request
+        from starlette.responses import JSONResponse as _JSONResponse
+        from starlette.responses import Response as _Response
+        from starlette.types import ASGIApp as _ASGIApp
+    except ModuleNotFoundError:  # pragma: no cover
+        _BaseHTTPMiddleware = object
+        _Request = Any
+        _Response = Any
+        _JSONResponse = None
+        _ASGIApp = Any
 
 logger = get_logger("polisyos.security")
 
 
-try:  # pragma: no cover - optional runtime dependency
-    from starlette.middleware.base import BaseHTTPMiddleware
-    from starlette.requests import Request
-    from starlette.responses import JSONResponse, Response
-except ModuleNotFoundError:  # pragma: no cover
-    BaseHTTPMiddleware = object  # type: ignore[assignment]
-    Request = Any  # type: ignore[assignment]
-    Response = Any  # type: ignore[assignment]
-    JSONResponse = None  # type: ignore[assignment]
-
-
-class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
+class CellRouterMiddleware(_BaseHTTPMiddleware):
     """Route requests into tenant contexts and emit routing telemetry."""
 
     def __init__(
         self,
-        app: Any,
+        app: _ASGIApp,
         *,
         registry: CellRegistry,
         tenant_header: str = TENANT_HEADER,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
-        if JSONResponse is None:
+        if _JSONResponse is None:
             raise RuntimeError("CellRouterMiddleware requires starlette/fastapi dependencies")
         super().__init__(app)
         self._registry = registry
         self._tenant_header = tenant_header
+        self._metrics = metrics or get_metrics()
 
-    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
+    async def dispatch(
+        self,
+        request: _Request,
+        call_next: Callable[[_Request], Awaitable[_Response]],
+    ) -> _Response:
         path = str(getattr(request.url, "path", ""))
         if path in {"/health", "/ready", "/metrics"}:
             return await call_next(request)
@@ -69,7 +91,8 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
             and header_tenant_id
             and header_tenant_id != authenticated_tenant_id
         ):
-            _record_failure("tenant_binding_mismatch")
+            self._record_failure("tenant_binding_mismatch")
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=403,
                 code="tenant_binding_mismatch",
@@ -96,7 +119,8 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 tenant_header=self._tenant_header,
             )
         except MissingTenantHeaderError as exc:
-            _record_failure("missing_tenant_header")
+            self._record_failure("missing_tenant_header")
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
                 code="missing_tenant_id",
@@ -106,7 +130,8 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 error="missing_tenant_id",
             )
         except TenantRoutingError as exc:
-            _record_failure("tenant_not_found")
+            self._record_failure("tenant_not_found")
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=403,
                 code="tenant_not_found",
@@ -122,7 +147,8 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
 
         token_claim_cell = getattr(claims, "cell_id", None) if claims is not None else None
         if token_claim_cell and token_claim_cell != routing.cell_id:
-            _record_failure("cell_binding_mismatch")
+            self._record_failure("cell_binding_mismatch")
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=403,
                 code="cell_binding_mismatch",
@@ -143,7 +169,8 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
             with tenant_scope(None, tenant_id=routing.tenant_id, cell_id=routing.cell_id):
                 response = await call_next(request)
         except CrossTenantAccessError as exc:
-            _record_security_incident(routing.cell_slug, str(exc))
+            self._record_security_incident(routing.cell_slug, str(exc))
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=403,
                 code="cross_tenant_access",
@@ -154,6 +181,7 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
             )
         except TenantIsolationError as exc:
             logger.exception("Tenant isolation error")
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=500,
                 code="tenant_isolation_error",
@@ -167,7 +195,7 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 reset_current_access_scope(scope_token)
 
         duration_seconds = time.perf_counter() - start
-        _record_success(
+        self._record_success(
             cell_id=routing.cell_slug,
             tier=routing.cell_tier,
             status_code=getattr(response, "status_code", 500),
@@ -178,29 +206,35 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         response.headers["X-Cell-Tier"] = routing.cell_tier
         return response
 
+    def _record_success(
+        self,
+        *,
+        cell_id: str,
+        tier: str,
+        status_code: int,
+        duration_seconds: float,
+    ) -> None:
+        self._metrics.record_cell_router_request(
+            cell_id=cell_id,
+            tier=tier,
+            status=str(status_code),
+        )
+        self._metrics.record_cell_router_latency(
+            cell_id=cell_id,
+            duration_seconds=duration_seconds,
+        )
 
-def _record_success(*, cell_id: str, tier: str, status_code: int, duration_seconds: float) -> None:
-    metrics = get_metrics()
-    metrics.record_cell_router_request(
-        cell_id=cell_id,
-        tier=tier,
-        status=str(status_code),
-    )
-    metrics.record_cell_router_latency(cell_id=cell_id, duration_seconds=duration_seconds)
+    def _record_failure(self, reason: str) -> None:
+        self._metrics.record_cell_router_failure(reason=reason)
 
+    def _record_security_incident(self, cell_id: str, detail: str) -> None:
+        logger.critical(
+            "SECURITY_INCIDENT cross_tenant_access",
+            extra={"cell_id": cell_id, "detail": detail},
+        )
+        self._metrics.record_security_incident(
+            incident_type="cross_tenant_access",
+            cell_id=cell_id,
+        )
 
-def _record_failure(reason: str) -> None:
-    metrics = get_metrics()
-    metrics.record_cell_router_failure(reason=reason)
-
-
-def _record_security_incident(cell_id: str, detail: str) -> None:
-    logger.critical(
-        "SECURITY_INCIDENT cross_tenant_access",
-        extra={"cell_id": cell_id, "detail": detail},
-    )
-    metrics = get_metrics()
-    metrics.record_security_incident(incident_type="cross_tenant_access", cell_id=cell_id)
-
-
-__all__ = ["CellRouterMiddleware", "TENANT_HEADER"]
+__all__ = ["TENANT_HEADER", "CellRouterMiddleware"]

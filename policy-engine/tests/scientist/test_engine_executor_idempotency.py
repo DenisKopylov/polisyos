@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -12,8 +13,6 @@ from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
-from polisyos.core.artifacts.store import FileSystemCAS
-
 
 _CACHED_METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_cached_counter@1.0.0"),
@@ -43,6 +42,21 @@ _FAIL_METADATA = ComponentMetadata(
 
 _FAIL_SPEC = NodeSpec(metadata=_FAIL_METADATA)
 
+_MUTATING_FAIL_METADATA = ComponentMetadata(
+    component_id=ComponentId.parse("scientist.node_mutating_fail@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
+    display_name="Mutating Fail",
+    description="Test fail node that mutates before failing",
+    tags=["test"],
+    capabilities=Capability.SCIENTIST_NODE,
+)
+
+_MUTATING_FAIL_SPEC = NodeSpec(
+    metadata=_MUTATING_FAIL_METADATA,
+    state_writes=["params.leaked"],
+)
+
 
 class CachedCounterNode:
     calls = 0
@@ -67,6 +81,20 @@ class AlwaysFailNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         AlwaysFailNode.calls += 1
+        return NodeOutcome(
+            status="fail",
+            state=state,
+            error=NodeError(code="node.fail", message="expected failure"),
+        )
+
+
+class MutatingFailNode:
+    @property
+    def spec(self) -> NodeSpec:
+        return _MUTATING_FAIL_SPEC
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        state.params["leaked"] = True
         return NodeOutcome(
             status="fail",
             state=state,
@@ -159,6 +187,33 @@ def test_executor_resume_retries_failed_node_and_reuses_cached_ok_node(tmp_path)
     failing_record = next(rec for rec in result_b.report.nodes if rec.alias == "failing")
     assert cached_record.status == "ok"
     assert failing_record.status == "fail"
-
     events = _load_trace_events(store, ctx_b)
     assert any(evt.get("event") == "NODE_CACHE_HIT" for evt in events)
+
+
+def test_executor_failed_node_state_is_not_committed(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_failed_state_rollback"
+    bundle = build_default_registry_bundle(store)
+    run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("rollback_test"))
+    registry = NodeRegistry()
+    registry.register(MutatingFailNode())
+    workflow = WorkflowSpec(
+        workflow_id="failed_state_rollback",
+        error_policy="continue",
+        nodes=[
+            NodeInvocation(
+                alias="mutating_fail",
+                node_id=ComponentId.parse("scientist.node_mutating_fail@1.0.0"),
+            ),
+        ],
+    )
+
+    result = WorkflowExecutor(ctx, registry).execute(
+        workflow,
+        ExperimentState(run_id=run_id, params={"baseline": True}),
+    )
+
+    assert result.report.status == "fail"
+    assert result.state.params == {"baseline": True}

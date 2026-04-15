@@ -332,6 +332,44 @@ class TestResolveBindingRules:
 
 
 class TestPersistBindingRulesArtifact:
+    def test_persist_uses_protocol_owned_store_contract(self):
+        captured: dict[str, object] = {}
+
+        class FakeStore:
+            def put_json(self, obj, opts, canon_spec=None):
+                captured["payload"] = obj
+                captured["opts"] = opts
+                captured["canon_spec"] = canon_spec
+
+                class _Ref:
+                    artifact_id = "sha256:" + ("0" * 64)
+
+                return _Ref()
+
+        profile = BindingProfile(
+            profile_id="test_protocol_store",
+            display_name="Protocol Store",
+            schema_family="timeseries",
+        )
+
+        ref = persist_binding_rules_artifact(
+            FakeStore(),
+            profile,
+            data_snapshot_ref="snap_protocol",
+        )
+
+        assert ref.artifact_id == "sha256:" + ("0" * 64)
+        assert captured["payload"] == {
+            "profile_id": "test_protocol_store",
+            "schema_family": "timeseries",
+            "strategy": "auto",
+            "rules": [],
+            "expected_columns": [],
+            "data_snapshot_ref": "snap_protocol",
+        }
+        assert captured["opts"].kind == "fabric.binding_rules"
+        assert captured["opts"].schema.name == "polisyos.fabric.BindingRules"
+
     def test_persist_roundtrip(self, tmp_path: Path):
         from polisyos.core.artifacts.store import FileSystemCAS
         from polisyos.core.canon import from_canonical_bytes

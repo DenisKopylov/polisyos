@@ -504,8 +504,14 @@ def _apply_transform(*, op: str, value: Any, params: dict[str, Any]) -> Any:
     if op == "identity":
         return value
     if op == "to_bool":
+        fast = _apply_array_fast_path(op=op, value=value, params=params)
+        if fast is not _MISSING:
+            return fast
         return _map_values(value, _to_bool)
     if op == "to_int":
+        fast = _apply_array_fast_path(op=op, value=value, params=params)
+        if fast is not _MISSING:
+            return fast
         return _map_values(value, _to_int)
     if op == "to_decimal":
         return _map_values(value, _to_decimal)
@@ -521,11 +527,17 @@ def _apply_transform(*, op: str, value: Any, params: dict[str, Any]) -> Any:
     if op == "clip":
         lower = params.get("min")
         upper = params.get("max")
+        fast = _apply_array_fast_path(op=op, value=value, params=params)
+        if fast is not _MISSING:
+            return fast
         return _map_values(
             value,
             lambda item: _clip_decimal(item, lower=lower, upper=upper),
         )
     if op == "round":
+        fast = _apply_array_fast_path(op=op, value=value, params=params)
+        if fast is not _MISSING:
+            return fast
         digits = int(params.get("digits", 6))
         quant = Decimal(10) ** Decimal(-digits)
         return _map_values(value, lambda item: _to_decimal(item).quantize(quant))
@@ -536,10 +548,62 @@ def _map_values(value: Any, fn) -> Any:  # noqa: ANN001
     if isinstance(value, (list, tuple)):
         return [fn(item) for item in value]
     if isinstance(value, np.ndarray):
-        return [fn(item) for item in value.tolist()]
+        return _map_array_values(value, fn)
     if isinstance(value, jnp.ndarray):
-        return [fn(item) for item in np.asarray(value).tolist()]
+        return _map_array_values(np.asarray(value), fn)
     return fn(value)
+
+
+def _map_array_values(value: np.ndarray, fn) -> Any:  # noqa: ANN001
+    flat = [fn(item) for item in value.flat]
+    if value.ndim == 0:
+        return flat[0]
+    reshaped = np.asarray(flat, dtype=object).reshape(value.shape)
+    return _object_array_to_nested_list(reshaped)
+
+
+def _object_array_to_nested_list(value: np.ndarray) -> Any:
+    if value.ndim == 0:
+        return value.reshape(()).item()
+    if value.ndim == 1:
+        return [item.item() if isinstance(item, np.generic) else item for item in value]
+    return [_object_array_to_nested_list(row) for row in value]
+
+
+def _apply_array_fast_path(*, op: str, value: Any, params: dict[str, Any]) -> Any:
+    array = _as_vectorizable_array(value)
+    if array is None:
+        return _MISSING
+    is_numpy, arr = array
+
+    if op == "to_bool":
+        return arr.astype(bool)
+    if op == "to_int":
+        return arr.astype(jnp.int32 if not is_numpy else np.int32)
+    if op == "clip":
+        lower = params.get("min")
+        upper = params.get("max")
+        clip_fn = np.clip if is_numpy else jnp.clip
+        lower_value = None if lower is None else float(_to_decimal(lower))
+        upper_value = None if upper is None else float(_to_decimal(upper))
+        return clip_fn(arr, lower_value, upper_value)
+    if op == "round":
+        round_fn = np.round if is_numpy else jnp.round
+        digits = int(params.get("digits", 6))
+        return round_fn(arr, decimals=digits)
+    return _MISSING
+
+
+def _as_vectorizable_array(value: Any) -> tuple[bool, Any] | None:
+    if isinstance(value, np.ndarray):
+        if value.dtype == object:
+            return None
+        return True, value
+    if isinstance(value, jnp.ndarray):
+        if getattr(value, "dtype", None) is None:
+            return None
+        return False, value
+    return None
 
 
 def _clip_decimal(value: Any, *, lower: Any, upper: Any) -> Decimal:

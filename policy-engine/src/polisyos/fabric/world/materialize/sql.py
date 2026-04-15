@@ -128,7 +128,7 @@ def sql_kind_conflicts(touched_table: str) -> str:
     WHERE predicate_id = '{WORLD_KIND}'
       AND subject_id IN (SELECT node_id FROM {touched_table})
     GROUP BY subject_id
-    HAVING COUNT(DISTINCT object_value) > 1
+    HAVING COUNT(DISTINCT CASE WHEN object_value IS NOT NULL THEN object_value END) > 1
     """
 
 
@@ -142,7 +142,10 @@ def _sql_ranked_value(predicate_id: str, alias: str, touched_table: str) -> str:
                 object_value,
                 ROW_NUMBER() OVER (
                     PARTITION BY subject_id
-                    ORDER BY (object_value IS NULL), tx_time DESC
+                    ORDER BY
+                        CASE WHEN object_value IS NULL THEN 1 ELSE 0 END ASC,
+                        tx_time DESC,
+                        fact_id DESC
                 ) AS rn
             FROM world.world_facts
             WHERE predicate_id = '{predicate_id}'
@@ -155,26 +158,21 @@ def _sql_ranked_value(predicate_id: str, alias: str, touched_table: str) -> str:
 
 def sql_update_world_nodes(touched_table: str) -> str:
     """Sql update world nodes helper."""
+    kind_cte = _sql_ranked_value(WORLD_KIND, "kind_choice", touched_table)
     label_cte = _sql_ranked_value(WORLD_LABEL, "label_choice", touched_table)
     artifact_cte = _sql_ranked_value(WORLD_ARTIFACT_ID, "artifact_choice", touched_table)
     props_cte = _sql_ranked_value(WORLD_PROPS_REF, "props_choice", touched_table)
     return f"""
     WITH
     touched AS (SELECT DISTINCT node_id FROM {touched_table}),
-    kind_choice AS (
-        SELECT subject_id, MAX(object_value) AS kind
-        FROM world.world_facts
-        WHERE predicate_id = '{WORLD_KIND}'
-          AND subject_id IN (SELECT node_id FROM touched)
-        GROUP BY subject_id
-    ),
+    {kind_cte},
     {label_cte},
     {artifact_cte},
     {props_cte}
     UPDATE world.world_nodes AS n
     SET
         kind = COALESCE(
-            (SELECT k.kind FROM kind_choice k WHERE k.subject_id = n.node_id),
+            (SELECT k.kind_choice_value FROM kind_choice k WHERE k.subject_id = n.node_id),
             n.kind
         ),
         label = (

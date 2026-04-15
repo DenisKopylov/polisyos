@@ -7,8 +7,9 @@ PolisyOS находится в [`policy-engine/`](./policy-engine/).
 
 1. Перейдите в [`policy-engine/`](./policy-engine/).
 2. Откройте [`policy-engine/README.md`](./policy-engine/README.md).
-3. Для contributor setup используйте `./scripts/bootstrap`, `./scripts/doctor`,
-   `./scripts/verify` из `policy-engine/`.
+3. Для contributor setup используйте `python3 -m tools.cli workspace bootstrap`,
+   `python3 -m tools.cli workspace doctor`,
+   `python3 -m tools.cli workspace verify` из `policy-engine/`.
 
 ## Canonical Product Root
 

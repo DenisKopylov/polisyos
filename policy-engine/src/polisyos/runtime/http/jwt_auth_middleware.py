@@ -3,31 +3,47 @@ from __future__ import annotations
 
 import contextvars
 import os
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.exceptions import MFARequiredError, TokenValidationError
-from polisyos.core.security.identity import SPIFFEIdentityProvider, UserIdentityClaims
 from polisyos.core.security.tenant_context import (
     reset_current_access_scope,
     set_current_access_scope,
 )
 from polisyos.runtime.http.errors import problem_response
+from polisyos.runtime.http.security import clear_request_auth_context
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from starlette.requests import Request as _Request
+    from starlette.responses import JSONResponse as _JSONResponse
+    from starlette.responses import Response as _Response
+    from starlette.types import ASGIApp as _ASGIApp
+
+    from polisyos.core.observability import MetricsRegistry
+    from polisyos.core.security.identity import SPIFFEIdentityProvider, UserIdentityClaims
+
+    class _BaseHTTPMiddleware:
+        def __init__(self, app: _ASGIApp) -> None: ...
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
+        from starlette.requests import Request as _Request
+        from starlette.responses import JSONResponse as _JSONResponse
+        from starlette.responses import Response as _Response
+        from starlette.types import ASGIApp as _ASGIApp
+    except ModuleNotFoundError:  # pragma: no cover
+        _BaseHTTPMiddleware = object
+        _Request = Any
+        _Response = Any
+        _JSONResponse = None
+        _ASGIApp = Any
 
 logger = get_logger("polisyos.security.jwt")
-
-
-try:  # pragma: no cover - optional runtime dependency
-    from starlette.middleware.base import BaseHTTPMiddleware
-    from starlette.requests import Request
-    from starlette.responses import JSONResponse, Response
-except ModuleNotFoundError:  # pragma: no cover
-    BaseHTTPMiddleware = object  # type: ignore[assignment]
-    Request = Any  # type: ignore[assignment]
-    Response = Any  # type: ignore[assignment]
-    JSONResponse = None  # type: ignore[assignment]
 
 
 _current_user: contextvars.ContextVar[UserIdentityClaims | None] = contextvars.ContextVar(
@@ -43,28 +59,34 @@ def get_current_user() -> UserIdentityClaims | None:
     return _current_user.get()
 
 
-class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
+class JWTAuthMiddleware(_BaseHTTPMiddleware):
     """Validate Bearer JWT and project claims into request/context."""
 
     def __init__(
         self,
-        app: Any,
+        app: _ASGIApp,
         *,
         identity_provider: SPIFFEIdentityProvider,
         tenant_header: str = "X-Tenant-ID",
         public_paths: frozenset[str] = _PUBLIC_PATHS,
         expected_cell_id: str | None = None,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
-        if JSONResponse is None:
+        if _JSONResponse is None:
             raise RuntimeError("JWTAuthMiddleware requires starlette/fastapi dependencies")
         super().__init__(app)
         self._identity_provider = identity_provider
         self._tenant_header = tenant_header
         self._public_paths = public_paths
+        self._metrics = metrics or get_metrics()
         configured_cell_id = os.getenv("POLISYOS_CELL_ID", "").strip()
         self._expected_cell_id = expected_cell_id or configured_cell_id or None
 
-    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
+    async def dispatch(
+        self,
+        request: _Request,
+        call_next: Callable[[_Request], Awaitable[_Response]],
+    ) -> _Response:
         path = str(getattr(request.url, "path", ""))
         if path in self._public_paths:
             return await call_next(request)
@@ -72,6 +94,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
 
         auth_header = request.headers.get("authorization", "")
         if not auth_header.startswith("Bearer "):
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
                 code="missing_bearer_token",
@@ -83,6 +106,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
 
         token = auth_header[7:].strip()
         if not token:
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
                 code="missing_bearer_token",
@@ -98,8 +122,9 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 expected_cell_id=self._expected_cell_id,
             )
         except MFARequiredError as exc:
-            get_metrics().record_identity_failure(reason="mfa_required", provider="keycloak")
+            self._metrics.record_identity_failure(reason="mfa_required", provider="keycloak")
             logger.warning("JWT rejected due to missing MFA: %s", exc)
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=403,
                 code="mfa_required",
@@ -109,8 +134,9 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 error="mfa_required",
             )
         except TokenValidationError as exc:
-            get_metrics().record_identity_failure(reason="invalid_token", provider="keycloak")
+            self._metrics.record_identity_failure(reason="invalid_token", provider="keycloak")
             logger.warning("JWT authentication failed: %s", exc)
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
                 code="invalid_token",
@@ -120,8 +146,9 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 error="invalid_token",
             )
         except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as exc:
-            get_metrics().record_identity_failure(reason="identity_error", provider="keycloak")
+            self._metrics.record_identity_failure(reason="identity_error", provider="keycloak")
             logger.exception("Unexpected JWT authentication error")
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
                 code="invalid_token",
@@ -133,6 +160,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
 
         header_tenant = request.headers.get(self._tenant_header)
         if header_tenant and header_tenant != claims.tenant_id:
+            clear_request_auth_context(request.state)
             return problem_response(
                 status_code=403,
                 code="tenant_binding_mismatch",
@@ -156,6 +184,5 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         finally:
             _current_user.reset(user_token)
             reset_current_access_scope(scope_token)
-
 
 __all__ = ["JWTAuthMiddleware", "get_current_user"]

@@ -7,9 +7,12 @@ import json
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components._cli_store import build_cli_filesystem_cas
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
 
 __all__ = [
     "_cmd_replay",
@@ -33,7 +36,7 @@ def _cmd_replay(args: Any) -> int:
     packet_ref = normalize_artifact_id(args.packet_ref)
     if args.bundle:
         with tempfile.TemporaryDirectory(prefix="polisyos-replay-") as tmp_dir:
-            store = FileSystemCAS(Path(tmp_dir))
+            store = build_cli_filesystem_cas(Path(tmp_dir))
             import_report = store.import_subgraph(Path(args.bundle), verify_integrity=False)
             return _cmd_replay_with_store(
                 args=args,
@@ -46,7 +49,7 @@ def _cmd_replay(args: Any) -> int:
                 import_report=import_report,
             )
 
-    store = FileSystemCAS(Path(args.cas_root))
+    store = build_cli_filesystem_cas(Path(args.cas_root))
     return _cmd_replay_with_store(
         args=args,
         store=store,
@@ -217,7 +220,7 @@ def _cmd_resume(args: Any) -> int:
     resolve_latest_checkpoint = checkpoint.resolve_latest_checkpoint
     resume_from_checkpoint = checkpoint.resume_from_checkpoint
 
-    cas = FileSystemCAS(Path(args.cas_root))
+    cas = build_cli_filesystem_cas(Path(args.cas_root))
     run_id = str(args.run_id)
     policy = normalize_checkpoint_policy(args.checkpoint_policy)
 

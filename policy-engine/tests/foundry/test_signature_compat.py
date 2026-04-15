@@ -16,7 +16,7 @@ Allow intentional breaking changes (update baseline after review)::
 
 To regenerate the baseline after an approved breaking change::
 
-    python scripts/update_signature_baseline.py
+    uv run polisyos-tools foundry update-signature-baseline
 
 Architecture notes
 ------------------
@@ -111,7 +111,7 @@ class TestSignatureCompat:
         if not _BASELINE_PATH.exists():
             pytest.skip(
                 "No signature baseline found. "
-                "Run scripts/update_signature_baseline.py to generate it."
+                "Run `uv run polisyos-tools foundry update-signature-baseline` to generate it."
             )
 
     def test_no_breaking_changes(self, _baseline, _current_hashes):
@@ -145,7 +145,7 @@ class TestSignatureCompat:
                 f"Breaking signature changes detected ({len(breaking)}):\n\n{detail}\n\n"
                 f"If these changes are intentional:\n"
                 f"  1. Bump the method's major version (e.g. @1.x.x → @2.0.0)\n"
-                f"  2. Run: python scripts/update_signature_baseline.py\n"
+                f"  2. Run: uv run polisyos-tools foundry update-signature-baseline\n"
                 f"  3. Commit the updated baseline\n"
                 f"Or set {_ALLOW_BREAKING_ENV}=1 to bypass this check temporarily."
             )

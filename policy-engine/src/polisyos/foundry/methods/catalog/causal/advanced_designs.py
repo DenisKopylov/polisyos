@@ -161,7 +161,7 @@ class RegressionKinkDesignEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="regression_kink",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -258,7 +258,7 @@ class BunchingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="bunching",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -367,7 +367,7 @@ class MarginalTreatmentEffectEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="marginal_treatment_effect",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -473,7 +473,7 @@ class ShiftShareIVEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="shift_share_iv",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -597,7 +597,7 @@ class DRLearnerEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="dr_learner",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -777,7 +777,7 @@ class RLearnerEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="r_learner",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

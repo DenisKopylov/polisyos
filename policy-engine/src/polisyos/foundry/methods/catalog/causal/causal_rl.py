@@ -135,7 +135,7 @@ class OffPolicyEvaluator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ope",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots()
         | frozenset(
@@ -408,7 +408,7 @@ class CausalBandit:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="causal_bandit",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=frozenset(

@@ -4,39 +4,143 @@ cases:
   - id: moran_i_no_autocorrelation
     method_fqn: "spatial.autocorrelation.moran_i@1.0.0"
     description: "Random values on grid → Moran I near 0"
-    skip_reason: "Requires SpatialData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      coordinates:
+        - [0.0, 0.0]
+        - [0.0, 1.0]
+        - [1.0, 0.0]
+        - [1.0, 1.0]
+        - [2.0, 0.0]
+        - [2.0, 1.0]
+      values: [1.0, -1.0, 0.8, -0.9, 1.1, -1.1]
+      weights_matrix:
+        - [0.0, 1.0, 1.0, 0.0, 0.0, 0.0]
+        - [1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+        - [1.0, 0.0, 0.0, 1.0, 1.0, 0.0]
+        - [0.0, 1.0, 1.0, 0.0, 0.0, 1.0]
+        - [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]
+        - [0.0, 0.0, 0.0, 1.0, 1.0, 0.0]
+    input_params:
+      n_permutations: 0
+    expected_output:
+      result:
+        method_name: "moran_i"
+        statistics:
+          moran_i: 0.04818706806778378
+        metadata:
+          n_permutations: 0
+    tolerances: {rtol: 0.000001, atol: 0.000001}
     tags: [autocorrelation]
 
   - id: gravity_model_simple
     method_fqn: "spatial.flows.gravity_model@1.0.0"
     description: "Gravity model with known masses and distances"
-    skip_reason: "Requires FlowData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      origin_coords:
+        - [0.0, 0.0]
+        - [0.0, 2.0]
+      destination_coords:
+        - [1.0, 0.0]
+        - [1.0, 2.0]
+      origin_mass: [100.0, 150.0]
+      destination_mass: [80.0, 120.0]
+      observed_flows:
+        - [21746.254627672246, 18571.04004330033]
+        - [18571.040043300294, 48929.07291226249]
+    expected_output:
+      result:
+        method_name: "gravity_model"
+        statistics:
+          intercept: 1.0
+          origin_elasticity: 1.0
+          destination_elasticity: 1.0
+          distance_decay: 0.7
+          r_squared: 1.0
+    tolerances: {rtol: 0.000001, atol: 0.000001}
     tags: [flows]
 
   - id: idw_interpolation_exact
     method_fqn: "spatial.interpolation.idw@1.0.0"
     description: "IDW at known point → exact value"
-    skip_reason: "Requires SpatialData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      coordinates:
+        - [0.0, 0.0]
+        - [1.0, 0.0]
+        - [0.0, 1.0]
+      values: [10.0, 20.0, 30.0]
+      prediction_coords:
+        - [0.0, 0.0]
+        - [0.5, 0.5]
+    input_params:
+      power: 2.0
+    expected_output:
+      result:
+        method_name: "idw"
+        fitted_values: [10.0, 20.0]
+        statistics:
+          mean_neighbor_entropy: 0.5493061443626858
+          power: 2.0
+    tolerances: {rtol: 0.000001, atol: 0.000001}
     tags: [interpolation]
 
   - id: gwr_constant_coefficients
     method_fqn: "spatial.regression.gwr@1.0.0"
     description: "GWR on spatially homogeneous data → coefficients match OLS"
-    skip_reason: "Requires SpatialData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      coordinates:
+        - [0.0, 0.0]
+        - [0.0, 1.0]
+        - [1.0, 0.0]
+        - [1.0, 1.0]
+        - [2.0, 0.0]
+        - [2.0, 1.0]
+      features:
+        - [0.0]
+        - [1.0]
+        - [2.0]
+        - [3.0]
+        - [4.0]
+        - [5.0]
+      values: [1.0, 3.0, 5.0, 7.0, 9.0, 11.0]
+      feature_names: ["x"]
+    input_params:
+      bandwidth: 10.0
+    expected_output:
+      result:
+        method_name: "gwr"
+        fitted_values: [1.0, 3.0, 5.0, 7.0, 9.0, 11.0]
+        statistics:
+          rmse: 0.0
+    tolerances: {rtol: 0.000001, atol: 0.000001}
     tags: [regression]
 
   - id: two_step_fca_accessibility
     method_fqn: "spatial.accessibility.two_step_fca@1.0.0"
     description: "Two-step floating catchment area"
-    skip_reason: "Requires AccessibilityData model — deferred to Phase 10b"
-    input_data: {}
-    expected_output: {}
+    input_data:
+      origin_coords:
+        - [0.0, 0.0]
+        - [0.0, 2.0]
+        - [2.0, 0.0]
+      destination_coords:
+        - [0.0, 1.0]
+        - [2.0, 1.0]
+      opportunity_mass: [10.0, 20.0]
+      demand_mass: [5.0, 10.0, 20.0]
+      travel_cost_matrix:
+        - [1.0, 3.0]
+        - [1.0, 3.0]
+        - [3.0, 1.0]
+    input_params:
+      catchment_threshold: 2.0
+      distance_decay: 0.0
+    expected_output:
+      result:
+        method_name: "two_step_fca"
+        scores: [0.6666666666666666, 0.6666666666666666, 1.0]
+        statistics:
+          mean_accessibility: 0.7777777777777777
+          max_accessibility: 1.0
+          covered_origins_share: 1.0
+    tolerances: {rtol: 0.000001, atol: 0.000001}
     tags: [accessibility]

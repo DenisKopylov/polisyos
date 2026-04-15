@@ -1,6 +1,8 @@
 """Tests for the PolicyOSTracer singleton and core tracing behaviors."""
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
+
 import pytest
 from opentelemetry.sdk.trace.sampling import ALWAYS_OFF, ALWAYS_ON, Decision
 from opentelemetry.trace import SpanKind
@@ -141,3 +143,8 @@ class TestSamplerBehavior:
             links=[],
         )
         assert result.decision is Decision.RECORD_AND_SAMPLE
+
+    def test_get_tracer_is_thread_safe_singleton(self, reset_singleton):
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            instances = list(pool.map(lambda _: get_tracer(), range(32)))
+        assert len({id(instance) for instance in instances}) == 1

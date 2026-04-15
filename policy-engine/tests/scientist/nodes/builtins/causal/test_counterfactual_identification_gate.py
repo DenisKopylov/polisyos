@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from unittest.mock import patch
+
+import pytest
+
 from polisyos.ir.observation.causal_readiness import (
     CausalReadinessBundle,
     CounterfactualCheckEntry,
@@ -67,3 +71,21 @@ def test_counterfactual_gate_blocks_when_query_not_identified(
     assert outcome.state.params["counterfactual_gate_blocked"] is True
     assert outcome.state.params["counterfactual_gate_summary"]["query_id"] == "cf_blocked"
     assert outcome.state.params["counterfactual_gate_summary"]["normalized_reason"] == "hedge_detected"
+
+
+def test_counterfactual_gate_bundle_assertion_is_not_swallowed(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+) -> None:
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF] = artifact_ref_factory(
+        kind="ir.causal_readiness_bundle"
+    )
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate.load_causal_readiness_bundle",
+        side_effect=AssertionError("readiness invariant"),
+    ):
+        with pytest.raises(AssertionError, match="readiness invariant"):
+            CounterfactualIdentificationGateNode().execute(execution_context, state)

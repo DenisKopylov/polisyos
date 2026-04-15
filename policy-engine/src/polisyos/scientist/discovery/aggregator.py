@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import dataclass, field
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -103,6 +104,22 @@ class EdgeConfidenceMatrix(ArtifactMinimalityMixin):
         return None
 
 
+@dataclass
+class _AggregationBucket:
+    weighted_presence_support: float = 0.0
+    directional_support_mass: defaultdict[str, float] = field(
+        default_factory=lambda: defaultdict(float)
+    )
+    orientation_support_mass: defaultdict[str, float] = field(
+        default_factory=lambda: defaultdict(float)
+    )
+    supporting_hypothesis_ids: set[str] = field(default_factory=set)
+    supporting_families: set[str] = field(default_factory=set)
+    provenance_refs: set[str] = field(default_factory=set)
+    stability_values: list[float] = field(default_factory=list)
+    graph_types: set[str] = field(default_factory=set)
+
+
 class EvidenceWeightedAggregator:
     """Aggregate discovery hypotheses using utility-weighted evidence."""
 
@@ -129,24 +146,18 @@ class EvidenceWeightedAggregator:
             config=self._config,
         )
         total_active_mass = float(sum(hypothesis_weights.values()))
-        grouped: dict[str, dict[str, Any]] = defaultdict(
-            lambda: {
-                "weighted_presence_support": 0.0,
-                "directional_support_mass": defaultdict(float),
-                "orientation_support_mass": defaultdict(float),
-                "supporting_hypothesis_ids": set(),
-                "supporting_families": set(),
-                "provenance_refs": set(),
-                "stability_values": [],
-                "graph_types": set(),
-            }
-        )
+        grouped: defaultdict[str, _AggregationBucket] = defaultdict(_AggregationBucket)
 
         for hypothesis in hypotheses:
             weight = hypothesis_weights.get(hypothesis.hypothesis_id, 0.0)
             if weight <= 0.0:
                 continue
             summary = stability_report.summary_for(hypothesis.hypothesis_id)
+            edge_selection_frequency = (
+                {}
+                if summary is None
+                else dict(getattr(summary, "edge_selection_frequency", {}))
+            )
             for edge in hypothesis.graph.edges:
                 edge_key = edge_key_for_edge(edge)
                 skeleton_key = skeleton_key_for_edge(edge)
@@ -156,15 +167,15 @@ class EvidenceWeightedAggregator:
                 if contribution <= 0.0:
                     continue
                 bucket = grouped[skeleton_key]
-                bucket["weighted_presence_support"] += contribution
-                bucket["directional_support_mass"][edge_key] += contribution
-                bucket["orientation_support_mass"][orientation_key] += contribution
-                bucket["supporting_hypothesis_ids"].add(hypothesis.hypothesis_id)
-                bucket["supporting_families"].add(hypothesis.algorithm_family.value)
-                bucket["provenance_refs"].update(edge.evidence_refs)
-                bucket["graph_types"].add(getattr(hypothesis.graph.graph_type, "value", "unknown"))
-                if summary is not None and edge_key in summary.edge_selection_frequency:
-                    bucket["stability_values"].append(summary.edge_selection_frequency[edge_key])
+                bucket.weighted_presence_support += contribution
+                bucket.directional_support_mass[edge_key] += contribution
+                bucket.orientation_support_mass[orientation_key] += contribution
+                bucket.supporting_hypothesis_ids.add(hypothesis.hypothesis_id)
+                bucket.supporting_families.add(hypothesis.algorithm_family.value)
+                bucket.provenance_refs.update(edge.evidence_refs)
+                bucket.graph_types.add(getattr(hypothesis.graph.graph_type, "value", "unknown"))
+                if edge_key in edge_selection_frequency:
+                    bucket.stability_values.append(edge_selection_frequency[edge_key])
 
         entries: list[EdgeConfidenceEntry] = []
         unresolved_disputes: list[str] = []
@@ -172,21 +183,21 @@ class EvidenceWeightedAggregator:
             evidence = AggregatedEdgeEvidence(
                 skeleton_key=skeleton_key,
                 total_active_mass=total_active_mass,
-                weighted_presence_support=float(bucket["weighted_presence_support"]),
+                weighted_presence_support=float(bucket.weighted_presence_support),
                 directional_support_mass={
                     key: float(value)
-                    for key, value in bucket["directional_support_mass"].items()
+                    for key, value in bucket.directional_support_mass.items()
                 },
                 orientation_support_mass={
                     key: float(value)
-                    for key, value in bucket["orientation_support_mass"].items()
+                    for key, value in bucket.orientation_support_mass.items()
                 },
-                contributing_hypothesis_ids=sorted(bucket["supporting_hypothesis_ids"]),
-                contributing_families=sorted(bucket["supporting_families"]),
-                provenance_refs=sorted(bucket["provenance_refs"]),
-                mean_edge_stability=_mean_or_none(bucket["stability_values"]),
+                contributing_hypothesis_ids=sorted(bucket.supporting_hypothesis_ids),
+                contributing_families=sorted(bucket.supporting_families),
+                provenance_refs=sorted(bucket.provenance_refs),
+                mean_edge_stability=_mean_or_none(bucket.stability_values),
                 metadata={
-                    "graph_types": sorted(bucket["graph_types"]),
+                    "graph_types": sorted(bucket.graph_types),
                 },
             )
             entry = _entry_from_evidence(evidence, config=self._config)

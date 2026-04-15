@@ -37,17 +37,21 @@ def merge_patch_records(
     store: FileSystemCAS,
     patch_records: dict[str, list[dict[str, Any]]],
     *,
+    base_values: dict[str, Any] | None = None,
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
 ) -> list[PatchOp]:
     """Merge patch records into concrete PatchOp list using merge rules."""
     engine = MergeEngine(slot_registry, merge_registry)
     records: list[MergeRecord] = []
+    effective_base_values = dict(base_values or {})
     for slot_id, slot_records in patch_records.items():
         for record in slot_records:
             delta = record.get("delta")
             if delta is None and "new_value" in record and "base_value" in record:
                 delta = record["new_value"] - record["base_value"]
+            if slot_id not in effective_base_values and "base_value" in record:
+                effective_base_values[slot_id] = record["base_value"]
             node_id = record.get("node_id") or record.get("intervention_id") or "unknown"
             records.append(
                 MergeRecord(
@@ -60,7 +64,7 @@ def merge_patch_records(
                 )
             )
 
-    report = engine.merge_records(records)
+    report = engine.merge_records(records, effective_base_values)
     report.raise_if_conflicts()
 
     ops: list[PatchOp] = []
@@ -73,7 +77,10 @@ def merge_patch_records(
             raise ValueError(f"Unknown merge rule '{slot_spec.merge_rule.rule_id}' for '{slot_id}'")
 
         op_kind = "add" if rule.kind == MergeRuleKind.SUM else "set"
-        value_ref = _put_tensor(store, merged_value)
+        payload = merged_value
+        if rule.kind == MergeRuleKind.SUM and slot_id in effective_base_values:
+            payload = merged_value - effective_base_values[slot_id]
+        value_ref = _put_tensor(store, payload)
         ops.append(
             PatchOp(
                 slot_id=slot_id,

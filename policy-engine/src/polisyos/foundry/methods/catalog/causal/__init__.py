@@ -157,6 +157,11 @@ from .fairness import (
     PathSpecificFairnessEstimator,
     TVFairnessDecomposer,
 )
+from .frontier import (
+    DistributionalTreatmentEffectEstimator,
+    NetworkHeterogeneousEffectEstimator,
+    ProximalBridgeEstimator,
+)
 from .causal_fairness import (
     CausalFairnessEngine,
     StandardFairnessModel,
@@ -293,6 +298,7 @@ __all__ = [
     "NetworkAIPWEstimator",
     "SpatialInterferenceEstimator",
     "BipartiteInterferenceEstimator",
+    "NetworkHeterogeneousEffectEstimator",
     # Phase 6: Advanced estimation — continuous & multi-valued treatments
     "ContinuousTreatmentData",
     "DoseResponseResult",
@@ -304,6 +310,8 @@ __all__ = [
     "EntropyBalancingContinuousEstimator",
     "MultinomialIPWEstimator",
     "MultiArmAIPWEstimator",
+    "ProximalBridgeEstimator",
+    "DistributionalTreatmentEffectEstimator",
     "pairwise_contrasts",
     "FittedSuperLearner",
     "SuperLearnerNuisanceModel",

@@ -14,6 +14,7 @@ from polisyos.scientist.causal.readiness import (
     TransportabilityChecker,
     build_interference_readiness_entries,
 )
+from polisyos.scientist.causal.validity import persist_causal_validity_bundle
 
 __all__ = [
     "BoundsEstimationRunner",
@@ -22,4 +23,5 @@ __all__ = [
     "StrategicResponseRunner",
     "TransportabilityChecker",
     "build_interference_readiness_entries",
+    "persist_causal_validity_bundle",
 ]

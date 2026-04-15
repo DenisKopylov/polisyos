@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { useI18n } from "@/i18n/LocaleProvider";
+import { formatTime } from "@/lib/utils";
 import { Badge } from "@/shared/ui";
 
 export type ReviewCollaborator = {
@@ -42,17 +43,6 @@ type ReviewLockNoticeProps = {
 type ReviewCursorLayerProps = {
   cursors: ReviewCursor[];
 };
-
-function formatLeaseTime(rawValue: string) {
-  const value = new Date(rawValue);
-  if (Number.isNaN(value.getTime())) {
-    return rawValue;
-  }
-  return value.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export function ReviewPresenceSummary({
   participants,
@@ -96,7 +86,7 @@ export function ReviewPresenceSummary({
 }
 
 export function ReviewLockNotice({ lock }: ReviewLockNoticeProps) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
 
   if (!lock) {
     return null;
@@ -125,7 +115,7 @@ export function ReviewLockNotice({ lock }: ReviewLockNoticeProps) {
         </span>
         <span className="text-xs opacity-80">
           {t("panels.reviewCollaboration.lockExpires", {
-            time: formatLeaseTime(lock.expiresAt),
+            time: formatTime(lock.expiresAt, locale),
           })}
         </span>
       </div>

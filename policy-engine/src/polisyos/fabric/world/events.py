@@ -1,10 +1,9 @@
 """Public world events module API."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.world.store.emit import emit_world_event_facts
 from polisyos.fabric.world.store.persist import persist_world_event
 from polisyos.fabric.world.store.provenance import event_world_provenance_v1
@@ -18,6 +17,9 @@ from polisyos.ir.world.event import (
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import world_event_id_from_payload
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
 
 __all__ = ["build_deterministic_world_event", "persist_world_event_with_facts"]
 
@@ -40,8 +42,9 @@ def build_deterministic_world_event(
     ended_at: datetime | None = None,
 ) -> WorldEvent:
     """Build deterministic world event."""
-    started = started_at or datetime.now(timezone.utc)
+    started = started_at or datetime.now(UTC)
     ended = ended_at or started
+    duration_ms = max(int((ended - started).total_seconds() * 1000), 0)
     agent = ProvAgent(
         agent_id=agent_id,
         agent_type=agent_type,
@@ -65,7 +68,14 @@ def build_deterministic_world_event(
         "provenance_ref": None,
     }
     event_id = world_event_id_from_payload(event_payload=event_payload)
+    event_props = dict(props or {})
+    event_props.setdefault("activity_duration_ms", duration_ms)
+    event_props.setdefault("activity_started_at", started.isoformat())
+    event_props.setdefault("activity_ended_at", ended.isoformat())
+    if evidence_ref is not None:
+        event_props.setdefault("evidence_ref", evidence_ref)
     return WorldEvent(
+        schema_version="1.0",
         event_id=event_id,
         event_kind=event_kind,
         agent=agent,
@@ -74,13 +84,13 @@ def build_deterministic_world_event(
         outputs=outputs,
         evidence_ref=evidence_ref,
         provenance_ref=None,
-        props=props or {},
+        props=event_props,
     )
 
 
 def persist_world_event_with_facts(
     *,
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     event: WorldEvent,
     facts: list[Any],
 ) -> str:

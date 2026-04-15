@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
@@ -15,10 +15,19 @@ from polisyos.core.contracts.control import (
     FetchPlanFallback,
     FetchPreview,
 )
-from polisyos.fabric.connectors.profiles import SourceProfileRegistry
 from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
-from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.ir.connectors import FetchRequest, FetchResult
+
+from .providers import RetrievalProviders, resolve_retrieval_providers
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.fabric.connectors.base import ConnectionConfig
+    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
 
 logger = get_logger(__name__)
 
@@ -39,13 +48,29 @@ class FetchExecutor:
         self,
         *,
         cas_root: Path | None = None,
+        registry: ConnectorRegistry | None = None,
+        profiles: SourceProfileRegistry | None = None,
+        tracer: PolicyOSTracer | None = None,
+        metrics: MetricsRegistry | None = None,
+        providers: RetrievalProviders | None = None,
     ) -> None:
-        self._registry = ConnectorRegistry.get_instance()
-        self._profiles = SourceProfileRegistry.get_instance()
+        resolved = providers or resolve_retrieval_providers(
+            registry=registry,
+            profiles=profiles,
+            tracer=tracer,
+            metrics=metrics,
+        )
+        self._registry = resolved.registry
+        self._profiles = resolved.profiles
         self._cas_root = cas_root
+        self._tracer = resolved.tracer
+        self._metrics = resolved.metrics
 
     def preview(self, plan: FetchPlan, *, allow_fallback: bool = True) -> ExecutePlanResult:
-        return run_coro_sync(self._preview_async(plan, allow_fallback=allow_fallback))
+        return cast(
+            "ExecutePlanResult",
+            run_coro_sync(self._preview_async(plan, allow_fallback=allow_fallback)),
+        )
 
     def execute(
         self,
@@ -54,12 +79,15 @@ class FetchExecutor:
         persist_payload: bool = False,
         allow_fallback: bool = True,
     ) -> ExecutePlanResult:
-        return run_coro_sync(
-            self._execute_async(
-                plan,
-                persist_payload=persist_payload,
-                allow_fallback=allow_fallback,
-            )
+        return cast(
+            "ExecutePlanResult",
+            run_coro_sync(
+                self._execute_async(
+                    plan,
+                    persist_payload=persist_payload,
+                    allow_fallback=allow_fallback,
+                )
+            ),
         )
 
     async def _preview_async(self, plan: FetchPlan, *, allow_fallback: bool) -> ExecutePlanResult:
@@ -123,14 +151,14 @@ class FetchExecutor:
         return ExecutePlanResult(preview=preview, metric=metric, used_plan=plan, fallback_used=False)
 
     async def _fetch_preview(self, plan: FetchPlan) -> FetchPreview:
-        started = datetime.now(timezone.utc)
+        started = datetime.now(UTC)
         try:
             result = await self._fetch(
                 plan=plan,
                 page_size=max(10, min(plan.max_preview_rows, 50)),
             )
         except Exception as exc:
-            elapsed_ms = int((datetime.now(timezone.utc) - started).total_seconds() * 1000)
+            elapsed_ms = int((datetime.now(UTC) - started).total_seconds() * 1000)
             return FetchPreview(
                 status="error",
                 connector_id=plan.connector_id,
@@ -140,13 +168,13 @@ class FetchExecutor:
                 coverage_ok=False,
                 quality_min=plan.quality_min,
                 sample_rows=[],
-                schema_payload={},
+                schema={},
                 quality_flags=[],
                 message=str(exc),
                 latency_ms=max(0, elapsed_ms),
             )
 
-        elapsed_ms = int((datetime.now(timezone.utc) - started).total_seconds() * 1000)
+        elapsed_ms = int((datetime.now(UTC) - started).total_seconds() * 1000)
         completeness = float(result.completeness)
         coverage_ok = completeness >= float(plan.quality_min)
         status = "ok" if coverage_ok else "insufficient_coverage"
@@ -159,7 +187,7 @@ class FetchExecutor:
             coverage_ok=coverage_ok,
             quality_min=plan.quality_min,
             sample_rows=_extract_rows(result.data, max_rows=max(1, min(plan.max_preview_rows, 25))),
-            schema_payload={
+            schema={
                 "schema_id": result.schema_id,
                 "schema_version": result.schema_version,
             },
@@ -172,6 +200,7 @@ class FetchExecutor:
         connector = self._registry.get(plan.connector_id, enable_cache=False)
         config = self._resolve_config(plan)
         handle = await self._registry.get_connection(plan.connector_id, config)
+        started = datetime.now(UTC)
         try:
             request = FetchRequest(
                 dataset_id=plan.dataset_id,
@@ -183,30 +212,89 @@ class FetchExecutor:
                 page_size=page_size,
                 retryable=True,
             )
-            return await connector.fetch(handle, request)
+            with self._tracer.start_as_current_span(
+                FABRIC_TRACE_NAMES["connector_fetch"],
+                attributes={
+                    "connector.id": plan.connector_id,
+                    "dataset.id": plan.dataset_id,
+                    "retrieval.plan_id": plan.plan_id,
+                },
+            ):
+                result = await connector.fetch(handle, request)
+            duration = max((datetime.now(UTC) - started).total_seconds(), 0.0)
+            payload_bytes = None
+            try:
+                payload_bytes = len(
+                    json.dumps(result.data, ensure_ascii=True, sort_keys=True, default=str).encode("utf-8")
+                )
+            except Exception:
+                payload_bytes = None
+            if getattr(self._metrics, "record_fabric_connector_fetch", None):
+                self._metrics.record_fabric_connector_fetch(
+                    connector_id=plan.connector_id,
+                    status="success",
+                    duration_seconds=duration,
+                    row_count=int(result.row_count),
+                    payload_bytes=payload_bytes,
+                )
+            return result
+        except Exception:
+            duration = max((datetime.now(UTC) - started).total_seconds(), 0.0)
+            if getattr(self._metrics, "record_fabric_connector_fetch", None):
+                self._metrics.record_fabric_connector_fetch(
+                    connector_id=plan.connector_id,
+                    status="error",
+                    duration_seconds=duration,
+                    row_count=0,
+                    payload_bytes=None,
+                )
+            raise
         finally:
             await self._registry.release_connection(plan.connector_id, handle)
 
-    def _resolve_config(self, plan: FetchPlan):
+    def _resolve_config(self, plan: FetchPlan) -> ConnectionConfig | None:
         if plan.profile_id:
             profile = self._profiles.get(plan.profile_id)
             if profile is not None:
-                return resolve_connection_config(profile)
+                return cast("ConnectionConfig", resolve_connection_config(profile))
         config = self._registry.get_default_config(plan.connector_id)
         if config is None:
             raise ValueError(f"No connection profile/default config for '{plan.connector_id}'")
-        return config
+        return cast("ConnectionConfig", config)
 
     @staticmethod
     def _fallback_to_plan(plan: FetchPlan, fallback: FetchPlanFallback) -> FetchPlan:
+        fallback_metric_id = fallback.metric_id or plan.metric_id
+        updated_metadata = dict(plan.metadata)
+        fallback_metadata = dict(fallback.metadata)
+        history = list(updated_metadata.get("fallback_history", []))
+        history.append(
+            {
+                "from_metric_id": plan.metric_id,
+                "to_metric_id": fallback_metric_id,
+                "from_connector_id": plan.connector_id,
+                "to_connector_id": fallback.connector_id,
+                "route": fallback_metadata.get("resolution_route") or updated_metadata.get("resolution_route", ""),
+            }
+        )
+        updated_metadata.update(fallback_metadata)
+        updated_metadata["fallback_applied"] = True
+        updated_metadata["fallback_history"] = history
+        updated_metadata["fallback_from_metric_id"] = plan.metric_id
+        updated_metadata["resolution_route"] = fallback_metadata.get(
+            "resolution_route",
+            updated_metadata.get("resolution_route", ""),
+        )
         return plan.model_copy(
             update={
-                "plan_id": f"{plan.plan_id}_fallback_{fallback.connector_id}",
+                "plan_id": f"{plan.plan_id}_fallback_{fallback_metric_id}_{fallback.connector_id}",
+                "metric_id": fallback_metric_id,
                 "connector_id": fallback.connector_id,
                 "dataset_id": fallback.dataset_id,
                 "profile_id": fallback.profile_id,
                 "filters": fallback.filters or plan.filters,
                 "fallbacks": plan.fallbacks[1:],
+                "metadata": updated_metadata,
             }
         )
 
@@ -223,12 +311,12 @@ def _parse_optional_datetime(value: str | None) -> datetime | None:
         return None
     # Common shorthand support for year-only and year-month values.
     if len(raw) == 4 and raw.isdigit():
-        return datetime(int(raw), 1, 1, tzinfo=timezone.utc)
+        return datetime(int(raw), 1, 1, tzinfo=UTC)
     if len(raw) == 7 and raw[4] == "-":
-        return datetime.fromisoformat(f"{raw}-01").replace(tzinfo=timezone.utc)
+        return datetime.fromisoformat(f"{raw}-01").replace(tzinfo=UTC)
     parsed = datetime.fromisoformat(raw)
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
+        parsed = parsed.replace(tzinfo=UTC)
     return parsed
 
 

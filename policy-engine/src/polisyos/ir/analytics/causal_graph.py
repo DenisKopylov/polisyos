@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 from enum import Enum
+from functools import cached_property
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -240,11 +241,22 @@ class CausalGraphModel(BaseModel):
             )
         return graph
 
-    def to_kuzu(self, kuzu_conn: Any) -> None:
-        for node in self.nodes:
-            kuzu_conn.execute("MERGE (v:CausalVar {name: $name})", {"name": node})
+    @cached_property
+    def kuzu_node_rows(self) -> tuple[dict[str, str], ...]:
+        """Prepared node rows reused by Kuzu emitters."""
+        return tuple({"name": node} for node in self.nodes)
 
-        for edge in self.edges:
+    @cached_property
+    def kuzu_edge_rows(self) -> tuple[dict[str, Any], ...]:
+        """Prepared edge rows reused by Kuzu emitters and CSV exporters."""
+        graph_type = self.graph_type.value
+        return tuple(_serialize_kuzu_edge_row(edge, graph_type=graph_type) for edge in self.edges)
+
+    def to_kuzu(self, kuzu_conn: Any) -> None:
+        for row in self.kuzu_node_rows:
+            kuzu_conn.execute("MERGE (v:CausalVar {name: $name})", row)
+
+        for row in self.kuzu_edge_rows:
             kuzu_conn.execute(
                 (
                     "MATCH (s:CausalVar {name: $src}), (d:CausalVar {name: $dst}) "
@@ -258,19 +270,23 @@ class CausalGraphModel(BaseModel):
                     "r.evidence_refs = $evidence_refs, "
                     "r.metadata_json = $metadata_json"
                 ),
-                {
-                    "src": edge.src,
-                    "dst": edge.dst,
-                    "mark_src": edge.mark_src.value,
-                    "mark_dst": edge.mark_dst.value,
-                    "lag": edge.lag,
-                    "combined_confidence": edge.combined_confidence,
-                    "graph_type": self.graph_type.value,
-                    "sources": json.dumps([source.value for source in edge.sources]),
-                    "evidence_refs": json.dumps(edge.evidence_refs),
-                    "metadata_json": json.dumps(edge.metadata, sort_keys=True),
-                },
+                row,
             )
+
+
+def _serialize_kuzu_edge_row(edge: CausalEdge, *, graph_type: str) -> dict[str, Any]:
+    return {
+        "src": edge.src,
+        "dst": edge.dst,
+        "mark_src": edge.mark_src.value,
+        "mark_dst": edge.mark_dst.value,
+        "lag": edge.lag,
+        "combined_confidence": edge.combined_confidence,
+        "graph_type": graph_type,
+        "sources": json.dumps([source.value for source in edge.sources]),
+        "evidence_refs": json.dumps(edge.evidence_refs),
+        "metadata_json": json.dumps(edge.metadata, sort_keys=True),
+    }
 
 
 def _validate_mgraph_structure(nodes: list[str], edges: list["CausalEdge"]) -> None:

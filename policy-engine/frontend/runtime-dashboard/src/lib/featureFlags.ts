@@ -1,11 +1,17 @@
 import { z } from "zod";
 
 export const FEATURE_FLAG_KEYS = [
+  "enableCausalGraph",
+  "enableClerkMode",
+  "enableCollaboration",
+  "enableCommandPalette",
   "enableDarkMode",
   "enableLexKnowledge",
+  "enableNarrativeView",
   "enablePlatformHealth",
   "enableRunsWorkspace",
   "enableScenarioComposer",
+  "enableWhatIfAnalysis",
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -62,9 +68,26 @@ function readBooleanFlag(rawValue: string | undefined, fallback: boolean) {
 }
 
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
+  enableCausalGraph: readBooleanFlag(
+    import.meta.env.VITE_FF_CAUSAL_GRAPH,
+    true,
+  ),
+  enableClerkMode: readBooleanFlag(import.meta.env.VITE_FF_CLERK_MODE, true),
+  enableCollaboration: readBooleanFlag(
+    import.meta.env.VITE_FF_COLLABORATION,
+    true,
+  ),
+  enableCommandPalette: readBooleanFlag(
+    import.meta.env.VITE_FF_COMMAND_PALETTE,
+    true,
+  ),
   enableDarkMode: readBooleanFlag(import.meta.env.VITE_FF_DARK_MODE, true),
   enableLexKnowledge: readBooleanFlag(
     import.meta.env.VITE_FF_LEX_KNOWLEDGE,
+    true,
+  ),
+  enableNarrativeView: readBooleanFlag(
+    import.meta.env.VITE_FF_NARRATIVE_VIEW,
     true,
   ),
   enablePlatformHealth: readBooleanFlag(
@@ -77,6 +100,10 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
   ),
   enableScenarioComposer: readBooleanFlag(
     import.meta.env.VITE_FF_SCENARIO_COMPOSER,
+    true,
+  ),
+  enableWhatIfAnalysis: readBooleanFlag(
+    import.meta.env.VITE_FF_WHAT_IF_ANALYSIS,
     true,
   ),
 };

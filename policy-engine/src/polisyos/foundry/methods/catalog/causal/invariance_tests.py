@@ -270,7 +270,7 @@ class KSInvarianceTest:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ks_invariance",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -449,7 +449,7 @@ class ICPInvarianceTest:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="icp_invariance",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

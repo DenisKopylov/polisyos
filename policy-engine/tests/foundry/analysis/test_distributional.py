@@ -6,6 +6,7 @@ import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.analysis.distributional import (
     build_distributional_report,
+    build_geography_breakdown,
     build_income_quintile_breakdown,
     compute_gini,
     compute_palma_ratio,
@@ -28,6 +29,11 @@ def test_compute_gini_returns_none_for_negative_values() -> None:
 
 def test_compute_palma_ratio_returns_none_for_tiny_bottom_share() -> None:
     values = np.array([1e-12] * 40 + [100.0] * 60)
+    assert compute_palma_ratio(values) is None
+
+
+def test_compute_palma_ratio_returns_none_for_negative_values() -> None:
+    values = np.array([-5.0] * 10 + [10.0] * 10)
     assert compute_palma_ratio(values) is None
 
 
@@ -78,3 +84,31 @@ def test_distributional_report_roundtrip_and_negative_flag(tmp_path) -> None:
 
     assert loaded.breakdowns[0].dimension == CohortDimension.INCOME_QUINTILE
     assert loaded.winners_losers.total_winners_share >= 0.0
+
+
+def test_income_quintile_breakdown_handles_tied_incomes() -> None:
+    incomes_before = np.ones(10)
+    incomes_after = np.ones(10) * 2.0
+
+    breakdown = build_income_quintile_breakdown(incomes_before, incomes_after)
+
+    assert len(breakdown.cohorts) == 5
+    assert [cohort.cohort_id for cohort in breakdown.cohorts] == ["Q1", "Q2", "Q3", "Q4", "Q5"]
+    assert sum(cohort.population_share for cohort in breakdown.cohorts) == pytest.approx(1.0)
+    assert all(
+        cohort.metric_deltas[breakdown.primary_metric] == pytest.approx(100.0)
+        for cohort in breakdown.cohorts
+    )
+
+
+def test_geography_breakdown_uses_symmetric_percent_delta_for_negative_baselines() -> None:
+    breakdown = build_geography_breakdown(
+        region_ids=np.array([1, 1, 2, 2]),
+        region_labels={1: "North", 2: "South"},
+        metric_before=np.array([-100.0, -100.0, 50.0, 50.0]),
+        metric_after=np.array([-50.0, -50.0, 75.0, 75.0]),
+    )
+
+    deltas = {cohort.cohort_id: cohort.metric_deltas[breakdown.primary_metric] for cohort in breakdown.cohorts}
+    assert deltas["region_1"] == pytest.approx(66.6666666667)
+    assert deltas["region_2"] == pytest.approx(50.0)

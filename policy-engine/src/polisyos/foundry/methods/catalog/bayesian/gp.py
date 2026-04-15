@@ -31,6 +31,13 @@ from polisyos.foundry.methods.catalog.ml.regression import (
     _build_prediction_result,
     _tabular_payload,
 )
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    PropagationMethod,
+    UncertaintyEnvelope,
+    UncertaintySource,
+)
 
 from .protocols import PosteriorResult, summarize_posterior_samples
 
@@ -154,7 +161,7 @@ class GaussianProcessRegressionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gp_regression",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
@@ -234,46 +241,54 @@ class GaussianProcessRegressionEstimator:
         rmse = float(np.sqrt(np.mean((mean - y_te) ** 2)))
 
         result = PosteriorResult(
-            model_type="gaussian_process",
-            converged=True,
-            diagnostics={"kernel": kernel, "log_marginal_likelihood": lml},
-            posterior_mean={"mean": float(np.mean(mean))},
-            posterior_std={"std": float(np.mean(std))},
-            credible_intervals={"lower_95": float(np.mean(mean - 1.96 * std)),
-                                "upper_95": float(np.mean(mean + 1.96 * std))},
-            n_samples=0,
+            method_name="gp_regression",
+            posterior_means={
+                "mean": float(np.mean(mean)),
+                "std": float(np.mean(std)),
+            },
+            posterior_stds={
+                "mean": float(np.std(mean, ddof=1)) if mean.shape[0] > 1 else 0.0,
+                "std": float(np.std(std, ddof=1)) if std.shape[0] > 1 else 0.0,
+            },
+            credible_intervals={
+                "mean": (
+                    float(np.mean(mean - 1.96 * std)),
+                    float(np.mean(mean + 1.96 * std)),
+                ),
+            },
+            diagnostics={
+                "credible_mass": 0.95,
+                "log_marginal_likelihood": lml,
+                "n_test": float(n_test),
+            },
+            metadata={"kernel": kernel},
         )
 
         pred_result = _build_prediction_result(
-            y_pred=mean,
-            y_true=y_te,
-            feature_names=list(getattr(data, "feature_names", None) or []),
-            method="gp_regression",
-            coef=None,
-        )
-
-        from polisyos.ir.analytics.uncertainty import (
-            IntervalSemantics,
-            PropagationMethod,
-            UncertaintyEnvelope,
-            UncertaintySource,
-        )
-        ci_lower = mean - 1.96 * std
-        ci_upper = mean + 1.96 * std
-        envelope = UncertaintyEnvelope(
-            method=PropagationMethod.ANALYTIC,
-            source=UncertaintySource.EPISTEMIC,
-            semantics=IntervalSemantics.CREDIBLE,
-            central=float(np.mean(mean)),
-            lower=float(np.mean(ci_lower)),
-            upper=float(np.mean(ci_upper)),
-            mass=0.95,
+            method_name="gp_regression",
+            predictions=mean,
+            target=y_te,
+            model_info={"library": "numpy", "estimator": "ExactGaussianProcess"},
+            metadata={"kernel": kernel, "n_train": n_train, "n_test": n_test},
         )
 
         return {
             "result": result,
-            "prediction_result": pred_result,
-            "uncertainty_envelope": envelope,
+            "prediction_result": pred_result["result"],
+            "uncertainty_envelope": UncertaintyEnvelope(
+                point_estimate=float(np.mean(mean)),
+                confidence_interval=(
+                    float(np.mean(mean - 1.96 * std)),
+                    float(np.mean(mean + 1.96 * std)),
+                ),
+                confidence_level=0.95,
+                distribution_family=DistributionFamily.BAYESIAN,
+                source=UncertaintySource.CALIBRATION,
+                propagation_method=PropagationMethod.ANALYTICAL,
+                interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
+                sample_size=int(n_test),
+                metadata={"method_name": "gp_regression", "kernel": kernel},
+            ),
             "rmse_test": rmse,
             "n_train": n_train,
             "n_test": n_test,
@@ -307,7 +322,7 @@ class SparseGPRegressionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="sparse_gp_regression",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
@@ -391,42 +406,49 @@ class SparseGPRegressionEstimator:
         std_approx = float(np.sqrt(max(sv, nv)))
 
         result = PosteriorResult(
-            model_type="sparse_gaussian_process",
-            converged=True,
-            diagnostics={"n_inducing": n_inducing, "kernel": kernel},
-            posterior_mean={"mean": float(np.mean(mean))},
-            posterior_std={"std": std_approx},
-            credible_intervals={},
-            n_samples=0,
+            method_name="sparse_gp_regression",
+            posterior_means={
+                "mean": float(np.mean(mean)),
+                "std": std_approx,
+            },
+            posterior_stds={
+                "mean": float(np.std(mean, ddof=1)) if mean.shape[0] > 1 else 0.0,
+                "std": 0.0,
+            },
+            credible_intervals={
+                "mean": (
+                    float(np.mean(mean) - 1.96 * std_approx),
+                    float(np.mean(mean) + 1.96 * std_approx),
+                ),
+            },
+            diagnostics={"credible_mass": 0.95, "n_inducing": float(n_inducing)},
+            metadata={"kernel": kernel},
         )
         pred_result = _build_prediction_result(
-            y_pred=mean,
-            y_true=y,
-            feature_names=list(getattr(data, "feature_names", None) or []),
-            method="sparse_gp_regression",
-            coef=None,
-        )
-
-        from polisyos.ir.analytics.uncertainty import (
-            IntervalSemantics,
-            PropagationMethod,
-            UncertaintyEnvelope,
-            UncertaintySource,
-        )
-        envelope = UncertaintyEnvelope(
-            method=PropagationMethod.ANALYTIC,
-            source=UncertaintySource.EPISTEMIC,
-            semantics=IntervalSemantics.CREDIBLE,
-            central=float(np.mean(mean)),
-            lower=float(np.mean(mean) - 1.96 * std_approx),
-            upper=float(np.mean(mean) + 1.96 * std_approx),
-            mass=0.95,
+            method_name="sparse_gp_regression",
+            predictions=mean,
+            target=y,
+            model_info={"library": "numpy", "estimator": "SparseGaussianProcess"},
+            metadata={"kernel": kernel, "n_inducing": n_inducing},
         )
 
         return {
             "result": result,
-            "prediction_result": pred_result,
-            "uncertainty_envelope": envelope,
+            "prediction_result": pred_result["result"],
+            "uncertainty_envelope": UncertaintyEnvelope(
+                point_estimate=float(np.mean(mean)),
+                confidence_interval=(
+                    float(np.mean(mean) - 1.96 * std_approx),
+                    float(np.mean(mean) + 1.96 * std_approx),
+                ),
+                confidence_level=0.95,
+                distribution_family=DistributionFamily.BAYESIAN,
+                source=UncertaintySource.CALIBRATION,
+                propagation_method=PropagationMethod.ANALYTICAL,
+                interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
+                sample_size=int(X.shape[0]),
+                metadata={"method_name": "sparse_gp_regression", "kernel": kernel},
+            ),
             "rmse_train": rmse,
             "n_inducing": n_inducing,
             "kernel": kernel,

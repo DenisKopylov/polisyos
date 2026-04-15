@@ -54,6 +54,13 @@ class UncertaintyEnvelopeRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class EstimandASTRef(ArtifactRefModel):
+    """Stable handle for a persisted normalized estimand AST."""
+
+    kind: Literal["ir.estimand_ast"] = "ir.estimand_ast"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class HTEResultRef(ArtifactRefModel):
     """Stable handle for persisted heterogeneous-treatment-effect results used by subgroup and equity analyses."""
     kind: Literal["ir.hte_result"] = "ir.hte_result"
@@ -364,6 +371,7 @@ __all__ = [
     "CausalModelEnsembleRef",
     "DistributionalEffectBundleRef",
     "DistributionalReportRef",
+    "EstimandASTRef",
     "EvidenceBundleRef",
     "ArtifactRefModel",
     "HTEResultRef",

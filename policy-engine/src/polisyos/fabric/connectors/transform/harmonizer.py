@@ -48,6 +48,8 @@ class CodeHarmonizationTransform(DataTransform):
             raise ValueError("Cannot have both strict=True and drop_unmapped=True")
         if self.mapping is None:
             self.mapping = {}
+        if self.strict and not self.mapping:
+            raise ValueError("strict harmonization requires a non-empty mapping")
 
     @property
     def name(self) -> str:
@@ -64,12 +66,36 @@ class CodeHarmonizationTransform(DataTransform):
         if self.dimension not in result.columns:
             raise TransformError(f"Dimension '{self.dimension}' not found in data")
 
+        if not self.mapping:
+            warning = (
+                f"No harmonization mapping configured for '{self.dimension}'; "
+                "harmonization skipped"
+            )
+            lineage = build_lineage(
+                stage_name=self.name,
+                started_at=start_time,
+                input_data=data,
+                output_data=result,
+                parameters={
+                    "dimension": self.dimension,
+                    "target_codelist": self.target_codelist,
+                    "mapping_size": 0,
+                    "skipped": True,
+                },
+                context=context,
+            )
+            return result, lineage, [warning]
+
         series = result[self.dimension]
         null_mask = series.isna()
 
-        # Map to string keys for consistency
-        mapped = series.astype(str).map(self.mapping)
-        mapped = mapped.where(~null_mask, series)
+        mapped = pd.Series(pd.NA, index=series.index, dtype="object")
+        non_null = ~null_mask
+        if non_null.any():
+            mapped.loc[non_null] = series.loc[non_null].map(
+                lambda value: self.mapping.get(str(value), pd.NA)
+            )
+        mapped.loc[null_mask] = series.loc[null_mask]
 
         unmapped_mask = mapped.isna() & ~null_mask
         unmapped_codes = sorted(series[unmapped_mask].astype(str).unique().tolist())
@@ -108,6 +134,7 @@ class CodeHarmonizationTransform(DataTransform):
                 "null_count": mapping_stats["null_count"],
                 "unmapped_codes": unmapped_codes[:20],
             },
+            context=context,
         )
 
         return result, lineage, warnings
@@ -163,4 +190,5 @@ def load_mapping_table(
     if target_col not in df.columns:
         raise ValueError(f"Target column '{target_col}' not found in {path}")
 
-    return dict(zip(df[source_col].astype(str), df[target_col].astype(str)))
+    rows = df.dropna(subset=[source_col, target_col])
+    return dict(zip(rows[source_col].astype(str), rows[target_col].astype(str), strict=True))

@@ -10,10 +10,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Callable, Sequence
+from types import MappingProxyType
+from typing import Any, Callable, Mapping, Sequence
 
 import pandas as pd
 
+from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.pipeline import (
     DagPipeline as CoreDagPipeline,
 )
@@ -21,6 +23,7 @@ from polisyos.core.pipeline import (
     PipelineCycleError,
     UnknownStageError,
 )
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.contracts.schema import DataSchema
 
 __all__ = [
@@ -70,6 +73,20 @@ def _normalize_copy_policy(value: CopyPolicy | str | None) -> CopyPolicy:
     raise TransformError(f"Unknown copy policy: {value}")
 
 
+def _freeze_transform_metadata(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return MappingProxyType(
+            {str(key): _freeze_transform_metadata(item) for key, item in value.items()}
+        )
+    if isinstance(value, list):
+        return tuple(_freeze_transform_metadata(item) for item in value)
+    if isinstance(value, tuple):
+        return tuple(_freeze_transform_metadata(item) for item in value)
+    if isinstance(value, set):
+        return frozenset(_freeze_transform_metadata(item) for item in value)
+    return value
+
+
 # =============================================================================
 # Core Data Structures
 # =============================================================================
@@ -86,9 +103,13 @@ class TransformContext:
 
     source_schema: DataSchema | None = None
     target_schema: DataSchema | None = None
-    evidence_refs: list[Any] = field(default_factory=list)
-    metadata: dict[str, Any] = field(default_factory=dict)
+    evidence_refs: tuple[Any, ...] = field(default_factory=tuple)
+    metadata: Mapping[str, Any] = field(default_factory=dict)
     copy_policy: CopyPolicy = CopyPolicy.COPY
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "evidence_refs", tuple(self.evidence_refs))
+        object.__setattr__(self, "metadata", _freeze_transform_metadata(dict(self.metadata)))
 
     def effective_copy_policy(self) -> CopyPolicy:
         """Resolve copy policy, allowing metadata override."""
@@ -538,22 +559,39 @@ class CompiledPipeline:
         current_data = data
         lineages: list[TransformLineage] = []
         all_warnings: list[str] = []
+        stage_by_name = {stage.name: stage for stage in self.stages}
+        ordered_stage_names = self.execution_order or [stage.name for stage in self.stages]
+        tracer = get_tracer()
+        metrics = get_metrics()
 
         row_growth_threshold = float(context.metadata.get("row_growth_threshold", 10.0))
         row_growth_strict = bool(context.metadata.get("row_growth_strict", False))
 
-        for stage in self.stages:
-            input_errors = stage.transform.validate_input(current_data, context)
-            if input_errors:
+        for stage_name in ordered_stage_names:
+            stage = stage_by_name.get(stage_name)
+            if stage is None:
                 raise TransformError(
-                    f"Input validation failed for stage '{stage.name}': {input_errors}"
+                    f"Compiled pipeline execution order references unknown stage '{stage_name}'"
                 )
+            with tracer.start_as_current_span(
+                FABRIC_TRACE_NAMES["transform_stage"],
+                attributes={
+                    "transform.stage_name": stage.name,
+                    "transform.input_rows": len(current_data),
+                },
+            ) as span:
+                input_errors = stage.transform.validate_input(current_data, context)
+                if input_errors:
+                    raise TransformError(
+                        f"Input validation failed for stage '{stage.name}': {input_errors}"
+                    )
 
-            input_count = len(current_data)
-            current_data, lineage, warnings = stage.transform.apply(
-                current_data,
-                context,
-            )
+                input_count = len(current_data)
+                current_data, lineage, warnings = stage.transform.apply(
+                    current_data,
+                    context,
+                )
+                span.set_attribute("transform.output_rows", len(current_data))
             lineages.append(lineage)
 
             # Guardrail: row explosion
@@ -583,13 +621,21 @@ class CompiledPipeline:
             input_row_count=len(data),
             output_row_count=len(current_data),
             parameters={
-                "stages": [s.name for s in self.stages],
+                "stages": ordered_stage_names,
                 "stage_count": len(self.stages),
             },
             parent_lineages=lineages,
         )
 
         output_schema = context.target_schema
+        tracker = context.metadata.get("lineage_tracker")
+        graph = getattr(tracker, "graph", None) if tracker is not None else None
+        if graph is not None and getattr(metrics, "record_fabric_lineage_graph", None):
+            metrics.record_fabric_lineage_graph(
+                graph_id=graph.graph_id,
+                node_count=len(graph.entities) + len(graph.activities) + len(graph.agents),
+                edge_count=len(graph.edges),
+            )
 
         return TransformResult(
             data=current_data,

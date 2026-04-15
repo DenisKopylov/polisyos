@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from pydantic import ValidationError
+
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.observation.causal_readiness import (
     CausalReadinessBundle,
@@ -20,6 +22,7 @@ from polisyos.ir.refs import CausalReadinessBundleRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_READINESS_BUNDLE_REF
 
@@ -46,6 +49,14 @@ _SPEC = NodeSpec(
         "params.counterfactual_gate_summary",
     ],
     produces=[],
+)
+
+_COUNTERFACTUAL_GATE_LOAD_ERRORS = (
+    TypeError,
+    ValueError,
+    ValidationError,
+    FileNotFoundError,
+    OSError,
 )
 
 
@@ -84,7 +95,13 @@ class CounterfactualIdentificationGateNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         """Evaluate the gate and convert blocked decisions into a failing `NodeOutcome`."""
         decision = evaluate_counterfactual_gate(ctx, state)
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=(
+                "params.counterfactual_gate_blocked",
+                "params.counterfactual_gate_summary",
+            ),
+        ).state
         new_state.params["counterfactual_gate_blocked"] = decision.blocked
         new_state.params["counterfactual_gate_summary"] = dict(decision.summary)
         if not decision.blocked:
@@ -151,7 +168,7 @@ def evaluate_counterfactual_gate(
             ctx.store,
             CausalReadinessBundleRef.model_validate(readiness_ref.model_dump(mode="json")),
         )
-    except Exception as exc:
+    except _COUNTERFACTUAL_GATE_LOAD_ERRORS as exc:
         return CounterfactualGateDecision(
             blocked=True,
             summary={

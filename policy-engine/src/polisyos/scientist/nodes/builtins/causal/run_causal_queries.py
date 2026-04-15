@@ -5,6 +5,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -76,6 +78,15 @@ _SPEC = NodeSpec(
     ],
 )
 
+_CAUSAL_QUERY_REF_ERRORS = (TypeError, ValueError, ValidationError)
+_CAUSAL_QUERY_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+
 
 def _coerce_ref(raw: Any) -> ArtifactRef | None:
     if raw is None:
@@ -85,12 +96,12 @@ def _coerce_ref(raw: Any) -> ArtifactRef | None:
     if isinstance(raw, Mapping):
         try:
             return ArtifactRef.model_validate(raw)
-        except Exception:
+        except _CAUSAL_QUERY_REF_ERRORS:
             return None
     if isinstance(raw, str):
         try:
             artifact_id = ArtifactID.model_validate(raw)
-        except Exception:
+        except _CAUSAL_QUERY_REF_ERRORS:
             return None
         return ArtifactRef(
             artifact_id=artifact_id,
@@ -158,7 +169,7 @@ class RunCausalQueriesNode:
 
         try:
             query = CausalQuery.model_validate(query_payload)
-        except Exception as exc:
+        except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -173,7 +184,7 @@ class RunCausalQueriesNode:
                 scm_ref.model_dump(mode="json")
             )
             scm_spec = load_structural_causal_model_spec(ctx.store, scm_spec_ref)
-        except Exception as exc:
+        except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -186,7 +197,7 @@ class RunCausalQueriesNode:
         seed = int(state.params.get("random_seed", 0) or 0)
         try:
             method_state = SCMQueryData(scm_spec=scm_spec, query=query)
-        except Exception as exc:
+        except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -232,7 +243,7 @@ class RunCausalQueriesNode:
 
         try:
             query_result = CausalQueryResult.model_validate(raw_query_result)
-        except Exception as exc:
+        except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,

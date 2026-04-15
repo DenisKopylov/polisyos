@@ -40,12 +40,7 @@ class TestMoranIProperties:
     @settings(max_examples=25, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_moran_i_output_finite(self, data, isolated_registry):
         fqn = "spatial.autocorrelation.moran_i@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"outcome": data["outcome"], "lon": data["lon"], "lat": data["lat"]}
         try:
             result = method.pure_step(state, {})
@@ -59,12 +54,7 @@ class TestMoranIProperties:
     def test_moran_i_range(self, data, isolated_registry):
         """Moran's I statistic is in [-1, 1] for well-conditioned data."""
         fqn = "spatial.autocorrelation.moran_i@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"outcome": data["outcome"], "lon": data["lon"], "lat": data["lat"]}
         try:
             result = method.pure_step(state, {})
@@ -79,12 +69,7 @@ class TestMoranIProperties:
     @settings(max_examples=15, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_moran_i_deterministic(self, data, isolated_registry):
         fqn = "spatial.autocorrelation.moran_i@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {"outcome": data["outcome"], "lon": data["lon"], "lat": data["lat"]}
         try:
             r1 = method.pure_step(state, {})
@@ -102,12 +87,7 @@ class TestGWRProperties:
     @settings(max_examples=15, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_gwr_output_dict(self, data, isolated_registry):
         fqn = "spatial.regression.gwr@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {
             "outcome": data["outcome"],
             "covariates": data["covariates"],
@@ -124,12 +104,7 @@ class TestGWRProperties:
     @settings(max_examples=10, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_gwr_local_coefficients_shape(self, data, isolated_registry):
         fqn = "spatial.regression.gwr@1.0.0"
-        from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-        ensure_all_methods_registered(isolated_registry)
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        method = isolated_registry.get(fqn)
         state = {
             "outcome": data["outcome"],
             "covariates": data["covariates"],

@@ -10,11 +10,10 @@ from __future__ import annotations
 import random
 import re
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any
+from enum import StrEnum
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.environment import (
     EnvironmentDiff,
     EnvironmentManifest,
@@ -27,9 +26,14 @@ from polisyos.core.artifacts.graph import (
     resolve_dependency_graph,
 )
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ExecPlan, Metrics, SimulationResult
+from polisyos.foundry._execution_posture import resolve_execution_posture
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
 _SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 _SHA256_PREF_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
@@ -44,21 +48,21 @@ _STATE_SOURCE_ROLES = frozenset(
 logger = get_logger(__name__)
 
 
-class ReplayStrategy(str, Enum):
+class ReplayStrategy(StrEnum):
     """Select the replay engine inferred from the packet dependency layout."""
     FOUNDRY = "foundry"
     SCIENTIST = "scientist"
     NONE = "none"
 
 
-class CompletenessLevel(str, Enum):
+class CompletenessLevel(StrEnum):
     """Classify whether the artifact graph is replayable without intervention."""
     COMPLETE = "complete"
     RECOVERABLE = "recoverable"
     INCOMPLETE = "incomplete"
 
 
-class VerificationMode(str, Enum):
+class VerificationMode(StrEnum):
     """Choose how a replay output should be compared with the original result."""
     BIT_EXACT = "bit_exact"
     CI_BOUNDED = "ci_bounded"
@@ -190,10 +194,15 @@ def try_parse_artifact_id(value: Any) -> ArtifactID | None:
         return None
 
 
+def _dict_section(payload: dict[str, Any], key: str) -> dict[str, Any]:
+    value = payload.get(key)
+    return value if isinstance(value, dict) else {}
+
+
 def determine_replay_strategy(payload: dict[str, Any]) -> ReplayStrategy:
     """Infer the replay strategy from packet `inputs` and `artifacts` references."""
-    inputs = payload.get("inputs") if isinstance(payload.get("inputs"), dict) else {}
-    artifacts = payload.get("artifacts") if isinstance(payload.get("artifacts"), dict) else {}
+    inputs = _dict_section(payload, "inputs")
+    artifacts = _dict_section(payload, "artifacts")
     has_exec_plan = isinstance(artifacts.get("exec_plan_ref"), str)
     has_registry = isinstance(inputs.get("registry_bundle_ref"), str)
     has_snapshot = any(
@@ -212,7 +221,7 @@ def determine_replay_strategy(payload: dict[str, Any]) -> ReplayStrategy:
 def resolve_effective_seed(
     payload: dict[str, Any],
     *,
-    store: FileSystemCAS | None = None,
+    store: ArtifactStore | None = None,
     default: int = 0,
 ) -> SeedResolution:
     """Resolve the replay seed from packet metadata, run records, or ExecPlan."""
@@ -233,14 +242,14 @@ def resolve_effective_seed(
         return SeedResolution(value=seed, source="payload.seed")
 
     if store is not None:
-        artifacts = payload.get("artifacts") if isinstance(payload.get("artifacts"), dict) else {}
+        artifacts = _dict_section(payload, "artifacts")
         exec_plan_ref = try_parse_artifact_id(artifacts.get("exec_plan_ref"))
         if exec_plan_ref is not None:
             try:
                 plan_payload = from_canonical_bytes(store.get_bytes(exec_plan_ref))
                 plan = ExecPlan.model_validate(plan_payload)
-                if isinstance(plan.random_seed, int):
-                    return SeedResolution(value=plan.random_seed, source="exec_plan.random_seed")
+                posture = resolve_execution_posture(plan, None)
+                return SeedResolution(value=posture.seed, source=posture.seed_source)
             except (OSError, TypeError, ValueError, RuntimeError) as exc:
                 logger.debug("Failed to resolve effective seed from exec plan: %s", exc)
 
@@ -248,7 +257,7 @@ def resolve_effective_seed(
 
 
 def compare_current_environment(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     payload: dict[str, Any],
 ) -> list[EnvironmentDiff]:
     """Compare the captured environment manifest with the current process environment.
@@ -256,7 +265,7 @@ def compare_current_environment(
     Missing manifests or decode failures are treated as soft failures and return
     an empty diff list after debug logging.
     """
-    inputs = payload.get("inputs") if isinstance(payload.get("inputs"), dict) else {}
+    inputs = _dict_section(payload, "inputs")
     env_ref = try_parse_artifact_id(inputs.get("environment_manifest_ref"))
     if env_ref is None:
         return []
@@ -264,13 +273,13 @@ def compare_current_environment(
         original_payload = from_canonical_bytes(store.get_bytes(env_ref))
         original_env = EnvironmentManifest.model_validate(original_payload)
         current_env = capture_environment(include_git=False, include_dependencies=True)
-        return compare_environments(original_env, current_env)
+        return cast("list[EnvironmentDiff]", compare_environments(original_env, current_env))
     except (OSError, TypeError, ValueError, RuntimeError) as exc:
         logger.debug("Failed to compare environments: %s", exc)
         return []
 
 
-def build_replay_plan(store: FileSystemCAS, packet_ref: ArtifactID) -> ReplayPlan:
+def build_replay_plan(store: ArtifactStore, packet_ref: ArtifactID) -> ReplayPlan:
     """Load a decision packet, infer strategy/seed, and compute completeness."""
     payload = _load_packet_payload(store, packet_ref)
     completeness = completeness_check(store, packet_ref, payload=payload)
@@ -286,13 +295,13 @@ def build_replay_plan(store: FileSystemCAS, packet_ref: ArtifactID) -> ReplayPla
 
 
 def measure_replayable_audit_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     replay_bundle_ref: ArtifactRef,
 ) -> ReplayBundleMeasurement:
     """Check replay-bundle dependencies and run semantic replay when snapshots exist."""
     from polisyos.scientist.policy_design.output import load_replayable_audit_bundle
 
-    bundle = load_replayable_audit_bundle(store, replay_bundle_ref)
+    bundle = load_replayable_audit_bundle(cast("Any", store), replay_bundle_ref)
     refs: list[ArtifactRef] = []
     if bundle.candidate_ref is not None:
         refs.append(bundle.candidate_ref)
@@ -414,7 +423,7 @@ def _bundle_has_runtime_snapshot(bundle: Any) -> bool:
 
 
 def _measure_scientist_replay_from_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     replay_bundle_ref: ArtifactRef,
     bundle: Any,
 ) -> dict[str, Any]:
@@ -432,6 +441,7 @@ def _measure_scientist_replay_from_bundle(
         params_snapshot.setdefault("workflow_id", bundle.workflow_id)
     params_snapshot.setdefault("replay_mode", True)
     state = ExperimentState(
+        schema_version="1.3",
         run_id=replay_run_id,
         inputs=dict(bundle.runtime_input_refs),
         artifacts_index=dict(bundle.runtime_artifacts_index),
@@ -491,7 +501,7 @@ def _resolve_replay_evaluation_ref(state: Any) -> ArtifactRef | None:
 
 
 def _load_artifact_payload_for_diff(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef,
 ) -> dict[str, Any]:
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
@@ -506,7 +516,7 @@ def _artifact_id_from_index(index: dict[str, ArtifactRef], key: str) -> str | No
 
 
 def completeness_check(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     packet_ref: ArtifactID,
     *,
     payload: dict[str, Any] | None = None,
@@ -578,7 +588,7 @@ def completeness_check(
     for hex_id, node in graph.nodes.items():
         if node.status == NodeStatus.PRESENT:
             continue
-        role = _resolve_role(node, roles_by_id.get(str(node.artifact_id)))
+        role = _resolve_role(node.role, roles_by_id.get(str(node.artifact_id)))
         critical = _is_critical_role(
             role,
             strategy=strategy,
@@ -624,7 +634,7 @@ def completeness_check(
 
 
 def verify_replay(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     original_payload: dict[str, Any],
     replay_simulation_ref: ArtifactID | None,
@@ -707,7 +717,7 @@ def verify_replay(
     )
 
 
-def _load_packet_payload(store: FileSystemCAS, packet_ref: ArtifactID) -> dict[str, Any]:
+def _load_packet_payload(store: ArtifactStore, packet_ref: ArtifactID) -> dict[str, Any]:
     payload = from_canonical_bytes(store.get_bytes(packet_ref))
     if not isinstance(payload, dict):
         raise ValueError(f"DecisionPacket payload must be object, got: {type(payload).__name__}")
@@ -773,7 +783,7 @@ def _snapshot_presence_status(
     graph: DependencyGraph,
     roles_by_id: dict[str, set[str]],
 ) -> dict[str, bool]:
-    status = {role: False for role in _STATE_SOURCE_ROLES}
+    status = dict.fromkeys(_STATE_SOURCE_ROLES, False)
     for artifact_ref, roles in roles_by_id.items():
         node = graph.nodes.get(ArtifactID.model_validate(artifact_ref).hex)
         if node is None or node.status != NodeStatus.PRESENT:
@@ -838,10 +848,12 @@ def _extract_simulation_result_ref(payload: dict[str, Any]) -> ArtifactID | None
     return try_parse_artifact_id(artifacts.get("simulation_result_ref"))
 
 
-def _load_metrics_values(store: FileSystemCAS, sim_ref: ArtifactID) -> dict[str, int | str]:
+def _load_metrics_values(store: ArtifactStore, sim_ref: ArtifactID) -> dict[str, int | str]:
     sim_payload = from_canonical_bytes(store.get_bytes(sim_ref))
     simulation_result = SimulationResult.model_validate(sim_payload)
-    metrics_payload = from_canonical_bytes(store.get_bytes(simulation_result.metrics_ref.artifact_id))
+    metrics_payload = from_canonical_bytes(
+        store.get_bytes(simulation_result.metrics_ref.artifact_id)
+    )
     metrics = Metrics.model_validate(metrics_payload)
     return dict(metrics.values)
 
@@ -860,8 +872,8 @@ __all__ = [
     "build_replay_plan",
     "compare_current_environment",
     "completeness_check",
-    "measure_replayable_audit_bundle",
     "determine_replay_strategy",
+    "measure_replayable_audit_bundle",
     "normalize_artifact_id",
     "resolve_effective_seed",
     "set_global_seeds",

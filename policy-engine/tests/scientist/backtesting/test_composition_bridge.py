@@ -1,7 +1,14 @@
 from __future__ import annotations
 
+import polisyos.scientist.backtesting.composition_bridge as composition_bridge_module
 from polisyos.ir.analytics.alignment_certification import AlignmentVerificationConfig
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, EdgeSource, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    EdgeSource,
+    GraphType,
+)
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.analytics.cross_graph import SCMFragment
 from polisyos.scientist.backtesting.composition_bridge import replay_fragment_composition_case
@@ -36,7 +43,7 @@ def _fragment(fragment_id: str, *, interface_variables: list[str], inputs: list[
         exposed_inputs=list(inputs or []),
         exposed_outputs=list(outputs or []),
         variable_definitions={name: name.replace("_", " ").title() for name in interface_variables},
-        variable_units={name: "unitless" for name in interface_variables},
+        variable_units=dict.fromkeys(interface_variables, "unitless"),
     )
 
 
@@ -145,3 +152,48 @@ def test_replay_fragment_composition_case_detects_disconnected_topology(tmp_path
     assert {card["failure_type"] for card in result.failure_cards} >= {
         "fragment_topology_disconnected"
     }
+
+
+def test_replay_fragment_composition_case_accepts_injected_store_factory(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    fragments = [
+        _fragment("core", interface_variables=["employment_rate"], outputs=["employment_rate"]),
+        _fragment("training", interface_variables=["employment_rate"], inputs=["employment_rate"]),
+    ]
+    fragment_graphs = {
+        "core": _graph(["employment_rate"], []),
+        "training": _graph(["employment_rate", "wages"], [_edge("employment_rate", "wages")]),
+    }
+    captured_roots = []
+
+    def _unexpected_default(root):
+        del root
+        raise AssertionError("default composition store factory should not run")
+
+    def _store_factory(root):
+        captured_roots.append(root)
+        from polisyos.core.artifacts.backends.config import (
+            ArtifactStoreConfig,
+            build_artifact_store,
+        )
+
+        return build_artifact_store(ArtifactStoreConfig(root=str(root)))
+
+    monkeypatch.setattr(
+        composition_bridge_module,
+        "_default_composition_store_factory",
+        _unexpected_default,
+    )
+
+    result = replay_fragment_composition_case(
+        fragments=fragments,
+        fragment_graphs=fragment_graphs,
+        precompute_alignment=True,
+        cas_root=str(tmp_path / "cas_injected"),
+        store_factory=_store_factory,
+    )
+
+    assert captured_roots == [tmp_path / "cas_injected"]
+    assert result.persisted_artifacts["composition_certificate"] is True

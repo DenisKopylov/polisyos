@@ -8,22 +8,23 @@ should be changed" layer, not the "how the world evolves" layer.
 """
 from __future__ import annotations
 
-from typing import Annotated, Any, Sequence
+from typing import Annotated, Any
 
 from pydantic import Field, model_validator
 
-# Import selector types from surface.py (to be moved later or re-exported)
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
-from polisyos.ir.governance.selector_expr import (
-    SelectorAll,
-    SelectorAny,
-    SelectorExpr,
-    SelectorNot,
-    SelectorPredicate,
+from polisyos.ir._validation import (
+    ensure_non_empty_dotted_path,
+    ensure_unique_ids,
+    validate_selector_expr,
 )
+from polisyos.ir.governance.game_design import MechanismDesignSpec
+from polisyos.ir.governance.policy_composition import PolicyCompositionPlan
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorExpr
+from polisyos.ir.governance.temporal_logic import TemporalPolicyConstraint
 from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.kernel.values import ParamValue
+from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
 from polisyos.ir.types import TranslatableString
 
 # Constants
@@ -32,8 +33,10 @@ ARTIFACT_ID_PATTERN = r"^sha256:[a-f0-9]{64}$"
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 MAX_INTERVENTIONS = 100
 MAX_MECHANISM_BINDINGS = 100
+MAX_TEMPORAL_CONSTRAINTS = 64
 MAX_SELECTOR_DEPTH = 10
 MAX_SELECTOR_NODES = 50
+MAX_PARAM_PATH_DEPTH = 16
 
 
 class MechanismBinding(KernelModel):
@@ -135,9 +138,11 @@ class TemporalInterventionSequence(KernelModel):
 
     @model_validator(mode="after")
     def validate_temporal_sequence(self) -> "TemporalInterventionSequence":
-        step_ids = [step.step_id for step in self.steps]
-        if len(step_ids) != len(set(step_ids)):
-            raise ValueError("duplicate temporal intervention step_id")
+        ensure_unique_ids(
+            self.steps,
+            key_fn=lambda step: step.step_id,
+            label="temporal intervention step_id",
+        )
         effective_dates = [step.effective_date for step in self.steps]
         if effective_dates != sorted(effective_dates):
             raise ValueError("temporal intervention steps must be ordered by effective_date")
@@ -164,6 +169,15 @@ class ParameterSpec(KernelModel):
     sensitivity_priority: Annotated[int, Field(ge=1, le=10)] = Field(
         default=5, description="Priority for sensitivity analysis (1=highest)"
     )
+
+    @model_validator(mode="after")
+    def validate_param_spec(self) -> "ParameterSpec":
+        ensure_non_empty_dotted_path(
+            self.param_path,
+            field_name="param_path",
+            max_depth=MAX_PARAM_PATH_DEPTH,
+        )
+        return self
 
 
 class PolicySpec(KernelModel):
@@ -219,6 +233,19 @@ class PolicySpec(KernelModel):
         default_factory=list,
         description="Tunable parameter specifications",
     )
+    temporal_constraints: list[TemporalPolicyConstraint] = Field(
+        default_factory=list,
+        max_length=MAX_TEMPORAL_CONSTRAINTS,
+        description="Temporal compliance/consistency constraints for the policy",
+    )
+    composition: PolicyCompositionPlan | None = Field(
+        None,
+        description="Optional multi-level override/composition metadata",
+    )
+    mechanism_design: MechanismDesignSpec | None = Field(
+        None,
+        description="Optional strategic/mechanism-design contract for the policy",
+    )
 
     # Global Schedule (optional, for policy-level timing)
     global_schedule: ScheduleSpec | None = Field(
@@ -236,13 +263,32 @@ class PolicySpec(KernelModel):
     def validate_policy_spec(self) -> "PolicySpec":
         """Validate internal consistency of the policy spec."""
 
-        _validate_unique_ids(self.interventions, "intervention_id")
-        _validate_unique_ids(self.mechanism_bindings, "binding_id")
-        _validate_unique_ids(self.parameters, "param_id")
-
-        _validate_selector_limits(self.interventions)
+        ensure_unique_ids(
+            self.interventions,
+            key_fn=lambda item: item.intervention_id,
+            label="intervention_id",
+        )
+        ensure_unique_ids(
+            self.mechanism_bindings,
+            key_fn=lambda item: item.binding_id,
+            label="binding_id",
+        )
+        ensure_unique_ids(self.parameters, key_fn=lambda item: item.param_id, label="param_id")
+        ensure_unique_ids(
+            self.temporal_constraints,
+            key_fn=lambda item: item.constraint_id,
+            label="temporal constraint_id",
+        )
 
         intervention_ids = {intervention.intervention_id for intervention in self.interventions}
+        mechanism_ids = {binding.mechanism_id for binding in self.mechanism_bindings}
+        for intervention in self.interventions:
+            validate_selector_expr(
+                intervention.target,
+                label=f"intervention '{intervention.intervention_id}'",
+                max_depth=MAX_SELECTOR_DEPTH,
+                max_nodes=MAX_SELECTOR_NODES,
+            )
         for binding in self.mechanism_bindings:
             for intervention_id in binding.intervention_ids:
                 if intervention_id not in intervention_ids:
@@ -258,51 +304,23 @@ class PolicySpec(KernelModel):
                     f"unknown intervention '{param.intervention_id}'"
                 )
 
+        if self.composition is not None:
+            participating_policy_ids = {layer.policy_id for layer in self.composition.layers}
+            if (
+                self.policy_id not in participating_policy_ids
+                and self.composition.base_policy_id != self.policy_id
+            ):
+                raise ValueError(
+                    "composition must reference the current policy_id as base_policy_id "
+                    "or as one of the composed layers"
+                )
+
+        if self.mechanism_design is not None:
+            unknown_mechanisms = set(self.mechanism_design.mechanism_ids) - mechanism_ids
+            if unknown_mechanisms:
+                raise ValueError(
+                    "mechanism_design references unknown mechanism_ids "
+                    f"{sorted(unknown_mechanisms)}"
+                )
+
         return self
-
-
-def _validate_unique_ids(items: Sequence[KernelModel], attr: str) -> None:
-    """Validate that all items have unique values for the given attribute."""
-
-    seen: set[str] = set()
-    for item in items:
-        value = getattr(item, attr)
-        if value in seen:
-            raise ValueError(f"duplicate {attr}: {value}")
-        seen.add(value)
-
-
-def _selector_stats(node: SelectorExpr) -> tuple[int, int]:
-    """Calculate depth and node count of selector expression."""
-
-    if isinstance(node, SelectorPredicate):
-        return 1, 1
-    if isinstance(node, SelectorNot):
-        depth, nodes = _selector_stats(node.clause)
-        return depth + 1, nodes + 1
-    if isinstance(node, (SelectorAll, SelectorAny)):
-        depths: list[int] = []
-        total = 1
-        for clause in node.clauses:
-            depth, nodes = _selector_stats(clause)
-            depths.append(depth)
-            total += nodes
-        return (max(depths) + 1 if depths else 1), total
-    return 1, 1
-
-
-def _validate_selector_limits(interventions: list[InterventionSpec]) -> None:
-    """Validate selector complexity limits."""
-
-    for intervention in interventions:
-        depth, nodes = _selector_stats(intervention.target)
-        if depth > MAX_SELECTOR_DEPTH:
-            raise ValueError(
-                f"Selector depth {depth} in intervention '{intervention.intervention_id}' "
-                f"exceeds limit {MAX_SELECTOR_DEPTH}"
-            )
-        if nodes > MAX_SELECTOR_NODES:
-            raise ValueError(
-                f"Selector nodes {nodes} in intervention '{intervention.intervention_id}' "
-                f"exceeds limit {MAX_SELECTOR_NODES}"
-            )

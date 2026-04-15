@@ -633,7 +633,7 @@ class RecoverabilityTest:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="recoverability_test",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({_json_slot("mgraph_data")}),
         output_slots=frozenset({_json_slot("recoverability_result")}),
@@ -769,7 +769,7 @@ class OrderedRecovery:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="ordered_recovery",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({_json_slot("mgraph_data")}),
         output_slots=frozenset({
@@ -902,7 +902,7 @@ class FullLawIdentify:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="full_law_identify",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             _json_slot("mgraph_data"),
@@ -1044,7 +1044,7 @@ class MGraphImplicationTester:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="mgraph_implication_test",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             _json_slot("mgraph_data"),

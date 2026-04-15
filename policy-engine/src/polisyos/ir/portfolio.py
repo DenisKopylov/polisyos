@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from functools import cached_property
 from typing import Mapping
 
 from pydantic import Field, model_validator
@@ -24,6 +25,13 @@ class InteractionType(str, Enum):
     CANNIBALIZATION = "cannibalization"
     SUBSTITUTION = "substitution"
     CONFLICT = "conflict"
+
+
+class InteractionMode(str, Enum):
+    """Interaction aggregation mode for portfolio scoring."""
+
+    PAIRWISE_ADDITIVE = "pairwise_additive"
+    MULTIPLICATIVE = "multiplicative"
 
 
 class PolicyInteraction(KernelModel):
@@ -67,20 +75,19 @@ class InteractionMatrix(KernelModel):
         description="Upper clamp for legacy multiplicative interaction mode.",
     )
 
-    def get_interaction(self, policy_a_id: str, policy_b_id: str) -> PolicyInteraction | None:
+    @cached_property
+    def _interaction_index(self) -> dict[tuple[str, str], PolicyInteraction]:
+        index: dict[tuple[str, str], PolicyInteraction] = {}
         for interaction in self.interactions:
-            if (
-                interaction.policy_a_id == policy_a_id
-                and interaction.policy_b_id == policy_b_id
-            ):
-                return interaction
-            if (
-                interaction.symmetric
-                and interaction.policy_a_id == policy_b_id
-                and interaction.policy_b_id == policy_a_id
-            ):
-                return interaction
-        return None
+            key = (interaction.policy_a_id, interaction.policy_b_id)
+            index.setdefault(key, interaction)
+            if interaction.symmetric:
+                reverse_key = (interaction.policy_b_id, interaction.policy_a_id)
+                index.setdefault(reverse_key, interaction)
+        return index
+
+    def get_interaction(self, policy_a_id: str, policy_b_id: str) -> PolicyInteraction | None:
+        return self._interaction_index.get((policy_a_id, policy_b_id))
 
     def get_coefficient(self, policy_a_id: str, policy_b_id: str) -> float:
         interaction = self.get_interaction(policy_a_id, policy_b_id)
@@ -225,6 +232,10 @@ class PolicyPortfolio(KernelModel):
     def policy_ids(self) -> list[str]:
         return [policy.policy_id for policy in self.policies]
 
+    @cached_property
+    def _excluded_pair_set(self) -> set[frozenset[str]]:
+        return {frozenset(pair) for pair in self.excluded_pairs}
+
     def is_valid_combination(self, active_policy_ids: set[str]) -> bool:
         if (
             self.max_active_policies is not None
@@ -236,8 +247,7 @@ class PolicyPortfolio(KernelModel):
             if req not in active_policy_ids:
                 return False
 
-        excluded = {frozenset(pair) for pair in self.excluded_pairs}
-        for pair in excluded:
+        for pair in self._excluded_pair_set:
             if pair.issubset(active_policy_ids):
                 return False
 
@@ -248,14 +258,24 @@ class PolicyPortfolio(KernelModel):
         base_benefits: Mapping[str, float],
         *,
         active_policy_ids: set[str] | None = None,
-        interaction_mode: str = "pairwise_additive",
+        interaction_mode: InteractionMode | str = InteractionMode.PAIRWISE_ADDITIVE,
     ) -> float:
         active = set(active_policy_ids or self.policy_ids)
         filtered_active = [
             policy_id for policy_id in sorted(active) if policy_id in base_benefits
         ]
+        try:
+            mode = (
+                interaction_mode
+                if isinstance(interaction_mode, InteractionMode)
+                else InteractionMode(interaction_mode)
+            )
+        except ValueError as exc:
+            raise ValueError(
+                "interaction_mode must be one of: pairwise_additive, multiplicative"
+            ) from exc
 
-        if interaction_mode == "pairwise_additive":
+        if mode is InteractionMode.PAIRWISE_ADDITIVE:
             base_total = sum(float(base_benefits[policy_id]) for policy_id in filtered_active)
             interaction_total = 0.0
 
@@ -269,7 +289,7 @@ class PolicyPortfolio(KernelModel):
                     )
             return base_total + interaction_total
 
-        if interaction_mode == "multiplicative":
+        if mode is InteractionMode.MULTIPLICATIVE:
             total = 0.0
             for policy_a_id in filtered_active:
                 multiplier = 1.0
@@ -277,7 +297,7 @@ class PolicyPortfolio(KernelModel):
                     if policy_b_id == policy_a_id:
                         continue
                     multiplier *= self.interaction_matrix.get_coefficient(policy_a_id, policy_b_id)
-                multiplier = self.interaction_matrix.clamp_multiplier(multiplier)
+                    multiplier = self.interaction_matrix.clamp_multiplier(multiplier)
                 total += float(base_benefits[policy_a_id]) * multiplier
             return total
 

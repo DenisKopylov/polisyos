@@ -44,6 +44,7 @@ Example
 from __future__ import annotations
 
 import numpy as np
+import warnings
 from dataclasses import dataclass, field
 from typing import FrozenSet
 
@@ -126,6 +127,11 @@ def register_slot_schema(schema: SlotSchema, *, override: bool = False) -> None:
         raise ValueError(
             f"SlotSchema '{schema.name}' is already registered. "
             "Pass override=True to replace it."
+        )
+    if schema.name in _registry and override and _registry[schema.name] != schema:
+        warnings.warn(
+            f"Overwriting SlotSchema '{schema.name}' with a new definition.",
+            stacklevel=2,
         )
     _registry[schema.name] = schema
 

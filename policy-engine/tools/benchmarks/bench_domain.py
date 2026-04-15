@@ -1,56 +1,19 @@
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SRC_ROOT = REPO_ROOT / "src"
-if str(SRC_ROOT) not in sys.path:
-    sys.path.insert(0, str(SRC_ROOT))
+for _candidate in Path(__file__).resolve().parents:
+    if (_candidate / "tools").is_dir() and (_candidate / "pyproject.toml").exists():
+        sys.path.insert(0, str(_candidate))
+        break
 
-# check_domain.py
-# Хак импортов для конфига (как мы делали раньше)
-import jax_bootstrap  # noqa: F401
-import jax  # noqa: E402
-import jax.numpy as jnp  # noqa: E402
+from tools._lib.compat import expose_module, run_module_entrypoint
 
-from polisyos.foundry.domain.state import GlobalState  # noqa: E402
-from polisyos.common.logger import logger  # noqa: E402
+_TARGET = "tools.research.benchmarks.bench_domain"
 
-
-def main():
-    logger.info("🚀 Starting Domain Model Check...")
-
-    N = 1_000_000  # Тестируем на миллионе агентов
-
-    # 1. Инициализация (на CPU это займет мгновения, т.к. JAX ленивый)
-    logger.info(f"Allocating state for {N:,} agents...")
-    state = GlobalState.empty(n_agents=N, n_firms=10)
-
-    # 2. Простой расчет (Векторизация в действии)
-    # Допустим, мы хотим выдать всем грант 500 единиц
-
-    @jax.jit
-    def apply_grant(s: GlobalState, amount: float) -> GlobalState:
-        # Обрати внимание: мы создаем НОВЫЙ стейт, а не меняем старый (Functional Programming)
-        new_income = s.agents.income + amount
-
-        # Обновляем структуру (replace создает копию с измененным полем)
-        new_agents = s.agents.replace(income=new_income)
-        return s.replace(agents=new_agents)
-
-    logger.info("Running JIT compilation...")
-    # Первый запуск - компиляция
-    state_v2 = apply_grant(state, 500.0)
-    # block_until_ready нужен, чтобы замерить реальное время выполнения асинхронного JAX
-    state_v2.agents.income.block_until_ready()
-    logger.info("Calculation complete.")
-
-    # Проверка результатов
-    sample = state_v2.agents.income[:5]
-    logger.info(f"Sample incomes: {sample}")
-
-    assert jnp.all(state_v2.agents.income == 500.0), "Grant logic failed!"
-    logger.success("✅ Domain Layer is JAX-compatible!")
+expose_module(globals(), _TARGET)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(run_module_entrypoint(_TARGET))

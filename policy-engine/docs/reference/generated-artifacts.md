@@ -92,21 +92,21 @@ cd frontend/runtime-dashboard && npm run generate:api
 ## `Recorded connector fixtures`
 
 - Family id: `connector-recorded-fixtures`
-- Source of truth: Live upstream connector responses captured through scripts/record_fixtures.py
+- Source of truth: Live upstream connector responses captured through `polisyos-tools data record-fixtures`
 - Commit policy: `committed`
 - Freshness rule: Refresh intentionally when connector contracts, source profiles, or upstream response shapes change.
 - Drift gate: `manual_review`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
-- Related workflow/config: `scripts/record_fixtures.py`
+- Related workflow/config: `polisyos-tools data record-fixtures`
 - Outputs:
   - `tests/fabric/connectors/sources/fixtures`
 
 Canonical regeneration commands:
 ```bash
-PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 1
-PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 2
-PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 3
+uv run polisyos-tools data record-fixtures --wave 1
+uv run polisyos-tools data record-fixtures --wave 2
+uv run polisyos-tools data record-fixtures --wave 3
 ```
 
 ## `Runtime dashboard contract fixtures`
@@ -143,7 +143,7 @@ cd frontend/runtime-dashboard && npm run contracts:record
 
 Canonical regeneration commands:
 ```bash
-bash benchmarks/run_all_benchmarks.sh
+uv run polisyos-tools benchmarks run-all
 cd frontend/runtime-dashboard && npm run bundle:stats
 ```
 

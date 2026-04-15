@@ -1,22 +1,13 @@
 """Public governance pipeline module API."""
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
-from typing import List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, cast
 
-try:
-    from opentelemetry.trace import Status, StatusCode
-except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
-    class StatusCode(str, Enum):
-        OK = "OK"
-        ERROR = "ERROR"
-
-    class Status:  # type: ignore[override]
-        def __init__(self, status_code: StatusCode, description: str | None = None) -> None:
-            self.status_code = status_code
-            self.description = description
+from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.governance.passes.base import (
@@ -25,18 +16,58 @@ from polisyos.core.governance.passes.base import (
     PassContext,
     ValidatorPass,
 )
-from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.pipeline import LinearPipeline
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 from .telemetry import PassSpan, ValidationTrace
 
+if TYPE_CHECKING:
+    from polisyos.core.governance.profiles import ValidationProfile
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+
 logger = get_logger(__name__)
+
+_VALIDATOR_PASS_ERRORS = (
+    ArithmeticError,
+    AssertionError,
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
+
+
+def _load_runtime_trace_types() -> tuple[Any, Any]:
+    try:
+        from opentelemetry.trace import Status, StatusCode
+    except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+        class _FallbackStatusCode(str, Enum):
+            OK = "OK"
+            ERROR = "ERROR"
+
+        class _FallbackStatus:
+            def __init__(
+                self,
+                status_code: _FallbackStatusCode,
+                description: str | None = None,
+            ) -> None:
+                self.status_code = status_code
+                self.description = description
+
+        return _FallbackStatus, _FallbackStatusCode
+    return Status, StatusCode
+
+
+Status, StatusCode = _load_runtime_trace_types()
 
 
 @dataclass
 class _ValidationRunState:
-    all_issues: List[ComplianceIssue]
+    all_issues: list[ComplianceIssue]
     trace: ValidationTrace
     short_circuit: bool = False
 
@@ -52,16 +83,24 @@ class ValidationPipeline:
     - Graceful error handling per pass
     """
 
-    def __init__(self, passes: List[ValidatorPass]):
+    def __init__(
+        self,
+        passes: list[ValidatorPass],
+        *,
+        tracer: PolicyOSTracer | Any | None = None,
+        metrics: MetricsRegistry | Any | None = None,
+    ) -> None:
         self._pipeline = LinearPipeline(passes, stage_id=lambda p: p.pass_id)
+        self._tracer = tracer if tracer is not None else get_tracer()
+        self._metrics = metrics if metrics is not None else get_metrics()
 
     def validate(
         self,
         ctx: PassContext,
         profile: ValidationProfile,
-    ) -> Tuple[List[ComplianceIssue], ValidationTrace]:
-        tracer = get_tracer()
-        metrics = get_metrics()
+    ) -> tuple[list[ComplianceIssue], ValidationTrace]:
+        tracer = self._tracer
+        metrics = self._metrics
 
         trace = ValidationTrace(run_id=ctx.run_id, profile=profile.level.value)
         state = _ValidationRunState(all_issues=[], trace=trace)
@@ -124,8 +163,8 @@ class ValidationPipeline:
         validator: ValidatorPass,
         run_state: _ValidationRunState,
         ctx: PassContext,
-        tracer,
-        metrics,
+        tracer: PolicyOSTracer | Any,
+        metrics: MetricsRegistry | Any,
     ) -> _ValidationRunState:
         with tracer.start_as_current_span(
             f"governance.pass.{validator.pass_id}",
@@ -134,13 +173,22 @@ class ValidationPipeline:
                 "polisyos.pass.estimated_cost_ms": validator.estimated_cost_ms,
             },
         ) as pass_span:
-            span = PassSpan(pass_id=validator.pass_id, start_time=datetime.utcnow())
+            span = PassSpan(pass_id=validator.pass_id, start_time=datetime.now(UTC))
 
             if ctx.ir:
                 try:
                     span.set_inputs_hash(ctx.ir.model_dump(mode="json"))
-                except Exception as exc:
-                    logger.debug("Ignored exception: %s", exc)
+                except (AttributeError, TypeError, ValueError) as exc:
+                    envelope = emit_degraded_path(
+                        component="governance.pipeline",
+                        operation="set_inputs_hash",
+                        reason="input_hash_failed",
+                        exc=exc,
+                        details={"pass_id": validator.pass_id, "run_id": ctx.run_id},
+                        log=logger,
+                        metrics=metrics,
+                    )
+                    span.error = json.dumps(envelope, sort_keys=True, default=str)
 
             with metrics.time_governance_pass({"pass_id": validator.pass_id}):
                 try:
@@ -170,10 +218,24 @@ class ValidationPipeline:
                     else:
                         pass_span.set_status(Status(StatusCode.OK))
 
-                except Exception as exc:
+                except _VALIDATOR_PASS_ERRORS as exc:
                     span.error = str(exc)
                     pass_span.set_status(Status(StatusCode.ERROR, str(exc)))
                     pass_span.record_exception(exc)
+                    envelope = emit_degraded_path(
+                        component="governance.pipeline",
+                        operation="validator_pass",
+                        reason="validator_pass_failed",
+                        exc=exc,
+                        details={"pass_id": validator.pass_id, "run_id": ctx.run_id},
+                        log=logger,
+                        metrics=metrics,
+                    )
+                    span.error = json.dumps(envelope, sort_keys=True, default=str)
+                    pass_span.set_attribute(
+                        "polisyos.validation.error_envelope.reason",
+                        str(envelope.get("reason", "")),
+                    )
                     metrics.record_validation_issue(
                         severity="blocker",
                         pass_id=validator.pass_id,
@@ -186,6 +248,11 @@ class ValidationPipeline:
                             message=f"Pass '{validator.pass_id}' failed: {exc}",
                             severity=IssueSeverity.BLOCKER,
                             code="PASS_EXECUTION_ERROR",
+                            suggestion=(
+                                "Inspect validation_trace span.error and degraded_path "
+                                "metrics for the structured root-cause envelope."
+                            ),
+                            input_value=json.dumps(envelope, sort_keys=True, default=str),
                         )
                     )
                     span.blocker_count = 1
@@ -198,11 +265,11 @@ class ValidationPipeline:
 
         return run_state
 
-    def get_pass(self, pass_id: str) -> Optional[ValidatorPass]:
+    def get_pass(self, pass_id: str) -> ValidatorPass | None:
         """Retrieve a specific pass by ID."""
         return self._pipeline.get_stage(pass_id)
 
     @property
-    def available_passes(self) -> List[str]:
+    def available_passes(self) -> list[str]:
         """List of available pass IDs."""
-        return self._pipeline.stage_ids()
+        return cast("list[str]", list(self._pipeline.stage_ids()))

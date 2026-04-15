@@ -16,7 +16,8 @@ import {
   subscribeRuntimeApiEvents,
   type RuntimeApiEvent,
 } from "@/api/runtimeApiEvents";
-import { LOGIN_PATH, LOGIN_URL } from "@/lib/constants";
+import { LOGIN_PATH } from "@/lib/constants";
+import { buildLoginNavigationTarget } from "@/features/auth/domain/loginRedirect";
 import { useLogger } from "@/shared/telemetry/logger";
 
 type RuntimeIncident = RuntimeApiEvent | null;
@@ -27,17 +28,6 @@ type RuntimeApiContextValue = {
 };
 
 const RuntimeApiContext = createContext<RuntimeApiContextValue | null>(null);
-
-function buildLoginHref(nextPath: string) {
-  const trimmedNext = nextPath.trim() || "/";
-  if (LOGIN_URL.startsWith("/")) {
-    const params = new URLSearchParams({ next: trimmedNext });
-    return `${LOGIN_URL}?${params.toString()}`;
-  }
-  const url = new URL(LOGIN_URL);
-  url.searchParams.set("next", trimmedNext);
-  return url.toString();
-}
 
 export function RuntimeApiProvider({ children }: PropsWithChildren) {
   const location = useLocation();
@@ -60,7 +50,7 @@ export function RuntimeApiProvider({ children }: PropsWithChildren) {
     }
 
     const nextPath = `${location.pathname}${location.search}${location.hash}`;
-    const loginHref = buildLoginHref(nextPath);
+    const loginTarget = buildLoginNavigationTarget(nextPath);
     redirectingRef.current = true;
     setIncident(null);
     logger.warn({
@@ -68,18 +58,19 @@ export function RuntimeApiProvider({ children }: PropsWithChildren) {
       message: "Redirecting runtime session to login",
       tags: {
         nextPath,
+        mode: loginTarget.mode,
         reason,
       },
     });
 
-    if (LOGIN_URL.startsWith("/")) {
+    if (loginTarget.mode === "spa") {
       if (location.pathname !== LOGIN_PATH) {
-        navigate(loginHref, { replace: true });
+        void navigate(loginTarget.href, { replace: true });
       }
       return;
     }
 
-    window.location.assign(loginHref);
+    window.location.assign(loginTarget.href);
   });
 
   useEffect(() => {

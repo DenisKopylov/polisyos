@@ -2,10 +2,15 @@
 from __future__ import annotations
 
 import jax.numpy as jnp
+import pytest
 
 from polisyos.foundry.runtime.nan_guard import (
     NaNGuard,
     create_nan_guard_for_profile,
+)
+from polisyos.foundry.methods.exceptions import (
+    NaNGuardConfigurationError,
+    NaNGuardEvaluationError,
 )
 
 
@@ -24,7 +29,7 @@ class TestNaNGuardBasics:
     def test_enabled_guard_catches_nan(self) -> None:
         guard = NaNGuard(enabled=True)
 
-        state = {"slot": jnp.array([jnp.nan, 1.0, 2.0])}
+        state = {"income_slot": jnp.array([jnp.nan, 1.0, 2.0])}
         result = guard.check_state(state, "income_slot", "income_tax", time_step=5)
 
         assert result is False
@@ -63,6 +68,23 @@ class TestNaNGuardBasics:
         report = guard.get_report()
         assert report.ok is True
         assert report.checks_performed == 1
+
+    def test_missing_slot_fails_closed(self) -> None:
+        guard = NaNGuard(enabled=True)
+
+        with pytest.raises(NaNGuardConfigurationError):
+            guard.check_state({"other_slot": jnp.array([1.0])}, "slot", "mech", time_step=0)
+
+    def test_jax_array_coercion_failure_raises_typed_error(self, monkeypatch) -> None:
+        guard = NaNGuard(enabled=True)
+
+        def _boom(value):
+            raise TypeError("broken asarray")
+
+        monkeypatch.setattr("jax.numpy.asarray", _boom)
+
+        with pytest.raises(NaNGuardEvaluationError):
+            guard.check_state({"slot": jnp.array([1.0])}, "slot", "mech", time_step=0)
 
 
 class TestNaNGuardDiagnostics:

@@ -4,4 +4,5 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-exec python3 tools/workspace/acceptance_audit.py "$@"
+printf '%s\n' 'DEPRECATED: `scripts/acceptance-audit` is a compatibility wrapper; use `polisyos-tools workspace acceptance-audit` instead.' >&2
+exec python3 -m tools.cli workspace acceptance-audit "$@"

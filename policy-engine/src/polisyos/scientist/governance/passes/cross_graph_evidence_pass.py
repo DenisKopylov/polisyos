@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
@@ -17,6 +18,11 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.transportability import TransportMode
 from polisyos.ir.refs import CrossGraphEvidenceProfileRef
+from polisyos.scientist.governance.passes._artifact_resolution import (
+    resolve_optional_artifact_model,
+)
+
+logger = get_logger(__name__)
 
 
 class CrossGraphEvidencePass(ValidatorPass):
@@ -41,14 +47,15 @@ class CrossGraphEvidencePass(ValidatorPass):
         if ctx.profile.level is ProfileLevel.FAST:
             return []
 
-        profile = _resolve_profile(ctx)
         expected = _expected_profile(ctx.state)
         severity = (
             IssueSeverity.BLOCKER
             if ctx.profile.level is ProfileLevel.STRICT
             else IssueSeverity.WARNING
         )
-        issues: list[ComplianceIssue] = []
+        profile_resolution = _resolve_profile(ctx, severity=severity)
+        profile = profile_resolution.value
+        issues: list[ComplianceIssue] = list(profile_resolution.issues)
 
         if profile is None:
             if expected:
@@ -176,30 +183,25 @@ class CrossGraphEvidencePass(ValidatorPass):
         return issues
 
 
-def _resolve_profile(ctx: PassContext) -> CrossGraphEvidenceProfile | None:
-    direct = ctx.state.get("cross_graph_evidence_profile")
-    if isinstance(direct, CrossGraphEvidenceProfile):
-        return direct
-    if isinstance(direct, dict):
-        try:
-            return CrossGraphEvidenceProfile.model_validate(direct)
-        except Exception:
-            return None
-
-    artifacts_index = ctx.state.get("artifacts_index")
-    if not isinstance(artifacts_index, dict):
-        return None
-    raw_ref = artifacts_index.get("cross_graph_evidence_profile_ref")
-    if raw_ref is None:
-        return None
-    store = ctx.state.get("_store")
-    if store is None:
-        return None
-    try:
-        ref = CrossGraphEvidenceProfileRef.model_validate(raw_ref)
-        return load_cross_graph_evidence_profile(store, ref)
-    except Exception:
-        return None
+def _resolve_profile(ctx: PassContext, *, severity: IssueSeverity):
+    return resolve_optional_artifact_model(
+        ctx=ctx,
+        pass_id="cross_graph_evidence",
+        direct_key="cross_graph_evidence_profile",
+        ref_key="cross_graph_evidence_profile_ref",
+        model_cls=CrossGraphEvidenceProfile,
+        ref_model=CrossGraphEvidenceProfileRef,
+        load_model=load_cross_graph_evidence_profile,
+        severity=severity,
+        code="CROSS_GRAPH_PROFILE_INVALID",
+        message=(
+            "Cross-graph evidence profile could not be validated or loaded."
+        ),
+        suggestion=(
+            "Rebuild the cross-graph evidence profile before governance review."
+        ),
+        log=logger,
+    )
 
 
 def _expected_profile(state: dict[str, Any]) -> bool:

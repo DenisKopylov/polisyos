@@ -1,15 +1,19 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pandas as pd
+import pytest
 
 from polisyos.fabric.quality import (
     QualityIndicators,
     QualityLevel,
     QualityThresholds,
+    compute_quality_from_duckdb,
     compute_quality_indicators,
 )
+from polisyos.fabric.connectors.quality.statistics import AnomalyFinding, AnomalyReport
+from polisyos.fabric.safety import UnsafeIdentifierError
 from polisyos.fabric.fitness_report import DataFitnessReport, MetricFitness
 
 
@@ -36,11 +40,19 @@ class TestQualityIndicatorsCalculation:
 
     def test_staleness_calculation(self) -> None:
         df = pd.DataFrame({"a": [1, 2, 3]})
-        last_updated = datetime.utcnow() - timedelta(days=30)
+        last_updated = datetime.now(timezone.utc) - timedelta(days=30)
         indicators = compute_quality_indicators(
             df, metric_id="test_metric", last_updated=last_updated
         )
         assert indicators.staleness_days == 30
+
+    def test_future_last_updated_is_clamped(self) -> None:
+        df = pd.DataFrame({"a": [1, 2, 3]})
+        last_updated = datetime.now(timezone.utc) + timedelta(days=30)
+        indicators = compute_quality_indicators(
+            df, metric_id="test_metric", last_updated=last_updated
+        )
+        assert indicators.staleness_days == 0
 
     def test_coverage_calculation(self) -> None:
         df = pd.DataFrame({"a": [1, 2, 3, 4, 5]})
@@ -48,6 +60,31 @@ class TestQualityIndicatorsCalculation:
             df, metric_id="test_metric", expected_row_count=10
         )
         assert indicators.coverage == 0.5
+
+    def test_non_finite_quality_inputs_are_rejected(self) -> None:
+        with pytest.raises(ValueError, match="finite"):
+            QualityIndicators(
+                metric_id="bad",
+                missingness=float("nan"),
+                staleness_days=0,
+                coverage=1.0,
+                row_count=10,
+            )
+
+        with pytest.raises(ValueError, match="finite"):
+            compute_quality_indicators(
+                pd.DataFrame({"a": [1, 2, 3]}),
+                metric_id="bad",
+                expected_row_count=float("inf"),
+            )
+
+    def test_outlier_ratio_ignores_non_finite_numeric_values(self) -> None:
+        indicators = compute_quality_indicators(
+            pd.DataFrame({"a": [1.0, 2.0, 3.0, 4.0, float("inf"), 100.0]}),
+            metric_id="finite_outliers",
+        )
+
+        assert 0.0 <= indicators.outlier_ratio <= 1.0
 
     def test_coverage_exceeds_expected(self) -> None:
         df = pd.DataFrame({"a": range(20)})
@@ -145,6 +182,66 @@ class TestQualityLevelScoring:
         level = indicators.overall_level(thresholds=loose)
         assert level.is_passing()
 
+    def test_from_quality_report_uses_anomaly_rate(self) -> None:
+        from polisyos.fabric.connectors.quality.report import (
+            DataQualityReport,
+            FreshnessLevel,
+            FreshnessStatus,
+        )
+        from polisyos.ir.connectors import QualityTier
+
+        report = DataQualityReport(
+            dataset_id="test.dataset",
+            schema_id="test.schema",
+            validated_at=datetime.now(timezone.utc),
+            score=0.8,
+            tier=QualityTier.GOLD,
+            grade="B",
+            freshness_status=FreshnessStatus(
+                level=FreshnessLevel.FRESH,
+                cache_age_seconds=0,
+                data_age_seconds=0,
+                ttl_seconds=3600,
+                schedule="daily",
+                last_updated=datetime.now(timezone.utc),
+                fetched_at=datetime.now(timezone.utc),
+                message="fresh",
+            ),
+            completeness_score=0.98,
+            consistency_score=0.97,
+            row_count=100,
+            anomaly_report=AnomalyReport(
+                findings=(
+                    AnomalyFinding(
+                        column_name="value",
+                        detector="zscore",
+                        anomaly_count=5,
+                        anomaly_rate=0.05,
+                    ),
+                ),
+                detectors_used=("zscore",),
+            ),
+        )
+
+        indicators = QualityIndicators.from_quality_report(report)
+        assert indicators.outlier_ratio == 0.05
+
+
+class TestDuckDBQualityComputation:
+    def test_rejects_unsafe_table_identifier(self, tmp_path) -> None:
+        duckdb = pytest.importorskip("duckdb")
+        db_path = tmp_path / "quality.duckdb"
+        with duckdb.connect(str(db_path)) as conn:
+            conn.execute("CREATE TABLE safe_table (value INTEGER)")
+            conn.execute("INSERT INTO safe_table VALUES (1), (NULL)")
+
+        with pytest.raises(UnsafeIdentifierError, match="Unsafe DuckDB table"):
+            compute_quality_from_duckdb(
+                str(db_path),
+                'safe_table; DROP TABLE safe_table; --',
+                "metric",
+            )
+
 
 class TestQualityGatePassIntegration:
     """Test QualityGatePass integration with validation pipeline."""
@@ -223,6 +320,68 @@ class TestDataFitnessReport:
         assert "revenue_quarterly" in summary
         assert "PASSED" in summary or "FAILED" in summary
 
+    def test_from_dict_preserves_trusted_counters_without_double_counting(self) -> None:
+        payload = {
+            "run_id": "test",
+            "profile": "mvp",
+            "overall_passed": False,
+            "summary": "",
+            "computed_at": datetime.now(timezone.utc).isoformat(),
+            "metrics": [
+                {
+                    "metric_id": "metric_one",
+                    "indicators": {
+                        "metric_id": "metric_one",
+                        "missingness": 0.01,
+                        "staleness_days": 5,
+                        "coverage": 0.99,
+                        "row_count": 100,
+                        "computed_at": datetime.now(timezone.utc).isoformat(),
+                        "computation_method": "pandas",
+                    },
+                    "level": "good",
+                    "fail_reasons": [],
+                    "profile_used": "mvp",
+                }
+            ],
+            "total_metrics": 1,
+            "passed_metrics": 0,
+            "failed_metrics": 1,
+        }
+
+        report = DataFitnessReport.from_dict(payload)
+
+        assert report.total_metrics == 1
+        assert report.passed_metrics == 0
+        assert report.failed_metrics == 1
+        assert len(report.metrics) == 1
+
+    def test_from_dict_records_metric_deserialization_diagnostics(self) -> None:
+        payload = {
+            "run_id": "test",
+            "profile": "mvp",
+            "overall_passed": True,
+            "summary": "",
+            "computed_at": datetime.now(timezone.utc).isoformat(),
+            "metrics": [
+                {
+                    "metric_id": "broken_metric",
+                    "indicators": {"metric_id": "broken_metric"},
+                    "level": "good",
+                }
+            ],
+        }
+
+        report = DataFitnessReport.from_dict(payload)
+
+        assert report.metrics == []
+        assert report.total_metrics == 0
+        assert report.failed_metrics == 0
+        assert any(
+            diagnostic["code"] == "metric_deserialize_failed"
+            for diagnostic in report.diagnostics
+        )
+
     def test_overall_passed_calculation(self) -> None:
         report = DataFitnessReport(run_id="test", profile="strict")
 
@@ -276,7 +435,7 @@ def _mock_catalog_with_poor_quality():
                             "staleness_days": 120,
                             "coverage": 0.50,
                             "row_count": 50,
-                            "computed_at": datetime.utcnow().isoformat(),
+                            "computed_at": datetime.now(timezone.utc).isoformat(),
                         }
                     }
                 },
@@ -299,7 +458,7 @@ def _mock_catalog_with_good_quality():
                             "staleness_days": 5,
                             "coverage": 0.99,
                             "row_count": 1000,
-                            "computed_at": datetime.utcnow().isoformat(),
+                            "computed_at": datetime.now(timezone.utc).isoformat(),
                         }
                     }
                 },

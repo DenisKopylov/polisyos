@@ -324,6 +324,9 @@ class CodeVerificationSandbox:
         if process.is_alive():
             process.terminate()
             process.join(timeout=1.0)
+            if process.is_alive():
+                process.kill()
+                process.join(timeout=1.0)
             elapsed = (time.perf_counter() - started) * 1000.0
             return VerificationResult(
                 status=VerificationStatus.ERROR,

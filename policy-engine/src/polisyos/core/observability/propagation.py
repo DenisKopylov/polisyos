@@ -81,27 +81,17 @@ def propagate_context() -> Any:
         detach(token)
 
 
-def with_trace_context(func: Callable[P, T]) -> Callable[P, T]:
-    """
-    Wrap a function to capture and restore trace context.
-
-    Use this when submitting tasks to thread pools or executors.
-    The wrapped function will execute in the same trace context
-    as when it was wrapped.
-
-    Args:
-        func: Function to wrap
-
-    Returns:
-        Wrapped function with captured context
-    """
-    # Capture current context
-    ctx = get_current()
+def _bind_trace_context(
+    func: Callable[P, T],
+    *,
+    ctx: Context | None = None,
+) -> Callable[P, T]:
+    """Capture the current OpenTelemetry context for deferred execution."""
+    bound_ctx = ctx or get_current()
 
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
-        # Restore captured context
-        token = attach(ctx)
+        token = attach(bound_ctx)
         try:
             return func(*args, **kwargs)
         finally:
@@ -110,17 +100,50 @@ def with_trace_context(func: Callable[P, T]) -> Callable[P, T]:
     return wrapper
 
 
-def with_context_vars(func: Callable[P, T]) -> Callable[P, T]:
-    """
-    Wrap a function and restore the full `contextvars` snapshot at call time.
-
-    This uses Python's copy_context() for complete context propagation.
-    """
+def _bind_context_vars(func: Callable[P, T]) -> Callable[P, T]:
+    """Capture the full contextvars snapshot for deferred execution."""
     ctx = copy_context()
 
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         return ctx.run(func, *args, **kwargs)
+
+    return wrapper
+
+
+def with_trace_context(func: Callable[P, T]) -> Callable[P, T]:
+    """
+    Wrap a function so each invocation uses a fresh context snapshot.
+
+    This helper is safe to keep around across multiple requests because it
+    does not freeze trace state at decoration time. For deferred work submitted
+    to an executor, use `TracedExecutorWrapper`, which snapshots at submit time.
+
+    Args:
+        func: Function to wrap
+
+    Returns:
+        Wrapped function with captured context
+    """
+    @functools.wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+        bound = _bind_context_vars(_bind_trace_context(func))
+        return bound(*args, **kwargs)
+
+    return wrapper
+
+
+def with_context_vars(func: Callable[P, T]) -> Callable[P, T]:
+    """
+    Wrap a function so each invocation uses the caller's current contextvars.
+
+    The wrapper itself is safe to reuse across independent requests because
+    the snapshot is taken on each invocation instead of decoration time.
+    """
+    @functools.wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+        bound = _bind_context_vars(func)
+        return bound(*args, **kwargs)
 
     return wrapper
 
@@ -147,7 +170,7 @@ class TracedExecutorWrapper:
         **kwargs: P.kwargs,
     ) -> Any:
         """Submit a task with trace context propagation."""
-        wrapped = with_trace_context(fn)
+        wrapped = _bind_context_vars(_bind_trace_context(fn))
         return self._executor.submit(wrapped, *args, **kwargs)
 
     def map(
@@ -157,7 +180,7 @@ class TracedExecutorWrapper:
         **kwargs: Any,
     ) -> Any:
         """Call `executor.map()` with a context-preserving wrapper around `fn`."""
-        wrapped = with_trace_context(fn)
+        wrapped = _bind_context_vars(_bind_trace_context(fn))
         return self._executor.map(wrapped, *iterables, **kwargs)
 
     def __enter__(self) -> "TracedExecutorWrapper":

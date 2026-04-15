@@ -554,6 +554,36 @@ class SKGQuery:
                     observed.append(clean_candidate)
         return list(dict.fromkeys(observed))
 
+    def _child_canonical_names(self, parent_name: str) -> list[str]:
+        """Return child canonical names that use ``parent_name`` as a suffix.
+
+        For parent-level seed variables like ``unemployment_rate``, this finds
+        domain-prefixed variants such as ``labor.unemployment_rate`` that
+        actually appear as src/dst in the SKG edges.
+        """
+        clean = str(parent_name).strip()
+        if not clean:
+            return []
+        pattern = f"%.{clean}"
+        children: list[str] = []
+        for table, col in (
+            ("ac_skg_family_edges", "src_family"),
+            ("ac_skg_family_edges", "dst_family"),
+            ("ac_skg_edges", "src"),
+            ("ac_skg_edges", "dst"),
+        ):
+            if not self._table_exists(table):
+                continue
+            try:
+                rows = self._con.execute(
+                    f"SELECT DISTINCT {col} FROM {table} WHERE {col} LIKE ? OR {col} = ?",
+                    [pattern, clean],
+                ).fetchall()
+                children.extend(str(row[0]) for row in rows if row and row[0])
+            except Exception:
+                continue
+        return list(dict.fromkeys(children))
+
     def _parameter_lookup_names(
         self,
         parameter_name: str,
@@ -576,6 +606,11 @@ class SKGQuery:
             parent = parent_canonical_name(resolved.canonical_name)
             if need_type in {"causal_edge", "scholar_query"} and parent and parent != resolved.canonical_name:
                 candidates.extend(self._observed_names_for_approved_canonical(parent))
+            # For parent-level canonical names (no dot), also expand to child
+            # variables that use this as a prefix (e.g. "unemployment_rate" ->
+            # "labor.unemployment_rate").
+            if need_type in {"causal_edge", "scholar_query"} and "." not in resolved.canonical_name:
+                candidates.extend(self._child_canonical_names(resolved.canonical_name))
         return list(dict.fromkeys(candidate for candidate in candidates if candidate)), bool(
             resolved is not None
             and resolved.canonical_name

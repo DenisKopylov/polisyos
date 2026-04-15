@@ -14,7 +14,10 @@ from polisyos.foundry.agent_sim.credit_assignment import CreditConfig, compute_c
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.metrics import (
     MetricDefinition,
+    MetricType,
+    MetricsBuffer,
     MetricsCollector,
+    _safe_histogram_bins,
     standard_training_metrics,
     training_loss_metrics,
 )
@@ -44,6 +47,17 @@ class TrainingCarry(NamedTuple):
     best_loss: jnp.ndarray
     episode_losses: jnp.ndarray
     metrics_collector: MetricsCollector
+
+
+class TrainingMetricsCarry(NamedTuple):
+    """JAX-friendly carry for metric-enabled training."""
+    params: object
+    opt_state: optax.OptState
+    rng_key: jax.Array
+    best_loss: jnp.ndarray
+    episode_losses: jnp.ndarray
+    metrics_buffer: MetricsBuffer
+    metrics_step_counter: jnp.ndarray
 
 
 def create_jit_trainer(
@@ -273,7 +287,7 @@ def create_jit_trainer_with_metrics(
         all_metrics = []
         max_history = 1
 
-    collector = MetricsCollector(all_metrics, max_history=max_history)
+    collector_template = MetricsCollector(all_metrics, max_history=max_history)
 
     def _collect_trajectory_jit(
         actor_params: object,
@@ -411,28 +425,53 @@ def create_jit_trainer_with_metrics(
             length=int(config.ppo_epochs),
         )
         mean_loss = jnp.mean(losses)
-        mean_metrics = jax.tree_map(lambda x: jnp.mean(x, axis=0), metrics_seq)
+        mean_metrics = jax.tree_util.tree_map(lambda x: jnp.mean(x, axis=0), metrics_seq)
         train_stats = {
             "mean_reward": mean_reward,
             "mean_advantage": mean_advantage,
         }
         return final_params, final_opt_state, mean_loss, mean_metrics, train_stats
 
+    def _collect_metrics_buffer(
+        buffer: MetricsBuffer,
+        step_counter: jnp.ndarray,
+        state: GlobalState,
+    ) -> tuple[MetricsBuffer, jnp.ndarray]:
+        idx = buffer.write_idx % buffer.max_size
+
+        for defn in all_metrics:
+            should_collect = (step_counter % defn.frequency) == 0
+
+            def _collect(buf: MetricsBuffer) -> MetricsBuffer:
+                value = defn.compute_fn(state)
+                if defn.metric_type == MetricType.SCALAR:
+                    return buf.write_scalar_at(defn.name, value, idx)
+                if defn.metric_type == MetricType.HISTOGRAM:
+                    n_bins = buf.histograms[defn.name].shape[1]
+                    bins = _safe_histogram_bins(value, n_bins)
+                    return buf.write_histogram_at(defn.name, value, bins, idx)
+                return buf
+
+            buffer = jax.lax.cond(should_collect, _collect, lambda b: b, buffer)
+
+        return buffer.advance(1), step_counter + 1
+
     def _train_loop_with_metrics(
         rng_key: jax.Array,
-    ) -> tuple[object, jnp.ndarray, MetricsCollector]:
+    ) -> tuple[object, jnp.ndarray, MetricsBuffer, jnp.ndarray]:
         opt_state = optimizer.init(params)
         episode_losses = jnp.zeros((int(config.n_episodes),), dtype=jnp.float32)
-        init_carry = TrainingCarry(
+        init_carry = TrainingMetricsCarry(
             params=params,
             opt_state=opt_state,
             rng_key=rng_key,
             best_loss=jnp.array(jnp.inf, dtype=jnp.float32),
             episode_losses=episode_losses,
-            metrics_collector=collector,
+            metrics_buffer=collector_template.buffer,
+            metrics_step_counter=jnp.array(0, dtype=jnp.int32),
         )
 
-        def episode_step(carry: TrainingCarry, idx):
+        def episode_step(carry: TrainingMetricsCarry, idx):
             key1, key2 = jax.random.split(carry.rng_key)
             trajectory, final_state = _collect_trajectory_jit(
                 carry.params, initial_state, key1
@@ -446,26 +485,34 @@ def create_jit_trainer_with_metrics(
             if config.collect_metrics:
                 should_collect = (idx % metrics_frequency) == 0
 
-                def _collect_and_record(col):
-                    col = col.collect(final_state)
-                    return _record_training_losses(col, metrics, train_stats)
+                def _collect_and_record(payload):
+                    buffer, step_counter = payload
+                    buffer, step_counter = _collect_metrics_buffer(
+                        buffer,
+                        step_counter,
+                        final_state,
+                    )
+                    buffer = _record_training_losses(buffer, metrics, train_stats)
+                    return buffer, step_counter
 
-                new_collector = jax.lax.cond(
+                new_buffer, new_step_counter = jax.lax.cond(
                     should_collect,
                     _collect_and_record,
-                    lambda col: col,
-                    carry.metrics_collector,
+                    lambda payload: payload,
+                    (carry.metrics_buffer, carry.metrics_step_counter),
                 )
             else:
-                new_collector = carry.metrics_collector
+                new_buffer = carry.metrics_buffer
+                new_step_counter = carry.metrics_step_counter
 
-            new_carry = TrainingCarry(
+            new_carry = TrainingMetricsCarry(
                 params=new_params,
                 opt_state=new_opt_state,
                 rng_key=key2,
                 best_loss=best_loss,
                 episode_losses=losses,
-                metrics_collector=new_collector,
+                metrics_buffer=new_buffer,
+                metrics_step_counter=new_step_counter,
             )
             return new_carry, loss
 
@@ -474,12 +521,27 @@ def create_jit_trainer_with_metrics(
             init_carry,
             jnp.arange(int(config.n_episodes)),
         )
-        return final_carry.params, losses, final_carry.metrics_collector
+        return (
+            final_carry.params,
+            losses,
+            final_carry.metrics_buffer,
+            final_carry.metrics_step_counter,
+        )
 
     @jax.jit
+    def _trainer_jit(
+        rng_key: jax.Array,
+    ) -> tuple[object, jnp.ndarray, MetricsBuffer, jnp.ndarray]:
+        return _train_loop_with_metrics(rng_key)
+
     def trainer(rng_key: jax.Array) -> tuple[ActorCritic, dict, MetricsCollector]:
-        final_params, losses, final_collector = _train_loop_with_metrics(rng_key)
+        final_params, losses, final_buffer, final_step_counter = _trainer_jit(rng_key)
         trained_actor = eqx.combine(static, final_params)
+        final_collector = MetricsCollector(
+            all_metrics,
+            buffer=final_buffer,
+            step_counter=final_step_counter,
+        )
         metrics = {
             "loss_history": losses,
             "final_loss": losses[-1],
@@ -491,18 +553,17 @@ def create_jit_trainer_with_metrics(
 
 
 def _record_training_losses(
-    collector: MetricsCollector,
+    buffer: MetricsBuffer,
     metrics: dict[str, jnp.ndarray],
     train_stats: dict[str, jnp.ndarray],
-) -> MetricsCollector:
-    buffer = collector.buffer
+) -> MetricsBuffer:
     idx = (buffer.write_idx - 1) % buffer.max_size
     buffer = buffer.write_scalar_at("policy_loss", metrics["policy_loss"], idx)
     buffer = buffer.write_scalar_at("value_loss", metrics["value_loss"], idx)
     buffer = buffer.write_scalar_at("entropy", metrics["entropy"], idx)
     buffer = buffer.write_scalar_at("mean_reward", train_stats["mean_reward"], idx)
     buffer = buffer.write_scalar_at("mean_advantage", train_stats["mean_advantage"], idx)
-    return collector.replace(buffer=buffer)
+    return buffer
 
 
 def _resolve_temporal_salt(executor: PureExecutor) -> int | None:

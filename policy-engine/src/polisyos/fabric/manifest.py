@@ -1,14 +1,21 @@
 """Public fabric manifest module API."""
-from datetime import datetime, timezone
 from typing import Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.fabric.temporal import utc_now
+
 
 class CoverageMetrics(BaseModel):
     """Coverage metrics data model."""
-    time_start: Optional[str] = None
-    time_end: Optional[str] = None
+    time_start: Optional[str] = Field(
+        default=None,
+        description="UTC-aware ISO-8601 start timestamp when present.",
+    )
+    time_end: Optional[str] = Field(
+        default=None,
+        description="UTC-aware ISO-8601 end timestamp when present.",
+    )
     region_coverage: Optional[str] = None
 
     model_config = ConfigDict(extra="forbid")
@@ -37,7 +44,10 @@ class ReconciliationReport(BaseModel):
 
 
 class DatasetManifest(BaseModel):
-    """Dataset manifest data model."""
+    """Dataset manifest data model.
+
+    Fabric timestamp fields are UTC-aware ISO-8601 strings.
+    """
     dataset_name: str
     source: str
     license: str
@@ -47,6 +57,9 @@ class DatasetManifest(BaseModel):
     pii_flags: Dict[str, bool]
     quality: QualityMetrics
     reconciliation: Optional[ReconciliationReport] = None
-    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = Field(
+        default_factory=lambda: utc_now().isoformat(),
+        description="UTC-aware ISO-8601 creation timestamp.",
+    )
 
     model_config = ConfigDict(extra="forbid")

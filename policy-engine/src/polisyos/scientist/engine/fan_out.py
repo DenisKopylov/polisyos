@@ -11,24 +11,40 @@ cache, and checkpoint contracts.
 from __future__ import annotations
 
 import asyncio
-import logging
-import time
-from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import Node, NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.engine.state_merge import (
+    MergeConflictPolicy,
+    merge_parallel_outcomes,
+)
 from polisyos.scientist.engine.workflow_spec import JsonValue
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 logger = get_logger(__name__)
+
+_FAN_OUT_RUNTIME_ERRORS = (
+    ArithmeticError,
+    AssertionError,
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 __all__ = [
     "FanOutConfig",
@@ -38,12 +54,30 @@ __all__ = [
 ]
 
 
-class MergeConflictPolicy(StrEnum):
-    """How to resolve key conflicts during dict_merge fan-out."""
+class FanOutItemBindError(RuntimeError):
+    """Binding one fan-out item to the task node failed."""
 
-    LAST_WRITE_WINS = "last_write_wins"
-    FIRST_WRITE_WINS = "first_write_wins"
-    ERROR = "error"
+    def __init__(self, *, item_index: int, cause: BaseException) -> None:
+        self.item_index = item_index
+        self.error_type = cause.__class__.__name__
+        super().__init__(f"item {item_index} bind failed: {cause}")
+
+
+def _fan_out_degraded(
+    *,
+    operation: str,
+    reason: str,
+    exc: BaseException,
+    details: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return emit_degraded_path(
+        component="engine.fan_out",
+        operation=operation,
+        reason=reason,
+        exc=exc,
+        details=details,
+        log=logger,
+    )
 
 
 class FanOutConfig(BaseModel):
@@ -101,12 +135,10 @@ class FanOutResult(BaseModel):
 # ---------------------------------------------------------------------------
 
 def _resolve_path(state: ExperimentState, path: str) -> Any:
-    from pydantic import BaseModel as _BM
-
     parts = path.split(".")
     current: Any = state
     for part in parts:
-        if isinstance(current, _BM):
+        if isinstance(current, BaseModel):
             current = getattr(current, part, None)
         elif isinstance(current, dict):
             current = current.get(part)
@@ -186,16 +218,50 @@ class FanOutNode:
             )
 
         task_node = self._registry.get(self._config.task_node_id)
-        outcomes: list[tuple[int, NodeOutcome]] = []
+        outcomes: list[tuple[int, NodeOutcome, tuple[str, ...]]] = []
         failed_items: list[int] = []
+        degraded_envelopes: list[dict[str, Any]] = []
 
         for i, item in enumerate(items):
-            bound_node = self._bind_item(task_node, item, i)
-            item_state = state.model_copy(deep=True)
+            try:
+                bound_node = self._bind_item(task_node, item, i)
+            except FanOutItemBindError as exc:
+                envelope = _fan_out_degraded(
+                    operation="bind_item",
+                    reason="item_bind_failed",
+                    exc=exc,
+                    details={"alias": self._alias, "item_index": i},
+                )
+                degraded_envelopes.append(envelope)
+                outcome = NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code="fan_out.item_bind_failed",
+                        message=str(exc),
+                        details={"item_index": i, "type": exc.error_type},
+                    ),
+                )
+                failed_items.append(i)
+                outcomes.append((i, outcome, ()))
+                if not self._config.continue_on_item_failure:
+                    break
+                continue
+            item_write_paths = tuple(getattr(bound_node.spec, "state_writes", ()))
+            item_state = branch_state(
+                state,
+                write_paths=item_write_paths,
+            ).state
             try:
                 outcome = bound_node.execute(ctx, item_state)
-            except Exception as exc:
-                logger.warning("Fan-out item %d failed: %s", i, exc)
+            except _FAN_OUT_RUNTIME_ERRORS as exc:
+                envelope = _fan_out_degraded(
+                    operation="execute_item",
+                    reason="item_execution_failed",
+                    exc=exc,
+                    details={"alias": self._alias, "item_index": i},
+                )
+                degraded_envelopes.append(envelope)
                 outcome = NodeOutcome(
                     status="fail",
                     state=item_state,
@@ -209,11 +275,18 @@ class FanOutNode:
             if outcome.status == "fail":
                 failed_items.append(i)
                 if not self._config.continue_on_item_failure:
-                    outcomes.append((i, outcome))
+                    outcomes.append((i, outcome, item_write_paths))
                     break
-            outcomes.append((i, outcome))
+            outcomes.append((i, outcome, item_write_paths))
 
-        return self._merge_outcomes(ctx, state, items, outcomes, failed_items)
+        return self._merge_outcomes(
+            ctx,
+            state,
+            items,
+            outcomes,
+            failed_items,
+            degraded_envelopes=degraded_envelopes,
+        )
 
     async def execute_async(
         self, ctx: ExecutionContext, state: ExperimentState,
@@ -242,8 +315,9 @@ class FanOutNode:
 
         task_node = self._registry.get(self._config.task_node_id)
         semaphore = asyncio.Semaphore(self._config.max_parallelism)
-        results: dict[int, NodeOutcome] = {}
+        results: dict[int, tuple[NodeOutcome, tuple[str, ...]]] = {}
         cancel_event = asyncio.Event()
+        degraded_envelopes: list[dict[str, Any]] = []
 
         async def _run_item(i: int, item: Any) -> None:
             if cancel_event.is_set():
@@ -251,14 +325,46 @@ class FanOutNode:
             async with semaphore:
                 if cancel_event.is_set():
                     return
-                bound_node = self._bind_item(task_node, item, i)
-                item_state = state.model_copy(deep=True)
                 try:
-                    outcome = await asyncio.to_thread(
+                    bound_node = self._bind_item(task_node, item, i)
+                except FanOutItemBindError as exc:
+                    envelope = _fan_out_degraded(
+                        operation="bind_item_async",
+                        reason="item_bind_failed",
+                        exc=exc,
+                        details={"alias": self._alias, "item_index": i},
+                    )
+                    degraded_envelopes.append(envelope)
+                    outcome = NodeOutcome(
+                        status="fail",
+                        state=state,
+                        error=NodeError(
+                            code="fan_out.item_bind_failed",
+                            message=str(exc),
+                            details={"item_index": i, "type": exc.error_type},
+                        ),
+                    )
+                    results[i] = (outcome, ())
+                    if not self._config.continue_on_item_failure:
+                        cancel_event.set()
+                    return
+                item_write_paths = tuple(getattr(bound_node.spec, "state_writes", ()))
+                item_state = branch_state(
+                    state,
+                    write_paths=item_write_paths,
+                ).state
+                try:
+                    outcome = await run_blocking_async(
                         bound_node.execute, ctx, item_state,
                     )
-                except Exception as exc:
-                    logger.warning("Fan-out item %d failed: %s", i, exc)
+                except _FAN_OUT_RUNTIME_ERRORS as exc:
+                    envelope = _fan_out_degraded(
+                        operation="execute_item_async",
+                        reason="item_execution_failed",
+                        exc=exc,
+                        details={"alias": self._alias, "item_index": i},
+                    )
+                    degraded_envelopes.append(envelope)
                     outcome = NodeOutcome(
                         status="fail",
                         state=item_state,
@@ -268,7 +374,7 @@ class FanOutNode:
                             details={"item_index": i, "type": exc.__class__.__name__},
                         ),
                     )
-                results[i] = outcome
+                results[i] = (outcome, item_write_paths)
                 if outcome.status == "fail" and not self._config.continue_on_item_failure:
                     cancel_event.set()
 
@@ -277,19 +383,31 @@ class FanOutNode:
                 tg.create_task(_run_item(i, item))
 
         # Build ordered outcomes list
-        outcomes: list[tuple[int, NodeOutcome]] = []
+        outcomes: list[tuple[int, NodeOutcome, tuple[str, ...]]] = []
         failed_items: list[int] = []
         for i in range(len(items)):
             if i not in results:
                 continue  # cancelled before execution
-            outcome = results[i]
-            outcomes.append((i, outcome))
+            outcome, item_write_paths = results[i]
+            outcomes.append((i, outcome, item_write_paths))
             if outcome.status == "fail":
                 failed_items.append(i)
 
-        return self._merge_outcomes(ctx, state, items, outcomes, failed_items)
+        return self._merge_outcomes(
+            ctx,
+            state,
+            items,
+            outcomes,
+            failed_items,
+            degraded_envelopes=degraded_envelopes,
+        )
 
-    def _bind_item(self, task_node: Any, item: Any, index: int) -> Any:
+    def _bind_item(
+        self,
+        task_node: Any,
+        item: Any,
+        index: int,
+    ) -> Any:
         """Bind item params to a task node."""
         params = {
             **self._config.task_params_template,
@@ -302,8 +420,8 @@ class FanOutNode:
                 bound_result = task_node.bind(params)
                 if bound_result is not None:
                     bound_node = bound_result
-            except Exception:
-                pass
+            except _FAN_OUT_RUNTIME_ERRORS as exc:
+                raise FanOutItemBindError(item_index=index, cause=exc) from exc
         return bound_node
 
     def _merge_outcomes(
@@ -311,26 +429,29 @@ class FanOutNode:
         ctx: ExecutionContext,
         state: ExperimentState,
         items: list[Any],
-        outcomes: list[tuple[int, NodeOutcome]],
+        outcomes: list[tuple[int, NodeOutcome, tuple[str, ...]]],
         failed_items: list[int],
+        *,
+        degraded_envelopes: list[dict[str, Any]] | None = None,
     ) -> NodeOutcome:
         """Merge item outcomes into a single NodeOutcome."""
-        ok_outcomes = [(i, o) for i, o in outcomes if o.status == "ok"]
-        merged_state = state.model_copy(deep=True)
+        ok_outcomes = [(i, o, write_paths) for i, o, write_paths in outcomes if o.status == "ok"]
         all_artifacts: list[ArtifactRef] = []
+        params_write: tuple[str, Any] | None = None
+        artifact_index_updates: dict[str, ArtifactRef] = {}
 
         if self._config.merge_strategy == "list_collect":
-            collected = [list(o.artifacts) for _, o in ok_outcomes]
-            self._write_result(merged_state, self._config.result_state_path, collected)
+            collected = [list(o.artifacts) for _, o, _ in ok_outcomes]
+            params_write = (self._config.result_state_path, collected)
         elif self._config.merge_strategy == "dict_merge":
             merged: dict[str, Any] = {}
-            for i, o in ok_outcomes:
+            for i, o, _ in ok_outcomes:
                 key = str(i)
                 if key in merged:
                     if self._config.merge_conflict_policy == MergeConflictPolicy.ERROR:
                         return NodeOutcome(
                             status="fail",
-                            state=merged_state,
+                            state=state,
                             error=NodeError(
                                 code="fan_out.merge_conflict",
                                 message=f"Merge conflict on key '{key}'",
@@ -340,16 +461,34 @@ class FanOutNode:
                     if self._config.merge_conflict_policy == MergeConflictPolicy.FIRST_WRITE_WINS:
                         continue
                 merged[key] = [a.artifact_id for a in o.artifacts]
-            self._write_result(merged_state, self._config.result_state_path, merged)
+            params_write = (self._config.result_state_path, merged)
         elif self._config.merge_strategy == "artifact_index":
-            for i, o in ok_outcomes:
+            for i, o, _ in ok_outcomes:
                 for a in o.artifacts:
                     key = f"fan_out_{self._alias}_{i}"
-                    merged_state.artifacts_index[key] = a
-                    all_artifacts.append(a)
+                    if (
+                        key in artifact_index_updates
+                        and self._config.merge_conflict_policy == MergeConflictPolicy.ERROR
+                    ):
+                        return NodeOutcome(
+                            status="fail",
+                            state=state,
+                            error=NodeError(
+                                code="fan_out.merge_conflict",
+                                message=f"Merge conflict on artifact key '{key}'",
+                                details={"key": key},
+                            ),
+                        )
+                    if (
+                        key in artifact_index_updates
+                        and self._config.merge_conflict_policy
+                        == MergeConflictPolicy.FIRST_WRITE_WINS
+                    ):
+                        continue
+                    artifact_index_updates[key] = a
 
         # Collect all artifacts
-        for _, o in ok_outcomes:
+        for _, o, _ in ok_outcomes:
             all_artifacts.extend(o.artifacts)
 
         fan_out_result = FanOutResult(
@@ -360,6 +499,19 @@ class FanOutNode:
         )
 
         # Persist summary
+        degraded_events: list[NodeEvent] = [
+            NodeEvent(
+                level="warn",
+                message="Fan-out execution degraded",
+                code="fan_out.execution_degraded",
+                attrs={
+                    "reason": str(envelope.get("reason", "fan_out_execution_degraded")),
+                    "error_type": str(envelope.get("error_type", "runtime_error")),
+                    "item_index": int(envelope.get("details", {}).get("item_index", -1)),
+                },
+            )
+            for envelope in (degraded_envelopes or [])
+        ]
         try:
             summary_ref = ctx.store.put_json(
                 fan_out_result.model_dump(),
@@ -373,8 +525,24 @@ class FanOutNode:
                 ),
             )
             all_artifacts.append(summary_ref)
-        except Exception:
-            pass
+        except _FAN_OUT_RUNTIME_ERRORS as exc:
+            envelope = _fan_out_degraded(
+                operation="persist_summary",
+                reason="fan_out_summary_persist_failed",
+                exc=exc,
+                details={"alias": self._alias, "items_count": len(items)},
+            )
+            degraded_events.append(
+                NodeEvent(
+                    level="warn",
+                    message="Fan-out summary persistence degraded",
+                    code="fan_out.summary_persist_degraded",
+                    attrs={
+                        "reason": str(envelope.get("reason", "fan_out_summary_persist_failed")),
+                        "error_type": str(envelope.get("error_type", "runtime_error")),
+                    },
+                )
+            )
 
         overall_status = "ok" if not failed_items else (
             "fail" if not self._config.continue_on_item_failure else "ok"
@@ -387,6 +555,85 @@ class FanOutNode:
                 details={"failed_items": failed_items},
             )
 
+        apply_merged_state = error is None
+        merged_state = state
+        resolved_conflict_events: list[NodeEvent] = []
+        if apply_merged_state:
+            staged_outcomes = {
+                f"item[{i}]": outcome
+                for i, outcome, _ in ok_outcomes
+            }
+            staged_write_specs = {
+                f"item[{i}]": list(write_paths)
+                for i, _, write_paths in ok_outcomes
+            }
+            aggregate_write_paths: list[str] = []
+            aggregate_state = state
+            if params_write is not None or artifact_index_updates:
+                if params_write is not None:
+                    aggregate_write_paths.append(params_write[0])
+                if artifact_index_updates:
+                    aggregate_write_paths.append("artifacts_index")
+                aggregate_state = branch_state(
+                    state,
+                    write_paths=aggregate_write_paths,
+                ).state
+                if params_write is not None:
+                    try:
+                        self._write_result(aggregate_state, params_write[0], params_write[1])
+                    except ValueError as exc:
+                        return NodeOutcome(
+                            status="fail",
+                            state=state,
+                            error=NodeError(
+                                code="fan_out.invalid_result_path",
+                                message=str(exc),
+                                details={"result_state_path": params_write[0]},
+                            ),
+                        )
+                if artifact_index_updates:
+                    aggregate_state.artifacts_index.update(artifact_index_updates)
+                staged_outcomes["fan_out.aggregate"] = NodeOutcome(
+                    status="ok",
+                    state=aggregate_state,
+                )
+                staged_write_specs["fan_out.aggregate"] = aggregate_write_paths
+
+            merge_result = merge_parallel_outcomes(
+                state,
+                staged_outcomes,
+                staged_write_specs,
+                conflict_policy=self._config.merge_conflict_policy,
+            )
+            if not merge_result.applied:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code="fan_out.merge_conflict",
+                        message="fan-out merge conflict blocked atomic state application",
+                        details={
+                            "conflicts": [
+                                item.to_dict() for item in merge_result.conflict_details
+                            ],
+                        },
+                    ),
+                )
+            merged_state = merge_result.state
+            resolved_conflict_events = [
+                NodeEvent(
+                    level="warn",
+                    message="Fan-out merge conflict resolved by policy",
+                    code="fan_out.merge_conflict_resolved",
+                    attrs={
+                        "path": conflict.path,
+                        "resolution": conflict.resolution.value,
+                        "aliases": ",".join(conflict.aliases),
+                    },
+                )
+                for conflict in merge_result.resolved_conflicts
+            ]
+
         events = [
             NodeEvent(
                 level="info",
@@ -398,6 +645,8 @@ class FanOutNode:
                     "failed": len(failed_items),
                 },
             ),
+            *resolved_conflict_events,
+            *degraded_events,
         ]
 
         return NodeOutcome(
@@ -419,8 +668,12 @@ class FanOutNode:
         if parts[0] == "params":
             _set_nested(state.params, parts[1:], value)
         elif parts[0] == "artifacts_index" and len(parts) == 2:
-            # Can't store non-ArtifactRef in artifacts_index; skip
-            pass
+            raise ValueError(
+                "fan-out result_state_path cannot target artifacts_index for "
+                "non-ArtifactRef merge results; use merge_strategy='artifact_index'",
+            )
         else:
-            # Best-effort: write to params with full path
-            _set_nested(state.params, parts, value)
+            raise ValueError(
+                "fan-out result_state_path must target 'params.*' or "
+                "'artifacts_index' with merge_strategy='artifact_index'"
+            )

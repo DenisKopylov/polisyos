@@ -37,27 +37,22 @@ from tests.foundry.methods.testing.strategies import (
 
 @pytest.fixture(scope="module")
 def rdd_method(isolated_registry):
-    fqn = "causal.rdd.sharp@1.0.0"
-    try:
-        return isolated_registry.get(fqn)
-    except Exception:
-        pytest.skip(f"Method {fqn} not registered")
+    fqn = "causal.inference.regression_discontinuity@1.0.0"
+    return isolated_registry.get(fqn)
 
 
 class TestRDDProperties:
     @given(data=rdd_data_strategy())
     @settings(max_examples=30, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_output_is_finite(self, data, isolated_registry):
-        fqn = "causal.rdd.sharp@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        fqn = "causal.inference.regression_discontinuity@1.0.0"
+        method = isolated_registry.get(fqn)
         state = {
             "outcome": data["outcome"],
             "running_variable": data["running_variable"],
+            "cutoff": data["cutoff"],
         }
-        params = {"cutoff": data["cutoff"], "bandwidth": 1.0}
+        params = {"bandwidth": 1.0}
         try:
             result = method.pure_step(state, params)
             for key, val in result.items():
@@ -71,16 +66,14 @@ class TestRDDProperties:
     @given(data=rdd_data_strategy())
     @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_result_is_dict(self, data, isolated_registry):
-        fqn = "causal.rdd.sharp@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        fqn = "causal.inference.regression_discontinuity@1.0.0"
+        method = isolated_registry.get(fqn)
         state = {
             "outcome": data["outcome"],
             "running_variable": data["running_variable"],
+            "cutoff": data["cutoff"],
         }
-        params = {"cutoff": data["cutoff"], "bandwidth": 1.0}
+        params = {"bandwidth": 1.0}
         try:
             result = method.pure_step(state, params)
             assert isinstance(result, dict)
@@ -97,11 +90,8 @@ class TestDMLProperties:
     @given(data=cross_section_strategy())
     @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_output_dict_not_empty(self, data, isolated_registry):
-        fqn = "causal.dml.double_ml@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        fqn = "causal.hte.double_ml@1.0.0"
+        method = isolated_registry.get(fqn)
         state = {
             "outcome": data["outcome"],
             "treatment": (data["covariates"][:, 0] > 0).astype(float),
@@ -122,27 +112,21 @@ class TestCallawaySantAnnaProperties:
     @given(data=panel_data_strategy(min_units=8, max_units=20))
     @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
     def test_att_output_exists(self, data, isolated_registry):
-        fqn = "causal.did.callaway_santanna@1.0.0"
-        try:
-            method = isolated_registry.get(fqn)
-        except Exception:
-            pytest.skip(f"{fqn} not registered")
+        fqn = "causal.inference.did.callaway_santanna@1.0.0"
+        method = isolated_registry.get(fqn)
         n_units = data["n_units"]
         n_periods = data["n_periods"]
         outcome_flat = data["outcome"].flatten()
-        entity_id = np.repeat(np.arange(n_units), n_periods).astype(np.int64)
+        unit_id = np.repeat(np.arange(n_units), n_periods).astype(np.int64)
         time_id = np.tile(np.arange(n_periods), n_units).astype(np.int64)
-        treatment_flat = np.zeros(len(outcome_flat))
-        treated_units = np.where(data["treatment"])[0]
-        for u in treated_units:
-            mask = entity_id == u
-            treatment_flat[mask & (time_id >= data["time_treatment"])] = 1.0
+        treatment_timing = np.full(n_units, np.inf, dtype=float)
+        treatment_timing[np.where(data["treatment"])[0]] = float(data["time_treatment"])
 
         state = {
             "outcome": outcome_flat,
-            "treatment": treatment_flat,
-            "entity_id": entity_id,
+            "unit_id": unit_id,
             "time_id": time_id,
+            "treatment_timing": treatment_timing,
         }
         try:
             result = method.pure_step(state, {})

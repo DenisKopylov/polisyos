@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import TYPE_CHECKING, Iterable
 
 from polisyos.common.logger import get_logger
@@ -70,11 +71,17 @@ def _load_builtin_connectors() -> Iterable[type["SourceConnector"]]:
             CKANCatalogConnector,
             CKANResourceConnector,
             EurostatConnector,
+            EventStreamConnector,
+            FileTabularConnector,
+            GeoJSONConnector,
+            GraphQLConnector,
             OpendatasoftConnector,
+            ObjectStorageConnector,
             RestJsonConnector,
             SDMXSourceConnector,
             SocrataConnector,
             SPARQLConnector,
+            SQLQueryConnector,
             UNESCOUISConnector,
             UNPDConnector,
             UKONSConnector,
@@ -92,6 +99,12 @@ def _load_builtin_connectors() -> Iterable[type["SourceConnector"]]:
         WorldBankConnector,
         WVSConnector,
         EurostatConnector,
+        FileTabularConnector,
+        ObjectStorageConnector,
+        SQLQueryConnector,
+        GraphQLConnector,
+        GeoJSONConnector,
+        EventStreamConnector,
         UKONSConnector,
         SDMXSourceConnector,
         CKANCatalogConnector,
@@ -106,7 +119,7 @@ def _load_builtin_connectors() -> Iterable[type["SourceConnector"]]:
     )
 
 
-def _build_builtin_components() -> list[ConnectorComponent]:
+def _build_builtin_components() -> tuple[ConnectorComponent, ...]:
     components: list[ConnectorComponent] = []
     for connector_class in _load_builtin_connectors():
         namespace = str(getattr(getattr(connector_class, "metadata", object()), "namespace", ""))
@@ -121,46 +134,63 @@ def _build_builtin_components() -> list[ConnectorComponent]:
                 getattr(connector_class, "__name__", connector_class), exc_info=True,
             )
             continue
-    return components
+    return tuple(components)
 
 
-def _component_by_short_id(components: list[ConnectorComponent], short_id: str) -> ConnectorComponent | None:
+def _component_by_short_id(
+    components: Iterable[ConnectorComponent],
+    short_id: str,
+) -> ConnectorComponent | None:
     for component in components:
         if component.metadata.component_id.name == short_id:
             return component
     return None
 
 
-_BUILTIN_COMPONENTS = _build_builtin_components()
-world_bank_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "wdi")
-wvs_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "wave7")
-eurostat_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "data")
-ukons_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "datasets")
-sdmx_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "source")
-ckan_catalog_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "catalog")
-ckan_resource_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "resource")
-socrata_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "soda")
-opendatasoft_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "ods")
-sparql_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "endpoint")
-rest_json_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "json")
-who_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "indicators")
-unpd_connector_component = next(
-    (
-        component
-        for component in _BUILTIN_COMPONENTS
-        if component.metadata.component_id.namespace == "unpd"
-    ),
-    None,
-)
-unesco_uis_connector_component = next(
-    (
-        component
-        for component in _BUILTIN_COMPONENTS
-        if component.metadata.component_id.namespace == "unesco_uis"
-    ),
-    None,
-)
-__polisyos_components__ = list(_BUILTIN_COMPONENTS)
+@lru_cache(maxsize=1)
+def _builtin_components() -> tuple[ConnectorComponent, ...]:
+    return _build_builtin_components()
+
+
+def _component_by_namespace(namespace: str) -> ConnectorComponent | None:
+    for component in _builtin_components():
+        if component.metadata.component_id.namespace == namespace:
+            return component
+    return None
+
+
+_COMPONENT_EXPORTS: dict[str, str] = {
+    "world_bank_connector_component": "wdi",
+    "wvs_connector_component": "wave7",
+    "eurostat_connector_component": "data",
+    "ukons_connector_component": "datasets",
+    "sdmx_connector_component": "source",
+    "ckan_catalog_connector_component": "catalog",
+    "ckan_resource_connector_component": "resource",
+    "socrata_connector_component": "soda",
+    "opendatasoft_connector_component": "ods",
+    "sparql_connector_component": "endpoint",
+    "rest_json_connector_component": "json",
+    "who_connector_component": "indicators",
+    "file_tabular_connector_component": "tabular",
+    "object_storage_connector_component": "blob",
+    "sql_query_connector_component": "query",
+    "graphql_connector_component": "api",
+    "geojson_connector_component": "features",
+    "event_stream_connector_component": "jsonl",
+}
+
+
+def __getattr__(name: str):
+    if name in {"_BUILTIN_COMPONENTS", "__polisyos_components__"}:
+        return _builtin_components()
+    if name in _COMPONENT_EXPORTS:
+        return _component_by_short_id(_builtin_components(), _COMPONENT_EXPORTS[name])
+    if name == "unpd_connector_component":
+        return _component_by_namespace("unpd")
+    if name == "unesco_uis_connector_component":
+        return _component_by_namespace("unesco_uis")
+    raise AttributeError(name)
 
 __all__ = [
     "FABRIC_CONNECTORS_API_VERSION",
@@ -178,6 +208,12 @@ __all__ = [
     "sparql_connector_component",
     "rest_json_connector_component",
     "who_connector_component",
+    "file_tabular_connector_component",
+    "object_storage_connector_component",
+    "sql_query_connector_component",
+    "graphql_connector_component",
+    "geojson_connector_component",
+    "event_stream_connector_component",
     "unpd_connector_component",
     "unesco_uis_connector_component",
     "__polisyos_components__",

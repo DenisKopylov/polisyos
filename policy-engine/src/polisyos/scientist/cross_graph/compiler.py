@@ -46,6 +46,11 @@ from polisyos.ir.governance.problem_frame import (
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.api import evaluate_transport_constraints
 from polisyos.lex.legal_evaluation.transport_constraints import LegalConstraintSet
+from polisyos.scientist.cross_graph.alignment import (
+    alignment_tokens,
+    concept_tokens,
+    diagnostic_key,
+)
 from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer
 from polisyos.scientist.evidence_sources import build_path_source_status, update_source_status
 
@@ -148,6 +153,7 @@ class CrossGraphEvidenceCompiler:
         )
 
         diagnostics: list[CrossGraphDiagnostic] = []
+        diagnostic_keys: set[tuple[str, str, str | None, str, str]] = set()
         bridges: list[ConceptBridge] = []
         used_concepts: dict[str, CanonicalConcept] = {}
         assessments: list[EvidenceNeedAssessment] = []
@@ -170,7 +176,11 @@ class CrossGraphEvidenceCompiler:
                     need,
                     ontology=self.config.ontology,
                 )
-                diagnostics.extend(need_diagnostics)
+                _append_unique_diagnostics(
+                    diagnostics,
+                    diagnostic_keys,
+                    need_diagnostics,
+                )
                 bridges.extend(need_bridges)
                 for concept in resolved_concepts:
                     used_concepts[concept.concept_id] = concept
@@ -219,10 +229,10 @@ class CrossGraphEvidenceCompiler:
                     *academic_result.diagnostics,
                     *transport_result.diagnostics,
                 ]
-                diagnostics.extend(
-                    diagnostic
-                    for diagnostic in need_diagnostic_list
-                    if diagnostic not in diagnostics
+                _append_unique_diagnostics(
+                    diagnostics,
+                    diagnostic_keys,
+                    need_diagnostic_list,
                 )
 
                 recommended_actions = _dedupe_preserve(
@@ -1808,10 +1818,9 @@ def _dedupe_bridges(bridges: list[ConceptBridge]) -> list[ConceptBridge]:
 def _dedupe_diagnostics(
     diagnostics: list[CrossGraphDiagnostic],
 ) -> list[CrossGraphDiagnostic]:
-    unique: dict[tuple[str, str | None, str], CrossGraphDiagnostic] = {}
+    unique: dict[tuple[str, str, str | None, str, str], CrossGraphDiagnostic] = {}
     for diagnostic in diagnostics:
-        key = (diagnostic.code, diagnostic.need_id, diagnostic.message)
-        unique[key] = diagnostic
+        unique[diagnostic_key(diagnostic)] = diagnostic
     return [unique[key] for key in sorted(unique)]
 
 
@@ -1825,6 +1834,19 @@ def _dedupe_preserve(values: list[str] | tuple[str, ...]) -> list[str]:
         seen.add(token)
         output.append(token)
     return output
+
+
+def _append_unique_diagnostics(
+    target: list[CrossGraphDiagnostic],
+    seen: set[tuple[str, str, str | None, str, str]],
+    additions: list[CrossGraphDiagnostic] | tuple[CrossGraphDiagnostic, ...],
+) -> None:
+    for diagnostic in additions:
+        key = diagnostic_key(diagnostic)
+        if key in seen:
+            continue
+        seen.add(key)
+        target.append(diagnostic)
 
 
 def build_fragment_alignment_ontology_warnings(
@@ -1904,43 +1926,22 @@ def _resolve_alignment_concept(
     variable_name: str,
     definition: str,
 ) -> CanonicalConcept | None:
-    query_tokens = _alignment_tokens([semantic_namespace, variable_name, definition])
+    query_tokens = alignment_tokens((semantic_namespace, variable_name, definition))
     if not query_tokens:
         return None
 
     best: tuple[int, str, CanonicalConcept] | None = None
     for concept in ontology:
-        concept_tokens = _concept_tokens(concept)
-        if not concept_tokens:
+        current_concept_tokens = concept_tokens(concept)
+        if not current_concept_tokens:
             continue
-        overlap = len(query_tokens.intersection(concept_tokens))
+        overlap = len(query_tokens.intersection(current_concept_tokens))
         if overlap <= 0:
             continue
         candidate = (overlap, concept.concept_id, concept)
         if best is None or candidate > best:
             best = candidate
     return best[2] if best is not None else None
-
-
-def _concept_tokens(concept: CanonicalConcept) -> set[str]:
-    values: list[str] = [concept.concept_id, concept.label]
-    for items in concept.join_keys.values():
-        values.extend(str(item) for item in items)
-    return _alignment_tokens(values)
-
-
-def _alignment_tokens(values: list[str]) -> set[str]:
-    tokens: set[str] = set()
-    for value in values:
-        raw = str(value or "").strip().lower()
-        if not raw:
-            continue
-        for token in raw.replace(".", " ").replace("-", " ").replace("/", " ").replace(":", " ").split():
-            token = token.strip("_")
-            if len(token) <= 1:
-                continue
-            tokens.add(token)
-    return tokens
 
 
 __all__ = [

@@ -10,12 +10,18 @@ from __future__ import annotations
 from polisyos.fabric.connectors.sources.ckan_catalog import CKANCatalogConnector
 from polisyos.fabric.connectors.sources.ckan_resource import CKANResourceConnector
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
+from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
+from polisyos.fabric.connectors.sources.geojson import GeoJSONConnector
+from polisyos.fabric.connectors.sources.graphql_api import GraphQLConnector
 from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
+from polisyos.fabric.connectors.sources.object_storage import ObjectStorageConnector
 from polisyos.fabric.connectors.sources.opendatasoft import OpendatasoftConnector
 from polisyos.fabric.connectors.sources.rest_json import RestJsonConnector
 from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
 from polisyos.fabric.connectors.sources.socrata import SocrataConnector
 from polisyos.fabric.connectors.sources.sparql import SPARQLConnector
+from polisyos.fabric.connectors.sources.sql_query import SQLQueryConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
 from polisyos.fabric.connectors.sources.unpd import UNPDConnector
 from polisyos.fabric.connectors.sources.ukons import UKONSConnector
@@ -27,7 +33,12 @@ __all__ = [
     "WorldBankConnector",
     "WVSConnector",
     "EurostatConnector",
+    "EventStreamConnector",
+    "FileTabularConnector",
+    "GeoJSONConnector",
+    "GraphQLConnector",
     "UKONSConnector",
+    "ObjectStorageConnector",
     "SDMXSourceConnector",
     "CKANCatalogConnector",
     "CKANResourceConnector",
@@ -35,6 +46,7 @@ __all__ = [
     "OpendatasoftConnector",
     "RestJsonConnector",
     "SPARQLConnector",
+    "SQLQueryConnector",
     "WHOConnector",
     "UNPDConnector",
     "UNESCOUISConnector",

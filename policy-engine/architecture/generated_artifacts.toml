@@ -127,7 +127,7 @@ outputs = [
   "frontend/runtime-dashboard/dist/bundle-stats.json",
 ]
 regenerate_commands = [
-  "bash benchmarks/run_all_benchmarks.sh",
+  "uv run polisyos-tools benchmarks run-all",
   "cd frontend/runtime-dashboard && npm run bundle:stats",
 ]
 commit_policy = "mixed"

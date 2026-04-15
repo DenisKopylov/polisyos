@@ -11,7 +11,11 @@ const { composeLoaderMock, trackMock } = vi.hoisted(() => ({
 
 vi.mock("@/app/layout/AppShell", () => ({
   default: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="app-shell">{children}</div>
+    <div data-testid="app-shell">
+      <main id="main-content" tabIndex={-1}>
+        {children}
+      </main>
+    </div>
   ),
 }));
 
@@ -28,6 +32,36 @@ vi.mock("@/app/providers/RunsLiveProvider", () => ({
 vi.mock("@/app/providers/RuntimeApiProvider", () => ({
   RuntimeApiProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
+
+vi.mock("@/app/providers/InterfaceModeProvider", () => ({
+  useInterfaceMode: () => ({
+    mode: "analyst" as const,
+    setMode: vi.fn(),
+    isClerk: false,
+    isAnalyst: true,
+  }),
+  InterfaceModeProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
+}));
+
+vi.mock("@/app/routes/WorkspaceBoundary", () => ({
+  WorkspaceBoundary: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+vi.mock("@/app/routes/ModeAwareHome", async () => {
+  const actual =
+    await vi.importActual<typeof import("react-router-dom")>(
+      "react-router-dom",
+    );
+  return {
+    ModeAwareHome: () => (
+      <div>
+        <div data-testid="dashboard-page">Dashboard</div>
+        <actual.Link to="/compose">Go compose</actual.Link>
+      </div>
+    ),
+  };
+});
 
 vi.mock("@/app/routes/RouteErrorElement", () => ({
   RouteErrorElement: () => <div data-testid="route-error-element" />,
@@ -86,13 +120,37 @@ vi.mock("@/features/evidence/routes.public", () => ({
   },
 }));
 
-vi.mock("@/features/lex/route", () => ({
-  lexRoute: {
-    element: <div data-testid="lex-page">Knowledge</div>,
-    handle: { routeId: "lex.knowledge" },
-    path: "knowledge",
-  },
-}));
+vi.mock("@/features/lex/route", async () => {
+  const actual =
+    await vi.importActual<typeof import("react-router-dom")>(
+      "react-router-dom",
+    );
+
+  function LexRouteProbe() {
+    const [searchParams, setSearchParams] = actual.useSearchParams();
+
+    return (
+      <div data-testid="lex-page">
+        <label htmlFor="lex-query">Query</label>
+        <input
+          id="lex-query"
+          value={searchParams.get("q") ?? ""}
+          onChange={(event) => {
+            setSearchParams({ q: event.target.value });
+          }}
+        />
+      </div>
+    );
+  }
+
+  return {
+    lexRoute: {
+      element: <LexRouteProbe />,
+      handle: { routeId: "lex.knowledge" },
+      path: "knowledge",
+    },
+  };
+});
 
 vi.mock("@/features/platform/route", () => ({
   platformRoute: {
@@ -104,6 +162,13 @@ vi.mock("@/features/platform/route", () => ({
 
 vi.mock("@/features/runs/routes.public", () => ({
   runsRoutes: [],
+}));
+
+vi.mock("@/features/landing/index", () => ({
+  landingRoute: {
+    element: <div data-testid="landing-page">Welcome</div>,
+    path: "welcome",
+  },
 }));
 
 import { APP_ROUTES } from "@/app/routes/routes";
@@ -243,5 +308,25 @@ describe("APP_ROUTES", () => {
         }),
       ),
     );
+  });
+
+  it("does not steal focus when only search params change inside the shell", async () => {
+    const user = userEvent.setup();
+    const router = createMemoryRouter(APP_ROUTES, {
+      initialEntries: ["/knowledge?q=transport"],
+    });
+
+    render(<RouterProvider router={router} />);
+
+    const input = await screen.findByLabelText("Query");
+    input.focus();
+    expect(input).toHaveFocus();
+
+    await user.type(input, "ability");
+
+    await waitFor(() =>
+      expect(router.state.location.search).toBe("?q=transportability"),
+    );
+    expect(input).toHaveFocus();
   });
 });

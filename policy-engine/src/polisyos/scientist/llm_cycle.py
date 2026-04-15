@@ -2,13 +2,12 @@
 from __future__ import annotations
 
 import graphlib
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
-from polisyos.core.contracts.control import DataNeed
 from polisyos.core.contracts.execution_plan import (
     BudgetSpec,
     EvaluatorReport,
@@ -17,10 +16,11 @@ from polisyos.core.contracts.execution_plan import (
     EvaluatorVerdict,
     ExecutionPlan,
     ExecutionPlanRef,
+    ExpectedOutputSpec,
+    GovernanceConstraint,
     IterationState,
     IterationStateRef,
     MethodCatalogSnapshot,
-    MethodCatalogSnapshotRef,
     MethodDagNode,
     PlanDataNeed,
     PreflightDiagnostic,
@@ -36,6 +36,12 @@ from polisyos.foundry.methods.selection import (
     suggest_adapter_methods,
     suggest_plan_node_alternatives,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.contracts.control import DataNeed
 
 
 def build_default_execution_plan(
@@ -64,7 +70,8 @@ def build_default_execution_plan(
         for item in data_needs
     ]
     return ExecutionPlan(
-        plan_id=f"plan_{run_id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+        schema_version="1.0",
+        plan_id=f"plan_{run_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
         run_id=run_id,
         iteration=1,
         data_needs=payload_needs,
@@ -76,18 +83,27 @@ def build_default_execution_plan(
             per_model_budget_usd=per_model_budget_usd,
         ),
         stop_criteria=StopCriteria(),
-        governance_constraints=list(governance_constraints or []),
-        expected_outputs=list(expected_outputs or []),
+        governance_constraints=[
+            GovernanceConstraint.model_validate(item)
+            for item in list(governance_constraints or [])
+        ],
+        expected_outputs=[
+            ExpectedOutputSpec.model_validate(item)
+            for item in list(expected_outputs or [])
+        ],
     )
 
 
 def preflight_execution_plan(
     plan: ExecutionPlan,
     catalog: MethodCatalogSnapshot,
+    *,
+    registry: MethodRegistry | None = None,
+    registry_provider: Callable[[], MethodRegistry] | None = None,
 ) -> PreflightReport:
     """Preflight execution plan helper."""
     diagnostics: list[PreflightDiagnostic] = []
-    registry = MethodRegistry.get_instance()
+    registry = registry or (registry_provider or MethodRegistry.get_instance)()
 
     available = {entry.fqn for entry in catalog.entries}
     catalog_entries = {entry.fqn: entry for entry in catalog.entries}
@@ -270,6 +286,7 @@ def preflight_execution_plan(
     ready = not any(item.severity in {"error", "blocker"} for item in diagnostics)
     notes = [f"diagnostics:{len(diagnostics)}", f"ready:{str(ready).lower()}"]
     return PreflightReport(
+        schema_version="1.0",
         ready_to_run=ready,
         diagnostics=diagnostics,
         notes=notes,
@@ -320,6 +337,7 @@ def evaluate_iteration(
     if eval_verdict == "STOP_BUDGET":
         replanning_hints.append("Budget exhausted, stop execution")
     return EvaluatorReport(
+        schema_version="1.0",
         verdict=eval_verdict,
         scores=scores,
         reasons=reasons,
@@ -328,7 +346,7 @@ def evaluate_iteration(
 
 
 def persist_execution_plan(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     plan: ExecutionPlan,
     *,
     inputs: list[InputRef] | None = None,
@@ -336,7 +354,7 @@ def persist_execution_plan(
     """Persist execution plan helper."""
     payload_ref = store.put_json(
         plan,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="scientist.execution_plan",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.ExecutionPlan", version="1.0"),
@@ -348,7 +366,7 @@ def persist_execution_plan(
 
 
 def persist_preflight_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     report: PreflightReport,
     *,
     inputs: list[InputRef] | None = None,
@@ -356,7 +374,7 @@ def persist_preflight_report(
     """Persist preflight report helper."""
     payload_ref = store.put_json(
         report,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="scientist.preflight_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.PreflightReport", version="1.0"),
@@ -368,7 +386,7 @@ def persist_preflight_report(
 
 
 def persist_evaluator_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     report: EvaluatorReport,
     *,
     inputs: list[InputRef] | None = None,
@@ -376,7 +394,7 @@ def persist_evaluator_report(
     """Persist evaluator report helper."""
     payload_ref = store.put_json(
         report,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="scientist.evaluator_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.EvaluatorReport", version="1.0"),
@@ -388,7 +406,7 @@ def persist_evaluator_report(
 
 
 def persist_iteration_state(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     state: IterationState,
     *,
     inputs: list[InputRef] | None = None,
@@ -396,7 +414,7 @@ def persist_iteration_state(
     """Persist iteration state helper."""
     payload_ref = store.put_json(
         state,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="scientist.iteration_state",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.IterationState", version="1.0"),
@@ -420,6 +438,7 @@ def build_reproducibility_manifest(
 ) -> ReproducibilityManifest:
     """Build reproducibility manifest."""
     return ReproducibilityManifest(
+        schema_version="1.0",
         run_id=run_id,
         iteration=iteration,
         seed=seed,
@@ -438,16 +457,16 @@ def build_reproducibility_manifest(
 def build_causal_execution_plan(
     *,
     run_id: str,
-    estimand_ast: "Any",
-    data_needs: "list[Any]",
+    estimand_ast: Any,
+    data_needs: list[Any],
     n_obs: int = 1000,
     covariate_dim: int = 5,
     use_cross_fitting: bool = True,
-    knowledge_base: "Any | None" = None,
+    knowledge_base: Any | None = None,
     max_iterations: int = 3,
     run_budget_usd: float | None = None,
     per_model_budget_usd: float | None = None,
-) -> "ExecutionPlan":
+) -> ExecutionPlan:
     """Build an ExecutionPlan from a Pearl-Bareinboim EstimandAST.
 
     This is the closed pipeline::
@@ -497,7 +516,7 @@ def build_causal_execution_plan(
         knowledge_base=knowledge_base,
     )
 
-    method_dag = [MethodDagNode(**nd) for nd in nodes_dicts]
+    method_dag = [MethodDagNode(**nd) for nd in nodes_dicts.to_method_dag_dicts()]
 
     return build_default_execution_plan(
         run_id=run_id,
@@ -510,7 +529,7 @@ def build_causal_execution_plan(
 
 
 def persist_reproducibility_manifest(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     manifest: ReproducibilityManifest,
     *,
     inputs: list[InputRef] | None = None,
@@ -518,7 +537,7 @@ def persist_reproducibility_manifest(
     """Persist reproducibility manifest helper."""
     payload_ref = store.put_json(
         manifest,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="scientist.reproducibility_manifest",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.ReproducibilityManifest", version="1.0"),
@@ -530,14 +549,14 @@ def persist_reproducibility_manifest(
 
 
 __all__ = [
-    "build_default_execution_plan",
     "build_causal_execution_plan",
-    "preflight_execution_plan",
-    "evaluate_iteration",
-    "persist_execution_plan",
-    "persist_preflight_report",
-    "persist_evaluator_report",
-    "persist_iteration_state",
+    "build_default_execution_plan",
     "build_reproducibility_manifest",
+    "evaluate_iteration",
+    "persist_evaluator_report",
+    "persist_execution_plan",
+    "persist_iteration_state",
+    "persist_preflight_report",
     "persist_reproducibility_manifest",
+    "preflight_execution_plan",
 ]

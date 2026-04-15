@@ -8,6 +8,9 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from polisyos.fabric.safety import UnsafeFilterExpressionError
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.sparql import SPARQLConnector, _MAX_LIMIT
 from polisyos.fabric.connectors.types import FetchError
@@ -28,6 +31,7 @@ def _sparql_config(*, templates: dict[str, str] | None = None) -> ConnectionConf
     headers: dict[str, str] = {}
     if templates:
         headers["X-SPARQL-QueryTemplates"] = json.dumps(templates)
+    headers.setdefault("X-SPARQL-AllowInlineQuery", "false")
     return ConnectionConfig(url="https://query.wikidata.org", headers=headers)
 
 
@@ -149,7 +153,12 @@ class TestQueryResolution:
         connector = SPARQLConnector()
 
         async def _exercise():
-            handle = await connector.connect(_sparql_config())
+            handle = await connector.connect(
+                ConnectionConfig(
+                    url="https://query.wikidata.org",
+                    headers={"X-SPARQL-AllowInlineQuery": "true"},
+                )
+            )
             req = FetchRequest(dataset_id="SELECT ?s WHERE { ?s ?p ?o } LIMIT 5")
             query = SPARQLConnector._resolve_query(handle, req)
             await connector.disconnect(handle)
@@ -163,7 +172,7 @@ class TestQueryResolution:
 
         async def _exercise():
             config = _sparql_config(templates={
-                "by_type": "SELECT ?s WHERE { ?s a {{type}} } LIMIT 100"
+                "by_type": "SELECT ?s WHERE { ?s a {{iri:type}} } LIMIT 100"
             })
             handle = await connector.connect(config)
             req = FetchRequest(
@@ -176,7 +185,46 @@ class TestQueryResolution:
 
         query = _run_async(_exercise())
         assert "dbo:Country" in query
-        assert "{{type}}" not in query
+        assert "{{iri:type}}" not in query
+
+    def test_resolve_with_literal_substitution_escapes_quotes(self):
+        connector = SPARQLConnector()
+
+        async def _exercise():
+            config = _sparql_config(templates={
+                "by_label": "SELECT ?s WHERE { ?s rdfs:label {{literal:label}}@en } LIMIT 10"
+            })
+            handle = await connector.connect(config)
+            req = FetchRequest(
+                dataset_id="by_label",
+                filters=(("label", ('A" OR ?s ?p ?o',)),),
+            )
+            query = SPARQLConnector._resolve_query(handle, req)
+            await connector.disconnect(handle)
+            return query
+
+        query = _run_async(_exercise())
+        assert '"A\\" OR ?s ?p ?o"' in query
+
+    def test_resolve_rejects_legacy_untyped_placeholders(self):
+        connector = SPARQLConnector()
+
+        async def _exercise():
+            config = _sparql_config(templates={
+                "legacy": "SELECT ?s WHERE { ?s a {{type}} } LIMIT 10"
+            })
+            handle = await connector.connect(config)
+            req = FetchRequest(
+                dataset_id="legacy",
+                filters=(("type", ("dbo:Country",)),),
+            )
+            SPARQLConnector._resolve_query(handle, req)
+
+        with pytest.raises(
+            UnsafeFilterExpressionError,
+            match="must declare an explicit kind",
+        ):
+            _run_async(_exercise())
 
     def test_resolve_unknown_template_raises(self):
         connector = SPARQLConnector()
@@ -186,8 +234,27 @@ class TestQueryResolution:
             req = FetchRequest(dataset_id="nonexistent_template")
             SPARQLConnector._resolve_query(handle, req)
 
-        import pytest
         with pytest.raises(FetchError, match="No SPARQL query template"):
+            _run_async(_exercise())
+
+    def test_resolve_rejects_unexpected_filters(self):
+        connector = SPARQLConnector()
+
+        async def _exercise():
+            config = _sparql_config(templates={
+                "countries": "SELECT ?c WHERE { ?c a dbo:Country } LIMIT 10"
+            })
+            handle = await connector.connect(config)
+            req = FetchRequest(
+                dataset_id="countries",
+                filters=(("country", ("UA",)),),
+            )
+            SPARQLConnector._resolve_query(handle, req)
+
+        with pytest.raises(
+            UnsafeFilterExpressionError,
+            match="does not declare placeholders",
+        ):
             _run_async(_exercise())
 
 

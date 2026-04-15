@@ -39,6 +39,7 @@ Example ConnectionConfig
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from datetime import datetime, timezone
@@ -49,6 +50,11 @@ import aiohttp
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import streaming_hash
+from polisyos.fabric.safety import (
+    UnsafeDataPathError,
+    extract_bounded_data_path,
+    validate_data_path,
+)
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -102,23 +108,9 @@ def _parse_http_datetime(value: str | None) -> datetime | None:
         return None
 
 
-def _extract_nested(obj: Any, path: str) -> Any:
+def _extract_nested(obj: Any, path: str | tuple[str, ...]) -> Any:
     """Resolve a dot-separated path through nested dicts/lists."""
-    if path == "" or path is None:
-        return obj
-
-    current = obj
-    for key in path.split("."):
-        if isinstance(current, dict):
-            current = current[key]
-        elif isinstance(current, list):
-            if not key.isdigit():
-                raise KeyError(f"Cannot traverse '{key}' in list")
-            idx = int(key)
-            current = current[idx]
-        else:
-            raise KeyError(f"Cannot traverse '{key}' in {type(current)}")
-    return current
+    return extract_bounded_data_path(obj, path)
 
 
 class PaginationStrategy(str, Enum):
@@ -132,6 +124,8 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
     """Paginated JSON REST connector with auth, date filtering, and rate-limit awareness."""
 
     connector_id: ClassVar[str] = "reference.rest_json"
+    _STATE_SESSION_KEY: ClassVar[str] = "session"
+    _STATE_SESSION_LOCK_KEY: ClassVar[str] = "_session_lock"
 
     capabilities: ClassVar[ConnectorCapability] = (
         ConnectorCapability.FULL_FETCH
@@ -171,13 +165,13 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                 field="X-REST-Pagination",
             ) from exc
         return {
-            "data_path": config.headers.get("X-REST-DataPath", "data"),
+            "data_path": validate_data_path(config.headers.get("X-REST-DataPath", "data")),
             "pagination": pagination,
             "page_size": int(config.headers.get("X-REST-PageSize", "100")),
             "page_param": config.headers.get("X-REST-PageParam", "page"),
             "page_size_param": config.headers.get("X-REST-PageSizeParam", "limit"),
             "cursor_param": config.headers.get("X-REST-CursorParam", "next_cursor"),
-            "cursor_path": config.headers.get("X-REST-CursorPath", ""),
+            "cursor_path": validate_data_path(config.headers.get("X-REST-CursorPath", "")),
             "date_start_param": config.headers.get("X-REST-DateStart", "start_date"),
             "date_end_param": config.headers.get("X-REST-DateEnd", "end_date"),
         }
@@ -207,11 +201,36 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                 field="url",
             )
         handle = self._create_handle(config)
-        handle.state.setdefault("rest_json", {})
+        handle.setdefault_state("rest_json", {})
+        handle.set_state(self._STATE_SESSION_KEY, None)
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, asyncio.Lock())
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
-        return None
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is not None and not session.closed:
+                await session.close()
+            handle.set_state(self._STATE_SESSION_KEY, None)
+
+    def _session_lock(self, handle: ConnectionHandle) -> asyncio.Lock:
+        lock = handle.get_state(self._STATE_SESSION_LOCK_KEY)
+        if isinstance(lock, asyncio.Lock):
+            return lock
+        lock = asyncio.Lock()
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, lock)
+        return lock
+
+    async def _get_session(self, handle: ConnectionHandle) -> aiohttp.ClientSession:
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is None or session.closed:
+                timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
+                session = aiohttp.ClientSession(timeout=timeout)
+                handle.set_state(self._STATE_SESSION_KEY, session)
+            return session
 
     # ------------------------------------------------------------------
     # Health check
@@ -222,19 +241,16 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         start = time.monotonic()
         headers = self._build_auth_headers(handle.config)
         try:
-            async with aiohttp.ClientSession(headers=headers) as session:
-                async with session.get(
-                    handle.config.url,
-                    timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-                ) as resp:
-                    latency = (time.monotonic() - start) * 1000
-                    remaining = resp.headers.get("X-RateLimit-Remaining")
-                    return HealthStatus(
-                        healthy=(resp.status < 400),
-                        message=f"HTTP {resp.status}",
-                        latency_ms=round(latency, 2),
-                        rate_limit_remaining=int(remaining) if remaining else None,
-                    )
+            session = await self._get_session(handle)
+            async with session.get(handle.config.url, headers=headers) as resp:
+                latency = (time.monotonic() - start) * 1000
+                remaining = resp.headers.get("X-RateLimit-Remaining")
+                return HealthStatus(
+                    healthy=(resp.status < 400),
+                    message=f"HTTP {resp.status}",
+                    latency_ms=round(latency, 2),
+                    rate_limit_remaining=int(remaining) if remaining else None,
+                )
         except Exception as exc:
             return HealthStatus(healthy=False, message=str(exc))
 
@@ -253,7 +269,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         total_bytes = 0
         payload_chunks: list[bytes] = []
 
-        state = handle.state.setdefault("rest_json", {})
+        state = handle.setdefault_state("rest_json", {})
         state["rate_limit_remaining"] = None
         state["retry_after"] = None
 
@@ -279,65 +295,66 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         etag_mismatch = False
         last_modified_mismatch = False
 
-        async with aiohttp.ClientSession(headers=headers) as session:
-            request_page = self._decorate_request(self._request_page_raw, handle)
-            while has_more:
-                if cfg["pagination"] == PaginationStrategy.PAGE_NUMBER:
-                    params[cfg["page_param"]] = str(page_number)
-                elif cursor:
-                    params[cfg["cursor_param"]] = cursor
+        session = await self._get_session(handle)
+        request_page = self._decorate_request(self._request_page_raw, handle)
+        while has_more:
+            if cfg["pagination"] == PaginationStrategy.PAGE_NUMBER:
+                params[cfg["page_param"]] = str(page_number)
+            elif cursor:
+                params[cfg["cursor_param"]] = cursor
 
-                body, resp_headers, bytes_xferred = await request_page(
-                    handle,
-                    session,
-                    handle.config.url,
-                    params,
-                )
-                total_bytes += bytes_xferred
-                payload_chunks.append(body["_raw"])
+            body, resp_headers, bytes_xferred = await request_page(
+                handle,
+                session,
+                handle.config.url,
+                params,
+                headers,
+            )
+            total_bytes += bytes_xferred
+            payload_chunks.append(body["_raw"])
 
-                page_etag = resp_headers.get("ETag")
-                if page_etag:
-                    if etag is None:
-                        etag = page_etag
-                    elif etag != page_etag:
-                        etag_mismatch = True
+            page_etag = resp_headers.get("ETag")
+            if page_etag:
+                if etag is None:
+                    etag = page_etag
+                elif etag != page_etag:
+                    etag_mismatch = True
 
-                page_last_modified = resp_headers.get("Last-Modified")
-                if page_last_modified:
-                    if last_modified is None:
-                        last_modified = page_last_modified
-                    elif last_modified != page_last_modified:
-                        last_modified_mismatch = True
+            page_last_modified = resp_headers.get("Last-Modified")
+            if page_last_modified:
+                if last_modified is None:
+                    last_modified = page_last_modified
+                elif last_modified != page_last_modified:
+                    last_modified_mismatch = True
 
-                rl = resp_headers.get("X-RateLimit-Remaining")
-                if rl is not None:
-                    try:
-                        state["rate_limit_remaining"] = int(rl)
-                    except ValueError:
-                        state["rate_limit_remaining"] = None
-
+            rl = resp_headers.get("X-RateLimit-Remaining")
+            if rl is not None:
                 try:
-                    page_data: list[dict[str, Any]] = _extract_nested(
-                        body["json"], cfg["data_path"]
-                    )
-                except (KeyError, TypeError) as exc:
-                    raise FetchError(
-                        message=f"Data extraction failed at path '{cfg['data_path']}': {exc}",
-                        connector_id=self.connector_id,
-                        request_params={"data_path": cfg["data_path"]},
-                    ) from exc
+                    state["rate_limit_remaining"] = int(rl)
+                except ValueError:
+                    state["rate_limit_remaining"] = None
 
-                all_rows.extend(page_data)
+            try:
+                page_data: list[dict[str, Any]] = _extract_nested(
+                    body["json"], cfg["data_path"]
+                )
+            except (KeyError, TypeError) as exc:
+                raise FetchError(
+                    message=f"Data extraction failed at path '{cfg['data_path']}': {exc}",
+                    connector_id=self.connector_id,
+                    request_params={"data_path": cfg["data_path"]},
+                ) from exc
 
-                if not page_data:
-                    has_more = False
-                elif cfg["pagination"] == PaginationStrategy.PAGE_NUMBER:
-                    page_number += 1
-                    has_more = len(page_data) >= page_size
-                else:
-                    cursor = self._extract_cursor(body["json"], cfg)
-                    has_more = cursor is not None
+            all_rows.extend(page_data)
+
+            if not page_data:
+                has_more = False
+            elif cfg["pagination"] == PaginationStrategy.PAGE_NUMBER:
+                page_number += 1
+                has_more = len(page_data) >= page_size
+            else:
+                cursor = self._extract_cursor(body["json"], cfg)
+                has_more = cursor is not None
 
         duration_ms = (time.monotonic() - start) * 1000
         version = self._build_version(
@@ -422,17 +439,18 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         session: aiohttp.ClientSession,
         url: str,
         params: dict[str, Any],
+        headers: dict[str, str] | None = None,
     ) -> tuple[dict[str, Any], dict[str, str], int]:
         async with session.get(
             url,
             params=params,
-            timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
+            headers=headers,
         ) as resp:
             headers = dict(resp.headers)
             if resp.status == 429:
                 retry_after_header = resp.headers.get("Retry-After")
                 retry_after = parse_retry_after_header(retry_after_header)
-                state = handle.state.setdefault("rest_json", {})
+                state = handle.setdefault_state("rest_json", {})
                 state["retry_after"] = retry_after
                 rl = resp.headers.get("X-RateLimit-Remaining")
                 if rl is not None:
@@ -495,6 +513,20 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                     field="X-REST-Pagination",
                 )
             )
+        for field_name, header_name, default in (
+            ("data_path", "X-REST-DataPath", "data"),
+            ("cursor_path", "X-REST-CursorPath", ""),
+        ):
+            try:
+                validate_data_path(config.headers.get(header_name, default))
+            except UnsafeDataPathError as exc:
+                issues.append(
+                    ValidationIssue(
+                        severity=ValidationSeverity.ERROR,
+                        message=str(exc),
+                        field=field_name,
+                    )
+                )
         if issues:
             return ValidationResult.failure(*issues)
         return ValidationResult.success()

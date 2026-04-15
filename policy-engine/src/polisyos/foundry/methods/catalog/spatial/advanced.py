@@ -126,7 +126,7 @@ class GaussianProcessKrigingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gaussian_process_kriging",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -253,7 +253,7 @@ class InverseDistanceWeightingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="idw",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -349,7 +349,7 @@ class SpatialSLXPanelEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="slx",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -524,7 +524,7 @@ class SpatialSARARPanelEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="sarar",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -669,7 +669,7 @@ class TwoStepFCAAccessibilityEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="two_step_fca",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -795,7 +795,7 @@ class SpatialMicrosimulationEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="smsm",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -924,7 +924,7 @@ class ZoneBalanceDesignEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="zone_balance",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -1064,7 +1064,7 @@ class MAUPSensitivityProfileEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="maup_profile",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -12,6 +12,7 @@ from polisyos.scientist.engine.runner.task_router import (
     ResourceAwareStrategy,
     RoundRobinStrategy,
     TaskRouter,
+    WeightedQueueStrategy,
 )
 from polisyos.scientist.engine.runner.worker_pool import (
     NodeTask,
@@ -20,12 +21,14 @@ from polisyos.scientist.engine.runner.worker_pool import (
 )
 
 
-def _make_task(gpu: bool = False) -> NodeTask:
+def _make_task(gpu: bool = False, *, priority: int = 0, queue_weight: float = 1.0) -> NodeTask:
     req = ResourceRequirements(gpu=gpu) if gpu else None
     return NodeTask(
         node_id="n", alias="a", params={},
         state_bytes=b"{}", trace_carrier={},
         resource_requirements=req,
+        priority=priority,
+        queue_weight=queue_weight,
     )
 
 
@@ -93,6 +96,19 @@ class TestLeastLoadedStrategy:
         }
         result = asyncio.run(strategy.select_pool(_make_task(), caps))
         assert result == "idle"
+
+
+class TestWeightedQueueStrategy:
+    def test_prefers_less_backlogged_pool_for_weighted_task(self) -> None:
+        strategy = WeightedQueueStrategy()
+        caps = {
+            "cpu_a": PoolCapacity(total_workers=8, idle_workers=2, active_tasks=6, queue_depth=8),
+            "cpu_b": PoolCapacity(total_workers=8, idle_workers=1, active_tasks=7, queue_depth=1),
+        }
+        result = asyncio.run(
+            strategy.select_pool(_make_task(priority=5, queue_weight=3.0), caps)
+        )
+        assert result == "cpu_b"
 
 
 class TestTaskRouter:

@@ -1,7 +1,6 @@
 """ConnectorRegistry facade composed from decomposed registry sub-modules."""
 from __future__ import annotations
 
-import asyncio
 import json
 import threading
 from datetime import datetime, timezone
@@ -138,21 +137,17 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             return
 
         pools_to_close = list(instance._connection_pools.values())
+        if pools_to_close and instance._has_running_loop():
+            with cls._lock:
+                cls._instance = instance
+            raise RuntimeError(
+                "ConnectorRegistry.reset_instance() cannot close pools while an "
+                "event loop is running; call await registry.shutdown_async() first."
+            )
         instance._connectors.clear()
         instance._connection_pools.clear()
 
-        if pools_to_close:
-            try:
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    for pool in pools_to_close:
-                        asyncio.create_task(pool.close_all())
-                else:
-                    loop.run_until_complete(
-                        asyncio.gather(*(pool.close_all() for pool in pools_to_close))
-                    )
-            except Exception as exc:
-                logger.debug("Ignored exception: %s", exc)  # Best effort cleanup
+        instance._close_pools_sync(pools_to_close)
 
         logger.info("ConnectorRegistry singleton reset")
 

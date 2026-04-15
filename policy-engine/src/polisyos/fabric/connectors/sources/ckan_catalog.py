@@ -95,6 +95,7 @@ class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
             ConnectorCapability.RATE_LIMIT_AWARE,
         ),
     )
+    _MAX_LIST_PAGES: ClassVar[int] = 1_000
 
     # ------------------------------------------------------------------
     # Health check
@@ -132,14 +133,39 @@ class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
         url = f"{base}/api/3/action/package_search"
         offset = 0
         rows_per_page = 100
+        pages_seen = 0
+        seen_page_fingerprints: set[tuple[str, ...]] = set()
 
         while True:
+            pages_seen += 1
+            if pages_seen > self._MAX_LIST_PAGES:
+                raise FetchError(
+                    message=(
+                        "CKAN catalog pagination exceeded safe page limit "
+                        f"({pages_seen} > {self._MAX_LIST_PAGES})"
+                    ),
+                    connector_id=self.connector_id,
+                )
             params = {"rows": str(rows_per_page), "start": str(offset)}
             body, _headers, _raw = await self._resilient_request_json(
                 handle, url, params=params,
             )
             result = body.get("result", {})
             results_list = result.get("results", [])
+            if not isinstance(results_list, list) or not results_list:
+                break
+
+            page_fingerprint = tuple(
+                str(pkg.get("id") or pkg.get("name") or idx)
+                for idx, pkg in enumerate(results_list)
+                if isinstance(pkg, dict)
+            )
+            if page_fingerprint in seen_page_fingerprints:
+                raise FetchError(
+                    message="CKAN catalog pagination repeated a prior page fingerprint",
+                    connector_id=self.connector_id,
+                )
+            seen_page_fingerprints.add(page_fingerprint)
 
             for pkg in results_list:
                 dataset_id = str(pkg.get("name") or pkg.get("id", "unknown"))

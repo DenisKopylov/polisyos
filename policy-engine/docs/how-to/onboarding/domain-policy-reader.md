@@ -24,7 +24,7 @@ Minimal local setup:
 
 ```bash
 cd policy-engine
-./scripts/bootstrap --skip-frontend --skip-playwright
+python3 -m tools.cli workspace bootstrap --skip-frontend --skip-playwright
 ```
 
 Recommended docs path:

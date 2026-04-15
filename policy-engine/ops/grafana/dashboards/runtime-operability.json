@@ -1,0 +1,166 @@
+{
+  "uid": "polisyos-runtime-operability",
+  "title": "PolicyOS - Runtime Operability",
+  "tags": ["polisyos", "runtime", "operability"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "version": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "type": "query",
+        "query": "label_values(polisyos_runtime_api_requests_total, env)",
+        "includeAll": false,
+        "multi": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Runtime API p95",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, route) (rate(polisyos_runtime_api_duration_seconds_bucket{env=\"$environment\"}[5m])))",
+          "legendFormat": "{{route}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Runtime Error Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (route) (rate(polisyos_runtime_api_errors_total{env=\"$environment\"}[5m]))",
+          "legendFormat": "{{route}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Identity Failures",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (reason) (rate(polisyos_identity_failures_total{env=\"$environment\"}[5m]))",
+          "legendFormat": "{{reason}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Dependency Circuits",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "max by (circuit_id) (polisyos_connector_circuit_state{circuit_id=~\"runtime\\\\..+\"})",
+          "legendFormat": "{{circuit_id}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Rate Limit Throttles",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (endpoint, mode) (rate(polisyos_runtime_rate_limit_events_total{env=\"$environment\",outcome=\"throttled\"}[5m]))",
+          "legendFormat": "{{endpoint}} {{mode}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Active Live Streams",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "max by (endpoint) (polisyos_runtime_live_streams_current{env=\"$environment\"})",
+          "legendFormat": "{{endpoint}}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Control Queue Lag p95",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, job_kind) (rate(polisyos_control_plane_job_queue_lag_seconds_bucket{env=\"$environment\"}[5m])))",
+          "legendFormat": "{{job_kind}}"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Control Job Execution Duration p95",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 14 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, job_kind, status) (rate(polisyos_control_plane_job_execution_duration_seconds_bucket{env=\"$environment\"}[5m])))",
+          "legendFormat": "{{job_kind}} {{status}}"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Runtime Cache Rebuilds",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 14 },
+      "targets": [
+        {
+          "expr": "sum by (cache_name) (rate(polisyos_runtime_cache_operations_total{env=\"$environment\",operation=\"refresh\",outcome=\"rebuild\"}[5m]))",
+          "legendFormat": "{{cache_name}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Runtime Cache Staleness",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 14 },
+      "targets": [
+        {
+          "expr": "max by (cache_name) (polisyos_runtime_cache_staleness_seconds{env=\"$environment\"})",
+          "legendFormat": "{{cache_name}}"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Artifact Integrity Failures",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 21 },
+      "targets": [
+        {
+          "expr": "sum by (backend, reason) (rate(polisyos_artifact_integrity_failures_total{env=\"$environment\"}[5m]))",
+          "legendFormat": "{{backend}} {{reason}}"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Runtime Data Access",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 21 },
+      "targets": [
+        {
+          "expr": "sum by (resource_kind, outcome) (rate(polisyos_runtime_data_access_total{env=\"$environment\"}[5m]))",
+          "legendFormat": "{{resource_kind}} {{outcome}}"
+        }
+      ]
+    }
+  ]
+}

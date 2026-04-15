@@ -7,7 +7,7 @@ environment.  Supports CAS persistence and lookup by run_id.
 Design
 ------
 - Frozen Pydantic model (``extra="forbid"``).
-- ``stable_hash()`` — deterministic SHA-256 of all fingerprints; used as CAS key.
+- ``stable_hash()`` — deterministic BLAKE2b-128 of all fingerprints; used as CAS key.
 - ``persist_snapshot()`` / ``lookup_snapshot()`` — append-only JSONL index in
   ``<cas_root>/index/causal_run_snapshots.jsonl`` maps run_id → artifact_id.
 """
@@ -15,12 +15,21 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import sys
 from datetime import datetime, timezone
+from functools import cached_property
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+import pandas as pd
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+from polisyos.ir.analytics.estimand import EstimandAST
+from polisyos.ir.analytics.evidence_bundle import EvidenceFingerprintError, _fingerprint
+from polisyos.ir.data.versioning import version_dataset
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -48,7 +57,7 @@ class MethodInvocationRecord(BaseModel):
     determinism_tier: str = ""
     """DeterminismTier.value at invocation time."""
 
-    library_versions: dict[str, str] = {}
+    library_versions: dict[str, str] = Field(default_factory=dict)
     """Snapshot of key library versions at invocation (e.g. {'numpy': '1.26.0'})."""
 
     is_nuisance: bool = False
@@ -97,10 +106,10 @@ class CausalRunSnapshot(BaseModel):
     """Human-readable query string."""
 
     # Data
-    dataset_fingerprints: dict[str, str] = {}
+    dataset_fingerprints: dict[str, str] = Field(default_factory=dict)
     """Map from dataset_ref → content_hash (from DatasetVersion)."""
 
-    dataset_n_obs: dict[str, int] = {}
+    dataset_n_obs: dict[str, int] = Field(default_factory=dict)
     """Map from dataset_ref → number of observations."""
 
     # Methods
@@ -120,13 +129,11 @@ class CausalRunSnapshot(BaseModel):
 
     created_at: str = ""
     """ISO 8601 UTC timestamp."""
+    warnings: tuple[str, ...] = ()
+    """Structured degradation signals captured while building the snapshot."""
 
-    def stable_hash(self) -> str:
-        """Return a deterministic 32-char hex hash of the snapshot's fingerprints.
-
-        The hash covers only the content fingerprints (not timestamps or run_id),
-        so two identical runs produce the same hash.
-        """
+    @cached_property
+    def _stable_hash_value(self) -> str:
         payload = {
             "graph_fingerprint": self.graph_fingerprint,
             "estimand_fingerprint": self.estimand_fingerprint,
@@ -141,8 +148,16 @@ class CausalRunSnapshot(BaseModel):
             ],
             "algorithm_version": self.algorithm_version,
         }
-        content = json.dumps(payload, sort_keys=True)
-        return hashlib.sha256(content.encode()).hexdigest()[:32]
+        content = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
+        return hashlib.blake2b(content, digest_size=16).hexdigest()
+
+    def stable_hash(self) -> str:
+        """Return a deterministic 32-char BLAKE2b hex hash of snapshot fingerprints.
+
+        The hash covers only the content fingerprints (not timestamps or run_id),
+        so two identical runs produce the same hash.
+        """
+        return self._stable_hash_value
 
     @classmethod
     def build(
@@ -159,7 +174,14 @@ class CausalRunSnapshot(BaseModel):
         compilation_steps: Any = (),  # tuple[CompilationStep, ...]
     ) -> "CausalRunSnapshot":
         """Factory: build from CausalEngine.run() artefacts."""
-        from polisyos.ir.analytics.evidence_bundle import _fingerprint
+        warnings: dict[str, None] = {}
+
+        def _add_warning(message: str, *, exc: Exception | None = None) -> None:
+            warnings.setdefault(message, None)
+            if exc is not None:
+                logger.warning("Causal run snapshot warning %s: %s", message, exc)
+            else:
+                logger.warning("Causal run snapshot warning %s", message)
 
         # Graph fingerprint
         graph_fp = ""
@@ -173,32 +195,61 @@ class CausalRunSnapshot(BaseModel):
                 graph_schema_ver = str(g_dict.get("schema_version", ""))
                 n_nodes = len(g_dict.get("nodes", []))
                 n_edges = len(g_dict.get("edges", []))
-            except Exception:
-                pass
+            except (AttributeError, TypeError, ValueError, EvidenceFingerprintError) as exc:
+                _add_warning("graph_fingerprint_unavailable", exc=exc)
 
         # Estimand fingerprint
-        estimand_fp = _fingerprint(estimand_ast_dict) if estimand_ast_dict else ""
+        estimand_fp = ""
+        if estimand_ast_dict:
+            try:
+                estimand_fp = EstimandAST.model_validate(
+                    estimand_ast_dict
+                ).content_hash(prefix=True)
+            except (ValidationError, ValueError) as exc:
+                _add_warning("estimand_normalization_failed", exc=exc)
+                try:
+                    estimand_fp = _fingerprint(estimand_ast_dict)
+                except EvidenceFingerprintError as fingerprint_exc:
+                    _add_warning("estimand_fingerprint_unavailable", exc=fingerprint_exc)
 
         # Estimand shape from compilation steps
         if not estimand_shape and compilation_steps:
-            estimand_shape = getattr(compilation_steps[0], "estimand_shape", "") if compilation_steps else ""
+            estimand_shape = (
+                getattr(compilation_steps[0], "estimand_shape", "")
+                if compilation_steps
+                else ""
+            )
 
         # Dataset fingerprints (cheap: just use dict keys + n_obs from DataProvenance)
         ds_fps: dict[str, str] = {}
         ds_nobs: dict[str, int] = {}
         if data_dict:
             for ref, df in data_dict.items():
-                try:
-                    import pandas as pd
-                    if isinstance(df, pd.DataFrame):
-                        from polisyos.ir.data.versioning import version_dataset
+                if isinstance(df, pd.DataFrame):
+                    try:
                         ver = version_dataset(df, ref)
                         ds_fps[ref] = ver.content_hash
                         ds_nobs[ref] = ver.n_obs
-                    else:
-                        ds_fps[ref] = _fingerprint(str(type(df)))
-                except Exception:
-                    ds_fps[ref] = ""
+                    except (TypeError, ValueError, OSError) as exc:
+                        _add_warning(f"dataset_versioning_failed:{ref}", exc=exc)
+                        try:
+                            ds_fps[ref] = _fingerprint(
+                                {"dataset_ref": ref, "python_type": type(df).__qualname__}
+                            )
+                        except EvidenceFingerprintError as fingerprint_exc:
+                            _add_warning(
+                                f"dataset_fingerprint_unavailable:{ref}",
+                                exc=fingerprint_exc,
+                            )
+                            ds_fps[ref] = ""
+                else:
+                    try:
+                        ds_fps[ref] = _fingerprint(
+                            {"dataset_ref": ref, "python_type": type(df).__qualname__}
+                        )
+                    except EvidenceFingerprintError as exc:
+                        _add_warning(f"dataset_fingerprint_unavailable:{ref}", exc=exc)
+                        ds_fps[ref] = ""
 
         # Method invocations from EstimationStep
         invocations: list[MethodInvocationRecord] = []
@@ -229,6 +280,7 @@ class CausalRunSnapshot(BaseModel):
             algorithm_version=algorithm_version,
             python_version=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
             created_at=datetime.now(timezone.utc).isoformat(),
+            warnings=tuple(warnings),
         )
 
 
@@ -285,14 +337,15 @@ def lookup_snapshot(
 
     artifact_id: str | None = None
     try:
-        for line in index_path.read_text().splitlines():
+        for line in index_path.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if not line:
                 continue
             entry = json.loads(line)
             if entry.get("run_id") == run_id:
                 artifact_id = entry.get("artifact_id")
-    except Exception:
+    except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        logger.warning("Failed to read causal run snapshot index '%s': %s", index_path, exc)
         return None
 
     if artifact_id is None:
@@ -302,8 +355,9 @@ def lookup_snapshot(
     if not snap_path.exists():
         return None
     try:
-        return CausalRunSnapshot.model_validate_json(snap_path.read_text())
-    except Exception:
+        return CausalRunSnapshot.model_validate_json(snap_path.read_text(encoding="utf-8"))
+    except (OSError, ValidationError, ValueError) as exc:
+        logger.warning("Failed to load causal run snapshot '%s': %s", snap_path, exc)
         return None
 
 

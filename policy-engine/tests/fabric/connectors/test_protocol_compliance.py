@@ -7,16 +7,6 @@ from typing import AsyncIterator, ClassVar
 
 import pytest
 
-from polisyos.ir.connectors import (
-    ConnectorCapability,
-    ConnectorMetadataSpec,
-    DataVersion,
-    QualityTier,
-    TrustLevel,
-    VersionStrategy,
-    capabilities_from_flags,
-    flags_from_capabilities,
-)
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -24,6 +14,13 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
+)
+from polisyos.fabric.connectors.capabilities import (
+    REQUIRED_ATTRIBUTES,
+    REQUIRED_METHODS,
+    describe_capabilities,
+    requires_capability,
+    validate_protocol_compliance,
 )
 from polisyos.fabric.connectors.types import (
     CapabilityError,
@@ -39,12 +36,15 @@ from polisyos.fabric.connectors.types import (
     ValidationResult,
     ValidationSeverity,
 )
-from polisyos.fabric.connectors.capabilities import (
-    REQUIRED_ATTRIBUTES,
-    REQUIRED_METHODS,
-    describe_capabilities,
-    requires_capability,
-    validate_protocol_compliance,
+from polisyos.ir.connectors import (
+    ConnectorCapability,
+    ConnectorMetadataSpec,
+    DataVersion,
+    QualityTier,
+    TrustLevel,
+    VersionStrategy,
+    capabilities_from_flags,
+    flags_from_capabilities,
 )
 
 
@@ -340,6 +340,21 @@ class TestProtocolCompliance:
         violations = validate_protocol_compliance(BaseConnectorNoOverride)
         assert any("BaseConnector default" in v for v in violations)
 
+    def test_protocol_stub_method_fails(self) -> None:
+        class ProtocolStubConnector(CompliantConnector):
+            async def fetch_stream(  # type: ignore[override]
+                self,
+                handle: ConnectionHandle,
+                request: FetchRequest,
+            ) -> AsyncIterator[DataChunk[list[dict]]]:
+                ...
+
+        violations = validate_protocol_compliance(ProtocolStubConnector)
+        assert any(
+            "fetch_stream" in violation and "not implemented" in violation
+            for violation in violations
+        )
+
     def test_sync_methods_fail_strict_mode(self) -> None:
         violations = validate_protocol_compliance(SyncMethodsConnector, strict=True)
         assert any("must be async" in v for v in violations), (
@@ -380,6 +395,21 @@ class TestCapabilityValidation:
 
         assert exc_info.value.connector_id == "test.missing_cap"
         assert exc_info.value.required == ConnectorCapability.STREAMING
+
+    def test_requires_capability_propagates_custom_error_message(self) -> None:
+        class TestConnector:
+            connector_id = "test.custom_message"
+            capabilities = ConnectorCapability.FULL_FETCH
+
+            @requires_capability(
+                ConnectorCapability.STREAMING,
+                error_message="streaming access is disabled for this connector",
+            )
+            async def fetch_stream(self) -> str:
+                return "should not reach"
+
+        with pytest.raises(CapabilityError, match="streaming access is disabled"):
+            asyncio.run(TestConnector().fetch_stream())
 
     def test_capability_error_contains_details(self) -> None:
         error = CapabilityError(
@@ -497,6 +527,18 @@ class TestFetchRequestHashing:
         assert original.filters == ()
         assert filtered.filters == (("country", ("DEU", "USA")),)
 
+    def test_query_and_request_keys_are_precomputed_stably(self) -> None:
+        request = FetchRequest(
+            dataset_id="test.dataset",
+            page_size=50,
+            filters=(("country", ("USA", "DEU")),),
+        )
+
+        assert request.query_key == request._query_key
+        assert request.request_key == request._request_key
+        assert request.query_key.startswith("sha256:")
+        assert request.request_key.startswith("sha256:")
+
 
 class TestFetchResult:
     def test_valid_result_creation(self, sample_version: DataVersion) -> None:
@@ -579,6 +621,34 @@ class TestFetchResult:
 
         assert high_quality.is_high_quality
         assert not low_quality.is_high_quality
+
+    def test_structured_boundary_views(self, sample_version: DataVersion) -> None:
+        fetched_at = datetime.now(timezone.utc)
+        result = FetchResult(
+            data=[{"a": 1}],
+            row_count=1,
+            schema_id="test.schema",
+            schema_version="1.0",
+            version=sample_version,
+            fetched_at=fetched_at,
+            source_updated_at=fetched_at,
+            completeness=0.98,
+            quality_tier=QualityTier.GOLD,
+            quality_flags=frozenset({"fresh"}),
+            has_more=True,
+            next_page_token="next",
+            total_count=10,
+            fetch_duration_ms=12.0,
+            bytes_transferred=1024,
+        )
+
+        assert result.schema.schema_id == "test.schema"
+        assert result.provenance.version == sample_version
+        assert result.quality.quality_flags == frozenset({"fresh"})
+        assert result.pagination.next_page_token == "next"
+        assert result.transfer.bytes_transferred == 1024
+        assert result.schema is result.schema
+        assert result.provenance is result.provenance
 
 
 class TestConnectionConfig:
@@ -702,6 +772,14 @@ class TestConnectorMetadataSpec:
                 source_name="Test",
                 source_organization="Test",
             )
+
+    def test_structured_boundary_views(self, sample_metadata: ConnectorMetadataSpec) -> None:
+        assert sample_metadata.identity.connector_id == sample_metadata.connector_id
+        assert sample_metadata.source.source_name == sample_metadata.source_name
+        assert sample_metadata.governance.capabilities == sample_metadata.capabilities
+        assert sample_metadata.documentation.description == sample_metadata.description
+        assert sample_metadata.identity is sample_metadata.identity
+        assert sample_metadata.operations is sample_metadata.operations
 
 
 class TestErrorHierarchy:

@@ -19,9 +19,18 @@ def bootstrap_ci(
     confidence_level: float = 0.95,
 ) -> tuple[float, float]:
     """Bootstrap ci helper."""
+    if not (0.0 < float(confidence_level) < 1.0):
+        raise ValueError("confidence_level must be in (0, 1)")
+    arr = np.asarray(estimates, dtype=float).reshape(-1)
+    arr = arr[np.isfinite(arr)]
+    if arr.size == 0:
+        raise ValueError("bootstrap_ci requires at least one finite estimate")
+    if arr.size == 1:
+        point = float(arr[0])
+        return point, point
     alpha = 1.0 - confidence_level
-    lower = np.percentile(estimates, 100.0 * alpha / 2.0)
-    upper = np.percentile(estimates, 100.0 * (1.0 - alpha / 2.0))
+    lower = np.percentile(arr, 100.0 * alpha / 2.0)
+    upper = np.percentile(arr, 100.0 * (1.0 - alpha / 2.0))
     return float(lower), float(upper)
 
 

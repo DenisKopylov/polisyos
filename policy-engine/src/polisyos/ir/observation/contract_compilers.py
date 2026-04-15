@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir._validation import ensure_unique_ids
 from polisyos.foundry.methods.catalog.causal.protocols import (
     DynamicTreatmentData,
     NetworkCausalData,
@@ -97,6 +98,17 @@ class ObservationContractCompileError(ValueError):
         self.field_name = field_name
         suffix = f" [{field_name}]" if field_name else ""
         super().__init__(f"{compiler_id}: {message}{suffix}")
+
+
+class ObservationContractLoadError(ValueError):
+    """Load/parse error raised while reading serialized observation artifacts."""
+
+    def __init__(self, message: str, *, artifact_path: str | None = None, field_name: str | None = None) -> None:
+        self.artifact_path = artifact_path
+        self.field_name = field_name
+        location = f" path={artifact_path}" if artifact_path else ""
+        field = f" field={field_name}" if field_name else ""
+        super().__init__(f"{message}{location}{field}")
 
 
 class _MutableModel(BaseModel):
@@ -205,8 +217,7 @@ class GraphArtifacts(KernelModel):
 
     @model_validator(mode="after")
     def _validate_graph(self) -> "GraphArtifacts":
-        if len(set(self.node_ids)) != len(self.node_ids):
-            raise ValueError("node_ids must be unique")
+        ensure_unique_ids(self.node_ids, key_fn=lambda item: item, label="node_ids")
         unknown_nodes: set[str] = set()
         node_set = set(self.node_ids)
         for edges in self.layer_edges.values():
@@ -310,6 +321,15 @@ class ProxyMap(KernelModel):
     measurement_model: Literal["known", "estimated", "unknown"] = "unknown"
     graph: CausalGraphModel | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_proxy_map(self) -> "ProxyMap":
+        ensure_unique_ids(
+            self.mapping.values(),
+            key_fn=lambda value: value,
+            label="proxy_map.mapping value",
+        )
+        return self
 
 
 class SurveyMicroDataCompileSpec(KernelModel):
@@ -1331,7 +1351,12 @@ class SurvivalDataCompiler:
                 )
             feature_vector = features_by_firm[record.firm_id]
             end_date = record.exit_date or record.censor_date
-            assert end_date is not None
+            if end_date is None:
+                raise ObservationContractCompileError(
+                    "firm event record must carry exit_date or censor_date",
+                    compiler_id=self.compiler_id,
+                    field_name=record.firm_id,
+                )
             duration = float((end_date - record.entry_date).days)
             feature_rows.append(feature_vector)
             durations.append(max(duration, 1.0))
@@ -1930,15 +1955,35 @@ def write_npz_payload(payload: Mapping[str, Any], path: str | Path) -> Path:
 
 def load_npz_payload(path: str | Path) -> dict[str, Any]:
     """Load npz payload."""
-    with np.load(Path(path), allow_pickle=False) as loaded:
+    source = Path(path)
+    with np.load(source, allow_pickle=False) as loaded:
         payload: dict[str, Any] = {}
         for key in loaded.files:
             value = loaded[key]
             if value.dtype.kind in {"U", "S"} and value.ndim == 0:
-                raw = str(value.item())
-                try:
-                    payload[key] = json.loads(raw)
-                except Exception:
+                raw_value = value.item()
+                if isinstance(raw_value, bytes):
+                    try:
+                        raw = raw_value.decode("utf-8")
+                    except UnicodeDecodeError as exc:
+                        raise ObservationContractLoadError(
+                            "failed to decode scalar payload as UTF-8",
+                            artifact_path=str(source),
+                            field_name=key,
+                        ) from exc
+                else:
+                    raw = str(raw_value)
+                stripped = raw.strip()
+                if stripped.startswith(("{", "[", "\"")):
+                    try:
+                        payload[key] = json.loads(raw)
+                    except json.JSONDecodeError as exc:
+                        raise ObservationContractLoadError(
+                            "failed to parse JSON-encoded scalar payload",
+                            artifact_path=str(source),
+                            field_name=key,
+                        ) from exc
+                else:
                     payload[key] = raw
             else:
                 payload[key] = value
@@ -2181,6 +2226,7 @@ __all__ = [
     "NetworkContractCompiler",
     "ObservationCompilerContext",
     "ObservationContractCompileError",
+    "ObservationContractLoadError",
     "ObservationContractCompilerSuite",
     "ObservationContractSuiteResult",
     "PanelEconometricCompileSpec",

@@ -70,7 +70,7 @@ class SecondOrderConeProgramEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="socp",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -187,7 +187,7 @@ class TwoStageStochasticProgramEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="two_stage_stochastic_program",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -304,7 +304,7 @@ class DynamicProgrammingEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="dynamic_programming",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

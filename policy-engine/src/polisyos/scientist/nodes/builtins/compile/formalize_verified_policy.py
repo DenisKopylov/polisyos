@@ -11,6 +11,7 @@ from polisyos.core.contracts.scientist import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_POLICY_OPTION_SET_REF,
     ARTIFACT_POLICY_REQUEST_FRAME_REF,
@@ -39,7 +40,7 @@ _SPEC = NodeSpec(
         "policy_option_set_ref",
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
     ],
-    state_writes=[f"inputs.{INPUT_TRINITY_BUNDLE_REF}"],
+    state_writes=[f"inputs.{INPUT_TRINITY_BUNDLE_REF}", "params.policy_trinity_generated"],
     produces=[INPUT_TRINITY_BUNDLE_REF],
 )
 
@@ -70,7 +71,7 @@ class FormalizeVerifiedPolicyNode:
         trinity_ref = formalize_policy_option_set(ctx, state, frame, option_set)
         if trinity_ref is None:
             return NodeOutcome(status="skip", state=state)
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.inputs[INPUT_TRINITY_BUNDLE_REF] = trinity_ref
         new_state.params["policy_trinity_generated"] = True
         return NodeOutcome(

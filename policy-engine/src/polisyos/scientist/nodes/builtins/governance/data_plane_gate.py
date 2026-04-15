@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -15,6 +17,8 @@ from polisyos.ir.connectors import QualityTier
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.governance.passes.pii_check_pass import PIICheckPass
 from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
 from polisyos.scientist.nodes.builtins import errors as node_errors
@@ -24,6 +28,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 logger = get_logger(__name__)
+_DATA_PLANE_GATE_LOAD_ERRORS = (
+    AttributeError,
+    KeyError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 _QUALITY_TIER_MAP: dict[str, QualityTier] = {
     "unverified": QualityTier.UNVERIFIED,
@@ -82,16 +95,20 @@ class DataPlaneGateNode:
         try:
             snapshot_payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref.artifact_id))
             snapshot = DataSnapshot.model_validate(snapshot_payload)
-        except Exception as exc:
+        except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
             error = NodeError(
                 code=node_errors.ERROR_INVALID_STATE,
                 message=f"Unable to load DataSnapshot: {exc}",
+                details={
+                    "error_type": exc.__class__.__name__,
+                    "artifact_id": str(data_snapshot_ref.artifact_id),
+                },
             )
             return NodeOutcome(status="fail", state=state, error=error)
 
         profile = _resolve_validation_profile(state.params.get("governance_profile"))
         pii_scan = _extract_pii_summary(state, snapshot)
-        quality_report = _load_quality_report(ctx, snapshot)
+        quality_report, quality_report_degraded = _load_quality_report(ctx, state, snapshot)
 
         pass_state: dict[str, Any] = {
             "_store": ctx.store,
@@ -122,7 +139,7 @@ class DataPlaneGateNode:
         blocker_count = sum(1 for issue in issues if issue.severity == IssueSeverity.BLOCKER)
         issue_payload = [_issue_to_payload(issue) for issue in issues]
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.params["data_plane_gate_profile"] = profile.level.value
         new_state.params["data_plane_gate_issues"] = issue_payload
         new_state.params["data_plane_gate_blocked"] = blocker_count > 0
@@ -130,6 +147,25 @@ class DataPlaneGateNode:
             new_state.params["pii_scan_results"] = pii_scan
 
         events: list[NodeEvent] = []
+        if quality_report_degraded is not None:
+            events.append(
+                NodeEvent(
+                    level="warn",
+                    code="data_plane_gate.quality_report_degraded",
+                    message="Data-plane gate quality report degraded",
+                    attrs={
+                        "reason": str(
+                            quality_report_degraded.get(
+                                "reason",
+                                "quality_report_load_failed",
+                            )
+                        ),
+                        "error_type": str(
+                            quality_report_degraded.get("error_type", "runtime_error")
+                        ),
+                    },
+                )
+            )
         if issues:
             events.append(
                 NodeEvent(
@@ -188,22 +224,29 @@ def _extract_pii_summary(
 
 def _load_quality_report(
     ctx: ExecutionContext,
+    state: ExperimentState,
     snapshot: DataSnapshot,
-) -> Any | None:
+) -> tuple[Any | None, dict[str, object] | None]:
     if snapshot.quality_report_ref is None:
-        return None
+        return None, None
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(snapshot.quality_report_ref.artifact_id))
-    except Exception:
-        logger.debug(
-            "Failed to load quality report from ref %s",
-            snapshot.quality_report_ref,
-            exc_info=True,
+    except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
+        return None, emit_degraded_path(
+            component="scientist.data_plane_gate",
+            operation="load_quality_report",
+            reason="quality_report_load_failed",
+            exc=exc,
+            details={
+                "run_id": state.run_id,
+                "artifact_id": str(snapshot.quality_report_ref.artifact_id),
+            },
+            log=logger,
+            metrics=ctx.metrics,
         )
-        return None
     if isinstance(payload, dict):
-        return _quality_report_from_dict(payload)
-    return payload
+        return _quality_report_from_dict(payload), None
+    return payload, None
 
 
 @dataclass(frozen=True)

@@ -15,15 +15,9 @@ import {
   type WorkspacePrefetchKey,
 } from "@/app/workspaces";
 import { parseEvidenceSearchParams } from "@/features/evidence";
+import type { RunDetailTab } from "@/features/runs/domain/runDetailTabs";
 
-export type RunTabKey =
-  | "overview"
-  | "governance"
-  | "evidence"
-  | "workflow"
-  | "artifacts"
-  | "agents"
-  | "debug";
+export type RunTabKey = RunDetailTab;
 type RunTabQueryOptions =
   | ReturnType<typeof governanceDebugQueryOptions>
   | ReturnType<typeof runAgentsQueryOptions>
@@ -53,6 +47,7 @@ function createRunTabQueries(
   return {
     agents: [runAgentsQueryOptions(runId)],
     artifacts: [],
+    causal: [],
     debug: [
       runErrorsQueryOptions(runId),
       runNodesQueryOptions(runId),

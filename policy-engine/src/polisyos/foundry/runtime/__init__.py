@@ -220,7 +220,40 @@ def step(state, controls, root_key, t: int, static_bundle=None,
     return new_state, trace
 
 
-step_jit = jax.jit(step, static_argnums=(4, 5, 6))
+def build_compiled_step(
+    *,
+    static_bundle,
+    strictness: ExecutionStrictness | None = None,
+    nan_guard: NaNGuard | None = None,
+):
+    """Return a compiled step closure specialized to one static bundle.
+
+    NaN guards remain eager-only because the current guard implementation
+    captures Python diagnostics and raises rich exceptions.
+    """
+    if nan_guard is not None and nan_guard.enabled:
+        raise ValueError("NaNGuard is only supported in eager step(); use step() directly.")
+
+    def _compiled(state, controls, root_key, t):
+        return step(
+            state,
+            controls,
+            root_key,
+            t,
+            static_bundle=static_bundle,
+            nan_guard=None,
+            strictness=strictness,
+        )
+
+    return jax.jit(_compiled)
+
+
+def step_jit(*args, **kwargs):
+    """Compatibility shim for the deprecated constant-style JIT entrypoint."""
+    raise RuntimeError(
+        "step_jit is deprecated because it could not safely specialize non-hashable bundles. "
+        "Use build_compiled_step(static_bundle=..., strictness=...) instead."
+    )
 
 
 def _run_scan_core(initial_state, controls_seq, root_key, static_bundle=None,
@@ -283,18 +316,7 @@ def run_scan(initial_state, controls_seq, root_key, static_bundle=None,
         )
         if hpc_enabled:
             jax.block_until_ready(final_state)
-            primary_total = time.perf_counter() - run_start
-            if ctx.is_warmup:
-                execute_start = time.perf_counter()
-                probe_state, _ = _run_scan_core(
-                    initial_state, controls_seq, root_key,
-                    static_bundle=static_bundle,
-                    nan_guard=nan_guard,
-                    strictness=strictness,
-                )
-                jax.block_until_ready(probe_state)
-                ctx.override_total_seconds = primary_total
-                ctx.execute_seconds = time.perf_counter() - execute_start
+            ctx.execute_seconds = time.perf_counter() - run_start
 
     if hpc_enabled and ctx.execute_seconds > 0:
         metrics = get_metrics()
@@ -362,18 +384,7 @@ def execute_program_batch(initial_states, controls_seq, root_key, static_bundle=
         )
         if hpc_enabled:
             jax.block_until_ready(result)
-            primary_total = time.perf_counter() - run_start
-            if ctx.is_warmup:
-                execute_start = time.perf_counter()
-                probe_result = _execute_program_batch_core(
-                    initial_states, controls_seq, root_key,
-                    static_bundle=static_bundle,
-                    nan_guard=nan_guard,
-                    strictness=strictness,
-                )
-                jax.block_until_ready(probe_result)
-                ctx.override_total_seconds = primary_total
-                ctx.execute_seconds = time.perf_counter() - execute_start
+            ctx.execute_seconds = time.perf_counter() - run_start
 
     if hpc_enabled and ctx.execute_seconds > 0:
         metrics = get_metrics()

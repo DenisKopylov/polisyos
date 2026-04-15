@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
@@ -89,7 +92,14 @@ def test_article_extraction_result_v11_roundtrip() -> None:
         cited_by_count=25,
         source_basis=SourceBasis.FULLTEXT,
         text_quality=TextQuality.EXTRACTED_FULLTEXT,
-        supporting_spans=[EvidenceSpan(section="results", text="Policy increases employment.", sentence_index=0, score=0.8)],
+        supporting_spans=[
+            EvidenceSpan(
+                section="results",
+                text="Policy increases employment.",
+                sentence_index=0,
+                score=0.8,
+            )
+        ],
         empirical_parameters=[_minimal_parameter()],
         causal_claims=[
             CausalClaim(
@@ -102,7 +112,14 @@ def test_article_extraction_result_v11_roundtrip() -> None:
                 claim_explicitness=ClaimExplicitness.EXPLICIT,
                 design_family_hint=DesignFamily.RCT,
                 evidence_strength=EvidenceStrength.RCT,
-                supporting_spans=[EvidenceSpan(section="results", text="Policy increases employment.", sentence_index=0, score=0.8)],
+                supporting_spans=[
+                    EvidenceSpan(
+                        section="results",
+                        text="Policy increases employment.",
+                        sentence_index=0,
+                        score=0.8,
+                    )
+                ],
             )
         ],
         extraction_model="demo-model",
@@ -138,6 +155,72 @@ def test_article_extraction_artifact_persist_load(tmp_path) -> None:
     assert loaded.year == 2024
     assert loaded.publication_year == 2024
     assert loaded.empirical_parameters[0].name == "gdp_growth"
+
+
+def test_causal_claim_normalizes_derived_fields_consistently() -> None:
+    payload = {
+        "cause": "tax_rate",
+        "effect": "employment",
+        "supporting_spans": [
+            EvidenceSpan(span_id="support-1", text="Tax increases lower employment"),
+        ],
+        "method_spans": [EvidenceSpan(span_id="method-1", text="DiD specification")],
+    }
+    normalized = CausalClaim.normalize_payload(payload)
+    claim = CausalClaim.from_payload(payload)
+
+    assert "cause_variable" not in payload
+    assert normalized["cause_variable"] == "tax_rate"
+    assert claim.claim_text == "tax_rate -> employment"
+    assert claim.supporting_span_ids == ["support-1"]
+    assert claim.method_span_ids == ["method-1"]
+    assert claim.model_copy(deep=True).claim_text == "tax_rate -> employment"
+    reparsed = CausalClaim.model_validate(claim.model_dump(mode="json"))
+    assert reparsed.supporting_span_ids == ["support-1"]
+    assert reparsed.method_span_ids == ["method-1"]
+
+
+def test_causal_claim_is_frozen_report_contract() -> None:
+    claim = CausalClaim.from_payload({"cause": "tax_rate", "effect": "employment"})
+
+    with pytest.raises(ValidationError, match="frozen"):
+        claim.claim_text = "mutated"
+
+
+def test_article_extraction_result_normalizes_year_aliases_consistently() -> None:
+    payload = {
+        "openalex_id": "https://openalex.org/W4",
+        "title": "Alias normalization",
+        "publication_year": 2022,
+        "extraction_model": "demo-model",
+        "extraction_timestamp": "2026-02-28T00:00:00Z",
+        "extraction_confidence": 0.91,
+    }
+
+    normalized = ArticleExtractionResult.normalize_payload(payload)
+    result = ArticleExtractionResult.from_payload(payload)
+
+    assert "year" not in payload
+    assert normalized["year"] == 2022
+    assert result.year == 2022
+    assert result.publication_year == 2022
+    assert result.model_copy(deep=True).year == 2022
+    reparsed = ArticleExtractionResult.model_validate(result.model_dump(mode="json"))
+    assert reparsed.year == 2022
+    assert reparsed.publication_year == 2022
+
+
+def test_article_extraction_result_is_frozen_report_contract() -> None:
+    result = ArticleExtractionResult(
+        openalex_id="https://openalex.org/W5",
+        title="Frozen",
+        extraction_model="demo-model",
+        extraction_timestamp="2026-02-28T00:00:00Z",
+        extraction_confidence=0.91,
+    )
+
+    with pytest.raises(ValidationError, match="frozen"):
+        result.title = "mutated"
 
 
 def test_literature_prior_to_graph_sets_discovery_metadata() -> None:

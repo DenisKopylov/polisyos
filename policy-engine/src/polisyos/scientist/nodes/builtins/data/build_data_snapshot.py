@@ -4,12 +4,16 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any
 
+from pydantic import ValidationError
+
+from polisyos.common.logger import get_logger
 from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef, DataViewRequestRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
@@ -34,6 +38,15 @@ _SPEC = NodeSpec(
     ],
     state_writes=[f"inputs.{INPUT_DATA_SNAPSHOT_REF}"],
     produces=[INPUT_DATA_SNAPSHOT_REF],
+)
+_logger = get_logger(__name__)
+
+_DATA_SNAPSHOT_RUNTIME_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
 )
 
 
@@ -87,7 +100,16 @@ def _read_snapshot_pii_summary(
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref.artifact_id))
         snapshot = DataSnapshot.model_validate(payload)
-    except Exception:
+    except _DATA_SNAPSHOT_RUNTIME_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.nodes.build_data_snapshot",
+            operation="read_snapshot_pii_summary",
+            reason="snapshot_pii_summary_load_failed",
+            exc=exc,
+            details={"artifact_id": str(snapshot_ref.artifact_id)},
+            log=_logger,
+            metrics=ctx.metrics,
+        )
         return None
     return _coerce_pii_scan_summary(snapshot.pii_scan_summary)
 
@@ -104,6 +126,6 @@ def _coerce_pii_scan_summary(value: Any) -> dict[str, Any] | None:
     total = result.get("total_entities_found")
     try:
         result["total_entities_found"] = max(0, int(total))
-    except Exception:
+    except (TypeError, ValueError):
         result["total_entities_found"] = 0
     return result

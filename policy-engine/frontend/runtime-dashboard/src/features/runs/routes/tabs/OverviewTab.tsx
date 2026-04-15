@@ -30,6 +30,7 @@ import {
   measureUiLatency,
 } from "@/shared/telemetry/performance";
 import { Badge, Card, EmptyState, PanelSkeleton } from "@/shared/ui";
+import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
 
 function DecisionPanelContent({ artifactId }: { artifactId: string }) {
   const { t, label } = useI18n();
@@ -156,6 +157,16 @@ function EvidencePanelContent({ runId }: { runId: string }) {
     evidenceContextQuery.data.context,
   );
 
+  const selectedNeed = evidenceContext
+    ? findRunEvidenceNeed(evidenceContext, evidenceContext.dataNeeds[0]?.needId ?? null)
+    : null;
+  const selectedPlan = evidenceContext
+    ? findRunEvidencePlan(evidenceContext, evidenceContext.fetchPlans[0]?.planId ?? null)
+    : null;
+  const selectedPromotion = evidenceContext
+    ? findRunEvidencePromotion(evidenceContext, evidenceContext.promotionCandidates[0]?.promotionId ?? null)
+    : null;
+
   return (
     <>
       <div className="grid gap-3 md:grid-cols-3">
@@ -173,81 +184,44 @@ function EvidencePanelContent({ runId }: { runId: string }) {
         />
       </div>
       <div className="space-y-3">
-        {evidenceContext ? (
-          <>
-            {(() => {
-              const selectedNeed = findRunEvidenceNeed(
-                evidenceContext,
-                evidenceContext.dataNeeds[0]?.needId ?? null,
-              );
-
-              if (!selectedNeed) {
-                return null;
-              }
-
-              return (
-                <div className="bg-surface/75 border-line rounded-2xl border p-4">
-                  <strong>{selectedNeed.metric}</strong>
-                  <p className="text-muted mt-2 text-sm">
-                    {selectedNeed.geography ?? "-"} ·{" "}
-                    {selectedNeed.timeStart ?? "-"} -{" "}
-                    {selectedNeed.timeEnd ?? "-"}
-                  </p>
-                </div>
-              );
-            })()}
-            {(() => {
-              const selectedPlan = findRunEvidencePlan(
-                evidenceContext,
-                evidenceContext.fetchPlans[0]?.planId ?? null,
-              );
-
-              if (!selectedPlan) {
-                return null;
-              }
-
-              return (
-                <div className="bg-surface/75 border-line rounded-2xl border p-4">
-                  <strong>
-                    {selectedPlan.connectorId} / {selectedPlan.datasetId}
-                  </strong>
-                  <p className="text-muted mt-2 text-sm">
-                    {selectedPlan.metricId}
-                  </p>
-                </div>
-              );
-            })()}
-            {(() => {
-              const selectedPromotion = findRunEvidencePromotion(
-                evidenceContext,
-                evidenceContext.promotionCandidates[0]?.promotionId ?? null,
-              );
-
-              if (!selectedPromotion) {
-                return null;
-              }
-
-              return (
-                <div className="bg-surface/75 border-line rounded-2xl border p-4">
-                  <strong>{selectedPromotion.metricId}</strong>
-                  <p className="text-muted mt-2 text-sm">
-                    {t("pages.runs.promotionMeta", {
-                      lane: label(
-                        "retrievalLane",
-                        selectedPromotion.sourceLane,
-                        selectedPromotion.sourceLane,
-                      ),
-                      confidence: formatPercent(selectedPromotion.confidence, {
-                        maximumFractionDigits: 1,
-                      }),
-                      status: selectedPromotion.status,
-                    })}
-                  </p>
-                </div>
-              );
-            })()}
-          </>
-        ) : null}
+        {selectedNeed && (
+          <div className="bg-surface/75 border-line rounded-2xl border p-4">
+            <strong>{selectedNeed.metric}</strong>
+            <p className="text-muted mt-2 text-sm">
+              {selectedNeed.geography ?? "-"} ·{" "}
+              {selectedNeed.timeStart ?? "-"} -{" "}
+              {selectedNeed.timeEnd ?? "-"}
+            </p>
+          </div>
+        )}
+        {selectedPlan && (
+          <div className="bg-surface/75 border-line rounded-2xl border p-4">
+            <strong>
+              {selectedPlan.connectorId} / {selectedPlan.datasetId}
+            </strong>
+            <p className="text-muted mt-2 text-sm">
+              {selectedPlan.metricId}
+            </p>
+          </div>
+        )}
+        {selectedPromotion && (
+          <div className="bg-surface/75 border-line rounded-2xl border p-4">
+            <strong>{selectedPromotion.metricId}</strong>
+            <p className="text-muted mt-2 text-sm">
+              {t("pages.runs.promotionMeta", {
+                lane: label(
+                  "retrievalLane",
+                  selectedPromotion.sourceLane,
+                  selectedPromotion.sourceLane,
+                ),
+                confidence: formatPercent(selectedPromotion.confidence, {
+                  maximumFractionDigits: 1,
+                }),
+                status: selectedPromotion.status,
+              })}
+            </p>
+          </div>
+        )}
       </div>
     </>
   );
@@ -412,6 +386,17 @@ export default function OverviewTab() {
           </FeatureAsyncBoundary>
         </Card>
       </div>
+
+      {/* Explainability & Trust (XAI) */}
+      <Card className="space-y-4">
+        <div className="panel-header">
+          <div>
+            <p className="eyebrow">{t("pages.runs.sections.explainability")}</p>
+            <h4>{t("pages.runs.explainabilitySubtitle")}</h4>
+          </div>
+        </div>
+        <RunExplainabilityPanel summary={summary} level="summary" />
+      </Card>
     </div>
   );
 }

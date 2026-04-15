@@ -29,8 +29,69 @@ _DEFAULT_PROBLEM_RESPONSES: dict[str, dict[str, str]] = {
         "description": "Authenticated principal cannot access this resource.",
     },
     "404": {"code": "not_found", "description": "Requested resource does not exist."},
+    "406": {
+        "code": "not_acceptable",
+        "description": "Requested representation is not supported for this resource.",
+    },
     "422": {"code": "request_validation_failed", "description": "Request validation failed."},
     "500": {"code": "internal_error", "description": "Unexpected runtime API failure."},
+}
+
+_SUCCESS_LINKS_BY_OPERATION: dict[str, dict[str, dict[str, Any]]] = {
+    "get_artifact_manifest": {
+        "artifactPreview": {
+            "operationId": "get_artifact_content",
+            "parameters": {"artifact_id": "$response.body#/artifact/artifact_id"},
+            "description": "Fetch a preview or raw representation for the same artifact.",
+        },
+        "artifactDownload": {
+            "operationId": "download_artifact_content",
+            "parameters": {"artifact_id": "$response.body#/artifact/artifact_id"},
+            "description": "Download the immutable binary payload for the same artifact.",
+        },
+        "artifactSchema": {
+            "operationId": "get_artifact_schema",
+            "parameters": {"artifact_id": "$response.body#/artifact/artifact_id"},
+            "description": "Inspect the schema contract associated with the same artifact.",
+        },
+        "artifactLineage": {
+            "operationId": "get_artifact_lineage",
+            "parameters": {"artifact_id": "$response.body#/artifact/artifact_id"},
+            "description": "Traverse lineage for the same artifact.",
+        },
+    },
+    "get_run_details": {
+        "runTimeline": {
+            "operationId": "get_run_timeline",
+            "parameters": {"run_id": "$response.body#/run/run_id"},
+            "description": "Load the timeline for the same run.",
+        },
+        "runNodes": {
+            "operationId": "get_run_nodes",
+            "parameters": {"run_id": "$response.body#/run/run_id"},
+            "description": "Load node-level execution details for the same run.",
+        },
+        "runLineage": {
+            "operationId": "get_run_lineage",
+            "parameters": {"run_id": "$response.body#/run/run_id"},
+            "description": "Traverse lineage rooted at the same run.",
+        },
+        "runAgents": {
+            "operationId": "get_run_agents",
+            "parameters": {"run_id": "$response.body#/run/run_id"},
+            "description": "Inspect the agent/reflexion pipeline for the same run.",
+        },
+        "runEvidenceContext": {
+            "operationId": "get_run_evidence_context",
+            "parameters": {"run_id": "$response.body#/run/run_id"},
+            "description": "Inspect the evidence context linked to the same run.",
+        },
+        "runWorkflow": {
+            "operationId": "get_run_workflow",
+            "parameters": {"run_id": "$response.body#/run/run_id"},
+            "description": "Inspect the workflow graph for the same run.",
+        },
+    },
 }
 
 _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
@@ -56,6 +117,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
             "evidence.review",
             "evidence.view",
             "knowledge.view",
+            "mode.analyst",
             "platform.view",
             "runs.launch",
             "runs.review",
@@ -118,6 +180,35 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
             "decision_review_required": False,
             "decision_superseded_by_ref": None,
         },
+    },
+    "get_runs_batch": {
+        "meta": _META_CORE_RUN,
+        "runs": [
+            {
+                "run_id": _RUN_ID_SAMPLE,
+                "source_kind": "core_run",
+                "status": "completed",
+                "started_at": _TS_SAMPLE,
+                "finished_at": _TS_SAMPLE,
+                "duration_ms": 4200,
+                "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                "cell_id": "cell-a",
+                "execution_profile": "governed",
+                "control_job_id": "job_ctrl_abcdef01",
+                "has_trace": True,
+                "manifest_ref": {"artifact_id": _ARTIFACT_ID_SAMPLE},
+                "trace_ref": {"artifact_id": _ARTIFACT_ID_SAMPLE},
+                "capability_manifest_ref": {"artifact_id": _ARTIFACT_ID_SAMPLE},
+                "root_artifacts": [{"artifact_id": _ARTIFACT_ID_SAMPLE}],
+                "has_workflow_report": True,
+                "workflow_report_ref": {"artifact_id": _ARTIFACT_ID_SAMPLE},
+                "warnings": [],
+                "decision_validity_status": "active",
+                "decision_validity_checked_at": _TS_SAMPLE,
+                "decision_review_required": False,
+                "decision_superseded_by_ref": None,
+            }
+        ],
     },
     "get_run_timeline": {
         "meta": _META_CORE_RUN,
@@ -696,6 +787,24 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
             "inputs": [],
             "integrity_sha256": "a" * 64,
         },
+    },
+    "get_artifact_batch": {
+        "meta": _META_NO_SOURCE,
+        "artifacts": [
+            {
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "scientist.workflow_report",
+                "media_type": "application/json",
+                "byte_size": 1024,
+                "created_at": _TS_SAMPLE,
+                "schema_name": "scientist.workflow_report",
+                "schema_version": "1.0",
+                "producer_component": "scientist.run_governance",
+                "producer_version": "1.0.0",
+                "inputs": [],
+                "integrity_sha256": "a" * 64,
+            }
+        ],
     },
     "get_artifact_content": {
         "meta": _META_NO_SOURCE,
@@ -1284,7 +1393,7 @@ def _problem_example(*, status_code: int, code: str, path: str) -> dict[str, Any
     }
 
 
-def _iter_operations(schema: dict[str, Any]):
+def _iter_operations(schema: dict[str, Any]) -> Any:
     paths = schema.get("paths")
     if not isinstance(paths, dict):
         return
@@ -1350,18 +1459,20 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(success_json, dict):
             continue
         if "example" in success_json or success_json.get("examples"):
-            continue
-        if not isinstance(operation_id, str):
-            continue
-        example = _SUCCESS_EXAMPLES_BY_OPERATION.get(operation_id)
-        if example is None:
-            continue
-        success_json["examples"] = {
-            "default": {
-                "summary": f"{operation_id} response example",
-                "value": example,
-            }
-        }
+            pass
+        elif isinstance(operation_id, str):
+            example = _SUCCESS_EXAMPLES_BY_OPERATION.get(operation_id)
+            if example is not None:
+                success_json["examples"] = {
+                    "default": {
+                        "summary": f"{operation_id} response example",
+                        "value": example,
+                    }
+                }
+        if isinstance(operation_id, str):
+            links = _SUCCESS_LINKS_BY_OPERATION.get(operation_id)
+            if links and "links" not in success_response:
+                success_response["links"] = deepcopy(links)
 
     return mutated
 
@@ -1399,10 +1510,29 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
                     success_example_found = bool(
                         ("example" in json_content) or json_content.get("examples")
                     )
+                    if not success_example_found:
+                        schema = json_content.get("schema")
+                        if isinstance(schema, dict) and not schema and len(content) > 1:
+                            success_example_found = True
+                elif content:
+                    success_example_found = True
         if not success_example_found:
             violations.append(f"{method.upper()} {path}: missing success response example")
+        operation_id = operation.get("operationId")
+        if isinstance(operation_id, str):
+            required_links = _SUCCESS_LINKS_BY_OPERATION.get(operation_id, {})
+            if required_links:
+                links = success.get("links") if isinstance(success, dict) else None
+                if not isinstance(links, dict):
+                    violations.append(f"{method.upper()} {path}: missing success response links")
+                else:
+                    for link_name in required_links:
+                        if link_name not in links:
+                            violations.append(
+                                f"{method.upper()} {path}: missing success response link {link_name}"
+                            )
 
-        for status_code in ("400", "401", "403", "404", "422", "500"):
+        for status_code in ("400", "401", "403", "404", "406", "422", "500"):
             response = responses.get(status_code)
             if not isinstance(response, dict):
                 violations.append(f"{method.upper()} {path}: missing {status_code} response")
@@ -1416,10 +1546,8 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
             problem_payload = content.get("application/problem+json")
             if not isinstance(problem_payload, dict):
                 violations.append(
-                    (
-                        f"{method.upper()} {path}: {status_code} response "
-                        "missing application/problem+json"
-                    )
+                    f"{method.upper()} {path}: {status_code} response "
+                    "missing application/problem+json"
                 )
                 continue
             if "schema" not in problem_payload:

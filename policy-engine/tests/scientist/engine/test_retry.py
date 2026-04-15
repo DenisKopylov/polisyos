@@ -1,8 +1,9 @@
 """Tests for polisyos.scientist.engine.retry — RetryPolicy + wrappers."""
 from __future__ import annotations
 
-import asyncio
-from unittest.mock import MagicMock, patch
+import multiprocessing as mp
+import time as _time
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -11,12 +12,12 @@ from polisyos.scientist.engine.protocol import NodeError, NodeOutcome
 from polisyos.scientist.engine.retry import (
     RetryPolicy,
     _backoff_delay,
+    _node_execute_worker,
     _should_retry,
     execute_with_retry_async,
     execute_with_retry_sync,
 )
 from polisyos.scientist.engine.state import ExperimentState
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -192,14 +193,15 @@ class TestExecuteWithRetrySync:
         node = MagicMock()
         node.execute.side_effect = RuntimeError("boom")
         policy = RetryPolicy(max_retries=2, backoff_base_s=0.1, backoff_factor=1.0)
-        with patch("polisyos.scientist.engine.retry.time.sleep"):
-            with pytest.raises(RetryExhaustedError):
-                execute_with_retry_sync(
-                    node, ctx, state,
-                    retry_policy=policy,
-                    timeout_s=None,
-                    alias="a",
-                )
+        with patch("polisyos.scientist.engine.retry.time.sleep"), pytest.raises(
+            RetryExhaustedError
+        ):
+            execute_with_retry_sync(
+                node, ctx, state,
+                retry_policy=policy,
+                timeout_s=None,
+                alias="a",
+            )
         assert node.execute.call_count == 3
 
     def test_retry_on_filter(self, ctx, state):
@@ -251,6 +253,55 @@ class TestExecuteWithRetrySync:
                 timeout_s=0.1,
                 alias="a",
             )
+
+    def test_timeout_path_uses_shared_executor(self, ctx, state, monkeypatch):
+        class _FakeFuture:
+            def __init__(self, outcome):
+                self._outcome = outcome
+                self.cancelled = False
+
+            def result(self, timeout=None):
+                _ = timeout
+                return self._outcome
+
+            def cancel(self) -> None:
+                self.cancelled = True
+
+        class _FakeExecutor:
+            def __init__(self) -> None:
+                self.submissions: list[tuple[object, tuple[object, ...]]] = []
+
+            def submit(self, fn, *args):
+                self.submissions.append((fn, args))
+                return _FakeFuture(fn(*args))
+
+        node = MagicMock()
+        node.execute.return_value = _ok_outcome(state)
+        fake_executor = _FakeExecutor()
+
+        monkeypatch.setattr(
+            "polisyos.scientist.engine.retry._can_use_forked_timeout_worker",
+            lambda: False,
+        )
+        monkeypatch.setattr(
+            "polisyos.scientist.engine.retry.get_shared_executor",
+            lambda: fake_executor,
+        )
+
+        result = execute_with_retry_sync(
+            node,
+            ctx,
+            state,
+            retry_policy=RetryPolicy(),
+            timeout_s=0.5,
+            alias="a",
+        )
+
+        assert result.status == "ok"
+        assert len(fake_executor.submissions) == 1
+        submitted_fn, submitted_args = fake_executor.submissions[0]
+        assert submitted_fn == node.execute
+        assert submitted_args == (ctx, state)
 
     def test_default_policy_zero_retries_no_retry(self, ctx, state):
         node = MagicMock()
@@ -305,9 +356,29 @@ class TestExecuteWithRetryAsync:
         assert result.status == "ok"
 
     @pytest.mark.asyncio
-    async def test_timeout_raises(self, ctx, state):
-        import time as _time
+    async def test_sync_execution_uses_shared_executor_bridge(self, ctx, state):
+        node = MagicMock()
+        node.execute.return_value = _ok_outcome(state)
 
+        async def _bridge(func, *args, **kwargs):
+            return func(*args, **kwargs)
+
+        with patch(
+            "polisyos.scientist.engine.retry.run_blocking_async",
+            new=AsyncMock(side_effect=_bridge),
+        ) as bridge:
+            result = await execute_with_retry_async(
+                node, ctx, state,
+                retry_policy=RetryPolicy(),
+                timeout_s=None,
+                alias="a",
+            )
+
+        assert result.status == "ok"
+        bridge.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_timeout_raises(self, ctx, state):
         node = MagicMock()
         node.execute.side_effect = lambda *a, **kw: (_time.sleep(5), _ok_outcome(state))[1]
         with pytest.raises(NodeTimeoutError):
@@ -317,6 +388,22 @@ class TestExecuteWithRetryAsync:
                 timeout_s=0.1,
                 alias="a",
             )
+
+    @pytest.mark.asyncio
+    @pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork worker required")
+    async def test_timeout_does_not_leave_child_process(self, ctx, state):
+        node = MagicMock()
+        node.execute.side_effect = lambda *a, **kw: (_time.sleep(5), _ok_outcome(state))[1]
+
+        with pytest.raises(NodeTimeoutError):
+            await execute_with_retry_async(
+                node, ctx, state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.1,
+                alias="a",
+            )
+
+        assert [child for child in mp.active_children() if child.name.startswith("Process-")] == []
 
     @pytest.mark.asyncio
     async def test_retry_succeeds(self, ctx, state):
@@ -347,3 +434,15 @@ class TestExecuteWithRetryAsync:
                 timeout_s=None,
                 alias="a",
             )
+
+
+class TestRetryTimeoutWorker:
+    def test_timeout_worker_does_not_swallow_system_exit(self, ctx, state):
+        node = MagicMock()
+        node.execute.side_effect = SystemExit("stop-now")
+        result_queue = MagicMock()
+
+        with pytest.raises(SystemExit, match="stop-now"):
+            _node_execute_worker(node, ctx, state, result_queue)
+
+        result_queue.put.assert_not_called()

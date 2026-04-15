@@ -4,11 +4,14 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+import pytest
+
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
     ReconcileCausalGraphNode,
 )
-from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_LITERATURE_PRIOR_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
 
@@ -102,3 +105,61 @@ def test_fail_when_pure_step_returns_graph_but_no_diagnostics(execution_context,
     assert outcome.error is not None
     assert outcome.error.code == node_errors.ERROR_INVALID_STATE
     assert "did not return graph and diagnostics" in outcome.error.message
+
+
+def test_reconcile_fragment_load_assertion_is_not_swallowed(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "scm_fragment_refs": [
+                    str(artifact_ref_factory(kind="ir.scm_fragment").artifact_id)
+                ]
+            }
+        },
+    )
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("fragment loader invariant")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph.load_scm_fragment",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="fragment loader invariant"):
+        ReconcileCausalGraphNode().execute(execution_context, state)
+
+
+def test_reconcile_literature_prior_assertion_is_not_swallowed(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    state = minimal_state.model_copy(deep=True)
+    state.params["data_causal_graph"] = {
+        "graph_type": "dag",
+        "nodes": ["X", "Y"],
+        "edges": [{"src": "X", "dst": "Y"}],
+    }
+    state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF] = artifact_ref_factory(
+        kind="ir.literature_causal_prior"
+    )
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("literature prior invariant")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph.load_literature_causal_prior",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="literature prior invariant"):
+        ReconcileCausalGraphNode().execute(execution_context, state)

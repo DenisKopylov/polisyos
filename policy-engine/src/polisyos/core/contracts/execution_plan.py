@@ -5,8 +5,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from polisyos.common.timestamps import ensure_utc, utc_now
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import fingerprint
 from polisyos.core.canon.canon_json import CanonSpec
@@ -176,8 +177,13 @@ class ExecutionPlan(BaseModel):
     stop_criteria: StopCriteria = Field(default_factory=StopCriteria)
     governance_constraints: list[GovernanceConstraint] = Field(default_factory=list)
     expected_outputs: list[ExpectedOutputSpec] = Field(default_factory=list)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     notes: list[str] = Field(default_factory=list)
+
+    @field_validator("created_at")
+    @classmethod
+    def _ensure_created_at_utc(cls, value: datetime) -> datetime:
+        return ensure_utc(value)
 
     def stable_hash(self) -> str:
         return fingerprint(
@@ -222,6 +228,11 @@ class MethodCatalogEntry(BaseModel):
     causal_capability_requirements: list[str] = Field(default_factory=list)
     causal_available: bool | None = None
     causal_disabled_reasons: list[str] = Field(default_factory=list)
+    truthfulness_tier: str = Field(default="production_method")
+    truthfulness_notes: str = Field(default="")
+    effect_semantics: dict[str, Any] = Field(default_factory=dict)
+    shape_semantics: dict[str, Any] = Field(default_factory=dict)
+    dependency_semantics: dict[str, Any] = Field(default_factory=dict)
     # Rich semantic metadata for LLM planning
     description: str = Field(default="")
     citations: list[str] = Field(default_factory=list)
@@ -241,11 +252,16 @@ class MethodCatalogSnapshot(BaseModel):
     schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
     snapshot_id: str = Field(..., min_length=1, max_length=128)
     run_id: str | None = Field(default=None, max_length=128)
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    generated_at: datetime = Field(default_factory=utc_now)
     causal_capability_hash: str | None = None
     causal_runtime_posture: dict[str, Any] = Field(default_factory=dict)
     entries: list[MethodCatalogEntry] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+
+    @field_validator("generated_at")
+    @classmethod
+    def _ensure_generated_at_utc(cls, value: datetime) -> datetime:
+        return ensure_utc(value)
 
     def stable_hash(self) -> str:
         return fingerprint(
@@ -316,9 +332,14 @@ class IterationState(BaseModel):
     plan_ref: ExecutionPlanRef | None = None
     preflight_report_ref: PreflightReportRef | None = None
     evaluator_report_ref: EvaluatorReportRef | None = None
-    started_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    started_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
     notes: list[str] = Field(default_factory=list)
+
+    @field_validator("started_at", "updated_at")
+    @classmethod
+    def _ensure_iteration_timestamps_utc(cls, value: datetime) -> datetime:
+        return ensure_utc(value)
 
 
 class ReproducibilityManifest(BaseModel):
@@ -338,8 +359,13 @@ class ReproducibilityManifest(BaseModel):
     data_snapshot_hash: str | None = None
     input_bindings_ref: str | None = None
     input_bindings_hash: str | None = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     notes: list[str] = Field(default_factory=list)
+
+    @field_validator("created_at")
+    @classmethod
+    def _ensure_reproducibility_created_at_utc(cls, value: datetime) -> datetime:
+        return ensure_utc(value)
 
 
 __all__ = [

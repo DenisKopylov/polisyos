@@ -86,7 +86,7 @@ class HausmanTestEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="hausman_test",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -170,7 +170,7 @@ class WeakIVTestEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="weak_iv_test",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -248,7 +248,7 @@ class SarganHansenEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="sargan_hansen",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -325,7 +325,7 @@ class CointegrationTestEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="cointegration_test",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -402,7 +402,7 @@ class ForecastBacktestEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="forecast_backtest",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -36,6 +36,15 @@ const INITIAL_STATE: ReviewCollaborationSurfaceState = {
   status: "idle",
 };
 
+type SurfaceRect = {
+  height: number;
+  left: number;
+  top: number;
+  width: number;
+};
+
+const CURSOR_DELTA_EPSILON = 0.0025;
+
 function parseSnapshot(rawValue: string): unknown {
   try {
     return JSON.parse(rawValue);
@@ -71,6 +80,12 @@ export function useReviewCollaborationSurface({
     undefined,
   );
   const engagedRef = useRef(false);
+  const rectRef = useRef<SurfaceRect | null>(null);
+  const pendingPointerRef = useRef<{ clientX: number; clientY: number } | null>(
+    null,
+  );
+  const cursorFrameRef = useRef<number | null>(null);
+  const lastCursorRef = useRef<{ x: number; y: number } | null>(null);
 
   const isEnabled =
     enabled &&
@@ -237,12 +252,70 @@ export function useReviewCollaborationSurface({
 
     const acquireLock = () => {
       engagedRef.current = true;
+      updateRect();
       lockSendRef.current?.({ type: "lock.acquire" });
     };
     const releaseLock = () => {
       engagedRef.current = false;
+      pendingPointerRef.current = null;
+      lastCursorRef.current = null;
+      if (cursorFrameRef.current != null) {
+        window.cancelAnimationFrame(cursorFrameRef.current);
+        cursorFrameRef.current = null;
+      }
       cursorSendRef.current?.({ type: "cursor.leave" });
       lockSendRef.current?.({ type: "lock.release" });
+    };
+    const updateRect = () => {
+      const nextRect = element.getBoundingClientRect();
+      if (nextRect.width <= 0 || nextRect.height <= 0) {
+        rectRef.current = null;
+        return null;
+      }
+      rectRef.current = {
+        height: nextRect.height,
+        left: nextRect.left,
+        top: nextRect.top,
+        width: nextRect.width,
+      };
+      return rectRef.current;
+    };
+    const flushCursorUpdate = () => {
+      cursorFrameRef.current = null;
+
+      if (!engagedRef.current) {
+        pendingPointerRef.current = null;
+        return;
+      }
+
+      const rect = rectRef.current ?? updateRect();
+      const pointer = pendingPointerRef.current;
+      pendingPointerRef.current = null;
+
+      if (!rect || !pointer) {
+        return;
+      }
+
+      const x = (pointer.clientX - rect.left) / rect.width;
+      const y = (pointer.clientY - rect.top) / rect.height;
+      const clampedX = Math.min(Math.max(x, 0), 1);
+      const clampedY = Math.min(Math.max(y, 0), 1);
+      const last = lastCursorRef.current;
+
+      if (
+        last &&
+        Math.abs(last.x - clampedX) < CURSOR_DELTA_EPSILON &&
+        Math.abs(last.y - clampedY) < CURSOR_DELTA_EPSILON
+      ) {
+        return;
+      }
+
+      lastCursorRef.current = { x: clampedX, y: clampedY };
+      cursorSendRef.current?.({
+        type: "cursor.update",
+        x: clampedX,
+        y: clampedY,
+      });
     };
     const handleMouseEnter = () => {
       acquireLock();
@@ -254,15 +327,13 @@ export function useReviewCollaborationSurface({
       if (!engagedRef.current) {
         return;
       }
-      const rect = element.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) {
-        return;
+      pendingPointerRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+      };
+      if (cursorFrameRef.current == null) {
+        cursorFrameRef.current = window.requestAnimationFrame(flushCursorUpdate);
       }
-      cursorSendRef.current?.({
-        type: "cursor.update",
-        x: (event.clientX - rect.left) / rect.width,
-        y: (event.clientY - rect.top) / rect.height,
-      });
     };
     const handleFocusIn = () => {
       acquireLock();
@@ -278,9 +349,10 @@ export function useReviewCollaborationSurface({
         releaseLock();
         return;
       }
-      if (engagedRef.current) {
-        lockSendRef.current?.({ type: "lock.acquire" });
-      }
+      updateRect();
+    };
+    const handleViewportChange = () => {
+      updateRect();
     };
 
     element.addEventListener("mouseenter", handleMouseEnter);
@@ -289,6 +361,10 @@ export function useReviewCollaborationSurface({
     element.addEventListener("focusin", handleFocusIn);
     element.addEventListener("focusout", handleFocusOut);
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("scroll", handleViewportChange, true);
+
+    updateRect();
 
     const heartbeatTimer = window.setInterval(() => {
       if (!engagedRef.current || document.visibilityState === "hidden") {
@@ -301,6 +377,8 @@ export function useReviewCollaborationSurface({
     return () => {
       window.clearInterval(heartbeatTimer);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("scroll", handleViewportChange, true);
       element.removeEventListener("mouseenter", handleMouseEnter);
       element.removeEventListener("mouseleave", handleMouseLeave);
       element.removeEventListener("mousemove", handleMouseMove);

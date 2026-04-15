@@ -7,11 +7,22 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
 from polisyos.core.contracts.backtest import BacktestReportRef
+from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
-from polisyos.core.contracts.scientist import StressTestReportRef
+from polisyos.core.contracts.scientist import (
+    GovernanceAccountabilityArtifactRef,
+    StressTestReportRef,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.ir.analytics.abm_bridge import (
+    ABMAlignmentReport,
+    AlignmentResult,
+    AlignmentStatus,
+    MacroMicroMapping,
+    persist_abm_alignment_report,
+)
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     AbstractionPreservationType,
@@ -19,13 +30,6 @@ from polisyos.ir.analytics.abstraction import (
     VariableStateAbstraction,
     persist_abstraction_certificate,
     persist_finite_state_abstraction_map,
-)
-from polisyos.ir.analytics.abm_bridge import (
-    ABMAlignmentReport,
-    AlignmentResult,
-    AlignmentStatus,
-    MacroMicroMapping,
-    persist_abm_alignment_report,
 )
 from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario, persist_backtest_report
 from polisyos.ir.analytics.causal import (
@@ -90,7 +94,8 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
     persist_uncertainty_envelope,
 )
-from polisyos.ir.linker import LinkIssue, LinkIssueCode, LinkReport, LinkSeverity
+from polisyos.ir.linker import LinkReport
+from polisyos.ir.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
@@ -110,9 +115,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
-    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
+    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_HTE_RESULT_REF,
@@ -133,7 +139,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
 )
-from polisyos.ir.refs import ArtifactRefModel
 
 
 def _artifact_id(ch: str) -> str:
@@ -217,6 +222,133 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert "input.data_snapshot_ref" in roles
     assert "artifact.metrics_ref" in roles
     assert "artifact.governance_report_ref" in roles
+
+
+def test_build_decision_packet_records_degraded_paths_for_invalid_metrics_and_governance(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_degraded")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.degraded"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        ["invalid"],
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+    )
+    governance_ref = store.put_json(
+        ["invalid"],
+        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_degraded",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_METRICS_REF: metrics_ref},
+        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
+
+    assert payload["simulation_results"] is None
+    assert payload["governance"] is None
+    assert degraded_reasons == {
+        "decision_basis_data_snapshot_validate_failed",
+        "governance_report_load_failed",
+        "metrics_load_failed",
+        "uncertainty_data_snapshot_load_failed",
+    }
+    assert payload["diagnostics_summary"]["degraded_path_count"] == 3
+    assert payload["diagnostics_summary"]["has_degraded_paths"] is True
+    assert payload["analysis_limits"]["decision_packet_degraded"] is True
+    assert any(
+        note.startswith("metrics_load_failed:") for note in payload["notes"]
+    )
+    assert any(
+        note.startswith("governance_report_load_failed:") for note in payload["notes"]
+    )
+
+
+def test_build_decision_packet_records_degraded_paths_for_invalid_decision_basis_quality_report(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_invalid_quality_basis",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.packet.invalid_quality_basis"),
+    )
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    invalid_quality_ref = store.put_json(
+        ["invalid"],
+        PutOptions(kind="fabric.quality_report", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        DataSnapshot(
+            data_ref=state_snapshot_ref,
+            quality_report_ref=invalid_quality_ref,
+        ),
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_invalid_quality_basis",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
+
+    assert "decision_basis_quality_report_load_failed" in degraded_reasons
+    assert any(
+        note.startswith("decision_basis_quality_report_load_failed:")
+        for note in payload["notes"]
+    )
+    assert (
+        payload["decision_validity_envelope"]["data_basis"]["summary"]["quality_report_ref"]
+        == str(invalid_quality_ref.artifact_id)
+    )
 
 
 def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_path) -> None:
@@ -479,6 +611,67 @@ def test_build_decision_packet_rejects_incomplete_serious_contract(tmp_path) -> 
     assert ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF in outcome.error.details["missing_contracts"]
 
 
+def test_build_decision_packet_records_degraded_paths_for_invalid_normative_arbitration(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_invalid_normative",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.packet.invalid_normative"),
+    )
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    governance_ref = store.put_json(
+        GovernanceReport(verdict="approve", issues=[]),
+        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+    )
+    invalid_normative_ref = store.put_json(
+        ["invalid"],
+        PutOptions(kind="ir.normative_arbitration_result", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_invalid_normative",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF: invalid_normative_ref},
+        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
+
+    assert payload["tradeoff_certificate"] is None
+    assert "normative_arbitration_load_failed" in degraded_reasons
+    assert payload["diagnostics_summary"]["degraded_path_count"] >= 1
+    assert any(
+        note.startswith("normative_arbitration_load_failed:")
+        for note in payload["notes"]
+    )
+
+
 def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
@@ -715,6 +908,101 @@ def test_build_decision_packet_node_accepts_float_uncertainty_bounds(tmp_path) -
     assert isinstance(bounds, dict)
     assert bounds["step_latency_ms_lower"] == 10.0
     assert bounds["step_latency_ms_upper"] == 15.0
+
+
+def test_build_decision_packet_records_degraded_paths_for_invalid_uncertainty_output_envelope(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_invalid_uncertainty_output",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.packet.invalid_uncertainty_output"),
+    )
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        Metrics(values={"applied_nodes": 1, "step_latency_ms": 12}),
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+    )
+    exec_plan_ref = store.put_json(
+        {
+            "program_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.program_graph",
+                "media_type": "application/json",
+            },
+            "order": [],
+        },
+        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
+    )
+    invalid_envelope_ref = store.put_json(
+        ["invalid"],
+        PutOptions(kind="ir.uncertainty_envelope", media_type="application/json"),
+    )
+    sim_result_ref = store.put_json(
+        SimulationResult(
+            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
+            uncertainty_envelopes={
+                "step_latency_ms": UncertaintyEnvelopeRef(
+                    artifact_id=invalid_envelope_ref.artifact_id
+                )
+            },
+        ),
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_invalid_uncertainty_output",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_METRICS_REF: metrics_ref,
+            ARTIFACT_SIMULATION_RESULT_REF: sim_result_ref,
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
+
+    assert payload["uncertainty_bounds"] is None
+    assert "uncertainty_output_envelope_load_failed" in degraded_reasons
+    assert any(
+        note.startswith("uncertainty_output_envelope_load_failed:")
+        for note in payload["notes"]
+    )
 
 
 def test_build_decision_packet_includes_causal_section(tmp_path) -> None:
@@ -1118,6 +1406,14 @@ def test_build_decision_packet_includes_calibration_validation_summary(tmp_path)
                 worst_backtest_kind=BacktestKind.DISTRESS,
                 worst_stress_scenario=StressScenarioKind.TRADE_DISRUPTION,
             ),
+            governance_accountability_ref=GovernanceAccountabilityArtifactRef(
+                artifact_id="sha256:" + "5" * 64
+            ),
+            governance_accountability_summary={
+                "risk_weighted_verdict": "human_gate",
+                "requires_human_review": True,
+                "selected_threshold": 0.55,
+            },
         ),
     )
 
@@ -1139,6 +1435,8 @@ def test_build_decision_packet_includes_calibration_validation_summary(tmp_path)
     assert payload["calibration_validation"]["status"] == "completed"
     assert payload["calibration_validation"]["summary"]["composite_score"] == 0.82
     assert payload["calibration_validation"]["summary"]["worst_backtest_kind"] == "distress"
+    assert payload["calibration_validation"]["governance_accountability_summary"]["risk_weighted_verdict"] == "human_gate"
+    assert payload["calibration_validation"]["governance_accountability_ref"] == "sha256:" + "5" * 64
 
 
 def test_build_decision_packet_includes_sensitivity_section(tmp_path) -> None:
@@ -1204,6 +1502,127 @@ def test_build_decision_packet_includes_sensitivity_section(tmp_path) -> None:
     assert payload["sensitivity"]["ref"] == str(sensitivity_ref.artifact_id)
     assert payload["sensitivity"]["content"]["e_value"] == 1.8
     assert payload["sensitivity"]["content"]["is_robust"] is True
+    assert payload["sensitivity"]["content"]["summary"]["status"] == "robust"
+
+
+def test_build_decision_packet_records_degraded_paths_for_invalid_sensitivity_artifact(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_invalid_sensitivity",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.packet.invalid_sensitivity"),
+    )
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    invalid_sensitivity_ref = store.put_json(
+        ["invalid"],
+        PutOptions(kind="ir.sensitivity_result", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_invalid_sensitivity",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_SENSITIVITY_RESULT_REF: invalid_sensitivity_ref},
+    )
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
+
+    assert payload["sensitivity"]["ref"] == str(invalid_sensitivity_ref.artifact_id)
+    assert payload["sensitivity"]["parse_warning"] == "sensitivity_parse_failed"
+    assert "sensitivity_result_load_failed" in degraded_reasons
+
+
+def test_build_decision_packet_includes_causal_validity_section(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_causal_validity",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    validity_ref = store.put_json(
+        {
+            "schema_version": "1.0",
+            "confidence": {
+                "confidence_interval_present": True,
+                "honest_hte": {"enabled": True},
+            },
+            "checks": {
+                "icp_invariance": {"status": "success"},
+                "proximal_bridge": {"status": "success"},
+                "recoverability": {"status": "skipped", "reason": "missing_mgraph"},
+                "pag_refinement": {"status": "success"},
+            },
+            "capability_matrix": {"icp_invariance": "available"},
+        },
+        PutOptions(kind="scientist.causal_validity_bundle", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_causal_validity",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF: validity_ref},
+    )
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["causal_validity"]["ref"] == str(validity_ref.artifact_id)
+    assert payload["causal_validity"]["content"]["checks"]["icp_invariance"]["status"] == "success"
+    assert payload["diagnostics_summary"]["icp_status"] == "success"
+    assert payload["diagnostics_summary"]["pag_refinement_status"] == "success"
 
 
 def test_build_decision_packet_includes_transportability_summary(tmp_path) -> None:

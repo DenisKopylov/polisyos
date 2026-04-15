@@ -7,13 +7,12 @@ nodes, enforce run locks/checkpoint policy, and delegate to the selected
 """
 from __future__ import annotations
 
-import logging
 from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.protocol import ArtifactStore
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import ENTRY_POINT_GROUP_SCIENTIST_NODES
 from polisyos.core.components.bootstrap import build_components_index
 from polisyos.core.registry import build_default_registry_bundle
@@ -36,7 +35,6 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.executor import WorkflowExecutionResult, WorkflowExecutor
 from polisyos.scientist.engine.registry import NodeRegistry, discover_nodes
 from polisyos.scientist.engine.runner.config import WorkflowRunnerConfig, build_workflow_runner
-from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
@@ -46,32 +44,74 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
 )
 from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
-from polisyos.scientist.workflows.discovery import discovery_workflow_spec
 from polisyos.scientist.workflows.default import default_workflow_spec
+from polisyos.scientist.workflows.discovery import discovery_workflow_spec
 from polisyos.scientist.workflows.policy_design import policy_design_workflow_spec
 from polisyos.scientist.workflows.policy_verified import policy_verified_workflow_spec
 from polisyos.scientist.workflows.selection import resolve_workflow_id as _resolve_workflow_id
 
+if TYPE_CHECKING:
+    import logging
+    from collections.abc import Callable
+    from typing import Protocol
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.security.audit_protocol import AuditLog
+    from polisyos.scientist.engine.context import (
+        FabricPort,
+        FoundryPort,
+        LexPort,
+        ScholarPort,
+        Tracer,
+    )
+    from polisyos.scientist.engine.metrics_protocol import EngineMetricsCollector
+    from polisyos.scientist.engine.state import ExperimentState
+
+    class QuotaEnforcer(Protocol):
+        def check_run_start(self) -> None: ...
+        def record_run_start(self) -> None: ...
+        def record_run_end(self) -> None: ...
+
+    class QuotaRegistry(Protocol):
+        def get_enforcer(self, tenant_id: str) -> QuotaEnforcer: ...
+
 DEFAULT_CAS_ROOT = Path(".polisyos")
 
-# Global quota registry — shared across workflow invocations
-_global_quota_registry: object | None = None
+
+def _build_default_store() -> ArtifactStore:
+    """Build the default workflow artifact store via the backend factory seam."""
+    return cast(
+        "ArtifactStore",
+        build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(DEFAULT_CAS_ROOT),
+            )
+        ),
+    )
 
 
-def _get_global_quota_registry() -> object | None:
-    """Lazy-init global TenantQuotaRegistry."""
-    global _global_quota_registry
-    if _global_quota_registry is not None:
-        return _global_quota_registry
+def _resolve_store(
+    store: ArtifactStore | None,
+    *,
+    store_factory: Callable[[], ArtifactStore] | None = None,
+) -> ArtifactStore:
+    resolved_store = store
+    if resolved_store is None:
+        resolved_store = store_factory() if store_factory is not None else _build_default_store()
+    return _maybe_namespace_store(resolved_store)
+
+
+def _build_quota_registry() -> QuotaRegistry | None:
+    """Construct a tenant quota registry only when quota enforcement is requested."""
     try:
         from polisyos.core.security.quota_registry import TenantQuotaRegistry
-        _global_quota_registry = TenantQuotaRegistry()
-        return _global_quota_registry
-    except Exception:  # noqa: BLE001
+    except (ImportError, ModuleNotFoundError):  # pragma: no cover - optional dependency
         return None
+    return cast("QuotaRegistry", TenantQuotaRegistry())
 
 
-def _maybe_enforce_quota() -> object | None:
+def _maybe_enforce_quota(*, quota_registry: QuotaRegistry | None = None) -> QuotaEnforcer | None:
     """Check and record quota for the current tenant if active.
 
     Returns the QuotaEnforcer (for calling record_run_end in finally),
@@ -80,16 +120,13 @@ def _maybe_enforce_quota() -> object | None:
     tenant_id = get_current_tenant_id_or_none()
     if tenant_id is None:
         return None
-    registry = _get_global_quota_registry()
+    registry = quota_registry if quota_registry is not None else _build_quota_registry()
     if registry is None:
         return None
-    try:
-        enforcer = registry.get_enforcer(tenant_id)  # type: ignore[union-attr]
-        enforcer.check_run_start()
-        enforcer.record_run_start()
-        return enforcer
-    except Exception:
-        raise
+    enforcer = registry.get_enforcer(tenant_id)
+    enforcer.check_run_start()
+    enforcer.record_run_start()
+    return enforcer
 
 
 def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
@@ -100,8 +137,11 @@ def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
     try:
         from polisyos.core.security.namespace import NamespacedArtifactStore
         cell_id = get_current_cell_id()
-        return NamespacedArtifactStore(inner=store, tenant_id=tenant_id, cell_id=cell_id)
-    except Exception:  # noqa: BLE001
+        return cast(
+            "ArtifactStore",
+            NamespacedArtifactStore(inner=store, tenant_id=tenant_id, cell_id=cell_id),
+        )
+    except Exception:
         return store
 
 
@@ -110,8 +150,8 @@ def _maybe_create_provenance_dag(run_id: str) -> object | None:
     try:
         from polisyos.scientist.provenance.run_dag import RunProvenanceDAG
         tenant_id = get_current_tenant_id_or_none()
-        return RunProvenanceDAG(run_id=run_id, tenant_id=tenant_id)
-    except Exception:  # noqa: BLE001
+        return cast("object", RunProvenanceDAG(run_id=run_id, tenant_id=tenant_id))
+    except Exception:
         return None
 
 
@@ -121,7 +161,7 @@ def _artifact_ref_or_none(value: object) -> ArtifactRef | None:
     if isinstance(value, dict):
         try:
             return ArtifactRef.model_validate(value)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return None
     return None
 
@@ -163,14 +203,11 @@ def build_default_registry(store: ArtifactStore) -> ArtifactRef:
     return bundle.bundle_ref
 
 
-def _default_engine_metrics() -> object | None:
-    """Try to create an OTel-backed engine metrics collector; fall back to None."""
-    try:
-        from polisyos.scientist.engine.metrics_otel import OTelEngineMetrics
+def _default_engine_metrics() -> EngineMetricsCollector | None:
+    """Create the default Scientist metrics collector."""
+    from polisyos.scientist.engine.metrics import build_engine_metrics
 
-        return OTelEngineMetrics()
-    except Exception:  # noqa: BLE001
-        return None
+    return cast("EngineMetricsCollector", build_engine_metrics())
 
 
 def build_execution_context(
@@ -179,13 +216,14 @@ def build_execution_context(
     *,
     run_id: str,
     logger: logging.Logger | None = None,
-    tracer: object | None = None,
-    foundry: object | None = None,
-    fabric: object | None = None,
-    scholar: object | None = None,
-    lex: object | None = None,
-    metrics: object | None = None,
-    audit: object | None = None,
+    tracer: Tracer | None = None,
+    foundry: FoundryPort | None = None,
+    fabric: FabricPort | None = None,
+    scholar: ScholarPort | None = None,
+    lex: LexPort | None = None,
+    metrics: EngineMetricsCollector | None = None,
+    engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
+    audit: AuditLog | None = None,
     memory: object | None = None,
     depth: int = 0,
 ) -> ExecutionContext:
@@ -217,13 +255,17 @@ def build_execution_context(
         cell_id=get_current_cell_id(),
         access_scope=get_current_access_scope_or_none(),
     )
+    resolved_metrics: EngineMetricsCollector | None = metrics
+    if resolved_metrics is None and engine_metrics_factory is not None:
+        resolved_metrics = engine_metrics_factory()
+
     return ExecutionContext(
         store=store,
         run=run,
-        logger=logger or get_logger("polisyos.scientist.engine"),
+        logger=cast("logging.Logger", logger or get_logger("polisyos.scientist.engine")),
         tracer=tracer,
         depth=depth,
-        metrics=metrics if metrics is not None else _default_engine_metrics(),
+        metrics=resolved_metrics if resolved_metrics is not None else _default_engine_metrics(),
         audit=audit,
         fabric=fabric,
         foundry=foundry,
@@ -292,22 +334,26 @@ def resolve_workflow_id(initial_state: ExperimentState) -> str:
     Returns:
         One of the builtin workflow ids accepted by `run_selected_workflow()`.
     """
-    return _resolve_workflow_id(initial_state)
+    return cast("str", _resolve_workflow_id(initial_state))
 
 
 def run_selected_workflow(
     initial_state: ExperimentState,
     *,
     store: ArtifactStore | None = None,
+    store_factory: Callable[[], ArtifactStore] | None = None,
     registry_bundle_ref: ArtifactRef | None = None,
     checkpoint_policy: CheckpointPolicy = "strict",
     force_lock: bool = False,
-    foundry: object | None = None,
-    fabric: object | None = None,
-    scholar: object | None = None,
-    lex: object | None = None,
+    foundry: FoundryPort | None = None,
+    fabric: FabricPort | None = None,
+    scholar: ScholarPort | None = None,
+    lex: LexPort | None = None,
     logger: logging.Logger | None = None,
-    tracer: object | None = None,
+    tracer: Tracer | None = None,
+    metrics: EngineMetricsCollector | None = None,
+    quota_registry: QuotaRegistry | None = None,
+    engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
 ) -> WorkflowExecutionResult:
     """Dispatch to the builtin workflow runner chosen by `resolve_workflow_id()`.
 
@@ -333,6 +379,7 @@ def run_selected_workflow(
         return run_policy_design_workflow(
             initial_state,
             store=store,
+            store_factory=store_factory,
             registry_bundle_ref=registry_bundle_ref,
             checkpoint_policy=checkpoint_policy,
             force_lock=force_lock,
@@ -342,11 +389,14 @@ def run_selected_workflow(
             lex=lex,
             logger=logger,
             tracer=tracer,
+            metrics=metrics,
+            engine_metrics_factory=engine_metrics_factory,
         )
     if workflow_id == "scientist_discovery":
         return run_discovery_workflow(
             initial_state,
             store=store,
+            store_factory=store_factory,
             registry_bundle_ref=registry_bundle_ref,
             checkpoint_policy=checkpoint_policy,
             force_lock=force_lock,
@@ -356,11 +406,14 @@ def run_selected_workflow(
             lex=lex,
             logger=logger,
             tracer=tracer,
+            metrics=metrics,
+            engine_metrics_factory=engine_metrics_factory,
         )
     if workflow_id == "scientist_policy_verified":
         return run_policy_verified_workflow(
             initial_state,
             store=store,
+            store_factory=store_factory,
             registry_bundle_ref=registry_bundle_ref,
             checkpoint_policy=checkpoint_policy,
             force_lock=force_lock,
@@ -370,11 +423,14 @@ def run_selected_workflow(
             lex=lex,
             logger=logger,
             tracer=tracer,
+            metrics=metrics,
+            engine_metrics_factory=engine_metrics_factory,
         )
     if workflow_id == "scientist_causal_full":
         return run_causal_full_workflow(
             initial_state,
             store=store,
+            store_factory=store_factory,
             registry_bundle_ref=registry_bundle_ref,
             checkpoint_policy=checkpoint_policy,
             force_lock=force_lock,
@@ -384,10 +440,13 @@ def run_selected_workflow(
             lex=lex,
             logger=logger,
             tracer=tracer,
+            metrics=metrics,
+            engine_metrics_factory=engine_metrics_factory,
         )
     return run_default_workflow(
         initial_state,
         store=store,
+        store_factory=store_factory,
         registry_bundle_ref=registry_bundle_ref,
         checkpoint_policy=checkpoint_policy,
         force_lock=force_lock,
@@ -397,6 +456,9 @@ def run_selected_workflow(
         lex=lex,
         logger=logger,
         tracer=tracer,
+        metrics=metrics,
+        quota_registry=quota_registry,
+        engine_metrics_factory=engine_metrics_factory,
     )
 
 
@@ -404,20 +466,22 @@ def run_policy_design_workflow(
     initial_state: ExperimentState,
     *,
     store: ArtifactStore | None = None,
+    store_factory: Callable[[], ArtifactStore] | None = None,
     registry_bundle_ref: ArtifactRef | None = None,
     graph_prior_bundle_ref: ArtifactRef | None = None,
     checkpoint_policy: CheckpointPolicy = "strict",
     force_lock: bool = False,
-    foundry: object | None = None,
-    fabric: object | None = None,
-    scholar: object | None = None,
-    lex: object | None = None,
+    foundry: FoundryPort | None = None,
+    fabric: FabricPort | None = None,
+    scholar: ScholarPort | None = None,
+    lex: LexPort | None = None,
     logger: logging.Logger | None = None,
-    tracer: object | None = None,
+    tracer: Tracer | None = None,
+    metrics: EngineMetricsCollector | None = None,
+    engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the `scientist_policy_design` DAG with search and translation stages."""
-    store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
-    store = _maybe_namespace_store(store)
+    store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
     state = initial_state.model_copy(deep=True)
@@ -466,6 +530,8 @@ def run_policy_design_workflow(
             fabric=fabric,
             scholar=scholar,
             lex=lex,
+            metrics=metrics,
+            engine_metrics_factory=engine_metrics_factory,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -487,19 +553,21 @@ def run_discovery_workflow(
     initial_state: ExperimentState,
     *,
     store: ArtifactStore | None = None,
+    store_factory: Callable[[], ArtifactStore] | None = None,
     registry_bundle_ref: ArtifactRef | None = None,
     checkpoint_policy: CheckpointPolicy = "strict",
     force_lock: bool = False,
-    foundry: object | None = None,
-    fabric: object | None = None,
-    scholar: object | None = None,
-    lex: object | None = None,
+    foundry: FoundryPort | None = None,
+    fabric: FabricPort | None = None,
+    scholar: ScholarPort | None = None,
+    lex: LexPort | None = None,
     logger: logging.Logger | None = None,
-    tracer: object | None = None,
+    tracer: Tracer | None = None,
+    metrics: EngineMetricsCollector | None = None,
+    engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the discovery-only DAG and persist prior-knowledge artifacts."""
-    store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
-    store = _maybe_namespace_store(store)
+    store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
     state = initial_state.model_copy(deep=True)
@@ -531,6 +599,8 @@ def run_discovery_workflow(
             fabric=fabric,
             scholar=scholar,
             lex=lex,
+            metrics=metrics,
+            engine_metrics_factory=engine_metrics_factory,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -551,19 +621,22 @@ def run_default_workflow(
     initial_state: ExperimentState,
     *,
     store: ArtifactStore | None = None,
+    store_factory: Callable[[], ArtifactStore] | None = None,
     registry_bundle_ref: ArtifactRef | None = None,
     checkpoint_policy: CheckpointPolicy = "strict",
     force_lock: bool = False,
-    foundry: object | None = None,
-    fabric: object | None = None,
-    scholar: object | None = None,
-    lex: object | None = None,
+    foundry: FoundryPort | None = None,
+    fabric: FabricPort | None = None,
+    scholar: ScholarPort | None = None,
+    lex: LexPort | None = None,
     logger: logging.Logger | None = None,
-    tracer: object | None = None,
+    tracer: Tracer | None = None,
+    metrics: EngineMetricsCollector | None = None,
+    quota_registry: QuotaRegistry | None = None,
+    engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the baseline simulation/governance DAG."""
-    store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
-    store = _maybe_namespace_store(store)
+    store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
     state = initial_state.model_copy(deep=True)
@@ -588,7 +661,7 @@ def run_default_workflow(
     if fabric is None and INPUT_DATA_VIEW_REQUEST_REF in state.inputs:
         fabric = DefaultFabricPort()
 
-    enforcer = _maybe_enforce_quota()
+    enforcer = _maybe_enforce_quota(quota_registry=quota_registry)
     run_dir = getattr(store, "root", Path(".")) / "runs" / state.run_id
     lock = acquire_run_lock(run_dir, run_id=state.run_id, mode="run", force=force_lock)
     try:
@@ -602,6 +675,8 @@ def run_default_workflow(
             fabric=fabric,
             scholar=scholar,
             lex=lex,
+            metrics=metrics,
+            engine_metrics_factory=engine_metrics_factory,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -612,7 +687,7 @@ def run_default_workflow(
             sequence_start=0,
             checkpoint_policy=policy,
         )
-        provenance_dag = _maybe_create_provenance_dag(state.run_id)
+        _maybe_create_provenance_dag(state.run_id)
 
         runner_config = WorkflowRunnerConfig.from_env()
         workflow = default_workflow_spec()
@@ -637,19 +712,21 @@ def run_policy_verified_workflow(
     initial_state: ExperimentState,
     *,
     store: ArtifactStore | None = None,
+    store_factory: Callable[[], ArtifactStore] | None = None,
     registry_bundle_ref: ArtifactRef | None = None,
     checkpoint_policy: CheckpointPolicy = "strict",
     force_lock: bool = False,
-    foundry: object | None = None,
-    fabric: object | None = None,
-    scholar: object | None = None,
-    lex: object | None = None,
+    foundry: FoundryPort | None = None,
+    fabric: FabricPort | None = None,
+    scholar: ScholarPort | None = None,
+    lex: LexPort | None = None,
     logger: logging.Logger | None = None,
-    tracer: object | None = None,
+    tracer: Tracer | None = None,
+    metrics: EngineMetricsCollector | None = None,
+    engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the verified-policy DAG that omits hierarchical champion search."""
-    store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
-    store = _maybe_namespace_store(store)
+    store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
     state = initial_state.model_copy(deep=True)
@@ -698,6 +775,8 @@ def run_policy_verified_workflow(
             fabric=fabric,
             scholar=scholar,
             lex=lex,
+            metrics=metrics,
+            engine_metrics_factory=engine_metrics_factory,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -719,19 +798,21 @@ def run_causal_full_workflow(
     initial_state: ExperimentState,
     *,
     store: ArtifactStore | None = None,
+    store_factory: Callable[[], ArtifactStore] | None = None,
     registry_bundle_ref: ArtifactRef | None = None,
     checkpoint_policy: CheckpointPolicy = "strict",
     force_lock: bool = False,
-    foundry: object | None = None,
-    fabric: object | None = None,
-    scholar: object | None = None,
-    lex: object | None = None,
+    foundry: FoundryPort | None = None,
+    fabric: FabricPort | None = None,
+    scholar: ScholarPort | None = None,
+    lex: LexPort | None = None,
     logger: logging.Logger | None = None,
-    tracer: object | None = None,
+    tracer: Tracer | None = None,
+    metrics: EngineMetricsCollector | None = None,
+    engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the full causal DAG with graph reconciliation and transport checks."""
-    store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
-    store = _maybe_namespace_store(store)
+    store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
     state = initial_state.model_copy(deep=True)
@@ -770,6 +851,8 @@ def run_causal_full_workflow(
             fabric=fabric,
             scholar=scholar,
             lex=lex,
+            metrics=metrics,
+            engine_metrics_factory=engine_metrics_factory,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -792,8 +875,8 @@ __all__ = [
     "build_execution_context",
     "build_registry_with_builtin_nodes",
     "resolve_workflow_id",
-    "run_default_workflow",
     "run_causal_full_workflow",
+    "run_default_workflow",
     "run_policy_design_workflow",
     "run_policy_verified_workflow",
     "run_selected_workflow",

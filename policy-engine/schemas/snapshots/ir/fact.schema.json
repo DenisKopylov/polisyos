@@ -382,6 +382,7 @@
     "fact_id",
     "subject_id",
     "predicate_id",
+    "tx_time",
     "provenance"
   ],
   "title": "Fact",

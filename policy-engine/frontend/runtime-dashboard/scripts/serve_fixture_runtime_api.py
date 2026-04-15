@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import argparse
-import importlib.util
+import importlib
 import json
+import sys
 import tempfile
 from pathlib import Path
 
@@ -11,13 +12,17 @@ import uvicorn
 
 def _load_fixture_builder():
     policy_engine_root = Path(__file__).resolve().parents[3]
-    fixture_path = policy_engine_root / "tests" / "runtime" / "http" / "conftest.py"
-    spec = importlib.util.spec_from_file_location("runtime_http_fixture_conftest", fixture_path)
-    if spec is None or spec.loader is None:  # pragma: no cover
-        raise RuntimeError(f"Unable to load fixture module from {fixture_path}")
+    import_roots = [
+        policy_engine_root / "src",
+        policy_engine_root,
+        policy_engine_root / "tests",
+    ]
+    for root in import_roots:
+        root_str = str(root)
+        if root_str not in sys.path:
+            sys.path.insert(0, root_str)
 
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    module = importlib.import_module("fixtures.runtime_http")
     return module.build_runtime_api_env
 
 

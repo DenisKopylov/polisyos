@@ -40,8 +40,10 @@ Example:
 """
 from __future__ import annotations
 
+import re
+import unicodedata
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from enum import Enum
 from typing import ClassVar, Literal, Sequence
 
@@ -632,7 +634,19 @@ def infer_temporal_type(
     Returns:
         Inferred TemporalType.
     """
-    name_lower = variable_name.lower()
+    normalized_name = unicodedata.normalize("NFKC", variable_name).strip()
+    normalized_name = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", normalized_name)
+    name_lower = normalized_name.casefold()
+    name_tokens = {
+        token
+        for token in re.split(r"[^0-9a-z]+", name_lower)
+        if token
+    }
+    keyword_tokens = name_tokens | {
+        token[:-1]
+        for token in name_tokens
+        if token.endswith("s") and len(token) > 3
+    }
 
     # Stock indicators
     stock_keywords = {
@@ -667,16 +681,16 @@ def infer_temporal_type(
 
     # Check parameter keywords before stock/flow keywords
     for keyword in parameter_keywords:
-        if keyword in name_lower:
+        if keyword in keyword_tokens:
             return TemporalType.PARAMETER
 
     # Check keywords in name
     for keyword in stock_keywords:
-        if keyword in name_lower:
+        if keyword in keyword_tokens:
             return TemporalType.STOCK
 
     for keyword in flow_keywords:
-        if keyword in name_lower:
+        if keyword in keyword_tokens:
             return TemporalType.FLOW
 
     # Default to DERIVED (unknown)

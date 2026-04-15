@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -14,6 +14,9 @@ from polisyos.core.artifacts.signing import (
     SigningError,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _make_signed_store(tmp_path: Path) -> tuple[FileSystemCAS, Ed25519Signer, Ed25519Verifier]:
@@ -60,7 +63,7 @@ def test_verify_signature_invalid_sidecar_format(tmp_path: Path) -> None:
     )
     sig_path = store._sig_path(
         ref.artifact_id
-    )  # noqa: SLF001 - integration test for sidecar parsing
+    )
     sig_path.write_text("{not valid json}", encoding="utf-8")
 
     result = store.verify_signature(ref.artifact_id, verifier)

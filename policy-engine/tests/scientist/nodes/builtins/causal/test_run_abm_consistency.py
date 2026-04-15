@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import pytest
+
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.run_abm_consistency import (
     RunABMConsistencyCheckNode,
 )
-from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
 )
@@ -43,3 +45,23 @@ def test_already_has_alignment_report_returns_ok(
     state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF] = ref
     outcome = RunABMConsistencyCheckNode().execute(execution_context, state)
     assert outcome.status == "ok"
+
+
+def test_abm_mapping_assertion_is_not_swallowed(
+    execution_context, minimal_state, monkeypatch: pytest.MonkeyPatch
+):
+    state = minimal_state.model_copy(
+        update={"params": {"abm_macro_micro_mappings": [{"macro_variable": "gdp"}]}}
+    )
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("abm-mapping-broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.run_abm_consistency.MacroMicroMapping.model_validate",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="abm-mapping-broken"):
+        RunABMConsistencyCheckNode().execute(execution_context, state)

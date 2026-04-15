@@ -432,6 +432,16 @@ def emit_world_event_facts(
                 legal=legal,
             )
         )
+        facts.append(
+            emit_edge_fact(
+                src_id=event.event_id,
+                edge_kind=EdgeKind.PROV_WAS_GENERATED_BY,
+                dst_id=event.activity.activity_id,
+                provenance=provenance,
+                trust_policy_id=trust_policy_id,
+                legal=legal,
+            )
+        )
 
     facts.append(
         emit_edge_fact(

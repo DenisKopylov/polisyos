@@ -47,6 +47,13 @@ class ClaimNormalizeOptions:
     claim_set_kind: str = "fabric.claims.claim_set"
     claim_set_schema_name: str = "fabric.claims.claim_set"
     claim_set_schema_version: str = "1.0"
+    quarantine_invalid: bool = True
+    quarantine_retry_policy: dict[str, Any] = field(
+        default_factory=lambda: {
+            "mode": "deterministic_reprocess",
+            "max_attempts": 1,
+        }
+    )
 
 
 @dataclass(frozen=True)
@@ -81,6 +88,7 @@ class ClaimNormalizeResult:
     evidence_ref: str | None
     world_segment_manifest: FactSegmentManifest
     derived_edges: list[tuple[str, str]] = field(default_factory=list)
+    quarantine_record_ids: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

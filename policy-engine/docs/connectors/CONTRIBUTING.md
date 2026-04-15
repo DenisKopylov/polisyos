@@ -10,7 +10,7 @@ the shared test harness.
 ## Prerequisites
 
 - Python 3.14.x
-- The Policy OS repository checked out and contributor dependencies prepared via `./scripts/bootstrap`
+- The Policy OS repository checked out and contributor dependencies prepared via `polisyos-tools workspace bootstrap`
 - Familiarity with the SourceConnector protocol (see `src/polisyos/fabric/connectors/base.py`)
 
 ---

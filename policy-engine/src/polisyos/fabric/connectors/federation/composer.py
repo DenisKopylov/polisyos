@@ -10,13 +10,13 @@ import heapq
 import json
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any, Iterable
 
 import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 from polisyos.fabric.connectors.federation.types import (
     AuditLevel,
@@ -73,14 +73,17 @@ class MergeLogCollector:
         self,
         audit_level: AuditLevel,
         sample_size: int,
+        max_entries: int,
         seed: str | None,
     ) -> None:
         self.audit_level = audit_level
         self.sample_size = max(0, sample_size)
+        self.max_entries = max(0, max_entries)
         self.seed = seed or ""
         self.entries: list[MergeLogEntry] = []
         self.summary = MergeLogSummary(sample_seed=self.seed)
         self._sample_heap: list[tuple[int, MergeLogEntry]] = []
+        self._dropped_entries = 0
 
     def record(self, entry: MergeLogEntry) -> None:
         if self.audit_level == AuditLevel.NONE:
@@ -94,7 +97,10 @@ class MergeLogCollector:
         self._inc(self.summary.by_source_pair, pair_key)
 
         if self.audit_level == AuditLevel.FULL:
-            self.entries.append(entry)
+            if self.max_entries == 0 or len(self.entries) < self.max_entries:
+                self.entries.append(entry)
+            else:
+                self._dropped_entries += 1
         elif self.audit_level == AuditLevel.SUMMARY and self.sample_size > 0:
             self._sample(entry)
 
@@ -109,6 +115,9 @@ class MergeLogCollector:
             heapq.heapreplace(self._sample_heap, (-hash_value, entry))
 
     def finalize(self) -> None:
+        self.summary.extra["audit_entries_retained"] = len(self.entries)
+        self.summary.extra["audit_entries_dropped"] = self._dropped_entries
+        self.summary.extra["audit_entries_truncated"] = self._dropped_entries > 0
         if self.audit_level != AuditLevel.SUMMARY or self.sample_size == 0:
             return
         samples = sorted(
@@ -185,13 +194,14 @@ class DataComposer:
         collector = MergeLogCollector(
             audit_level=request.audit_level,
             sample_size=request.audit_sample_size,
+            max_entries=request.audit_max_entries,
             seed=request.audit_seed,
         )
 
         tracer = _safe_get_tracer()
         span_ctx = (
             tracer.start_as_current_span(
-                "federation.compose",
+                FABRIC_TRACE_NAMES["federation_compose"],
                 attributes={
                     "federation.strategy": strategy.value,
                     "federation.source_count": len(sources),

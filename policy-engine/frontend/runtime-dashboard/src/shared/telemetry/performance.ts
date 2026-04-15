@@ -5,7 +5,10 @@ import {
 import { readActiveRouteTelemetryContext } from "@/shared/telemetry/routeContext";
 import { addSentryBreadcrumb } from "@/shared/telemetry/sentry";
 
-type UiLatencyMetric = "time_to_decision_ms" | "time_to_insight_ms";
+type UiLatencyMetric =
+  | "time_to_causal_ms"
+  | "time_to_decision_ms"
+  | "time_to_insight_ms";
 
 const measuredLatencyKeys = new Set<string>();
 
@@ -81,7 +84,9 @@ export function measureUiLatency({
   const eventName =
     metric === "time_to_decision_ms"
       ? "perf.time_to_decision"
-      : "perf.time_to_insight";
+      : metric === "time_to_causal_ms"
+        ? "perf.time_to_causal"
+        : "perf.time_to_insight";
 
   emitTelemetry({
     name: eventName,

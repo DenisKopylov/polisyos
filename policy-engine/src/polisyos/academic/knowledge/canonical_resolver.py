@@ -4,12 +4,17 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Any
 
 import duckdb
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+
+try:  # pragma: no cover - exercised in environments with sklearn installed
+    from sklearn.feature_extraction.text import TfidfVectorizer as _TfidfVectorizer
+except ModuleNotFoundError:  # pragma: no cover - exercised in lean runtime/test envs
+    _TfidfVectorizer = None
 
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
 from polisyos.academic.knowledge.runtime_canonical_registry import (
@@ -111,6 +116,26 @@ def _token_overlap_score(query_tokens: set[str], candidate_tokens: set[str]) -> 
     return min(score, 1.0)
 
 
+def _char_ngrams(text: str, *, min_n: int = 3, max_n: int = 5) -> set[str]:
+    normalized = f"  {_normalize_text(text)}  "
+    ngrams: set[str] = set()
+    for size in range(min_n, max_n + 1):
+        if len(normalized) < size:
+            continue
+        for index in range(len(normalized) - size + 1):
+            ngrams.add(normalized[index : index + size])
+    return ngrams
+
+
+def _jaccard_score(left: set[str], right: set[str]) -> float:
+    if not left or not right:
+        return 0.0
+    union = left | right
+    if not union:
+        return 0.0
+    return len(left & right) / len(union)
+
+
 def _dot_to_seed_alias(name: str) -> str | None:
     clean = str(name or "").strip()
     if clean.count(".") != 1:
@@ -147,22 +172,20 @@ class CanonicalVariableResolver:
             self._synonyms_by_canonical.setdefault(canonical_name, set()).add(synonym)
         self._search_texts = [self._search_text_for(name) for name in self._approved_names]
         self._candidate_tokens = [set(_tokenize(text)) for text in self._search_texts]
-        self._char_vectorizer = TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5))
-        self._word_vectorizer = TfidfVectorizer(
-            analyzer="word",
-            ngram_range=(1, 2),
-            token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z0-9_]+\b",
-        )
-        self._char_matrix = (
-            self._char_vectorizer.fit_transform(self._search_texts)
-            if self._approved_names
-            else None
-        )
-        self._word_matrix = (
-            self._word_vectorizer.fit_transform(self._search_texts)
-            if self._approved_names
-            else None
-        )
+        self._search_char_ngrams = [_char_ngrams(text) for text in self._search_texts]
+        self._char_vectorizer: Any | None = None
+        self._word_vectorizer: Any | None = None
+        self._char_matrix: Any | None = None
+        self._word_matrix: Any | None = None
+        if _TfidfVectorizer is not None and self._approved_names:
+            self._char_vectorizer = _TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5))
+            self._word_vectorizer = _TfidfVectorizer(
+                analyzer="word",
+                ngram_range=(1, 2),
+                token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z0-9_]+\b",
+            )
+            self._char_matrix = self._char_vectorizer.fit_transform(self._search_texts)
+            self._word_matrix = self._word_vectorizer.fit_transform(self._search_texts)
 
     @classmethod
     def from_connection(cls, con: duckdb.DuckDBPyConnection) -> "CanonicalVariableResolver":
@@ -234,6 +257,106 @@ class CanonicalVariableResolver:
             return 0.05
         return 0.02
 
+    def _combined_similarity_score(
+        self,
+        *,
+        query_text: str,
+        query_tokens: set[str],
+        query_char_ngrams: set[str],
+        candidate_name: str,
+        index: int,
+        need_type: str | None,
+        runtime_priority: bool | None,
+        char_score: float,
+        word_score: float,
+    ) -> float:
+        token_score = _token_overlap_score(query_tokens, self._candidate_tokens[index])
+        combined = (0.45 * char_score) + (0.35 * word_score) + (0.20 * token_score)
+        if query_tokens and query_tokens <= self._candidate_tokens[index]:
+            combined += 0.05
+        if query_text and query_text in self._search_texts[index]:
+            combined += 0.05
+        if query_char_ngrams and query_char_ngrams <= self._search_char_ngrams[index]:
+            combined += 0.03
+        combined += self._runtime_candidate_boost(
+            candidate_name,
+            need_type=need_type,
+            runtime_priority=runtime_priority,
+        )
+        return min(combined, 1.0)
+
+    def _resolve_similarity_candidate(
+        self,
+        *,
+        clean_raw: str,
+        need_type: str | None,
+        runtime_priority: bool | None,
+    ) -> ResolutionResult | None:
+        if not self._approved_names:
+            return None
+        query_text = _normalize_text(clean_raw)
+        query_tokens = set(_tokenize(clean_raw))
+        query_char_ngrams = _char_ngrams(clean_raw)
+        combined_scores: list[float] = []
+
+        if self._char_matrix is not None and self._word_matrix is not None:
+            char_query = self._char_vectorizer.transform([query_text])
+            word_query = self._word_vectorizer.transform([query_text])
+            char_scores = (self._char_matrix @ char_query.T).toarray().reshape(-1)
+            word_scores = (self._word_matrix @ word_query.T).toarray().reshape(-1)
+            if char_scores.size and word_scores.size:
+                for idx, candidate_name in enumerate(self._approved_names):
+                    combined_scores.append(
+                        self._combined_similarity_score(
+                            query_text=query_text,
+                            query_tokens=query_tokens,
+                            query_char_ngrams=query_char_ngrams,
+                            candidate_name=candidate_name,
+                            index=idx,
+                            need_type=need_type,
+                            runtime_priority=runtime_priority,
+                            char_score=float(char_scores[idx]),
+                            word_score=float(word_scores[idx]),
+                        )
+                    )
+        else:
+            query_words = set(query_text.split())
+            for idx, candidate_name in enumerate(self._approved_names):
+                combined_scores.append(
+                    self._combined_similarity_score(
+                        query_text=query_text,
+                        query_tokens=query_tokens,
+                        query_char_ngrams=query_char_ngrams,
+                        candidate_name=candidate_name,
+                        index=idx,
+                        need_type=need_type,
+                        runtime_priority=runtime_priority,
+                        char_score=_jaccard_score(query_char_ngrams, self._search_char_ngrams[idx]),
+                        word_score=_token_overlap_score(
+                            query_words,
+                            set(self._search_texts[idx].split()),
+                        ),
+                    )
+                )
+
+        if not combined_scores:
+            return None
+        best_idx = int(np.argmax(np.asarray(combined_scores)))
+        best_score = float(combined_scores[best_idx])
+        best_name = self._approved_names[best_idx]
+        pending_threshold = _PENDING_REVIEW_THRESHOLD - (
+            0.05 if runtime_priority and best_name in self._runtime_canonical_names else 0.0
+        )
+        if best_score >= _AUTO_APPROVE_THRESHOLD:
+            self._stats.embedding_matches += 1
+            self._stats.auto_approved += 1
+            return ResolutionResult(clean_raw, best_name, "embedding", best_score, True, False)
+        if best_score >= pending_threshold:
+            self._stats.embedding_matches += 1
+            self._stats.pending_review += 1
+            return ResolutionResult(clean_raw, best_name, "embedding", best_score, False, True)
+        return None
+
     def resolve(
         self,
         raw_name: str,
@@ -276,44 +399,13 @@ class CanonicalVariableResolver:
                 return ResolutionResult(clean_raw, parent, "hierarchy", 0.98, True, False)
             parent = parent_canonical_name(parent)
 
-        if self._char_matrix is not None and self._word_matrix is not None and self._approved_names:
-            query_text = _normalize_text(clean_raw)
-            query_tokens = set(_tokenize(clean_raw))
-            char_query = self._char_vectorizer.transform([query_text])
-            word_query = self._word_vectorizer.transform([query_text])
-            char_scores = (self._char_matrix @ char_query.T).toarray().reshape(-1)
-            word_scores = (self._word_matrix @ word_query.T).toarray().reshape(-1)
-            if char_scores.size and word_scores.size:
-                combined_scores = []
-                for idx, candidate_name in enumerate(self._approved_names):
-                    token_score = _token_overlap_score(query_tokens, self._candidate_tokens[idx])
-                    char_score = float(char_scores[idx])
-                    word_score = float(word_scores[idx])
-                    combined = (0.45 * char_score) + (0.35 * word_score) + (0.20 * token_score)
-                    if query_tokens and query_tokens <= self._candidate_tokens[idx]:
-                        combined += 0.05
-                    if query_text and query_text in self._search_texts[idx]:
-                        combined += 0.05
-                    combined += self._runtime_candidate_boost(
-                        candidate_name,
-                        need_type=need_type,
-                        runtime_priority=runtime_priority,
-                    )
-                    combined_scores.append(min(combined, 1.0))
-                best_idx = int(np.argmax(np.asarray(combined_scores)))
-                best_score = float(combined_scores[best_idx])
-                best_name = self._approved_names[best_idx]
-                pending_threshold = _PENDING_REVIEW_THRESHOLD - (
-                    0.05 if runtime_priority and best_name in self._runtime_canonical_names else 0.0
-                )
-                if best_score >= _AUTO_APPROVE_THRESHOLD:
-                    self._stats.embedding_matches += 1
-                    self._stats.auto_approved += 1
-                    return ResolutionResult(clean_raw, best_name, "embedding", best_score, True, False)
-                if best_score >= pending_threshold:
-                    self._stats.embedding_matches += 1
-                    self._stats.pending_review += 1
-                    return ResolutionResult(clean_raw, best_name, "embedding", best_score, False, True)
+        similarity_result = self._resolve_similarity_candidate(
+            clean_raw=clean_raw,
+            need_type=need_type,
+            runtime_priority=runtime_priority,
+        )
+        if similarity_result is not None:
+            return similarity_result
 
         self._stats.unresolved += 1
         self._unresolved_mentions[clean_raw] += 1

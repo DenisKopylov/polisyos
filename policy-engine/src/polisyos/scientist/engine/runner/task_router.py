@@ -1,7 +1,8 @@
 """Task routing across worker pools.
 
 Routes ``NodeTask`` instances to the appropriate pool based on
-configurable strategies (resource-aware, round-robin, least-loaded).
+configurable strategies (resource-aware, round-robin, least-loaded,
+priority-aware weighted queuing).
 """
 
 from __future__ import annotations
@@ -85,6 +86,43 @@ class LeastLoadedStrategy:
             capacities,
             key=lambda name: capacities[name].idle_workers,
         )
+
+
+class WeightedQueueStrategy:
+    """Route high-priority tasks toward the pool with the healthiest queue score."""
+
+    async def select_pool(
+        self,
+        task: NodeTask,
+        capacities: dict[str, PoolCapacity],
+    ) -> str:
+        preferred_pool: str | None = None
+        if task.resource_requirements and task.resource_requirements.gpu and "gpu" in capacities:
+            preferred_pool = "gpu"
+        elif "cpu" in capacities:
+            preferred_pool = "cpu"
+
+        candidate_names = (
+            [preferred_pool]
+            if preferred_pool is not None
+            else sorted(capacities.keys())
+        )
+        if preferred_pool is None:
+            candidate_names = sorted(capacities.keys())
+
+        def _score(pool_name: str) -> tuple[float, int, int, str]:
+            capacity = capacities[pool_name]
+            weighted_depth = max(float(capacity.queue_depth) + float(task.queue_weight), 1.0)
+            idle_bias = float(capacity.idle_workers + max(task.priority, 0) + 1)
+            score = idle_bias / weighted_depth
+            return (
+                score,
+                capacity.idle_workers,
+                -capacity.queue_depth,
+                pool_name,
+            )
+
+        return max(candidate_names, key=_score)
 
 
 class TaskRouter:

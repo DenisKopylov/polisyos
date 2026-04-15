@@ -309,7 +309,7 @@ class FoldAggregator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="fold_aggregator",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset({
             SlotSpec("fold_0_output", SlotType.VECTOR, Unit("nuisance", "oof"), shape=("n_fold_0",)),

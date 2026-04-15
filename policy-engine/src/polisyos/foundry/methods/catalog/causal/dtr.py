@@ -435,7 +435,7 @@ class QLearningDTR:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="q_learning",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=_dtr_output_slots(),
@@ -623,7 +623,7 @@ class ALearningDTR:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="a_learning",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=_dtr_output_slots(),
@@ -833,7 +833,7 @@ class OutcomeWeightedLearning:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="owl",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=_dtr_output_slots(),
@@ -1071,7 +1071,7 @@ class DoublyRobustDTR:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="dr_dtr",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=_dtr_output_slots(),

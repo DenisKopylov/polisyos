@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import pytest
 
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.ckan_catalog import CKANCatalogConnector
@@ -87,6 +88,34 @@ class TestCKANCatalogListDatasets:
         assert datasets[0].dataset_id == "gdp-annual"
         assert datasets[0].name == "Annual GDP Data"
         assert "ckan" in datasets[0].tags
+
+    def test_list_datasets_rejects_repeated_page_fingerprint(self, monkeypatch):
+        connector = CKANCatalogConnector()
+
+        async def _fake(_session, _url, *, params, connector_id):
+            del connector_id
+            rows = int(params["rows"])
+            results = [
+                {"id": f"pkg-{idx}", "name": f"pkg-{idx}", "title": f"Package {idx}"}
+                for idx in range(rows)
+            ]
+            body = {"result": {"results": results}}
+            raw = json.dumps(body).encode("utf-8")
+            return body, {}, raw
+
+        monkeypatch.setattr(CKANCatalogConnector, "_request_json", staticmethod(_fake))
+        monkeypatch.setattr(CKANCatalogConnector, "_get_session", _fake_get_session)
+
+        async def _exercise():
+            handle = await connector.connect(_ckan_config())
+            try:
+                async for _ in connector.list_datasets(handle):
+                    pass
+            finally:
+                await connector.disconnect(handle)
+
+        with pytest.raises(FetchError, match="repeated a prior page fingerprint"):
+            _run_async(_exercise())
 
 
 class TestCKANCatalogFetch:
@@ -193,6 +222,31 @@ class TestCKANResourceParsing:
         assert len(df) == 2
         assert "__source_file" in df.columns
         assert set(df["name"].tolist()) == {"foo", "bar"}
+
+    def test_parse_zip_rejects_traversal_member(self):
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("../evil.csv", "name,value\nfoo,1\n")
+
+        with pytest.raises(FetchError, match="traversal member"):
+            CKANResourceConnector._parse_resource(buffer.getvalue(), "zip")
+
+    def test_parse_zip_rejects_excessive_member_count(self):
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            for idx in range(CKANResourceConnector._MAX_ZIP_MEMBERS + 1):
+                archive.writestr(f"file-{idx}.csv", "name,value\nfoo,1\n")
+
+        with pytest.raises(FetchError, match="member count"):
+            CKANResourceConnector._parse_resource(buffer.getvalue(), "zip")
+
+    def test_parse_zip_rejects_excessive_decompression_ratio(self):
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("huge.csv", ("value\n" + ("1\n" * 5000)))
+
+        with pytest.raises(FetchError, match="decompression ratio"):
+            CKANResourceConnector._parse_resource(buffer.getvalue(), "zip")
 
 
 class TestCKANResourceResolve:

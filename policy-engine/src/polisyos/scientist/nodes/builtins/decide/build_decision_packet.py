@@ -4,8 +4,9 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from enum import Enum
-from typing import Any, Final
+from typing import Any
+
+from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
@@ -35,8 +36,8 @@ from polisyos.core.contracts.scientist import (
     VerifiedPolicyReportRef,
 )
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
-from polisyos.ir.analytics.abstraction import load_abstraction_certificate
 from polisyos.ir.analytics.abm_bridge import load_abm_alignment_report
+from polisyos.ir.analytics.abstraction import load_abstraction_certificate
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
@@ -46,6 +47,7 @@ from polisyos.ir.analytics.normative_arbitration import (
     NormativeArbitrationResult,
     load_normative_arbitration_result,
 )
+from polisyos.ir.analytics.sensitivity import load_sensitivity_result
 from polisyos.ir.analytics.strategic import (
     load_post_adaptation_policy_value_summary,
     load_strategic_response_bundle,
@@ -56,14 +58,17 @@ from polisyos.ir.refs import (
     ABMAlignmentReportRef,
     AbstractionCertificateRef,
     CausalModelEnsembleRef,
+    CausalSensitivityResultRef,
     NormativeArbitrationResultRef,
     StrategicResponseBundleRef,
     StrategicSCMRef,
 )
+from polisyos.scientist.decision_validity import DecisionValidityService
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.decision_validity import DecisionValidityService
+from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.feedback import (
     DecisionFeedbackService,
     build_monitoring_contract_from_packet,
@@ -72,20 +77,27 @@ from polisyos.scientist.governance.calibration_validation import (
     load_calibration_validation_bundle,
 )
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.policy_verified import (
-    load_source_verification_report,
-    load_verified_policy_report,
-)
-from polisyos.scientist.policy_design.output import load_policy_artifact_bundle
 from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.decide.decision_packet_support import (
+    ReplayReadiness,
+    _build_replay_section,
+    _compute_replay_readiness,
+    _dedupe_strings,
+    _determine_strategy_hint,
+    _extract_context_payload,
+    _fingerprint_payload,
+    _path_get,
+    _recommended_action,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
+    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_CARD_REF,
     ARTIFACT_DECISION_PACKET_REF,
@@ -102,17 +114,17 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRICS_REF,
     ARTIFACT_NORM_IMPACT_REPORT_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
-    ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+    ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
+    ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
+    ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ARTIFACT_STRATEGIC_SCM_REF,
-    ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
-    ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
     ARTIFACT_VERIFIED_POLICY_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
@@ -127,6 +139,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_GOVERNANCE_REPORT_REF,
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
+)
+from polisyos.scientist.policy_design.output import load_policy_artifact_bundle
+from polisyos.scientist.policy_verified import (
+    load_source_verification_report,
+    load_verified_policy_report,
 )
 
 logger = get_logger(__name__)
@@ -162,29 +179,24 @@ _SPEC = NodeSpec(
 )
 
 
-class ReplayReadiness(str, Enum):
-    """Replay readiness public type."""
-    COMPLETE = "complete"
-    PARTIAL = "partial"
-    INCOMPLETE = "incomplete"
-
-
-_REQUIRED_INPUT_KEYS: Final[frozenset[str]] = frozenset(
-    {
-        INPUT_TRINITY_BUNDLE_REF,
-        INPUT_REGISTRY_BUNDLE_REF,
-    }
+_DECISION_PACKET_LOAD_ERRORS = (
+    OSError,
+    ValueError,
+    TypeError,
+    KeyError,
+    ValidationError,
 )
 
-_OPTIONAL_INPUT_KEYS: Final[frozenset[str]] = frozenset(
-    {
-        INPUT_INPUT_BINDINGS_REF,
-        INPUT_NORM_PACK_REF,
-        INPUT_KNOWLEDGE_BUNDLE_REF,
-        INPUT_RESEARCH_INTENT_REF,
-        ARTIFACT_ENVIRONMENT_MANIFEST_REF,
-    }
-)
+
+@dataclass(frozen=True)
+class _DecisionPacketBuildRequest:
+    seed: int
+    inputs_section: dict[str, object]
+    artifacts_section: dict[str, object]
+    readiness: ReplayReadiness
+    strategy_hint: str
+    policy_summary: dict[str, object]
+    intervention_count: int
 
 
 @dataclass(frozen=True)
@@ -196,19 +208,13 @@ class BuildDecisionPacketNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        seed = int(state.params.get("random_seed", 0) or 0)
-        inputs_section = _build_inputs_section(state.inputs, state.artifacts_index)
-        artifacts_section = _build_artifacts_section(state.artifacts_index, state.reports_index)
-        readiness = _compute_replay_readiness(inputs_section)
-        strategy_hint = _determine_strategy_hint(inputs_section, artifacts_section)
-        policy_summary, intervention_count = _build_policy_summary(ctx, state.inputs)
-        backtest_section = _build_backtest_section(ctx, state.artifacts_index)
+        request = _build_decision_packet_request(ctx, state)
         replay_section = _build_replay_section(
-            inputs_section=inputs_section,
-            artifacts_section=artifacts_section,
-            readiness=readiness,
-            strategy_hint=strategy_hint,
-            seed=seed,
+            inputs_section=request.inputs_section,
+            artifacts_section=request.artifacts_section,
+            readiness=request.readiness,
+            strategy_hint=request.strategy_hint,
+            seed=request.seed,
             determinism_tier=state.params.get("determinism_tier"),
         )
 
@@ -216,13 +222,13 @@ class BuildDecisionPacketNode:
             "schema_version": "3.4",
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "run_id": state.run_id,
-            "seed": seed,
-            "policy_summary": policy_summary,
-            "intervention_count": intervention_count,
+            "seed": request.seed,
+            "policy_summary": request.policy_summary,
+            "intervention_count": request.intervention_count,
             "run_record": {
                 "schema_version": "3.2",
                 "run_id": state.run_id,
-                "seed": seed,
+                "seed": request.seed,
                 "engine": "scientist.engine",
             },
             "simulation_results": None,
@@ -233,39 +239,117 @@ class BuildDecisionPacketNode:
             "verified_findings": [],
             "hypotheses": [],
             "intervention_legal_basis_map": {},
-            "uncertainty": _build_uncertainty_section(ctx, state.inputs, state.artifacts_index),
+            "uncertainty": None,
             "uncertainty_bounds": None,
-            "causal": _build_causal_section(ctx, state, state.artifacts_index),
-            "abm_alignment": _build_abm_alignment_section(ctx, state.artifacts_index),
-            "abstraction_certificate": _build_abstraction_section(ctx, state.artifacts_index),
-            "strategic": _build_strategic_section(ctx, state),
-            "hte": _build_hte_section(ctx, state.artifacts_index),
-            "targeting": _build_targeting_section(ctx, state.artifacts_index),
-            "backtest": backtest_section,
-            "calibration_validation": _build_calibration_validation_section(
-                ctx, state.artifacts_index
-            ),
-            "distributional": _build_distributional_section(ctx, state.artifacts_index),
-            "econometrics": _build_econometrics_section(ctx, state.artifacts_index),
-            "norm_impact": _build_aux_artifact_section(
-                ctx, state.artifacts_index, ARTIFACT_NORM_IMPACT_REPORT_REF
-            ),
-            "sensitivity": _build_aux_artifact_section(
-                ctx, state.artifacts_index, ARTIFACT_SENSITIVITY_RESULT_REF
-            ),
-            "stress_test": _build_aux_artifact_section(
-                ctx, state.artifacts_index, ARTIFACT_STRESS_TEST_REPORT_REF
-            ),
-            "tradeoff_certificate": _build_tradeoff_certificate_section(
-                ctx, state.artifacts_index
-            ),
+            "causal": None,
+            "abm_alignment": None,
+            "abstraction_certificate": None,
+            "strategic": None,
+            "hte": None,
+            "targeting": None,
+            "backtest": None,
+            "calibration_validation": None,
+            "distributional": None,
+            "econometrics": None,
+            "norm_impact": None,
+            "sensitivity": None,
+            "causal_validity": None,
+            "stress_test": None,
+            "tradeoff_certificate": None,
             "runtime_contracts": _build_runtime_contracts_section(state),
-            "inputs": inputs_section,
-            "artifacts": artifacts_section,
+            "inputs": request.inputs_section,
+            "artifacts": request.artifacts_section,
             "replay": replay_section,
+            "degraded_paths": [],
             "notes": [],
         }
-        if isinstance(backtest_section, dict):
+        packet_payload["uncertainty"] = _build_uncertainty_section(
+            ctx,
+            state.inputs,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["causal"] = _build_causal_section(
+            ctx,
+            state,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["abm_alignment"] = _build_abm_alignment_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["abstraction_certificate"] = _build_abstraction_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["strategic"] = _build_strategic_section(
+            ctx,
+            state,
+            packet_payload=packet_payload,
+        )
+        packet_payload["hte"] = _build_hte_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["targeting"] = _build_targeting_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["backtest"] = _build_backtest_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["calibration_validation"] = _build_calibration_validation_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["distributional"] = _build_distributional_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["econometrics"] = _build_econometrics_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["norm_impact"] = _build_aux_artifact_section(
+            ctx,
+            state.artifacts_index,
+            ARTIFACT_NORM_IMPACT_REPORT_REF,
+            packet_payload=packet_payload,
+        )
+        packet_payload["sensitivity"] = _build_sensitivity_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["causal_validity"] = _build_aux_artifact_section(
+            ctx,
+            state.artifacts_index,
+            ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+            packet_payload=packet_payload,
+        )
+        packet_payload["stress_test"] = _build_aux_artifact_section(
+            ctx,
+            state.artifacts_index,
+            ARTIFACT_STRESS_TEST_REPORT_REF,
+            packet_payload=packet_payload,
+        )
+        packet_payload["tradeoff_certificate"] = _build_tradeoff_certificate_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        if isinstance(packet_payload["backtest"], dict):
+            backtest_section = packet_payload["backtest"]
             if bool(backtest_section.get("trust_eligible", True)):
                 packet_payload["trust_profile"] = {
                     "backtest_trust_score": backtest_section.get("trust_score"),
@@ -283,8 +367,18 @@ class BuildDecisionPacketNode:
                 payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref.artifact_id))
                 metrics = Metrics.model_validate(payload)
                 packet_payload["simulation_results"] = dict(metrics.values)
-            except Exception:
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
                 packet_payload["simulation_results"] = None
+                _record_decision_packet_degraded(
+                    packet_payload,
+                    _decision_packet_degraded(
+                        operation="load_metrics_artifact",
+                        reason="metrics_load_failed",
+                        exc=exc,
+                        ref=metrics_ref,
+                        artifact_key=ARTIFACT_METRICS_REF,
+                    ),
+                )
 
         governance_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
         if governance_ref is not None:
@@ -297,11 +391,16 @@ class BuildDecisionPacketNode:
                     "links": report.links.model_dump(mode="json"),
                     "notes": report.notes,
                 }
-            except Exception:
-                logger.debug(
-                    "Failed to load governance report from ref %s",
-                    governance_ref,
-                    exc_info=True,
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
+                _record_decision_packet_degraded(
+                    packet_payload,
+                    _decision_packet_degraded(
+                        operation="load_governance_report",
+                        reason="governance_report_load_failed",
+                        exc=exc,
+                        ref=governance_ref,
+                        artifact_key=REPORT_GOVERNANCE_REPORT_REF,
+                    ),
                 )
                 packet_payload["governance"] = None
 
@@ -326,8 +425,17 @@ class BuildDecisionPacketNode:
                     "adjudicator_calls_total": report.adjudicator_calls_total,
                     "verifier_disagreement_rate": report.verifier_disagreement_rate,
                 }
-            except Exception:
-                logger.debug("Failed to load source verification report", exc_info=True)
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
+                _record_decision_packet_degraded(
+                    packet_payload,
+                    _decision_packet_degraded(
+                        operation="load_source_verification_report",
+                        reason="source_verification_report_load_failed",
+                        exc=exc,
+                        ref=source_verification_ref,
+                        artifact_key=ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
+                    ),
+                )
 
         verified_policy_ref = state.artifacts_index.get(ARTIFACT_VERIFIED_POLICY_REPORT_REF)
         if verified_policy_ref is not None:
@@ -346,8 +454,17 @@ class BuildDecisionPacketNode:
                 packet_payload["intervention_legal_basis_map"] = dict(
                     verified_report.intervention_legal_basis_map
                 )
-            except Exception:
-                logger.debug("Failed to load verified policy report", exc_info=True)
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
+                _record_decision_packet_degraded(
+                    packet_payload,
+                    _decision_packet_degraded(
+                        operation="load_verified_policy_report",
+                        reason="verified_policy_report_load_failed",
+                        exc=exc,
+                        ref=verified_policy_ref,
+                        artifact_key=ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+                    ),
+                )
 
         policy_bundle_ref = state.artifacts_index.get(ARTIFACT_POLICY_OUTPUT_BUNDLE_REF)
         if policy_bundle_ref is not None:
@@ -365,8 +482,17 @@ class BuildDecisionPacketNode:
                         else None
                     ),
                 }
-            except Exception:
-                logger.debug("Failed to load policy artifact bundle", exc_info=True)
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
+                _record_decision_packet_degraded(
+                    packet_payload,
+                    _decision_packet_degraded(
+                        operation="load_policy_output_bundle",
+                        reason="policy_output_bundle_load_failed",
+                        exc=exc,
+                        ref=policy_bundle_ref,
+                        artifact_key=ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+                    ),
+                )
 
         uncertainty_bounds = _build_uncertainty_bounds(
             ctx,
@@ -375,6 +501,7 @@ class BuildDecisionPacketNode:
                 if isinstance(packet_payload["uncertainty"], dict)
                 else {}
             ),
+            packet_payload=packet_payload,
         )
         packet_payload["uncertainty_bounds"] = uncertainty_bounds
         packet_payload["diagnostics_summary"] = _build_diagnostics_summary(
@@ -451,10 +578,37 @@ class BuildDecisionPacketNode:
             monitoring_contract_ref=monitoring_contract_ref,
         )
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(
+            state,
+            write_paths=("artifacts_index.decision_packet_ref",),
+        ).state
         new_state.artifacts_index[ARTIFACT_DECISION_PACKET_REF] = packet_ref
 
         return NodeOutcome(status="ok", state=new_state, artifacts=[packet_ref])
+
+
+def _build_decision_packet_request(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> _DecisionPacketBuildRequest:
+    seed = int(state.params.get("random_seed", 0) or 0)
+    inputs_section = _build_inputs_section(state.inputs, state.artifacts_index)
+    artifacts_section = _build_artifacts_section(
+        state.artifacts_index,
+        state.reports_index,
+    )
+    readiness = _compute_replay_readiness(inputs_section)
+    strategy_hint = _determine_strategy_hint(inputs_section, artifacts_section)
+    policy_summary, intervention_count = _build_policy_summary(ctx, state.inputs)
+    return _DecisionPacketBuildRequest(
+        seed=seed,
+        inputs_section=inputs_section,
+        artifacts_section=artifacts_section,
+        readiness=readiness,
+        strategy_hint=strategy_hint,
+        policy_summary=policy_summary,
+        intervention_count=intervention_count,
+    )
 
 
 def _build_inputs_section(
@@ -500,6 +654,9 @@ def _build_artifacts_section(
         REPORT_CHANGE_PROPOSAL_REF: _ref_from_dict(reports_index, REPORT_CHANGE_PROPOSAL_REF),
         ARTIFACT_CAUSAL_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_REPORT_REF),
         ARTIFACT_CAUSAL_ENVELOPE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENVELOPE_REF),
+        ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF
+        ),
         ARTIFACT_CAUSAL_ENSEMBLE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENSEMBLE_REF),
         ARTIFACT_ABM_ALIGNMENT_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_ABM_ALIGNMENT_REPORT_REF
@@ -604,11 +761,13 @@ def _build_policy_summary(
 
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
-    except Exception:
-        logger.debug(
-            "Failed to load trinity bundle for policy summary from ref %s",
-            trinity_ref,
-            exc_info=True,
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
+        _decision_packet_degraded(
+            operation="load_policy_summary_trinity_bundle",
+            reason="policy_summary_trinity_load_failed",
+            exc=exc,
+            ref=trinity_ref,
+            artifact_key=INPUT_TRINITY_BUNDLE_REF,
         )
         return "Policy data unavailable", 0
 
@@ -630,17 +789,21 @@ def _build_causal_section(
     ctx: ExecutionContext,
     state: ExperimentState,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     report_ref = artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     envelope_ref = artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
     ensemble_ref = artifacts_index.get(ARTIFACT_CAUSAL_ENSEMBLE_REF)
-    if report_ref is None and envelope_ref is None and ensemble_ref is None:
+    validity_ref = artifacts_index.get(ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF)
+    if report_ref is None and envelope_ref is None and ensemble_ref is None and validity_ref is None:
         return None
 
     payload: dict[str, object] = {
         "report_ref": str(report_ref.artifact_id) if report_ref is not None else None,
         "envelope_ref": str(envelope_ref.artifact_id) if envelope_ref is not None else None,
         "ensemble_ref": str(ensemble_ref.artifact_id) if ensemble_ref is not None else None,
+        "causal_validity_ref": str(validity_ref.artifact_id) if validity_ref is not None else None,
         "ensemble_member_count": None,
         "ensemble_methods": [],
         "ensemble_consensus_graph_ref": None,
@@ -655,13 +818,21 @@ def _build_causal_section(
             payload["ensemble_member_count"] = len(ensemble.members)
             payload["ensemble_methods"] = sorted({member.discovery_method for member in ensemble.members})
             payload["ensemble_consensus_graph_ref"] = ensemble.consensus_graph_ref
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
             logger.debug(
                 "Failed to parse causal model ensemble from ref %s",
                 ensemble_ref,
                 exc_info=True,
             )
             payload["ensemble_parse_warning"] = "causal_ensemble_parse_failed"
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_causal_ensemble",
+                reason="causal_ensemble_load_failed",
+                exc=exc,
+                ref=ensemble_ref,
+                artifact_key=ARTIFACT_CAUSAL_ENSEMBLE_REF,
+            )
 
     if report_ref is not None:
         try:
@@ -694,8 +865,16 @@ def _build_causal_section(
                     "transportability_summary": _build_transportability_summary(report, state),
                 }
             )
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
             payload["parse_warning"] = "causal_report_parse_failed"
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_causal_report",
+                reason="causal_report_load_failed",
+                exc=exc,
+                ref=report_ref,
+                artifact_key=ARTIFACT_CAUSAL_REPORT_REF,
+            )
 
     return payload
 
@@ -703,6 +882,8 @@ def _build_causal_section(
 def _build_strategic_section(
     ctx: ExecutionContext,
     state: ExperimentState,
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     artifacts_index = state.artifacts_index
     strategic_scm_ref = artifacts_index.get(ARTIFACT_STRATEGIC_SCM_REF)
@@ -728,8 +909,16 @@ def _build_strategic_section(
             )
             payload["equilibrium_concept"] = strategic_scm.equilibrium_concept.value
             payload["strategic_agents"] = list(strategic_scm.strategic_agents)
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
             payload["strategic_scm_parse_warning"] = "strategic_scm_parse_failed"
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_strategic_scm",
+                reason="strategic_scm_load_failed",
+                exc=exc,
+                ref=strategic_scm_ref,
+                artifact_key=ARTIFACT_STRATEGIC_SCM_REF,
+            )
 
     if bundle_ref is not None:
         try:
@@ -770,12 +959,27 @@ def _build_strategic_section(
                         value_summary.lower_bound,
                         value_summary.upper_bound,
                     ]
-            except Exception:
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
                 payload["post_adaptation_value_parse_warning"] = (
                     "post_adaptation_policy_value_parse_failed"
                 )
-        except Exception:
+                _record_decision_packet_section_degraded(
+                    packet_payload,
+                    operation="load_post_adaptation_policy_value",
+                    reason="post_adaptation_policy_value_load_failed",
+                    exc=exc,
+                    ref=bundle.post_adaptation_policy_value_ref,
+                )
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
             payload["strategic_bundle_parse_warning"] = "strategic_response_bundle_parse_failed"
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_strategic_response_bundle",
+                reason="strategic_response_bundle_load_failed",
+                exc=exc,
+                ref=bundle_ref,
+                artifact_key=ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
+            )
     elif isinstance(strategic_summary, dict):
         for key in (
             "fallback_mode",
@@ -842,6 +1046,8 @@ def _build_transportability_summary(
 def _build_abm_alignment_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     report_ref = artifacts_index.get(ARTIFACT_ABM_ALIGNMENT_REPORT_REF)
     if report_ref is None:
@@ -870,8 +1076,16 @@ def _build_abm_alignment_section(
                 "warnings": list(report.warnings),
             }
         )
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "abm_alignment_report_parse_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_abm_alignment_report",
+            reason="abm_alignment_report_load_failed",
+            exc=exc,
+            ref=report_ref,
+            artifact_key=ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
+        )
 
     return payload
 
@@ -879,6 +1093,8 @@ def _build_abm_alignment_section(
 def _build_abstraction_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     certificate_ref = artifacts_index.get(ARTIFACT_ABSTRACTION_CERTIFICATE_REF)
     if certificate_ref is None:
@@ -904,14 +1120,24 @@ def _build_abstraction_section(
                 "validation_notes": list(certificate.validation_notes),
             }
         )
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "abstraction_certificate_parse_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_abstraction_certificate",
+            reason="abstraction_certificate_load_failed",
+            exc=exc,
+            ref=certificate_ref,
+            artifact_key=ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
+        )
     return payload
 
 
 def _build_hte_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     hte_ref = artifacts_index.get(ARTIFACT_HTE_RESULT_REF)
     if hte_ref is None:
@@ -942,14 +1168,24 @@ def _build_hte_section(
                 "warnings": result.metadata.get("warnings", []),
             }
         )
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "hte_result_parse_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_hte_result",
+            reason="hte_result_load_failed",
+            exc=exc,
+            ref=hte_ref,
+            artifact_key=ARTIFACT_HTE_RESULT_REF,
+        )
     return payload
 
 
 def _build_targeting_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     recommendation_ref = artifacts_index.get(ARTIFACT_POLICY_RECOMMENDATION_REF)
     if recommendation_ref is None:
@@ -977,14 +1213,24 @@ def _build_targeting_section(
                 ],
             }
         )
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "policy_recommendation_parse_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_policy_recommendation",
+            reason="policy_recommendation_load_failed",
+            exc=exc,
+            ref=recommendation_ref,
+            artifact_key=ARTIFACT_POLICY_RECOMMENDATION_REF,
+        )
     return payload
 
 
 def _build_backtest_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     backtest_ref = artifacts_index.get(ARTIFACT_BACKTEST_REPORT_REF)
     if backtest_ref is None:
@@ -1020,14 +1266,24 @@ def _build_backtest_section(
                 "trust_grade": report.trust_grade,
             }
         )
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "backtest_report_parse_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_backtest_report",
+            reason="backtest_report_load_failed",
+            exc=exc,
+            ref=backtest_ref,
+            artifact_key=ARTIFACT_BACKTEST_REPORT_REF,
+        )
     return payload
 
 
 def _build_calibration_validation_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     bundle_ref = artifacts_index.get(ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF)
     if bundle_ref is None:
@@ -1040,10 +1296,26 @@ def _build_calibration_validation_section(
                 "status": bundle.status,
                 "governance_verdict": bundle.governance_verdict,
                 "summary": bundle.readout_summary(),
+                "governance_accountability_ref": (
+                    None
+                    if bundle.governance_accountability_ref is None
+                    else str(bundle.governance_accountability_ref.artifact_id)
+                ),
+                "governance_accountability_summary": dict(
+                    bundle.governance_accountability_summary
+                ),
             }
         )
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "calibration_validation_bundle_parse_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_calibration_validation_bundle",
+            reason="calibration_validation_bundle_load_failed",
+            exc=exc,
+            ref=bundle_ref,
+            artifact_key=ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
+        )
     return payload
 
 
@@ -1119,6 +1391,8 @@ def _parse_anchor_at(value: str) -> datetime:
 def _build_distributional_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     report_ref = artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)
     if report_ref is None:
@@ -1170,17 +1444,92 @@ def _build_distributional_section(
                 ],
             }
         )
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "distributional_report_parse_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_distributional_report",
+            reason="distributional_report_load_failed",
+            exc=exc,
+            ref=report_ref,
+            artifact_key=ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+        )
 
     return payload
+
+
+def _decision_packet_degraded(
+    *,
+    operation: str,
+    reason: str,
+    exc: BaseException,
+    ref: ArtifactRef | None = None,
+    artifact_id: str | None = None,
+    artifact_key: str | None = None,
+) -> dict[str, Any]:
+    details: dict[str, Any] = {}
+    if ref is not None:
+        details["artifact_id"] = str(ref.artifact_id)
+    elif isinstance(artifact_id, str) and artifact_id:
+        details["artifact_id"] = artifact_id
+    if artifact_key is not None:
+        details["artifact_key"] = artifact_key
+    return emit_degraded_path(
+        component="scientist.build_decision_packet",
+        operation=operation,
+        reason=reason,
+        exc=exc,
+        details=details,
+        log=logger,
+    )
+
+
+def _record_decision_packet_degraded(
+    packet_payload: dict[str, object],
+    envelope: dict[str, Any],
+) -> None:
+    degraded_paths = packet_payload.setdefault("degraded_paths", [])
+    if isinstance(degraded_paths, list):
+        degraded_paths.append(envelope)
+    notes = packet_payload.setdefault("notes", [])
+    if isinstance(notes, list):
+        reason = str(envelope.get("reason", "decision_packet_degraded"))
+        message = str(envelope.get("message", reason))
+        notes.append(f"{reason}: {message}")
+
+
+def _record_decision_packet_section_degraded(
+    packet_payload: dict[str, object] | None,
+    *,
+    operation: str,
+    reason: str,
+    exc: BaseException,
+    ref: ArtifactRef | None = None,
+    artifact_id: str | None = None,
+    artifact_key: str | None = None,
+) -> None:
+    if packet_payload is None:
+        return
+    _record_decision_packet_degraded(
+        packet_payload,
+        _decision_packet_degraded(
+            operation=operation,
+            reason=reason,
+            exc=exc,
+            ref=ref,
+            artifact_id=artifact_id,
+            artifact_key=artifact_key,
+        ),
+    )
 
 
 def _build_tradeoff_certificate_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
-    result = _load_normative_arbitration(ctx, artifacts_index)
+    result = _load_normative_arbitration(ctx, artifacts_index, packet_payload=packet_payload)
     if result is None:
         return None
     return {
@@ -1202,6 +1551,8 @@ def _build_tradeoff_certificate_section(
 def _build_econometrics_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     result_ref = artifacts_index.get(ARTIFACT_ECONOMETRIC_RESULT_REF)
     evidence_ref = artifacts_index.get(ARTIFACT_ECONOMETRIC_EVIDENCE_REF)
@@ -1224,8 +1575,16 @@ def _build_econometrics_section(
                     payload["envelope"] = result_obj["envelope"]
             else:
                 payload["result_type"] = type(result_obj).__name__
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
             payload["result_parse_warning"] = "econometric_result_parse_failed"
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_econometric_result",
+                reason="econometric_result_load_failed",
+                exc=exc,
+                ref=result_ref,
+                artifact_key=ARTIFACT_ECONOMETRIC_RESULT_REF,
+            )
 
     if envelope_ref is not None:
         try:
@@ -1241,8 +1600,16 @@ def _build_econometrics_section(
                 ],
                 "confidence_level": envelope.confidence_level,
             }
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
             payload["envelope_parse_warning"] = "econometric_envelope_parse_failed"
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_econometric_envelope",
+                reason="econometric_envelope_load_failed",
+                exc=exc,
+                ref=envelope_ref,
+                artifact_key=ARTIFACT_ECONOMETRIC_ENVELOPE_REF,
+            )
 
     return payload
 
@@ -1250,6 +1617,8 @@ def _build_econometrics_section(
 def _load_normative_arbitration(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> NormativeArbitrationResult | None:
     ref = artifacts_index.get(ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF)
     if ref is None:
@@ -1259,8 +1628,16 @@ def _load_normative_arbitration(
             ctx.store,
             NormativeArbitrationResultRef(artifact_id=ref.artifact_id),
         )
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
         logger.debug("Failed to parse normative arbitration result from ref %s", ref, exc_info=True)
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_normative_arbitration_result",
+            reason="normative_arbitration_load_failed",
+            exc=exc,
+            ref=ref,
+            artifact_key=ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
+        )
         return None
 
 
@@ -1268,6 +1645,8 @@ def _build_aux_artifact_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
     key: str,
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     ref = artifacts_index.get(key)
     if ref is None:
@@ -1279,111 +1658,71 @@ def _build_aux_artifact_section(
             payload["content"] = artifact_obj
         else:
             payload["content_type"] = type(artifact_obj).__name__
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "artifact_parse_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_aux_artifact",
+            reason="aux_artifact_load_failed",
+            exc=exc,
+            ref=ref,
+            artifact_key=key,
+        )
     return payload
 
 
-def _compute_replay_readiness(inputs_section: dict[str, str | None]) -> ReplayReadiness:
-    missing_required = [key for key in _REQUIRED_INPUT_KEYS if inputs_section.get(key) is None]
-    has_snapshot = bool(
-        inputs_section.get(INPUT_INPUT_BINDINGS_REF)
-        or inputs_section.get(INPUT_DATA_SNAPSHOT_REF)
-        or inputs_section.get(INPUT_STATE_SNAPSHOT_REF)
-    )
-    if missing_required or not has_snapshot:
-        return ReplayReadiness.INCOMPLETE
-    missing_optional = [key for key in _OPTIONAL_INPUT_KEYS if inputs_section.get(key) is None]
-    if missing_optional:
-        return ReplayReadiness.PARTIAL
-    return ReplayReadiness.COMPLETE
-
-
-def _build_replay_section(
+def _build_sensitivity_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
     *,
-    inputs_section: dict[str, str | None],
-    artifacts_section: dict[str, str | None],
-    readiness: ReplayReadiness,
-    strategy_hint: str,
-    seed: int,
-    determinism_tier: Any,
-) -> dict[str, object]:
-    missing_refs, why_partial, suggested_next_step = _describe_replay_gaps(inputs_section)
-    return {
-        "readiness": readiness.value,
-        "strategy_hint": strategy_hint,
-        "effective_seed": seed,
-        "seed_source": "params.random_seed",
-        "determinism_tier": determinism_tier if isinstance(determinism_tier, str) else None,
-        "missing_refs": missing_refs,
-        "why_partial": why_partial,
-        "suggested_next_step": suggested_next_step,
-        "fallback_from_decision_packet": False,
-        "has_exec_plan_ref": artifacts_section.get(ARTIFACT_EXEC_PLAN_REF) is not None,
-        "has_lowered_ir_ref": artifacts_section.get(ARTIFACT_LOWERED_IR_REF) is not None,
+    packet_payload: dict[str, object] | None = None,
+) -> dict[str, object] | None:
+    ref = artifacts_index.get(ARTIFACT_SENSITIVITY_RESULT_REF)
+    if ref is None:
+        return None
+    payload: dict[str, object] = {"ref": str(ref.artifact_id)}
+    try:
+        result = load_sensitivity_result(
+            ctx.store,
+            CausalSensitivityResultRef.model_validate(ref.model_dump(mode="json")),
+        )
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_sensitivity_result",
+            reason="sensitivity_result_load_failed",
+            exc=exc,
+            ref=ref,
+            artifact_key=ARTIFACT_SENSITIVITY_RESULT_REF,
+        )
+        try:
+            artifact_obj = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+            if isinstance(artifact_obj, dict):
+                payload["content"] = artifact_obj
+        except _DECISION_PACKET_LOAD_ERRORS as fallback_exc:
+            payload["parse_warning"] = "artifact_parse_failed"
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_sensitivity_fallback_artifact",
+                reason="sensitivity_fallback_artifact_load_failed",
+                exc=fallback_exc,
+                ref=ref,
+                artifact_key=ARTIFACT_SENSITIVITY_RESULT_REF,
+            )
+        payload.setdefault("parse_warning", "sensitivity_parse_failed")
+        return payload
+
+    content = result.model_dump(mode="json")
+    content["summary"] = {
+        "status": "robust" if result.is_robust else "fragile",
+        "e_value": result.e_value,
+        "e_value_ci_lower": result.e_value_ci_lower,
+        "robustness_value": result.robustness_value,
+        "rosenbaum_gamma": result.rosenbaum_gamma,
+        "benchmark_covariate_count": len(result.benchmark_covariates),
     }
-
-
-def _describe_replay_gaps(
-    inputs_section: dict[str, str | None],
-) -> tuple[list[str], list[str], str | None]:
-    missing_required = sorted(
-        key for key in _REQUIRED_INPUT_KEYS if inputs_section.get(key) is None
-    )
-    missing_optional = sorted(
-        key for key in _OPTIONAL_INPUT_KEYS if inputs_section.get(key) is None
-    )
-    has_snapshot = bool(
-        inputs_section.get(INPUT_INPUT_BINDINGS_REF)
-        or inputs_section.get(INPUT_DATA_SNAPSHOT_REF)
-        or inputs_section.get(INPUT_STATE_SNAPSHOT_REF)
-    )
-    missing_refs = list(missing_required)
-    why_partial: list[str] = []
-    if not has_snapshot:
-        missing_refs.append("state_source_ref")
-        why_partial.append("missing_state_source")
-    if missing_required:
-        why_partial.append("missing_required_inputs")
-    if missing_optional:
-        why_partial.append("missing_optional_inputs")
-
-    if INPUT_INPUT_BINDINGS_REF in missing_optional:
-        suggested = "Persist input_bindings_ref for replay-grade completeness."
-    elif not has_snapshot:
-        suggested = "Attach data_snapshot_ref, state_snapshot_ref, or input_bindings_ref."
-    elif INPUT_NORM_PACK_REF in missing_optional:
-        suggested = "Persist norm_pack_ref to make legal context replayable."
-    elif missing_optional:
-        suggested = "Persist the missing optional replay references listed in replay.missing_refs."
-    elif missing_required:
-        suggested = "Persist the missing required replay references listed in replay.missing_refs."
-    else:
-        suggested = None
-
-    missing_refs.extend(missing_optional)
-    return missing_refs, why_partial, suggested
-
-
-def _determine_strategy_hint(
-    inputs_section: dict[str, str | None],
-    artifacts_section: dict[str, str | None],
-) -> str:
-    has_registry = inputs_section.get(INPUT_REGISTRY_BUNDLE_REF) is not None
-    has_snapshot = bool(
-        inputs_section.get(INPUT_DATA_SNAPSHOT_REF)
-        or inputs_section.get(INPUT_INPUT_BINDINGS_REF)
-        or inputs_section.get(INPUT_STATE_SNAPSHOT_REF)
-        or artifacts_section.get(ARTIFACT_STATE_SNAPSHOT_REF)
-    )
-    has_exec_plan = artifacts_section.get(ARTIFACT_EXEC_PLAN_REF) is not None
-    has_trinity = inputs_section.get(INPUT_TRINITY_BUNDLE_REF) is not None
-    if has_exec_plan and has_registry and has_snapshot:
-        return "foundry"
-    if has_trinity and has_registry and has_snapshot:
-        return "scientist"
-    return "none"
-
+    payload["content"] = content
+    return payload
 
 def _build_diagnostics_summary(
     *,
@@ -1400,6 +1739,18 @@ def _build_diagnostics_summary(
     causal_dict = causal if isinstance(causal, dict) else {}
     transport_summary = causal_dict.get("transportability_summary")
     transport_dict = transport_summary if isinstance(transport_summary, dict) else {}
+    sensitivity = packet_payload.get("sensitivity")
+    sensitivity_dict = sensitivity if isinstance(sensitivity, dict) else {}
+    sensitivity_content = sensitivity_dict.get("content")
+    sensitivity_content_dict = sensitivity_content if isinstance(sensitivity_content, dict) else {}
+    sensitivity_summary = sensitivity_content_dict.get("summary")
+    sensitivity_summary_dict = sensitivity_summary if isinstance(sensitivity_summary, dict) else {}
+    causal_validity = packet_payload.get("causal_validity")
+    causal_validity_dict = causal_validity if isinstance(causal_validity, dict) else {}
+    validity_content = causal_validity_dict.get("content")
+    validity_content_dict = validity_content if isinstance(validity_content, dict) else {}
+    validity_checks = validity_content_dict.get("checks")
+    validity_checks_dict = validity_checks if isinstance(validity_checks, dict) else {}
 
     replay = packet_payload.get("replay")
     replay_dict = replay if isinstance(replay, dict) else {}
@@ -1408,6 +1759,8 @@ def _build_diagnostics_summary(
     uncertainty_dict = uncertainty if isinstance(uncertainty, dict) else {}
     uncertainty_bounds = packet_payload.get("uncertainty_bounds")
     normative_result = _load_normative_arbitration(ctx, state.artifacts_index)
+    degraded_paths = packet_payload.get("degraded_paths")
+    degraded_path_items = [item for item in degraded_paths if isinstance(item, dict)] if isinstance(degraded_paths, list) else []
 
     governance_links = governance_dict.get("links")
     legal_ref = None
@@ -1460,6 +1813,12 @@ def _build_diagnostics_summary(
         "info_count": issue_summary["info_count"],
         "transport_status": transport_dict.get("status", "not_run"),
         "transport_engine": transport_dict.get("identification_engine", "not_available"),
+        "sensitivity_status": sensitivity_summary_dict.get("status"),
+        "sensitivity_is_robust": sensitivity_content_dict.get("is_robust"),
+        "icp_status": _nested_status(validity_checks_dict, "icp_invariance"),
+        "proximal_status": _nested_status(validity_checks_dict, "proximal_bridge"),
+        "recoverability_status": _nested_status(validity_checks_dict, "recoverability"),
+        "pag_refinement_status": _nested_status(validity_checks_dict, "pag_refinement"),
         "requires_expert_review": requires_expert_review,
         "replay_readiness": replay_dict.get("readiness"),
         "replay_missing_inputs": list(replay_dict.get("missing_refs", []))
@@ -1482,6 +1841,11 @@ def _build_diagnostics_summary(
         "seed_source": replay_dict.get("seed_source"),
         "resolved_fidelity_level": resolved_fidelity_level,
         "contract_warnings": contract_warnings,
+        "degraded_path_count": len(degraded_path_items),
+        "degraded_reasons": [
+            str(item.get("reason", "decision_packet_degraded")) for item in degraded_path_items
+        ],
+        "has_degraded_paths": bool(degraded_path_items),
     }
 
 
@@ -1512,6 +1876,8 @@ def _build_analysis_limits(packet_payload: dict[str, object]) -> dict[str, objec
 
     if diagnostics_dict.get("uncertainty_available") is False:
         labels.append("missing_uncertainty_artifact")
+    if diagnostics_dict.get("sensitivity_is_robust") is False:
+        labels.append("causal_sensitivity_fragile")
     if packet_payload.get("causal") is None:
         labels.append("causal_not_run")
     if packet_payload.get("distributional") is None:
@@ -1523,6 +1889,8 @@ def _build_analysis_limits(packet_payload: dict[str, object]) -> dict[str, objec
         for warning in normalized_contract_warnings
     ):
         labels.append("missing_runtime_mechanism_support")
+    if diagnostics_dict.get("has_degraded_paths") is True:
+        labels.append("decision_packet_degraded")
 
     return {
         "labels": labels,
@@ -1533,7 +1901,16 @@ def _build_analysis_limits(packet_payload: dict[str, object]) -> dict[str, objec
         "incomplete_replay_readiness": "incomplete_replay_readiness" in labels,
         "missing_uncertainty_artifact": "missing_uncertainty_artifact" in labels,
         "missing_runtime_mechanism_support": "missing_runtime_mechanism_support" in labels,
+        "causal_sensitivity_fragile": "causal_sensitivity_fragile" in labels,
+        "decision_packet_degraded": "decision_packet_degraded" in labels,
     }
+
+
+def _nested_status(payload: dict[str, object], key: str) -> str | None:
+    nested = payload.get(key)
+    nested_dict = nested if isinstance(nested, dict) else {}
+    status = nested_dict.get("status")
+    return str(status) if isinstance(status, str) else None
 
 
 def _build_decision_validity_envelope(
@@ -1809,13 +2186,28 @@ def _build_data_basis(
         )
         summary["input_binding_report_ref"] = binding_report_ref
 
-    snapshot_payload = _load_json_payload_by_ref(ctx, data_snapshot_ref)
+    snapshot_payload = _load_json_payload_by_ref(
+        ctx,
+        data_snapshot_ref,
+        packet_payload=packet_payload,
+        operation="load_decision_basis_data_snapshot",
+        reason="decision_basis_data_snapshot_load_failed",
+        artifact_key=INPUT_DATA_SNAPSHOT_REF,
+    )
     if snapshot_payload is None:
         return DecisionBasisSection(dependencies=dependencies, summary=summary)
 
     try:
         snapshot = DataSnapshot.model_validate(snapshot_payload)
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="validate_decision_basis_data_snapshot",
+            reason="decision_basis_data_snapshot_validate_failed",
+            exc=exc,
+            artifact_id=data_snapshot_ref,
+            artifact_key=INPUT_DATA_SNAPSHOT_REF,
+        )
         return DecisionBasisSection(dependencies=dependencies, summary=summary)
 
     summary["stats"] = dict(snapshot.stats)
@@ -1832,7 +2224,14 @@ def _build_data_basis(
             )
         )
         summary["quality_report_ref"] = quality_report_ref
-        quality_payload = _load_json_payload_by_ref(ctx, quality_report_ref)
+        quality_payload = _load_json_payload_by_ref(
+            ctx,
+            quality_report_ref,
+            packet_payload=packet_payload,
+            operation="load_decision_basis_quality_report",
+            reason="decision_basis_quality_report_load_failed",
+            artifact_key="quality_report_ref",
+        )
         if isinstance(quality_payload, dict):
             dataset_id = quality_payload.get("dataset_id")
             schema_id = quality_payload.get("schema_id")
@@ -1925,7 +2324,14 @@ def _build_knowledge_basis(
                 )
             )
 
-    bundle_payload = _load_json_payload_by_ref(ctx, knowledge_bundle_ref)
+    bundle_payload = _load_json_payload_by_ref(
+        ctx,
+        knowledge_bundle_ref,
+        packet_payload=packet_payload,
+        operation="load_decision_basis_knowledge_bundle",
+        reason="decision_basis_knowledge_bundle_load_failed",
+        artifact_key=INPUT_KNOWLEDGE_BUNDLE_REF,
+    )
     if isinstance(bundle_payload, dict):
         freshness_payload = bundle_payload.get("freshness")
         if isinstance(freshness_payload, dict):
@@ -1938,7 +2344,15 @@ def _build_knowledge_basis(
                     else None
                 )
                 summary["enrichment_count"] = freshness.enrichment_count
-            except Exception:
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
+                _record_decision_packet_section_degraded(
+                    packet_payload,
+                    operation="validate_decision_basis_knowledge_freshness",
+                    reason="decision_basis_knowledge_freshness_validate_failed",
+                    exc=exc,
+                    artifact_id=knowledge_bundle_ref,
+                    artifact_key=INPUT_KNOWLEDGE_BUNDLE_REF,
+                )
                 summary["freshness_status"] = "unknown"
         notes = bundle_payload.get("notes")
         if isinstance(notes, list):
@@ -2071,34 +2485,43 @@ def _dedupe_dependency_refs(
         deduped.append(item)
     return deduped
 
-
-def _extract_context_payload(state: ExperimentState, *keys: str) -> Any:
-    for key in keys:
-        if key in state.params:
-            return state.params.get(key)
-    return None
-
-
-def _fingerprint_payload(value: Any) -> str | None:
-    if value is None:
-        return None
-    return content_hash(
-        json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
-    )
-
-
 def _load_json_payload_by_ref(
     ctx: ExecutionContext,
     ref_value: str | None,
+    *,
+    packet_payload: dict[str, object] | None = None,
+    operation: str | None = None,
+    reason: str | None = None,
+    artifact_key: str | None = None,
 ) -> dict[str, Any] | None:
     if not isinstance(ref_value, str) or not ref_value:
         return None
     try:
         artifact_id = ArtifactID.model_validate(ref_value)
         payload = from_canonical_bytes(ctx.store.get_bytes(artifact_id))
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
+        if operation is not None and reason is not None:
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation=operation,
+                reason=reason,
+                exc=exc,
+                artifact_id=ref_value,
+                artifact_key=artifact_key,
+            )
         return None
-    return payload if isinstance(payload, dict) else None
+    if isinstance(payload, dict):
+        return payload
+    if operation is not None and reason is not None:
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation=operation,
+            reason=reason,
+            exc=TypeError("artifact payload must decode to a JSON object"),
+            artifact_id=ref_value,
+            artifact_key=artifact_key,
+        )
+    return None
 
 
 def _load_normative_frame_payload(
@@ -2106,7 +2529,14 @@ def _load_normative_frame_payload(
     packet_payload: dict[str, object],
 ) -> dict[str, Any] | None:
     trinity_bundle_ref = _path_get(packet_payload, ("inputs", INPUT_TRINITY_BUNDLE_REF))
-    bundle = _load_json_payload_by_ref(ctx, trinity_bundle_ref)
+    bundle = _load_json_payload_by_ref(
+        ctx,
+        trinity_bundle_ref,
+        packet_payload=packet_payload,
+        operation="load_decision_basis_trinity_bundle",
+        reason="decision_basis_trinity_bundle_load_failed",
+        artifact_key=INPUT_TRINITY_BUNDLE_REF,
+    )
     if bundle is None:
         return None
     problem_frame = bundle.get("problem_frame")
@@ -2114,39 +2544,6 @@ def _load_normative_frame_payload(
         return None
     normative_frame = problem_frame.get("normative_frame")
     return normative_frame if isinstance(normative_frame, dict) else None
-
-
-def _path_get(payload: dict[str, object], path: tuple[str, ...]) -> Any:
-    current: Any = payload
-    for key in path:
-        if not isinstance(current, dict):
-            return None
-        current = current.get(key)
-    return current
-
-
-def _dedupe_strings(values: list[str]) -> list[str]:
-    deduped: list[str] = []
-    for value in values:
-        normalized = value.strip()
-        if normalized and normalized not in deduped:
-            deduped.append(normalized)
-    return deduped
-
-
-def _recommended_action(status: DecisionValidityStatus) -> str:
-    if status == DecisionValidityStatus.ACTIVE:
-        return "none"
-    if status == DecisionValidityStatus.WARNING:
-        return "monitor"
-    if status == DecisionValidityStatus.STALE:
-        return "refresh_decision"
-    if status == DecisionValidityStatus.SUPERSEDED:
-        return "review_superseded"
-    if status == DecisionValidityStatus.REVOKED:
-        return "record_revocation"
-    return "human_review"
-
 
 def _max_validity_status(
     left: DecisionValidityStatus,
@@ -2198,7 +2595,7 @@ def _collect_contract_warnings(
     if link_report_ref is not None:
         try:
             payload = from_canonical_bytes(ctx.store.get_bytes(link_report_ref.artifact_id))
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS:
             payload = None
         if isinstance(payload, dict):
             for issue in payload.get("issues", []):
@@ -2214,7 +2611,7 @@ def _collect_contract_warnings(
     if compile_report_ref is not None:
         try:
             payload = from_canonical_bytes(ctx.store.get_bytes(compile_report_ref.artifact_id))
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS:
             payload = None
         if isinstance(payload, dict):
             for note in payload.get("notes", []):
@@ -2249,7 +2646,7 @@ def _load_resolved_fidelity_level(
         return None
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(lowered_ir_ref.artifact_id))
-    except Exception:
+    except _DECISION_PACKET_LOAD_ERRORS:
         return None
     if not isinstance(payload, dict):
         return None
@@ -2290,7 +2687,7 @@ def _collect_manifest_refs(
     if isinstance(value, str):
         try:
             artifact_id = ArtifactID.model_validate(value)
-        except Exception:
+        except (ValidationError, ValueError, TypeError):
             return
         collected[(artifact_id.hex, role_prefix)] = InputRef(
             artifact_id=artifact_id,
@@ -2312,6 +2709,8 @@ def _build_uncertainty_section(
     ctx: ExecutionContext,
     state_inputs: dict[str, ArtifactRef],
     state_artifacts: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object]:
     envelope_refs: set[str] = set()
     legacy_bounds_refs: set[str] = set()
@@ -2327,8 +2726,16 @@ def _build_uncertainty_section(
                 envelope_refs.add(str(snapshot.uncertainty_envelope_ref.artifact_id))
             if snapshot.uncertainty_ref is not None:
                 legacy_bounds_refs.add(str(snapshot.uncertainty_ref.artifact_id))
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
             warnings.append("data_snapshot_uncertainty_parse_failed")
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_uncertainty_data_snapshot",
+                reason="uncertainty_data_snapshot_load_failed",
+                exc=exc,
+                ref=data_snapshot_ref,
+                artifact_key=INPUT_DATA_SNAPSHOT_REF,
+            )
 
     simulation_result_ref = state_artifacts.get(ARTIFACT_SIMULATION_RESULT_REF)
     if simulation_result_ref is not None:
@@ -2340,8 +2747,16 @@ def _build_uncertainty_section(
                     ref_str = str(ref.artifact_id)
                     output_envelope_refs[str(metric_id)] = ref_str
                     envelope_refs.add(ref_str)
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
             warnings.append("simulation_result_uncertainty_parse_failed")
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_uncertainty_simulation_result",
+                reason="uncertainty_simulation_result_load_failed",
+                exc=exc,
+                ref=simulation_result_ref,
+                artifact_key=ARTIFACT_SIMULATION_RESULT_REF,
+            )
 
     causal_env_ref = state_artifacts.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
     if causal_env_ref is not None:
@@ -2370,6 +2785,8 @@ def _build_uncertainty_section(
 def _build_uncertainty_bounds(
     ctx: ExecutionContext,
     uncertainty_section: dict[str, object],
+    *,
+    packet_payload: dict[str, object] | None = None,
 ) -> dict[str, float] | None:
     output_refs = uncertainty_section.get("output_envelope_refs")
     if not isinstance(output_refs, dict):
@@ -2382,7 +2799,15 @@ def _build_uncertainty_bounds(
         try:
             ref = UncertaintyEnvelopeRef(artifact_id=ArtifactID.model_validate(ref_str))
             env = load_uncertainty_envelope(ctx.store, ref)
-        except Exception:
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_uncertainty_output_envelope",
+                reason="uncertainty_output_envelope_load_failed",
+                exc=exc,
+                artifact_id=ref_str,
+                artifact_key=f"uncertainty.output_envelope_refs.{metric_id}",
+            )
             continue
         bounds[f"{metric_id}_lower"] = float(env.confidence_interval[0])
         bounds[f"{metric_id}_upper"] = float(env.confidence_interval[1])
@@ -2400,8 +2825,15 @@ def _build_uncertainty_bounds(
             bounds["causal_effect_point"] = float(env.point_estimate)
             if env.confidence_level is not None:
                 bounds["causal_effect_ci_level"] = float(env.confidence_level)
-        except Exception as exc:
-            logger.debug("Ignored exception: %s", exc)
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_uncertainty_causal_envelope",
+                reason="uncertainty_causal_envelope_load_failed",
+                exc=exc,
+                artifact_id=causal_ref,
+                artifact_key="uncertainty.causal_envelope_ref",
+            )
 
     econometric_ref = uncertainty_section.get("econometric_envelope_ref")
     if isinstance(econometric_ref, str):
@@ -2413,7 +2845,14 @@ def _build_uncertainty_bounds(
             bounds["econometric_effect_point"] = float(env.point_estimate)
             if env.confidence_level is not None:
                 bounds["econometric_effect_ci_level"] = float(env.confidence_level)
-        except Exception as exc:
-            logger.debug("Ignored exception: %s", exc)
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_uncertainty_econometric_envelope",
+                reason="uncertainty_econometric_envelope_load_failed",
+                exc=exc,
+                artifact_id=econometric_ref,
+                artifact_key="uncertainty.econometric_envelope_ref",
+            )
 
     return bounds or None

@@ -1,6 +1,8 @@
 """Curated source contracts that pin external provider schemas to internal connector expectations."""
 from __future__ import annotations
 
+from polisyos.fabric.connectors.contracts import ContractRegistry
+
 from .eurostat_contracts import (
     EUROSTAT_CONTRACTS,
     EUROSTAT_GENERIC_CONTRACT,
@@ -19,6 +21,15 @@ ALL_SOURCE_CONTRACTS = (
     *SDMX_CONTRACTS,
 )
 
+
+def build_builtin_contract_registry() -> ContractRegistry:
+    """Build the canonical Fabric contract registry used by runtime and CI."""
+
+    registry = ContractRegistry()
+    for contract in ALL_SOURCE_CONTRACTS:
+        registry.register(contract, allow_breaking=True)
+    return registry
+
 __all__ = [
     "WDI_GENERIC_SCHEMA",
     "WDI_GENERIC_CONTRACT",
@@ -36,4 +47,5 @@ __all__ = [
     "SDMX_GENERIC_CONTRACT",
     "SDMX_CONTRACTS",
     "ALL_SOURCE_CONTRACTS",
+    "build_builtin_contract_registry",
 ]

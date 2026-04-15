@@ -326,8 +326,10 @@ class FetchPlanFallback(BaseModel):
 
     connector_id: str
     dataset_id: str
+    metric_id: str | None = None
     profile_id: str | None = None
     filters: dict[str, list[str]] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class FetchPlan(BaseModel):

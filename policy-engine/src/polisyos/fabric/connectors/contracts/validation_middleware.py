@@ -3,12 +3,16 @@ Fetch-time schema contract validation middleware.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import time
+import threading
+from collections import OrderedDict
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeVar
 
 import pandas as pd
 
 from polisyos.common.logger import get_logger
+from polisyos.fabric.temporal import FutureTimestampError, ensure_aware_utc, utc_age
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
@@ -25,7 +29,7 @@ from .contract_registry import ContractRegistry
 from .inference import validate_dataframe_against_schema
 
 if TYPE_CHECKING:
-    from polisyos.fabric.connectors.types import DataChunk, DatasetDescriptor, FreshnessResult
+    from polisyos.fabric.connectors.types import FreshnessResult
     from polisyos.ir.connectors import DataVersion
 
 logger = get_logger(__name__)
@@ -50,13 +54,21 @@ class ContractValidatingProxy(Generic[DataT]):
         contract_registry: ContractRegistry,
         *,
         mode: ValidationMode = SchemaValidationMode.STRICT,
+        resolution_cache_max_entries: int = 512,
+        resolution_cache_ttl_seconds: float = 900.0,
     ) -> None:
         self._connector = connector
         self._registry = contract_registry
         self._mode = mode
-        self._resolution_cache: dict[tuple[str, str, int], ConnectorSchemaContract | None] = {}
+        self._resolution_cache: OrderedDict[
+            tuple[str, str, int],
+            tuple[float, ConnectorSchemaContract | None],
+        ] = OrderedDict()
+        self._resolution_cache_max_entries = max(1, resolution_cache_max_entries)
+        self._resolution_cache_ttl_seconds = max(0.001, resolution_cache_ttl_seconds)
         self._validation_errors_total = 0
         self._validation_warnings_total = 0
+        self._lock = threading.RLock()
 
     @property
     def connector_id(self) -> str:
@@ -116,7 +128,8 @@ class ContractValidatingProxy(Generic[DataT]):
         if not errors:
             return result
 
-        self._validation_errors_total += len(errors)
+        with self._lock:
+            self._validation_errors_total += len(errors)
         message = (
             f"Schema contract violation ({contract.contract_id}): "
             f"{len(errors)} error(s)"
@@ -130,7 +143,8 @@ class ContractValidatingProxy(Generic[DataT]):
                 actual_version=result.schema_version,
             )
 
-        self._validation_warnings_total += len(errors)
+        with self._lock:
+            self._validation_warnings_total += len(errors)
         logger.warning(
             message,
             connector_id=self.connector_id,
@@ -141,34 +155,76 @@ class ContractValidatingProxy(Generic[DataT]):
 
     @property
     def validation_errors_total(self) -> int:
-        return self._validation_errors_total
+        with self._lock:
+            return self._validation_errors_total
 
     @property
     def validation_warnings_total(self) -> int:
-        return self._validation_warnings_total
+        with self._lock:
+            return self._validation_warnings_total
 
     def _resolve_contract(self, dataset_id: str) -> ConnectorSchemaContract | None:
         key = (self.connector_id, dataset_id, self._registry.revision)
-        if key in self._resolution_cache:
-            return self._resolution_cache[key]
+        now = time.monotonic()
+        with self._lock:
+            self._prune_resolution_cache_locked(now)
+            cached = self._resolution_cache.pop(key, None)
+            if cached is not None:
+                expires_at, contract = cached
+                if expires_at > now:
+                    self._resolution_cache[key] = (expires_at, contract)
+                    return contract
 
         contract = self._registry.resolve(self.connector_id, dataset_id)
-        self._resolution_cache[key] = contract
+        with self._lock:
+            self._resolution_cache[key] = (now + self._resolution_cache_ttl_seconds, contract)
+            self._prune_resolution_cache_locked(now)
         return contract
+
+    def _prune_resolution_cache_locked(self, now: float) -> None:
+        expired_keys = [
+            key for key, (expires_at, _contract) in self._resolution_cache.items()
+            if expires_at <= now
+        ]
+        for key in expired_keys:
+            self._resolution_cache.pop(key, None)
+        while len(self._resolution_cache) > self._resolution_cache_max_entries:
+            self._resolution_cache.popitem(last=False)
 
     def _validate_against_contract(
         self,
         result: FetchResult[DataT],
         contract: ConnectorSchemaContract,
     ) -> list[str]:
+        errors = self._validate_reported_schema(result, contract)
         frame, frame_error = self._coerce_frame(result.data)
         if frame_error:
-            return [frame_error]
+            return errors + [frame_error]
 
-        errors = validate_dataframe_against_schema(frame, contract.schema, strict=False)
+        errors.extend(validate_dataframe_against_schema(frame, contract.schema, strict=False))
         errors.extend(self._validate_completeness(result, frame, contract))
         errors.extend(self._validate_row_counts(result, contract))
         errors.extend(self._validate_staleness(result, contract))
+        return errors
+
+    @staticmethod
+    def _validate_reported_schema(
+        result: FetchResult[DataT],
+        contract: ConnectorSchemaContract,
+    ) -> list[str]:
+        errors: list[str] = []
+        if result.schema_id != contract.schema.schema_id:
+            errors.append(
+                "reported schema_id "
+                f"{result.schema_id!r} does not match contract schema_id "
+                f"{contract.schema.schema_id!r}"
+            )
+        if result.schema_version != str(contract.schema.version):
+            errors.append(
+                "reported schema_version "
+                f"{result.schema_version!r} does not match contract version "
+                f"{contract.schema.version!s}"
+            )
         return errors
 
     @staticmethod
@@ -256,9 +312,19 @@ class ContractValidatingProxy(Generic[DataT]):
         if contract.max_staleness_hours is None:
             return []
 
-        baseline: datetime = result.source_updated_at or result.fetched_at
-        now = datetime.now(timezone.utc)
-        age_hours = (now - baseline).total_seconds() / 3600.0
+        baseline: datetime = ensure_aware_utc(
+            result.source_updated_at or result.fetched_at,
+            what="source timestamp",
+        )
+        try:
+            age, _warning = utc_age(
+                baseline,
+                what="source timestamp",
+                clamp_future=False,
+            )
+        except FutureTimestampError as exc:
+            return [str(exc)]
+        age_hours = age.total_seconds() / 3600.0
         if age_hours > contract.max_staleness_hours:
             return [
                 f"source staleness {age_hours:.2f}h exceeds {contract.max_staleness_hours:.2f}h"
@@ -267,4 +333,3 @@ class ContractValidatingProxy(Generic[DataT]):
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._connector, name)
-

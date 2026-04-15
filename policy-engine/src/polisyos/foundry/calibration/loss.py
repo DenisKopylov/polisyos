@@ -6,10 +6,12 @@ layered on top by `calibration.measurement` and auxiliary loss components.
 """
 from __future__ import annotations
 
+import math
 from typing import Dict, Mapping, Tuple
 
 import jax.numpy as jnp
 
+from polisyos.foundry._numeric import NumericDomain, epsilon_for, finite_loss_or_inf
 from polisyos.ir.analytics.calibration import TargetLossConfig
 
 
@@ -27,11 +29,23 @@ def pointwise_base_loss(
     scale: float,
 ) -> jnp.ndarray:
     """Compute elementwise squared or Huber residual loss for one target series."""
-    denom = scale + cfg.epsilon
+    y_pred = jnp.asarray(y_pred, dtype=jnp.float32)
+    y_real = jnp.asarray(y_real, dtype=jnp.float32)
+    epsilon = max(float(cfg.epsilon), epsilon_for(NumericDomain.RELATIVE_LOSS))
+    denom = jnp.asarray(scale + epsilon, dtype=y_pred.dtype)
+    invalid = (
+        ~jnp.all(jnp.isfinite(y_pred))
+        | ~jnp.all(jnp.isfinite(y_real))
+        | ~jnp.isfinite(denom)
+        | (denom <= 0.0)
+    )
     err = (y_pred - y_real) / denom
     if cfg.kind == "huber":
-        return _huber(err)
-    return jnp.square(err)
+        loss = _huber(err)
+    else:
+        loss = jnp.square(err)
+    inf_block = jnp.full_like(loss, jnp.inf)
+    return jnp.where(invalid, inf_block, finite_loss_or_inf(loss))
 
 
 def reduce_weighted_loss(
@@ -45,15 +59,22 @@ def reduce_weighted_loss(
     When all weights collapse to zero, the helper returns `0.0` instead of
     dividing by a near-zero total and injecting NaNs into the optimizer state.
     """
+    pointwise_loss = jnp.asarray(pointwise_loss, dtype=jnp.float32)
+    inf_value = jnp.asarray(jnp.inf, dtype=pointwise_loss.dtype)
+    pointwise_finite = jnp.all(jnp.isfinite(pointwise_loss))
     if weights is None:
-        return jnp.mean(pointwise_loss)
-    clipped = jnp.clip(jnp.asarray(weights, dtype=jnp.float32), 0.0)
-    total_weight = jnp.sum(clipped)
-    return jnp.where(
+        reduced = finite_loss_or_inf(jnp.mean(pointwise_loss))
+        return jnp.where(pointwise_finite, reduced, inf_value)
+    weight_arr = jnp.asarray(weights, dtype=jnp.float32)
+    weights_valid = jnp.all(jnp.isfinite(weight_arr)) & jnp.all(weight_arr >= 0.0)
+    total_weight = jnp.sum(weight_arr)
+    reduced = jnp.where(
         total_weight <= epsilon,
         jnp.array(0.0, dtype=jnp.float32),
-        jnp.sum(pointwise_loss * clipped) / (total_weight + epsilon),
+        jnp.sum(pointwise_loss * weight_arr) / total_weight,
     )
+    reduced = finite_loss_or_inf(reduced)
+    return jnp.where(pointwise_finite & weights_valid, reduced, inf_value)
 
 
 def compute_base_loss(
@@ -89,11 +110,14 @@ def loss_components(
         scale = scales.get(target_id, 1.0) if cfg.relative else 1.0
         base_loss = compute_base_loss(y_pred, y_real, cfg, scale)
         weight = weights.get(target_id, cfg.weight) if weights is not None else cfg.weight
-        loss_val = weight * base_loss
+        if not math.isfinite(float(weight)) or float(weight) < 0.0:
+            loss_val = jnp.asarray(jnp.inf, dtype=base_loss.dtype)
+        else:
+            loss_val = base_loss * float(weight)
         per_target_base[target_id] = base_loss
         per_target[target_id] = loss_val
         total = total + loss_val
-    return total, per_target, per_target_base
+    return finite_loss_or_inf(total), per_target, per_target_base
 
 
 def unified_loss(

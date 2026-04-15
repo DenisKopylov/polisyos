@@ -19,6 +19,7 @@ from polisyos.fabric.connectors.transform.pipeline import (
     TransformError,
     TransformLineage,
 )
+from polisyos.fabric.finite import ensure_probability, is_finite_number
 
 __all__ = [
     "ImputationTransform",
@@ -75,6 +76,10 @@ class ImputationTransform(DataTransform):
             self.fill_value = 0.0
         if self.strategy == ImputationStrategy.CONSTANT and self.fill_value is None:
             raise ValueError("fill_value must be set for constant strategy")
+        self.max_missing_pct = ensure_probability(
+            self.max_missing_pct,
+            what="max_missing_pct",
+        )
 
     @property
     def name(self) -> str:
@@ -117,11 +122,22 @@ class ImputationTransform(DataTransform):
                 warnings.append(msg)
 
             try:
-                result[field] = self._impute_field(result[field])
+                imputed = self._impute_field(result[field])
+                remaining_missing = int(imputed.isna().sum())
+                if missing_count > 0 and remaining_missing > 0:
+                    msg = (
+                        f"Field '{field}' still has {remaining_missing} missing "
+                        "values after imputation"
+                    )
+                    if self.strict:
+                        raise TransformError(msg)
+                    warnings.append(msg)
+                result[field] = imputed
                 imputation_stats[field] = {
                     "missing_count": missing_count,
                     "missing_pct": float(missing_pct),
                     "imputed": missing_count,
+                    "remaining_missing": remaining_missing,
                 }
             except Exception as exc:
                 raise TransformError(f"Imputation failed for field '{field}': {exc}") from exc
@@ -137,6 +153,7 @@ class ImputationTransform(DataTransform):
                 "imputation_stats": imputation_stats,
                 "max_missing_pct": self.max_missing_pct,
             },
+            context=context,
         )
 
         return result, lineage, warnings
@@ -186,9 +203,15 @@ class ImputationTransform(DataTransform):
                 )
             return series.interpolate(method="linear", limit_direction="both")
         if self.strategy == ImputationStrategy.MEAN:
-            return series.fillna(series.mean())
+            clean = _finite_numeric_series(series)
+            if clean.empty:
+                raise TransformError("mean imputation requires at least one finite value")
+            return series.fillna(float(clean.mean()))
         if self.strategy == ImputationStrategy.MEDIAN:
-            return series.fillna(series.median())
+            clean = _finite_numeric_series(series)
+            if clean.empty:
+                raise TransformError("median imputation requires at least one finite value")
+            return series.fillna(float(clean.median()))
         if self.strategy in (ImputationStrategy.ZERO, ImputationStrategy.CONSTANT):
             return series.fillna(self.fill_value)
         raise TransformError(f"Unknown strategy: {self.strategy}")
@@ -249,15 +272,28 @@ def validate_imputation_quality(
     imputed: pd.Series,
 ) -> dict[str, Any]:
     """Validate imputation quality."""
-    orig_clean = original.dropna()
+    orig_clean = _finite_numeric_series(original)
+    imputed_clean = _finite_numeric_series(imputed)
+    if orig_clean.empty or imputed_clean.empty:
+        return {
+            "mean_change_pct": 1.0,
+            "std_change_pct": 1.0,
+            "outliers_introduced": 0,
+            "quality_score": 0.0,
+            "valid": False,
+            "diagnostic": "no finite values available for imputation quality check",
+        }
 
     orig_mean = orig_clean.mean()
-    imputed_mean = imputed.mean()
+    imputed_mean = imputed_clean.mean()
     mean_change_pct = abs(imputed_mean - orig_mean) / orig_mean if orig_mean != 0 else 0
 
     orig_std = orig_clean.std()
-    imputed_std = imputed.std()
-    std_change_pct = abs(imputed_std - orig_std) / orig_std if orig_std != 0 else 0
+    imputed_std = imputed_clean.std()
+    if not is_finite_number(orig_std) or not is_finite_number(imputed_std) or orig_std == 0:
+        std_change_pct = 0.0
+    else:
+        std_change_pct = abs(imputed_std - orig_std) / orig_std
 
     orig_min, orig_max = orig_clean.min(), orig_clean.max()
     imputed_values = imputed[original.isna()]
@@ -267,5 +303,17 @@ def validate_imputation_quality(
         "mean_change_pct": float(mean_change_pct),
         "std_change_pct": float(std_change_pct),
         "outliers_introduced": outliers_introduced,
-        "quality_score": 1.0 - min(mean_change_pct, 1.0),
+        "quality_score": ensure_probability(
+            1.0 - min(float(mean_change_pct), 1.0),
+            what="imputation quality_score",
+            clamp=True,
+        ),
+        "valid": True,
     }
+
+
+def _finite_numeric_series(series: pd.Series) -> pd.Series:
+    numeric = pd.to_numeric(series, errors="coerce").dropna()
+    if numeric.empty:
+        return numeric
+    return numeric[numeric.map(is_finite_number)]

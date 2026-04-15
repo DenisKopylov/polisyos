@@ -66,7 +66,7 @@ class Verdict(str, enum.Enum):
     PASS = "PASS"
     FAIL = "FAIL"
     ERROR = "ERROR"       # unexpected exception
-    TIMEOUT = "TIMEOUT"   # exceeded timeout_s
+    TIMEOUT = "TIMEOUT"   # reserved for real external interruption
     SKIP = "SKIP"         # skipped (e.g. optional dependency missing)
 
 
@@ -142,6 +142,10 @@ class CaseResult:
     proof_steps: list[str] = dataclasses.field(default_factory=list)
     error_msg: str | None = None
     result_payload: Any | None = None
+    runtime_budget_s: float = 0.0
+    runtime_budget_exceeded: bool = False
+    runtime_budget_ratio: float | None = None
+    runtime_budget_note: str | None = None
     # Identification-specific fields (SYMBOLIC circuit)
     is_identifiable_gt: bool | None = None
     is_identifiable_pred: bool | None = None
@@ -151,13 +155,26 @@ class CaseResult:
     def passed(self) -> bool:
         return self.verdict is Verdict.PASS
 
+    @property
+    def failed(self) -> bool:
+        return self.verdict is Verdict.FAIL
+
+    @property
+    def errored(self) -> bool:
+        return self.verdict in {Verdict.ERROR, Verdict.TIMEOUT}
+
+    @property
+    def skipped(self) -> bool:
+        return self.verdict is Verdict.SKIP
+
     def one_line(self) -> str:
         status = self.verdict.value.ljust(7)
         t_ms = f"{self.elapsed_s * 1000:.1f}ms"
         mem = f"{self.memory_delta_mb:+.1f}MB"
         steps = f"steps={len(self.proof_steps)}" if self.proof_steps else ""
         err = f"  [{self.error_msg[:60]}]" if self.error_msg else ""
-        return f"  [{status}] {self.name:<55} {t_ms:>8}  {mem:>8}  {steps}{err}"
+        budget = f"  {{{self.runtime_budget_note}}}" if self.runtime_budget_note else ""
+        return f"  [{status}] {self.name:<55} {t_ms:>8}  {mem:>8}  {steps}{budget}{err}"
 
 
 # ---------------------------------------------------------------------------
@@ -181,8 +198,23 @@ class BenchmarkReport:
     def n_passed(self) -> int:
         return sum(1 for c in self.cases if c.passed)
 
+    def n_failed(self) -> int:
+        return sum(1 for c in self.cases if c.failed)
+
+    def n_errors(self) -> int:
+        return sum(1 for c in self.cases if c.errored)
+
+    def n_skipped(self) -> int:
+        return sum(1 for c in self.cases if c.skipped)
+
+    def n_over_budget(self) -> int:
+        return sum(1 for c in self.cases if c.runtime_budget_exceeded)
+
     def n_total(self) -> int:
         return len(self.cases)
+
+    def n_blocking_failures(self) -> int:
+        return self.n_failed() + self.n_errors()
 
     def blocker_cases(self) -> list[CaseResult]:
         """False-positive identification cases — release blockers."""
@@ -301,9 +333,18 @@ class BenchmarkHarness:
         memory_delta = max(0.0, rss_after - rss_before)
 
         effective_timeout = case.timeout_s * _TIMEOUT_MULTIPLIER
-        if effective_timeout > 0 and elapsed > effective_timeout:
-            verdict = Verdict.TIMEOUT
-            error_msg = f"elapsed {elapsed:.1f}s > timeout {effective_timeout:.1f}s (base {case.timeout_s}s × {_TIMEOUT_MULTIPLIER})"
+        runtime_budget_exceeded = effective_timeout > 0 and elapsed > effective_timeout
+        runtime_budget_ratio = (
+            float(elapsed / effective_timeout)
+            if effective_timeout > 0
+            else None
+        )
+        runtime_budget_note = None
+        if runtime_budget_exceeded:
+            runtime_budget_note = (
+                f"elapsed {elapsed:.1f}s > budget {effective_timeout:.1f}s "
+                f"(base {case.timeout_s}s x {_TIMEOUT_MULTIPLIER})"
+            )
 
         if result_obj is not None and case.proof_step_extractor is not None:
             try:
@@ -342,6 +383,10 @@ class BenchmarkHarness:
             proof_steps=proof_steps,
             error_msg=error_msg,
             result_payload=result_obj,
+            runtime_budget_s=effective_timeout,
+            runtime_budget_exceeded=runtime_budget_exceeded,
+            runtime_budget_ratio=runtime_budget_ratio,
+            runtime_budget_note=runtime_budget_note,
             is_identifiable_gt=is_id_gt,
             is_identifiable_pred=is_id_pred,
             formula_correct=formula_ok,
@@ -446,6 +491,13 @@ class BenchmarkHarness:
         total = report.n_total()
         pct = overall / total * 100 if total else 0.0
         print(f"\n  TOTAL: {overall}/{total} passed ({pct:.1f}%)\n")
+        print(
+            "  Breakdown:"
+            f" fail={report.n_failed()}"
+            f" error={report.n_errors()}"
+            f" skip={report.n_skipped()}"
+            f" over_budget={report.n_over_budget()}"
+        )
         print(sep)
 
 

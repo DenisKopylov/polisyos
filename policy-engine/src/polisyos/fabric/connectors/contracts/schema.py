@@ -24,6 +24,7 @@ from polisyos.fabric.connectors.contracts._schema_field import (
     FIELD_NAME_PATTERN,
     FieldSpec,
     SchemaVersion,
+    normalize_unit_id,
 )
 from polisyos.fabric.connectors.contracts._schema_types import (
     Additivity,
@@ -49,6 +50,7 @@ __all__ = [
     "FIELD_NAME_PATTERN",
     "FieldSpec",
     "SchemaVersion",
+    "normalize_unit_id",
     # Core schema
     "DataSchema",
 ]

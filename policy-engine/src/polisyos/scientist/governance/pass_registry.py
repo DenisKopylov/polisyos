@@ -20,6 +20,20 @@ from .pass_entrypoints import builtin_governance_pass_factories
 from .pipeline import ValidationPipeline
 
 ENTRY_POINT_GROUP_GOVERNANCE_PASSES = "polisyos.scientist_governance_passes"
+_ENTRYPOINT_LOAD_ERRORS = (
+    AttributeError,
+    ImportError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+_PROVIDER_INIT_ERRORS = (
+    AttributeError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
 
 RUNTIME_ALLOWED_PASS_IDS: frozenset[str] = frozenset(
     {
@@ -110,7 +124,7 @@ def _resolve_providers(
         source_name = f"entry_point:{entry_point.name}"
         try:
             target = entry_point.load()
-        except Exception as exc:
+        except _ENTRYPOINT_LOAD_ERRORS as exc:
             raise RuntimeError(f"Failed to load governance pass from {source_name}: {exc}") from exc
         provider = _coerce_provider(target=target, source_name=source_name)
         discovered_names.add(entry_point.name)
@@ -158,7 +172,7 @@ def _instantiate_validator(
         raise TypeError(
             f"{source_name} must be instantiable without required arguments: {exc}"
         ) from exc
-    except Exception as exc:
+    except _PROVIDER_INIT_ERRORS as exc:
         raise RuntimeError(
             f"Failed to instantiate governance pass from {source_name}: {exc}"
         ) from exc

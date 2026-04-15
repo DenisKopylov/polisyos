@@ -36,7 +36,7 @@ class MorrisSensitivityEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="morris",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -116,7 +116,7 @@ class FASTEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="fast",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -199,7 +199,7 @@ class PAWNEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="pawn",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

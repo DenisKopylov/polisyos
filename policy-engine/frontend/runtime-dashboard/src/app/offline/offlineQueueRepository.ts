@@ -9,6 +9,7 @@ export type OfflineQueueItemStatus = "failed" | "queued" | "retrying";
 export type OfflinePromotionDecisionPayload = {
   promotionId: string;
   reason?: string;
+  runId?: string;
 };
 export type OfflineQueueItem = {
   attempts: number;

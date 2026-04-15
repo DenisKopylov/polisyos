@@ -8,13 +8,21 @@ from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanE
 
 
 def _reset_observability_singletons() -> None:
+    import polisyos.core.observability.metrics_parts as metrics_parts
+    import polisyos.core.observability.tracer as tracer_module
+    from polisyos.core.observability._metrics_registry_base import _MetricsRegistryBase
     from polisyos.core.observability.metrics import MetricsRegistry
     from polisyos.core.observability.tracer import PolicyOSTracer
 
     PolicyOSTracer._instance = None
     PolicyOSTracer._initialized = False
+    _MetricsRegistryBase._instance = None
+    _MetricsRegistryBase._initialized = False
     MetricsRegistry._instance = None
     MetricsRegistry._initialized = False
+
+    metrics_parts._metrics_registry = None
+    tracer_module._tracer_instance = None
 
 
 @pytest.fixture(scope="session")

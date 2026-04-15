@@ -14,6 +14,7 @@ import json as _json
 import time
 import zipfile
 from datetime import datetime, timezone
+from pathlib import PurePosixPath
 from typing import Any, AsyncIterator, ClassVar
 from urllib.parse import urlparse
 
@@ -91,6 +92,8 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
             ConnectorCapability.RATE_LIMIT_AWARE,
         ),
     )
+    _MAX_ZIP_MEMBERS: ClassVar[int] = 1_000
+    _MAX_ZIP_DECOMPRESSION_RATIO: ClassVar[float] = 100.0
 
     # ------------------------------------------------------------------
     # Health check
@@ -129,18 +132,33 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         started = time.monotonic()
         session = await self._get_session(handle)
         timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
-        async with session.get(resource_url, timeout=timeout) as resp:
+        async with session.get(
+            resource_url,
+            timeout=timeout,
+            headers=self._build_auth_headers(handle),
+        ) as resp:
             if resp.status >= 400:
                 raise FetchError(
                     message=f"CKAN resource download returned HTTP {resp.status}",
                     connector_id=self.connector_id,
                     dataset_id=request.dataset_id,
                 )
-            raw = await resp.read()
+            raw = await self._read_response_body(
+                resp,
+                connector_id=self.connector_id,
+                url=resource_url,
+                max_response_bytes=self.resilience_profile.max_response_bytes,
+                max_decompressed_bytes=self.resilience_profile.max_decompressed_bytes,
+            )
             headers = dict(resp.headers)
 
         duration_ms = self._elapsed_ms(started)
-        df = self._parse_resource(raw, fmt)
+        df = self._parse_resource(
+            raw,
+            fmt,
+            max_rows=self.resilience_profile.max_rows,
+            max_decompressed_bytes=self.resilience_profile.max_decompressed_bytes,
+        )
         chash = compute_content_hash(raw, prefix=True)
 
         return self._build_fetch_result(
@@ -227,33 +245,67 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         )
 
     @staticmethod
-    def _parse_resource(raw: bytes, fmt: str) -> pd.DataFrame:
+    def _parse_resource(
+        raw: bytes,
+        fmt: str,
+        *,
+        max_rows: int | None = None,
+        max_decompressed_bytes: int | None = None,
+    ) -> pd.DataFrame:
         fmt = fmt.lower()
         if fmt == "csv":
             text = raw.decode("utf-8", errors="replace")
             reader = csv.DictReader(io.StringIO(text))
             rows = list(reader)
-            return pd.DataFrame(rows) if rows else pd.DataFrame()
+            return CKANResourceConnector._enforce_row_limit(
+                pd.DataFrame(rows) if rows else pd.DataFrame(),
+                max_rows=max_rows,
+                fmt=fmt,
+            )
         if fmt == "json":
             data = _json.loads(raw)
             if isinstance(data, list):
-                return pd.DataFrame(data) if data else pd.DataFrame()
+                return CKANResourceConnector._enforce_row_limit(
+                    pd.DataFrame(data) if data else pd.DataFrame(),
+                    max_rows=max_rows,
+                    fmt=fmt,
+                )
             if isinstance(data, dict):
                 # Try common wrappers
                 for key in ("result", "results", "data", "records"):
                     if key in data and isinstance(data[key], list):
-                        return pd.DataFrame(data[key])
-                return pd.DataFrame([data])
+                        return CKANResourceConnector._enforce_row_limit(
+                            pd.DataFrame(data[key]),
+                            max_rows=max_rows,
+                            fmt=f"{fmt}:{key}",
+                        )
+                return CKANResourceConnector._enforce_row_limit(
+                    pd.DataFrame([data]),
+                    max_rows=max_rows,
+                    fmt=fmt,
+                )
             return pd.DataFrame()
         if fmt in {"xlsx", "xls", "ods"}:
-            return CKANResourceConnector._parse_spreadsheet(raw, fmt)
+            return CKANResourceConnector._enforce_row_limit(
+                CKANResourceConnector._parse_spreadsheet(raw, fmt),
+                max_rows=max_rows,
+                fmt=fmt,
+            )
         if fmt == "zip":
-            return CKANResourceConnector._parse_zip_archive(raw)
+            return CKANResourceConnector._parse_zip_archive(
+                raw,
+                max_rows=max_rows,
+                max_decompressed_bytes=max_decompressed_bytes,
+            )
         # Fallback: try CSV
         text = raw.decode("utf-8", errors="replace")
         reader = csv.DictReader(io.StringIO(text))
         rows = list(reader)
-        return pd.DataFrame(rows) if rows else pd.DataFrame()
+        return CKANResourceConnector._enforce_row_limit(
+            pd.DataFrame(rows) if rows else pd.DataFrame(),
+            max_rows=max_rows,
+            fmt=fmt,
+        )
 
     @staticmethod
     def _parse_spreadsheet(raw: bytes, fmt: str) -> pd.DataFrame:
@@ -294,7 +346,14 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         return pd.concat(frames, ignore_index=True, sort=False)
 
     @staticmethod
-    def _parse_zip_archive(raw: bytes) -> pd.DataFrame:
+    def _parse_zip_archive(
+        raw: bytes,
+        *,
+        max_rows: int | None = None,
+        max_decompressed_bytes: int | None = None,
+        max_members: int = _MAX_ZIP_MEMBERS,
+        max_decompression_ratio: float = _MAX_ZIP_DECOMPRESSION_RATIO,
+    ) -> pd.DataFrame:
         try:
             archive = zipfile.ZipFile(io.BytesIO(raw))
         except zipfile.BadZipFile as exc:
@@ -305,15 +364,50 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
         frames: list[pd.DataFrame] = []
         with archive:
-            for name in archive.namelist():
-                if name.endswith("/"):
+            members = archive.infolist()
+            if len(members) > max_members:
+                raise FetchError(
+                    message=(
+                        "ZIP resource exceeds safe member count "
+                        f"({len(members)} > {max_members})"
+                    ),
+                    connector_id=CKANResourceConnector.connector_id,
+                )
+
+            total_decompressed_bytes = 0
+            for info in members:
+                CKANResourceConnector._validate_zip_member(
+                    info,
+                    max_decompression_ratio=max_decompression_ratio,
+                )
+                total_decompressed_bytes += int(info.file_size)
+                if (
+                    max_decompressed_bytes is not None
+                    and total_decompressed_bytes > max_decompressed_bytes
+                ):
+                    raise FetchError(
+                        message=(
+                            "ZIP resource exceeds safe decompressed size "
+                            f"({total_decompressed_bytes} > {max_decompressed_bytes} bytes)"
+                        ),
+                        connector_id=CKANResourceConnector.connector_id,
+                    )
+
+            total_rows = 0
+            for info in members:
+                name = info.filename
+                if info.is_dir():
                     continue
                 inner_fmt = CKANResourceConnector._guess_format(name, "")
                 if inner_fmt not in {"csv", "json", "xlsx", "xls", "ods"}:
                     continue
-                inner_raw = archive.read(name)
+                inner_raw = archive.read(info)
                 try:
-                    frame = CKANResourceConnector._parse_resource(inner_raw, inner_fmt)
+                    frame = CKANResourceConnector._parse_resource(
+                        inner_raw,
+                        inner_fmt,
+                        max_rows=max_rows,
+                    )
                 except FetchError:
                     continue
                 if frame.empty:
@@ -321,6 +415,15 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
                 enriched = frame.copy()
                 enriched["__source_file"] = name
                 frames.append(enriched)
+                total_rows += len(enriched)
+                if max_rows is not None and total_rows > max_rows:
+                    raise FetchError(
+                        message=(
+                            "ZIP resource exceeds safe row limit "
+                            f"({total_rows} > {max_rows})"
+                        ),
+                        connector_id=CKANResourceConnector.connector_id,
+                    )
 
         if not frames:
             raise FetchError(
@@ -328,6 +431,49 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
                 connector_id=CKANResourceConnector.connector_id,
             )
         return pd.concat(frames, ignore_index=True, sort=False)
+
+    @staticmethod
+    def _enforce_row_limit(
+        frame: pd.DataFrame,
+        *,
+        max_rows: int | None,
+        fmt: str,
+    ) -> pd.DataFrame:
+        if max_rows is not None and len(frame) > max_rows:
+            raise FetchError(
+                message=f"{fmt.upper()} resource exceeds safe row limit ({len(frame)} > {max_rows})",
+                connector_id=CKANResourceConnector.connector_id,
+            )
+        return frame
+
+    @staticmethod
+    def _validate_zip_member(
+        info: zipfile.ZipInfo,
+        *,
+        max_decompression_ratio: float,
+    ) -> None:
+        normalized_name = info.filename.replace("\\", "/")
+        path = PurePosixPath(normalized_name)
+        if normalized_name.startswith("/") or normalized_name.startswith("\\"):
+            raise FetchError(
+                message=f"ZIP resource contains unsafe absolute path member: {info.filename}",
+                connector_id=CKANResourceConnector.connector_id,
+            )
+        if any(part == ".." for part in path.parts):
+            raise FetchError(
+                message=f"ZIP resource contains traversal member: {info.filename}",
+                connector_id=CKANResourceConnector.connector_id,
+            )
+        compressed_size = max(int(info.compress_size), 1)
+        ratio = float(info.file_size) / float(compressed_size) if info.file_size else 1.0
+        if ratio > max_decompression_ratio:
+            raise FetchError(
+                message=(
+                    "ZIP resource member exceeds decompression ratio "
+                    f"({ratio:.1f} > {max_decompression_ratio:.1f})"
+                ),
+                connector_id=CKANResourceConnector.connector_id,
+            )
 
     @staticmethod
     def _guess_format(url: str, raw_format: str) -> str:

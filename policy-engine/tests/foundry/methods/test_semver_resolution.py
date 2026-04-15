@@ -119,8 +119,7 @@ class TestResolveMethodVersion:
         """None specifier should return the highest registered version."""
         # Pick an FQN base we know is registered
         all_sigs = list(module_registry.list_all())
-        if not all_sigs:
-            pytest.skip("Registry is empty")
+        assert all_sigs, "Registry is empty"
 
         fqn = all_sigs[0].fqn
         base = fqn.rsplit("@", 1)[0]
@@ -131,13 +130,11 @@ class TestResolveMethodVersion:
     def test_specifier_pins_version(self, module_registry):
         """~=1.0 should resolve to a 1.x version if one is registered."""
         all_sigs = list(module_registry.list_all())
-        if not all_sigs:
-            pytest.skip("Registry is empty")
+        assert all_sigs, "Registry is empty"
 
         # Find a method with version 1.0.0
         v1_sigs = [s for s in all_sigs if s.version.startswith("1.")]
-        if not v1_sigs:
-            pytest.skip("No 1.x methods registered")
+        assert v1_sigs, "No 1.x methods registered"
 
         fqn = v1_sigs[0].fqn
         base = fqn.rsplit("@", 1)[0]
@@ -148,8 +145,7 @@ class TestResolveMethodVersion:
     def test_unsatisfiable_specifier_raises(self, module_registry):
         """A specifier that can't match any version raises ResolutionError."""
         all_sigs = list(module_registry.list_all())
-        if not all_sigs:
-            pytest.skip("Registry is empty")
+        assert all_sigs, "Registry is empty"
 
         fqn = all_sigs[0].fqn
         base = fqn.rsplit("@", 1)[0]

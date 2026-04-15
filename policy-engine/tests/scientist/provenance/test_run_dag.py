@@ -3,9 +3,6 @@ from __future__ import annotations
 
 import sys
 from datetime import datetime
-from typing import Any
-
-import pytest
 
 sys.path.insert(0, "src")
 
@@ -26,7 +23,7 @@ class TestEmptyDAG:
 
         # Should contain exactly the system agent
         assert len(graph.agents) == 1
-        system_agent_id = f"agent:system:run-001"
+        system_agent_id = "agent:system:run-001"
         assert system_agent_id in graph.agents
         assert graph.agents[system_agent_id].agent_type.value == "system"
 
@@ -102,6 +99,21 @@ class TestRecordLLMCall:
         ]
         assert len(llm_activities) == 1
         assert "gpt-4o" in llm_activities[0].label
+
+    def test_llm_record_retention_is_bounded(self) -> None:
+        dag = RunProvenanceDAG(run_id="run-003b", max_llm_records=2)
+        for idx in range(3):
+            dag.record_llm_call(
+                node_alias=f"drafter_{idx}",
+                model_id="gpt-4o",
+                temperature=0.1,
+                input_tokens=10,
+                output_tokens=20,
+            )
+
+        assert len(dag.llm_records) == 2
+        assert dag.graph.metadata["llm_records_retention_limit"] == 2
+        assert dag.graph.metadata["llm_records_dropped"] == 1
 
 
 class TestToProvJson:

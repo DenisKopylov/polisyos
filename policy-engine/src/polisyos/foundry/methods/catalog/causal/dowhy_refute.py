@@ -209,7 +209,7 @@ class DoWhyRefute:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="dowhy_refute",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

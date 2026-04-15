@@ -8,6 +8,8 @@ from polisyos.foundry.calibration.loss import (
     _huber,
     compute_base_loss,
     loss_components,
+    pointwise_base_loss,
+    reduce_weighted_loss,
     unified_loss,
 )
 from polisyos.ir.analytics.calibration import TargetLossConfig
@@ -39,6 +41,26 @@ class TestComputeBaseLoss:
         expected = jnp.mean(jnp.square(err))
         npt.assert_allclose(float(result), float(expected), atol=1e-6)
 
+    def test_compute_base_loss_fails_closed_on_non_finite_inputs(self) -> None:
+        cfg = TargetLossConfig(kind="mse", weight=1.0, relative=False, epsilon=1e-8)
+        result = compute_base_loss(jnp.array([1.0, jnp.nan]), jnp.array([1.0, 2.0]), cfg, scale=1.0)
+        assert jnp.isinf(result)
+
+
+class TestReduceWeightedLoss:
+    def test_returns_zero_when_all_weights_collapse_to_zero(self) -> None:
+        reduced = reduce_weighted_loss(
+            jnp.array([1.0, 2.0, 3.0], dtype=jnp.float32),
+            jnp.zeros(3, dtype=jnp.float32),
+            epsilon=1e-8,
+        )
+        assert float(reduced) == 0.0
+
+    def test_rejects_negative_or_non_finite_weights(self) -> None:
+        pointwise = jnp.array([1.0, 2.0], dtype=jnp.float32)
+        assert jnp.isinf(reduce_weighted_loss(pointwise, jnp.array([1.0, -1.0]), epsilon=1e-8))
+        assert jnp.isinf(reduce_weighted_loss(pointwise, jnp.array([1.0, jnp.nan]), epsilon=1e-8))
+
 
 class TestLossComponents:
     def test_loss_components_weighted_sum(self) -> None:
@@ -59,3 +81,18 @@ class TestLossComponents:
         for tid in per_target:
             expected_weighted = weights[tid] * per_target_base[tid]
             npt.assert_allclose(float(per_target[tid]), float(expected_weighted), atol=1e-6)
+
+    def test_loss_components_reject_invalid_override_weight(self) -> None:
+        predicted = {"gdp": jnp.array([1.0, 2.0])}
+        targets = {"gdp": jnp.array([1.0, 2.0])}
+        cfg = TargetLossConfig(kind="mse", weight=1.0, relative=False, epsilon=1e-8)
+        total, per_target, _ = loss_components(
+            predicted,
+            targets,
+            {"gdp": cfg},
+            {"gdp": 1.0},
+            weights={"gdp": -0.5},
+        )
+
+        assert jnp.isinf(total)
+        assert jnp.isinf(per_target["gdp"])

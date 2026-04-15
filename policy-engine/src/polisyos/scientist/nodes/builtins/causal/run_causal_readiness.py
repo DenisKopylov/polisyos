@@ -11,6 +11,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
@@ -42,6 +44,7 @@ from polisyos.scientist.causal.readiness import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_READINESS_BUNDLE_REF,
@@ -91,6 +94,8 @@ _SPEC = NodeSpec(
         ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ],
 )
+
+_CAUSAL_READINESS_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError, FileNotFoundError, OSError)
 
 
 def _coerce_bundle(model: type[Any], payload: Any) -> Any | None:
@@ -200,7 +205,14 @@ class RunCausalReadinessNode:
                 state.params.get("schema_regime_registry"),
             )
             shock_calendar = _coerce_bundle(ShockCalendar, state.params.get("shock_calendar"))
-        except Exception as exc:
+            graph_input = ArtifactRefModel.model_validate(graph_ref.model_dump(mode="json"))
+            causal_component_payload = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
+            causal_component_ref = (
+                graph_input
+                if causal_component_payload is None
+                else ArtifactRefModel.model_validate(causal_component_payload.model_dump(mode="json"))
+            )
+        except _CAUSAL_READINESS_VALIDATION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -210,13 +222,6 @@ class RunCausalReadinessNode:
                 ),
             )
 
-        graph_input = ArtifactRefModel.model_validate(graph_ref.model_dump(mode="json"))
-        causal_component_payload = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
-        causal_component_ref = (
-            graph_input
-            if causal_component_payload is None
-            else ArtifactRefModel.model_validate(causal_component_payload.model_dump(mode="json"))
-        )
         strategic_inputs = state.params.get("strategic_channel_inputs")
         if strategic_inputs is not None and not isinstance(strategic_inputs, Mapping):
             return NodeOutcome(
@@ -274,7 +279,14 @@ class RunCausalReadinessNode:
             inputs=graph_inputs,
         )
 
-        next_state = state.model_copy(deep=True)
+        next_state = branch_state(
+            state,
+            write_paths=(
+                f"artifacts_index.{ARTIFACT_CAUSAL_READINESS_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_TRANSPORTABILITY_RESULT_REF}",
+                f"artifacts_index.{ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF}",
+            ),
+        ).state
         next_state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF] = ArtifactRef.model_validate(
             readiness_ref.model_dump(mode="json")
         )

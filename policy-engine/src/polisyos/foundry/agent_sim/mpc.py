@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import chex
 import jax
 import jax.numpy as jnp
+from jax import core as jax_core
 
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.executor import PureExecutor
@@ -29,12 +30,24 @@ class MPCPlanner:
         action_candidates: jnp.ndarray,
         rng_key: chex.PRNGKey,
     ) -> int:
+        best_idx = self.plan_index(state, agent_idx, action_candidates, rng_key)
+        if isinstance(best_idx, jax_core.Tracer):
+            return best_idx
+        return int(jax.device_get(best_idx))
+
+    def plan_index(
+        self,
+        state,
+        agent_idx: int,
+        action_candidates: jnp.ndarray,
+        rng_key: chex.PRNGKey,
+    ) -> jnp.ndarray:
         n_candidates = action_candidates.shape[0]
         keys = jax.random.split(rng_key, n_candidates)
         rewards = jax.vmap(self._evaluate_action, in_axes=(0, 0, None, None))(
             action_candidates, keys, state, agent_idx
         )
-        return int(jnp.argmax(rewards))
+        return jnp.argmax(rewards).astype(jnp.int32)
 
     def _evaluate_action(
         self,
@@ -45,7 +58,7 @@ class MPCPlanner:
     ) -> jnp.ndarray:
         modified_state = self._apply_action(state, agent_idx, action)
 
-        sample_keys = jax.random.split(rng_key, int(self.n_samples))
+        sample_keys = jax.random.split(rng_key, self.n_samples)
 
         def rollout_once(sample_key):
             def rollout_step(carry, t):
@@ -61,7 +74,7 @@ class MPCPlanner:
             _, rewards = jax.lax.scan(
                 rollout_step,
                 seeded_state,
-                jnp.arange(int(self.horizon)),
+                jnp.arange(self.horizon),
             )
             return jnp.sum(rewards)
 
@@ -93,15 +106,19 @@ class HybridPlanner:
     def get_action(self, state, agent_idx: int, rng_key: chex.PRNGKey) -> jnp.ndarray:
         obs = build_temporal_observations(state, horizon=self.mpc_planner.horizon)
         action_out, _ = self.actor_critic(obs[agent_idx : agent_idx + 1], deterministic=True)
-        uncertainty = self._estimate_uncertainty(state, agent_idx)
-        if uncertainty > self.mpc_threshold:
-            key1, key2 = jax.random.split(rng_key)
-            candidates = action_out + 0.1 * jax.random.normal(
-                key1, shape=(32, action_out.shape[-1])
+        base_action = action_out.squeeze(0)
+        uncertainty = jnp.asarray(self._estimate_uncertainty(state, agent_idx), dtype=jnp.float32)
+        should_use_mpc = uncertainty > jnp.asarray(self.mpc_threshold, dtype=jnp.float32)
+
+        def _use_mpc(key):
+            key1, key2 = jax.random.split(key)
+            candidates = base_action[None, :] + 0.1 * jax.random.normal(
+                key1, shape=(32, base_action.shape[-1])
             )
-            best_idx = self.mpc_planner.plan(state, agent_idx, candidates, key2)
+            best_idx = self.mpc_planner.plan_index(state, agent_idx, candidates, key2)
             return candidates[best_idx]
-        return action_out.squeeze(0)
+
+        return jax.lax.cond(should_use_mpc, _use_mpc, lambda _: base_action, rng_key)
 
     def _estimate_uncertainty(self, state, agent_idx: int) -> float:
         del state, agent_idx

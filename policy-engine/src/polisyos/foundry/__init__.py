@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import importlib
 import sys
+import threading
 import types
 from typing import Any
 
@@ -23,16 +24,21 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "compile_program": ("polisyos.foundry.compile.api", "compile"),
     "execute": ("polisyos.foundry.execute.api", "execute"),
 }
+_RESOLVED_EXPORTS: dict[str, Any] = {}
+_RESOLVE_LOCK = threading.Lock()
 
 
 def _resolve_lazy_export(name: str) -> Any:
     """Resolve and memoize one stable facade export."""
-
-    module_name, attr_name = _LAZY_IMPORTS[name]
-    module = importlib.import_module(module_name)
-    value = getattr(module, attr_name)
-    globals()[name] = value
-    return value
+    with _RESOLVE_LOCK:
+        cached = _RESOLVED_EXPORTS.get(name)
+        if cached is not None:
+            return cached
+        module_name, attr_name = _LAZY_IMPORTS[name]
+        module = importlib.import_module(module_name)
+        value = getattr(module, attr_name)
+        _RESOLVED_EXPORTS[name] = value
+        return value
 
 
 def __getattr__(name: str) -> Any:
@@ -58,7 +64,13 @@ def __dir__() -> list[str]:
 
 
 class _FoundryFacadeModule(types.ModuleType):
-    """Keep facade exports stable even after submodule imports shadow package attrs."""
+    """
+    Keep package-level exports stable even when submodule imports shadow names.
+
+    The facade no longer mutates root module globals on first access; instead
+    it resolves through a locked side cache and only intercepts attribute reads
+    when a lazy export name has been shadowed by a submodule object.
+    """
 
     def __getattribute__(self, name: str) -> Any:
         lazy_imports = types.ModuleType.__getattribute__(self, "_LAZY_IMPORTS")

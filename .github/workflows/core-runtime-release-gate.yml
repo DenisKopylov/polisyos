@@ -1,0 +1,664 @@
+name: Core Runtime Release Gate
+
+on:
+  pull_request:
+    paths:
+      - "policy-engine/src/polisyos/common/**"
+      - "policy-engine/src/polisyos/core/**"
+      - "policy-engine/src/polisyos/runtime/**"
+      - "policy-engine/src/polisyos/scientist/**"
+      - "policy-engine/src/polisyos/scholar/**"
+      - "policy-engine/tests/common/**"
+      - "policy-engine/tests/core/**"
+      - "policy-engine/tests/runtime/**"
+      - "policy-engine/tests/scientist/**"
+      - "policy-engine/tests/scholar/**"
+      - "policy-engine/tests/performance/**"
+      - "policy-engine/docs/reference/**"
+      - "policy-engine/docs/runbooks/**"
+      - "policy-engine/docs/explanation/**"
+      - "policy-engine/ops/prometheus/**"
+      - "policy-engine/ops/grafana/**"
+      - "policy-engine/tools/architecture/**"
+      - "policy-engine/tools/validation/**"
+      - ".github/workflows/core-runtime-release-gate.yml"
+  push:
+    branches: [main, master]
+    paths:
+      - "policy-engine/src/polisyos/common/**"
+      - "policy-engine/src/polisyos/core/**"
+      - "policy-engine/src/polisyos/runtime/**"
+      - "policy-engine/src/polisyos/scientist/**"
+      - "policy-engine/src/polisyos/scholar/**"
+      - "policy-engine/tests/common/**"
+      - "policy-engine/tests/core/**"
+      - "policy-engine/tests/runtime/**"
+      - "policy-engine/tests/scientist/**"
+      - "policy-engine/tests/scholar/**"
+      - "policy-engine/tests/performance/**"
+      - "policy-engine/docs/reference/**"
+      - "policy-engine/docs/runbooks/**"
+      - "policy-engine/docs/explanation/**"
+      - "policy-engine/ops/prometheus/**"
+      - "policy-engine/ops/grafana/**"
+      - "policy-engine/tools/architecture/**"
+      - "policy-engine/tools/validation/**"
+      - ".github/workflows/core-runtime-release-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  JAX_PLATFORM_NAME: cpu
+  XLA_PYTHON_CLIENT_PREALLOCATE: "false"
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  NUMEXPR_NUM_THREADS: "1"
+  VECLIB_MAXIMUM_THREADS: "1"
+  BLIS_NUM_THREADS: "1"
+
+jobs:
+  typing-and-ratchets:
+    name: Core Runtime / Typing and Ratchets
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: policy-engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          python-version: "3.14"
+          extras: "lint test runtime docs causal-discovery"
+
+      - name: Run mypy strict gate
+        run: |
+          uv run mypy --strict --follow-imports=skip \
+            src/polisyos/common/logger.py \
+            src/polisyos/common/async_tools.py \
+            src/polisyos/core/artifacts/ir_adapter.py \
+            src/polisyos/runtime/api.py \
+            src/polisyos/runtime/http/app.py \
+            src/polisyos/runtime/http/cell_router_middleware.py \
+            src/polisyos/runtime/http/container.py \
+            src/polisyos/runtime/http/compliance.py \
+            src/polisyos/runtime/http/dependencies.py \
+            src/polisyos/runtime/http/errors.py \
+            src/polisyos/runtime/http/jwt_auth_middleware.py \
+            src/polisyos/runtime/http/resilience.py \
+            src/polisyos/runtime/http/services/control.py \
+            src/polisyos/runtime/http/services/task_runner.py \
+            src/polisyos/common/serialization.py \
+            src/polisyos/core/artifacts/_signature_ops.py \
+            src/polisyos/core/artifacts/_transfer_ops.py \
+            src/polisyos/core/artifacts/async_store.py \
+            src/polisyos/core/llm/traced_client.py \
+            src/polisyos/core/observability/decorators.py \
+            src/polisyos/core/run/context.py \
+            src/polisyos/core/registry/builder.py \
+            src/polisyos/core/registry/builder_from_fragments.py \
+            src/polisyos/core/registry/loader.py \
+            src/polisyos/core/artifacts/protocol.py \
+            src/polisyos/core/artifacts/write_contract.py \
+            src/polisyos/scholar/freshness.py \
+            src/polisyos/scientist/api.py \
+            src/polisyos/scientist/agent/drafter_factory.py \
+            src/polisyos/scientist/compute/runner.py \
+            src/polisyos/scientist/engine/runner/_activity_worker.py \
+            src/polisyos/scientist/error_semantics.py \
+            src/polisyos/scientist/agent/knowledge_base.py \
+            src/polisyos/scientist/autotune/models.py \
+            src/polisyos/scientist/engine/metrics_otel.py \
+            src/polisyos/scientist/engine/operational_monitoring.py \
+            src/polisyos/scientist/governance/preflight.py \
+            src/polisyos/scientist/governance/pipeline.py \
+            src/polisyos/scientist/llm/budget_enforcer.py \
+            src/polisyos/scientist/llm_cycle.py \
+            src/polisyos/scientist/workflows/builder.py \
+            src/polisyos/core/components/_cli_store.py \
+            src/polisyos/core/security/audit_sink.py \
+            src/polisyos/core/security/authz.py \
+            src/polisyos/core/security/audit_verifier.py \
+            src/polisyos/core/security/identity.py \
+            src/polisyos/core/resilience/retry.py \
+            src/polisyos/core/security/settings.py \
+            src/polisyos/core/security/rotation.py \
+            src/polisyos/core/security/sbom.py \
+            src/polisyos/core/security/tee_middleware.py \
+            src/polisyos/core/artifacts/backends/caching_store.py \
+            src/polisyos/fabric/_connector_bridge.py \
+            src/polisyos/scientist/adapters/fabric_bridge.py \
+            src/polisyos/fabric/catalog/providers.py \
+            src/polisyos/fabric/catalog/resolver_fast_lane.py \
+            src/polisyos/fabric/data_plane/cli.py \
+            src/polisyos/fabric/ingestion_providers.py \
+            src/polisyos/fabric/data_plane/cursor_store.py \
+            src/polisyos/fabric/data_plane/quarantine.py \
+            src/polisyos/fabric/data_plane/modes.py \
+            src/polisyos/fabric/data_plane/orchestrator.py \
+            src/polisyos/fabric/data_plane/streaming.py \
+            src/polisyos/fabric/ingestion.py \
+            src/polisyos/fabric/retrieval/providers.py \
+            src/polisyos/fabric/retrieval/executor.py \
+            src/polisyos/fabric/retrieval/explore_lane.py \
+            src/polisyos/fabric/retrieval/service.py \
+            src/polisyos/fabric/connectors/cache/_store_core.py \
+            src/polisyos/fabric/connectors/cache/prefetch.py \
+            src/polisyos/fabric/connectors/cache/proxy.py \
+            src/polisyos/fabric/connectors/resilience/fallback.py \
+            src/polisyos/fabric/connectors/resilience/circuit_breaker.py \
+            src/polisyos/fabric/connectors/resilience/rate_limiter.py \
+            src/polisyos/fabric/storage/tenant_cas.py \
+            src/polisyos/fabric/world/providers.py \
+            src/polisyos/fabric/world/events.py \
+            src/polisyos/fabric/world/store/segments.py \
+            src/polisyos/fabric/world/store/persist.py \
+            src/polisyos/fabric/connectors/profiles/registry.py \
+            src/polisyos/fabric/connectors/bindings/registry.py \
+            src/polisyos/fabric/connectors/bindings/resolver.py \
+            src/polisyos/scholar/orchestrator/bundle.py \
+            src/polisyos/scholar/api.py \
+            src/polisyos/scientist/llm/factory.py \
+            src/polisyos/scientist/llm/profiles/registry.py \
+            src/polisyos/runtime/replay.py \
+            src/polisyos/runtime/http/services/adapters/core_run.py \
+            src/polisyos/runtime/http/services/control_plane_store.py \
+            src/polisyos/runtime/http/services/control_registry_providers.py
+
+      - name: Run basedpyright gate
+        run: uv run --extra lint basedpyright
+
+      - name: Run expanded Ruff gate
+        run: |
+          uv run ruff check \
+            src/polisyos/common/logger.py \
+            src/polisyos/common/async_tools.py \
+            src/polisyos/core/artifacts/ir_adapter.py \
+            src/polisyos/runtime/http/errors.py \
+            src/polisyos/runtime/http/container.py \
+            src/polisyos/runtime/http/compliance.py \
+            src/polisyos/runtime/http/dependencies.py \
+            src/polisyos/runtime/http/cell_router_middleware.py \
+            src/polisyos/runtime/http/jwt_auth_middleware.py \
+            src/polisyos/runtime/http/resilience.py \
+            src/polisyos/runtime/http/services/task_runner.py \
+            src/polisyos/runtime/http/services/control_registry_providers.py \
+            src/polisyos/core/artifacts/_integrity_ops.py \
+            src/polisyos/core/artifacts/_signature_ops.py \
+            src/polisyos/core/artifacts/_transfer_ops.py \
+            src/polisyos/core/artifacts/async_store.py \
+            src/polisyos/core/artifacts/store.py \
+            src/polisyos/core/artifacts/backends/config.py \
+            src/polisyos/core/llm/traced_client.py \
+            src/polisyos/core/observability/decorators.py \
+            src/polisyos/core/compiler/report.py \
+            src/polisyos/core/registry/builder.py \
+            src/polisyos/core/registry/builder_from_fragments.py \
+            src/polisyos/core/registry/loader.py \
+            src/polisyos/core/resilience/retry.py \
+            src/polisyos/core/run/context.py \
+            src/polisyos/scholar/freshness.py \
+            src/polisyos/scientist/api.py \
+            src/polisyos/scientist/agent/drafter_factory.py \
+            src/polisyos/scientist/compute/runner.py \
+            src/polisyos/scientist/decision_validity.py \
+            src/polisyos/scientist/error_semantics.py \
+            src/polisyos/scientist/agent/knowledge_base.py \
+            src/polisyos/scientist/autotune/models.py \
+            src/polisyos/scientist/engine/checkpoint.py \
+            src/polisyos/scientist/engine/metrics_otel.py \
+            src/polisyos/scientist/engine/operational_monitoring.py \
+            src/polisyos/scientist/engine/runner/_activity_worker.py \
+            src/polisyos/scientist/governance/preflight.py \
+            src/polisyos/scientist/governance/pipeline.py \
+            src/polisyos/scientist/llm/budget_enforcer.py \
+            src/polisyos/scientist/llm_cycle.py \
+            src/polisyos/scientist/replay_backend.py \
+            src/polisyos/scientist/workflows/builder.py \
+            src/polisyos/core/components/_cli_store.py \
+            src/polisyos/core/security/authz.py \
+            src/polisyos/core/security/audit_verifier.py \
+            src/polisyos/core/security/audit_sink.py \
+            src/polisyos/core/security/identity.py \
+            src/polisyos/core/security/rotation.py \
+            src/polisyos/core/security/sbom.py \
+            src/polisyos/core/security/tee_middleware.py \
+            src/polisyos/core/artifacts/protocol.py \
+            src/polisyos/core/artifacts/write_contract.py \
+            src/polisyos/fabric/_connector_bridge.py \
+            src/polisyos/scientist/adapters/fabric_bridge.py \
+            src/polisyos/fabric/catalog/providers.py \
+            src/polisyos/fabric/catalog/resolver_fast_lane.py \
+            src/polisyos/fabric/data_plane/cli.py \
+            src/polisyos/fabric/ingestion_providers.py \
+            src/polisyos/fabric/data_plane/cursor_store.py \
+            src/polisyos/fabric/data_plane/quarantine.py \
+            src/polisyos/fabric/data_plane/modes.py \
+            src/polisyos/fabric/data_plane/orchestrator.py \
+            src/polisyos/fabric/data_plane/streaming.py \
+            src/polisyos/fabric/ingestion.py \
+            src/polisyos/fabric/retrieval/providers.py \
+            src/polisyos/fabric/retrieval/executor.py \
+            src/polisyos/fabric/retrieval/explore_lane.py \
+            src/polisyos/fabric/retrieval/service.py \
+            src/polisyos/fabric/connectors/cache/_store_core.py \
+            src/polisyos/fabric/connectors/cache/prefetch.py \
+            src/polisyos/fabric/connectors/cache/proxy.py \
+            src/polisyos/fabric/connectors/resilience/fallback.py \
+            src/polisyos/fabric/connectors/resilience/circuit_breaker.py \
+            src/polisyos/fabric/connectors/resilience/rate_limiter.py \
+            src/polisyos/fabric/storage/tenant_cas.py \
+            src/polisyos/fabric/world/providers.py \
+            src/polisyos/fabric/world/events.py \
+            src/polisyos/fabric/world/store/segments.py \
+            src/polisyos/fabric/world/store/persist.py \
+            src/polisyos/fabric/connectors/profiles/registry.py \
+            src/polisyos/fabric/connectors/bindings/registry.py \
+            src/polisyos/scholar/orchestrator/bundle.py \
+            src/polisyos/scholar/api.py \
+            src/polisyos/scientist/llm/factory.py \
+            src/polisyos/scientist/llm/profiles/registry.py \
+            src/polisyos/runtime/replay.py \
+            src/polisyos/common/serialization.py \
+            tests/common/test_async_tools.py \
+            tests/core/artifacts/test_ir_adapter.py \
+            tests/core/artifacts/test_async_store.py \
+            tests/core/artifacts/backends/test_config.py \
+            tests/core/artifacts/backends/test_gcs_store.py \
+            tests/core/components/test_cli_store.py \
+            tests/core/security/test_authz.py \
+            tests/core/security/test_audit_chain.py \
+            tests/core/security/test_identity.py \
+            tests/core/security/test_sbom.py \
+            tests/core/security/test_tee_middleware.py \
+            tests/core/phase0/test_run_context.py \
+            tests/core/phase0/test_audit_manifest_compat.py \
+            tests/core/phase0/test_decorators.py \
+            tests/core/test_llm_core.py \
+            tests/scientist/compute/test_runner_polyglot.py \
+            tests/scientist/agent/test_drafter_factory.py \
+            tests/scientist/agent/test_eval_harness.py \
+            tests/scientist/engine/test_async_executor.py \
+            tests/scientist/engine/test_operational_monitoring.py \
+            tests/scientist/engine/runner/test_activity_worker.py \
+            tests/scientist/engine/test_metrics_slo.py \
+            tests/scientist/test_api.py \
+            tests/scientist/test_checkpoint.py \
+            tests/scientist/test_decision_validity_service.py \
+            tests/scientist/test_knowledge_base.py \
+            tests/scientist/test_error_semantics.py \
+            tests/scientist/test_replay_backend.py \
+            tests/scientist/test_llm_cycle_preflight.py \
+            tests/scientist/governance/test_validation_pipeline.py \
+            tests/scientist/llm/test_budget_enforcer.py \
+            tests/scientist/workflows/test_builder_pinning.py \
+            tests/runtime/test_runtime_manifest_paths.py \
+            tests/scientist/governance/test_validation_pipeline_observability.py \
+            tests/scholar/test_freshness.py \
+            tests/scholar/search/test_service_jobs_tools.py \
+            tests/fabric/test_catalog_providers.py \
+            tests/fabric/test_connector_bridge.py \
+            tests/scientist/test_fabric_bridge.py \
+            tests/fabric/test_ingestion_providers.py \
+            tests/fabric/data_plane/test_quarantine.py \
+            tests/scientist/autotune/test_registry_and_runner.py \
+            tests/runtime/http/test_architecture_boundaries.py \
+            tests/runtime/http/test_resilience_guards.py \
+            tests/runtime/http/test_runtime_api_observability.py \
+            tests/fabric/test_world_store.py \
+            tests/core/phase0/test_store_signing.py \
+            tests/core/artifacts/test_storage_protocol_boundaries.py \
+            tests/scientist/llm/test_factory.py \
+            tests/scholar/test_api_web_bootstrap.py \
+            tests/runtime/http/test_control_service_di.py \
+            tools/validation/check_ci_ratchets.py \
+            tools/validation/check_docs_accuracy.py \
+            --select E,F,I,UP,S,PT,SIM,RUF,ANN,C4,TCH \
+            --ignore E501,ANN401,S101,S603,S607
+
+      - name: Run CI ratchet checks
+        run: uv run python tools/validation/check_ci_ratchets.py
+
+      - name: Verify architecture guardrails
+        run: uv run python tools/architecture/guardrails.py check
+
+      - name: Verify public API docstring coverage
+        run: |
+          uv run python tools/validation/check_docstring_quality.py \
+            --repo-root . \
+            --allowlist tools/validation/docstring_quality_allowlist.txt \
+            --coverage-scope public-surface \
+            --minimum-coverage 99.5
+
+      - name: Validate core-runtime closeout ledger
+        run: |
+          uv run python tools/workspace/core_runtime_closeout.py \
+            --summary .tmp/core-runtime-closeout.md \
+            --json-output .tmp/core-runtime-closeout.json
+
+  runtime-contracts:
+    name: Core Runtime / Contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: policy-engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          python-version: "3.11"
+          extras: "test runtime causal-discovery"
+
+      - name: Run targeted runtime contract tests
+        run: |
+          mkdir -p .tmp/test-reports
+          uv run pytest -q \
+            tests/common/test_async_tools.py \
+            tests/core/artifacts/test_ir_adapter.py \
+            tests/core/artifacts/test_async_store.py \
+            tests/core/artifacts/backends/test_config.py \
+            tests/core/artifacts/backends/test_gcs_store.py \
+            tests/core/components/test_cli_store.py \
+            tests/core/security/test_authz.py \
+            tests/core/security/test_audit_chain.py \
+            tests/core/security/test_identity.py \
+            tests/core/security/test_sbom.py \
+            tests/core/security/test_tee_middleware.py \
+            tests/core/phase0/test_run_context.py \
+            tests/core/phase0/test_audit_manifest_compat.py \
+            tests/core/phase0/test_decorators.py \
+            tests/core/test_llm_core.py \
+            tests/scientist/test_api.py \
+            tests/scientist/agent/test_drafter_factory.py \
+            tests/scientist/agent/test_eval_harness.py \
+            tests/scientist/compute/test_runner_polyglot.py \
+            tests/scientist/engine/test_async_executor.py \
+            tests/scientist/test_checkpoint.py \
+            tests/scientist/test_decision_validity_service.py \
+            tests/scientist/engine/runner/test_activity_worker.py \
+            tests/scientist/test_knowledge_base.py \
+            tests/scientist/test_replay_backend.py \
+            tests/scientist/engine/test_metrics_slo.py \
+            tests/scientist/compute/test_advanced_methods_c7.py \
+            tests/fabric/connectors/test_cache_system.py \
+            tests/fabric/connectors/test_integration.py \
+            tests/fabric/test_ingestion_providers.py \
+            tests/scientist/autotune/test_registry_and_runner.py \
+            tests/fabric/connectors/test_resilience.py \
+            tests/fabric/test_retrieval_service_catalog.py \
+            tests/scientist/engine/test_fan_out_async.py \
+            tests/scientist/engine/test_operational_monitoring.py \
+            tests/scientist/engine/test_retry.py \
+            tests/scientist/governance/test_validation_pipeline.py \
+            tests/scientist/test_llm_cycle_preflight.py \
+            tests/scientist/governance/test_validation_pipeline_observability.py \
+            tests/scientist/llm/test_budget_enforcer.py \
+            tests/scientist/search/test_portfolio_search.py \
+            tests/scientist/test_informed_critic.py \
+            tests/scientist/llm/test_factory.py \
+            tests/scientist/workflows/test_builder_pinning.py \
+            tests/scholar/test_api_web_bootstrap.py \
+            tests/scholar/test_freshness.py \
+            tests/scholar/search/test_fetcher_security_cache.py \
+            tests/scholar/search/test_providers.py \
+            tests/scholar/search/test_service_jobs_tools.py \
+            tests/fabric/test_catalog_providers.py \
+            tests/fabric/test_connector_bridge.py \
+            tests/scientist/test_fabric_bridge.py \
+            tests/scientist/test_error_semantics.py \
+            tests/fabric/data_plane/test_cursor_store.py \
+            tests/fabric/data_plane/test_quarantine.py \
+            tests/fabric/data_plane/test_modes.py \
+            tests/fabric/data_plane/test_orchestrator.py \
+            tests/fabric/data_plane/test_streaming_runtime.py \
+            tests/fabric/test_retrieval_service_catalog.py \
+            tests/fabric/test_world_store.py \
+            tests/fabric/test_world_materialization.py \
+            tests/runtime/test_runtime_manifest_paths.py \
+            tests/core/phase0/test_store_signing.py \
+            tests/core/phase0/test_artifact_export_import.py \
+            tests/core/artifacts/test_storage_protocol_boundaries.py \
+            tests/runtime/http/test_architecture_boundaries.py \
+            tests/runtime/http/test_control_service_di.py \
+            tests/runtime/http/test_resilience_guards.py \
+            tests/runtime/http/test_runtime_api_authz.py \
+            tests/runtime/http/test_runtime_api_contract_hardening.py \
+            tests/runtime/http/test_runtime_api_observability.py \
+            tests/runtime/http/test_runtime_security_compliance.py \
+            tests/runtime/http/test_runtime_api_write_path_hardening.py \
+            tests/runtime/http/test_api_maturity.py \
+            --junitxml=.tmp/test-reports/core-runtime-contracts.xml
+
+      - name: Run soak smoke evidence
+        run: |
+          uv run pytest -q \
+            tests/performance/test_runtime_hot_paths.py \
+            -k "run_index_incremental_refresh_soak_smoke or async_artifact_store_repeated_round_trip_soak_smoke or async_artifact_store_concurrent_round_trip_soak_smoke or async_connector_ingestion_round_trip_soak_smoke or async_cursor_store_stream_progress_soak_smoke or partitioned_ingestion_resume_cycle_soak_smoke or streaming_async_adapter_resume_cycle_soak_smoke or streaming_async_adapter_cdc_round_trip_soak_smoke or streaming_async_adapter_combined_resume_cdc_long_soak_smoke or streaming_windowed_legacy_async_chunk_round_trip_soak_smoke or streaming_windowed_async_snapshot_round_trip_soak_smoke or orchestrated_ingestion_async_snapshot_round_trip_soak_smoke"
+
+      - name: Upload runtime contract evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: core-runtime-contracts
+          path: policy-engine/.tmp/test-reports/core-runtime-contracts.xml
+          if-no-files-found: warn
+          retention-days: 30
+
+  docs-contract:
+    name: Core Runtime / Docs Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: policy-engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          python-version: "3.11"
+          extras: "docs"
+
+      - name: Check docs accuracy
+        run: uv run python tools/validation/check_docs_accuracy.py
+
+      - name: Build docs
+        run: uv run python -m mkdocs build
+
+  linkcheck:
+    name: Core Runtime / Link Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check documentation links
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
+        with:
+          args: "policy-engine/docs/ policy-engine/README.md policy-engine/CONTRIBUTING.md --exclude-path policy-engine/docs/archive"
+
+  mutation-subset:
+    name: Core Runtime / Mutation Subset
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: policy-engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          python-version: "3.11"
+          extras: "test mutation runtime"
+
+      - name: Run mutation subset
+        run: |
+          uv run mutmut run \
+            --paths-to-mutate src/polisyos/common/serialization.py \
+            --paths-to-mutate src/polisyos/core/security/authz.py \
+            --paths-to-mutate src/polisyos/runtime/http/dependencies.py \
+            --runner "python -m pytest tests/common/test_serialization_properties.py tests/runtime/http/test_access_invariants_properties.py tests/runtime/http/test_runtime_api_authz.py -x -q --no-header"
+
+      - name: Export mutation results
+        run: uv run mutmut results > core-runtime-mutation-results.txt
+
+      - name: Upload mutation evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: core-runtime-mutation-results
+          path: policy-engine/core-runtime-mutation-results.txt
+          if-no-files-found: warn
+          retention-days: 30
+
+  performance-smoke:
+    name: Core Runtime / Performance Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: policy-engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          python-version: "3.11"
+          extras: "test runtime causal-discovery"
+
+      - name: Run performance smoke benchmarks
+        run: |
+          uv run pytest \
+            tests/performance/test_overhead.py \
+            tests/performance/test_scientist_runtime_paths.py \
+            tests/performance/test_runtime_hot_paths.py \
+            --benchmark-only \
+            --benchmark-json=core-runtime-benchmarks.json \
+            --benchmark-warmup=on \
+            --benchmark-min-rounds=5 \
+            -q
+
+      - name: Upload performance evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: core-runtime-benchmarks
+          path: policy-engine/core-runtime-benchmarks.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  release-review-evidence:
+    name: Core Runtime / Release Review Evidence
+    if: github.event_name == 'workflow_dispatch'
+    needs:
+      - typing-and-ratchets
+      - runtime-contracts
+      - docs-contract
+      - linkcheck
+      - mutation-subset
+      - performance-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: policy-engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Download performance evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: core-runtime-benchmarks
+          path: policy-engine/release-review/benchmarks
+
+      - name: Download mutation evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: core-runtime-mutation-results
+          path: policy-engine/release-review/mutation
+
+      - name: Download runtime contract evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: core-runtime-contracts
+          path: policy-engine/release-review/contracts
+
+      - name: Assemble release review bundle
+        run: |
+          mkdir -p release-review/docs release-review/ops
+          uv run python tools/workspace/core_runtime_closeout.py \
+            --summary release-review/docs/core-runtime-closeout.md \
+            --json-output release-review/contracts/core-runtime-closeout.json
+          cp docs/reference/operations/slo-error-budget.md release-review/docs/
+          cp docs/reference/operations/core-runtime-closeout.md release-review/docs/
+          cp docs/runbooks/benchmark-regression-triage.md release-review/docs/
+          cp release/core-runtime-closeout.ledger.toml release-review/docs/
+          cp release/core-runtime-closeout.evidence.template.toml release-review/docs/
+          cp ops/prometheus/slo_alerts.yml release-review/ops/
+          cp ops/prometheus/rules/runtime_operability_alerts.yml release-review/ops/
+          cp ops/grafana/dashboards/runtime-operability.json release-review/ops/
+          cp ops/grafana/dashboards/slo-overview.json release-review/ops/
+          cp tests/performance/overhead_baseline.json release-review/benchmarks/
+          cat <<'EOF' > release-review/README.md
+          # Core Runtime Release Review
+
+          This bundle is assembled only after the same gates used on pull requests pass:
+
+          - typing and ratchets: mypy, basedpyright, expanded Ruff, CI ratchet scan, architecture guardrails;
+          - runtime contracts: middleware, lifecycle, and security regression suite;
+          - docs and links: docs accuracy, MkDocs build, and link checks;
+          - mutation subset: auth, serialization, and runtime dependency mutation gate;
+          - performance smoke: current benchmark JSON plus committed baseline.
+
+          Release review evidence lives under:
+
+          - `benchmarks/` for current smoke results and benchmark baselines;
+          - `contracts/` for targeted runtime JUnit evidence;
+          - `mutation/` for mutmut results;
+          - `docs/` for SLI/SLO, closeout ledger, and regression triage policy;
+          - `ops/` for Prometheus alert rules and Grafana dashboards.
+          EOF
+
+      - name: Publish release review summary
+        run: |
+          {
+            echo "## Core Runtime Release Review"
+            echo "- Same gates as daily PR development passed before this bundle was assembled."
+            echo "- SLO source of truth: \`policy-engine/docs/reference/operations/slo-error-budget.md\`"
+            echo "- Closeout ledger: \`policy-engine/release/core-runtime-closeout.ledger.toml\`"
+            echo "- Benchmark baseline: \`policy-engine/tests/performance/overhead_baseline.json\`"
+            echo "- Alert rules: \`policy-engine/ops/prometheus/slo_alerts.yml\`, \`policy-engine/ops/prometheus/rules/runtime_operability_alerts.yml\`"
+            echo "- Dashboards: \`policy-engine/ops/grafana/dashboards/runtime-operability.json\`, \`policy-engine/ops/grafana/dashboards/slo-overview.json\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload release review bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: core-runtime-release-review
+          path: policy-engine/release-review
+          if-no-files-found: warn
+          retention-days: 30

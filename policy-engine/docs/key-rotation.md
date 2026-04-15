@@ -1,5 +1,8 @@
 # Key Rotation for CAS Artifact Signing
 
+Related ADR: [ADR-0102](adr/0102-key-rotation-lifecycle-and-trust-store-policy.md).
+Related runbook: [Key Rotation](runbooks/key-rotation.md).
+
 ## Scope
 
 Документ описывает ротацию Ed25519 ключей для подписи CAS артефактов (Phase 6).

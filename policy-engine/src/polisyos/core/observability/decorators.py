@@ -24,10 +24,9 @@ Usage:
 """
 from __future__ import annotations
 
-import asyncio
 import functools
 import inspect
-from typing import Any, Callable, Optional, ParamSpec, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, cast, overload
 
 from opentelemetry.trace import SpanKind, Status, StatusCode
 
@@ -39,9 +38,9 @@ from polisyos.core.security.tenant_context import (
 
 from .tracer import get_tracer
 
-P = ParamSpec("P")
-T = TypeVar("T")
-
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Concatenate
 
 def _extract_attributes_from_args(
     func: Callable[..., Any],
@@ -74,7 +73,7 @@ def _extract_attributes_from_args(
 def _safe_attribute_value(
     value: Any,
     max_length: int = 256,
-) -> Optional[Union[str, int, float, bool]]:
+) -> str | int | float | bool | None:
     """
     Convert a value to a span attribute-safe type.
 
@@ -118,37 +117,39 @@ def _attach_tenant_attributes(span: Any) -> None:
 
 
 @overload
-def traced(func: Callable[P, T]) -> Callable[P, T]:
+def traced[**P, T](func: Callable[P, T]) -> Callable[P, T]:
     """Decorate `func` with automatic span creation using default options."""
     ...
 
 
 @overload
-def traced(
+def traced[**P, T](
     *,
-    name: Optional[str] = None,
+    name: str | None = None,
     capture_args: bool = False,
     capture_result: bool = False,
-    phase: Optional[str] = None,
-    agent: Optional[str] = None,
-    node: Optional[str] = None,
+    phase: str | None = None,
+    agent: str | None = None,
+    node: str | None = None,
     kind: SpanKind = SpanKind.INTERNAL,
+    tracer_factory: Callable[[], Any] | None = None,
 ) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """Return a configured tracing decorator for sync or async callables."""
     ...
 
 
-def traced(
-    func: Optional[Callable[P, T]] = None,
+def traced[**P, T](
+    func: Callable[P, T] | None = None,
     *,
-    name: Optional[str] = None,
+    name: str | None = None,
     capture_args: bool = False,
     capture_result: bool = False,
-    phase: Optional[str] = None,
-    agent: Optional[str] = None,
-    node: Optional[str] = None,
+    phase: str | None = None,
+    agent: str | None = None,
+    node: str | None = None,
     kind: SpanKind = SpanKind.INTERNAL,
-) -> Union[Callable[P, T], Callable[[Callable[P, T]], Callable[P, T]]]:
+    tracer_factory: Callable[[], Any] | None = None,
+) -> Callable[P, T] | Callable[[Callable[P, T]], Callable[P, T]]:
     """
     Decorator for automatic span creation around functions.
 
@@ -167,6 +168,7 @@ def traced(
         agent: Agent name (drafter, formalizer, critic, governor)
         node: Flow node name (draft_ir, formalize, validate, run_sim)
         kind: Span kind (INTERNAL, CLIENT, SERVER, PRODUCER, CONSUMER)
+        tracer_factory: Optional provider hook used to resolve a tracer per invocation.
 
     Returns:
         Decorated function with automatic tracing
@@ -174,6 +176,7 @@ def traced(
 
     def decorator(fn: Callable[P, T]) -> Callable[P, T]:
         span_name = name or fn.__qualname__
+        resolved_tracer_factory = tracer_factory or get_tracer
 
         # Build static attributes
         static_attrs: dict[str, Any] = {}
@@ -184,11 +187,11 @@ def traced(
         if node:
             static_attrs["polisyos.node.name"] = node
 
-        if asyncio.iscoroutinefunction(fn):
+        if inspect.iscoroutinefunction(fn):
 
             @functools.wraps(fn)
             async def async_wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
-                tracer = get_tracer()
+                tracer = resolved_tracer_factory()
 
                 # Build attributes
                 attributes = dict(static_attrs)
@@ -205,23 +208,22 @@ def traced(
                         result = await fn(*args, **kwargs)
 
                         if capture_result:
-                            span.set_attribute(
-                                "function.result",
-                                _safe_attribute_value(result),
-                            )
+                            result_attr = _safe_attribute_value(result)
+                            if result_attr is not None:
+                                span.set_attribute("function.result", result_attr)
 
-                        return result
+                        return cast("T", result)
 
                     except Exception as exc:
                         span.set_status(Status(status_code=StatusCode.ERROR, description=str(exc)))
                         span.record_exception(exc)
                         raise
 
-            return async_wrapper  # type: ignore
+            return cast("Callable[P, T]", async_wrapper)
 
         @functools.wraps(fn)
         def sync_wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
-            tracer = get_tracer()
+            tracer = resolved_tracer_factory()
 
             # Build attributes
             attributes = dict(static_attrs)
@@ -238,10 +240,9 @@ def traced(
                     result = fn(*args, **kwargs)
 
                     if capture_result:
-                        span.set_attribute(
-                            "function.result",
-                            _safe_attribute_value(result),
-                        )
+                        result_attr = _safe_attribute_value(result)
+                        if result_attr is not None:
+                            span.set_attribute("function.result", result_attr)
 
                     return result
 
@@ -250,7 +251,7 @@ def traced(
                     span.record_exception(exc)
                     raise
 
-        return sync_wrapper  # type: ignore
+        return cast("Callable[P, T]", sync_wrapper)
 
     # Handle both @traced and @traced() syntax
     if func is not None:
@@ -258,20 +259,20 @@ def traced(
     return decorator
 
 
-def traced_method(
+def traced_method[**P, T](
     *,
-    name: Optional[str] = None,
+    name: str | None = None,
     capture_args: bool = False,
-    phase: Optional[str] = None,
-    agent: Optional[str] = None,
-) -> Callable[[Callable[P, T]], Callable[P, T]]:
+    phase: str | None = None,
+    agent: str | None = None,
+) -> Callable[[Callable[Concatenate[Any, P], T]], Callable[Concatenate[Any, P], T]]:
     """
     Specialized decorator for class methods.
 
     Automatically extracts run_id from self if available.
     """
 
-    def decorator(fn: Callable[P, T]) -> Callable[P, T]:
+    def decorator(fn: Callable[Concatenate[Any, P], T]) -> Callable[Concatenate[Any, P], T]:
         span_name = name or fn.__qualname__
 
         @functools.wraps(fn)
@@ -304,6 +305,6 @@ def traced_method(
                     span.record_exception(exc)
                     raise
 
-        return wrapper  # type: ignore
+        return cast("Callable[Concatenate[Any, P], T]", wrapper)
 
     return decorator

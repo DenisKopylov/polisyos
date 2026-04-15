@@ -2,12 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, is_dataclass
-from datetime import UTC, datetime
 from decimal import Decimal
 from enum import Enum
-from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import Any, Iterable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -26,10 +22,9 @@ from polisyos.ir.analytics.causal import (
     load_proof_bundle,
     persist_data_readiness_report,
 )
-from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, TransportStatus
 from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
+from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, TransportStatus
 from polisyos.ir.analytics.distributional import DistributionalReport
-from polisyos.ir.analytics.negative_certificate import load_negative_certificate
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope as IRUncertaintyEnvelope
 from polisyos.ir.trinity import TrinityBundle
@@ -38,33 +33,48 @@ from polisyos.scientist.autotune.models import (
     ChampionPointer,
     PromotionDecision,
     PromotionPolicy,
-    default_search_registry_root,
 )
 from polisyos.scientist.discovery.priors import PriorKnowledgeBundle
 from polisyos.scientist.engine.budget import BudgetState
-# Governance passes are lazy-imported inside the methods that use them to keep
-# module-level cold-start time below the 15 s CI threshold.  The TYPE_CHECKING
-# guard preserves static type information without triggering the import chain.
+
+# Governance pass implementations are lazy-imported via judge_passes to keep
+# module-level cold-start time below the 15 s CI threshold.
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+from polisyos.scientist.replay.verification import (
+    ReplayVerificationReport,
+    load_replay_verification_report,
+)
+from polisyos.scientist.search.adversarial import PlatformMetaEvaluationReport
 from polisyos.scientist.search.failure_cards import FailureSeverity, TypedFailureCard
 from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.search.adversarial import PlatformMetaEvaluationReport
+from polisyos.scientist.search.judge_passes import (
+    load_benchmark_split_enum,
+    load_governance_pass_factories,
+    load_quality_gate_pass_type,
+    load_reproducibility_pass_types,
+    load_robustness_pass_types,
+    load_transportability_required_pass_type,
+)
+from polisyos.scientist.search.judge_thresholds import (
+    JudgeThresholdEntry,
+    JudgeThresholdRegistry,
+    JudgeThresholdSnapshot,
+    ResolvedThresholdSet,
+    ThresholdViolation,
+    _check_threshold_violation,
+)
 from polisyos.scientist.search.latent_governance import (
     LatentGovernanceAssessment,
     assess_latent_governance,
 )
-from polisyos.scientist.search.registry_contracts import ChampionRegistryContract
 from polisyos.scientist.search.readiness import (
     DecisionReadinessContract,
     DecisionReadinessEvaluator,
     persist_decision_readiness_contract,
 )
-from polisyos.scientist.replay.verification import (
-    ReplayVerificationReport,
-    load_replay_verification_report,
-)
+from polisyos.scientist.search.registry_contracts import ChampionRegistryContract
 from polisyos.scientist.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
@@ -83,240 +93,6 @@ class JudgeName(str, Enum):
     GOVERNANCE = "governance"
     REPRODUCIBILITY = "reproducibility"
     COMPUTE = "compute"
-
-
-class JudgeThresholdEntry(BaseModel):
-    """Versioned threshold entry with optional scope."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    judge_name: str
-    metric_name: str
-    threshold_value: float
-    direction: Literal["max", "min"]
-    rationale: str
-    benchmark_source: str
-    maturity: Literal["provisional", "benchmarked", "hardened"] = "provisional"
-    version: int = 1
-    last_updated: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    scope_family: str | None = None
-    scope_query_type: str | None = None
-    scope_estimator: str | None = None
-    scope_readiness_target: str | None = None
-    change_reason: str | None = None
-    approved_by: str | None = None
-
-    def scope_key(self) -> tuple[str | None, str | None, str | None, str | None]:
-        return (
-            self.scope_family,
-            self.scope_query_type,
-            self.scope_estimator,
-            self.scope_readiness_target,
-        )
-
-
-class JudgeThresholdSnapshot(BaseModel):
-    """Serializable snapshot of threshold registry contents."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    entries: list[JudgeThresholdEntry] = Field(default_factory=list)
-
-
-class ThresholdViolation(BaseModel):
-    """One threshold breach recorded by a judge."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    metric_name: str
-    observed_value: float
-    threshold_value: float
-    threshold_direction: Literal["max", "min"]
-
-
-class ResolvedThresholdSet(BaseModel):
-    """Resolved threshold entries for one judge and one scope."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    judge_name: str
-    scope: dict[str, str | None]
-    entries: dict[str, JudgeThresholdEntry] = Field(default_factory=dict)
-    registry_version: int | None = None
-
-    def threshold_value(self, metric_name: str) -> float | None:
-        entry = self.entries.get(metric_name)
-        return None if entry is None else float(entry.threshold_value)
-
-
-class JudgeThresholdRegistry:
-    """Versioned runtime authority for judge thresholds."""
-
-    def __init__(self, root: Path | None = None) -> None:
-        self._root = (root or default_search_registry_root() / "judge_thresholds").resolve()
-        self._root.mkdir(parents=True, exist_ok=True)
-
-    def seed_defaults(self) -> JudgeThresholdSnapshot:
-        snapshot = self._load_snapshot()
-        if snapshot.entries:
-            return snapshot
-        seeded = JudgeThresholdSnapshot(entries=_default_threshold_entries())
-        self._write_snapshot(seeded)
-        return seeded
-
-    def record(
-        self,
-        entry: JudgeThresholdEntry,
-        *,
-        allow_loosen: bool = False,
-        change_reason: str | None = None,
-        approved_by: str | None = None,
-    ) -> None:
-        snapshot = self._load_snapshot()
-        entries = list(snapshot.entries)
-        existing = [
-            item
-            for item in entries
-            if item.judge_name == entry.judge_name
-            and item.metric_name == entry.metric_name
-            and item.scope_key() == entry.scope_key()
-        ]
-        if existing:
-            latest = max(existing, key=lambda item: item.version)
-            if not allow_loosen and _is_looser_threshold(entry, latest):
-                raise ValueError(
-                    "JudgeThresholdRegistry refuses to loosen a threshold without explicit override."
-                )
-            next_version = latest.version + 1
-        else:
-            next_version = 1
-        entries = [
-            item
-            for item in entries
-            if not (
-                item.judge_name == entry.judge_name
-                and item.metric_name == entry.metric_name
-                and item.scope_key() == entry.scope_key()
-            )
-        ]
-        entries.append(
-            entry.model_copy(
-                update={
-                    "version": next_version,
-                    "last_updated": datetime.now(UTC),
-                    "change_reason": change_reason or entry.change_reason,
-                    "approved_by": approved_by or entry.approved_by,
-                }
-            )
-        )
-        self._write_snapshot(
-            snapshot.model_copy(
-                update={
-                    "updated_at": datetime.now(UTC),
-                    "entries": entries,
-                }
-            )
-        )
-
-    def resolve(
-        self,
-        judge_name: str,
-        *,
-        family: str | None = None,
-        query_type: str | None = None,
-        estimator: str | None = None,
-        readiness_target: str | None = None,
-    ) -> ResolvedThresholdSet:
-        snapshot = self._load_snapshot()
-        scope = {
-            "family": _normalize_scope_value(family),
-            "query_type": _normalize_scope_value(query_type),
-            "estimator": _normalize_scope_value(estimator),
-            "readiness_target": _normalize_scope_value(readiness_target),
-        }
-        resolved: dict[str, JudgeThresholdEntry] = {}
-        for metric_name in {
-            item.metric_name for item in snapshot.entries if item.judge_name == judge_name
-        }:
-            entry = self._resolve_one(
-                snapshot.entries,
-                judge_name=judge_name,
-                metric_name=metric_name,
-                scope=scope,
-            )
-            if entry is not None:
-                resolved[metric_name] = entry
-        return ResolvedThresholdSet(
-            judge_name=judge_name,
-            scope=scope,
-            entries=resolved,
-            registry_version=max((item.version for item in resolved.values()), default=None),
-        )
-
-    def snapshot(self) -> JudgeThresholdSnapshot:
-        return self._load_snapshot()
-
-    def _snapshot_path(self) -> Path:
-        return self._root / "judge_threshold_registry.json"
-
-    def _load_snapshot(self) -> JudgeThresholdSnapshot:
-        path = self._snapshot_path()
-        if not path.exists():
-            return JudgeThresholdSnapshot(entries=_default_threshold_entries())
-        return JudgeThresholdSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
-
-    def _write_snapshot(self, snapshot: JudgeThresholdSnapshot) -> None:
-        path = self._snapshot_path()
-        payload = snapshot.model_dump_json(indent=2)
-        with NamedTemporaryFile(
-            "w",
-            encoding="utf-8",
-            dir=path.parent,
-            delete=False,
-        ) as tmp:
-            tmp.write(payload)
-            temp_path = Path(tmp.name)
-        temp_path.replace(path)
-
-    def _resolve_one(
-        self,
-        entries: list[JudgeThresholdEntry],
-        *,
-        judge_name: str,
-        metric_name: str,
-        scope: dict[str, str | None],
-    ) -> JudgeThresholdEntry | None:
-        candidates = [
-            item
-            for item in entries
-            if item.judge_name == judge_name and item.metric_name == metric_name
-        ]
-        resolution_order = [
-            (
-                scope["family"],
-                scope["query_type"],
-                scope["estimator"],
-                scope["readiness_target"],
-            ),
-            (scope["family"], scope["query_type"], scope["estimator"], None),
-            (scope["family"], scope["query_type"], None, None),
-            (scope["family"], None, None, None),
-            (None, None, None, None),
-        ]
-        for family, query_type, estimator, readiness_target in resolution_order:
-            scoped = [
-                item
-                for item in candidates
-                if item.scope_family == family
-                and item.scope_query_type == query_type
-                and item.scope_estimator == estimator
-                and item.scope_readiness_target == readiness_target
-            ]
-            if scoped:
-                return max(scoped, key=lambda item: item.version)
-        return None
 
 
 class SingleJudgeVerdict(BaseModel):
@@ -903,8 +679,8 @@ class JudgeStack:
         quality_state = bundle.build_state()
         if "data_quality_report" in quality_state or "evidence_bundle" in quality_state:
             pass_context = bundle.build_pass_context({"quality"})
-            from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
-            issues = QualityGatePass(force_run=True).validate(pass_context)
+            quality_gate_pass_type = load_quality_gate_pass_type()
+            issues = quality_gate_pass_type(force_run=True).validate(pass_context)
             for issue in issues:
                 card = compliance_issue_to_failure_card(
                     issue,
@@ -947,9 +723,8 @@ class JudgeStack:
             )
         else:
             pass_context = bundle.build_pass_context({"refutation", "sutva_check"})
-            from polisyos.scientist.governance.passes.refutation_pass import RefutationPass
-            from polisyos.scientist.governance.passes.sutva_check_pass import SutvaCheckPass
-            for validator in (RefutationPass(), SutvaCheckPass()):
+            refutation_pass_type, sutva_check_pass_type = load_robustness_pass_types()
+            for validator in (refutation_pass_type(), sutva_check_pass_type()):
                 for issue in validator.validate(pass_context):
                     card = compliance_issue_to_failure_card(
                         issue,
@@ -977,8 +752,10 @@ class JudgeStack:
                         )
             else:
                 pass_context = bundle.build_pass_context({"transportability_required"})
-                from polisyos.scientist.governance.passes.transportability_required_pass import TransportabilityRequiredPass
-                for issue in TransportabilityRequiredPass().validate(pass_context):
+                transportability_required_pass_type = (
+                    load_transportability_required_pass_type()
+                )
+                for issue in transportability_required_pass_type().validate(pass_context):
                     card = compliance_issue_to_failure_card(
                         issue,
                         judge_name=JudgeName.ROBUSTNESS.value,
@@ -1027,22 +804,8 @@ class JudgeStack:
         pass_context = bundle.build_pass_context(
             {"budget", "equity", "privacy", "pii_check", "human_review_required", "legal"}
         )
-        from polisyos.scientist.governance.pass_entrypoints import (
-            budget_pass_factory,
-            equity_pass_factory,
-            human_review_required_pass_factory,
-            legal_pass_factory,
-            pii_check_pass_factory,
-            privacy_pass_factory,
-        )
-        for validator in (
-            budget_pass_factory(),
-            equity_pass_factory(),
-            privacy_pass_factory(),
-            pii_check_pass_factory(),
-            human_review_required_pass_factory(),
-            legal_pass_factory(),
-        ):
+        for pass_factory in load_governance_pass_factories():
+            validator = pass_factory()
             for issue in validator.validate(pass_context):
                 card = compliance_issue_to_failure_card(
                     issue,
@@ -1196,10 +959,14 @@ class JudgeStack:
                 )
             )
         pass_context = bundle.build_pass_context({"checkpoint", "citation_validator", "freshness"})
-        from polisyos.scientist.governance.passes.checkpoint_pass import CheckpointPass
-        from polisyos.scientist.governance.passes.citation_validator_pass import CitationValidatorPass
-        from polisyos.scientist.governance.passes.freshness_pass import FreshnessPass
-        for validator in (CheckpointPass(), CitationValidatorPass(), FreshnessPass()):
+        checkpoint_pass_type, citation_validator_pass_type, freshness_pass_type = (
+            load_reproducibility_pass_types()
+        )
+        for validator in (
+            checkpoint_pass_type(),
+            citation_validator_pass_type(),
+            freshness_pass_type(),
+        ):
             for issue in validator.validate(pass_context):
                 card = compliance_issue_to_failure_card(
                     issue,
@@ -1337,7 +1104,6 @@ class JudgeStack:
 
     def _compute(self, bundle: JudgeInputBundle) -> SingleJudgeVerdict:
         evidence_refs = _evidence_refs(bundle)
-        cards: list[TypedFailureCard] = []
         warnings: list[TypedFailureCard] = []
         metrics: dict[str, float] = {}
         resolved = self._resolved_thresholds(JudgeName.COMPUTE, bundle)
@@ -1853,23 +1619,27 @@ def to_search_uncertainty_envelope(
 
 def benchmark_split(name: str):
     """Benchmark split helper."""
-    from polisyos.scientist.autotune.models import BenchmarkSplit
-
+    benchmark_split_enum = load_benchmark_split_enum()
     normalized = str(name).strip().lower()
-    for split in BenchmarkSplit:
+    for split in benchmark_split_enum:
         if split.value == normalized:
             return split
-    return BenchmarkSplit.SELECTION if normalized == "selection" else BenchmarkSplit.HOLDOUT
+    return (
+        benchmark_split_enum.SELECTION
+        if normalized == "selection"
+        else benchmark_split_enum.HOLDOUT
+    )
 
 
 def _benchmark_runtime_split_card(
     bundle: JudgeInputBundle,
 ) -> TypedFailureCard | None:
-    from polisyos.scientist.autotune.models import BenchmarkSplit
-
+    benchmark_split_enum = load_benchmark_split_enum()
     selection = bundle.benchmark_evaluation
     holdout = bundle.hidden_holdout_evaluation
-    if selection is not None and not selection.matches_runtime_split(BenchmarkSplit.SELECTION):
+    if selection is not None and not selection.matches_runtime_split(
+        benchmark_split_enum.SELECTION
+    ):
         return TypedFailureCard(
             judge_name=JudgeName.ROBUSTNESS.value,
             failure_type="benchmark_split_type_mismatch",
@@ -1883,7 +1653,9 @@ def _benchmark_runtime_split_card(
                 "suite_id": selection.suite_id,
             },
         )
-    if holdout is not None and not holdout.matches_runtime_split(BenchmarkSplit.HIDDEN_HOLDOUT):
+    if holdout is not None and not holdout.matches_runtime_split(
+        benchmark_split_enum.HIDDEN_HOLDOUT
+    ):
         return TypedFailureCard(
             judge_name=JudgeName.ROBUSTNESS.value,
             failure_type="benchmark_split_type_mismatch",
@@ -2128,128 +1900,6 @@ def _attach_policy_metadata(
     updated = champion.model_copy(update={"metadata": metadata})
     registry.write_pointer(loop_id, updated)
     return updated
-
-
-def _normalize_scope_value(value: str | None) -> str | None:
-    text = str(value or "").strip()
-    return text or None
-
-
-def _default_threshold_entries() -> list[JudgeThresholdEntry]:
-    return [
-        JudgeThresholdEntry(
-            judge_name=JudgeName.STRUCTURAL.value,
-            metric_name="proof_precondition_coverage",
-            threshold_value=1.0,
-            direction="min",
-            rationale="Promotion-safe proof artifacts must cover all required preconditions.",
-            benchmark_source="phase_a_seed_defaults",
-            maturity="benchmarked",
-        ),
-        JudgeThresholdEntry(
-            judge_name=JudgeName.STRUCTURAL.value,
-            metric_name="bounds_consistency_gap",
-            threshold_value=0.0,
-            direction="max",
-            rationale="Lower/upper bounds must remain internally consistent.",
-            benchmark_source="phase_a_seed_defaults",
-            maturity="benchmarked",
-        ),
-        JudgeThresholdEntry(
-            judge_name=JudgeName.STATISTICAL.value,
-            metric_name="statistical_uncertainty_level",
-            threshold_value=0.50,
-            direction="max",
-            rationale="Promotion-safe statistical uncertainty must remain below 0.50.",
-            benchmark_source="phase_a_seed_defaults",
-            maturity="benchmarked",
-        ),
-        JudgeThresholdEntry(
-            judge_name=JudgeName.ROBUSTNESS.value,
-            metric_name="hidden_holdout_degradation",
-            threshold_value=0.10,
-            direction="max",
-            rationale="Hidden holdout degradation above 10% is not promotion-safe.",
-            benchmark_source="phase_a_seed_defaults",
-            maturity="benchmarked",
-        ),
-        JudgeThresholdEntry(
-            judge_name=JudgeName.REPRODUCIBILITY.value,
-            metric_name="replay_match",
-            threshold_value=0.999,
-            direction="min",
-            rationale="Promotion-grade replay requires near-perfect deterministic similarity.",
-            benchmark_source="phase_a_seed_defaults",
-            maturity="benchmarked",
-        ),
-        JudgeThresholdEntry(
-            judge_name=JudgeName.COMPUTE.value,
-            metric_name="timeout_risk",
-            threshold_value=0.70,
-            direction="max",
-            rationale="Timeout risk above 0.70 requires compute-side escalation.",
-            benchmark_source="phase_a_seed_defaults",
-            maturity="benchmarked",
-        ),
-        JudgeThresholdEntry(
-            judge_name=JudgeName.COMPUTE.value,
-            metric_name="cost_efficiency",
-            threshold_value=1.00,
-            direction="min",
-            rationale="Expected improvement per USD should stay above 1.0.",
-            benchmark_source="phase_a_seed_defaults",
-            maturity="benchmarked",
-        ),
-        JudgeThresholdEntry(
-            judge_name=JudgeName.COMPUTE.value,
-            metric_name="replay_cost_ratio",
-            threshold_value=1.25,
-            direction="max",
-            rationale="Replay cost should stay within 1.25x of evaluation cost.",
-            benchmark_source="phase_a_seed_defaults",
-            maturity="benchmarked",
-        ),
-    ]
-
-
-def _is_looser_threshold(
-    candidate: JudgeThresholdEntry,
-    baseline: JudgeThresholdEntry,
-) -> bool:
-    if candidate.direction != baseline.direction:
-        return False
-    if candidate.direction == "max":
-        return float(candidate.threshold_value) > float(baseline.threshold_value)
-    return float(candidate.threshold_value) < float(baseline.threshold_value)
-
-
-def _check_threshold_violation(
-    resolved: ResolvedThresholdSet | None,
-    *,
-    metric_name: str,
-    observed_value: float,
-) -> ThresholdViolation | None:
-    if resolved is None:
-        return None
-    entry = resolved.entries.get(metric_name)
-    if entry is None:
-        return None
-    observed = float(observed_value)
-    threshold = float(entry.threshold_value)
-    violated = (
-        observed > threshold
-        if entry.direction == "max"
-        else observed < threshold
-    )
-    if not violated:
-        return None
-    return ThresholdViolation(
-        metric_name=metric_name,
-        observed_value=observed,
-        threshold_value=threshold,
-        threshold_direction=entry.direction,
-    )
-
 
 def _threshold_failure_card(
     *,

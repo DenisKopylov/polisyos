@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+
+from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
@@ -10,11 +11,11 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.execution_plan import (
     ExecutionPlan,
     MethodCatalogSnapshot,
-    PreflightReport,
 )
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.llm_cycle import persist_preflight_report, preflight_execution_plan
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -46,8 +47,17 @@ _SPEC = NodeSpec(
         "params.preflight_diagnostics",
         "params.preflight_report_ref",
         f"artifacts_index.{ARTIFACT_PREFLIGHT_REPORT_REF}",
+        "preflight_report_ref",
     ],
     produces=[ARTIFACT_PREFLIGHT_REPORT_REF],
+)
+
+_PREFLIGHT_INPUT_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
 )
 
 
@@ -81,7 +91,7 @@ class RunPreflightNode:
             snapshot_payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref.artifact_id))
             plan = ExecutionPlan.model_validate(plan_payload)
             snapshot = MethodCatalogSnapshot.model_validate(snapshot_payload)
-        except Exception as exc:
+        except _PREFLIGHT_INPUT_LOAD_ERRORS as exc:
             error = NodeError(
                 code=node_errors.ERROR_INVALID_STATE,
                 message=f"Failed to load preflight inputs: {exc}",
@@ -99,7 +109,7 @@ class RunPreflightNode:
                 InputRef(artifact_id=snapshot_ref.artifact_id, role="method_catalog_snapshot"),
             ],
         )
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.params["preflight_ready"] = bool(report.ready_to_run)
         new_state.params["preflight_diagnostics"] = [
             row.model_dump(mode="json") for row in report.diagnostics

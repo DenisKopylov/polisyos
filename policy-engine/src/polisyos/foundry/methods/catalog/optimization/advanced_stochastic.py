@@ -36,7 +36,7 @@ class BilevelOptimizationEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="bilevel",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -135,7 +135,7 @@ class ChanceConstrainedEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="chance_constrained",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

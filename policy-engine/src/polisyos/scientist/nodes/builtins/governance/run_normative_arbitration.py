@@ -6,13 +6,14 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.core.contracts.lex import LegalReport
-from polisyos.ir.artifacts import InputRef
 from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
 from polisyos.ir.analytics.normative_arbitration import (
     ArbitrationOption,
@@ -29,6 +30,7 @@ from polisyos.ir.analytics.normative_arbitration import (
     TradeoffCertificate,
     persist_normative_arbitration_result,
 )
+from polisyos.ir.artifacts import InputRef
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
     NormativeArbitrationPolicy,
@@ -37,7 +39,6 @@ from polisyos.ir.governance.problem_frame import (
     NormativeOutcomeChannel,
     ProblemFrame,
     StakeholderOutcomeBinding,
-    StakeholderRightSpec,
     StakeholderSpec,
     StakeholderUtilityTerm,
     UtilityDirection,
@@ -47,6 +48,8 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
@@ -58,6 +61,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 logger = get_logger(__name__)
+_NORMATIVE_ARTIFACT_ERRORS = (
+    AttributeError,
+    KeyError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_normative_arbitration@1.0.0"),
@@ -117,8 +129,16 @@ class RunNormativeArbitrationNode:
             trinity = TrinityBundle.model_validate(
                 from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
             )
-        except Exception:
-            logger.debug("Failed to load Trinity bundle for normative arbitration", exc_info=True)
+        except _NORMATIVE_ARTIFACT_ERRORS as exc:
+            emit_degraded_path(
+                component="scientist.run_normative_arbitration",
+                operation="load_trinity_bundle",
+                reason="trinity_bundle_load_failed",
+                exc=exc,
+                details={"run_id": state.run_id},
+                log=logger,
+                metrics=ctx.metrics,
+            )
             return NodeOutcome(
                 status="skip",
                 state=state,
@@ -298,7 +318,7 @@ class RunNormativeArbitrationNode:
         inputs = _build_inputs(state, simulation_result=simulation_result)
         result_ref = persist_normative_arbitration_result(ctx.store, result, inputs=inputs)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF] = result_ref
         event_level = "warn" if warnings else "info"
         return NodeOutcome(
@@ -323,8 +343,16 @@ def _load_metrics(ctx: ExecutionContext, state: ExperimentState) -> Metrics | No
         return None
     try:
         return Metrics.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
-    except Exception:
-        logger.debug("Failed to load metrics for normative arbitration", exc_info=True)
+    except _NORMATIVE_ARTIFACT_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_normative_arbitration",
+            operation="load_metrics",
+            reason="metrics_load_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
 
 
@@ -339,8 +367,16 @@ def _load_simulation_result(
         return SimulationResult.model_validate(
             from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
         )
-    except Exception:
-        logger.debug("Failed to load simulation result for normative arbitration", exc_info=True)
+    except _NORMATIVE_ARTIFACT_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_normative_arbitration",
+            operation="load_simulation_result",
+            reason="simulation_result_load_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
 
 
@@ -356,8 +392,16 @@ def _load_distributional(
             ctx.store,
             DistributionalReportRef(artifact_id=ref.artifact_id),
         )
-    except Exception:
-        logger.debug("Failed to load distributional report for normative arbitration", exc_info=True)
+    except _NORMATIVE_ARTIFACT_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_normative_arbitration",
+            operation="load_distributional_report",
+            reason="distributional_report_load_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
 
 
@@ -370,8 +414,16 @@ def _load_legal_report(
         return None
     try:
         return LegalReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
-    except Exception:
-        logger.debug("Failed to load legal report for normative arbitration", exc_info=True)
+    except _NORMATIVE_ARTIFACT_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_normative_arbitration",
+            operation="load_legal_report",
+            reason="legal_report_load_failed",
+            exc=exc,
+            details={"run_id": state.run_id},
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
 
 
@@ -573,7 +625,19 @@ def _uncertainty_ratio(
         return None
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(envelope_ref.artifact_id))
-    except Exception:
+    except _NORMATIVE_ARTIFACT_ERRORS as exc:
+        emit_degraded_path(
+            component="scientist.run_normative_arbitration",
+            operation="load_uncertainty_envelope",
+            reason="uncertainty_envelope_load_failed",
+            exc=exc,
+            details={
+                "run_id": getattr(simulation_result, "run_id", None),
+                "metric_id": metric_id,
+            },
+            log=logger,
+            metrics=ctx.metrics,
+        )
         return None
     if not isinstance(payload, dict):
         return None

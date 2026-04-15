@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Mapping
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
     capture_versions,
     runtime_stack_for,
     safe_version,
@@ -39,11 +40,8 @@ class JaxRunner(MethodRunner):
         return frozenset({ComputeBackend.JAX})
 
     def is_available(self) -> bool:
-        try:
-            import jax  # noqa: F401
-        except Exception:
-            return False
-        return True
+        posture = capture_backend_runtime_fingerprint(ComputeBackend.JAX)
+        return posture.available
 
     def execute(
         self,
@@ -66,6 +64,8 @@ class JaxRunner(MethodRunner):
         dynamic_params = {
             k: v for k, v in params.items() if k in signature.dynamic_param_names
         }
+        dynamic_params["__seed__"] = seed
+        dynamic_params["__rng__"] = jax.random.PRNGKey(seed)
 
         run_started = time.perf_counter()
         output = compiled(state, dynamic_params)
@@ -100,6 +100,17 @@ class JaxRunner(MethodRunner):
             output=output,
         )
 
+        posture = capture_backend_runtime_fingerprint(
+            ComputeBackend.JAX,
+            method_class=method_class,
+            seed=seed,
+            extra_versions=versions,
+        )
+        determinism_tier = posture.determinism_tier or DeterminismTier.NONDETERMINISTIC
+        declared_tier = getattr(method_class, "determinism_tier", None)
+        if declared_tier in {DeterminismTier.STATISTICAL, DeterminismTier.NONDETERMINISTIC}:
+            determinism_tier = declared_tier
+
         return MethodResult(
             output=output,
             timing=MethodTiming(
@@ -108,10 +119,12 @@ class JaxRunner(MethodRunner):
             ),
             reproducibility=ReproducibilityInfo(
                 backend=ComputeBackend.JAX,
-                determinism_tier=DeterminismTier.STRICT_CPU,
+                determinism_tier=determinism_tier,
                 seed=seed,
                 library_versions=versions,
                 fingerprint=fingerprint,
+                note=posture.replay_semantics,
             ),
             slot_outputs=slot_outputs,
+            artifacts={"backend_runtime_fingerprint": posture.as_dict()},
         )

@@ -39,6 +39,7 @@ def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
     report = harness.run(circuit=BenchmarkCircuit.ESTIMATION)
     evaluations = extract_temporal_evaluations(report)
     hidden_summary = build_hidden_summary(evaluations)
+    suite_status = "passed" if resolve_mode(mode).value == "smoke" else ("passed" if hidden_summary["passes_all"] else "failed")
     preflight = build_preflight(
         mode=mode,
         benchmark_tier=resolve_tier(mode=resolve_mode(mode)).value,
@@ -74,6 +75,18 @@ def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
                 "pass_rate": hidden_summary["pass_rate"],
             },
         },
+        blockers=[],
+        release_gate_results={
+            "checks": {
+                "all_cases_green": hidden_summary["n_total"] == hidden_summary["n_passed"],
+                "safe_rejection_rate": hidden_summary["safe_rejection_rate"] == 1.0,
+                "diagnostics_presence_rate": hidden_summary["diagnostics_presence_rate"] == 1.0,
+                "fallback_success_rate": hidden_summary["fallback_success_rate"] == 1.0,
+                "artifact_reload_failure_rate": hidden_summary["artifact_reload_failure_rate"] == 0.0,
+            },
+            "passes_all": bool(hidden_summary.get("passes_all")),
+        },
+        overall_status=suite_status,
         case_details_builder=lambda case: temporal_case_details(
             case,
             include_scenario_metadata=False,
@@ -102,7 +115,7 @@ def main(argv: list[str] | None = None) -> int:
         Path(args.json).write_text(output + "\n", encoding="utf-8")
     if not args.quiet:
         print(output)
-    return 0
+    return 0 if payload.get("overall_status") in {"passed", "over_budget", "skipped"} else 1
 
 
 if __name__ == "__main__":

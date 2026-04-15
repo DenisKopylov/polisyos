@@ -24,8 +24,8 @@ Recommended setup:
 
 ```bash
 cd policy-engine
-./scripts/bootstrap --skip-playwright
-./scripts/doctor --surface runtime-signing --surface runtime-oidc
+python3 -m tools.cli workspace bootstrap --skip-playwright
+python3 -m tools.cli workspace doctor --surface runtime-signing --surface runtime-oidc
 uv run pytest \
   tests/core/phase0/test_cli_signing.py \
   tests/core/phase0/test_store_signing.py \

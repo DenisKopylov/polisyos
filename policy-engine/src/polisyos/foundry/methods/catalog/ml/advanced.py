@@ -51,7 +51,7 @@ class GaussianProcessEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="gaussian_process",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -132,7 +132,7 @@ class QuantileForestEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="quantile_forest",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -249,7 +249,7 @@ class NeuralODEEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="neural_ode",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

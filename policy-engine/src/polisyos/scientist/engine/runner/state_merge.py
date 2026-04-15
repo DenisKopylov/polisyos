@@ -1,118 +1,120 @@
-"""State merge for parallel tier results in distributed runners.
-
-When multiple nodes execute in parallel within a tier, each produces a
-modified copy of the experiment state.  This module merges those partial
-results back into a single consistent state.
-
-Conflict resolution: if two node results modify the same key in ``data``,
-``artifacts_index``, or ``reports_index``, a ``StateMergeConflictError``
-is raised.
-"""
+"""State merge for distributed runner tier results."""
 
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Final
 
+from polisyos.scientist.engine.protocol import NodeOutcome
 from polisyos.scientist.engine.runner.serialization import (
     deserialize_state,
     serialize_state,
 )
+from polisyos.scientist.engine.state_merge import (
+    MergeConflictPolicy,
+    merge_parallel_outcomes,
+)
 
 _logger = logging.getLogger(__name__)
+_DEFAULT_WRITE_FIELDS: Final[tuple[str, ...]] = (
+    "artifacts_index",
+    "reports_index",
+    "params",
+    "inputs",
+    "budgets",
+    "causal_method_params",
+)
 
 
 class StateMergeConflictError(Exception):
-    """Two parallel node results modified the same state key."""
+    """Two parallel node results modified the same state surface."""
 
-    def __init__(self, key: str, field: str, sources: list[int]) -> None:
+    def __init__(
+        self,
+        key: str,
+        field: str,
+        sources: list[int],
+        *,
+        policy: MergeConflictPolicy = MergeConflictPolicy.ERROR,
+    ) -> None:
         self.key = key
         self.field = field
         self.sources = sources
+        self.policy = policy
         super().__init__(
-            f"Merge conflict in {field}[{key!r}]: modified by results {sources}"
+            f"Merge conflict in {field}[{key!r}] under policy={policy.value}: "
+            f"modified by results {sources}"
         )
-
-
-def _diff_dict(base: dict[str, Any], modified: dict[str, Any]) -> dict[str, Any]:
-    """Return keys that were added or changed relative to *base*."""
-    diff: dict[str, Any] = {}
-    for k, v in modified.items():
-        if k not in base or base[k] != v:
-            diff[k] = v
-    return diff
 
 
 def merge_tier_states(
     base_state_bytes: bytes,
-    node_results: list[bytes],
+    node_results: list[bytes] | dict[str, bytes],
+    *,
+    write_specs: dict[str, list[str]] | None = None,
+    conflict_policy: MergeConflictPolicy = MergeConflictPolicy.ERROR,
 ) -> bytes:
-    """Merge multiple parallel node results into a single state.
+    """Merge multiple distributed tier states with explicit conflict policy."""
 
-    Parameters
-    ----------
-    base_state_bytes:
-        Serialised ``ExperimentState`` before the tier started.
-    node_results:
-        List of serialised ``ExperimentState`` bytes, one per node in
-        the tier.
-
-    Returns
-    -------
-    bytes
-        Serialised merged ``ExperimentState``.
-
-    Raises
-    ------
-    StateMergeConflictError
-        If two results modify the same key within the same dict field.
-    """
     if len(node_results) == 0:
         return base_state_bytes
-    if len(node_results) == 1:
+    if isinstance(node_results, dict):
+        if len(node_results) == 1:
+            return next(iter(node_results.values()))
+    elif len(node_results) == 1:
         return node_results[0]
 
-    base = deserialize_state(base_state_bytes)
-    results = [deserialize_state(r) for r in node_results]
+    base_state = deserialize_state(base_state_bytes)
+    outcomes: dict[str, NodeOutcome] = {}
+    resolved_write_specs: dict[str, list[str]] = {}
+    alias_to_index: dict[str, int] = {}
 
-    # We merge these mutable dict fields.
-    merge_fields = ("artifacts_index", "reports_index", "params", "inputs")
+    if isinstance(node_results, dict):
+        ordered_results = list(node_results.items())
+    else:
+        ordered_results = [
+            (f"tier_result_{index}", result_bytes)
+            for index, result_bytes in enumerate(node_results)
+        ]
 
-    base_dicts: dict[str, dict[str, Any]] = {}
-    for field in merge_fields:
-        base_dicts[field] = dict(getattr(base, field, {}) or {})
+    for index, (alias, result_bytes) in enumerate(ordered_results):
+        alias_to_index[alias] = index
+        outcomes[alias] = NodeOutcome(status="ok", state=deserialize_state(result_bytes))
+        resolved_write_specs[alias] = list(
+            (write_specs or {}).get(alias, _DEFAULT_WRITE_FIELDS)
+        )
 
-    # Collect per-field diffs from each result
-    all_diffs: dict[str, list[tuple[int, dict[str, Any]]]] = {
-        f: [] for f in merge_fields
-    }
-    for idx, result in enumerate(results):
-        for field in merge_fields:
-            result_dict = dict(getattr(result, field, {}) or {})
-            diff = _diff_dict(base_dicts[field], result_dict)
-            if diff:
-                all_diffs[field].append((idx, diff))
+    merged = merge_parallel_outcomes(
+        base_state,
+        outcomes,
+        resolved_write_specs,
+        conflict_policy=conflict_policy,
+    )
+    if merged.conflict_details:
+        first = merged.conflict_details[0]
+        field, _, key = first.path.partition(".")
+        raise StateMergeConflictError(
+            key=key or field,
+            field=field,
+            sources=[
+                alias_to_index[alias]
+                for alias in first.aliases
+                if alias in alias_to_index
+            ],
+            policy=conflict_policy,
+        )
 
-    # Detect conflicts and build merged dicts
-    merged_updates: dict[str, dict[str, Any]] = {}
-    for field in merge_fields:
-        merged = dict(base_dicts[field])
-        seen_keys: dict[str, int] = {}  # key -> first result index
+    if merged.resolved_conflicts:
+        _logger.warning(
+            "Distributed merge resolved %s conflicts with policy=%s",
+            len(merged.resolved_conflicts),
+            conflict_policy.value,
+        )
 
-        for idx, diff in all_diffs[field]:
-            for key, value in diff.items():
-                if key in seen_keys and seen_keys[key] != idx:
-                    # Another result already modified this key
-                    raise StateMergeConflictError(
-                        key=key, field=field, sources=[seen_keys[key], idx]
-                    )
-                seen_keys[key] = idx
-                merged[key] = value
+    return serialize_state(merged.state)
 
-        merged_updates[field] = merged
 
-    # Build merged state: start from last result (inherits scalar fields),
-    # then overlay our merged dicts.
-    merged_state = results[-1].model_copy(update=merged_updates)
-
-    return serialize_state(merged_state)
+__all__ = [
+    "StateMergeConflictError",
+    "merge_tier_states",
+]

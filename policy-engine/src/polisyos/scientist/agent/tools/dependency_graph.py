@@ -45,9 +45,10 @@ class ToolDependencyGraph:
                 if in_degree[successor] == 0:
                     queue.append(successor)
 
-        # Append any remaining (cycle or unresolvable) in original order
         remaining = [n for n in requested if n not in set(result)]
-        result.extend(remaining)
+        if remaining:
+            cycle_nodes = ", ".join(dict.fromkeys(remaining))
+            raise ValueError(f"cyclic tool dependencies detected: {cycle_nodes}")
         return result
 
     def can_execute(self, tool_name: str, completed: set[str]) -> bool:

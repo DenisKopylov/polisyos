@@ -8,9 +8,19 @@ a record run and a replay run. Does NOT compare raw HTTP fixtures
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
+
+
+class RegressionIssueCategory(str, Enum):
+    """Typed regression issue categories for replay diagnostics."""
+
+    TRANSIENT_IO = "transient_io"
+    FIXTURE_MISSING = "fixture_missing"
+    COMPARISON_MISMATCH = "comparison_mismatch"
+    INTERNAL_ERROR = "internal_error"
 
 
 @dataclass(frozen=True)
@@ -19,6 +29,7 @@ class RegressionResult:
 
     match: bool
     mismatches: list[str] = field(default_factory=list)
+    issue_categories: tuple[RegressionIssueCategory, ...] = ()
 
 
 def compare_ingestion_runs(
@@ -73,7 +84,15 @@ def compare_ingestion_runs(
             parts.append(f"only in replay: {sorted(only_replay)}")
         mismatches.append(f"warnings differ: {'; '.join(parts)}")
 
-    return RegressionResult(match=len(mismatches) == 0, mismatches=mismatches)
+    return RegressionResult(
+        match=len(mismatches) == 0,
+        mismatches=mismatches,
+        issue_categories=(
+            (RegressionIssueCategory.COMPARISON_MISMATCH,)
+            if mismatches
+            else ()
+        ),
+    )
 
 
 def compare_artifact_hashes(
@@ -98,9 +117,27 @@ def compare_artifact_hashes(
                 f"replay={replay_manifest.content_hash}"
             )
     except Exception as exc:
-        mismatches.append(f"{label} comparison failed: {exc}")
+        category = categorize_regression_exception(exc)
+        mismatches.append(f"{label} comparison failed [{category.value}]: {exc}")
 
     return mismatches
 
 
-__all__ = ["RegressionResult", "compare_artifact_hashes", "compare_ingestion_runs"]
+def categorize_regression_exception(exc: Exception) -> RegressionIssueCategory:
+    """Categorize replay/regression exceptions into stable governance buckets."""
+    if isinstance(exc, FileNotFoundError):
+        return RegressionIssueCategory.FIXTURE_MISSING
+    if isinstance(exc, (TimeoutError, ConnectionError)):
+        return RegressionIssueCategory.TRANSIENT_IO
+    if isinstance(exc, OSError):
+        return RegressionIssueCategory.TRANSIENT_IO
+    return RegressionIssueCategory.INTERNAL_ERROR
+
+
+__all__ = [
+    "RegressionIssueCategory",
+    "RegressionResult",
+    "categorize_regression_exception",
+    "compare_artifact_hashes",
+    "compare_ingestion_runs",
+]

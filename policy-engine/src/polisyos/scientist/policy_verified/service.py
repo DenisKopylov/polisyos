@@ -976,8 +976,14 @@ def _maybe_verify_with_llm(
                 ]
                 return parsed_claims, parsed_gaps
 
-        results = await asyncio.gather(*[_verify_bundle(bundle) for bundle in bundles])
-        for bundle_claims, bundle_gaps in results:
+        results = await asyncio.gather(
+            *[_verify_bundle(bundle) for bundle in bundles],
+            return_exceptions=True,
+        )
+        for outcome in results:
+            if isinstance(outcome, BaseException):
+                continue
+            bundle_claims, bundle_gaps = outcome
             claims.extend(bundle_claims)
             gaps.extend(bundle_gaps)
         return claims, gaps, len(bundles)

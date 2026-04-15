@@ -36,7 +36,7 @@ class NashEquilibriumEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="nash_equilibrium",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

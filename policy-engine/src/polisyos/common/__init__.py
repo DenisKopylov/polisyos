@@ -3,7 +3,7 @@
 `polisyos.common` groups logger setup, environment parsing, serialization,
 timestamp helpers, and migration primitives shared across platform packages.
 Lazy submodule loading keeps `import polisyos.common` safe in code paths that
-do not want `polisyos.common.config` import-time environment mutations.
+do not want to pull in optional bootstrap helpers eagerly.
 
 The subpackages listed in `__all__` form the supported facade surface.
 """

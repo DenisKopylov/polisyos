@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+from functools import lru_cache
 from typing import Any
 
 from polisyos.common.logger import get_logger
@@ -38,8 +39,8 @@ class FailureIndexEntry:
     normalized_message: str
     remediation_advice: str
     occurrence_count: int = 1
-    first_seen: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    last_seen: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    first_seen: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
+    last_seen: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     card_refs: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -57,8 +58,8 @@ class FailureIndexEntry:
             normalized_message=str(payload.get("normalized_message", "")),
             remediation_advice=str(payload.get("remediation_advice", "")),
             occurrence_count=int(payload.get("occurrence_count", 1)),
-            first_seen=str(payload.get("first_seen", datetime.now(timezone.utc).isoformat())),
-            last_seen=str(payload.get("last_seen", datetime.now(timezone.utc).isoformat())),
+            first_seen=str(payload.get("first_seen", datetime.now(UTC).isoformat())),
+            last_seen=str(payload.get("last_seen", datetime.now(UTC).isoformat())),
             card_refs=[str(ref) for ref in payload.get("card_refs", []) if ref],
         )
 
@@ -82,8 +83,8 @@ class FailureIndexEntry:
             score += 0.15
 
         if normalized_message and self.normalized_message:
-            current_tokens = set(_WORD_RE.findall(normalized_message.lower()))
-            entry_tokens = set(_WORD_RE.findall(self.normalized_message.lower()))
+            current_tokens = _message_tokens(normalized_message)
+            entry_tokens = _message_tokens(self.normalized_message)
             if current_tokens and entry_tokens:
                 overlap = len(current_tokens & entry_tokens)
                 denom = max(1, min(len(current_tokens), len(entry_tokens)))
@@ -96,7 +97,7 @@ class FailurePatternIndex:
     """In-memory failure pattern index persisted as canonical JSON in CAS."""
 
     entries: list[FailureIndexEntry] = field(default_factory=list)
-    updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def add_failure(
         self,
@@ -111,7 +112,7 @@ class FailurePatternIndex:
         remediation_advice: str,
         card_ref: str,
     ) -> FailureIndexEntry:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         for entry in self.entries:
             if entry.signature_id != signature_id:
                 continue
@@ -177,7 +178,7 @@ class FailurePatternIndex:
         return sorted(self.entries, key=lambda item: (-item.occurrence_count, item.last_seen))[:n]
 
     def garbage_collect(self, *, max_age_days: int = 30) -> int:
-        cutoff = datetime.now(timezone.utc) - timedelta(days=max(1, max_age_days))
+        cutoff = datetime.now(UTC) - timedelta(days=max(1, max_age_days))
         before = len(self.entries)
         kept: list[FailureIndexEntry] = []
         for entry in self.entries:
@@ -190,11 +191,11 @@ class FailurePatternIndex:
         self.entries = kept
         removed = before - len(kept)
         if removed:
-            self.updated_at = datetime.now(timezone.utc).isoformat()
+            self.updated_at = datetime.now(UTC).isoformat()
         return removed
 
     def persist(self, cas: FileSystemCAS) -> str:
-        self.updated_at = datetime.now(timezone.utc).isoformat()
+        self.updated_at = datetime.now(UTC).isoformat()
         payload = {
             "updated_at": self.updated_at,
             "entry_count": len(self.entries),
@@ -242,19 +243,14 @@ def normalize_location(location: str) -> str:
     """Normalize location helper."""
     if not location:
         return ""
-    normalized = _PATH_INDEX_RE.sub("[]", location)
-    normalized = _WHITESPACE_RE.sub("", normalized)
-    return normalized[:200]
+    return _normalize_location_cached(location)
 
 
 def normalize_message(message: str) -> str:
     """Normalize message helper."""
     if not message:
         return ""
-    lowered = message.lower()
-    without_numbers = _NUMBER_RE.sub("<n>", lowered)
-    normalized = _WHITESPACE_RE.sub(" ", without_numbers).strip()
-    return normalized[:500]
+    return _normalize_message_cached(message)
 
 
 def build_failure_signature(
@@ -278,6 +274,26 @@ def build_failure_signature(
         ]
     )
     return f"sig_{truncated_hash(material, length=20)}"
+
+
+@lru_cache(maxsize=4096)
+def _normalize_location_cached(location: str) -> str:
+    normalized = _PATH_INDEX_RE.sub("[]", location)
+    normalized = _WHITESPACE_RE.sub("", normalized)
+    return normalized[:200]
+
+
+@lru_cache(maxsize=4096)
+def _normalize_message_cached(message: str) -> str:
+    lowered = message.lower()
+    without_numbers = _NUMBER_RE.sub("<n>", lowered)
+    normalized = _WHITESPACE_RE.sub(" ", without_numbers).strip()
+    return normalized[:500]
+
+
+@lru_cache(maxsize=4096)
+def _message_tokens(message: str) -> frozenset[str]:
+    return frozenset(_WORD_RE.findall(message.lower()))
 
 
 __all__ = [

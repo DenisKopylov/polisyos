@@ -10,19 +10,23 @@ Provides:
 from __future__ import annotations
 
 import json
-import os
-import tempfile
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.fabric.connectors.contracts.evolution import EvolutionReport, SchemaEvolution
+from polisyos.fabric.connectors.contracts.governance import SchemaApprovalMetadata
 from polisyos.fabric.connectors.contracts.schema import DataSchema, SchemaVersion
+from polisyos.fabric.io.atomic import (
+    atomic_write_json,
+    cleanup_orphan_tmp_files,
+    fsync_parent,
+)
 
 logger = get_logger(__name__)
 
@@ -74,21 +78,44 @@ class SchemaVersionConflictError(PolicyOSError):
 class SchemaRegistration(BaseModel):
     """Metadata about a registered schema."""
 
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(
+        frozen=True,
+        extra="forbid",
+        populate_by_name=True,
+        serialize_by_alias=True,
+    )
 
-    schema: DataSchema
+    registered_schema: DataSchema = Field(alias="schema")
     content_hash: str
     registered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     registered_by: str = ""
+    approval: SchemaApprovalMetadata = Field(default_factory=SchemaApprovalMetadata)
+
+    @model_validator(mode="after")
+    def _validate_content_hash(self) -> "SchemaRegistration":
+        if self.content_hash != self.registered_schema.content_hash:
+            raise ValueError(
+                "SchemaRegistration content_hash does not match registered schema content_hash"
+            )
+        return self
+
+    @property
+    def schema(self) -> DataSchema:
+        """Backwards-compatible accessor for callers using ``registration.schema``."""
+        return self.registered_schema
 
     @classmethod
     def from_schema(
-        cls, schema: DataSchema, registered_by: str = ""
+        cls,
+        schema: DataSchema,
+        registered_by: str = "",
+        approval: SchemaApprovalMetadata | None = None,
     ) -> "SchemaRegistration":
         return cls(
             schema=schema,
             content_hash=schema.content_hash,
             registered_by=registered_by,
+            approval=approval or SchemaApprovalMetadata(),
         )
 
 
@@ -122,6 +149,7 @@ class SchemaRegistry:
         schema: DataSchema,
         registered_by: str = "",
         allow_overwrite: bool = False,
+        approval: SchemaApprovalMetadata | None = None,
     ) -> SchemaRegistration:
         """
         Register a schema in the registry.
@@ -156,7 +184,11 @@ class SchemaRegistry:
                     )
                 return existing
 
-            registration = SchemaRegistration.from_schema(schema, registered_by)
+            registration = SchemaRegistration.from_schema(
+                schema,
+                registered_by,
+                approval=approval,
+            )
             self._schemas[schema_id][version] = registration
 
         logger.info(
@@ -310,6 +342,7 @@ class FileBackedSchemaRegistry(SchemaRegistry):
         super().__init__()
         self._base_dir = base_dir
         self._base_dir.mkdir(parents=True, exist_ok=True)
+        cleanup_orphan_tmp_files(self._base_dir)
         self._load_all()
 
     def _schema_dir(self, schema_id: str) -> Path:
@@ -334,12 +367,39 @@ class FileBackedSchemaRegistry(SchemaRegistry):
 
                     schema_payload = data.get("schema") or data
                     version_str = version_file.stem
-                    version = SchemaVersion.parse(version_str)
+                    SchemaVersion.parse(version_str)
 
                     schema = DataSchema.model_validate(schema_payload)
+                    expected_hash = data.get("content_hash")
+                    if expected_hash and expected_hash != schema.content_hash:
+                        raise ValueError(
+                            "schema content_hash mismatch: "
+                            f"{expected_hash} != {schema.content_hash}"
+                        )
                     registered_by = data.get("registered_by", "")
+                    approval = SchemaApprovalMetadata.model_validate(
+                        data.get("approval") or {}
+                    )
+                    registered_at_raw = data.get("registered_at")
+                    registered_at = (
+                        datetime.fromisoformat(registered_at_raw)
+                        if registered_at_raw
+                        else datetime.now(timezone.utc)
+                    )
+                    SchemaRegistration(
+                        schema=schema,
+                        content_hash=expected_hash or schema.content_hash,
+                        registered_at=registered_at,
+                        registered_by=registered_by,
+                        approval=approval,
+                    )
 
-                    super().register(schema, registered_by, allow_overwrite=True)
+                    super().register(
+                        schema,
+                        registered_by,
+                        allow_overwrite=True,
+                        approval=approval,
+                    )
 
                 except Exception as exc:
                     logger.warning(
@@ -351,9 +411,15 @@ class FileBackedSchemaRegistry(SchemaRegistry):
         schema: DataSchema,
         registered_by: str = "",
         allow_overwrite: bool = False,
+        approval: SchemaApprovalMetadata | None = None,
     ) -> SchemaRegistration:
         """Register and persist schema."""
-        registration = super().register(schema, registered_by, allow_overwrite)
+        registration = super().register(
+            schema,
+            registered_by,
+            allow_overwrite,
+            approval=approval,
+        )
 
         schema_dir = self._schema_dir(schema.schema_id)
         schema_dir.mkdir(parents=True, exist_ok=True)
@@ -365,6 +431,7 @@ class FileBackedSchemaRegistry(SchemaRegistry):
             "content_hash": registration.content_hash,
             "registered_at": registration.registered_at.isoformat(),
             "registered_by": registered_by,
+            "approval": registration.approval.model_dump(mode="json"),
         }
 
         _atomic_write_json(schema_file, payload)
@@ -386,17 +453,20 @@ class FileBackedSchemaRegistry(SchemaRegistry):
                 schema_file = self._schema_file(schema_id, version)
                 if schema_file.exists():
                     schema_file.unlink()
+                    fsync_parent(schema_file)
 
         return result
 
 
 def _atomic_write_json(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(
-        mode="w", delete=False, dir=path.parent, prefix=path.name, suffix=".tmp"
-    ) as tmp:
-        json.dump(payload, tmp, indent=2)
-        tmp.flush()
-        os.fsync(tmp.fileno())
-        tmp_name = tmp.name
-    os.replace(tmp_name, path)
+    def _validate_tmp(tmp_path: Path) -> None:
+        data = json.loads(tmp_path.read_text(encoding="utf-8"))
+        if data.get("registry_schema_version") != REGISTRY_SCHEMA_VERSION:
+            raise ValueError("invalid registry schema version")
+        schema = DataSchema.model_validate(data.get("schema"))
+        SchemaApprovalMetadata.model_validate(data.get("approval") or {})
+        if data.get("content_hash") != schema.content_hash:
+            raise ValueError("schema registry content_hash mismatch")
+
+    atomic_write_json(path, payload, validate_tmp=_validate_tmp)
+    fsync_parent(path)

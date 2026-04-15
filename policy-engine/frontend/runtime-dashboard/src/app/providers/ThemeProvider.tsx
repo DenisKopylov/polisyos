@@ -15,6 +15,10 @@ export type ThemePreference = (typeof SUPPORTED_THEMES)[number];
 export type ResolvedTheme = Exclude<ThemePreference, "system">;
 
 const THEME_STORAGE_KEY = "polisyos.runtime.theme";
+const THEME_COLOR_BY_RESOLVED_THEME: Record<ResolvedTheme, string> = {
+  dark: "#0b121a",
+  light: "#fbf8f2",
+};
 
 type ThemeContextValue = {
   resolvedTheme: ResolvedTheme;
@@ -35,8 +39,12 @@ function readStoredTheme(): ThemePreference | null {
   if (typeof window === "undefined") {
     return null;
   }
-  const raw = window.localStorage.getItem(THEME_STORAGE_KEY);
-  return isThemePreference(raw) ? raw : null;
+  try {
+    const raw = window.localStorage.getItem(THEME_STORAGE_KEY);
+    return isThemePreference(raw) ? raw : null;
+  } catch {
+    return null;
+  }
 }
 
 function resolveThemePreference(): ThemePreference {
@@ -56,6 +64,21 @@ function resolveTheme(theme: ThemePreference): ResolvedTheme {
   return theme === "system" ? resolveSystemTheme() : theme;
 }
 
+function updateDocumentTheme(resolved: ResolvedTheme) {
+  document.documentElement.dataset.theme = resolved;
+  document.documentElement.style.colorScheme = resolved;
+  let themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (!themeColorMeta) {
+    themeColorMeta = document.createElement("meta");
+    themeColorMeta.setAttribute("name", "theme-color");
+    document.head.appendChild(themeColorMeta);
+  }
+  themeColorMeta.setAttribute(
+    "content",
+    THEME_COLOR_BY_RESOLVED_THEME[resolved],
+  );
+}
+
 export function ThemeProvider({ children }: PropsWithChildren) {
   const darkModeEnabled = useFeatureFlag("enableDarkMode");
   const [theme, setThemeState] = useState<ThemePreference>(() =>
@@ -68,8 +91,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     if (!darkModeEnabled) {
       setResolvedTheme("light");
-      document.documentElement.dataset.theme = "light";
-      document.documentElement.style.colorScheme = "light";
+      updateDocumentTheme("light");
       return;
     }
 
@@ -77,8 +99,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     const applyTheme = (preference: ThemePreference) => {
       const nextResolved = resolveTheme(preference);
       setResolvedTheme(nextResolved);
-      document.documentElement.dataset.theme = nextResolved;
-      document.documentElement.style.colorScheme = nextResolved;
+      updateDocumentTheme(nextResolved);
     };
 
     applyTheme(theme);
@@ -97,10 +118,14 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     if (typeof window === "undefined") {
       return;
     }
-    window.localStorage.setItem(
-      THEME_STORAGE_KEY,
-      darkModeEnabled ? theme : "light",
-    );
+    try {
+      window.localStorage.setItem(
+        THEME_STORAGE_KEY,
+        darkModeEnabled ? theme : "light",
+      );
+    } catch {
+      // Storage may be unavailable in hardened browsing modes.
+    }
   }, [darkModeEnabled, theme]);
 
   const value = useMemo<ThemeContextValue>(

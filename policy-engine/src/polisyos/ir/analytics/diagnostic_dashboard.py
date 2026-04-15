@@ -6,12 +6,19 @@ object intended for the audit UI and downstream quality scoring.
 """
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.analytics.covariate_balance import CovariateBalanceReport
-from polisyos.ir.analytics.falsification_report import FalsificationReport, FalsificationTest
+from polisyos.ir.analytics.falsification_report import (
+    FalsificationReport,
+    FalsificationTest,
+    FalsificationTestKind,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class DiagnosticDashboardData(BaseModel):
@@ -76,6 +83,7 @@ class DiagnosticDashboardData(BaseModel):
     has_balance_issues: bool = False
     has_falsification_failures: bool = False
     has_robustness_concerns: bool = False
+    warnings: tuple[str, ...] = ()
 
     @classmethod
     def from_node_outputs(
@@ -96,8 +104,9 @@ class DiagnosticDashboardData(BaseModel):
         sensitivity_result: dict[str, Any] | None = None
         pt_result: dict[str, Any] | None = None
         balance_report: CovariateBalanceReport | None = None
+        warnings: dict[str, None] = {}
 
-        for outputs in node_outputs.values():
+        for node_id, outputs in node_outputs.items():
             if not isinstance(outputs, dict):
                 continue
             result = outputs.get("result")
@@ -115,7 +124,9 @@ class DiagnosticDashboardData(BaseModel):
             # SensitivityResult object
             sr = outputs.get("sensitivity_result")
             if sr is not None and sensitivity_result is None:
-                sensitivity_result = _serialize_sensitivity(sr)
+                sensitivity_result, warning = _serialize_sensitivity(sr)
+                if warning is not None:
+                    warnings.setdefault(f"{warning}:{node_id}", None)
 
             # CovariateBalanceReport — from estimators that compute SMDs after weighting
             if balance_report is None:
@@ -125,13 +136,17 @@ class DiagnosticDashboardData(BaseModel):
                 elif isinstance(cb, dict) and "variable_smd" in cb:
                     try:
                         balance_report = CovariateBalanceReport.model_validate(cb)
-                    except Exception:
-                        pass
+                    except (TypeError, ValueError) as exc:
+                        warnings.setdefault(f"covariate_balance_parse_failed:{node_id}", None)
+                        logger.warning(
+                            "Diagnostic dashboard failed to parse covariate balance for node '%s': %s",
+                            node_id,
+                            exc,
+                        )
 
         # Parallel trends → FalsificationTest
         pt_test: FalsificationTest | None = None
         if pt_result is not None:
-            from polisyos.ir.analytics.falsification_report import FalsificationTestKind
             pt_test = FalsificationTest(
                 test_name="parallel_trends_check",
                 test_kind=FalsificationTestKind.PARALLEL_TRENDS,
@@ -146,9 +161,9 @@ class DiagnosticDashboardData(BaseModel):
             )
 
         # Falsification report from refutation outputs
-        falsification = FalsificationReport.from_dowhy_refute_outputs(node_outputs)
+        falsification: FalsificationReport | None = FalsificationReport.from_dowhy_refute_outputs(node_outputs)
         if falsification.n_passed == 0 and falsification.n_failed == 0:
-            falsification = None  # type: ignore[assignment]
+            falsification = None
 
         # Aggregate counts
         n_run = 0
@@ -236,22 +251,27 @@ class DiagnosticDashboardData(BaseModel):
             has_balance_issues=has_balance,
             has_falsification_failures=has_falsification,
             has_robustness_concerns=has_robustness,
+            warnings=tuple(warnings),
         )
 
 
-def _serialize_sensitivity(sr: Any) -> dict[str, Any]:
+def _serialize_sensitivity(sr: Any) -> tuple[dict[str, Any], str | None]:
     """Convert a SensitivityResult (or dict) to a plain dict."""
     if isinstance(sr, dict):
-        return sr
+        return sr, None
     try:
-        return sr.model_dump(mode="json")
-    except Exception:
+        return sr.model_dump(mode="json"), None
+    except (AttributeError, TypeError, ValueError, RuntimeError) as exc:
+        logger.warning(
+            "Diagnostic dashboard fell back to attribute-based sensitivity serialization: %s",
+            exc,
+        )
         return {
             "e_value": getattr(sr, "e_value", None),
             "robustness_value": getattr(sr, "robustness_value", None),
             "rosenbaum_gamma": getattr(sr, "rosenbaum_gamma", None),
             "is_robust": getattr(sr, "is_robust", False),
-        }
+        }, "sensitivity_serialize_fallback"
 
 
 __all__ = ["DiagnosticDashboardData"]

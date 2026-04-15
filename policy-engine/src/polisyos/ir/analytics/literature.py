@@ -1,12 +1,17 @@
 """Public analytics literature module API."""
 from __future__ import annotations
 
-import math
+from collections.abc import Sequence
 from enum import Enum
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir._validation import (
+    ensure_confidence_interval,
+    ensure_finite_numeric,
+    ensure_unique_ids,
+)
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
@@ -152,7 +157,7 @@ class PaperKind(str, Enum):
 
 class EvidenceSpan(BaseModel):
     """Evidence span public type."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     span_id: str = ""
     section: str = ""
@@ -164,7 +169,7 @@ class EvidenceSpan(BaseModel):
 class IdentificationStrategy(BaseModel):
     """How a causal effect was identified (instrument, design assumptions, etc.)."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     identification_method: str = ""
     instrument: str = ""
@@ -176,7 +181,7 @@ class IdentificationStrategy(BaseModel):
 class HeterogeneityResult(BaseModel):
     """Result of a heterogeneity/moderation test within a single study."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     moderator: str
     dimension: str = ""
@@ -190,7 +195,7 @@ class HeterogeneityResult(BaseModel):
 class UncertaintyBudget(BaseModel):
     """Three-axis uncertainty decomposition for a causal estimate."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     conflict_residual: float = Field(default=0.0, ge=0.0, le=1.0)
     sampling_uncertainty: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -204,7 +209,7 @@ class UncertaintyBudget(BaseModel):
 class ContextAttribute(BaseModel):
     """A context attribute extracted from literature (Track B)."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     attribute_name: str
     canonical_name: str = ""
@@ -221,7 +226,7 @@ class ContextAttribute(BaseModel):
 class ModerationEdge(BaseModel):
     """A context variable that moderates a causal edge (Track C)."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     base_cause: str
     base_effect: str
@@ -240,7 +245,7 @@ class ModerationEdge(BaseModel):
 
 class EvidenceParameter(BaseModel):
     """Evidence parameter public type."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     name: str
     display_name: str = ""
@@ -267,16 +272,31 @@ class EvidenceParameter(BaseModel):
     def _validate_value_present(self) -> "EvidenceParameter":
         if self.value is None and self.value_range is None and self.value_qualitative is None:
             raise ValueError("At least one of value, value_range, value_qualitative is required")
+        if self.value is not None:
+            ensure_finite_numeric(self.value, field_name="value")
+        if self.value_range is not None:
+            ensure_confidence_interval(self.value_range, label="value_range")
         if self.confidence_interval is not None:
-            lo, hi = self.confidence_interval
-            if not (math.isfinite(lo) and math.isfinite(hi) and lo <= hi):
-                raise ValueError(f"Invalid confidence_interval: ({lo}, {hi})")
+            ensure_confidence_interval(self.confidence_interval, label="confidence_interval")
+        if self.std_error is not None:
+            ensure_finite_numeric(self.std_error, field_name="std_error")
+            if self.std_error < 0.0:
+                raise ValueError("std_error must be >= 0")
+        for subgroup_name, subgroup_estimate in self.subgroup_estimates.items():
+            ensure_finite_numeric(
+                subgroup_estimate,
+                field_name=f"subgroup_estimates.{subgroup_name}",
+            )
         return self
 
 
 class CausalClaim(BaseModel):
-    """Causal claim public type."""
-    model_config = ConfigDict(extra="forbid")
+    """Causal claim public type.
+
+    Derived aliases are resolved in a payload-normalization step so validated
+    instances are no longer mutated by validators.
+    """
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     claim_id: str = ""
     cause_variable: str
@@ -311,36 +331,40 @@ class CausalClaim(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _upgrade_legacy_claim(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        payload = dict(data)
-        if "cause_variable" not in payload and "cause" in payload:
-            payload["cause_variable"] = payload.get("cause")
-        if "effect_variable" not in payload and "effect" in payload:
-            payload["effect_variable"] = payload.get("effect")
-        payload.pop("cause", None)
-        payload.pop("effect", None)
-        direction = str(payload.get("direction") or "").strip().lower()
-        if direction == "mixed":
-            payload["direction"] = CausalDirection.MIXED.value
-        if "claim_type" not in payload and payload.get("claim_explicitness") == ClaimExplicitness.EXPLICIT.value:
-            payload["claim_type"] = ClaimType.CAUSAL_CLAIM.value
-        return payload
+        return cls.normalize_payload(data)
+
+    @classmethod
+    def normalize_payload(cls, data: object) -> object:
+        """Return a claim payload with legacy aliases and span IDs normalized."""
+
+        return _normalize_causal_claim_payload(data)
+
+    @classmethod
+    def from_payload(cls, data: dict[str, Any]) -> "CausalClaim":
+        """Construct a causal claim through the explicit compatibility normalizer."""
+
+        return cls.model_validate(cls.normalize_payload(data))
 
     @model_validator(mode="after")
-    def _hydrate_claim_text(self) -> "CausalClaim":
-        if not self.claim_text:
-            self.claim_text = f"{self.cause_variable} -> {self.effect_variable}"
-        if not self.supporting_span_ids and self.supporting_spans:
-            self.supporting_span_ids = [span.span_id for span in self.supporting_spans if span.span_id]
-        if not self.method_span_ids and self.method_spans:
-            self.method_span_ids = [span.span_id for span in self.method_spans if span.span_id]
+    def _validate_claim(self) -> "CausalClaim":
+        if self.effect_size is not None:
+            ensure_finite_numeric(self.effect_size, field_name="effect_size")
+        ensure_unique_ids(
+            self.supporting_span_ids,
+            key_fn=lambda item: item,
+            label="supporting_span_id",
+        )
+        ensure_unique_ids(
+            self.method_span_ids,
+            key_fn=lambda item: item,
+            label="method_span_id",
+        )
         return self
 
 
 class Mechanism(BaseModel):
     """Mechanism public type."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     description: str
     mediating_variables: list[str] = Field(default_factory=list)
@@ -350,7 +374,7 @@ class Mechanism(BaseModel):
 
 class BoundaryCondition(BaseModel):
     """Boundary condition public type."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     variable: str = ""
     condition_type: str = ""
@@ -367,6 +391,12 @@ class BoundaryCondition(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _upgrade_legacy_boundary(cls, data: object) -> object:
+        return cls.normalize_payload(data)
+
+    @classmethod
+    def normalize_payload(cls, data: object) -> object:
+        """Return a boundary-condition payload with legacy threshold aliases resolved."""
+
         if not isinstance(data, dict):
             return data
         payload = dict(data)
@@ -381,11 +411,21 @@ class BoundaryCondition(BaseModel):
             payload["consequence_if_violated"] = "effect transportability may fail"
         return payload
 
+    @classmethod
+    def from_payload(cls, data: dict[str, Any]) -> "BoundaryCondition":
+        """Construct a boundary condition through the explicit compatibility normalizer."""
+
+        return cls.model_validate(cls.normalize_payload(data))
+
 
 class ArticleExtractionResult(BaseModel):
-    """Primary IR contract for literature extraction pipeline."""
+    """Primary IR contract for literature extraction pipeline.
 
-    model_config = ConfigDict(extra="forbid")
+    Legacy field mirrors (`year` / `publication_year`) stay supported, but they
+    are synchronized before instantiation instead of via instance mutation.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = "1.5"
     openalex_id: str
@@ -442,36 +482,42 @@ class ArticleExtractionResult(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _upgrade_legacy_payload(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        payload = dict(data)
-        if "year" not in payload and "publication_year" in payload:
-            payload["year"] = payload.get("publication_year")
-        if "publication_year" not in payload and "year" in payload:
-            payload["publication_year"] = payload.get("year")
-        if "schema_version" not in payload:
-            payload["schema_version"] = (
-                "1.0"
-                if "publication_year" in payload and "year" not in payload
-                else "1.5"
-            )
-        return payload
+        return cls.normalize_payload(data)
+
+    @classmethod
+    def normalize_payload(cls, data: object) -> object:
+        """Return an article-extraction payload with versioned aliases normalized."""
+
+        return _normalize_article_extraction_payload(data)
+
+    @classmethod
+    def from_payload(cls, data: dict[str, Any]) -> "ArticleExtractionResult":
+        """Construct an article extraction result via explicit compatibility rules."""
+
+        return cls.model_validate(cls.normalize_payload(data))
 
     @model_validator(mode="after")
     def _validate_confidence(self) -> "ArticleExtractionResult":
         if not (0.0 <= self.extraction_confidence <= 1.0):
-            raise ValueError(f"extraction_confidence must be [0,1], got {self.extraction_confidence}")
-        if self.year is None and self.publication_year is not None:
-            self.year = self.publication_year
-        if self.publication_year is None and self.year is not None:
-            self.publication_year = self.year
+            raise ValueError(
+                f"extraction_confidence must be [0,1], got {self.extraction_confidence}"
+            )
+        ensure_finite_numeric(self.provider_latency_ms, field_name="provider_latency_ms")
+        if self.provider_latency_ms < 0.0:
+            raise ValueError("provider_latency_ms must be >= 0")
+        ensure_finite_numeric(self.screening_cost_usd, field_name="screening_cost_usd")
+        ensure_finite_numeric(self.extraction_cost_usd, field_name="extraction_cost_usd")
+        if self.screening_cost_usd < 0.0 or self.extraction_cost_usd < 0.0:
+            raise ValueError("screening_cost_usd and extraction_cost_usd must be >= 0")
+        if self.token_count_prompt < 0 or self.token_count_completion < 0:
+            raise ValueError("token counts must be >= 0")
         return self
 
 
 class ClaimAdjudicationResult(BaseModel):
     """Claim-level causal adjudication contract."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     claim_id: str
     openalex_id: str
@@ -498,7 +544,7 @@ class ClaimAdjudicationResult(BaseModel):
 
 class LiteratureEdgePrior(BaseModel):
     """Literature edge prior public type."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     src: str
     dst: str
@@ -514,7 +560,7 @@ class LiteratureEdgePrior(BaseModel):
 
 class ReconciliationDiagnostics(BaseModel):
     """Reconciliation diagnostics public type."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     cyclic_inconsistency_norm: float = Field(default=0.0, ge=0.0)
     irreducible_conflict_norm: float = Field(default=0.0, ge=0.0)
@@ -536,7 +582,7 @@ class ReconciliationDiagnostics(BaseModel):
 
 class EnvironmentAuditReport(BaseModel):
     """Environment audit report data model."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     status: Literal["ok", "warning", "skipped", "degraded"] = "skipped"
     n_environments: int = Field(default=0, ge=0)
@@ -555,7 +601,7 @@ class EnvironmentAuditReport(BaseModel):
 
 class LiteratureCausalPrior(BaseModel):
     """Literature causal prior public type."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = "1.0"
     edges: list[LiteratureEdgePrior] = Field(default_factory=list)
@@ -615,6 +661,64 @@ class LiteratureCausalPrior(BaseModel):
                 **self.metadata,
             },
         )
+
+
+def _normalize_causal_claim_payload(data: object) -> object:
+    if not isinstance(data, dict):
+        return data
+    payload = dict(data)
+    if "cause_variable" not in payload and "cause" in payload:
+        payload["cause_variable"] = payload.get("cause")
+    if "effect_variable" not in payload and "effect" in payload:
+        payload["effect_variable"] = payload.get("effect")
+    payload.pop("cause", None)
+    payload.pop("effect", None)
+    direction = str(payload.get("direction") or "").strip().lower()
+    if direction == "mixed":
+        payload["direction"] = CausalDirection.MIXED.value
+    if (
+        "claim_type" not in payload
+        and payload.get("claim_explicitness") == ClaimExplicitness.EXPLICIT.value
+    ):
+        payload["claim_type"] = ClaimType.CAUSAL_CLAIM.value
+    cause_variable = str(payload.get("cause_variable") or "").strip()
+    effect_variable = str(payload.get("effect_variable") or "").strip()
+    if not str(payload.get("claim_text") or "").strip() and cause_variable and effect_variable:
+        payload["claim_text"] = f"{cause_variable} -> {effect_variable}"
+    payload.setdefault("supporting_span_ids", _extract_span_ids(payload.get("supporting_spans")))
+    payload.setdefault("method_span_ids", _extract_span_ids(payload.get("method_spans")))
+    return payload
+
+
+def _normalize_article_extraction_payload(data: object) -> object:
+    if not isinstance(data, dict):
+        return data
+    payload = dict(data)
+    if "year" not in payload and "publication_year" in payload:
+        payload["year"] = payload.get("publication_year")
+    if "publication_year" not in payload and "year" in payload:
+        payload["publication_year"] = payload.get("year")
+    if "schema_version" not in payload:
+        payload["schema_version"] = (
+            "1.0"
+            if "publication_year" in payload and "year" not in payload
+            else "1.5"
+        )
+    return payload
+
+
+def _extract_span_ids(spans: object) -> list[str]:
+    if not isinstance(spans, Sequence) or isinstance(spans, (str, bytes, bytearray)):
+        return []
+    span_ids: list[str] = []
+    for span in spans:
+        if isinstance(span, dict):
+            span_id = str(span.get("span_id") or "").strip()
+        else:
+            span_id = str(getattr(span, "span_id", "") or "").strip()
+        if span_id:
+            span_ids.append(span_id)
+    return span_ids
 
 
 _SCHEMA_NAME = "ir.article_extraction_result"

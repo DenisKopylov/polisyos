@@ -8,14 +8,20 @@ import os
 import re
 import time
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
+from opentelemetry.context import attach, detach
+
+from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.control import (
     BindingProfileInfo,
@@ -25,6 +31,7 @@ from polisyos.core.contracts.control import (
     CapabilityManifestResponse,
     ConnectorInfo,
     ConnectorsListResponse,
+    ControlJobKind,
     ControlJobResponse,
     ControlOutboxEventInfo,
     ControlOutboxEventsResponse,
@@ -36,24 +43,32 @@ from polisyos.core.contracts.control import (
     DataNeed,
     DataPreviewRequest,
     DataPreviewResponse,
+    DataResolveRequest,
+    DataResolveResponse,
+    DataSourceBinding,
     DecisionValidityEventRequest,
     DecisionValidityEventResponse,
     DecisionValidityLifecycleSummary,
     DecisionValidityPendingReview,
     DecisionValiditySummaryResponse,
-    DataResolveRequest,
-    DataResolveResponse,
-    DataSourceBinding,
     IndexStatsResponse,
     IngestRequest,
     IngestResponse,
+    LexGraphStatsResponse,
+    LexPipelineStatusResponse,
+    LexSearchRequest,
+    LexSearchResponse,
+    LexTriggerRequest,
+    LexTriggerResponse,
     ModelProfileInfo,
     ModelProfilesListResponse,
     NaturalLanguageRunRequest,
+    ExecutionProfile,
     PolicyFlags,
     PromotionCandidatesResponse,
     PromotionDecisionRequest,
     PromotionDecisionResponse,
+    RetrievalMode,
     RunLaunchResponse,
     SourceProfileInfo,
     SourceProfilesListResponse,
@@ -61,7 +76,11 @@ from polisyos.core.contracts.control import (
 )
 from polisyos.core.contracts.decision_validity import DecisionDependencyEvent
 from polisyos.core.contracts.runtime import ApiMeta
-from polisyos.core.observability import get_metrics
+from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.foundry.methods.catalog.causal.capabilities import (
+    build_causal_capability_contract,
+    project_capability_features,
+)
 from polisyos.runtime.http.errors import forbidden, unprocessable_entity
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,
@@ -71,17 +90,35 @@ from polisyos.runtime.http.execution_policy import (
     RuntimePrincipal,
     build_capability_manifest_payload,
 )
-from polisyos.foundry.methods.catalog.causal.capabilities import (
-    build_causal_capability_contract,
-    project_capability_features,
-)
-from polisyos.scientist.llm.factory import create_traced_gateway_client
+from polisyos.runtime.http.resilience import guard_runtime_cas, guard_runtime_control_store
 from polisyos.scientist.decision_validity import DecisionValidityService
+from polisyos.scientist.llm.factory import create_traced_gateway_client
 
 from .control_plane_store import ControlJobRecord, ControlPlaneStore
+from .control_registry_providers import ControlRegistryProviders
 from .control_worker import ControlWorker
 
 logger = get_logger(__name__)
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+
+_CONTROL_JOB_KINDS = frozenset({"workflow_run", "natural_language_run", "lex_pipeline"})
+_RETRIEVAL_MODES = frozenset({"fastlane", "explorelane", "hybrid"})
+
+class _MethodCatalogSnapshotAware(Protocol):
+    def set_method_catalog_snapshot(self, payload: dict[str, Any] | None) -> None: ...
+
+
+def _coerce_control_job_kind(value: str) -> ControlJobKind:
+    normalized = value.strip()
+    if normalized not in _CONTROL_JOB_KINDS:
+        raise ValueError(f"Unsupported control job kind: {normalized!r}")
+    return cast("ControlJobKind", normalized)
 
 
 def _build_api_meta(request_id: str | None = None) -> ApiMeta:
@@ -92,10 +129,14 @@ def _build_api_meta(request_id: str | None = None) -> ApiMeta:
 # Helpers to convert string refs → ArtifactRef
 # ---------------------------------------------------------------------------
 
-def _make_artifact_ref(ref_str: str, *, kind: str, media_type: str = "application/json"):
+def _make_artifact_ref(
+    ref_str: str,
+    *,
+    kind: str,
+    media_type: str = "application/json",
+) -> ArtifactRef:
     """Lazily import ArtifactRef and ArtifactID to avoid heavy startup cost."""
     from polisyos.core.artifacts.ids import ArtifactID
-    from polisyos.core.artifacts.manifest import ArtifactRef
 
     return ArtifactRef(
         artifact_id=ArtifactID.model_validate(ref_str),
@@ -104,12 +145,24 @@ def _make_artifact_ref(ref_str: str, *, kind: str, media_type: str = "applicatio
     )
 
 
+def _typed_artifact_ref(
+    ref_str: str,
+    *,
+    kind: str,
+    ref_type: Any,
+    media_type: str = "application/json",
+) -> Any:
+    return cast("Any", ref_type).model_validate(
+        _make_artifact_ref(ref_str, kind=kind, media_type=media_type).model_dump(mode="json")
+    )
+
+
 def _artifact_ref_from_summary_payload(
     payload: Any,
     *,
     kind: str,
     media_type: str = "application/json",
-):
+) -> ArtifactRef | None:
     if not isinstance(payload, dict):
         return None
     artifact_id = payload.get("artifact_id")
@@ -153,6 +206,23 @@ def _as_bool(value: str | None, *, default: bool) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _coerce_retrieval_mode(value: str) -> RetrievalMode:
+    normalized = value.strip().lower()
+    if normalized not in _RETRIEVAL_MODES:
+        raise ValueError(f"Unsupported retrieval mode: {value!r}")
+    return cast("RetrievalMode", normalized)
+
+
+def _coerce_optional_execution_profile(value: str | None) -> ExecutionProfile | None:
+    if value is None:
+        return None
+    normalized = value.strip().lower()
+    supported_profiles = RuntimeExecutionPolicyResolver.supported_profiles()
+    if normalized not in supported_profiles:
+        raise ValueError(f"Unsupported execution profile: {value!r}")
+    return cast("ExecutionProfile", normalized)
+
+
 def _is_multimodel_enabled() -> bool:
     return _as_bool(
         os.getenv("POLISYOS_LLM_MULTIMODEL_ENABLED"),
@@ -170,6 +240,26 @@ def _is_auto_materialization_enabled() -> bool:
 
 def _is_unified_dag_enabled() -> bool:
     return _as_bool(os.getenv("POLISYOS_UNIFIED_DAG_ENABLED"), default=True)
+
+
+def _is_scientist_v2_enabled() -> bool:
+    return _as_bool(os.getenv("POLISYOS_SCIENTIST_V2_ENABLED"), default=False)
+
+
+def _is_scientist_shadow_mode() -> bool:
+    return _as_bool(os.getenv("POLISYOS_SCIENTIST_SHADOW_MODE"), default=False)
+
+
+def _is_scientist_web_search_enabled() -> bool:
+    return _as_bool(os.getenv("POLISYOS_SCIENTIST_WEB_SEARCH_ENABLED"), default=False)
+
+
+def _is_scientist_swarm_enabled() -> bool:
+    return _as_bool(os.getenv("POLISYOS_SCIENTIST_SWARM_ENABLED"), default=False)
+
+
+def _is_scientist_reflexion_enabled() -> bool:
+    return _as_bool(os.getenv("POLISYOS_SCIENTIST_REFLEXION_ENABLED"), default=False)
 
 
 def _normalize_model_variant_id(model_name: str, index: int) -> str:
@@ -199,12 +289,12 @@ def _now_ms() -> int:
 
 def _record_control_plane_job_admission_metric(
     *,
+    metrics: Any,
     job_kind: str,
     effective_profile: str,
     status: str,
     duration_seconds: float,
 ) -> None:
-    metrics = get_metrics()
     recorder = getattr(metrics, "record_control_plane_job_admission", None)
     if callable(recorder):
         recorder(
@@ -212,6 +302,24 @@ def _record_control_plane_job_admission_metric(
             effective_profile=effective_profile,
             status=status,
             duration_seconds=duration_seconds,
+        )
+
+
+def _record_control_plane_job_execution_metric(
+    *,
+    metrics: Any,
+    job_kind: str,
+    status: str,
+    duration_seconds: float,
+    queue_lag_seconds: float,
+) -> None:
+    recorder = getattr(metrics, "record_control_plane_job_execution", None)
+    if callable(recorder):
+        recorder(
+            job_kind=job_kind,
+            status=status,
+            duration_seconds=duration_seconds,
+            queue_lag_seconds=queue_lag_seconds,
         )
 
 
@@ -231,16 +339,22 @@ def _sum_call_events(events: list[dict[str, Any]]) -> dict[str, float]:
     completion_tokens = 0.0
     latency_ms = 0.0
     cost_usd = 0.0
+    estimated_cost_usd = 0.0
+    cost_delta_usd = 0.0
     for event in events:
         prompt_tokens += float(event.get("prompt_tokens") or 0)
         completion_tokens += float(event.get("completion_tokens") or 0)
         latency_ms += float(event.get("latency_ms") or 0)
         cost_usd += float(event.get("cost_usd") or 0.0)
+        estimated_cost_usd += float(event.get("estimated_cost_usd") or 0.0)
+        cost_delta_usd += float(event.get("cost_delta_usd") or 0.0)
     return {
         "prompt_tokens": prompt_tokens,
         "completion_tokens": completion_tokens,
         "latency_ms": latency_ms,
         "cost_usd": cost_usd,
+        "estimated_cost_usd": estimated_cost_usd,
+        "cost_delta_usd": cost_delta_usd,
     }
 
 
@@ -253,6 +367,53 @@ def _delta_usage(
     latency = max(0, int(after["latency_ms"] - before["latency_ms"]))
     cost = max(0.0, float(after["cost_usd"] - before["cost_usd"]))
     return prompt, completion, latency, cost
+
+
+def _build_scientist_v2_shadow_comparison(
+    *,
+    legacy_status: str,
+    legacy_verdict: str | None,
+    legacy_issue_count: int,
+    legacy_cost_usd: float,
+    legacy_prompt_tokens: int,
+    legacy_completion_tokens: int,
+    shadow_result: Any | None,
+) -> dict[str, Any] | None:
+    if shadow_result is None:
+        return None
+    shadow_metrics = dict(getattr(shadow_result, "metrics", {}) or {})
+    shadow_result_payload = dict(getattr(shadow_result, "result", {}) or {})
+    shadow_grounding = dict(shadow_result_payload.get("grounding") or {})
+    claim_links = shadow_grounding.get("claim_links")
+    supported_claims = 0
+    total_claims = 0
+    if isinstance(claim_links, list):
+        total_claims = len(claim_links)
+        supported_claims = sum(
+            1
+            for item in claim_links
+            if isinstance(item, dict) and item.get("support_state") == "supported"
+        )
+    shadow_citation_coverage = float(shadow_metrics.get("citation_coverage") or 0.0)
+    return {
+        "legacy_status": legacy_status,
+        "legacy_verdict": legacy_verdict,
+        "shadow_verdict": shadow_result_payload.get("verdict"),
+        "verdict_match": legacy_verdict == shadow_result_payload.get("verdict"),
+        "legacy_issue_count": int(legacy_issue_count),
+        "shadow_issue_count": int(shadow_result_payload.get("issue_count") or 0),
+        "issue_count_delta": int(shadow_result_payload.get("issue_count") or 0) - int(legacy_issue_count),
+        "legacy_cost_usd": float(legacy_cost_usd),
+        "shadow_final_score": float(shadow_metrics.get("final_score") or 0.0),
+        "legacy_total_tokens": int(legacy_prompt_tokens) + int(legacy_completion_tokens),
+        "shadow_citation_coverage": shadow_citation_coverage,
+        "shadow_supported_claims": supported_claims,
+        "shadow_total_claims": total_claims,
+        "default_on_candidate": bool(
+            shadow_result_payload.get("verdict") == "APPROVE"
+            and shadow_citation_coverage >= 0.85
+        ),
+    }
 
 
 def _canonicalize_numeric_payload(value: Any) -> Any:
@@ -301,21 +462,70 @@ def _decision_validity_dedupe_payload(
 class ControlPlaneService:
     """Bridge HTTP control requests to durable jobs, Scientist runs, Fabric ingestion, and Lex pipelines."""
 
-    def __init__(self, *, cas_root: Path, core_runs_root: Path) -> None:
+    def __init__(
+        self,
+        *,
+        cas_root: Path,
+        core_runs_root: Path,
+        metrics: Any | None = None,
+        tracer: Any | None = None,
+        artifact_store: ArtifactStore | None = None,
+        async_artifact_store: AsyncArtifactStore | None = None,
+        control_store: ControlPlaneStore | None = None,
+        retrieval_service: Any | None = None,
+        policy_resolver: RuntimeExecutionPolicyResolver | None = None,
+        registry_providers: ControlRegistryProviders | None = None,
+    ) -> None:
         from polisyos.fabric.retrieval import RetrievalService
 
         self._cas_root = cas_root
         self._core_runs_root = core_runs_root
-        self._artifact_store = FileSystemCAS(cas_root)
-        self._policy_resolver = RuntimeExecutionPolicyResolver.from_env()
-        self._control_store = ControlPlaneStore(
-            backend=self._policy_resolver.state_store_backend,
-            sqlite_path=self._resolve_control_sqlite_path(),
-            postgres_dsn=self._policy_resolver.postgres_dsn,
+        self._metrics = metrics or get_metrics()
+        self._tracer = tracer or get_tracer()
+        self._policy_resolver = policy_resolver or RuntimeExecutionPolicyResolver.from_env()
+        if registry_providers is None:
+            raise ValueError(
+                "ControlPlaneService requires typed registry_providers from the runtime composition root"
+            )
+        self._registry_providers = registry_providers
+        self._owns_artifact_store = artifact_store is None
+        if artifact_store is None:
+            store_config = ArtifactStoreConfig.from_env().model_copy(update={"root": str(cas_root)})
+            self._artifact_store = cast(
+                "ArtifactStore",
+                guard_runtime_cas(
+                    build_artifact_store(
+                        store_config,
+                        metrics=self._metrics,
+                        tracer=self._tracer,
+                    )
+                ),
+            )
+        else:
+            self._artifact_store = artifact_store
+        self._async_artifact_store = (
+            async_artifact_store or ensure_async_artifact_store(self._artifact_store)
         )
-        self._retrieval = RetrievalService(
+
+        self._owns_control_store = control_store is None
+        if control_store is None:
+            self._control_store = cast(
+                "ControlPlaneStore",
+                guard_runtime_control_store(
+                    ControlPlaneStore(
+                        backend=self._policy_resolver.state_store_backend,
+                        sqlite_path=self._resolve_control_sqlite_path(),
+                        postgres_dsn=self._policy_resolver.postgres_dsn,
+                    )
+                ),
+            )
+        else:
+            self._control_store = control_store
+
+        self._retrieval = retrieval_service or RetrievalService(
             curated_dir=_resolve_curated_dir(),
             cas_root=cas_root,
+            providers=self._build_retrieval_providers(),
         )
         self._worker: ControlWorker | None = None
         if self._policy_resolver.worker_backend == "embedded":
@@ -325,17 +535,38 @@ class ControlPlaneService:
             )
             self._worker.start()
 
+    def close(self) -> None:
+        """Stop embedded workers and release durable control-plane resources."""
+        if self._worker is not None:
+            self._worker.stop()
+        control_store_close = cast("Callable[[], None] | None", getattr(self._control_store, "close", None))
+        artifact_store_close = cast("Callable[[], None] | None", getattr(self._artifact_store, "close", None))
+        if self._owns_control_store and callable(control_store_close):
+            control_store_close()
+        if self._owns_artifact_store and callable(artifact_store_close):
+            artifact_store_close()
+
     def _resolve_control_sqlite_path(self) -> Path:
         path = Path(self._policy_resolver.sqlite_path)
         if path.is_absolute():
             return path
         return self._cas_root.parent / path
 
+    def _build_retrieval_providers(self) -> Any:
+        from polisyos.fabric.retrieval import RetrievalProviders
+
+        return RetrievalProviders(
+            registry=cast("ConnectorRegistry", self._registry_providers.connectors),
+            profiles=cast("SourceProfileRegistry", self._registry_providers.source_profiles),
+            tracer=self._tracer,
+            metrics=self._metrics,
+        )
+
     def _resolve_execution_policy(
         self,
         *,
-        requested_profile: str | None,
-        policy_flags: Any,
+        requested_profile: ExecutionProfile | None,
+        policy_flags: PolicyFlags,
         principal: RuntimePrincipal | None,
     ) -> ResolvedExecutionPolicy:
         try:
@@ -383,7 +614,7 @@ class ControlPlaneService:
     def _put_json_artifact(self, payload: Any, *, kind: str, schema_name: str) -> str:
         ref = self._artifact_store.put_json(
             payload,
-            PutOptions(
+            ArtifactWriteOptions(
                 kind=kind,
                 media_type="application/json",
                 schema=SchemaInfo(name=schema_name, version="1.0"),
@@ -403,6 +634,78 @@ class ControlPlaneService:
             kind=f"runtime.control_job_payload.{job_kind}",
             schema_name="polisyos.runtime.ControlJobPayload",
         )
+
+    def _build_job_telemetry(self, *, request_id: str | None) -> dict[str, Any] | None:
+        telemetry: dict[str, Any] = {}
+        if request_id:
+            telemetry["request_id"] = request_id
+        carrier: dict[str, str] = {}
+        inject_context = getattr(self._tracer, "inject_context", None)
+        if callable(inject_context):
+            inject_context(carrier)
+        if carrier:
+            telemetry["trace_context"] = carrier
+        return telemetry or None
+
+    def _enrich_job_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        request_id: str | None,
+    ) -> dict[str, Any]:
+        enriched_payload = dict(payload)
+        telemetry = self._build_job_telemetry(request_id=request_id)
+        if telemetry is not None:
+            enriched_payload["_telemetry"] = telemetry
+        return enriched_payload
+
+    @contextmanager
+    def _control_job_span(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: dict[str, Any],
+    ) -> Any:
+        telemetry = payload.get("_telemetry") if isinstance(payload, dict) else None
+        request_id = None
+        token = None
+        if isinstance(telemetry, dict):
+            request_id = telemetry.get("request_id")
+            carrier = telemetry.get("trace_context")
+            extract_context = getattr(self._tracer, "extract_context", None)
+            if isinstance(carrier, dict) and carrier and callable(extract_context):
+                token = attach(cast("Any", extract_context({str(key): str(value) for key, value in carrier.items()})))
+        queue_lag_seconds = max(
+            (datetime.now(timezone.utc) - job.created_at).total_seconds(),
+            0.0,
+        )
+        started = time.perf_counter()
+        status = "success"
+        with self._tracer.start_as_current_span(
+            "runtime.control.job.execute",
+            attributes={
+                "runtime.control.job_id": job.job_id,
+                "runtime.control.job_kind": job.kind,
+                "runtime.control.run_id": job.run_id or "",
+                "runtime.control.pipeline_id": job.pipeline_id or "",
+                "runtime.control.request_id": str(request_id or ""),
+            },
+        ):
+            try:
+                yield
+            except Exception:
+                status = "error"
+                raise
+            finally:
+                _record_control_plane_job_execution_metric(
+                    metrics=self._metrics,
+                    job_kind=job.kind,
+                    status=status,
+                    duration_seconds=time.perf_counter() - started,
+                    queue_lag_seconds=queue_lag_seconds,
+                )
+                if token is not None:
+                    detach(token)
 
     def _persist_capability_manifest(
         self,
@@ -437,8 +740,10 @@ class ControlPlaneService:
         pipeline_id: str | None,
         payload: dict[str, Any],
         policy: ResolvedExecutionPolicy,
+        request_id: str | None = None,
     ) -> ControlJobRecord:
         started = time.perf_counter()
+        payload = self._enrich_job_payload(payload, request_id=request_id)
         try:
             payload_ref = self._persist_job_payload(job_kind=job_kind, payload=payload)
             capability_manifest_ref = self._persist_capability_manifest(
@@ -450,7 +755,7 @@ class ControlPlaneService:
             )
             record = self._control_store.create_job(
                 job_id=job_id,
-                kind=job_kind,  # type: ignore[arg-type]
+                kind=_coerce_control_job_kind(job_kind),
                 run_id=run_id,
                 pipeline_id=pipeline_id,
                 requested_execution_profile=policy.requested_profile,
@@ -464,6 +769,7 @@ class ControlPlaneService:
                 self._worker.wake()
         except Exception:
             _record_control_plane_job_admission_metric(
+                metrics=self._metrics,
                 job_kind=job_kind,
                 effective_profile=policy.effective_profile,
                 status="error",
@@ -471,6 +777,7 @@ class ControlPlaneService:
             )
             raise
         _record_control_plane_job_admission_metric(
+            metrics=self._metrics,
             job_kind=job_kind,
             effective_profile=policy.effective_profile,
             status="success",
@@ -621,71 +928,72 @@ class ControlPlaneService:
             if not job.payload_ref:
                 raise RuntimeError("control job payload ref is missing")
             payload = self._load_payload_ref(job.payload_ref)
-            if job.kind == "workflow_run":
-                capability_manifest_ref = job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
-                state_payload = self._hydrate_state_payload(
-                    payload["state_payload"],
-                    job=job,
-                    capability_manifest_ref=capability_manifest_ref,
-                )
-                self._execute_workflow(state_payload, payload["checkpoint_policy"])
-                self._control_store.complete_job(
-                    job_id=job.job_id,
-                    run_id=job.run_id,
-                    capability_manifest_ref=capability_manifest_ref,
-                )
-                return
-            if job.kind == "natural_language_run":
-                capability_manifest_ref = job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
-                result = self._execute_nl_pipeline(
-                    run_id=str(payload["run_id"]),
-                    nl_request=str(payload["request"]),
-                    context=dict(payload.get("context") or {}),
-                    domain_hint=payload.get("domain_hint"),
-                    data_source=(
-                        DataSourceBinding.model_validate(payload["data_source"])
-                        if payload.get("data_source") is not None
-                        else None
-                    ),
-                    max_iterations=int(payload.get("max_iterations") or 1),
-                    llm_models=list(payload.get("llm_models") or []),
-                    max_parallel_models=int(payload.get("max_parallel_models") or 1),
-                    run_budget_usd=payload.get("run_budget_usd"),
-                    per_model_budget_usd=payload.get("per_model_budget_usd"),
-                    checkpoint_policy=str(payload.get("checkpoint_policy") or "strict"),
-                    execution_plan_ref=payload.get("execution_plan_ref"),
-                    execution_plan_payload=payload.get("execution_plan"),
-                    stop_criteria_payload=dict(payload.get("stop_criteria") or {}),
-                    governance_constraints_payload=list(payload.get("governance_constraints") or []),
-                    expected_outputs_payload=list(payload.get("expected_outputs") or []),
-                    control_job_id=job.job_id,
-                    execution_profile=job.effective_execution_profile,
-                    capability_manifest_ref=capability_manifest_ref,
-                    allow_mock_fallback=bool(job.policy_flags.get("allow_mock_fallback"))
-                    or job.effective_execution_profile == "dev",
-                    capability_manifest_updater=lambda fallbacks: self._refresh_capability_manifest(
+            with self._control_job_span(job=job, payload=payload):
+                if job.kind == "workflow_run":
+                    capability_manifest_ref = job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    state_payload = self._hydrate_state_payload(
+                        payload["state_payload"],
                         job=job,
-                        observed_fallbacks=fallbacks,
-                    ),
-                )
-                final_manifest_ref = str(
-                    result.get("capability_manifest_ref") or capability_manifest_ref
-                )
-                self._control_store.complete_job(
-                    job_id=job.job_id,
-                    run_id=str(result.get("run_id") or job.run_id or ""),
-                    capability_manifest_ref=final_manifest_ref,
-                )
-                return
-            if job.kind == "lex_pipeline":
-                capability_manifest_ref = job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
-                self._run_lex_pipeline_job(
-                    job=job,
-                    payload=payload,
-                    capability_manifest_ref=capability_manifest_ref,
-                )
-                return
-            raise RuntimeError(f"Unsupported control job kind: {job.kind}")
+                        capability_manifest_ref=capability_manifest_ref,
+                    )
+                    self._execute_workflow(state_payload, payload["checkpoint_policy"])
+                    self._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=job.run_id,
+                        capability_manifest_ref=capability_manifest_ref,
+                    )
+                    return
+                if job.kind == "natural_language_run":
+                    capability_manifest_ref = job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    result = self._execute_nl_pipeline(
+                        run_id=str(payload["run_id"]),
+                        nl_request=str(payload["request"]),
+                        context=dict(payload.get("context") or {}),
+                        domain_hint=payload.get("domain_hint"),
+                        data_source=(
+                            DataSourceBinding.model_validate(payload["data_source"])
+                            if payload.get("data_source") is not None
+                            else None
+                        ),
+                        max_iterations=int(payload.get("max_iterations") or 1),
+                        llm_models=list(payload.get("llm_models") or []),
+                        max_parallel_models=int(payload.get("max_parallel_models") or 1),
+                        run_budget_usd=payload.get("run_budget_usd"),
+                        per_model_budget_usd=payload.get("per_model_budget_usd"),
+                        checkpoint_policy=str(payload.get("checkpoint_policy") or "strict"),
+                        execution_plan_ref=payload.get("execution_plan_ref"),
+                        execution_plan_payload=payload.get("execution_plan"),
+                        stop_criteria_payload=dict(payload.get("stop_criteria") or {}),
+                        governance_constraints_payload=list(payload.get("governance_constraints") or []),
+                        expected_outputs_payload=list(payload.get("expected_outputs") or []),
+                        control_job_id=job.job_id,
+                        execution_profile=job.effective_execution_profile,
+                        capability_manifest_ref=capability_manifest_ref,
+                        allow_mock_fallback=bool(job.policy_flags.get("allow_mock_fallback"))
+                        or job.effective_execution_profile == "dev",
+                        capability_manifest_updater=lambda fallbacks: self._refresh_capability_manifest(
+                            job=job,
+                            observed_fallbacks=fallbacks,
+                        ),
+                    )
+                    final_manifest_ref = str(
+                        result.get("capability_manifest_ref") or capability_manifest_ref
+                    )
+                    self._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=str(result.get("run_id") or job.run_id or ""),
+                        capability_manifest_ref=final_manifest_ref,
+                    )
+                    return
+                if job.kind == "lex_pipeline":
+                    capability_manifest_ref = job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    self._run_lex_pipeline_job(
+                        job=job,
+                        payload=payload,
+                        capability_manifest_ref=capability_manifest_ref,
+                    )
+                    return
+                raise RuntimeError(f"Unsupported control job kind: {job.kind}")
         except Exception as exc:
             logger.exception("Control job %s failed: %s", job.job_id, exc)
             self._control_store.fail_job(
@@ -774,6 +1082,7 @@ class ControlPlaneService:
             pipeline_id=None,
             payload=payload,
             policy=policy,
+            request_id=request_id,
         )
 
         return RunLaunchResponse(
@@ -921,7 +1230,7 @@ class ControlPlaneService:
         prepared = feedback.prepare_reissue(run)
         job_id = uuid.uuid4().hex
         policy = self._resolve_execution_policy(
-            requested_profile=run.details.execution_profile,
+            requested_profile=_coerce_optional_execution_profile(run.details.execution_profile),
             policy_flags=PolicyFlags(),
             principal=principal,
         )
@@ -937,6 +1246,7 @@ class ControlPlaneService:
             pipeline_id=None,
             payload=payload,
             policy=policy,
+            request_id=request_id,
         )
         return {
             "job_id": job_id,
@@ -1013,6 +1323,7 @@ class ControlPlaneService:
                 "expected_outputs": request.expected_outputs,
             },
             policy=policy,
+            request_id=request_id,
         )
 
         models_label = ", ".join(requested_models) if requested_models else "mock agents"
@@ -1038,8 +1349,8 @@ class ControlPlaneService:
             ),
         )
 
-    @staticmethod
     def _execute_nl_pipeline(
+        self,
         run_id: str,
         nl_request: str,
         context: dict[str, Any],
@@ -1065,9 +1376,9 @@ class ControlPlaneService:
         """Run agent circuit synchronously for a durable control-plane job."""
         from polisyos.common.async_tools import run_coro_sync
 
-        async def _agent_pipeline() -> None:
+        async def _agent_pipeline() -> dict[str, Any]:
             from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-            from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+            from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
             from polisyos.core.canon import CanonSpec
             from polisyos.core.contracts.execution_plan import (
                 ExecutionPlan,
@@ -1113,7 +1424,8 @@ class ControlPlaneService:
                 preflight_execution_plan,
             )
 
-            store = FileSystemCAS(Path(".polisyos"))
+            store = self._artifact_store
+            async_store = self._async_artifact_store
             models_to_run = _dedupe_models(list(llm_models))
             current_capability_manifest_ref = capability_manifest_ref
             if not models_to_run and not allow_mock_fallback:
@@ -1128,11 +1440,16 @@ class ControlPlaneService:
             def _artifact_ref_from_sha(sha: str, *, kind: str) -> ArtifactRef:
                 return _make_artifact_ref(sha, kind=kind)
 
-            def _ensure_registry_bundle_ref() -> ArtifactRef:
+            async def _ensure_registry_bundle_ref() -> ArtifactRef:
                 nonlocal registry_bundle_ref_cache
                 if registry_bundle_ref_cache is None:
-                    bundle = build_default_registry_bundle(store)
-                    registry_bundle_ref_cache = bundle.bundle_ref
+                    bundle = await run_blocking_async(build_default_registry_bundle, store)
+                    registry_bundle_ref = bundle.bundle_ref
+                    if registry_bundle_ref is None:
+                        raise RuntimeError("default registry bundle did not produce an artifact reference")
+                    registry_bundle_ref_cache = registry_bundle_ref
+                if registry_bundle_ref_cache is None:
+                    raise RuntimeError("default registry bundle ref cache was not populated")
                 return registry_bundle_ref_cache
 
             async def _ensure_catalog_snapshot() -> tuple[MethodCatalogSnapshot, str]:
@@ -1143,39 +1460,43 @@ class ControlPlaneService:
                         return cached_snapshot, cached_ref
                     ensure_causal_methods_registered()
                     snapshot = build_method_catalog_snapshot(run_id=run_id)
-                    snapshot_ref = persist_method_catalog_snapshot(store, snapshot)
+                    snapshot_ref = await run_blocking_async(
+                        persist_method_catalog_snapshot,
+                        store,
+                        snapshot,
+                    )
                     snapshot_ref_str = str(snapshot_ref.artifact_id)
                     method_catalog_snapshot_cache["snapshot"] = snapshot
                     method_catalog_snapshot_cache["ref"] = snapshot_ref_str
                     return snapshot, snapshot_ref_str
 
-            def _materialize_retrieval_artifacts(
+            async def _materialize_retrieval_artifacts(
                 *,
                 variant_id: str,
                 data_context_payload: dict[str, Any],
                 retrieval_telemetry: dict[str, Any],
             ) -> dict[str, str]:
-                payload_ref = store.put_json(
+                payload_ref = await async_store.put_json(
                     {
                         "model_variant_id": variant_id,
                         "data_context": data_context_payload,
                         "retrieval_telemetry": retrieval_telemetry,
                     },
-                    PutOptions(
+                    ArtifactWriteOptions(
                         kind="fabric.retrieval_payload",
                         media_type="application/json",
                         schema=SchemaInfo(name="polisyos.fabric.RetrievalPayload", version="1.0"),
                     ),
                     canon_spec=CanonSpec(forbid_floats=False),
                 )
-                quality_ref = store.put_json(
+                quality_ref = await async_store.put_json(
                     {
                         "source": "retrieval_service",
                         "mode": str(retrieval_telemetry.get("mode") or "hybrid"),
                         "coverage_ok": True,
                         "warnings": list(retrieval_telemetry.get("warnings") or []),
                     },
-                    PutOptions(
+                    ArtifactWriteOptions(
                         kind="fabric.quality_report",
                         media_type="application/json",
                         schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
@@ -1196,9 +1517,9 @@ class ControlPlaneService:
                         f"model_variant_id:{variant_id}",
                     ],
                 )
-                snapshot_ref = store.put_json(
+                snapshot_ref = await async_store.put_json(
                     snapshot,
-                    PutOptions(
+                    ArtifactWriteOptions(
                         kind="fabric.data_snapshot",
                         media_type="application/json",
                         schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
@@ -1208,11 +1529,12 @@ class ControlPlaneService:
                     ),
                     canon_spec=CanonSpec(forbid_floats=False),
                 )
-                registry_ref = _ensure_registry_bundle_ref()
+                registry_ref = await _ensure_registry_bundle_ref()
                 try:
                     from polisyos.foundry.data_plane import build_input_bindings
 
-                    bindings_result = build_input_bindings(
+                    bindings_result = await run_blocking_async(
+                        build_input_bindings,
                         store,
                         data_snapshot_ref=_artifact_ref_from_sha(
                             str(snapshot_ref.artifact_id),
@@ -1232,9 +1554,9 @@ class ControlPlaneService:
                     }
                 except ModuleNotFoundError:
                     # Keep pipeline runnable in lightweight environments without JAX.
-                    fallback_state_ref = store.put_json(
+                    fallback_state_ref = await async_store.put_json(
                         {"source": "runtime_nl_auto_materialization", "jax": "missing"},
-                        PutOptions(
+                        ArtifactWriteOptions(
                             kind="foundry.state_payload",
                             media_type="application/json",
                             schema=SchemaInfo(name="polisyos.foundry.StatePayload", version="0.1.0"),
@@ -1242,13 +1564,14 @@ class ControlPlaneService:
                         canon_spec=CanonSpec(forbid_floats=False),
                     )
                     fallback_snapshot = StateSnapshot(
+                        schema_version="2.0",
                         state_ref=fallback_state_ref,
                         step=0,
                         notes=["fallback_state_snapshot_without_jax"],
                     )
-                    fallback_snapshot_ref = store.put_json(
+                    fallback_snapshot_ref = await async_store.put_json(
                         fallback_snapshot,
-                        PutOptions(
+                        ArtifactWriteOptions(
                             kind="foundry.state_snapshot",
                             media_type="application/json",
                             schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="1.0"),
@@ -1256,6 +1579,7 @@ class ControlPlaneService:
                         canon_spec=CanonSpec(forbid_floats=False),
                     )
                     fallback_bindings = FoundryInputBindings(
+                        schema_version="1.0",
                         data_snapshot_ref=_artifact_ref_from_sha(
                             str(snapshot_ref.artifact_id),
                             kind="fabric.data_snapshot",
@@ -1267,9 +1591,9 @@ class ControlPlaneService:
                         ),
                         notes=["fallback_bindings_without_jax"],
                     )
-                    fallback_bindings_ref = store.put_json(
+                    fallback_bindings_ref = await async_store.put_json(
                         fallback_bindings,
-                        PutOptions(
+                        ArtifactWriteOptions(
                             kind="foundry.input_bindings",
                             media_type="application/json",
                             schema=SchemaInfo(name="polisyos.core.FoundryInputBindings", version="1.0"),
@@ -1280,14 +1604,14 @@ class ControlPlaneService:
                         ),
                         canon_spec=CanonSpec(forbid_floats=False),
                     )
-                    fallback_report_ref = store.put_json(
+                    fallback_report_ref = await async_store.put_json(
                         {
                             "ok": False,
                             "warnings": ["jax_not_available"],
                             "applied_rules": [],
                             "errors": [],
                         },
-                        PutOptions(
+                        ArtifactWriteOptions(
                             kind="foundry.input_binding_report",
                             media_type="application/json",
                             schema=SchemaInfo(
@@ -1310,10 +1634,10 @@ class ControlPlaneService:
                         "input_binding_report_ref": str(fallback_report_ref.artifact_id),
                     }
 
-            def _store_bundle(bundle: Any) -> str:
-                ref = store.put_json(
+            async def _store_bundle(bundle: Any) -> str:
+                ref = await async_store.put_json(
                     bundle,
-                    PutOptions(
+                    ArtifactWriteOptions(
                         kind="ir.trinity_bundle",
                         media_type="application/json",
                         schema=SchemaInfo(
@@ -1342,6 +1666,8 @@ class ControlPlaneService:
                         run_id=run_id,
                         model_variant_id=variant_id,
                         call_observer=call_events.append,
+                        tracer=self._tracer,
+                        metrics=self._metrics,
                     )
                     if llm_client is None:
                         if not allow_mock_fallback:
@@ -1375,6 +1701,7 @@ class ControlPlaneService:
                 retrieval = RetrievalService(
                     curated_dir=_resolve_curated_dir(),
                     cas_root=Path(".polisyos"),
+                    providers=self._build_retrieval_providers(),
                 )
 
                 steps: list[dict[str, Any]] = []
@@ -1404,6 +1731,10 @@ class ControlPlaneService:
                 preflight_ready = True
                 preflight_diagnostics: list[dict[str, Any]] = []
                 evaluator_payload: dict[str, Any] = {}
+                fabric_result = None
+                fabric_shadow_result = None
+                fabric_shadow_task = None
+                fabric_shadow_comparison = None
 
                 async def _capture_step(
                     *,
@@ -1562,7 +1893,11 @@ class ControlPlaneService:
                         )
 
                     if not execution_plan_ref_str:
-                        execution_plan_ref_obj = persist_execution_plan(store, execution_plan)
+                        execution_plan_ref_obj = await run_blocking_async(
+                            persist_execution_plan,
+                            store,
+                            execution_plan,
+                        )
                         execution_plan_ref_str = str(execution_plan_ref_obj.artifact_id)
                     _append_step(
                         agent="planner",
@@ -1577,9 +1912,13 @@ class ControlPlaneService:
 
                     # 2) Build and cache live method catalog snapshot for this run.
                     catalog_snapshot, method_catalog_snapshot_ref_str = await _ensure_catalog_snapshot()
-                    if hasattr(formalizer, "set_method_catalog_snapshot"):
+                    snapshot_injector = cast(
+                        "_MethodCatalogSnapshotAware | None",
+                        formalizer if hasattr(formalizer, "set_method_catalog_snapshot") else None,
+                    )
+                    if snapshot_injector is not None:
                         try:
-                            formalizer.set_method_catalog_snapshot(
+                            snapshot_injector.set_method_catalog_snapshot(
                                 catalog_snapshot.model_dump(mode="json")
                             )
                         except (AttributeError, TypeError, ValueError) as exc:
@@ -1592,11 +1931,18 @@ class ControlPlaneService:
 
                     # 3) Mandatory preflight before execution.
                     preflight_report = preflight_execution_plan(execution_plan, catalog_snapshot)
-                    preflight_report.plan_ref = ExecutionPlanRef(artifact_id=execution_plan_ref_str)
-                    preflight_report.catalog_snapshot_ref = MethodCatalogSnapshotRef(
-                        artifact_id=method_catalog_snapshot_ref_str
+                    preflight_report.plan_ref = _typed_artifact_ref(
+                        execution_plan_ref_str,
+                        kind="scientist.execution_plan",
+                        ref_type=ExecutionPlanRef,
                     )
-                    preflight_report_ref = persist_preflight_report(
+                    preflight_report.catalog_snapshot_ref = _typed_artifact_ref(
+                        method_catalog_snapshot_ref_str,
+                        kind="foundry.method_catalog_snapshot",
+                        ref_type=MethodCatalogSnapshotRef,
+                    )
+                    preflight_report_ref = await run_blocking_async(
+                        persist_preflight_report,
                         store,
                         preflight_report,
                         inputs=[
@@ -1634,12 +1980,19 @@ class ControlPlaneService:
                     )
 
                     iteration_state = IterationState(
+                        schema_version="1.0",
                         run_id=run_id,
                         iteration=1,
                         lifecycle_state="plan_created",
-                        plan_ref=ExecutionPlanRef(artifact_id=execution_plan_ref_str),
-                        preflight_report_ref=PreflightReportRef(
-                            artifact_id=preflight_report_ref_str
+                        plan_ref=_typed_artifact_ref(
+                            execution_plan_ref_str,
+                            kind="scientist.execution_plan",
+                            ref_type=ExecutionPlanRef,
+                        ),
+                        preflight_report_ref=_typed_artifact_ref(
+                            preflight_report_ref_str,
+                            kind="scientist.preflight_report",
+                            ref_type=PreflightReportRef,
                         ),
                     )
                     iteration_state = transition(
@@ -1668,16 +2021,28 @@ class ControlPlaneService:
                                 + ["replanned_after_preflight_diagnostics"],
                             }
                         )
-                        execution_plan_ref_obj = persist_execution_plan(store, execution_plan)
+                        execution_plan_ref_obj = await run_blocking_async(
+                            persist_execution_plan,
+                            store,
+                            execution_plan,
+                        )
                         execution_plan_ref_str = str(execution_plan_ref_obj.artifact_id)
                         preflight_report = preflight_execution_plan(execution_plan, catalog_snapshot)
-                        preflight_report.plan_ref = ExecutionPlanRef(
-                            artifact_id=execution_plan_ref_str
+                        preflight_report.plan_ref = _typed_artifact_ref(
+                            execution_plan_ref_str,
+                            kind="scientist.execution_plan",
+                            ref_type=ExecutionPlanRef,
                         )
-                        preflight_report.catalog_snapshot_ref = MethodCatalogSnapshotRef(
-                            artifact_id=method_catalog_snapshot_ref_str
+                        preflight_report.catalog_snapshot_ref = _typed_artifact_ref(
+                            method_catalog_snapshot_ref_str,
+                            kind="foundry.method_catalog_snapshot",
+                            ref_type=MethodCatalogSnapshotRef,
                         )
-                        preflight_report_ref = persist_preflight_report(store, preflight_report)
+                        preflight_report_ref = await run_blocking_async(
+                            persist_preflight_report,
+                            store,
+                            preflight_report,
+                        )
                         preflight_report_ref_str = str(preflight_report_ref.artifact_id)
                         preflight_ready = bool(preflight_report.ready_to_run)
                         preflight_diagnostics = [
@@ -1712,7 +2077,11 @@ class ControlPlaneService:
                         else:
                             notes.append("preflight_failed_after_replan")
 
-                    iteration_state_ref = persist_iteration_state(store, iteration_state)
+                    iteration_state_ref = await run_blocking_async(
+                        persist_iteration_state,
+                        store,
+                        iteration_state,
+                    )
                     iteration_state_ref_str = str(iteration_state_ref.artifact_id)
 
                     resolve_request = DataResolveRequest(
@@ -1723,7 +2092,7 @@ class ControlPlaneService:
                     resolve_outcome = await _capture_step(
                         agent="source_resolver",
                         action="resolve_fast_lane",
-                        coro=asyncio.to_thread(retrieval.resolve, resolve_request),
+                        coro=run_blocking_async(retrieval.resolve, resolve_request),
                         summary="Resolved data needs into fetch plans",
                         details={"data_needs": len(data_needs)},
                     )
@@ -1796,8 +2165,9 @@ class ControlPlaneService:
                             None,
                         )
                         promotion_candidates_before = (
-                            list(list_promotion_candidates())
+                            list(raw_candidates_before)
                             if callable(list_promotion_candidates)
+                            and isinstance((raw_candidates_before := list_promotion_candidates()), list | tuple | set)
                             else []
                         )
                         promotion_ids_before = {
@@ -1808,7 +2178,7 @@ class ControlPlaneService:
                         execute_outcome = await _capture_step(
                             agent="executor",
                             action="fetch_execute",
-                            coro=asyncio.to_thread(
+                            coro=run_blocking_async(
                                 retrieval.execute_fetch_plans,
                                 list(resolve_outcome.fetch_plans),
                                 persist_payload=False,
@@ -1835,8 +2205,9 @@ class ControlPlaneService:
                         )
                         retrieval_candidates_promoted = int(execute_outcome.promoted_count)
                         promotion_candidates_after = (
-                            list(list_promotion_candidates())
+                            list(raw_candidates_after)
                             if callable(list_promotion_candidates)
+                            and isinstance((raw_candidates_after := list_promotion_candidates()), list | tuple | set)
                             else []
                         )
                         promotion_candidates = [
@@ -1883,7 +2254,7 @@ class ControlPlaneService:
 
                     if _is_auto_materialization_enabled():
                         try:
-                            auto_data_source_refs = _materialize_retrieval_artifacts(
+                            auto_data_source_refs = await _materialize_retrieval_artifacts(
                                 variant_id=variant_id,
                                 data_context_payload=data_context_payload or {"metrics": []},
                                 retrieval_telemetry=retrieval_telemetry,
@@ -1914,189 +2285,280 @@ class ControlPlaneService:
                                 details={"error": str(exc)},
                             )
 
-                    draft = await _capture_step(
-                        agent="drafter",
-                        action="draft_policy",
-                        coro=drafter.draft_policy(
-                            problem_frame,
-                            data_context=data_context_payload or None,
-                        ),
-                        summary="Draft generated",
+                    fabric_flags_active = (
+                        _is_scientist_v2_enabled() or _is_scientist_shadow_mode()
                     )
-                    trinity_bundle = await _capture_step(
-                        agent="formalizer",
-                        action="formalize",
-                        coro=formalizer.formalize(draft),
-                        summary="Trinity bundle formalized",
-                    )
+                    if fabric_flags_active:
+                        from polisyos.scientist.agent.fabric import (
+                            ScientistAgentFabric,
+                            ScientistAgentFabricConfig,
+                            ScientistAgentFabricRequest,
+                        )
+
+                        fabric = ScientistAgentFabric(
+                            config=ScientistAgentFabricConfig.from_env()
+                        )
+                        fabric_request = ScientistAgentFabricRequest(
+                            run_id=run_id,
+                            variant_id=variant_id,
+                            model_name=model_name,
+                            llm_client=llm_client,
+                            problem_frame=problem_frame,
+                            data_context=dict(data_context_payload or {}),
+                            drafter=drafter,
+                            formalizer=formalizer,
+                            critic=critic,
+                            artifact_store=store,
+                            max_iterations=max_iterations,
+                        )
+                        if fabric.config.shadow_mode:
+                            fabric_shadow_task = asyncio.create_task(fabric.run(fabric_request))
+                        elif fabric.config.enabled:
+                            fabric_result = await _capture_step(
+                                agent="scientist_v2",
+                                action="fabric_run",
+                                coro=fabric.run(fabric_request),
+                                summary="Scientist v2 orchestration completed",
+                            )
 
                     verdict = "NEEDS_REVISION"
                     issue_count = 0
-                    if preflight_ready:
-                        try:
-                            iteration_state = transition(
-                                iteration_state,
-                                "start_execute",
-                                notes=["execution_started"],
-                            )
-                            iteration_state = transition(
-                                iteration_state,
-                                "execute_done",
-                                notes=["execution_phase_complete"],
-                            )
-                        except ValueError as exc:
-                            logger.debug(
-                                "Iteration state execute transition failed for run %s: %s",
-                                run_id,
-                                exc,
-                            )
-                            notes.append("iteration_state_execute_transition_failed")
-                    for iteration in range(max_iterations):
-                        critique = await _capture_step(
-                            agent="critic",
-                            action="critique",
-                            coro=critic.critique(trinity_bundle, problem_frame),
-                            summary=f"Critique iteration {iteration + 1}",
-                            details={"iteration": iteration + 1},
-                        )
-                        verdict = critique.verdict
-                        issue_count = len(critique.issues)
-
-                        usage_snapshot = _sum_call_events(call_events)
-                        budget_remaining_ratio = None
-                        if per_model_budget_usd is not None and float(per_model_budget_usd) > 0:
-                            budget_remaining_ratio = max(
-                                0.0,
-                                (float(per_model_budget_usd) - float(usage_snapshot["cost_usd"]))
-                                / float(per_model_budget_usd),
-                            )
-                        retrieval_quality = (
-                            1.0
-                            if retrieval_candidates_filtered == 0
-                            else max(
-                                0.0,
-                                1.0
-                                - (
-                                    float(retrieval_candidates_filtered)
-                                    / float(
-                                        max(
-                                            1,
-                                            retrieval_candidates_filtered + len(data_context_payload.get("metrics", [])),
-                                        )
-                                    )
-                                ),
-                            )
-                        )
-                        evaluator_report = evaluate_iteration(
-                            issue_count=issue_count,
-                            verdict=critique.verdict,
-                            retrieval_quality=retrieval_quality,
-                            budget_remaining_ratio=budget_remaining_ratio,
-                        )
-                        evaluator_report_ref = persist_evaluator_report(
-                            store,
-                            evaluator_report,
-                        )
-                        evaluator_report_ref_str = str(evaluator_report_ref.artifact_id)
-                        evaluator_payload = evaluator_report.model_dump(mode="json")
+                    if fabric_result is not None:
+                        draft = fabric_result.draft
+                        trinity_bundle = fabric_result.trinity_bundle
+                        verdict = fabric_result.critique.verdict
+                        issue_count = len(fabric_result.critique.issues)
+                        evaluator_payload = dict(fabric_result.metrics or {})
                         _append_step(
-                            agent="evaluator",
-                            action="score_iteration",
-                            summary=f"Evaluator verdict: {evaluator_report.verdict}",
-                            status="ok" if evaluator_report.verdict == "APPROVE" else "warn",
+                            agent="scientist_v2",
+                            action="fabric_summary",
+                            summary="Scientist v2 result accepted",
                             details={
-                                "iteration": iteration + 1,
-                                "verdict": evaluator_report.verdict,
-                                "scores": evaluator_payload.get("scores"),
-                                "evaluator_report_ref": evaluator_report_ref_str,
+                                "result": dict(fabric_result.result or {}),
+                                "traces": dict(fabric_result.traces or {}),
+                                "metrics": dict(fabric_result.metrics or {}),
                             },
                         )
-                        try:
-                            if evaluator_report.verdict == "APPROVE":
-                                iteration_state = transition(
-                                    iteration_state,
-                                    "approve",
-                                    verdict=evaluator_report.verdict,
-                                    stop_reason="approved",
-                                    notes=["approved_by_evaluator"],
-                                )
-                            elif evaluator_report.verdict == "STOP_BUDGET":
-                                iteration_state = transition(
-                                    iteration_state,
-                                    "stop_budget",
-                                    verdict=evaluator_report.verdict,
-                                    stop_reason="budget_exhausted",
-                                    notes=["stopped_by_budget_guard"],
-                                )
-                            else:
-                                iteration_state = transition(
-                                    iteration_state,
-                                    "replan",
-                                    verdict=evaluator_report.verdict,
-                                    notes=[f"replanning_due_to:{evaluator_report.verdict}"],
-                                )
-                        except ValueError as exc:
-                            logger.debug(
-                                "Iteration state evaluator transition failed for run %s: %s",
-                                run_id,
-                                exc,
-                            )
-                            notes.append("iteration_state_evaluator_transition_failed")
+                    else:
+                        draft = await _capture_step(
+                            agent="drafter",
+                            action="draft_policy",
+                            coro=drafter.draft_policy(
+                                problem_frame,
+                                data_context=data_context_payload or None,
+                            ),
+                            summary="Draft generated",
+                        )
+                        trinity_bundle = await _capture_step(
+                            agent="formalizer",
+                            action="formalize",
+                            coro=formalizer.formalize(draft),
+                            summary="Trinity bundle formalized",
+                        )
 
-                        if evaluator_report.verdict == "APPROVE":
-                            verdict = "APPROVE"
-                            break
-                        if evaluator_report.verdict == "STOP_BUDGET":
-                            verdict = "STOP_BUDGET"
-                            notes.append("evaluator_stop_budget")
-                            break
-                        if iteration < max_iterations - 1:
-                            draft = await _capture_step(
-                                agent="drafter",
-                                action="refine_draft",
-                                coro=drafter.refine_draft(draft, critique),
-                                summary="Draft refined",
-                                status="warn",
+                        if preflight_ready:
+                            try:
+                                iteration_state = transition(
+                                    iteration_state,
+                                    "start_execute",
+                                    notes=["execution_started"],
+                                )
+                                iteration_state = transition(
+                                    iteration_state,
+                                    "execute_done",
+                                    notes=["execution_phase_complete"],
+                                )
+                            except ValueError as exc:
+                                logger.debug(
+                                    "Iteration state execute transition failed for run %s: %s",
+                                    run_id,
+                                    exc,
+                                )
+                                notes.append("iteration_state_execute_transition_failed")
+                        for iteration in range(max_iterations):
+                            critique = await _capture_step(
+                                agent="critic",
+                                action="critique",
+                                coro=critic.critique(trinity_bundle, problem_frame),
+                                summary=f"Critique iteration {iteration + 1}",
                                 details={"iteration": iteration + 1},
                             )
-                            trinity_bundle = await _capture_step(
-                                agent="formalizer",
-                                action="formalize",
-                                coro=formalizer.formalize(draft),
-                                summary="Trinity bundle re-formalized",
-                                status="warn",
-                                details={"iteration": iteration + 1},
+                            verdict = critique.verdict
+                            issue_count = len(critique.issues)
+
+                            usage_snapshot = _sum_call_events(call_events)
+                            budget_remaining_ratio = None
+                            if per_model_budget_usd is not None and float(per_model_budget_usd) > 0:
+                                budget_remaining_ratio = max(
+                                    0.0,
+                                    (float(per_model_budget_usd) - float(usage_snapshot["cost_usd"]))
+                                    / float(per_model_budget_usd),
+                                )
+                            retrieval_quality = (
+                                1.0
+                                if retrieval_candidates_filtered == 0
+                                else max(
+                                    0.0,
+                                    1.0
+                                    - (
+                                        float(retrieval_candidates_filtered)
+                                        / float(
+                                            max(
+                                                1,
+                                                retrieval_candidates_filtered + len(data_context_payload.get("metrics", [])),
+                                            )
+                                        )
+                                    ),
+                                )
                             )
-                            if preflight_ready:
-                                try:
+                            evaluator_report = evaluate_iteration(
+                                issue_count=issue_count,
+                                verdict=critique.verdict,
+                                retrieval_quality=retrieval_quality,
+                                budget_remaining_ratio=budget_remaining_ratio,
+                            )
+                            evaluator_report_ref = await run_blocking_async(
+                                persist_evaluator_report,
+                                store,
+                                evaluator_report,
+                            )
+                            evaluator_report_ref_str = str(evaluator_report_ref.artifact_id)
+                            evaluator_payload = evaluator_report.model_dump(mode="json")
+                            _append_step(
+                                agent="evaluator",
+                                action="score_iteration",
+                                summary=f"Evaluator verdict: {evaluator_report.verdict}",
+                                status="ok" if evaluator_report.verdict == "APPROVE" else "warn",
+                                details={
+                                    "iteration": iteration + 1,
+                                    "verdict": evaluator_report.verdict,
+                                    "scores": evaluator_payload.get("scores"),
+                                    "evaluator_report_ref": evaluator_report_ref_str,
+                                },
+                            )
+                            try:
+                                if evaluator_report.verdict == "APPROVE":
                                     iteration_state = transition(
                                         iteration_state,
-                                        "start_preflight",
-                                        notes=["iteration_replan_preflight_start"],
+                                        "approve",
+                                        verdict=evaluator_report.verdict,
+                                        stop_reason="approved",
+                                        notes=["approved_by_evaluator"],
                                     )
+                                elif evaluator_report.verdict == "STOP_BUDGET":
                                     iteration_state = transition(
                                         iteration_state,
-                                        "preflight_ready",
-                                        notes=["iteration_replan_preflight_ready"],
+                                        "stop_budget",
+                                        verdict=evaluator_report.verdict,
+                                        stop_reason="budget_exhausted",
+                                        notes=["stopped_by_budget_guard"],
                                     )
+                                else:
                                     iteration_state = transition(
                                         iteration_state,
-                                        "start_execute",
-                                        notes=["iteration_reexecution_start"],
+                                        "replan",
+                                        verdict=evaluator_report.verdict,
+                                        notes=[f"replanning_due_to:{evaluator_report.verdict}"],
                                     )
-                                    iteration_state = transition(
-                                        iteration_state,
-                                        "execute_done",
-                                        notes=["iteration_reexecution_done"],
-                                    )
-                                except ValueError as exc:
-                                    logger.debug(
-                                        "Iteration replan transition failed for run %s: %s",
-                                        run_id,
-                                        exc,
-                                    )
-                                    notes.append("iteration_state_replan_transition_failed")
-                    iteration_state_ref = persist_iteration_state(store, iteration_state)
+                            except ValueError as exc:
+                                logger.debug(
+                                    "Iteration state evaluator transition failed for run %s: %s",
+                                    run_id,
+                                    exc,
+                                )
+                                notes.append("iteration_state_evaluator_transition_failed")
+
+                            if evaluator_report.verdict == "APPROVE":
+                                verdict = "APPROVE"
+                                break
+                            if evaluator_report.verdict == "STOP_BUDGET":
+                                verdict = "STOP_BUDGET"
+                                notes.append("evaluator_stop_budget")
+                                break
+                            if iteration < max_iterations - 1:
+                                draft = await _capture_step(
+                                    agent="drafter",
+                                    action="refine_draft",
+                                    coro=drafter.refine_draft(draft, critique),
+                                    summary="Draft refined",
+                                    status="warn",
+                                    details={"iteration": iteration + 1},
+                                )
+                                trinity_bundle = await _capture_step(
+                                    agent="formalizer",
+                                    action="formalize",
+                                    coro=formalizer.formalize(draft),
+                                    summary="Trinity bundle re-formalized",
+                                    status="warn",
+                                    details={"iteration": iteration + 1},
+                                )
+                                if preflight_ready:
+                                    try:
+                                        iteration_state = transition(
+                                            iteration_state,
+                                            "start_preflight",
+                                            notes=["iteration_replan_preflight_start"],
+                                        )
+                                        iteration_state = transition(
+                                            iteration_state,
+                                            "preflight_ready",
+                                            notes=["iteration_replan_preflight_ready"],
+                                        )
+                                        iteration_state = transition(
+                                            iteration_state,
+                                            "start_execute",
+                                            notes=["iteration_reexecution_start"],
+                                        )
+                                        iteration_state = transition(
+                                            iteration_state,
+                                            "execute_done",
+                                            notes=["iteration_reexecution_done"],
+                                        )
+                                    except ValueError as exc:
+                                        logger.debug(
+                                            "Iteration replan transition failed for run %s: %s",
+                                            run_id,
+                                            exc,
+                                        )
+                                        notes.append("iteration_state_replan_transition_failed")
+
+                    if fabric_shadow_task is not None:
+                        try:
+                            fabric_shadow_result = await fabric_shadow_task
+                            fabric_shadow_comparison = _build_scientist_v2_shadow_comparison(
+                                legacy_status="completed",
+                                legacy_verdict=verdict,
+                                legacy_issue_count=int(issue_count),
+                                legacy_cost_usd=float(_sum_call_events(call_events)["cost_usd"]),
+                                legacy_prompt_tokens=int(_sum_call_events(call_events)["prompt_tokens"]),
+                                legacy_completion_tokens=int(_sum_call_events(call_events)["completion_tokens"]),
+                                shadow_result=fabric_shadow_result,
+                            )
+                            _append_step(
+                                agent="scientist_v2",
+                                action="shadow_run",
+                                summary="Scientist v2 shadow run completed",
+                                details={
+                                    "result": dict(fabric_shadow_result.result or {}),
+                                    "traces": dict(fabric_shadow_result.traces or {}),
+                                    "metrics": dict(fabric_shadow_result.metrics or {}),
+                                    "comparison": dict(fabric_shadow_comparison or {}),
+                                },
+                            )
+                        except Exception as exc:  # noqa: BLE001
+                            notes.append(f"scientist_v2_shadow_failed:{exc}")
+                            _append_step(
+                                agent="scientist_v2",
+                                action="shadow_run",
+                                summary="Scientist v2 shadow run failed",
+                                status="warn",
+                                details={"error": str(exc)},
+                            )
+                    iteration_state_ref = await run_blocking_async(
+                        persist_iteration_state,
+                        store,
+                        iteration_state,
+                    )
                     iteration_state_ref_str = str(iteration_state_ref.artifact_id)
                 except (AttributeError, LookupError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - defensive pipeline hardening
                     logger.exception("NL variant failed for model '%s': %s", model_name, exc)
@@ -2115,6 +2577,10 @@ class ControlPlaneService:
                         ),
                         "latency_ms": max(0, _now_ms() - variant_started_at),
                         "cost_usd": round(_sum_call_events(call_events)["cost_usd"], 8),
+                        "cost_reconciliation_delta_usd": round(
+                            _sum_call_events(call_events)["cost_delta_usd"],
+                            8,
+                        ),
                         "started_at": variant_started_iso,
                         "finished_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
                         "steps": steps,
@@ -2139,6 +2605,25 @@ class ControlPlaneService:
                         "auto_data_source_refs": auto_data_source_refs,
                         "reproducibility_manifest_ref": reproducibility_manifest_ref_str,
                         "retrieval_context": retrieval_context_payload,
+                        "scientist_v2": (
+                            {
+                                "result": dict(fabric_result.result or {}),
+                                "traces": dict(fabric_result.traces or {}),
+                                "metrics": dict(fabric_result.metrics or {}),
+                            }
+                            if fabric_result is not None
+                            else None
+                        ),
+                        "scientist_v2_shadow": (
+                            {
+                                "result": dict(fabric_shadow_result.result or {}),
+                                "traces": dict(fabric_shadow_result.traces or {}),
+                                "metrics": dict(fabric_shadow_result.metrics or {}),
+                                "comparison": dict(fabric_shadow_comparison or {}),
+                            }
+                            if fabric_shadow_result is not None
+                            else None
+                        ),
                         "_bundle": None,
                     }
 
@@ -2151,7 +2636,7 @@ class ControlPlaneService:
                 if llm_client is None and model_name:
                     status = "fallback_mock"
 
-                trinity_ref_str = _store_bundle(trinity_bundle)
+                trinity_ref_str = await _store_bundle(trinity_bundle)
                 try:
                     repro_manifest = build_reproducibility_manifest(
                         run_id=run_id,
@@ -2163,7 +2648,11 @@ class ControlPlaneService:
                         data_snapshot_ref=auto_data_source_refs.get("data_snapshot_ref"),
                         input_bindings_ref=auto_data_source_refs.get("input_bindings_ref"),
                     )
-                    repro_manifest_ref = persist_reproducibility_manifest(store, repro_manifest)
+                    repro_manifest_ref = await run_blocking_async(
+                        persist_reproducibility_manifest,
+                        store,
+                        repro_manifest,
+                    )
                     reproducibility_manifest_ref_str = str(repro_manifest_ref.artifact_id)
                 except (OSError, RuntimeError, TypeError, ValueError) as exc:
                     notes.append(f"reproducibility_manifest_failed:{exc}")
@@ -2179,6 +2668,10 @@ class ControlPlaneService:
                         "total_tokens": int(usage["prompt_tokens"] + usage["completion_tokens"]),
                         "latency_ms": max(0, _now_ms() - variant_started_at),
                         "cost_usd": variant_cost,
+                        "cost_reconciliation_delta_usd": round(
+                            float(usage["cost_delta_usd"]),
+                            8,
+                        ),
                         "trinity_bundle_ref": trinity_ref_str,
                         "started_at": variant_started_iso,
                         "finished_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
@@ -2204,6 +2697,25 @@ class ControlPlaneService:
                         "auto_data_source_refs": auto_data_source_refs,
                         "reproducibility_manifest_ref": reproducibility_manifest_ref_str,
                         "retrieval_context": retrieval_context_payload,
+                        "scientist_v2": (
+                            {
+                                "result": dict(fabric_result.result or {}),
+                                "traces": dict(fabric_result.traces or {}),
+                                "metrics": dict(fabric_result.metrics or {}),
+                            }
+                            if fabric_result is not None
+                            else None
+                        ),
+                        "scientist_v2_shadow": (
+                            {
+                                "result": dict(fabric_shadow_result.result or {}),
+                                "traces": dict(fabric_shadow_result.traces or {}),
+                                "metrics": dict(fabric_shadow_result.metrics or {}),
+                                "comparison": dict(fabric_shadow_comparison or {}),
+                            }
+                            if fabric_shadow_result is not None
+                            else None
+                        ),
                         "_bundle": trinity_bundle,
                     }
 
@@ -2219,6 +2731,10 @@ class ControlPlaneService:
                     "total_tokens": int(usage["prompt_tokens"] + usage["completion_tokens"]),
                     "latency_ms": max(0, _now_ms() - variant_started_at),
                     "cost_usd": variant_cost,
+                    "cost_reconciliation_delta_usd": round(
+                        float(usage["cost_delta_usd"]),
+                        8,
+                    ),
                     "trinity_bundle_ref": trinity_ref_str,
                     "started_at": variant_started_iso,
                     "finished_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
@@ -2244,6 +2760,25 @@ class ControlPlaneService:
                     "auto_data_source_refs": auto_data_source_refs,
                     "reproducibility_manifest_ref": reproducibility_manifest_ref_str,
                     "retrieval_context": retrieval_context_payload,
+                    "scientist_v2": (
+                        {
+                            "result": dict(fabric_result.result or {}),
+                            "traces": dict(fabric_result.traces or {}),
+                            "metrics": dict(fabric_result.metrics or {}),
+                        }
+                        if fabric_result is not None
+                        else None
+                    ),
+                    "scientist_v2_shadow": (
+                        {
+                            "result": dict(fabric_shadow_result.result or {}),
+                            "traces": dict(fabric_shadow_result.traces or {}),
+                            "metrics": dict(fabric_shadow_result.metrics or {}),
+                            "comparison": dict(fabric_shadow_comparison or {}),
+                        }
+                        if fabric_shadow_result is not None
+                        else None
+                    ),
                     "_bundle": trinity_bundle,
                 }
 
@@ -2321,7 +2856,7 @@ class ControlPlaneService:
                 selected_bundle = selected_variant.get("_bundle")
                 if selected_bundle is None:
                     raise RuntimeError("No valid model variant produced a Trinity bundle")
-                selected_ref = _store_bundle(selected_bundle)
+                selected_ref = await _store_bundle(selected_bundle)
                 selected_variant["trinity_bundle_ref"] = selected_ref
 
             # 8. Build state and run workflow
@@ -2374,6 +2909,9 @@ class ControlPlaneService:
                         "llm_prompt_tokens": int(selected_variant.get("prompt_tokens") or 0),
                         "llm_completion_tokens": int(selected_variant.get("completion_tokens") or 0),
                         "llm_cost_usd": float(selected_variant.get("cost_usd") or 0.0),
+                        "llm_cost_reconciliation_delta_usd": float(
+                            selected_variant.get("cost_reconciliation_delta_usd") or 0.0
+                        ),
                         "run_cost_usd": round(
                             sum(float(item.get("cost_usd") or 0.0) for item in variants),
                             8,
@@ -2435,6 +2973,15 @@ class ControlPlaneService:
                         "expected_outputs": list(expected_outputs_payload or []),
                         "context": context,
                         "retrieval_context": dict(selected_variant.get("retrieval_context") or {}),
+                        "scientist_v2_enabled": _is_scientist_v2_enabled(),
+                        "scientist_v2_shadow_mode": _is_scientist_shadow_mode(),
+                        "scientist_web_search_enabled": _is_scientist_web_search_enabled(),
+                        "scientist_swarm_enabled": _is_scientist_swarm_enabled(),
+                        "scientist_reflexion_enabled": _is_scientist_reflexion_enabled(),
+                        "scientist_v2": dict(selected_variant.get("scientist_v2") or {}),
+                        "scientist_v2_shadow": dict(
+                            selected_variant.get("scientist_v2_shadow") or {}
+                        ),
                     },
                 }
             )
@@ -2487,7 +3034,7 @@ class ControlPlaneService:
                 "capability_manifest_ref": current_capability_manifest_ref,
             }
 
-        return run_coro_sync(_agent_pipeline())
+        return cast("dict[str, Any]", run_coro_sync(_agent_pipeline()))
 
     # ---- Data ingestion ---------------------------------------------------
 
@@ -2498,7 +3045,11 @@ class ControlPlaneService:
         request_id: str | None = None,
     ) -> IngestResponse:
         """Execute connector ingestion synchronously and return refs/status for produced artifacts."""
-        from polisyos.fabric.ingestion import ConnectorManifestSpec, DatasetFetchSpec
+        from polisyos.fabric.ingestion import (
+            ConnectorManifestSpec,
+            DatasetFetchSpec,
+            IngestionDependencies,
+        )
 
         datasets = [
             DatasetFetchSpec(
@@ -2541,13 +3092,18 @@ class ControlPlaneService:
                 )
 
         if connection_profile_id:
-            from polisyos.fabric.connectors.profiles import SourceProfileRegistry
             from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 
-            profile_reg = SourceProfileRegistry.get_instance()
+            profile_reg = self._registry_providers.source_profiles
             profile = profile_reg.get(connection_profile_id)
             if profile:
                 connection_config = resolve_connection_config(profile)
+
+        ingestion_dependencies = IngestionDependencies(
+            registry=cast("Any", self._registry_providers.connectors),
+            tracer=self._tracer,
+            metrics=self._metrics,
+        )
 
         mode = request.execution_mode
         record_ref: str | None = None
@@ -2564,6 +3120,7 @@ class ControlPlaneService:
                     replay_ref=request.replay_ref,
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
                 )
             elif request.record_mode:
                 from polisyos.fabric.data_plane.modes import run_record_mode
@@ -2575,6 +3132,7 @@ class ControlPlaneService:
                     cas_root=self._cas_root,
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
                 )
             elif mode == "streaming_windowed":
                 from polisyos.fabric.data_plane.modes import run_streaming_windowed
@@ -2586,6 +3144,7 @@ class ControlPlaneService:
                     cas_root=self._cas_root,
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
                 )
             elif mode == "batch_incremental":
                 from polisyos.fabric.data_plane.modes import run_batch_incremental
@@ -2597,6 +3156,7 @@ class ControlPlaneService:
                     cas_root=self._cas_root,
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
                 )
             else:
                 from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
@@ -2608,6 +3168,7 @@ class ControlPlaneService:
                     cas_root=self._cas_root,
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
                 )
 
             # Post-ingestion: produce input bindings if requested
@@ -2663,7 +3224,7 @@ class ControlPlaneService:
         result = self._retrieval.resolve(request)
         return DataResolveResponse(
             meta=_build_api_meta(request_id),
-            mode=result.mode,
+            mode=_coerce_retrieval_mode(result.mode),
             fetch_plans=result.fetch_plans,
             candidates=result.candidates,
             warnings=result.warnings,
@@ -2797,17 +3358,15 @@ class ControlPlaneService:
         data_snapshot_ref: str | None,
     ) -> str | None:
         """Resolve binding profile and persist rules as a CAS artifact."""
-        from polisyos.core.artifacts.store import FileSystemCAS
-        from polisyos.fabric.connectors.bindings import BindingProfileRegistry
         from polisyos.fabric.connectors.bindings.resolver import persist_binding_rules_artifact
 
-        registry = BindingProfileRegistry.get_instance()
+        registry = self._registry_providers.binding_profiles
         profile = registry.get(binding_profile_id)
         if profile is None:
             logger.warning("Binding profile '%s' not found", binding_profile_id)
             return None
 
-        store = FileSystemCAS(self._cas_root)
+        store = self._artifact_store
         ref = persist_binding_rules_artifact(
             store, profile, data_snapshot_ref=data_snapshot_ref,
         )
@@ -2817,11 +3376,8 @@ class ControlPlaneService:
 
     def list_connectors(self, *, request_id: str | None = None) -> ConnectorsListResponse:
         """List discovered Fabric connectors and available source profiles per family."""
-        from polisyos.fabric.connectors.profiles import SourceProfileRegistry
-        from polisyos.fabric.connectors.registry import ConnectorRegistry
-
-        registry = ConnectorRegistry.get_instance()
-        profile_reg = SourceProfileRegistry.get_instance()
+        registry = self._registry_providers.connectors
+        profile_reg = self._registry_providers.source_profiles
         infos: list[ConnectorInfo] = []
 
         for entry in registry.query_entries():
@@ -2850,11 +3406,8 @@ class ControlPlaneService:
         self, *, request_id: str | None = None
     ) -> SourceProfilesListResponse:
         """List source profiles and mark whether each connector family is currently available."""
-        from polisyos.fabric.connectors.profiles import SourceProfileRegistry
-        from polisyos.fabric.connectors.registry import ConnectorRegistry
-
-        profile_reg = SourceProfileRegistry.get_instance()
-        connector_reg = ConnectorRegistry.get_instance()
+        profile_reg = self._registry_providers.source_profiles
+        connector_reg = self._registry_providers.connectors
 
         # Determine which connector families are registered
         registered_families: set[str] = set()
@@ -2889,9 +3442,7 @@ class ControlPlaneService:
         self, *, request_id: str | None = None
     ) -> ModelProfilesListResponse:
         """List registered LLM model profiles and pricing/capability metadata."""
-        from polisyos.scientist.llm.profiles import ModelProfileRegistry
-
-        profile_reg = ModelProfileRegistry.get_instance()
+        profile_reg = self._registry_providers.model_profiles
         profiles = profile_reg.list_all()
         infos = [
             ModelProfileInfo(
@@ -2920,9 +3471,7 @@ class ControlPlaneService:
         self, *, request_id: str | None = None
     ) -> BindingProfilesListResponse:
         """List input-binding profiles exposed to control-plane ingestion requests."""
-        from polisyos.fabric.connectors.bindings import BindingProfileRegistry
-
-        registry = BindingProfileRegistry.get_instance()
+        registry = self._registry_providers.binding_profiles
         profiles = registry.list_all()
         infos = [
             BindingProfileInfo(
@@ -2990,6 +3539,20 @@ class ControlPlaneService:
                 enabled=_is_multimodel_enabled(),
             ),
             CapabilityFeatureInfo(
+                key="scientist_v2",
+                label="Scientist v2 runtime",
+                description="Unified v2 facade for web grounding, swarm, and Reflexion orchestration.",
+                category="runs",
+                enabled=_is_scientist_v2_enabled(),
+            ),
+            CapabilityFeatureInfo(
+                key="scientist_shadow_mode",
+                label="Scientist shadow mode",
+                description="Run v2 in shadow alongside the legacy Scientist path and keep legacy as return-path.",
+                category="runs",
+                enabled=_is_scientist_shadow_mode(),
+            ),
+            CapabilityFeatureInfo(
                 key="required_preflight",
                 label="Required preflight",
                 description="Run execution-plan preflight diagnostics before execution.",
@@ -3044,6 +3607,27 @@ class ControlPlaneService:
                 description="List curated connector/source profiles for ingestion and retrieval.",
                 category="evidence",
                 enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="scientist_web_search",
+                label="Scientist web search",
+                description="Enable first-class Scholar web search and citation grounding in the Scientist runtime.",
+                category="evidence",
+                enabled=_is_scientist_web_search_enabled(),
+            ),
+            CapabilityFeatureInfo(
+                key="scientist_swarm",
+                label="Scientist swarm runtime",
+                description="Enable supervisor-worker swarm orchestration for research and evaluation facets.",
+                category="runtime",
+                enabled=_is_scientist_swarm_enabled(),
+            ),
+            CapabilityFeatureInfo(
+                key="scientist_reflexion",
+                label="Scientist Reflexion",
+                description="Enable evaluator-optimizer retries with persistent memory in the Scientist runtime.",
+                category="runtime",
+                enabled=_is_scientist_reflexion_enabled(),
             ),
             CapabilityFeatureInfo(
                 key="lex_pipeline",
@@ -3179,6 +3763,7 @@ class ControlPlaneService:
                 "resume": request.resume,
             },
             policy=policy,
+            request_id=request_id,
         )
 
         return LexTriggerResponse(
@@ -3302,9 +3887,14 @@ class ControlPlaneService:
 
         try:
             con = duckdb.connect(str(db_path), read_only=True)
-            entities = con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0]
-            facts = con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0]
-            provisions = con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()[0]
+            entity_row = con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()
+            fact_row = con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()
+            provision_row = con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()
+            if entity_row is None or fact_row is None or provision_row is None:
+                raise RuntimeError("lex graph count query returned no rows")
+            entities = entity_row[0]
+            facts = fact_row[0]
+            provisions = provision_row[0]
 
             top_preds = [
                 {"predicate": r[0], "count": r[1]}

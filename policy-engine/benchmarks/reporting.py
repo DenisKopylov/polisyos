@@ -28,6 +28,47 @@ WORKFLOW_LEVELS = (
 )
 
 
+def summarize_report_outcomes(report: Any) -> dict[str, int]:
+    n_total = report.n_total()
+    n_passed = report.n_passed()
+    n_failed = report.n_failed() if hasattr(report, "n_failed") else max(0, n_total - n_passed)
+    n_errors = report.n_errors() if hasattr(report, "n_errors") else 0
+    n_skipped = report.n_skipped() if hasattr(report, "n_skipped") else 0
+    n_over_budget = report.n_over_budget() if hasattr(report, "n_over_budget") else 0
+    return {
+        "n_total": int(n_total),
+        "n_passed": int(n_passed),
+        "n_failed": int(n_failed),
+        "n_errors": int(n_errors),
+        "n_skipped": int(n_skipped),
+        "n_over_budget": int(n_over_budget),
+    }
+
+
+def suite_overall_status_from_counts(counts: dict[str, Any]) -> str:
+    n_total = int(counts.get("n_total") or 0)
+    n_failed = int(counts.get("n_failed") or 0)
+    n_errors = int(counts.get("n_errors") or 0)
+    n_skipped = int(counts.get("n_skipped") or 0)
+    n_over_budget = int(counts.get("n_over_budget") or 0)
+    if n_errors > 0:
+        return "error"
+    if n_failed > 0:
+        return "failed"
+    if n_total == 0 or n_skipped == n_total:
+        return "skipped"
+    if n_over_budget > 0:
+        return "over_budget"
+    return "passed"
+
+
+def suite_overall_status_from_payload(payload: dict[str, Any]) -> str:
+    explicit = str(payload.get("overall_status") or "").strip().lower()
+    if explicit:
+        return explicit
+    return suite_overall_status_from_counts(payload)
+
+
 def dataclasses_to_dict(obj: Any) -> Any:
     if dataclasses.is_dataclass(obj):
         return {k: dataclasses_to_dict(v) for k, v in dataclasses.asdict(obj).items()}
@@ -142,19 +183,24 @@ def build_report_payload(
     ablation_matrix: dict[str, Any] | None = None,
     leaderboard_tables: dict[str, Any] | None = None,
     release_gate_results: dict[str, Any] | None = None,
+    overall_status: str | None = None,
     case_details_builder: Callable[[Any], dict[str, Any]] | None = None,
     extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    counts = summarize_report_outcomes(report)
     cases: list[dict[str, Any]] = []
     for case in report.cases:
         raw_status = str(case.verdict.value if hasattr(case.verdict, "value") else case.verdict).strip().lower()
-        status = {
-            "pass": "passed",
-            "fail": "failed",
-            "timeout": "timeout",
-            "skip": "skipped",
-            "error": "error",
-        }.get(raw_status, raw_status)
+        if getattr(case, "runtime_budget_exceeded", False) and raw_status == "pass":
+            status = "over_budget"
+        else:
+            status = {
+                "pass": "passed",
+                "fail": "failed",
+                "timeout": "timeout",
+                "skip": "skipped",
+                "error": "error",
+            }.get(raw_status, raw_status)
         payload = {
             "case_id": case.name,
             "name": case.name,
@@ -172,7 +218,15 @@ def build_report_payload(
                 "elapsed_s": case.elapsed_s,
                 "memory_delta_mb": case.memory_delta_mb,
                 "proof_step_count": len(case.proof_steps),
+                "budget_s": getattr(case, "runtime_budget_s", 0.0),
+                "budget_exceeded": bool(getattr(case, "runtime_budget_exceeded", False)),
+                "budget_ratio": getattr(case, "runtime_budget_ratio", None),
+                "budget_note": getattr(case, "runtime_budget_note", None),
             },
+            "runtime_budget_s": getattr(case, "runtime_budget_s", 0.0),
+            "runtime_budget_exceeded": bool(getattr(case, "runtime_budget_exceeded", False)),
+            "runtime_budget_ratio": getattr(case, "runtime_budget_ratio", None),
+            "runtime_budget_note": getattr(case, "runtime_budget_note", None),
         }
         if case_details_builder is not None:
             payload.update(dataclasses_to_dict(case_details_builder(case) or {}))
@@ -196,9 +250,14 @@ def build_report_payload(
         "degraded_reasons": list(preflight.get("degraded_reasons", [])),
         "dataset_family": dataset_family if dataset_family is not None else preflight.get("dataset_family"),
         "batch_id": batch_id if batch_id is not None else preflight.get("batch_id"),
-        "n_total": report.n_total(),
-        "n_passed": report.n_passed(),
-        "pass_rate": report.n_passed() / report.n_total() if report.n_total() else 0.0,
+        "n_total": counts["n_total"],
+        "n_passed": counts["n_passed"],
+        "n_failed": counts["n_failed"],
+        "n_errors": counts["n_errors"],
+        "n_skipped": counts["n_skipped"],
+        "n_over_budget": counts["n_over_budget"],
+        "pass_rate": counts["n_passed"] / counts["n_total"] if counts["n_total"] else 0.0,
+        "overall_status": str(overall_status or suite_overall_status_from_counts(counts)),
         "scores": dataclasses_to_dict(report.circuit_scores),
         "cases": cases,
         "blockers": list(blockers) if blockers is not None else [case.name for case in report.blocker_cases()],

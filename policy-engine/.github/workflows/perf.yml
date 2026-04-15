@@ -6,8 +6,17 @@ on:
     paths:
       - 'src/polisyos/**'
       - 'tests/performance/**'
+      - 'tests/scientist/**'
+      - 'tools/ci/**'
+      - '.github/workflows/perf.yml'
   push:
     branches: [main]
+    paths:
+      - 'src/polisyos/**'
+      - 'tests/performance/**'
+      - 'tests/scientist/**'
+      - 'tools/ci/**'
+      - '.github/workflows/perf.yml'
   workflow_dispatch:
     inputs:
       baseline_ref:
@@ -54,7 +63,8 @@ jobs:
           git checkout ${{ inputs.baseline_ref || 'main' }}
           pip install -e . --quiet
 
-          pytest tests/performance/test_overhead.py \
+          pytest tests/performance/test_overhead.py tests/performance/test_scientist_runtime_paths.py \
+            tests/performance/test_runtime_hot_paths.py \
             --benchmark-only \
             --benchmark-json=baseline.json \
             --benchmark-warmup=on \
@@ -68,7 +78,8 @@ jobs:
         run: |
           pip install -e . --quiet
 
-          pytest tests/performance/test_overhead.py \
+          pytest tests/performance/test_overhead.py tests/performance/test_scientist_runtime_paths.py \
+            tests/performance/test_runtime_hot_paths.py \
             --benchmark-only \
             --benchmark-json=current.json \
             --benchmark-warmup=on \
@@ -132,7 +143,73 @@ jobs:
 
       - name: Run Overhead Validation
         run: |
-          pytest tests/performance/test_overhead.py \
+          pytest tests/performance/test_overhead.py tests/performance/test_scientist_runtime_paths.py \
+            tests/performance/test_runtime_hot_paths.py \
             -v \
             --tb=short \
             -x  # Stop on first failure
+
+  scientist-gate2-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          pip install -e ".[dev,test,causal-discovery]"
+          pip install pytest-benchmark
+
+      - name: Configure JAX
+        run: |
+          echo "JAX_PLATFORM_NAME=cpu" >> $GITHUB_ENV
+          echo "XLA_PYTHON_CLIENT_PREALLOCATE=false" >> $GITHUB_ENV
+
+      - name: Run Scientist reliability scenarios
+        run: |
+          pytest tests/scientist/integration/test_workflow_reliability_scenarios.py \
+            -q \
+            --junitxml=scientist-reliability-scenarios.xml
+
+      - name: Run Scientist operational evidence
+        run: |
+          pytest tests/scientist/test_reliability_operational_evidence.py \
+            -q \
+            --junitxml=scientist-operational-evidence.xml
+
+      - name: Run Scientist benchmark evidence
+        run: |
+          pytest tests/performance/test_scientist_runtime_paths.py \
+            --benchmark-only \
+            --benchmark-json=scientist-benchmarks.json \
+            --benchmark-warmup=on \
+            --benchmark-min-rounds=5 \
+            -q
+
+      - name: Build Scientist reliability scorecard
+        run: |
+          python3 tools/ci/check_scientist_reliability.py \
+            --benchmark-json scientist-benchmarks.json \
+            --junit-xml scientist-reliability-scenarios.xml \
+            --junit-xml scientist-operational-evidence.xml \
+            --output scientist-reliability-scorecard.json \
+            --output-format json \
+            --require-passing
+
+      - name: Upload Scientist Gate 2 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: scientist-gate2-evidence
+          path: |
+            scientist-benchmarks.json
+            scientist-reliability-scenarios.xml
+            scientist-operational-evidence.xml
+            scientist-reliability-scorecard.json
+          retention-days: 30

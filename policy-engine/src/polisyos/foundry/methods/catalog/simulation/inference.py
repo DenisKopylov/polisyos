@@ -36,7 +36,7 @@ class MonteCarloEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="monte_carlo",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -111,10 +111,11 @@ class BootstrapInferenceEstimator:
     """Estimate sampling uncertainty with bootstrap resampling; avoid strongly dependent samples unless resampling respects dependence."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+    _MAX_VECTOR_BATCH: ClassVar[int] = 512
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="bootstrap",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -158,10 +159,14 @@ class BootstrapInferenceEstimator:
 
         rng = np.random.default_rng(seed)
         n = len(data)
-        boot_means = np.zeros(n_boot)
-        for i in range(n_boot):
-            sample = data[rng.integers(0, n, size=n)]
-            boot_means[i] = np.mean(sample)
+        boot_means = np.empty(n_boot, dtype=float)
+        batch_size = min(max(1, n_boot), BootstrapInferenceEstimator._MAX_VECTOR_BATCH)
+        offset = 0
+        while offset < n_boot:
+            upper = min(offset + batch_size, n_boot)
+            sample_index = rng.integers(0, n, size=(upper - offset, n))
+            boot_means[offset:upper] = data[sample_index].mean(axis=1)
+            offset = upper
 
         alpha = (1.0 - conf) / 2.0
         ci_lower = float(np.percentile(boot_means, alpha * 100))
@@ -190,10 +195,11 @@ class PermutationTestEstimator:
     """Estimate a null p-value by label permutation under exchangeability; avoid blocked/time-dependent data without constrained permutations."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+    _MAX_VECTOR_BATCH: ClassVar[int] = 256
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="permutation_test",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -240,11 +246,15 @@ class PermutationTestEstimator:
         n_a = len(a)
 
         count_extreme = 0
-        for _ in range(n_perm):
-            rng.shuffle(combined)
-            perm_diff = np.mean(combined[:n_a]) - np.mean(combined[n_a:])
-            if abs(perm_diff) >= abs(observed_diff):
-                count_extreme += 1
+        batch_size = min(max(1, n_perm), PermutationTestEstimator._MAX_VECTOR_BATCH)
+        offset = 0
+        while offset < n_perm:
+            upper = min(offset + batch_size, n_perm)
+            permuted = np.tile(combined, (upper - offset, 1))
+            permuted = rng.permuted(permuted, axis=1)
+            perm_diffs = permuted[:, :n_a].mean(axis=1) - permuted[:, n_a:].mean(axis=1)
+            count_extreme += int(np.count_nonzero(np.abs(perm_diffs) >= abs(observed_diff)))
+            offset = upper
 
         p_value = (count_extreme + 1) / (n_perm + 1)
 

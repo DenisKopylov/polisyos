@@ -28,6 +28,8 @@ import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from polisyos.foundry.methods.exceptions import FoundryExecutionError
+
 if TYPE_CHECKING:
     pass  # forward references only
 
@@ -163,15 +165,25 @@ class LifecycleLog:
         return f"<LifecycleLog state={state.value if state else 'none'} events={len(self._events)}>"
 
 
-class LifecycleTransitionError(Exception):
+class LifecycleTransitionError(FoundryExecutionError):
     """Raised when an illegal state transition is attempted."""
 
     def __init__(self, fqn: str, from_state: MethodLifecycle, to_state: MethodLifecycle) -> None:
         allowed = _ALLOWED_TRANSITIONS.get(from_state.value, set())
-        super().__init__(
+        message = (
             f"Illegal lifecycle transition for '{fqn}': "
-            f"{from_state.value!r} → {to_state.value!r}. "
+            f"{from_state.value!r} -> {to_state.value!r}. "
             f"Allowed from {from_state.value!r}: {sorted(allowed) or 'none (terminal)'}"
+        )
+        super().__init__(
+            message,
+            method_fqn=fqn,
+            code="invalid_lifecycle_transition",
+            details={
+                "from_state": from_state.value,
+                "to_state": to_state.value,
+                "allowed": sorted(allowed),
+            },
         )
         self.fqn = fqn
         self.from_state = from_state
@@ -233,10 +245,9 @@ class LifecycleManager:
             Optional description of what is triggering the transition.
             If None, the calling function/module is inferred via ``inspect``.
         strict:
-            If True (default) raise ``LifecycleTransitionError`` on illegal
-            transitions.  If False, illegal transitions are silently ignored
-            and None is not returned — this is for defensive call sites that
-            cannot guarantee ordering (e.g. concurrent executors).
+            Retained for API compatibility. Illegal transitions now always
+            raise ``LifecycleTransitionError``; when ``strict=False`` the
+            invalid attempt is also recorded in the log before raising.
 
         Returns
         -------
@@ -246,7 +257,7 @@ class LifecycleManager:
         Raises
         ------
         LifecycleTransitionError
-            If ``strict=True`` and the transition is not permitted.
+            If the transition is not permitted.
         """
         current = log.current_state()
 
@@ -260,16 +271,15 @@ class LifecycleManager:
             from_state = current
             allowed = _ALLOWED_TRANSITIONS.get(from_state.value, set())
             if to.value not in allowed:
-                if strict:
-                    raise LifecycleTransitionError(fqn, from_state, to)
-                # Non-strict: return a no-op event without recording
-                return LifecycleEvent(
+                invalid_event = LifecycleEvent(
                     fqn=fqn,
                     from_state=from_state,
                     to_state=from_state,  # no change
                     timestamp=time.monotonic(),
-                    actor=actor or _infer_actor(),
+                    actor=(actor or _infer_actor()) + f"[invalid:{to.value}]",
                 )
+                log.append(invalid_event)
+                raise LifecycleTransitionError(fqn, from_state, to)
 
         if actor is None:
             actor = _infer_actor()

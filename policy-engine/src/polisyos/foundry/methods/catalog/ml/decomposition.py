@@ -49,7 +49,7 @@ class PCAEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="pca",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

@@ -120,7 +120,7 @@ class QuantileRegressionEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="quantile_regression",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -202,7 +202,7 @@ class EventStudyEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="event_study",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -332,7 +332,7 @@ class LocalProjectionsEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="local_projections",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -441,7 +441,7 @@ class GARCHEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="garch",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -525,7 +525,7 @@ class ChangePointEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="change_point",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

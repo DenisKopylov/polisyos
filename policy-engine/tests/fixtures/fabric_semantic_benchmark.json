@@ -1,0 +1,118 @@
+{
+  "benchmark_id": "fabric.semantic_discovery.core",
+  "benchmark_version": "2026-04-15",
+  "minimum_pass_rate": 0.95,
+  "minimum_expected_recall": 0.95,
+  "maximum_false_positive_failures": 0,
+  "metadata": {
+    "description": "Core semantic discovery benchmark for relevance, top-k stability, and false positive control."
+  },
+  "cases": [
+    {
+      "case_id": "gdp-nominal-current-usd",
+      "category": "relevance",
+      "query": "gross domestic product in current usd",
+      "expected_metric_id": "us.macro.gdp_nominal",
+      "max_rank": 2
+    },
+    {
+      "case_id": "gdp-nominal-worldbank",
+      "category": "relevance",
+      "query": "world bank gdp output in dollars",
+      "expected_metric_id": "us.macro.gdp_nominal",
+      "max_rank": 3
+    },
+    {
+      "case_id": "gdp-nominal-macro",
+      "category": "relevance",
+      "query": "nominal macro economy gdp",
+      "expected_metric_id": "us.macro.gdp_nominal",
+      "max_rank": 2
+    },
+    {
+      "case_id": "gdp-real-inflation-adjusted",
+      "category": "relevance",
+      "query": "inflation adjusted gross domestic product",
+      "expected_metric_id": "us.macro.gdp_real"
+    },
+    {
+      "case_id": "gdp-real-constant-price",
+      "category": "relevance",
+      "query": "constant price real gdp series",
+      "expected_metric_id": "us.macro.gdp_real",
+      "max_rank": 2
+    },
+    {
+      "case_id": "gdp-real-expenditure",
+      "category": "relevance",
+      "query": "real economic output adjusted for prices",
+      "expected_metric_id": "us.macro.gdp_real",
+      "max_rank": 3
+    },
+    {
+      "case_id": "unemployment-labor-force",
+      "category": "relevance",
+      "query": "percentage of labor force without employment",
+      "expected_metric_id": "us.macro.unemployment_rate"
+    },
+    {
+      "case_id": "unemployment-jobless",
+      "category": "relevance",
+      "query": "jobless rate monthly labor market",
+      "expected_metric_id": "us.macro.unemployment_rate"
+    },
+    {
+      "case_id": "unemployment-share",
+      "category": "relevance",
+      "query": "labor market unemployment share",
+      "expected_metric_id": "us.macro.unemployment_rate"
+    },
+    {
+      "case_id": "unemployment-without-work",
+      "category": "relevance",
+      "query": "people without work in the labor force",
+      "expected_metric_id": "us.macro.unemployment_rate",
+      "max_rank": 2
+    },
+    {
+      "case_id": "salary-agent-income",
+      "category": "relevance",
+      "query": "agent level wage income",
+      "expected_metric_id": "agent.income.salary"
+    },
+    {
+      "case_id": "salary-individual-pay",
+      "category": "relevance",
+      "query": "individual salary and wage pay",
+      "expected_metric_id": "agent.income.salary"
+    },
+    {
+      "case_id": "salary-agent-compensation",
+      "category": "relevance",
+      "query": "agent compensation income metric",
+      "expected_metric_id": "agent.income.salary",
+      "max_rank": 2
+    },
+    {
+      "case_id": "false-positive-warp-drive",
+      "category": "false_positive",
+      "query": "galactic warp drive dilithium chamber",
+      "expected_metric_id": null,
+      "max_false_positive_score": 0.15
+    },
+    {
+      "case_id": "false-positive-botany",
+      "category": "false_positive",
+      "query": "chlorophyll canopy hydration on mars",
+      "expected_metric_id": null,
+      "max_false_positive_score": 0.15
+    },
+    {
+      "case_id": "false-positive-astronomy",
+      "category": "false_positive",
+      "query": "exoplanet nebula spectrometer calibration",
+      "expected_metric_id": null,
+      "max_false_positive_score": 0.15
+    }
+  ]
+}

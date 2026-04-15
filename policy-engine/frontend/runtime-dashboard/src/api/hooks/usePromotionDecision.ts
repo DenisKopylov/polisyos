@@ -6,6 +6,7 @@ import { createRuntimeApiError } from "../http";
 import {
   updateIndexStatsAfterPromotion,
   updatePromotionCandidateStatus,
+  updateRunEvidencePromotionStatus,
 } from "../optimistic";
 import { queryKeys } from "../queryKeys";
 import type { components } from "../types";
@@ -21,10 +22,12 @@ export type PromotionDecisionResponse =
 export type PromotionDecisionInput = {
   promotionId: string;
   reason?: string;
+  runId?: string;
 };
 
 export type PromotionDecisionCacheSnapshot = {
   candidatesSnapshot: unknown;
+  evidenceContextSnapshot?: unknown;
   indexStatsSnapshot: unknown;
 };
 
@@ -78,16 +81,25 @@ export async function rejectPromotionRequest({
 
 async function snapshotPromotionDecisionCache(
   queryClient: QueryClient,
+  runId?: string,
 ): Promise<PromotionDecisionCacheSnapshot> {
   await queryClient.cancelQueries({
     queryKey: queryKeys.dataPromotionCandidates(),
   });
   await queryClient.cancelQueries({ queryKey: queryKeys.dataIndexStats() });
+  if (runId) {
+    await queryClient.cancelQueries({
+      queryKey: queryKeys.runEvidenceContext(runId),
+    });
+  }
 
   return {
     candidatesSnapshot: queryClient.getQueryData(
       queryKeys.dataPromotionCandidates(),
     ),
+    evidenceContextSnapshot: runId
+      ? queryClient.getQueryData(queryKeys.runEvidenceContext(runId))
+      : undefined,
     indexStatsSnapshot: queryClient.getQueryData(queryKeys.dataIndexStats()),
   };
 }
@@ -96,8 +108,12 @@ export function applyOptimisticPromotionDecision(
   queryClient: QueryClient,
   promotionId: string,
   status: "approved" | "rejected",
+  runId?: string,
 ) {
   updatePromotionCandidateStatus(queryClient, promotionId, status);
+  if (runId) {
+    updateRunEvidencePromotionStatus(queryClient, runId, promotionId, status);
+  }
   if (status === "approved") {
     updateIndexStatsAfterPromotion(queryClient);
   }
@@ -106,6 +122,7 @@ export function applyOptimisticPromotionDecision(
 export function restorePromotionDecisionSnapshot(
   queryClient: QueryClient,
   snapshot: PromotionDecisionCacheSnapshot | undefined,
+  runId?: string,
 ) {
   if (!snapshot) {
     return;
@@ -119,13 +136,27 @@ export function restorePromotionDecisionSnapshot(
     queryKeys.dataIndexStats(),
     snapshot.indexStatsSnapshot,
   );
+  if (runId) {
+    queryClient.setQueryData(
+      queryKeys.runEvidenceContext(runId),
+      snapshot.evidenceContextSnapshot,
+    );
+  }
 }
 
-export function invalidatePromotionDecisionQueries(queryClient: QueryClient) {
+export function invalidatePromotionDecisionQueries(
+  queryClient: QueryClient,
+  runId?: string,
+) {
   void queryClient.invalidateQueries({
     queryKey: queryKeys.dataPromotionCandidates(),
   });
   void queryClient.invalidateQueries({ queryKey: queryKeys.dataIndexStats() });
+  if (runId) {
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.runEvidenceContext(runId),
+    });
+  }
 }
 
 export function useApprovePromotionCandidate() {
@@ -143,9 +174,14 @@ export function useApprovePromotionCandidate() {
     },
     mutationId: "promotion.approve",
     mutationFn: approvePromotionRequest,
-    onMutate: async ({ promotionId }) => {
-      const snapshot = await snapshotPromotionDecisionCache(queryClient);
-      applyOptimisticPromotionDecision(queryClient, promotionId, "approved");
+    onMutate: async ({ promotionId, runId }) => {
+      const snapshot = await snapshotPromotionDecisionCache(queryClient, runId);
+      applyOptimisticPromotionDecision(
+        queryClient,
+        promotionId,
+        "approved",
+        runId,
+      );
       return snapshot;
     },
     onError: (error, variables, context) => {
@@ -157,10 +193,10 @@ export function useApprovePromotionCandidate() {
           promotionId: variables.promotionId,
         },
       });
-      restorePromotionDecisionSnapshot(queryClient, context);
+      restorePromotionDecisionSnapshot(queryClient, context, variables.runId);
     },
-    onSuccess: () => {
-      invalidatePromotionDecisionQueries(queryClient);
+    onSuccess: (_data, variables) => {
+      invalidatePromotionDecisionQueries(queryClient, variables.runId);
     },
     successToast: (data) => ({
       title: "Promotion approved",
@@ -185,9 +221,14 @@ export function useRejectPromotionCandidate() {
     },
     mutationId: "promotion.reject",
     mutationFn: rejectPromotionRequest,
-    onMutate: async ({ promotionId }) => {
-      const snapshot = await snapshotPromotionDecisionCache(queryClient);
-      applyOptimisticPromotionDecision(queryClient, promotionId, "rejected");
+    onMutate: async ({ promotionId, runId }) => {
+      const snapshot = await snapshotPromotionDecisionCache(queryClient, runId);
+      applyOptimisticPromotionDecision(
+        queryClient,
+        promotionId,
+        "rejected",
+        runId,
+      );
       return snapshot;
     },
     onError: (error, variables, context) => {
@@ -199,10 +240,10 @@ export function useRejectPromotionCandidate() {
           promotionId: variables.promotionId,
         },
       });
-      restorePromotionDecisionSnapshot(queryClient, context);
+      restorePromotionDecisionSnapshot(queryClient, context, variables.runId);
     },
-    onSuccess: () => {
-      invalidatePromotionDecisionQueries(queryClient);
+    onSuccess: (_data, variables) => {
+      invalidatePromotionDecisionQueries(queryClient, variables.runId);
     },
     successToast: (data) => ({
       title: "Promotion rejected",

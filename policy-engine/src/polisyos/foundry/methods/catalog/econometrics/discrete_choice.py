@@ -44,7 +44,7 @@ class LogitEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="logit",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -126,7 +126,7 @@ class ProbitEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="probit",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -206,7 +206,7 @@ class MultinomialLogitEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="multinomial_logit",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -301,7 +301,7 @@ class MixedLogitEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="mixed_logit",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {
@@ -389,7 +389,7 @@ class BLPEstimator:
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="blp",
-        namespace="placeholder",
+        namespace="",
         version="0.0.0",
         input_slots=frozenset(
             {

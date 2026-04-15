@@ -2,23 +2,33 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.scientist.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
     artifact_functions_field,
 )
 
+ActionableStoreFactory = Callable[[Path], ArtifactStore]
+
 ACTIONABLE_SIDE_INFORMATION_SCHEMA_NAME = (
     "polisyos.scientist.search.ActionableSideInformation"
 )
+
+
+def _build_actionable_store(root: Path) -> ArtifactStore:
+    return build_artifact_store(ArtifactStoreConfig(root=str(root)))
 
 
 class ActionableSideInformation(ArtifactMinimalityMixin):
@@ -48,7 +58,7 @@ class ActionableSideInformation(ArtifactMinimalityMixin):
 
 
 def persist_actionable_side_information(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     artifact: ActionableSideInformation,
     *,
     inputs: list[InputRef] | None = None,
@@ -56,7 +66,7 @@ def persist_actionable_side_information(
     """Persist actionable side information that should travel with a promoted or replayable decision."""
     return store.put_json(
         artifact,
-        PutOptions(
+        ArtifactWriteOptions(
             kind="scientist.actionable_side_information",
             media_type="application/json",
             schema=SchemaInfo(
@@ -70,20 +80,26 @@ def persist_actionable_side_information(
 
 
 def load_actionable_side_information(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef | str,
 ) -> ActionableSideInformation:
     """Load actionable side information."""
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
+    artifact_id = (
+        ref.artifact_id if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
+    )
     payload = from_canonical_bytes(store.get_bytes(artifact_id))
-    return ActionableSideInformation.model_validate(payload)
+    return cast(
+        "ActionableSideInformation",
+        ActionableSideInformation.model_validate(payload),
+    )
 
 
 def resolve_actionable_store(
     *,
     context: dict[str, Any] | None = None,
-    store: FileSystemCAS | None = None,
-) -> FileSystemCAS | None:
+    store: ArtifactStore | None = None,
+    store_factory: ActionableStoreFactory | None = None,
+) -> ArtifactStore | None:
     """Resolve a CAS store from an explicit value or stage context."""
 
     if store is not None:
@@ -91,12 +107,13 @@ def resolve_actionable_store(
     if context is None:
         return None
     context_store = context.get("store")
-    if isinstance(context_store, FileSystemCAS):
+    if context_store is not None and hasattr(context_store, "get_bytes") and hasattr(context_store, "put_json"):
         return context_store
     cas_root = context.get("cas_root") or context.get("cas_dir")
     if cas_root is None:
         return None
-    return FileSystemCAS(Path(str(cas_root)))
+    factory = store_factory or _build_actionable_store
+    return factory(Path(str(cas_root)))
 
 
 __all__ = [

@@ -13,7 +13,16 @@ from enum import Enum
 from typing import Any
 
 from polisyos.core.canon import content_hash
+from polisyos.fabric.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.ir.connectors import QualityTier
+
+from .statistics import (
+    AnomalyReport,
+    DatasetProfile,
+    DriftReport,
+    QualityContractResult,
+    QualityTrendReport,
+)
 
 
 class FreshnessLevel(Enum):
@@ -46,6 +55,14 @@ class FreshnessStatus:
     last_updated: datetime | None
     fetched_at: datetime
     message: str
+
+    def __post_init__(self) -> None:
+        for name in ("cache_age_seconds", "ttl_seconds"):
+            value = getattr(self, name)
+            if value < 0:
+                raise ValueError(f"{name} must be >= 0")
+        if self.data_age_seconds is not None and self.data_age_seconds < 0:
+            raise ValueError("data_age_seconds must be >= 0")
 
     @property
     def is_fresh(self) -> bool:
@@ -86,6 +103,20 @@ class CompletenessResult:
     gaps_detected: int = 0
     penalty: float = 0.0
     hard_fail: bool = False
+    applicable: bool = True
+    confidence: float = 1.0
+    not_applicable_reason: str | None = None
+
+    def __post_init__(self) -> None:
+        self.score = ensure_probability(self.score, what="completeness score")
+        self.field_completeness = {
+            field_name: ensure_probability(value, what=f"field completeness {field_name}")
+            for field_name, value in self.field_completeness.items()
+        }
+        self.penalty = ensure_non_negative_finite(self.penalty, what="completeness penalty")
+        self.confidence = ensure_probability(self.confidence, what="completeness confidence")
+        if self.gaps_detected < 0:
+            raise ValueError("gaps_detected must be >= 0")
 
 
 @dataclass
@@ -96,6 +127,10 @@ class ConsistencyResult:
     violations: list[RuleViolation]
     penalty: float = 0.0
     hard_fail: bool = False
+
+    def __post_init__(self) -> None:
+        self.score = ensure_probability(self.score, what="consistency score")
+        self.penalty = ensure_non_negative_finite(self.penalty, what="consistency penalty")
 
 
 @dataclass
@@ -136,6 +171,37 @@ class DataQualityReport:
     sampled: bool = False
     sample_size: int | None = None
     avg_latency_ms: float | None = None
+    source_id: str | None = None
+    component_scores: dict[str, float] = field(default_factory=dict)
+    dataset_profile: DatasetProfile | None = None
+    anomaly_report: AnomalyReport | None = None
+    drift_report: DriftReport | None = None
+    quality_contract_result: QualityContractResult | None = None
+    trend_report: QualityTrendReport | None = None
+
+    def __post_init__(self) -> None:
+        self.score = ensure_probability(self.score, what="quality score")
+        self.completeness_score = ensure_probability(
+            self.completeness_score,
+            what="quality completeness_score",
+        )
+        self.consistency_score = ensure_probability(
+            self.consistency_score,
+            what="quality consistency_score",
+        )
+        if self.row_count < 0:
+            raise ValueError("row_count must be >= 0")
+        if self.sample_size is not None and self.sample_size < 0:
+            raise ValueError("sample_size must be >= 0")
+        if self.avg_latency_ms is not None:
+            self.avg_latency_ms = ensure_non_negative_finite(
+                self.avg_latency_ms,
+                what="avg_latency_ms",
+            )
+        self.component_scores = {
+            str(name): ensure_probability(value, what=f"quality component score {name}", clamp=True)
+            for name, value in self.component_scores.items()
+        }
 
     def to_evidence(self) -> dict[str, Any]:
         """
@@ -157,6 +223,13 @@ class DataQualityReport:
                 "freshness_level": self.freshness_status.level.value,
                 "completeness_score": round(self.completeness_score, 4),
                 "consistency_score": round(self.consistency_score, 4),
+                "anomaly_findings": len(self.anomaly_report.findings) if self.anomaly_report else 0,
+                "drift_findings": len(self.drift_report.findings) if self.drift_report else 0,
+                "contract_failures": (
+                    self.quality_contract_result.failed_rules
+                    if self.quality_contract_result
+                    else 0
+                ),
             },
             "content_hash": self._compute_hash(),
         }
@@ -178,6 +251,17 @@ class DataQualityReport:
                 }
                 for v in self.violations
             ],
+            "component_scores": dict(self.component_scores),
+            "anomaly_findings": (
+                [finding.to_dict() for finding in self.anomaly_report.findings]
+                if self.anomaly_report
+                else []
+            ),
+            "drift_findings": (
+                [finding.to_dict() for finding in self.drift_report.findings]
+                if self.drift_report
+                else []
+            ),
         }
 
         content = json.dumps(payload, sort_keys=True)
@@ -199,6 +283,35 @@ class DataQualityReport:
                 lines.append(f"    - {v.message}")
             if len(self.violations) > 3:
                 lines.append(f"    ... and {len(self.violations) - 3} more")
+
+        if self.dataset_profile is not None:
+            lines.append(
+                f"  Profile Score: {self.dataset_profile.profile_score:.2%}"
+            )
+
+        if self.anomaly_report is not None and self.anomaly_report.findings:
+            lines.append(
+                f"  Anomalies: {len(self.anomaly_report.findings)} "
+                f"(worst rate {self.anomaly_report.overall_anomaly_rate:.2%})"
+            )
+
+        if self.drift_report is not None and self.drift_report.findings:
+            lines.append(
+                f"  Drift Findings: {len(self.drift_report.findings)} "
+                f"(score {self.drift_report.score:.2%})"
+            )
+
+        if self.quality_contract_result is not None and not self.quality_contract_result.passed:
+            lines.append(
+                "  Contract Failures: "
+                f"{self.quality_contract_result.failed_rules}/"
+                f"{self.quality_contract_result.evaluated_rules}"
+            )
+
+        if self.trend_report is not None and self.trend_report.score_delta is not None:
+            lines.append(
+                f"  Trend Delta: {self.trend_report.score_delta:+.3f}"
+            )
 
         if self.sampled:
             lines.append(
@@ -229,6 +342,33 @@ class DataQualityReport:
             "row_count": self.row_count,
             "sampled": self.sampled,
             "sample_size": self.sample_size,
+            "source_id": self.source_id,
+            "component_scores": dict(self.component_scores),
+            "dataset_profile": (
+                self.dataset_profile.to_dict()
+                if self.dataset_profile is not None
+                else None
+            ),
+            "anomaly_report": (
+                self.anomaly_report.to_dict()
+                if self.anomaly_report is not None
+                else None
+            ),
+            "drift_report": (
+                self.drift_report.to_dict()
+                if self.drift_report is not None
+                else None
+            ),
+            "quality_contract_result": (
+                self.quality_contract_result.to_dict()
+                if self.quality_contract_result is not None
+                else None
+            ),
+            "trend_report": (
+                self.trend_report.to_dict()
+                if self.trend_report is not None
+                else None
+            ),
         }
 
     @property

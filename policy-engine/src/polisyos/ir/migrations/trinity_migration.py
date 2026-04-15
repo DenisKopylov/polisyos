@@ -1,9 +1,14 @@
 """Trinity migration helpers."""
 from __future__ import annotations
 
+import logging
 from typing import Any, Mapping
 
+from pydantic import ValidationError
+
 from polisyos.ir.trinity import TrinityBundle
+
+logger = logging.getLogger(__name__)
 
 
 def split_to_bundle(payload: TrinityBundle | Mapping[str, Any]) -> TrinityBundle:
@@ -18,7 +23,10 @@ def is_trinity_migrated(data: dict) -> bool:
     try:
         TrinityBundle.model_validate(data)
         return True
-    except Exception:
+    except ValidationError:
+        return False
+    except (TypeError, ValueError) as exc:
+        logger.warning("Unexpected Trinity migration probe failure: %s", exc)
         return False
 
 

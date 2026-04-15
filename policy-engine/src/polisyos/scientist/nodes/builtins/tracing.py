@@ -6,6 +6,13 @@ from typing import Any
 
 from polisyos.scientist.engine.protocol import NodeEvent
 
+_OTEL_TRACE_ACCESS_ERRORS = (
+    AttributeError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+
 
 def inject_trace_context(
     events: list[NodeEvent],
@@ -37,19 +44,28 @@ def inject_trace_context(
     return events
 
 
-def _current_otel_ids() -> tuple[str | None, str | None]:
-    """Best-effort extraction of trace/span IDs from OpenTelemetry."""
+def _load_otel_trace_module() -> Any | None:
     try:
         from opentelemetry import trace  # type: ignore[import-untyped]
+    except (ImportError, ModuleNotFoundError):
+        return None
+    return trace
 
+
+def _current_otel_ids() -> tuple[str | None, str | None]:
+    """Best-effort extraction of trace/span IDs from OpenTelemetry."""
+    trace = _load_otel_trace_module()
+    if trace is None:
+        return None, None
+    try:
         span = trace.get_current_span()
         ctx = span.get_span_context()
         if ctx and ctx.trace_id:
             tid = format(ctx.trace_id, "032x")
             sid = format(ctx.span_id, "016x")
             return tid, sid
-    except Exception:  # noqa: BLE001
-        pass
+    except _OTEL_TRACE_ACCESS_ERRORS:
+        return None, None
     return None, None
 
 

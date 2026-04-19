@@ -10,6 +10,7 @@ from polisyos.ir.analytics.causal import (
     build_data_readiness_report,
     CausalEffectReport,
     CausalMethod,
+    DataReadinessReport,
     EstimationStatus,
     RefutationResult,
     RefutationTestType,
@@ -592,6 +593,42 @@ def test_statistical_judge_emits_threshold_metrics_and_violations() -> None:
     assert statistical.thresholds["statistical_uncertainty_level"] == 0.5
     assert "statistical_uncertainty_level" in statistical.violations
     assert statistical.escalation_level == "fatal"
+
+
+def test_structural_judge_surfaces_dp_bounds_only_for_proof_mode() -> None:
+    candidate = _candidate()
+    bundle = JudgeInputBundle(
+        candidate=candidate,
+        claim_mode="proof_only",
+        data_readiness_report=DataReadinessReport(
+            decision="warn",
+            can_compile_estimation=True,
+            can_run_estimation=False,
+            sample_size=120,
+            measurement_quality="known_good",
+            fallback_data_available=True,
+            warnings=["dp_bounds_only"],
+            dp_distortion={
+                "effective_status": "bounded",
+                "reason": "DP distortion exceeds the point-estimate tolerance.",
+                "block_reason": None,
+                "distortion_radius": 0.0125,
+                "mechanism_family": "laplace",
+                "effect_interval": [-0.2, 0.1],
+            },
+        ),
+        uncertainty_envelope=_uncertainty(0.1),
+        candidate_ref=_artifact_ref("a"),
+        evaluation_ref=_artifact_ref("b"),
+    )
+
+    verdict = JudgeStack().evaluate(bundle, active_judges={JudgeName.STRUCTURAL})
+    structural = verdict.per_judge["structural"]
+
+    assert structural.passed is True
+    assert structural.metrics["dp_distortion_radius"] == 0.0125
+    assert structural.metrics["dp_release_identified"] == 0.0
+    assert any(card.failure_type == "dp_release_bounded" for card in structural.warnings)
 
 
 def test_platform_meta_eval_only_blocks_when_report_is_attached() -> None:
@@ -1184,6 +1221,93 @@ def test_ref_only_data_readiness_warn_caps_readiness(tmp_path) -> None:
     assert metadata["data_readiness_decision"] == "warn"
     assert metadata["data_readiness_can_run_estimation"] is True
     assert metadata["data_readiness_report_ref"]["artifact_id"] == str(readiness_ref.artifact_id)
+
+
+def test_dp_bounds_only_metadata_is_surfaced_in_readiness_contract(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+    coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+
+    candidate = _candidate(evidence_depth="replicated")
+    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
+    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    replay_ref, replay_verification_ref = _persist_replay_support(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+    )
+    readiness_report = DataReadinessReport(
+        decision="warn",
+        can_compile_estimation=True,
+        can_run_estimation=False,
+        sample_size=120,
+        measurement_quality="known_good",
+        fallback_data_available=True,
+        warnings=["dp_bounds_only"],
+        metrics={"dp_distortion_radius": 0.021},
+        dp_distortion={
+            "effective_status": "bounded",
+            "reason": "DP distortion exceeds the point-estimate tolerance.",
+            "block_reason": None,
+            "distortion_radius": 0.021,
+            "mechanism_family": "laplace",
+            "effect_interval": [-0.12, -0.03],
+        },
+    )
+
+    bundle = coordinator.build_input_bundle(
+        candidate=candidate,
+        benchmark_evaluation=selection_eval,
+        hidden_holdout_evaluation=hidden_holdout,
+        evaluation_vector=_evaluation_vector(candidate),
+        distributional_report=_distributional_report(),
+        causal_effect_report=_causal_effect_report(),
+        data_readiness_report=readiness_report,
+        cross_graph_profile=_cross_graph_profile(),
+        prior_knowledge_bundle=_prior_knowledge_bundle(status="ok", coverage_complete=True),
+        governance_report={"verdict": "approve", "issues": []},
+        uncertainty_envelope=_uncertainty(0.1),
+        replay_bundle_ref=replay_ref,
+        replay_verification_ref=replay_verification_ref,
+        claim_mode="bounds",
+        budget_state=BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("10.0"))},
+            spent={"run": Decimal("1.0")},
+        ),
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        state={
+            "checkpoints": [{"stage": "done", "timestamp": "2026-03-25T10:00:00Z"}],
+            "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+            "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+            "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+            "pii_scan_results": {"max_severity": "none", "total_entities_found": 0},
+            "audit_lineage_complete": True,
+        },
+        compute_cost_usd=1.0,
+        replay_cost_usd=0.5,
+        expected_improvement=2.0,
+        timeout_risk=0.1,
+    )
+
+    result = coordinator.coordinate_promotion(
+        loop_id="policy_loop",
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+        judge_input=bundle,
+    )
+
+    structural = result.judge_verdict.per_judge["structural"]
+    metadata = result.readiness_contract.metadata
+
+    assert result.readiness_contract.readiness_level == DecisionReadiness.ANALYST_ADVISORY
+    assert any(card.failure_type == "dp_release_bounded" for card in structural.warnings)
+    assert metadata["readiness_cap_reason"] == "dp_bounds_only"
+    assert metadata["dp_effective_status"] == "bounded"
+    assert metadata["dp_distortion_radius"] == 0.021
+    assert metadata["dp_effect_interval"] == [-0.12, -0.03]
 
 
 def test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler(tmp_path) -> None:

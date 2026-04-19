@@ -4,6 +4,9 @@ Related reference: [Ownership](../ownership.md). Related ops assets:
 `ops/prometheus/alerts.yml`, `ops/prometheus/slo_alerts.yml`,
 `ops/grafana/dashboards/*.json`.
 
+Owner: `@platform-owners`
+Source of truth: `src/polisyos/core/observability/**`, `src/polisyos/scientist/engine/{metrics.py,metrics_otel.py,operational_monitoring.py}`, `ops/prometheus/**`, `ops/grafana/**`, and the linked runbooks
+
 > Observability в Phase 6 считается завершённой не тогда, когда “данные где-то
 > есть”, а тогда, когда понятно, какой сигнал trusted, где его смотреть и кто
 > обязан отреагировать.
@@ -28,6 +31,17 @@ Related reference: [Ownership](../ownership.md). Related ops assets:
 | Control-plane write surface | job admission latency, DAG duration | run/job submit rate | failed jobs, outbox failure, worker errors | queue age, worker lease starvation, state-store contention |
 | Frontend operator UX | route load and page-ready timing | active dashboard page loads | browser errors, failed data fetches | bundle size, slow rendering, client-side retry storms |
 
+Current runtime metric and audit coverage is exercised by
+`tests/runtime/http/test_runtime_api_observability.py`. The runtime must keep
+route labels templated, keep high-cardinality identifiers in logs/traces, and
+emit mutation/read audit entries through the same request ID path used by
+incident triage.
+
+Schema-hidden live streams (`/api/v1/runs/live` and
+`/api/v1/runs/{run_id}/live`) use bounded SSE flow-control headers and
+rate-limit/concurrency metrics from `MutationProtectionMiddleware`; they are
+operational streams, not OpenAPI-generated client surfaces.
+
 ### Critical Dependencies
 
 | Dependency class | Trusted signals | Owning responder |
@@ -35,7 +49,7 @@ Related reference: [Ownership](../ownership.md). Related ops assets:
 | Connectors / external data APIs | connector error rate, replay parity, last health check | `@fabric-owners` |
 | LLM gateway / agent path | workflow error spike, cost alerts, trace failures | `@scientist-owners` |
 | Security sidecars / controls | authz failures, TEE failure rate, SBOM deny rate | security/compliance owner |
-| Docs publication | docs-pages workflow, local `mkdocs build --strict` reproduction | `@docs-owners` |
+| Docs publication | `Documentation` workflow (`.github/workflows/docs.yml`), local `mkdocs build --strict` reproduction | `@docs-owners` |
 
 ## Dashboard Inventory
 
@@ -116,8 +130,10 @@ Critical alerts must be periodically proven alive.
 |---|---|
 | runtime availability alerts | synthetic `/health` and `/ready` checks against known-good deployment path |
 | contract/codegen drift | `polisyos-tools workspace doctor` plus dedicated contract checks on clean workspace |
+| runtime API OpenAPI drift | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py` |
+| auth/tenant fail-closed behavior | `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/runtime/http/test_runtime_api_authz.py` |
 | replay failures | known-good record/replay fixture path from `tests/fabric/data_plane/test_record_replay.py` |
-| docs publication | local `mkdocs build --strict` and green `Docs Pages` workflow from `main` |
+| docs publication | local `mkdocs build --strict` and green `Documentation` workflow from `main` |
 | security alerts | focused test fixtures for signing/SBOM plus staged verification against trusted keys |
 
 Until an external synthetic platform is added, CI-backed known-good emitters are

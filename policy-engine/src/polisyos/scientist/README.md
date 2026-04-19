@@ -1,50 +1,57 @@
 # Scientist (`polisyos.scientist`)
 
-`scientist` — orchestration-слой PolicyOS, который собирает workflow, запускает
-policy-эксперименты, управляет governance/human-gate контуром и публикует
-воспроизводимый результат поверх `ir`, `foundry`, `fabric`, `lex`, `scholar`
-и `core`.
+## Purpose
 
-## Роль в системе
-
-- **Зависит от:** `core`, `ir`, `foundry`, `fabric`, `lex`, `scholar`
-- **Используется в:** CLI, runtime control/debug flows, replay tooling, policy-design flows
-- `scientist` не реализует доменную математику сам: он оркестрирует state, nodes,
-  adapters, governance и публикацию итогового decision surface.
-
-## Ключевые концепции
-
-- **WorkflowSpec + NodeRegistry** — канонический способ собрать исполнимый DAG.
-- **ExperimentState** — строгий run-state с checkpoint/resume и trace-friendly индексами.
-- **Builtin nodes** — стандартные data/planning/compile/causal/simulate/governance/decide этапы.
-- **Causal readiness/execution** — новый контур readiness-проверок и contract execution
-  для proxy, transportability, strategic response и counterfactual задач.
-- **Governance runtime** — validation passes, human gate, calibration/backtest/stress readouts.
-- **Optional surfaces** — `agent`, `search`, `policy_design`, `backtesting`, `orchestrator`.
-
-## Public API
-
-- `run_experiment(...)` — стандартный entrypoint Scientist.
-- `ExperimentState` — основной state-контракт workflow-раннера.
-- `workflows.*` — запуск и выбор `scientist_default`, `scientist_causal_full`,
-  `scientist_discovery`, `scientist_policy_design`.
-- `engine.*` — executor, registry, checkpoint, idempotency и runner backends.
-- `governance.*` — pre/post-flight API и calibration/stress/backtest readouts.
-- `causal.*` — runners для readiness и bounds execution.
-
-Подробности: [Reference →](../../../docs/reference/scientist/index.md)
+`polisyos.scientist` is the orchestration layer that turns an
+`ExperimentState` into a routed workflow run, executes builtin nodes, applies
+governance, and publishes replayable decision artifacts across the `ir`,
+`foundry`, `fabric`, `lex`, `scholar`, and `core` stacks.
 
 ## Where to Start
 
-- Public facade / compatibility: `src/polisyos/scientist/__init__.py` and `docs/reference/public-surface.md`
-- Workflow assembly: `src/polisyos/scientist/workflows/` and `src/polisyos/scientist/engine/`
-- Governance changes: `src/polisyos/scientist/governance/README.md` and `docs/how-to/write-governance-pass.md`
-- New governance pass scaffold: `python3 tools/architecture/scaffold.py governance-pass --name my_pass --output ... --test-output ... --dry-run`
+- Stable facade and top-level entrypoint: [`__init__.py`](__init__.py) and [`api.py`](api.py)
+- Workflow assembly and routing: [`workflows/README.md`](workflows/README.md) and [`workflows/builder.py`](workflows/builder.py)
+- DAG execution semantics: [`engine/README.md`](engine/README.md)
+- Builtin runtime nodes: [`nodes/README.md`](nodes/README.md)
+- Governance, calibration, and accountability: [`governance/README.md`](governance/README.md)
 
-## Текущее состояние
+## Public Entrypoints
 
-- Последнее обновление: 2026-04-03
-- Python modules: 401
-- Root exports: 4 (`ExperimentState`, `get_metrics`, `get_tracer`, `run_experiment`)
-- Крупные недавние изменения: новый `causal/`, расширение `governance/`,
-  новые builtin causal nodes и C6c policy-design path
+- `run_experiment(...)` in [`api.py`](api.py): top-level execution entrypoint used by the package facade
+- `ExperimentState` in [`engine/state.py`](engine/state.py): boundary model passed across nodes and checkpoints
+- Workflow launchers in [`workflows/builder.py`](workflows/builder.py): `run_default_workflow(...)`, `run_causal_full_workflow(...)`, `run_policy_verified_workflow(...)`, `run_policy_design_workflow(...)`, and `run_discovery_workflow(...)`
+- Workflow specs in [`workflows/`](workflows/): inspect builtin DAG layouts before changing routing or nodes
+- Governance helpers in [`governance/preflight.py`](governance/preflight.py) and [`governance/postflight.py`](governance/postflight.py): pre/post-flight validation surfaces
+- `builtin_nodes()` in [`nodes/__init__.py`](nodes/__init__.py): canonical builtin node inventory used by workflow builders
+
+## Depends On / Depended On By
+
+- Depends on: [`../core/README.md`](../core/README.md), [`../ir/README.md`](../ir/README.md), [`../foundry/README.md`](../foundry/README.md), [`../fabric/README.md`](../fabric/README.md), [`../lex/README.md`](../lex/README.md), and [`../scholar/README.md`](../scholar/README.md)
+- Depended on by: runtime/control flows, policy-design entrypoints, and the Scientist verification surface in [`../../../tests/scientist/README.md`](../../../tests/scientist/README.md)
+
+## Common Commands
+
+Run from the repository root (`policy-engine/`).
+
+- Smoke-tested import check: `uv run python -c "from polisyos.scientist import ExperimentState, run_experiment; print(ExperimentState.__name__, callable(run_experiment))"`
+- Conceptual full-slice test run: `uv run pytest tests/scientist -q`
+
+## Test / Verification Commands
+
+Smoke-tested:
+
+```bash
+uv run pytest tests/scientist/test_workflow_selection.py tests/scientist/test_reliability_scorecard.py -q
+```
+
+## Reference Docs
+
+- Reference index: [`../../../docs/reference/scientist/index.md`](../../../docs/reference/scientist/index.md)
+- Workflow catalog: [`../../../docs/reference/scientist/workflows.md`](../../../docs/reference/scientist/workflows.md)
+- Builtin node reference: [`../../../docs/reference/scientist/nodes.md`](../../../docs/reference/scientist/nodes.md)
+- Reliability and release gates: [`../../../docs/reference/scientist/reliability-scorecard.md`](../../../docs/reference/scientist/reliability-scorecard.md)
+- Lane source plan: [`../../../docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md`](../../../docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md)
+
+## Last Updated
+
+- Last updated: 2026-04-17

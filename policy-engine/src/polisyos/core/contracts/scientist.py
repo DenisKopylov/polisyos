@@ -12,6 +12,7 @@ from typing import Any, Literal, Protocol, runtime_checkable
 
 from pydantic import ConfigDict, Field, model_validator
 
+from ..artifacts.ids import ArtifactID
 from ..artifacts.manifest import ArtifactRef
 
 
@@ -55,20 +56,20 @@ class ScientistArtifactRef(ArtifactRef):
 
 class ExperimentStateRef(ScientistArtifactRef):
     """Artifact reference for persisted Scientist workflow state across steps and retries."""
-    kind: Literal["scientist.experiment_state"] = "scientist.experiment_state"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.experiment_state"
+    media_type: str = "application/json"
 
 
 class DecisionPacketRef(ScientistArtifactRef):
     """Artifact reference for the decision packet emitted when a Scientist run concludes."""
-    kind: Literal["scientist.decision_packet"] = "scientist.decision_packet"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.decision_packet"
+    media_type: str = "application/json"
 
 
 class GovernanceReportRef(ScientistArtifactRef):
     """Artifact reference for aggregated governance-pass findings attached to a run."""
-    kind: Literal["scientist.governance_report"] = "scientist.governance_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.governance_report"
+    media_type: str = "application/json"
 
 
 class FailureCardRef(ScientistArtifactRef):
@@ -79,8 +80,8 @@ class FailureCardRef(ScientistArtifactRef):
     embedding full FailureCard objects in workflow state.
     """
 
-    kind: Literal["scientist.failure_card"] = "scientist.failure_card"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.failure_card"
+    media_type: str = "application/json"
 
     # Denormalized fields for quick filtering without CAS lookup
     attempt_number: int = Field(ge=1, description="Which retry attempt this represents")
@@ -93,7 +94,7 @@ class FailureCardRef(ScientistArtifactRef):
         """Create a reference from a FailureCard instance."""
         source_step = getattr(card.source_step, "value", card.source_step)
         return cls(
-            artifact_id=card.content_hash,
+            artifact_id=ArtifactID.model_validate(card.content_hash),
             attempt_number=card.attempt_number,
             error_code=card.error_code,
             source_step=str(source_step),
@@ -104,8 +105,8 @@ class FailureCardRef(ScientistArtifactRef):
 class TrinityIRRef(ScientistArtifactRef):
     """Reference to a canonical Trinity IR artifact."""
 
-    kind: Literal["scientist.policy_ir"] = "scientist.policy_ir"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.policy_ir"
+    media_type: str = "application/json"
 
     version: int = Field(ge=1, description="Revision number of this IR")
     status: str = Field(description="Current status: draft, validated, rejected")
@@ -114,8 +115,8 @@ class TrinityIRRef(ScientistArtifactRef):
 class CritiqueRef(ScientistArtifactRef):
     """Reference to a Critic evaluation artifact."""
 
-    kind: Literal["scientist.critique"] = "scientist.critique"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.critique"
+    media_type: str = "application/json"
 
     verdict: str = Field(description="Critic's verdict: approve, revise, reject")
     ir_ref: str = Field(description="CAS hash of the evaluated IR")
@@ -128,8 +129,8 @@ class TimelineRef(ScientistArtifactRef):
     Note: In Scientist contracts we use CAS-addressed references (artifact_id).
     """
 
-    kind: Literal["scientist.run_timeline"] = "scientist.run_timeline"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.run_timeline"
+    media_type: str = "application/json"
 
     # Denormalized for quick filtering
     run_id: str = Field(description="Associated run id")
@@ -140,8 +141,8 @@ class TimelineRef(ScientistArtifactRef):
 class DecisionCardRef(ScientistArtifactRef):
     """Reference to a stored DecisionCard artifact."""
 
-    kind: Literal["scientist.decision_card"] = "scientist.decision_card"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.decision_card"
+    media_type: str = "application/json"
 
     run_id: str = Field(description="Associated run id")
     verdict: str = Field(description="Decision verdict")
@@ -151,8 +152,8 @@ class DecisionCardRef(ScientistArtifactRef):
 class CheckpointRef(ScientistArtifactRef):
     """Reference to a stored Scientist checkpoint artifact."""
 
-    kind: Literal["scientist.checkpoint"] = "scientist.checkpoint"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.checkpoint"
+    media_type: str = "application/json"
 
     run_id: str = Field(description="Associated run id")
     sequence_number: int = Field(ge=0, description="Checkpoint sequence number")
@@ -162,284 +163,284 @@ class CheckpointRef(ScientistArtifactRef):
 class SensitivityResultRef(ScientistArtifactRef):
     """Reference to a stored sensitivity analysis result artifact."""
 
-    kind: Literal["scientist.sensitivity_result"] = "scientist.sensitivity_result"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.sensitivity_result"
+    media_type: str = "application/json"
 
 
 class StressTestReportRef(ScientistArtifactRef):
     """Reference to a stored stress-test report artifact."""
 
-    kind: Literal["scientist.stress_test_report"] = "scientist.stress_test_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.stress_test_report"
+    media_type: str = "application/json"
 
 
 class CalibrationValidationBundleRef(ScientistArtifactRef):
     """Reference to a stored calibration-validation bundle artifact."""
 
-    kind: Literal["scientist.calibration_validation_bundle"] = (
+    kind: str = (
         "scientist.calibration_validation_bundle"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class GovernanceAccountabilityArtifactRef(ScientistArtifactRef):
     """Reference to a stored governance accountability artifact."""
 
-    kind: Literal["scientist.governance_accountability_artifact"] = (
+    kind: str = (
         "scientist.governance_accountability_artifact"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class PlatformMetaEvaluationReportRef(ScientistArtifactRef):
     """Reference to a stored platform meta-evaluation report artifact."""
 
-    kind: Literal["scientist.platform_meta_evaluation_report"] = (
+    kind: str = (
         "scientist.platform_meta_evaluation_report"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class GraphHypothesisRef(ScientistArtifactRef):
     """Artifact reference for one discovered causal-graph hypothesis."""
-    kind: Literal["scientist.graph_hypothesis"] = "scientist.graph_hypothesis"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.graph_hypothesis"
+    media_type: str = "application/json"
 
 
 class BootstrapStabilityReportRef(ScientistArtifactRef):
     """Artifact reference for bootstrap stability diagnostics on graph structure."""
-    kind: Literal["scientist.bootstrap_stability_report"] = (
+    kind: str = (
         "scientist.bootstrap_stability_report"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class DownstreamUtilityReportRef(ScientistArtifactRef):
     """Artifact reference for a report estimating downstream usefulness of a candidate output."""
-    kind: Literal["scientist.downstream_utility_report"] = (
+    kind: str = (
         "scientist.downstream_utility_report"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class EdgeConfidenceMatrixRef(ScientistArtifactRef):
     """Artifact reference for edge-level confidence scores produced during discovery."""
-    kind: Literal["scientist.edge_confidence_matrix"] = "scientist.edge_confidence_matrix"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.edge_confidence_matrix"
+    media_type: str = "application/json"
 
 
 class GraphPriorBundleRef(ScientistArtifactRef):
     """Artifact reference for priors injected into graph discovery or scoring."""
-    kind: Literal["scientist.graph_prior_bundle"] = "scientist.graph_prior_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.graph_prior_bundle"
+    media_type: str = "application/json"
 
 
 class PriorKnowledgeBundleRef(ScientistArtifactRef):
     """Artifact reference for curated prior knowledge supplied to Scientist workflows."""
-    kind: Literal["scientist.prior_knowledge_bundle"] = "scientist.prior_knowledge_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.prior_knowledge_bundle"
+    media_type: str = "application/json"
 
 
 class DiscoveryTaskProfileRef(ScientistArtifactRef):
     """Artifact reference for the profile that parameterizes a discovery workflow."""
-    kind: Literal["scientist.discovery_task_profile"] = "scientist.discovery_task_profile"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.discovery_task_profile"
+    media_type: str = "application/json"
 
 
 class GraphHypothesisSetRef(ScientistArtifactRef):
     """Artifact reference for the set of competing graph hypotheses under review."""
-    kind: Literal["scientist.graph_hypothesis_set"] = "scientist.graph_hypothesis_set"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.graph_hypothesis_set"
+    media_type: str = "application/json"
 
 
 class RefutationReportRef(ScientistArtifactRef):
     """Artifact reference for a report documenting refuted discovery hypotheses."""
-    kind: Literal["scientist.discovery_refutation_report"] = (
+    kind: str = (
         "scientist.discovery_refutation_report"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class ReproducibilityReportRef(ScientistArtifactRef):
     """Artifact reference for a discovery reproducibility assessment across reruns."""
-    kind: Literal["scientist.discovery_reproducibility_report"] = (
+    kind: str = (
         "scientist.discovery_reproducibility_report"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class ActiveDisambiguationPlanRef(ScientistArtifactRef):
     """Artifact reference for a follow-up plan that resolves discovery ambiguities."""
-    kind: Literal["scientist.active_disambiguation_plan"] = (
+    kind: str = (
         "scientist.active_disambiguation_plan"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class DiscoveryAuditBundleRef(ScientistArtifactRef):
     """Artifact reference for the audit bundle emitted by discovery workflows."""
-    kind: Literal["scientist.discovery_audit_bundle"] = "scientist.discovery_audit_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.discovery_audit_bundle"
+    media_type: str = "application/json"
 
 
 class DiscoveryArtifactBundleRef(ScientistArtifactRef):
     """Artifact reference for the bundle of artifacts produced during discovery."""
-    kind: Literal["scientist.discovery_artifact_bundle"] = (
+    kind: str = (
         "scientist.discovery_artifact_bundle"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class DecisionReadinessContractRef(ScientistArtifactRef):
     """Artifact reference for criteria that must hold before a policy decision is issued."""
-    kind: Literal["scientist.decision_readiness_contract"] = (
+    kind: str = (
         "scientist.decision_readiness_contract"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class PolicyFrontierReportRef(ScientistArtifactRef):
     """Artifact reference for the frontier report comparing policy trade-offs."""
-    kind: Literal["scientist.policy_frontier_report"] = "scientist.policy_frontier_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.policy_frontier_report"
+    media_type: str = "application/json"
 
 
 class ChampionPolicyDossierRef(ScientistArtifactRef):
     """Artifact reference for the dossier describing the current champion policy option."""
-    kind: Literal["scientist.champion_policy_dossier"] = (
+    kind: str = (
         "scientist.champion_policy_dossier"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class PolicyBriefRef(ScientistArtifactRef):
     """Artifact reference for the narrative brief summarizing the recommended policy."""
-    kind: Literal["scientist.policy_brief"] = "scientist.policy_brief"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.policy_brief"
+    media_type: str = "application/json"
 
 
 class ConstraintSatisfactionReportRef(ScientistArtifactRef):
     """Artifact reference for the report scoring how well an option satisfies constraints."""
-    kind: Literal["scientist.constraint_satisfaction_report"] = (
+    kind: str = (
         "scientist.constraint_satisfaction_report"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class SubgroupImpactReportRef(ScientistArtifactRef):
     """Artifact reference for subgroup-level impact analysis of a policy candidate."""
-    kind: Literal["scientist.subgroup_impact_report"] = "scientist.subgroup_impact_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.subgroup_impact_report"
+    media_type: str = "application/json"
 
 
 class UncertaintyReportRef(ScientistArtifactRef):
     """Artifact reference for uncertainty bounds or decompositions on a candidate policy."""
-    kind: Literal["scientist.uncertainty_report"] = "scientist.uncertainty_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.uncertainty_report"
+    media_type: str = "application/json"
 
 
 class TransportabilityReportRef(ScientistArtifactRef):
     """Artifact reference for a transportability assessment across populations or settings."""
-    kind: Literal["scientist.transportability_report"] = "scientist.transportability_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.transportability_report"
+    media_type: str = "application/json"
 
 
 class GovernanceGatePacketRef(ScientistArtifactRef):
     """Artifact reference for the packet submitted to governance gates before approval."""
-    kind: Literal["scientist.governance_gate_packet"] = "scientist.governance_gate_packet"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.governance_gate_packet"
+    media_type: str = "application/json"
 
 
 class ImplementationPlanRef(ScientistArtifactRef):
     """Artifact reference for the operational rollout plan of the selected policy."""
-    kind: Literal["scientist.implementation_plan"] = "scientist.implementation_plan"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.implementation_plan"
+    media_type: str = "application/json"
 
 
 class RejectedAlternativesSummaryRef(ScientistArtifactRef):
     """Artifact reference for the summary explaining why alternative options were rejected."""
-    kind: Literal["scientist.rejected_alternatives_summary"] = (
+    kind: str = (
         "scientist.rejected_alternatives_summary"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class ReplayableAuditBundleRef(ScientistArtifactRef):
     """Artifact reference for the replay-friendly audit bundle of a decision workflow."""
-    kind: Literal["scientist.replayable_audit_bundle"] = "scientist.replayable_audit_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.replayable_audit_bundle"
+    media_type: str = "application/json"
 
 
 class PolicyArtifactBundleRef(ScientistArtifactRef):
     """Artifact reference for the bundle of final artifacts backing a policy recommendation."""
-    kind: Literal["scientist.policy_artifact_bundle"] = "scientist.policy_artifact_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.policy_artifact_bundle"
+    media_type: str = "application/json"
 
 
 class DecisionMonitoringContractRef(ScientistArtifactRef):
     """Artifact reference for post-deployment metrics, triggers, and review obligations."""
-    kind: Literal["scientist.decision_monitoring_contract"] = (
+    kind: str = (
         "scientist.decision_monitoring_contract"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class DecisionMonitoringReportRef(ScientistArtifactRef):
     """Artifact reference for observed-vs-expected monitoring results after rollout."""
-    kind: Literal["scientist.decision_monitoring_report"] = (
+    kind: str = (
         "scientist.decision_monitoring_report"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class DecisionCompareReportRef(ScientistArtifactRef):
     """Artifact reference for a comparison between two decisions or policy versions."""
-    kind: Literal["scientist.decision_compare_report"] = "scientist.decision_compare_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.decision_compare_report"
+    media_type: str = "application/json"
 
 
 class DecisionReissuePlanRef(ScientistArtifactRef):
     """Artifact reference for the plan to reissue or revise a prior decision."""
-    kind: Literal["scientist.decision_reissue_plan"] = "scientist.decision_reissue_plan"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.decision_reissue_plan"
+    media_type: str = "application/json"
 
 
 class PolicyRequestFrameRef(ScientistArtifactRef):
     """Artifact reference for the structured intake frame of a new policy request."""
-    kind: Literal["scientist.policy_request_frame"] = "scientist.policy_request_frame"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.policy_request_frame"
+    media_type: str = "application/json"
 
 
 class LegalCandidatePackRef(ScientistArtifactRef):
     """Artifact reference for assembled candidate legal sources during verification."""
-    kind: Literal["scientist.legal_candidate_pack"] = "scientist.legal_candidate_pack"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.legal_candidate_pack"
+    media_type: str = "application/json"
 
 
 class LegalSourcePackRef(ScientistArtifactRef):
     """Artifact reference for the curated legal-source pack used for verification."""
-    kind: Literal["scientist.legal_source_pack"] = "scientist.legal_source_pack"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.legal_source_pack"
+    media_type: str = "application/json"
 
 
 class SourceVerificationReportRef(ScientistArtifactRef):
     """Artifact reference for source-quality and legal verification diagnostics."""
-    kind: Literal["scientist.source_verification_report"] = (
+    kind: str = (
         "scientist.source_verification_report"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class PolicyOptionSetRef(ScientistArtifactRef):
     """Artifact reference for the set of policy options under governance comparison."""
-    kind: Literal["scientist.policy_option_set"] = "scientist.policy_option_set"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.policy_option_set"
+    media_type: str = "application/json"
 
 
 class VerifiedPolicyReportRef(ScientistArtifactRef):
     """Artifact reference for the final report of a policy option that passed verification."""
-    kind: Literal["scientist.verified_policy_report"] = "scientist.verified_policy_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.verified_policy_report"
+    media_type: str = "application/json"
 
 
 __all__ = [

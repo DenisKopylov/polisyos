@@ -2,25 +2,32 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
-from polisyos.core.contracts.runtime import AuthMeResponse
+from polisyos.core.contracts.runtime import ApiMeta, AuthMeResponse
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
 from polisyos.runtime.http.container import resolve_runtime_security
 from polisyos.runtime.http.dependencies import build_meta
 from polisyos.runtime.http.errors import unauthorized
 from polisyos.runtime.http.security import build_fixture_identity_claims
 
-try:  # pragma: no cover - optional runtime dependency
-    APIRouter: Any | None
-    Request: Any
+if TYPE_CHECKING:
     from fastapi import APIRouter, Request
-except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None
-    Request = object
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from fastapi import APIRouter, Request
+    except ModuleNotFoundError:  # pragma: no cover
+        APIRouter = cast("Any", None)
+        Request = cast("Any", object)
 
 
-router = APIRouter(prefix="/api/v1/auth", tags=["runtime-auth"]) if APIRouter else None
+def _build_router() -> APIRouter:
+    if APIRouter is None:  # pragma: no cover - runtime dependency guard
+        raise RuntimeError("runtime HTTP routes require FastAPI to be installed")
+    return APIRouter(prefix="/api/v1/auth", tags=["runtime-auth"])
+
+
+router = _build_router()
 
 _ROLE_PERMISSIONS: dict[PolicyOSRole, frozenset[str]] = {
     PolicyOSRole.ADMIN: frozenset(
@@ -114,7 +121,7 @@ def _fallback_identity() -> AuthMeResponse:
     fallback_roles = claims.roles or frozenset({PolicyOSRole.ANALYST})
     permissions = _resolve_permissions(fallback_roles)
     return AuthMeResponse(
-        meta=build_meta(type("FallbackRequest", (), {"state": type("State", (), {"request_id": "fallback-auth-me"})()})()),
+        meta=ApiMeta(request_id="fallback-auth-me"),
         user_id=claims.sub,
         display_name=claims.email or claims.sub,
         tenant_id=claims.tenant_id,

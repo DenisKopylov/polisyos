@@ -6,22 +6,26 @@ import os
 import subprocess
 from importlib import metadata
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.canon import streaming_hash
+
+if TYPE_CHECKING:
+    from ._env_models import CPUInfo, GPUInfo, JAXInfo, RiskLevel, SystemLibraryInfo
 
 __all__ = [
     "DEFAULT_COMMAND_TIMEOUT",
     "MAX_LIBRARY_BYTES",
     "SYSTEM_LIBRARY_NAMES",
-    "_safe_run",
-    "_safe_package_version",
-    "_hash_file",
-    "_short_hash",
-    "_risk_order",
-    "_format_xla_flags",
-    "_parse_xla_flags",
-    "_estimate_precision_loss",
-    "_fingerprint_system_libraries",
+    "safe_run",
+    "safe_package_version",
+    "hash_file",
+    "short_hash",
+    "risk_order",
+    "format_xla_flags",
+    "parse_xla_flags",
+    "estimate_precision_loss",
+    "fingerprint_system_libraries",
 ]
 
 DEFAULT_COMMAND_TIMEOUT = 1.5
@@ -145,3 +149,14 @@ def _fingerprint_system_libraries(libs: dict[str, "SystemLibraryInfo"]) -> str: 
         else:
             parts.append(f"{name}:nohash")
     return truncated_hash("|".join(parts), length=16)
+
+
+safe_run = _safe_run
+safe_package_version = _safe_package_version
+hash_file = _hash_file
+short_hash = _short_hash
+risk_order = _risk_order
+format_xla_flags = _format_xla_flags
+parse_xla_flags = _parse_xla_flags
+estimate_precision_loss = _estimate_precision_loss
+fingerprint_system_libraries = _fingerprint_system_libraries

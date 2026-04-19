@@ -42,6 +42,10 @@ DEFAULT_TRACER = trace.get_tracer(__name__)
 T = TypeVar("T")
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 def _monotonic() -> float:
     return time.monotonic()
 
@@ -163,7 +167,7 @@ class CircuitBreaker:
         self._lock = threading.Lock()
 
         # Metrics
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
         self._tracer = tracer or DEFAULT_TRACER
         self._set_state_metric(self._state)
 

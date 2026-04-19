@@ -9,7 +9,21 @@ The symbols listed in `__all__` are the stable replay surface for callers.
 from __future__ import annotations
 
 import importlib
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from .replay import (
+        CompletenessLevel,
+        CompletenessReport,
+        ReplayPlan,
+        ReplayStrategy,
+        VerificationConfig,
+        VerificationMode,
+        VerificationResult,
+        build_replay_plan,
+        completeness_check,
+        verify_replay,
+    )
 
 __all__ = [
     "ReplayStrategy",

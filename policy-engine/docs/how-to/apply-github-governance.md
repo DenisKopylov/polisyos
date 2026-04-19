@@ -1,30 +1,60 @@
-# Apply Phase 1 Governance in GitHub UI
+# Apply GitHub Governance Manually
 
-This guide covers the Phase 1 steps that cannot be enforced from the local
-repository alone:
+This guide covers the GitHub settings that are not versioned in the local
+repository.
 
-- creating the repository labels from `.github/labels.yml`;
-- applying the default-branch ruleset from `.github/repository-rulesets/main.yml`;
-- verifying that live GitHub settings match the repo-tracked governance policy.
+Use it whenever you need to reconcile the live GitHub repository with the
+repo-tracked docs and workflow inventory.
 
-Use this guide after merging the Phase 1 governance files into `main`.
+## Inputs
+
+- repository admin or equivalent settings access in GitHub;
+- current repo checkout with the live `.github/workflows/*.yml` files and docs;
+- a reason to reconcile labels, rulesets, reviewer routing, or required checks.
+
+## Output
+
+- GitHub repository settings aligned with the repo-tracked governance docs and
+  current workflow inventory;
+- a reviewable record of which settings are still manual rather than
+  version-controlled.
+
+## Commands
+
+Use local commands to collect the repo-tracked source of truth before changing
+the GitHub UI:
+
+```bash
+cd policy-engine
+rg --files .github/workflows
+sed -n '1,200p' .github/labels.yml
+sed -n '1,200p' docs/reference/merge-governance.md
+sed -n '1,200p' docs/reference/quality-gates.md
+sed -n '1,200p' docs/reference/ownership.md
+```
 
 ## Before You Start
 
 You need repository admin access, or a custom role with permission to edit
-repository rules and labels.
+repository settings, branch protection, labels, and merge rules.
 
-Repository source of truth:
+The current repo-tracked inputs are:
 
 - labels: `.github/labels.yml`
-- branch ruleset: `.github/repository-rulesets/main.yml`
-- merge policy narrative: `docs/reference/merge-governance.md`
-- PR taxonomy: `.github/PULL_REQUEST_TEMPLATE.md`
+- reviewer and change taxonomy prompts: `.github/PULL_REQUEST_TEMPLATE.md`
+- merge-governance narrative: `docs/reference/merge-governance.md`
+- local/CI gate inventory: `docs/reference/quality-gates.md`
+- owner routing: `docs/reference/ownership.md`
+- active workflow inventory: `.github/workflows/*.yml`
 
-## 1. Create the Phase 1 Labels
+There is no repo-tracked `.github/repository-rulesets/main.yml` or
+`.github/CODEOWNERS` file in this checkout, so those parts of GitHub
+governance are manual today.
+
+## 1. Create or Update Labels
 
 GitHub does not automatically create labels from `.github/labels.yml`, so add
-them once in the UI.
+or update them in the UI when the file changes.
 
 Path in GitHub UI:
 
@@ -36,164 +66,134 @@ Path in GitHub UI:
 6. Save the label.
 7. Repeat until the full set exists.
 
-Labels to create:
-
-### Kind labels
-
-- `kind:architecture`
-- `kind:contract-schema`
-- `kind:runtime-behavior`
-- `kind:frontend`
-- `kind:docs`
-- `kind:ops-security`
-- `kind:dependency-upgrade`
-
-### Compatibility labels
-
-- `compat:breaking`
-- `compat:additive`
-- `compat:internal`
-
-### Release labels
-
-- `release:breaking`
-- `release:feature`
-- `release:fix`
-- `release:docs`
-- `release:ops`
-- `release:security`
-- `release:none`
-
 Verification:
 
 - open the Labels list and confirm every label from `.github/labels.yml`
   exists exactly once;
 - open any test PR and confirm the labels are selectable.
 
-## 2. Create the Default-Branch Ruleset
+## 2. Review the Active Workflow Inventory
+
+Before configuring required checks, verify which workflows actually exist under
+`.github/workflows/`.
+
+As of this docs refresh, the active inventory includes:
+
+- `abi.yml`
+- `arch.yml`
+- `arch-freeze.yml`
+- `build-and-push.yml`
+- `causal-phases.yml`
+- `docs.yml`
+- `foundry-release-gate.yml`
+- `perf.yml`
+- `replay.yml`
+- `signatures.yml`
+
+Do not create required checks for absent historical files such as `ci.yml`,
+`frontend-nightly.yml`, `release.yml`, or `docs-pages.yml`.
+
+## 3. Configure Branch Protection Manually
 
 Path in GitHub UI:
 
 1. Open the repository main page.
 2. Click **Settings**.
-3. In the left sidebar, click **Rules**, then **Rulesets**.
-4. Click **New ruleset**.
-5. Click **New branch ruleset**.
+3. Open the branch-protection or rulesets section for `main`.
 
-Use these values:
+Recommended posture:
 
-- **Ruleset name**: `main-merge-governance`
-- **Enforcement status**: `Active`
-- **Target branches**: include `main`
+- require pull requests before merging;
+- require at least one approval;
+- require conversation resolution before merge;
+- enable stale-approval dismissal if that matches your team's review posture.
 
-## 3. Configure Pull Request Rules
+These are operational settings. Keep them aligned with
+`docs/reference/merge-governance.md`, but do not treat them as repo-tracked
+facts unless the repository starts versioning them.
 
-Under branch protections, enable:
+## 4. Choose Required Checks from Current Workflows
 
-- **Require a pull request before merging**
-- **Required approvals**: `1`
-- **Require review from code owners**
-- **Dismiss stale pull request approvals when new commits are pushed**
-- **Require approval of the most recent reviewable push**
-- **Require conversation resolution before merging**
+GitHub requires exact check-context names, and those names come from live
+workflow runs rather than from filenames alone.
 
-Do not add bypass actors unless there is a reviewed exception. If bypass is
-required, prefer pull-request-only bypass over unrestricted direct push bypass.
+Recommended process:
 
-## 4. Configure Required Status Checks
+1. Open recent successful runs for the workflows you want to require.
+2. Copy the exact check names shown by GitHub.
+3. Add only those live check names to branch protection.
+4. Recheck them whenever workflow job names change.
 
-Still inside the same ruleset:
+The repository does not currently version a canonical required-check allowlist,
+so this remains manual.
 
-1. Enable **Require status checks before merging**.
-2. Enable **Require branches to be up to date before merging**.
-3. Add these exact checks:
-   - `Fast PR / Gate`
-   - `Standard PR / Gate`
+## 5. Reviewer Routing
 
-Do not require these on the branch ruleset:
+Because there is no repo-tracked `.github/CODEOWNERS` file here, reviewer
+routing should follow:
 
-- `Docs Pages / Deploy`
-- any Nightly workflow
-- any Release workflow
-- `Frontend Quality (Archived)`
+1. `docs/reference/ownership.md`
+2. the nearest package `README.md`
+3. the shared-surface guidance in `docs/reference/quality-gates.md`
 
-The repository intentionally protects `main` through the two aggregated gate
-checks rather than dozens of individual job contexts.
+For shared control-plane changes such as `.github/workflows/**`, `mkdocs.yml`,
+release ledgers, or shared reference pages, request `@platform-owners`
+attention explicitly.
 
-## 5. Merge Queue Decision
+## 6. Merge Queue and Signatures
 
-Leave merge queue disabled for now.
+- Merge queue is not part of the repo-tracked contract today. If you enable it
+  in GitHub, treat that as a manual operational decision.
+- `signatures.yml` and `build-and-push.yml` are the repo-tracked signing and
+  SBOM surfaces.
+- Commit-signature enforcement on `main`, if you use it, is a manual GitHub
+  setting rather than a versioned repository rule.
 
-Rationale:
-
-- the current repository is hosted as a personal repository
-  (`DenisKopylov/polisyos`), and GitHub documents merge queue for eligible
-  organization-owned repositories rather than this hosting model;
-- the current repository volume does not justify queueing yet;
-- the active PR workflows do not currently declare `merge_group` triggers;
-- enabling merge queue before the workflow contract supports it would weaken,
-  not strengthen, governance.
-
-Record that decision by ensuring the live ruleset matches the rationale in
-`.github/repository-rulesets/main.yml` and
-`docs/reference/merge-governance.md`.
-
-## 6. Signed Commits and Signed Tags
-
-Do not enable **Require signed commits** on `main` yet.
-
-Current Phase 1 policy is:
-
-- release-critical tags should be signed;
-- verified commit signatures on `main` are recommended but not yet enforced.
-
-That split is intentional because tag signing is part of release provenance,
-while commit-signing enforcement would currently create contributor friction
-before key management is standardized.
-
-## 7. CODEOWNERS Self-Protection
-
-No extra UI path mapping is needed beyond enabling code-owner review in the
-ruleset, because `.github/CODEOWNERS` already marks these paths as owned:
-
-- `.github/**`
-- `.github/CODEOWNERS`
-- `SECURITY.md`
-- `SUPPORT.md`
-- `CODE_OF_CONDUCT.md`
-
-Verification:
-
-1. Open a test PR that changes one of those files.
-2. Confirm GitHub requests the CODEOWNER reviewer.
-3. Confirm the PR cannot merge without satisfying the required review rules.
-
-## 8. Post-Setup Verification Checklist
+## 7. Post-Setup Verification Checklist
 
 After saving the ruleset, verify all of the following:
 
-- the repository rulesets page shows an active ruleset targeting `main`;
-- the ruleset displays required pull requests and code-owner review;
-- the ruleset displays stale-review dismissal and most-recent-push approval;
-- the required check list contains `Fast PR / Gate` and `Standard PR / Gate`;
+- the GitHub settings page shows the intended protections for `main`;
+- the required-check list contains only contexts from workflows that currently
+  exist;
+- labels from `.github/labels.yml` are available and can be applied;
+- a sample PR routes reviewers according to `docs/reference/ownership.md`;
 - a sample PR shows the expected blocking rules in the merge box;
 - labels from `.github/labels.yml` are available and can be applied.
 
-## 9. Drift-Control Rule
+## 8. Drift-Control Rule
 
 When governance policy changes in the repo:
 
-1. update `.github/labels.yml` and/or `.github/repository-rulesets/main.yml`;
+1. update `.github/labels.yml`, workflow files, and/or the relevant governance
+   docs;
 2. update the relevant docs page;
 3. apply the same change in GitHub UI;
 4. verify the live repository state still matches the repo-tracked source of
    truth.
 
+## Rollback
+
+- revert the GitHub UI change if it contradicts the repo-tracked docs or blocks
+  the current workflow inventory;
+- if the mistake is really in the repo-tracked source of truth, update docs and
+  workflow files first, then re-apply the GitHub setting intentionally;
+- when unsure, prefer restoring the previous live setting over leaving the repo
+  in a half-synchronized governance state.
+
+## Troubleshooting
+
+- If a required check never appears in branch protection, copy the exact check
+  context from a recent workflow run instead of guessing from the YAML filename.
+- If reviewer routing feels ambiguous, escalate to
+  `docs/reference/ownership.md` before inventing ad hoc code-owner rules.
+- If labels drift repeatedly, treat `.github/labels.yml` as the canonical list
+  and reconcile the UI in one pass instead of editing labels PR by PR.
+
 ## References
 
 - GitHub Docs: [About rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)
 - GitHub Docs: [Managing labels](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels)
-- GitHub Docs: [About code owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
 - GitHub Docs: [Merging a pull request with a merge queue](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/merging-a-pull-request-with-a-merge-queue?tool=webui)
 - GitHub Docs: [About commit signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
 - GitHub Docs: [Signing tags](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags)

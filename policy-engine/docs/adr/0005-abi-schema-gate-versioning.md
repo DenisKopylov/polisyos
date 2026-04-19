@@ -73,3 +73,8 @@
 - Фиксировать среду CI (Python 3.11) и обновлять snapshots атомарно.
 - Поддерживать unit-тесты на `abi_diff` классификацию.
 - Использовать `compat_mode` per-entry для точной семантики.
+
+## Related Decisions
+
+- Extended by: ADR-0114 (schema registry and evolution rules), ADR-0123
+  (ArtifactRef governance metadata).

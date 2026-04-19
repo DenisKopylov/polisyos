@@ -1,0 +1,16 @@
+service: scientist
+version: 1
+owner: team-scientist
+objectives:
+  - name: scientist_dag_success_rate
+    sli: rate(polisyos_slo_dag_runs_total{status="success"}[30m]) / rate(polisyos_slo_dag_runs_total[30m])
+    threshold: ">= 0.95"
+    window: 28d
+    owner: team-scientist
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: scientist_p99_duration
+    sli: histogram_quantile(0.99, rate(polisyos_slo_dag_duration_seconds_bucket[30m]))
+    threshold: "< 300s"
+    window: 28d
+    owner: team-scientist
+    runbook: docs/runbooks/benchmark-regression-triage.md

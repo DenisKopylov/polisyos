@@ -145,20 +145,20 @@ class ResearchIntent(BaseModel):
 
 class ResearchIntentRef(ArtifactRef):
     """Artifact reference for the original Scholar research-intent request."""
-    kind: Literal["scholar.research_intent"] = "scholar.research_intent"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scholar.research_intent"
+    media_type: str = "application/json"
 
 
 class KnowledgeBundleRef(ArtifactRef):
     """Artifact reference for the normalized Scholar knowledge bundle output."""
-    kind: Literal["scholar.knowledge_bundle"] = "scholar.knowledge_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scholar.knowledge_bundle"
+    media_type: str = "application/json"
 
 
 class EnrichmentReportRef(ArtifactRef):
     """Enrichment report ref data model."""
-    kind: Literal["scholar.enrichment_report"] = "scholar.enrichment_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scholar.enrichment_report"
+    media_type: str = "application/json"
 
 
 class FreshnessStatus(str, Enum):

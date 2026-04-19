@@ -1,67 +1,74 @@
 # Scientist
 Related explanation: [Governance Model](../../explanation/governance-model.md).
 
-> Orchestration layer for workflow DAGs, governance passes, causal readiness, and policy-design search.
+Owner: `@scientist-owners`
+Backup owner: `@platform-owners`
+Source of truth: `src/polisyos/scientist/__init__.py`, `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/**`, `src/polisyos/scientist/nodes/**`, `src/polisyos/scientist/governance/**`, `src/polisyos/scientist/causal/validity.py`, `src/polisyos/scientist/agent/**`, `src/polisyos/scientist/search/**`, `src/polisyos/scientist/reliability_scorecard.py`, and the linked tests/tools on each page
 
-`polisyos.scientist` coordinates the end-to-end runtime around Foundry and IR artifacts. It assembles workflow specs, executes builtin nodes, persists experiment state, and applies governance before a decision packet is emitted.
+> Owner lane: `L6 Scientist`  
+> Type: Manual reference (not generated).  
+> Source of truth: `src/polisyos/scientist/__init__.py`, `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/**`, `src/polisyos/scientist/nodes/**`, `src/polisyos/scientist/governance/**`, `src/polisyos/scientist/causal/validity.py`, `src/polisyos/scientist/agent/**`, `src/polisyos/scientist/search/**`, `src/polisyos/scientist/reliability_scorecard.py`, and the linked tests/tools on each page.
 
-## Surface Map
+`polisyos.scientist` is the orchestration layer that turns an `ExperimentState`
+into a routed workflow run, executes builtin nodes against a CAS-backed
+execution context, applies governance, and publishes replayable decision
+artifacts.
 
-| Area | What it covers | Reference |
-|------|----------------|-----------|
-| Root facade | `run_experiment`, `ExperimentState`, observability accessors | This page |
-| Workflows | `causal_full` and `policy_design` DAG specs | [workflows.md](workflows.md) |
-| Agent search and reasoning | Supervisor/worker orchestration, Tree-of-Thought, LATS/MCTS, and offline-gated search policies | [agent-search-reasoning.md](agent-search-reasoning.md) |
-| Governance passes | 20+ builtin and shim validators, runtime filtering | [governance-passes.md](governance-passes.md) |
-| Builtin nodes | Causal node protocol, state reads/writes, planning nodes | [nodes.md](nodes.md) |
-| Causal runners | Bounds, proxy identification, transportability, strategic response | [causal.md](causal.md) |
-| Causal validity | Default-path sensitivity, ICP, proximal, recoverability, and PAG refinement bundle | [causal-validity.md](causal-validity.md) |
-| Calibration governance | Backtests, leaderboards, stress scenarios, validation bundles | [calibration-governance.md](calibration-governance.md) |
-| Governance accountability | Unified calibration, fairness, threshold, escalation, and model-card artifact | [governance-accountability.md](governance-accountability.md) |
-| Reliability scorecard | Required scenario, benchmark, and observability evidence for production readiness | [reliability-scorecard.md](reliability-scorecard.md) |
-| Remediation status | Repo-tracked Gate 0 matrix for workstream closure under strict Definition of Done rules | [remediation-status.md](remediation-status.md) |
-| Phase acceptance | Explicit Phase 0, Phase 1, and Phase 3 exit contracts used to sign off reliability and claim-closure work | [phase0-acceptance.md](phase0-acceptance.md) |
-| Frontier runtime | Feature-flag contract and rollout statuses for Phase 4 frontier capabilities | [frontier-runtime.md](frontier-runtime.md) |
-| WS-3A acceptance | Synthetic and semi-synthetic acceptance evidence for the claim-closed causal-validity default path | [causal-validity-acceptance.md](causal-validity-acceptance.md) |
-| Phase 3 acceptance | Claim-closure matrix for causal validity, accountability, and offline-gated search rollout | [phase3-acceptance.md](phase3-acceptance.md) |
+## Stable Facade
 
-## Public API
+| Export | Source | Role |
+|---|---|---|
+| `run_experiment` | `polisyos.scientist.api` | Top-level execution entrypoint. |
+| `ExperimentState` | `polisyos.scientist.engine.state` | Workflow state contract passed across nodes. |
+| `get_metrics` | `polisyos.core.observability` | Shared metrics factory exposed through the facade. |
+| `get_tracer` | `polisyos.core.observability` | Shared tracer factory exposed through the facade. |
 
-| Export | Role |
-|--------|------|
-| `run_experiment` | Execute a workflow spec against an `ExperimentState` |
-| `ExperimentState` | Immutable-ish workflow state passed across nodes |
-| `get_metrics` | Fetch Scientist / platform metrics emitters |
-| `get_tracer` | Fetch the OpenTelemetry tracer used during execution |
+`run_experiment()` rejects unknown top-level state keys, resolves observability,
+selects a workflow id through `resolve_workflow_id()`, and delegates execution
+to the workflow builder/runtime.
 
-## Workflow Shape
+## Workflow Surface
 
-```mermaid
-flowchart LR
-    A["Inputs / Trinity"] --> B["Workflow Spec"]
-    B --> C["Builtin Nodes"]
-    C --> D["Foundry / IR Artifacts"]
-    C --> E["Causal Readiness"]
-    D --> F["Governance Passes"]
-    E --> F
-    F --> G["Decision Packet / Reports"]
+The current routed workflow surface consists of five builtin workflow ids:
+
+| `workflow_id` | Primary module | Current role |
+|---|---|---|
+| `scientist_default` | `workflows/default.py` | Baseline governed simulation path. |
+| `scientist_discovery` | `workflows/discovery.py` | Discovery-only blueprint runtime without Foundry/governance execution. |
+| `scientist_causal_full` | `workflows/causal_full.py` | Serious/governed causal path with literature prior, graph reconciliation, readiness, transportability, and downstream governance. |
+| `scientist_policy_verified` | `workflows/policy_verified.py` | Verified-policy path without hierarchical search. |
+| `scientist_policy_design` | `workflows/policy_design.py` | Policy-design path with verified sourcing, hierarchical search, readiness, and translation/output bundle stages. |
+
+## Reference Map
+
+| Topic | Reference | Source of truth |
+|---|---|---|
+| Workflow engine, routing, and builtin DAGs | [workflows.md](workflows.md) | `src/polisyos/scientist/workflows/**`, `src/polisyos/scientist/api.py`, `tests/scientist/workflows/**`, `tests/scientist/test_workflow_selection.py` |
+| Builtin node contract and registry | [nodes.md](nodes.md) | `src/polisyos/scientist/nodes/**`, `src/polisyos/scientist/engine/protocol.py`, `tests/scientist/nodes/**` |
+| Governance registry and runtime pipeline | [governance-passes.md](governance-passes.md) | `src/polisyos/scientist/governance/**`, `pyproject.toml`, `tests/scientist/governance/**` |
+| Default-path causal-validity diagnostics | [causal-validity.md](causal-validity.md) | `src/polisyos/scientist/causal/validity.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, decision-packet tests |
+| Agent reasoning and advanced search rollout gates | [agent-search-reasoning.md](agent-search-reasoning.md) | `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/search/strategies/advanced_policy.py` |
+| Reliability scorecard and phase gates | [reliability-scorecard.md](reliability-scorecard.md) | `src/polisyos/scientist/reliability_scorecard.py`, `tools/ci/check_scientist_*.py`, `tests/scientist/test_reliability_scorecard.py` |
+
+## D1 To D2 Evidence Map
+
+| D1 phase | Current D2 reference anchor | Primary evidence |
+|---|---|---|
+| Phase 0 | [reliability-scorecard.md](reliability-scorecard.md), [workflows.md](workflows.md), [nodes.md](nodes.md) | `tools/ci/check_scientist_phase0_gate.py`, `tests/tools/test_scientist_phase0_gate.py` |
+| Phase 1 | [workflows.md](workflows.md), [nodes.md](nodes.md), [reliability-scorecard.md](reliability-scorecard.md) | `tools/ci/check_scientist_phase1_gate.py`, `tests/tools/test_scientist_phase1_gate.py`, `tests/scientist/integration/test_workflow_reliability_scenarios.py` |
+| Phase 2 | [workflows.md](workflows.md), [nodes.md](nodes.md), [reliability-scorecard.md](reliability-scorecard.md) | `tools/ci/check_scientist_phase2_ratchet.py`, `tests/tools/test_scientist_phase2_ratchet.py`, `tests/performance/test_scientist_runtime_paths.py` |
+| Phase 3 | [governance-passes.md](governance-passes.md), [causal-validity.md](causal-validity.md), [agent-search-reasoning.md](agent-search-reasoning.md) | governance, causal-evaluation, eval-harness, and advanced-policy tests cited on each page |
+| Phase 4 | [causal-validity.md](causal-validity.md), [agent-search-reasoning.md](agent-search-reasoning.md) | `frontier_runtime.py`, `tests/scientist/test_frontier_runtime.py`, `tests/scientist/search/test_benchmark_registry.py` |
+
+Historical planning material stays archived under `docs/archive/plans/SCIENTIST_AGENT_SOTA_ROADMAP.md` and is not part of the published factual reference surface.
+
+## Validation
+
+```bash
+uv run pytest tests/scientist/workflows/test_workflow_specs.py tests/scientist/test_workflow_selection.py -q
+uv run pytest tests/scientist/governance/test_pass_registry.py tests/scientist/test_reliability_scorecard.py -q
+uv run pytest tests/scientist/agent/test_reasoning.py tests/scientist/agent/test_eval_harness.py tests/scientist/search/strategies/test_advanced_policy.py -q
 ```
-
-## Key Subsystems
-
-| Submodule | Responsibility |
-|-----------|----------------|
-| `polisyos.scientist.workflows` | Declarative DAG specs and required binds |
-| `polisyos.scientist.governance` | Pass registry, validation pipeline, calibration review |
-| `polisyos.scientist.causal` | Readiness and execution runners over observation-plane bundles |
-| `polisyos.scientist.nodes.builtins` | Production node implementations used by workflow DAGs |
-| `polisyos.scientist.compute.advanced_methods` | C7 advanced artifact suite for factor, survival, sensitivity, and bilevel bundles |
-
-## Advanced Compute
-
-| API | Output artifacts |
-|-----|------------------|
-| `run_c7_advanced_suite()` | Factor embeddings, cell prototypes, bilevel bundle, Heckman correction, survival hazards, Sobol diagnostics, specification-curve diagnostics |
 
 ## API Reference
 
@@ -70,7 +77,3 @@ flowchart LR
 ::: polisyos.scientist.api
 
 ::: polisyos.scientist.engine.state
-
-::: polisyos.scientist.remediation_status
-
-::: polisyos.scientist.frontier_runtime

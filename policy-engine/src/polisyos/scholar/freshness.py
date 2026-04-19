@@ -20,6 +20,10 @@ _DEFAULT_STALENESS_DAYS = 30
 _DEFAULT_EXPIRY_DAYS = 90
 _DEFAULT_COOLDOWN_SECONDS = 3600
 
+
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
 _DOMAIN_DAYS_DEFAULTS: dict[str, tuple[int, int, int]] = {
     "fiscal": (90, 365, 3600),
     "labor": (30, 90, 3600),
@@ -208,7 +212,7 @@ def emit_freshness_metrics(
     metrics: MetricsRegistry | Any | None = None,
 ) -> None:
     """Publish the freshness verdict to the configured metrics backend."""
-    resolved_metrics = metrics if metrics is not None else get_metrics()
+    resolved_metrics = metrics if metrics is not None else _default_metrics()
     record = getattr(resolved_metrics, "record_knowledge_freshness_check", None)
     if callable(record):
         record(
@@ -262,7 +266,7 @@ def timed_freshness_check(
     )
     elapsed = time.perf_counter() - started
 
-    resolved_metrics = metrics if metrics is not None else get_metrics()
+    resolved_metrics = metrics if metrics is not None else _default_metrics()
     duration_metric = getattr(resolved_metrics, "knowledge_bundle_check_duration_seconds", None)
     if duration_metric is not None and hasattr(duration_metric, "record"):
         duration_metric.record(elapsed, {"status": result.status.value})

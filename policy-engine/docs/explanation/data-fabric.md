@@ -1,105 +1,60 @@
-# Data Fabric Architecture
+# Data Fabric
 
-## Overview
+Related reference: [Fabric index](../reference/fabric/index.md), [data plane](../reference/fabric/data-plane.md), [schema compatibility](../reference/fabric/schema-compatibility.md), [lineage](../reference/fabric/lineage.md), [quality](../reference/fabric/quality.md), [time travel](../reference/fabric/time-travel.md).
+Related contracts: [E2.2 world store and world event](../contracts/E2_2_FABRIC_WORLD_STORE_EMIT_FACTS_WORLD_EVENT.md), [E2.3 world DuckDB materialization](../contracts/E2_3_FABRIC_WORLD_DUCKDB_MATERIALIZATION_V1_0.md), [E2.5 docs pipeline](../contracts/E2_5_FABRIC_DOCS_PIPELINE_V1_0.md), [E2.6 claims pipeline](../contracts/E2_6_FABRIC_CLAIMS_PIPELINE_V1_0.md).
+Related ADRs: [ADR-0021](../adr/0021-connector-schema-contracts-and-storage-port.md), [ADR-0056](../adr/0056-wgi-wdi-fabric-connector-wvs-new.md), [ADR-0107](../adr/0107-ir-analytics-normalization-and-schema-compatibility.md).
+Evidence: `tests/fabric/data_plane/test_orchestrator.py`, `tests/fabric/data_plane/test_streaming_runtime.py`, `tests/fabric/test_lineage.py`, `tests/tools/test_fabric_schema_governance.py`, [cache rebuild storm runbook](../runbooks/cache-rebuild-storm.md), [Fabric quarantine/DLQ runbook](../runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md).
 
-The Data Fabric is the ingestion and evidence substrate that lets PolicyOS treat heterogeneous public data sources as one policy-analysis surface. Its job is not only to fetch tables, but to normalize connection policy, attach provenance, persist artifacts in CAS, materialize facts into the world store, and hand stable inputs to downstream Foundry and Scientist workflows.
+Fabric is the platform's evidence and world-state layer. It turns heterogeneous
+external sources into governed artifacts, lineage graphs, world facts, and
+queryable snapshots that other layers can trust.
 
-At the connector boundary, the Fabric hides protocol differences behind reusable profiles and a common connector runtime. REST, SDMX, CKAN, Socrata, Opendatasoft, and SPARQL sources are all represented through `SourceProfile`, `ConnectionConfig`, connector metadata, and typed fetch results rather than through one-off client code.
-
-## Connector Pipeline
+## Connector Ingestion Flow
 
 ```mermaid
 flowchart LR
-  A["SourceProfile"] --> B["resolve_connection_config()"]
-  A --> C["resolve_execution_policy()"]
-  B --> D["Connector.fetch() or fetch_async()"]
-  C --> D
-  D --> E["CAS Artifact"]
-  E --> F["World Store"]
-  F --> G["Data Plane"]
+    Profile["SourceProfile and connector contract"] --> Resolve["Connection config and execution policy"]
+    Resolve --> Fetch["Connector fetch / record / replay / streaming window"]
+    Fetch --> Validate["Schema, transform, quality, and quarantine checks"]
+    Validate --> Persist["CAS artifacts and data-plane state"]
+    Persist --> World["World facts, materializations, and snapshots"]
+    World --> Downstream["Foundry bindings, Scientist workflows, runtime queries"]
 ```
 
-The same profile can therefore influence both transport wiring and runtime execution policy. Connection config answers "how do I talk to this source?" Execution policy answers "how aggressively, how concurrently, and through which transport should I do it?"
+The contract boundary starts before a request is sent. Profiles, connector
+contracts, and execution policy decide transport, concurrency, cache behavior,
+and compatibility posture up front.
 
-## Connector Protocol
+## Lineage And Schema Compatibility Flow
 
-The shared runtime for HTTP-backed sources lives in ``HTTPConnectorBase`` (`../../src/polisyos/fabric/connectors/sources/http_base.py`).
+```mermaid
+flowchart TB
+    Contract["Connector contract and schema snapshot"] --> Gate["Schema governance gate"]
+    Gate --> Ingest["Ingestion and transform pipeline"]
+    Ingest --> Lineage["FabricLineageTracker"]
+    Lineage --> Materialize["World tables / claims / facts / query outputs"]
+    Materialize --> Impact["Impact analysis, OpenLineage export, replay and recovery"]
+```
 
-- It standardizes `connect()`, `disconnect()`, session reuse, resilience wrapping, retry policy, rate limiting, and authenticated header construction.
-- Connectors implement `fetch()` and can additionally expose `describe_dataset()`, `fetch_async()`, and `poll_async_fetch()` when the source supports capability inspection or large asynchronous extractions.
-- Metadata is surfaced through `ConnectorMetadataSpec`, including trust level and quality tier. For example, authoritative public-statistics sources are modeled as `TrustLevel.AUTHORITATIVE` with `QualityTier.GOLD`.
+This is why schema drift and lineage are documented together: contract changes
+are not local to connectors once downstream world tables and decision flows
+depend on them.
 
-The current source package exports 14 production connector classes:
+## Fabric Subsystems
 
-- `WorldBankConnector`
-- `WVSConnector`
-- `EurostatConnector`
-- `UKONSConnector`
-- `SDMXSourceConnector`
-- `CKANCatalogConnector`
-- `CKANResourceConnector`
-- `SocrataConnector`
-- `OpendatasoftConnector`
-- `RestJsonConnector`
-- `SPARQLConnector`
-- `WHOConnector`
-- `UNPDConnector`
-- `UNESCOUISConnector`
+| Subsystem | Job | Default consumer |
+|---|---|---|
+| Connectors and profiles | normalize source access and fetch semantics | Fabric ingestion/runtime |
+| Data plane | record, replay, streaming, quarantine, cursor state, semantic diff | operators and workflow automation |
+| Lineage and quality | trace source-to-world relationships and data fitness | Scientist, audits, runbooks |
+| World and time travel | materialize facts and query snapshots over time | runtime read paths and recovery flows |
 
-## Profile System
+## Why Fabric Is Separate
 
-The profile layer is where recent expansion is most visible.
+- Runtime needs a governed read surface, not direct connector-specific logic.
+- Foundry needs stable input bindings and snapshot refs, not transport code.
+- Scientist needs replayable evidence, lineage, and readiness inputs, not raw
+  source responses.
 
-- ``SourceProfile`` (`../../src/polisyos/fabric/connectors/profiles/models.py`) currently exposes more than 30 fields, covering base URL, auth policy, retries, concurrency, transport preference, bulk-download hints, content and availability constraints, and discovery hints.
-- ``SourceExecutionPolicy`` (`../../src/polisyos/fabric/connectors/profiles/models.py`) is the normalized runtime view derived from those fields.
-- ``resolve_connection_config()`` (`../../src/polisyos/fabric/connectors/profiles/resolver.py`) turns a profile into connector-ready transport config.
-- ``resolve_execution_policy()`` (`../../src/polisyos/fabric/connectors/profiles/resolver.py`) converts the same profile into runtime limits and transport policy.
-
-The new execution-policy concepts are especially important.
-
-- Dual transport: `preferred_core_transport` and `preferred_backfill_transport` let the same source favor one path for small interactive queries and another for bulk history loads.
-- Async support: `supports_async_fetch`, `supports_async_large_responses`, `max_sync_cells`, and `max_async_cells` let planners decide when to switch away from synchronous fetches.
-- Caching: `capability_cache_ttl_hours`, `negative_cache_ttl_hours`, and `soft_negative_cache_ttl_hours` normalize how capability checks are memoized.
-- Concurrency: `max_concurrency`, `core_group_limit`, and `backfill_group_limit` prevent one source from overwhelming the runtime.
-
-## Built-in Profiles
-
-The current repository snapshot defines 32 built-in `SourceProfile` instances in ``builtin_profiles.py`` (`../../src/polisyos/fabric/connectors/profiles/builtin_profiles.py`). The broader documentation plan mentions a larger future catalog, but the code in this tree currently groups profiles like this:
-
-- Core production sources: `worldbank_wdi`, `wvs_wave7`, `eurostat_public`, `ukons_public`, `who_gho`, `unpd_dataportal`, `unesco_uis_public`
-- SDMX agencies: `ecb_sdmx`, `oecd_sdmx`, `imf_sdmx`, `bis_sdmx`, `ilo_sdmx`, `fao_sdmx`, `unsd_sdmx`
-- CKAN and portal-style open data: `data_gov_uk`, `data_gov_us`, `data_gov_ua`, `data_gov_ro`, `data_gov_md`, `eu_open_data`
-- Socrata and Opendatasoft portals: `nyc_opendata`, `chicago_opendata`, `opendatasoft_public`, `paris_opendata`
-- SPARQL sources: `wikidata_sparql`, `dbpedia_sparql`
-- REST wave 3 additions: `data_gov_pl`, `usgs_earthquake`, `openaq_v2`, `open_meteo`, `eia_api`, `nvd_cve`
-
-## Async and Bulk Fetch
-
-Large-source behavior is no longer uniform.
-
-- The connector base defines `AsyncFetchLease`, so large responses can become resumable leases instead of long blocking calls.
-- ``EurostatConnector`` (`../../src/polisyos/fabric/connectors/sources/eurostat.py`) uses `describe_dataset()` to emit a `DatasetCapabilitySnapshot`, chooses between sync and async paths, and can poll asynchronous extraction jobs.
-- ``SDMXSourceConnector`` (`../../src/polisyos/fabric/connectors/sources/sdmx_source.py`) supports time filters, dimension filters, dataset description, and multi-provider routing through `X-SDMX-*` profile headers.
-
-Architecturally, this means async execution is not a bolt-on optimization. It is encoded at the profile and connector-protocol level so planners can make the choice before a request starts.
-
-## Data Quality
-
-The Fabric does not treat all sources as equally trustworthy.
-
-- `ConnectorMetadataSpec` carries source trust and quality signals at connector level.
-- ``SourceConfidenceTier`` (`../../src/polisyos/ir/observation/contracts.py`) and ``MeasurementTrustTier`` (`../../src/polisyos/ir/observation/measurement.py`) are consumed downstream when observation records are weighted for calibration and causal routing.
-- Contract validation lives under ``fabric/connectors/contracts/`` (`../../src/polisyos/fabric/connectors/contracts/`), so schemas and connector payloads can be checked before they become analysis inputs.
-
-This is what lets the system distinguish between authoritative core signals, validated derived feeds, and exploratory anchors instead of collapsing them into one generic "dataset loaded" state.
-
-## CAS, Provenance, and the World Store
-
-Fabric persistence is built around content-addressable artifacts and provenance-aware fact materialization.
-
-- CAS persistence is used broadly across Fabric evidence and world-store helpers.
-- Provenance export lives in ``fabric/provenance/export_provo.py`` (`../../src/polisyos/fabric/provenance/export_provo.py`) and supports PROV-O / PROV-JSON style interchange.
-- The world-store layer under ``fabric/world/store/`` (`../../src/polisyos/fabric/world/store/`) materializes normalized claims, facts, provenance edges, and events.
-- The data-plane layer under ``fabric/data_plane/`` (`../../src/polisyos/fabric/data_plane/`) adds watermarks, replay stores, semantic diffs, and orchestration on top of those persisted artifacts.
-
-In other words, the Fabric is not only a connector zoo. It is the ingestion-to-evidence bridge that makes downstream policy analysis reproducible, provenance-aware, and auditable.
+The result is a data layer that treats ingestion, compatibility, lineage, and
+recovery as first-class contracts instead of hidden implementation details.

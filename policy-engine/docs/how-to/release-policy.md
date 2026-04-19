@@ -6,6 +6,28 @@ rules that keep them understandable.
 Released versions are immutable. If something changes after release, it ships
 as a new version rather than replacing an existing artifact.
 
+## Inputs
+
+- a change that may affect package, schema, runtime API, generated frontend
+  contract, or deprecation posture;
+- the current release fragment set and versioned source-of-truth files;
+- a clear compatibility classification for the affected surface.
+
+## Output
+
+- the correct versioning/deprecation decision for the change;
+- the required release-note, migration-guide, and docs follow-up for that
+  decision.
+
+## Commands
+
+```bash
+cd policy-engine
+uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
+uv run polisyos-tools workspace ci-parity --skip-browser
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+```
+
 ## Release Prep Workflow
 
 Before a release tag is created:
@@ -16,7 +38,17 @@ Before a release tag is created:
    `release-fragments/releases/<version>/`.
 3. Review the generated release notes for compatibility, migration,
    schema/runtime/API, and limitation coverage.
-4. Cut the signed `v<version>` tag only after that immutable snapshot exists.
+4. Re-run the docs drift gate and confirm the rollback path in
+   [`docs/runbooks/docs-publication-failure.md`](../runbooks/docs-publication-failure.md):
+
+   ```bash
+   uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
+   ```
+
+5. If docs publication fails after the release candidate is cut, revert or
+   hotfix the docs/nav/release-doc change set before retrying publication; do
+   not bypass strict docs validation as a permanent workaround.
+6. Cut the signed `v<version>` tag only after that immutable snapshot exists.
 
 The release workflow validates the versioned snapshot, not the mutable
 `unreleased/` directory.
@@ -118,6 +150,23 @@ Every deprecation must be announced in all relevant places:
 - warnings, compatibility notes, or operator-facing messaging when the runtime
   can surface them safely.
 
+## Tooling Deprecation Requirements
+
+Commands exposed through `polisyos-tools` are operator-facing surfaces when
+they appear in docs, workflows, or release runbooks. Deprecating or quarantining
+one requires:
+
+- `status`, `replacement`, and `reason` metadata in `tools.registry`;
+- regenerated `docs/reference/tools.md`;
+- removal from CI workflows unless the job is explicitly testing the
+  compatibility wrapper;
+- a release fragment when the command is part of an operator or contributor
+  workflow.
+
+Deprecated and quarantined commands are not normal golden paths. They require
+explicit operator intent at the CLI boundary and must point to the replacement
+command in both runtime messaging and generated reference docs.
+
 ## Release Notes Curation Requirements
 
 Each release snapshot must cover all of the following sections across the
@@ -176,3 +225,21 @@ Use them together:
 
 That classification drives both the version bump and the migration-guide
 expectation.
+
+## Rollback / Mitigation
+
+- If the release draft chooses the wrong compatibility class, fix the
+  classification, fragments, and docs before tagging anything.
+- If release docs or migration notes are incomplete, stop the release candidate
+  rather than cutting a tag and planning to "fill it in later".
+- If runtime or schema checks disagree with the intended version story, treat
+  that as a contract mismatch and resolve it before publication.
+
+## Troubleshooting
+
+- If you are unsure whether a migration guide is required, bias toward writing
+  one whenever operators or downstream consumers must change behavior.
+- If a generated frontend/client artifact changed because of a runtime contract
+  update, do not classify that as docs-only or internal-only work.
+- If version bump arguments depend on unsupported deep-import or internal-only
+  paths, revisit the public-surface classification first.

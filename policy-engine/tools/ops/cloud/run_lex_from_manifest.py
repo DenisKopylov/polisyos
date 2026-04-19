@@ -155,6 +155,11 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--shard-index", type=int, default=0)
+    parser.add_argument(
+        "--manifest-is-pre-sharded",
+        action="store_true",
+        help="Treat the manifest as already assigned to this shard and disable hash-based shard filtering.",
+    )
     parser.add_argument("--clean-output", action="store_true")
     parser.add_argument("--resume", action="store_true")
 
@@ -297,6 +302,7 @@ def _build_config(args: argparse.Namespace) -> BatchConfig:
         spo_adaptive_rate_max_scale=args.spo_adaptive_rate_max_scale,
         stages=stages,
         resume=args.resume,
+        manifest_is_pre_sharded=args.manifest_is_pre_sharded,
         xml_parse_chunk=args.xml_parse_chunk,
         structure_workers=args.structure_workers,
         structure_enable_paragraphs=not args.disable_structure_paragraphs,

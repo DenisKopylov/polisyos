@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.authz import AuthzInput
@@ -34,20 +34,25 @@ from polisyos.runtime.http.services.review_collaboration import (
     ReviewCollaborationHub,
 )
 
-try:  # pragma: no cover - optional runtime dependency
-    APIRouter: Any | None
-    Query: Any | None
-    WebSocket: Any
-    WebSocketDisconnect: Any
+if TYPE_CHECKING:
     from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
-except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None
-    Query = None
-    WebSocket = Any
-    WebSocketDisconnect = Exception
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
+    except ModuleNotFoundError:  # pragma: no cover
+        APIRouter = cast("Any", None)
+        Query = cast("Any", None)
+        WebSocket = cast("Any", Any)
+        WebSocketDisconnect = cast("Any", Exception)
 
 
-router = APIRouter(prefix="/api/v1/review", tags=["review-collaboration"]) if APIRouter else None
+def _build_router() -> APIRouter:
+    if APIRouter is None:  # pragma: no cover - runtime dependency guard
+        raise RuntimeError("runtime HTTP routes require FastAPI to be installed")
+    return APIRouter(prefix="/api/v1/review", tags=["review-collaboration"])
+
+
+router = _build_router()
 _VALID_CHANNELS = {"review.cursor", "review.lock", "review.presence"}
 
 

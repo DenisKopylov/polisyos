@@ -756,3 +756,12 @@ Import cycles, которые уже есть, не должны ухудшат�
 
 - import gate: `python3 tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml`
 - (опционально) fail on cycles (не требование E1.4): `python3 tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml --fail-on-cycles`
+
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 0 canon/CAS hardening and Phase 1 schema compatibility |
+| Contract tests | `tests/ir/test_canon_hardening.py`, `tests/contract/test_golden_record_ids.py`, `tests/core/artifacts/test_ir_adapter.py`, `tests/contract/test_ir_migrations.py` |
+| Schema snapshots | `schemas/snapshots/ir/fact.schema.json`, `schemas/snapshots/ir/fact_segment_manifest.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

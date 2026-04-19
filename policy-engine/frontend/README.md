@@ -1,83 +1,87 @@
-# `frontend/` — Runtime API UI слой
+# Frontend (`frontend/`)
 
-`frontend/` содержит UI-поверхности для Runtime API v1:
-- основная рабочая панель (`runtime-dashboard`);
-- референсный статический shell для быстрой диагностики (`runtime-reference-shell`);
-- сгенерированный JS/TS клиент (`runtime-api-client`), на котором работает reference shell.
+## Purpose
 
-## Роль в системе
+`frontend/` is the Runtime API consumer layer for PolicyOS. It keeps UI work
+contract-first: frontend packages talk to `polisyos.runtime.http` over HTTP and
+generated OpenAPI artifacts, not by reading CAS, local databases, or runtime
+filesystem state directly.
 
-Директория связывает backend-контракт OpenAPI с реальными UI-сценариями:
-- наблюдаемость по run/artifact/debug/workflow;
-- контрольные операции control-plane (запуск run, ingest/discovery/promotions, Lex pipeline);
-- единый API-first подход без прямого чтения CAS/файлов/БД из frontend.
+The directory contains three surfaces:
 
-## Состав директории
+- [`runtime-dashboard/`](runtime-dashboard/README.md) — the main React/Vite
+  operator UI.
+- [`runtime-reference-shell/`](runtime-reference-shell/README.md) — a static
+  diagnostics shell for fast manual checks.
+- [`runtime-api-client/`](runtime-api-client/README.md) — the generated JS/TS
+  client consumed by the reference shell and other lightweight integrations.
 
-| Директория | Назначение |
-| --- | --- |
-| `frontend/runtime-dashboard/` | React 18 + TypeScript + Vite приложение (основной UI runtime и control-plane) |
-| `frontend/runtime-reference-shell/` | Статический reference UI без сборки (`index.html` + `app.js` + `styles.css`) |
-| `frontend/runtime-api-client/` | Сгенерированный `RuntimeApiClient` (`runtimeApiClient.ts/js`) для JS/TS-интеграций |
+## Where to Start
 
-## Поток контрактов и генерации
+- Start here for contributor workflow:
+  [`../docs/how-to/onboarding/frontend-engineer.md`](../docs/how-to/onboarding/frontend-engineer.md)
+- Start here for the main app:
+  [`runtime-dashboard/README.md`](runtime-dashboard/README.md)
+- Start here for the generated contract surfaces:
+  [`runtime-api-client/README.md`](runtime-api-client/README.md)
+- Start here for the canonical backend contract:
+  [`../schemas/runtime_api_v1.openapi.json`](../schemas/runtime_api_v1.openapi.json)
+- Start here for the backend implementation boundary:
+  [`../src/polisyos/runtime/http/README.md`](../src/polisyos/runtime/http/README.md)
 
-```text
-src/polisyos/runtime/http/* (FastAPI Runtime API v1)
-  -> tools/runtime/export_runtime_openapi.py
-  -> schemas/runtime_api_v1.openapi.json
-      -> tools/runtime/generate_runtime_client.py
-      -> frontend/runtime-api-client/runtimeApiClient.ts + runtimeApiClient.js
-      -> frontend/runtime-dashboard/scripts/generate-api-client.sh
-      -> frontend/runtime-dashboard/src/api/types.ts
-```
+## Public Entrypoints
 
-## Архитектурные границы
+- Dashboard browser entry:
+  [`runtime-dashboard/src/main.tsx`](runtime-dashboard/src/main.tsx)
+- Dashboard route tree:
+  [`runtime-dashboard/src/app/routes/routes.tsx`](runtime-dashboard/src/app/routes/routes.tsx)
+- Dashboard generated API types:
+  [`runtime-dashboard/src/api/types.ts`](runtime-dashboard/src/api/types.ts)
+- Static reference shell:
+  [`runtime-reference-shell/index.html`](runtime-reference-shell/index.html)
+- Generated runtime client:
+  [`runtime-api-client/runtimeApiClient.ts`](runtime-api-client/runtimeApiClient.ts)
 
-- Frontend работает только через HTTP API, без доступа к `.polisyos/runs`, CAS и локальным БД.
-- `runtime-reference-shell` использует только сгенерированный `RuntimeApiClient`.
-- `runtime-dashboard` использует `openapi-fetch` + generated types + React Query hooks; capability manifest идёт через тот же generated OpenAPI contract.
-- Для runtime read-paths в dashboard применяются `zod`-валидаторы; control-plane вызовы типизированы из OpenAPI.
+## Dependencies
 
-## Связь с другими директориями
+- Depends on:
+  [`../schemas/runtime_api_v1.openapi.json`](../schemas/runtime_api_v1.openapi.json),
+  [`../src/polisyos/runtime/http/`](../src/polisyos/runtime/http/),
+  [`../tools/runtime/export_runtime_openapi.py`](../tools/runtime/export_runtime_openapi.py),
+  [`../tools/runtime/generate_runtime_client.py`](../tools/runtime/generate_runtime_client.py)
+- Depended on by:
+  frontend onboarding, runtime operator flows, frontend contract checks, and
+  manual API diagnostics without opening the docs site
 
-- `src/polisyos/runtime/` — реализация Runtime API.
-- `src/polisyos/core/contracts/runtime.py` — основные runtime DTO.
-- `schemas/runtime_api_v1.openapi.json` — канонический контракт для frontend-генерации.
-- `tools/runtime/export_runtime_openapi.py` — экспорт OpenAPI.
-- `tools/runtime/generate_runtime_client.py` — генерация `runtimeApiClient.ts/js`.
-- `frontend/runtime-dashboard/scripts/generate-api-client.sh` — генерация `src/api/types.ts`.
+## Common Commands
 
-## Локальный запуск
+- `cd frontend/runtime-dashboard && npm run generate:api`
+  `smoke-tested 2026-04-17`
+- `cd frontend/runtime-dashboard && npm run dev`
+  `conceptual/manual; requires a running Runtime API or VITE_RUNTIME_API_URL`
+- `cd frontend/runtime-dashboard && npm run preview`
+  `conceptual/manual; run after npm run build`
+- `cd frontend/runtime-reference-shell && python3 -m http.server 4173`
+  `smoke-tested 2026-04-17`
 
-Из корня `policy-engine/` сначала поднимите Runtime API:
+## Test And Verification
 
-```bash
-PYTHONPATH=src uv run --extra runtime-http python - <<'PY'
-from polisyos.runtime.http.app import create_runtime_api_app
-import uvicorn
+- `cd frontend/runtime-dashboard && npm run typecheck`
+  `smoke-tested 2026-04-17`
+- `cd frontend/runtime-dashboard && npm run test:contracts`
+  `smoke-tested 2026-04-17`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+  `smoke-tested 2026-04-17`
+- `curl -I http://127.0.0.1:4173/index.html`
+  `smoke-tested 2026-04-17 while serving runtime-reference-shell locally`
 
-app = create_runtime_api_app()
-uvicorn.run(app, host="127.0.0.1", port=8000)
-PY
-```
+## Reference Docs
 
-Запуск dashboard:
+- [`../docs/how-to/onboarding/frontend-engineer.md`](../docs/how-to/onboarding/frontend-engineer.md)
+- [`../docs/reference/api/index.md`](../docs/reference/api/index.md)
+- [`../docs/reference/api/control.md`](../docs/reference/api/control.md)
+- [`../docs/reference/api/runs.md`](../docs/reference/api/runs.md)
+- [`../docs/reference/api/artifacts.md`](../docs/reference/api/artifacts.md)
+- [`runtime-dashboard/src/README.md`](runtime-dashboard/src/README.md)
 
-```bash
-cd frontend/runtime-dashboard
-npm ci
-npm run generate:api
-npm run dev
-```
-
-Запуск reference shell:
-
-```bash
-cd frontend/runtime-reference-shell
-python -m http.server 4173
-```
-
-UI адреса:
-- Dashboard: `http://127.0.0.1:5173`
-- Reference shell: `http://127.0.0.1:4173`
+Last updated: 2026-04-17

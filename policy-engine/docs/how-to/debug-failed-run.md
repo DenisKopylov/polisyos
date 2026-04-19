@@ -4,6 +4,28 @@ Related reference: [Runs API](../reference/api/runs.md). Related how-to: [Use Co
 
 > Эта страница для инженеров и операторов, которым нужно быстро локализовать failure: понять, это проблема orchestration, данных, governance или control-plane инфраструктуры.
 
+Freshness: 2026-04-17.
+
+## Вход
+
+- `job_id` и/или `run_id`
+- bearer token, если auth path включён
+- доступ к runtime URL и связанным runbooks
+
+## Выход
+
+- локализованный failing layer: control plane, runtime DAG, data/lineage или governance
+- минимальный набор endpoint-ов для следующего шага
+- решение: лечить входы, продолжать triage, replay/reissue или идти в rollback runbook
+
+## Команды
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/control/jobs/$JOB_ID"
+curl -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/runs/$RUN_ID/timeline"
+curl -N -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/runs/$RUN_ID/live"
+```
+
 Лучший practical подход в PolicyOS: не начинать с исходников, а идти по наблюдаемым слоям сверху вниз.
 
 ## 1. Начните с job state
@@ -117,7 +139,7 @@ Live stream особенно полезен для:
 - если failure после checkpoint, выгоднее продолжать triage от lineage и replay-ready артефактов;
 - если failure выглядит nondeterministic, сравнивайте checkpoint/ref trail между двумя прогонами.
 
-## 8. Быстрая decision tree
+## 8. Troubleshooting
 
 1. `job failed` и нет worker heartbeat:
    смотрите control-plane backend и worker leases.
@@ -127,6 +149,15 @@ Live stream особенно полезен для:
    смотрите `timeline`, `nodes`, `workflow`.
 4. `unexpected result` при успешном завершении:
    смотрите `lineage`, входные артефакты и replay trail.
+
+## Откат
+
+Если failure уже влияет на canary или production path, прекращайте локальный
+forensics-only режим и переходите к операторскому откату:
+
+- [Runtime API Outage](../runbooks/runtime-api-outage.md)
+- [Replay Or Restore](../runbooks/replay-or-restore.md)
+- [Canary Rollback Or Promotion Failure](../runbooks/canary-rollback-or-promotion-failure.md)
 
 ## Что дальше
 

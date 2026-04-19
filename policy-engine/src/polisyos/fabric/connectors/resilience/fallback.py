@@ -33,6 +33,10 @@ T = TypeVar("T")
 DataT = TypeVar("DataT")
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 def _utc_now() -> datetime:
     return datetime.now(UTC)
 
@@ -264,7 +268,7 @@ class FallbackChain[DataT]:
         if not strategies:
             raise ValueError("Fallback chain requires at least one strategy")
         self.strategies = strategies
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
         self._tracer = tracer or DEFAULT_TRACER
 
         logger.debug(

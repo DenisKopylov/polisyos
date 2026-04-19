@@ -63,7 +63,11 @@ def test_operational_monitor_emits_one_alert_per_metric_family() -> None:
     ]
 
 
-def test_operational_monitor_accepts_injected_metrics() -> None:
+def test_operational_monitor_accepts_injected_metrics(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "polisyos.scientist.engine.operational_monitoring._default_metrics",
+        lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
+    )
     metrics = _FakeMetrics()
     monitor = ScientistOperationalMonitor(max_recent_alerts=2, metrics=metrics)
 

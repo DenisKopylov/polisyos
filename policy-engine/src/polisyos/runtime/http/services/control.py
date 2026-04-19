@@ -100,6 +100,14 @@ from .control_worker import ControlWorker
 
 logger = get_logger(__name__)
 
+
+def _default_runtime_metrics() -> Any:
+    return get_metrics()
+
+
+def _default_runtime_tracer() -> Any:
+    return get_tracer()
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -480,8 +488,8 @@ class ControlPlaneService:
 
         self._cas_root = cas_root
         self._core_runs_root = core_runs_root
-        self._metrics = metrics or get_metrics()
-        self._tracer = tracer or get_tracer()
+        self._metrics = metrics if metrics is not None else _default_runtime_metrics()
+        self._tracer = tracer if tracer is not None else _default_runtime_tracer()
         self._policy_resolver = policy_resolver or RuntimeExecutionPolicyResolver.from_env()
         if registry_providers is None:
             raise ValueError(
@@ -1411,6 +1419,13 @@ class ControlPlaneService:
             from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent, MockDrafterAgent
             from polisyos.scientist.agent.formalizer import LLMFormalizerAgent, MockFormalizerAgent
             from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
+            from polisyos.scientist.agent.protocols import (
+                CriticAgent,
+                DataNeedExtractorAgent,
+                DrafterAgent,
+                FormalizerAgent,
+                PIAgent,
+            )
             from polisyos.scientist.engine.iteration_state_machine import transition
             from polisyos.scientist.llm_cycle import (
                 build_default_execution_plan,
@@ -1682,6 +1697,11 @@ class ControlPlaneService:
                 elif not allow_mock_fallback:
                     raise RuntimeError("mock_fallback_disallowed")
 
+                pi: PIAgent
+                data_need_extractor: DataNeedExtractorAgent
+                drafter: DrafterAgent
+                formalizer: FormalizerAgent
+                critic: CriticAgent
                 if llm_client is None:
                     pi = MockPIAgent()
                     data_need_extractor = MockDataNeedExtractorAgent()
@@ -3034,7 +3054,8 @@ class ControlPlaneService:
                 "capability_manifest_ref": current_capability_manifest_ref,
             }
 
-        return cast("dict[str, Any]", run_coro_sync(_agent_pipeline()))
+        result: dict[str, Any] = run_coro_sync(_agent_pipeline())
+        return result
 
     # ---- Data ingestion ---------------------------------------------------
 

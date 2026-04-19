@@ -1,4 +1,4 @@
-"""Public fabric quality module API."""
+"""Compute Fabric data-quality indicators, levels, and simulation fitness scores."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
@@ -22,7 +22,12 @@ from polisyos.fabric.temporal import parse_datetime_utc, utc_age, utc_now
 logger = get_logger(__name__)
 
 if TYPE_CHECKING:
+    from polisyos.core.observability import MetricsRegistry
     from polisyos.fabric.connectors.quality.report import DataQualityReport
+
+
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
 
 
 def _compute_staleness_days(last_updated: datetime | None, *, context: str) -> int:
@@ -404,6 +409,7 @@ def compute_quality_indicators(
     last_updated: datetime | None = None,
     expected_row_count: int | None = None,
     baseline_columns: set[str] | None = None,
+    metrics: MetricsRegistry | None = None,
 ) -> QualityIndicators:
     """
     Compute quality indicators from a pandas DataFrame.
@@ -475,9 +481,9 @@ def compute_quality_indicators(
         outlier_ratio=outlier_ratio,
         computation_method="pandas",
     )
-    metrics = get_metrics()
-    if getattr(metrics, "record_fabric_quality_score", None):
-        metrics.record_fabric_quality_score(
+    resolved_metrics = metrics if metrics is not None else _default_metrics()
+    if getattr(resolved_metrics, "record_fabric_quality_score", None):
+        resolved_metrics.record_fabric_quality_score(
             metric_id=metric_id,
             score=_quality_score_from_indicators(indicators),
         )
@@ -491,6 +497,7 @@ def compute_quality_from_duckdb(
     *,
     last_updated: datetime | None = None,
     expected_row_count: int | None = None,
+    metrics: MetricsRegistry | None = None,
 ) -> QualityIndicators:
     """
     Compute quality indicators directly from DuckDB (for large datasets).
@@ -559,9 +566,9 @@ def compute_quality_from_duckdb(
             outlier_ratio=0.0,
             computation_method="duckdb",
         )
-        metrics = get_metrics()
-        if getattr(metrics, "record_fabric_quality_score", None):
-            metrics.record_fabric_quality_score(
+        resolved_metrics = metrics if metrics is not None else _default_metrics()
+        if getattr(resolved_metrics, "record_fabric_quality_score", None):
+            resolved_metrics.record_fabric_quality_score(
                 metric_id=metric_id,
                 score=_quality_score_from_indicators(indicators),
             )

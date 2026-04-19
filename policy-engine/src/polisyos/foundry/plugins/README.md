@@ -1,38 +1,77 @@
 # Plugins (`polisyos.foundry.plugins`)
 
-`plugins` - domain-plugin layer over `agent_sim` for composable multi-domain
-simulations and training flows.
+`polisyos.foundry.plugins` is the domain-plugin layer on top of
+`polisyos.foundry.agent_sim`: it packages mechanisms, rewards, objectives,
+observations, and composite orchestration into reusable simulation domains.
 
-## Role in System
+- Last updated: 2026-04-17
 
-- **Depends on:** `polisyos.foundry.agent_sim`, `polisyos.foundry.contracts`
-- **Used by:** domain-specific simulation scenarios and plugin-driven orchestration
-- Wraps low-level agent simulation into reusable domain plugins with composite execution.
+## Purpose
 
-## Key Concepts
+Use plugins when you want to assemble higher-level domain simulations rather
+than operate directly on the low-level agent-sim runtime. This package owns the
+plugin contract, discovery/registration path, composite execution, and the
+`PolisySimulator` orchestration facade.
 
-- **DomainPlugin** - pluggable domain contract with state, mechanisms and rewards.
-- **Composite execution** - `CompositeState` and `CompositeExecutor` combine several domains.
-- **PolisySimulator** - high-level API for run/train/visualize workflows.
-- **Discovery** - built-ins plus entry-point discovery and simple plugin scaffolding.
-- **CLI** - `list`, `run`, `train`, `analyze` surfaces for local and scripted usage.
+## Where to Start
 
-## Public API
+- [core.py](core.py) for `DomainPlugin`, `PluginRegistry`, metadata, and domain
+  config contracts.
+- [discovery.py](discovery.py) for built-in and entry-point plugin discovery.
+- [api.py](api.py) for `PolisySimulator`, simulation config, and high-level run
+  / train / visualize flows.
+- [composite.py](composite.py) for cross-domain state and executor wiring.
+- [economics/plugin.py](economics/plugin.py) for the built-in reference plugin.
+- [cli.py](cli.py) for local list/run/train/analyze command entrypoints.
 
-| Type/Function | Description |
+## Public Entrypoints
+
+| Entrypoint | Description |
 |---|---|
-| `DomainPlugin` | Contract for a pluggable simulation domain. |
-| `PluginRegistry` | Registry of available domain plugins. |
+| `DomainPlugin` | Base contract for a pluggable domain. |
+| `PluginRegistry` | Registry for loaded plugins and metadata. |
+| `discover_plugins()` | Finds built-in and entry-point plugins. |
+| `auto_register_plugins()` | Registers built-in plugins into a registry. |
+| `create_simple_plugin()` | Helper for lightweight plugin scaffolding. |
 | `CompositeState` | Combined state across multiple domains. |
 | `CompositeExecutor` | Cross-domain executor for composite runs. |
-| `PolisySimulator` | High-level orchestration API. |
-| `discover_plugins()` | Discovers built-in and entry-point plugins. |
-| `auto_register_plugins()` | Registers built-in plugins automatically. |
+| `PolisySimulator` | High-level run/train/orchestration facade. |
+| `SimulationConfig` | Top-level configuration for multi-domain simulation. |
 
-→ Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
+## Depends On / Depended On By
 
-## Current State
+- Depends on: `polisyos.foundry.agent_sim`, `polisyos.foundry.contracts`, JAX,
+  and built-in domain plugins such as `economics`.
+- Depended on by: local plugin CLI workflows, plugin-system tests, and
+  domain-specific simulation scenarios built on top of `PolisySimulator`.
 
-- Last updated: 2026-04-03
-- Files: 12 Python files
-- Exports: 24
+## Common Commands
+
+Smoke-tested on 2026-04-17:
+
+```bash
+uv run python -m polisyos.foundry.plugins.cli list --verbose
+
+uv run python - <<'PY'
+from polisyos.foundry.plugins import DomainConfig, PolisySimulator
+
+sim = PolisySimulator(auto_discover=True)
+sim.add_domain("economics", DomainConfig(n_agents=16))
+result = sim.run(n_steps=2, seed=0)
+print(result.n_steps)
+print(int(result.final_state.time_step))
+PY
+```
+
+## Test / Verification Commands
+
+```bash
+uv run pytest tests/foundry/plugins/test_plugin_system.py -q
+```
+
+## Reference Docs
+
+- [../agent_sim/README.md](../agent_sim/README.md)
+- [docs/reference/foundry/agent-sim.md](../../../../docs/reference/foundry/agent-sim.md)
+- [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
+- [../README.md](../README.md)

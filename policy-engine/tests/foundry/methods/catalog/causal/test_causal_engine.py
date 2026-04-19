@@ -1,4 +1,6 @@
 """Unit tests for CausalEngine orchestrator."""
+import dataclasses
+
 import pytest
 import numpy as np
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -11,8 +13,13 @@ from polisyos.foundry.methods.catalog.causal.estimand_compiler import ExecutorGr
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     IdentificationResult, IdentificationStatus,
 )
-from polisyos.ir.analytics.causal import build_data_readiness_report
-from polisyos.ir.analytics.causal import load_data_readiness_report, load_proof_bundle
+from polisyos.ir.analytics.causal import (
+    build_data_readiness_report,
+    load_data_readiness_report,
+    load_proof_bundle,
+    proof_bundle_from_identification_result,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import DynamicReductionStatus, DynamicSemanticsFamily
 from polisyos.ir.analytics.dynamic_regime import (
     ContinuousTimeQuery,
     DynamicTreatmentRegime,
@@ -25,13 +32,64 @@ from polisyos.ir.analytics.dynamic_regime import (
     load_temporal_intervention_trajectory,
     persist_temporal_intervention_trajectory,
 )
+from polisyos.ir.analytics.dual_certificate import load_dual_certificate_bundle, validate_dual_certificate_bundle
+from polisyos.ir.analytics.dp_robustness import (
+    DPGraphProvenance,
+    DPGraphProvenanceSource,
+    DPEffectiveValidity,
+    DPHardBlock,
+    DPLocalStability,
+    DPMechanismFamily,
+    DPMechanismSpec,
+    DPReleasedStatistics,
+    DPReleaseScope,
+    DPRobustnessStatus,
+    DPSensitivityNorm,
+    build_dp_distortion_model,
+    build_dp_robustness_certificate,
+    load_dp_robustness_certificate,
+)
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, CausalEdge, GraphType
 from polisyos.ir.analytics.causal_graph import EdgeMark
+from polisyos.ir.analytics.estimand import DistributionLawQuery, StochasticPolicy
+from polisyos.ir.analytics.interventions import (
+    CompositeIntervention,
+    EdgeAssignment,
+    EdgeIntervention,
+    InterferenceIntervention,
+    InterferencePolicySpec,
+    InterventionQuery,
+    MTPIntervention,
+    ModifiedTreatmentPolicySpec,
+    NodeIntervention,
+    PathIntervention,
+    StochasticIntervention,
+    StochasticPolicySpec,
+    TransportIntervention,
+    QueryTarget,
+    QueryTargetKind,
+    VariableAssignment,
+    load_intervention_certificate,
+    load_intervention_query,
+)
 from polisyos.ir.analytics.negative_certificate import load_negative_certificate
 from polisyos.ir.analytics.negative_certificate import NegativeCertificate, BlockingType
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
+from polisyos.ir.analytics.proximal import (
+    ProximalIdentificationCertificate,
+    ProxyAnnotation,
+    load_proximal_identification_certificate,
+)
 from polisyos.ir.analytics.evidence_bundle import EvidenceBundle
-from polisyos.ir.refs import ArtifactRefModel, DynamicTreatmentRegimeRef, EffectTrajectoryBundleRef, TemporalInterventionTrajectoryRef
+from polisyos.ir.refs import (
+    ArtifactRefModel,
+    DynamicTreatmentRegimeRef,
+    EffectTrajectoryBundleRef,
+    InterventionCertificateRef,
+    InterventionQueryRef,
+    ProofBundleRef,
+    TemporalInterventionTrajectoryRef,
+)
 
 
 def make_dag(directed_edges):
@@ -55,6 +113,18 @@ def make_confounded(directed_edges, bidirected_edges):
         edges.append(CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW))
     # PAG allows mixed edge marks including bidirected arrows
     return CausalGraphModel(graph_type=GraphType.PAG, nodes=nodes, edges=edges)
+
+
+def make_admg_confounded(directed_edges, bidirected_edges):
+    """Build an ADMG with directed and bidirected confounding edges."""
+    nodes = list({n for e in directed_edges + bidirected_edges for n in e})
+    edges = [
+        CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
+        for s, d in directed_edges
+    ]
+    for s, d in bidirected_edges:
+        edges.append(CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW))
+    return CausalGraphModel(graph_type=GraphType.ADMG, nodes=nodes, edges=edges)
 
 
 def _artifact_id(ch: str) -> str:
@@ -96,6 +166,61 @@ def _tabular_direct_wrapper_data(
     }
 
 
+def _laplace_dp_certificate(
+    *,
+    epsilon: float,
+    sample_size: int,
+    cell_count: int,
+    min_denominator_margin: float,
+    lipschitz_upper_bound: float,
+    policy_tolerance: float,
+) -> object:
+    mechanism = DPMechanismSpec(
+        family=DPMechanismFamily.LAPLACE,
+        epsilon=epsilon,
+        sensitivity_norm=DPSensitivityNorm.L1,
+        sensitivity_value=1.0,
+    )
+    release_scope = DPReleaseScope(
+        released_statistics=DPReleasedStatistics.FULL_HISTOGRAM,
+        cell_count_k=cell_count,
+        sample_size_n=sample_size,
+    )
+    return build_dp_robustness_certificate(
+        proof_status="identified",
+        mechanism=mechanism,
+        release_scope=release_scope,
+        graph_provenance=DPGraphProvenance(
+            source=DPGraphProvenanceSource.TRUSTED_EXTERNAL,
+        ),
+        distortion_model=build_dp_distortion_model(
+            mechanism,
+            release_scope,
+            alpha=0.01,
+        ),
+        local_stability=DPLocalStability(
+            min_denominator_margin=min_denominator_margin,
+            lipschitz_upper_bound=lipschitz_upper_bound,
+            policy_tolerance=policy_tolerance,
+        ),
+    )
+
+
+def _identified_result(
+    *,
+    treatment: str = "X",
+    outcome: str = "Y",
+) -> IdentificationResult:
+    return IdentificationResult(
+        status=IdentificationStatus.IDENTIFIED,
+        estimand_ast=None,
+        hedge_certificate=None,
+        trace=[],
+        required_distributions=[],
+        query_str=f"P({outcome}|do({treatment}))",
+    )
+
+
 class TestCausalEngineIdentify:
     def setup_method(self):
         self.engine = CausalEngine(registry=None, knowledge_base=None)
@@ -122,6 +247,28 @@ class TestCausalEngineIdentify:
             assert isinstance(result, NegativeCertificate)
             assert result.blocking_type == BlockingType.HEDGE_STRUCTURE
 
+    def test_identify_uses_proximal_fallback_after_hedge(self):
+        graph = make_admg_confounded(
+            [("X", "A"), ("X", "Y"), ("Z", "A"), ("A", "Y")],
+            [("A", "Y"), ("A", "Z"), ("Y", "W")],
+        )
+
+        result = self.engine.identify(
+            "A",
+            "Y",
+            graph,
+            proximal_annotation=ProxyAnnotation(
+                treatment_inducing=("Z",),
+                outcome_inducing=("W",),
+                covariates=("X",),
+            ),
+        )
+
+        assert isinstance(result, ProximalIdentificationCertificate)
+        assert result.metadata["upstream_identification_status"] == "hedge_found"
+        assert result.proxies.treatment_inducing == ("Z",)
+        assert result.identified_functionals[0].expression == "E[h(W, 1, X) - h(W, 0, X)]"
+
     def test_identify_with_z_interventions(self):
         graph = make_dag([("Z", "X"), ("X", "Y"), ("Z", "Y")])
         result = self.engine.identify("X", "Y", graph, z_interventions=frozenset({"Z"}))
@@ -142,6 +289,480 @@ class TestCausalEngineIdentify:
         graph = make_dag([("Z", "X"), ("X", "Y"), ("Z", "Y")])
         result = self.engine.identify(frozenset({"X"}), frozenset({"Y"}), graph)
         assert isinstance(result, (IdentificationResult, NegativeCertificate))
+
+    def test_identify_distribution_law_returns_distribution_ast(self):
+        graph = make_dag([("tax_policy", "income")])
+        query = DistributionLawQuery(
+            outcome_variables=("income",),
+            intervention_set=("tax_policy",),
+            support_space="real",
+            representation="cdf",
+        )
+
+        result = self.engine.identify(
+            "tax_policy",
+            "income",
+            graph,
+            distribution_query=query,
+        )
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "dist_id_v1"
+        assert result.estimand_ast is not None
+        assert result.estimand_ast.root.node_type == "distribution_law"
+        assert result.metadata["query_kind"] == "distribution_law"
+        assert result.metadata["distributional_query_kind"] == "interventional_law"
+        assert result.metadata["generator_type"] == "halfline_cdf"
+        proof = proof_bundle_from_identification_result(result)
+        assert proof.metadata["query_kind"] == "distribution_law"
+        assert proof.metadata["distributional_query_kind"] == "interventional_law"
+
+    def test_identify_conditional_distribution_law_uses_idc_wrapper(self):
+        graph = make_dag([("region", "tax_policy"), ("tax_policy", "income"), ("region", "income")])
+        query = DistributionLawQuery(
+            outcome_variables=("income",),
+            intervention_set=("tax_policy",),
+            conditioning=("region",),
+            support_space="real",
+            representation="cdf",
+        )
+
+        result = self.engine.identify(
+            "tax_policy",
+            "income",
+            graph,
+            distribution_query=query,
+        )
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "dist_idc_v1"
+        assert result.metadata["conditioning_variables"] == ["region"]
+
+    def test_identify_distribution_law_nonidentifiable_returns_negative_certificate(self):
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["tax_policy", "income"],
+            edges=[
+                CausalEdge(
+                    src="tax_policy",
+                    dst="income",
+                    mark_src=EdgeMark.TAIL,
+                    mark_dst=EdgeMark.ARROW,
+                ),
+                CausalEdge(
+                    src="tax_policy",
+                    dst="income",
+                    mark_src=EdgeMark.ARROW,
+                    mark_dst=EdgeMark.ARROW,
+                ),
+            ],
+        )
+        query = DistributionLawQuery(
+            outcome_variables=("income",),
+            intervention_set=("tax_policy",),
+            support_space="real",
+            representation="cdf",
+        )
+
+        result = self.engine.identify(
+            "tax_policy",
+            "income",
+            graph,
+            distribution_query=query,
+        )
+
+        assert isinstance(result, NegativeCertificate)
+        assert result.blocking_type == BlockingType.HEDGE_STRUCTURE
+        assert result.quantitative_diagnostics["query_kind"] == "distribution_law"
+        assert result.quantitative_diagnostics["generator_type"] == "halfline_cdf"
+
+    def test_identify_cyclic_graph_reduces_to_acyclic_backend_when_cycle_is_irrelevant(self):
+        graph = CausalGraphModel(
+            graph_type=GraphType.PAG,
+            nodes=["X", "Y", "A", "B"],
+            edges=[
+                CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="A", dst="B", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="B", dst="A", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            ],
+        )
+
+        result = self.engine.identify("X", "Y", graph)
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "dynamic_acyclic_reduction_v1"
+        assert result.metadata["dynamic_semantics"]["reduction_status"] == "validated_reduction"
+        proof = proof_bundle_from_identification_result(result)
+        assert proof.proof_stratum == "A1_dynamic"
+        assert proof.completeness_regime == "sound_incomplete"
+        assert proof.dynamic_semantics is not None
+        assert proof.dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+
+    def test_identify_cyclic_distribution_query_requires_validated_reduction(self):
+        graph = CausalGraphModel(
+            graph_type=GraphType.PAG,
+            nodes=["tax_policy", "income", "A", "B"],
+            edges=[
+                CausalEdge(
+                    src="tax_policy",
+                    dst="income",
+                    mark_src=EdgeMark.TAIL,
+                    mark_dst=EdgeMark.ARROW,
+                ),
+                CausalEdge(src="A", dst="B", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="B", dst="A", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            ],
+        )
+        query = DistributionLawQuery(
+            outcome_variables=("income",),
+            intervention_set=("tax_policy",),
+            support_space="real",
+            representation="cdf",
+        )
+
+        result = self.engine.identify(
+            "tax_policy",
+            "income",
+            graph,
+            distribution_query=query,
+        )
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "dynamic_acyclic_reduction_v1"
+        assert result.metadata["query_kind"] == "distribution_law"
+        assert result.metadata["dynamic_semantics"]["reduction_status"] == "validated_reduction"
+
+    def test_identify_cyclic_conditional_query_blocks_without_validated_reduction(self):
+        graph = CausalGraphModel(
+            graph_type=GraphType.PAG,
+            nodes=["X", "Y", "Z"],
+            edges=[
+                CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="Y", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="Z", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            ],
+            metadata={
+                "well_posedness_spec": {
+                    "A": [
+                        [0.0, 0.2, 0.0],
+                        [0.1, 0.0, 0.0],
+                        [0.0, 0.0, 0.0],
+                    ]
+                }
+            },
+        )
+
+        result = self.engine.identify("X", "Y", graph, conditions=frozenset({"Z"}))
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.ORACLE_NEEDED
+        assert result.algorithm_version == "dynamic_semantics_oracle_v1"
+        dynamic_semantics = result.metadata["dynamic_semantics"]
+        assert dynamic_semantics["reduction_status"] == "blocked"
+        assert dynamic_semantics["well_posedness_witness"]["status"] == "proved"
+
+    def test_identify_attaches_intervention_metadata_for_legacy_queries(self):
+        graph = make_dag([("Z", "X"), ("X", "Y"), ("Z", "Y")])
+
+        result = self.engine.identify("X", "Y", graph, conditions=frozenset({"Z"}))
+
+        assert isinstance(result, IdentificationResult)
+        assert result.metadata["query_kind"] == "intervention"
+        assert result.metadata["intervention_type"] == "node"
+        proof = proof_bundle_from_identification_result(result)
+        assert proof.metadata["intervention_certificate"]["query"]["target"]["conditioning"] == ["Z"]
+
+    def test_identify_shift_policy_uses_mtp_node_and_certificate(self):
+        graph = make_dag([("W", "A"), ("A", "Y"), ("W", "Y")])
+
+        result = self.engine.identify(
+            "A",
+            "Y",
+            graph,
+            policy=StochasticPolicy(
+                policy_type="shift",
+                conditioning_vars=("W",),
+                shift_delta=1.0,
+                policy_expr="A+1",
+            ),
+        )
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.estimand_ast is not None
+        assert result.estimand_ast.root.node_type == "modified_treatment_policy"
+        assert result.metadata["intervention_type"] == "mtp"
+
+    def test_identify_accepts_explicit_edge_intervention_query(self):
+        graph = make_dag([("X", "Y")])
+        query = InterventionQuery(
+            target=QueryTarget(
+                target_kind=QueryTargetKind.DISTRIBUTION,
+                outcome_variables=("Y",),
+            ),
+            intervention=EdgeIntervention(
+                assignments=(EdgeAssignment(source="X", target="Y", value=1),)
+            ),
+        )
+
+        result = self.engine.identify("X", "Y", graph, intervention_query=query)
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.estimand_ast is not None
+        assert result.estimand_ast.root.node_type == "edge_intervention"
+        proof = proof_bundle_from_identification_result(result)
+        assert proof.metadata["intervention_type"] == "edge"
+
+    def test_identify_path_query_returns_negative_certificate_for_recanting_witness(self):
+        graph = make_dag([("X", "M"), ("M", "Y"), ("X", "Y")])
+        query = InterventionQuery(
+            target=QueryTarget(
+                target_kind=QueryTargetKind.DISTRIBUTION,
+                outcome_variables=("Y",),
+            ),
+            intervention=PathIntervention(
+                active_paths=(("X", "M", "Y"),),
+                frozen_paths=(("X", "Y"),),
+                natural_value_vars=("M",),
+            ),
+        )
+
+        result = self.engine.identify("X", "Y", graph, intervention_query=query)
+
+        assert isinstance(result, NegativeCertificate)
+        assert result.blocking_type == BlockingType.SEMANTICS_NOT_WELL_DEFINED
+        assert result.quantitative_diagnostics["witness_variables"] == ["M"]
+
+    def test_identify_sigma_stochastic_query_uses_sigma_backend(self):
+        graph = make_dag([("X", "Y")])
+        query = InterventionQuery(
+            target=QueryTarget(
+                target_kind=QueryTargetKind.EXPECTATION,
+                outcome_variables=("Y",),
+            ),
+            intervention=StochasticIntervention(
+                policies=(
+                    StochasticPolicySpec(
+                        target="X",
+                        distribution_expr="pi(X)",
+                    ),
+                ),
+                semantics="sigma_calculus",
+            ),
+        )
+
+        result = self.engine.identify("X", "Y", graph, intervention_query=query)
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "sigma_calculus_v1"
+        assert result.estimand_ast is not None
+        assert result.estimand_ast.root.node_type == "stochastic_intervention"
+        proof = proof_bundle_from_identification_result(result)
+        assert proof.metadata["intervention_type"] == "stochastic"
+        assert proof.metadata["intervention_identification_status"] == "identified"
+
+    def test_identify_sigma_transport_query_uses_sigma_transport_backend(self):
+        graph = make_dag([("X", "Y")])
+        query = InterventionQuery(
+            target=QueryTarget(
+                target_kind=QueryTargetKind.EXPECTATION,
+                outcome_variables=("Y",),
+            ),
+            intervention=TransportIntervention(
+                source_domain="source",
+                target_domain="target",
+                selection_nodes=("X",),
+                soft_transport=True,
+                base_intervention=StochasticIntervention(
+                    policies=(
+                        StochasticPolicySpec(
+                            target="X",
+                            distribution_expr="pi(X)",
+                        ),
+                    ),
+                    semantics="sigma_calculus",
+                ),
+            ),
+        )
+
+        result = self.engine.identify("X", "Y", graph, intervention_query=query)
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "sigma_transport_v1"
+        assert result.estimand_ast is not None
+        assert result.estimand_ast.root.node_type == "stochastic_intervention"
+        proof = proof_bundle_from_identification_result(result)
+        assert proof.metadata["intervention_type"] == "transport"
+
+    def test_identify_non_uniform_edge_query_uses_edge_g_formula_backend(self):
+        graph = make_dag([("X", "M"), ("X", "Y"), ("M", "Y")])
+        query = InterventionQuery(
+            target=QueryTarget(
+                target_kind=QueryTargetKind.DISTRIBUTION,
+                outcome_variables=("Y",),
+            ),
+            intervention=EdgeIntervention(
+                assignments=(
+                    EdgeAssignment(source="X", target="M", value=0),
+                    EdgeAssignment(source="X", target="Y", value=1),
+                ),
+                semantics="edge_g_formula",
+            ),
+        )
+
+        result = self.engine.identify("X", "Y", graph, intervention_query=query)
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "edge_g_formula_v1"
+        assert result.estimand_ast is not None
+        assert result.estimand_ast.root.node_type == "edge_intervention"
+
+    def test_identify_path_query_uses_path_id_backend_when_recanting_witness_absent(self):
+        graph = make_dag([("X", "M"), ("M", "Y")])
+        query = InterventionQuery(
+            target=QueryTarget(
+                target_kind=QueryTargetKind.DECOMPOSITION,
+                outcome_variables=("Y",),
+            ),
+            intervention=PathIntervention(
+                active_paths=(("X", "M", "Y"),),
+                natural_value_vars=("M",),
+            ),
+        )
+
+        result = self.engine.identify("X", "Y", graph, intervention_query=query)
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "path_intervention_v1"
+        assert result.estimand_ast is not None
+        assert result.estimand_ast.root.node_type == "path_specific"
+
+    def test_identify_clustered_interference_query_returns_constructive_negative_certificate(self):
+        graph = CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["A_0", "Y_0", "A_1", "Y_1"],
+            edges=[
+                CausalEdge(src="A_0", dst="Y_0", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="A_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="A_0", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            ],
+            metadata={
+                "cluster_map": {
+                    "A_0": "0",
+                    "Y_0": "0",
+                    "A_1": "1",
+                    "Y_1": "1",
+                }
+            },
+        )
+        query = InterventionQuery(
+            target=QueryTarget(
+                target_kind=QueryTargetKind.DISTRIBUTION,
+                outcome_variables=("Y",),
+            ),
+            intervention=InterferenceIntervention(
+                policies=(
+                    InterferencePolicySpec(
+                        target="A",
+                        policy_expr="cluster_policy(A, E)",
+                        exposure_vars=("E",),
+                    ),
+                ),
+                exposure_map_ref="fractional",
+                interference_mode="cluster",
+                fallback_mode="clustered",
+            ),
+        )
+
+        result = self.engine.identify("A", "Y", graph, intervention_query=query)
+
+        assert isinstance(result, NegativeCertificate)
+        assert result.blocking_type == BlockingType.SEMANTICS_NOT_WELL_DEFINED
+        assert result.quantitative_diagnostics["algorithm_version"] == "interference_intervention_v1"
+        assert result.quantitative_diagnostics["interference_certificate"]["fallback_mode"] == "clustered"
+        assert "Exposure augmentation" in " ".join(result.quantitative_diagnostics["proof_trace"])
+
+    def test_identify_interference_query_identifies_when_no_cross_unit_edges_exist(self):
+        graph = CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["A_0", "Y_0", "A_1", "Y_1"],
+            edges=[
+                CausalEdge(src="A_0", dst="Y_0", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="A_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            ],
+            metadata={
+                "cluster_map": {
+                    "A_0": "0",
+                    "Y_0": "0",
+                    "A_1": "1",
+                    "Y_1": "1",
+                }
+            },
+        )
+        query = InterventionQuery(
+            target=QueryTarget(
+                target_kind=QueryTargetKind.DISTRIBUTION,
+                outcome_variables=("Y",),
+            ),
+            intervention=InterferenceIntervention(
+                policies=(
+                    InterferencePolicySpec(
+                        target="A",
+                        policy_expr="cluster_policy(A, E)",
+                        exposure_vars=("E",),
+                    ),
+                ),
+                exposure_map_ref="fractional",
+                interference_mode="cluster",
+                fallback_mode="clustered",
+            ),
+        )
+
+        result = self.engine.identify("A", "Y", graph, intervention_query=query)
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "interference_intervention_v1"
+        assert result.metadata["interference_certificate"]["fallback_mode"] == "clustered"
+        proof = proof_bundle_from_identification_result(result)
+        assert proof.metadata["intervention_type"] == "interference"
+
+    def test_identify_rejects_ill_typed_intervention_query(self):
+        graph = make_dag([("A", "Y"), ("W", "A"), ("W", "Y")])
+        query = InterventionQuery(
+            target=QueryTarget(outcome_variables=("Y",)),
+            intervention=CompositeIntervention(
+                steps=(
+                    NodeIntervention(
+                        assignments=(VariableAssignment(variable="A", value=1),)
+                    ),
+                    MTPIntervention(
+                        policies=(
+                            ModifiedTreatmentPolicySpec(
+                                target="A",
+                                policy_expr="A+1",
+                                natural_treatment="A",
+                                covariates=("W",),
+                            ),
+                        )
+                    ),
+                )
+            ),
+        )
+
+        result = self.engine.identify("A", "Y", graph, intervention_query=query)
+
+        assert isinstance(result, NegativeCertificate)
+        assert result.blocking_type == BlockingType.INTERVENTION_TYPECHECK
 
 
 class TestCausalEngineCompile:
@@ -238,6 +859,66 @@ class TestCausalEngineAudit:
         bundle = engine.audit(result, None, run_id="r3", schema_report=schema)
         assert "schema_warnings_count" in bundle.diagnostic_scores
 
+    def test_audit_persists_dp_robustness_certificate_on_proof_bundle(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        engine = CausalEngine(registry=None, artifact_store=store)
+        result = _identified_result()
+
+        certificate = _laplace_dp_certificate(
+            epsilon=8.0,
+            sample_size=100_000,
+            cell_count=8,
+            min_denominator_margin=0.1,
+            lipschitz_upper_bound=2.0,
+            policy_tolerance=0.01,
+        )
+        result = dataclasses.replace(
+            result,
+            metadata={
+                **dict(result.metadata),
+                "dp_robustness_certificate": certificate.model_dump(mode="json"),
+            },
+        )
+
+        bundle = engine.audit(result, None, run_id="dp-audit")
+
+        assert bundle.proof_bundle_ref is not None
+        proof = load_proof_bundle(store, bundle.proof_bundle_ref)
+        assert proof.dp_robustness_ref is not None
+        assert proof.metadata["dp_effective_status"] == "identified"
+        loaded_cert = load_dp_robustness_certificate(store, proof.dp_robustness_ref)
+        assert loaded_cert == certificate
+
+    def test_audit_persists_intervention_query_and_certificate_refs(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        engine = CausalEngine(registry=None, artifact_store=store)
+        graph = make_dag([("X", "Y")])
+        query = InterventionQuery(
+            target=QueryTarget(
+                target_kind=QueryTargetKind.DISTRIBUTION,
+                outcome_variables=("Y",),
+            ),
+            intervention=EdgeIntervention(
+                assignments=(EdgeAssignment(source="X", target="Y", value=1),)
+            ),
+        )
+
+        result = engine.identify("X", "Y", graph, intervention_query=query)
+        assert isinstance(result, IdentificationResult)
+
+        bundle = engine.audit(result, None, run_id="typed-audit", graph=graph)
+
+        assert bundle.proof_bundle_ref is not None
+        proof = load_proof_bundle(store, bundle.proof_bundle_ref)
+        query_ref = InterventionQueryRef.model_validate(proof.metadata["intervention_query_ref"])
+        certificate_ref = InterventionCertificateRef.model_validate(
+            proof.metadata["intervention_certificate_ref"]
+        )
+        assert load_intervention_query(store, query_ref) == query
+        loaded_certificate = load_intervention_certificate(store, certificate_ref)
+        assert loaded_certificate.query == query
+        assert proof.query_ref == str(query_ref.artifact_id)
+
 
 class TestCausalEngineRun:
     def setup_method(self):
@@ -291,6 +972,80 @@ class TestCausalEngineRun:
                 assert bundle.bounds_bundle_ref is not None
                 restored_bounds = load_bounds_bundle(store, bundle.bounds_bundle_ref)
                 assert restored_bounds.lower_bound == cert.bounds_bundle.lower_bound
+
+    def test_run_returns_proximal_proof_bundle_without_negative_certificate(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        engine = CausalEngine(registry=None, artifact_store=store)
+        graph = make_admg_confounded(
+            [("X", "A"), ("X", "Y"), ("Z", "A"), ("A", "Y")],
+            [("A", "Y"), ("A", "Z"), ("Y", "W")],
+        )
+
+        report, bundle, cert = engine.run(
+            "A",
+            "Y",
+            graph,
+            proximal_annotation=ProxyAnnotation(
+                treatment_inducing=("Z",),
+                outcome_inducing=("W",),
+                covariates=("X",),
+            ),
+        )
+
+        assert report is None
+        assert cert is None
+        assert bundle.identification_status == "identified"
+        assert bundle.proof_bundle_ref is not None
+        assert bundle.data_readiness_report_ref is not None
+
+        proof_bundle = load_proof_bundle(store, bundle.proof_bundle_ref)
+        readiness = load_data_readiness_report(store, bundle.data_readiness_report_ref)
+
+        assert proof_bundle.metadata["method"] == "proximal_bridge"
+        assert proof_bundle.metadata["proximal_certificate"]["query"]["treatment"] == ["A"]
+        assert proof_bundle.proximal_certificate_ref is not None
+        assert (
+            load_proximal_identification_certificate(store, proof_bundle.proximal_certificate_ref).query.treatment
+            == ("A",)
+        )
+        assert readiness.measurement_quality == "proxy_only"
+
+    def test_audit_persists_dual_certificate_for_exact_bounds_bundle(self, tmp_path):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        store = FileSystemCAS(tmp_path / "cas")
+        engine = CausalEngine(registry=None, artifact_store=store)
+        bounds_result = BoundsEngineMethod.pure_step(
+            {
+                "outcome": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                "treatment": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+            },
+            {"use_auto_bounds": True, "has_monotone": True},
+        )
+        negative_cert = NegativeCertificate(
+            blocking_type=BlockingType.HEDGE_STRUCTURE,
+            blocking_description="Synthetic hedge for audit persistence test.",
+            constructive_message="Need fallback evidence.",
+        )
+
+        bundle = engine.audit(
+            None,
+            None,
+            run_id="audit-dual-cert",
+            negative_certificate=negative_cert,
+            bounds_bundle=bounds_result["bounds_report"],
+            dual_certificate_payload=bounds_result.get("dual_certificate_payload"),
+        )
+
+        assert bundle.bounds_bundle_ref is not None
+
+        restored_bounds = load_bounds_bundle(store, bundle.bounds_bundle_ref)
+        assert restored_bounds.dual_certificate_ref is not None
+        assert restored_bounds.sharpness_status == "sharp"
+
+        dual_cert = load_dual_certificate_bundle(store, restored_bounds.dual_certificate_ref)
+        validation = validate_dual_certificate_bundle(dual_cert)
+        assert validation.ok, validation.errors
 
     def test_run_skips_estimator_execution_when_preflight_blocks(self, tmp_path, monkeypatch):
         store = FileSystemCAS(tmp_path / "cas")
@@ -379,6 +1134,82 @@ class TestCausalEngineRun:
         assert readiness.decision == "warn"
         assert readiness.can_run_estimation is True
 
+    def test_run_returns_bounds_and_skips_compile_when_dp_status_is_bounded(
+        self, tmp_path, monkeypatch
+    ):
+        store = FileSystemCAS(tmp_path / "cas")
+        engine = CausalEngine(registry=object(), artifact_store=store)
+        identified = _identified_result()
+
+        certificate = _laplace_dp_certificate(
+            epsilon=0.5,
+            sample_size=1_000,
+            cell_count=32,
+            min_denominator_margin=1.0,
+            lipschitz_upper_bound=100.0,
+            policy_tolerance=0.001,
+        ).model_copy(
+            update={
+                "effective_validity": DPEffectiveValidity(
+                    status=DPRobustnessStatus.BOUNDED,
+                    reason="DP distortion exceeds point-estimate tolerance",
+                    effect_interval=(-0.12, -0.03),
+                    tolerance_met=False,
+                ),
+                "hard_block": DPHardBlock(blocked=False),
+            }
+        )
+        identified = dataclasses.replace(
+            identified,
+            metadata={
+                **dict(identified.metadata),
+                "dp_robustness_certificate": certificate.model_dump(mode="json"),
+            },
+        )
+
+        monkeypatch.setattr(engine, "identify", lambda *args, **kwargs: identified)
+
+        def _unexpected_compile(*args, **kwargs):
+            raise AssertionError("compile() should not run for bounded DP releases")
+
+        def _unexpected_estimate(*args, **kwargs):
+            raise AssertionError("estimate() should not run for bounded DP releases")
+
+        monkeypatch.setattr(engine, "compile", _unexpected_compile)
+        monkeypatch.setattr(engine, "estimate", _unexpected_estimate)
+
+        report, bundle, cert = engine.run(
+            "X",
+            "Y",
+            self.graph,
+            data_dict={
+                "X": np.array([0.0, 1.0, 0.0, 1.0]),
+                "Y": np.array([1.0, 2.0, 1.5, 2.5]),
+                "Z": np.array([0.0, 0.0, 1.0, 1.0]),
+            },
+        )
+
+        assert report is None
+        assert cert is None
+        assert bundle.proof_bundle_ref is not None
+        assert bundle.bounds_bundle_ref is not None
+        assert bundle.data_readiness_report_ref is not None
+
+        readiness = load_data_readiness_report(store, bundle.data_readiness_report_ref)
+        assert readiness.decision == "warn"
+        assert readiness.can_run_estimation is False
+        assert readiness.dp_distortion is not None
+        assert readiness.dp_distortion["effective_status"] == "bounded"
+
+        proof = load_proof_bundle(store, bundle.proof_bundle_ref)
+        assert proof.metadata["dp_effective_status"] == "bounded"
+        assert proof.dp_robustness_ref is not None
+
+        bounds = load_bounds_bundle(store, bundle.bounds_bundle_ref)
+        assert bounds.lower_bound == -0.12
+        assert bounds.upper_bound == -0.03
+        assert bounds.metadata["dp_effective_status"] == "bounded"
+
 
 class TestCausalEngineTemporal:
     @staticmethod
@@ -415,6 +1246,7 @@ class TestCausalEngineTemporal:
         query_mode: TemporalQueryMode = TemporalQueryMode.FIXED_INTERVENTION,
         outcome_process: str = "treated_outcome",
         horizon_end: float = 3.0,
+        metadata: dict[str, object] | None = None,
     ) -> ContinuousTimeQuery:
         return ContinuousTimeQuery(
             intervention_trajectory_ref=(
@@ -428,6 +1260,7 @@ class TestCausalEngineTemporal:
             horizon_end=horizon_end,
             time_scale="days",
             interpolation_policy=InterventionInterpolationPolicy.PIECEWISE_CONSTANT,
+            metadata=dict(metadata or {}),
         )
 
     @staticmethod
@@ -483,6 +1316,69 @@ class TestCausalEngineTemporal:
         assert restored.solver_diagnostics_ref.kind == "ir.temporal_solver_diagnostics"
         assert restored.metadata["intervention_contract_status"] == "resolved_artifact"
         assert restored.continuous_time_degraded is False
+        assert restored.metadata["proof_bundle_artifact_id"]
+
+        proof_ref = ProofBundleRef.model_validate(restored.metadata["proof_bundle_ref"])
+        proof = load_proof_bundle(store, proof_ref)
+        assert proof.proof_status == "oracle_needed"
+        assert proof.dynamic_semantics is not None
+        assert proof.dynamic_semantics.semantics_family is DynamicSemanticsFamily.LOCAL_INDEPENDENCE_GRAPH
+        assert proof.dynamic_semantics.reduction_status is DynamicReductionStatus.BLOCKED
+
+    def test_identify_continuous_time_query_marks_validated_local_independence(self):
+        engine = CausalEngine(registry=None, knowledge_base=None)
+        query = self._query(
+            metadata={
+                "graph_semantics": "local_independence",
+                "graphical_oracle": "mu",
+                "causal_validity_verified": True,
+                "identification_via_reweighting": True,
+                "eliminable_processes": ["latent_noise"],
+                "intervention_targets": ["treatment"],
+            }
+        )
+
+        proof = engine.identify_continuous_time_query(query)
+
+        assert proof.proof_status == "identified"
+        assert proof.proof_stratum == "A1_dynamic"
+        assert proof.dynamic_semantics is not None
+        assert proof.dynamic_semantics.semantics_family is DynamicSemanticsFamily.LOCAL_INDEPENDENCE_GRAPH
+        assert proof.dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+        assert proof.dynamic_semantics.continuous_time_attachment is not None
+        assert proof.dynamic_semantics.continuous_time_attachment.eliminable_processes == (
+            "latent_noise",
+        )
+
+    def test_temporal_causal_effect_persists_validated_local_independence_proof(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        engine = CausalEngine(registry=None, artifact_store=store)
+        intervention_ref = persist_temporal_intervention_trajectory(store, self._intervention())
+
+        trajectory = engine.temporal_causal_effect(
+            self._panel_data(),
+            self._query(
+                intervention_ref,
+                metadata={
+                    "graph_semantics": "local_independence",
+                    "graphical_oracle": "delta",
+                    "causal_validity_verified": True,
+                    "identification_via_reweighting": True,
+                    "eliminable_processes": ["hidden_process"],
+                    "intervention_targets": ["treated_outcome"],
+                },
+            ),
+            method="linear_sde",
+        )
+
+        assert trajectory.effect_bundle is not None
+        bundle = trajectory.effect_bundle
+        proof_ref = ProofBundleRef.model_validate(bundle.metadata["proof_bundle_ref"])
+        proof = load_proof_bundle(store, proof_ref)
+        assert proof.proof_status == "identified"
+        assert proof.dynamic_semantics is not None
+        assert proof.dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+        assert trajectory.metadata["proof_status"] == "identified"
 
     def test_temporal_causal_effect_requires_intervention_source(self):
         engine = CausalEngine(registry=None, knowledge_base=None)

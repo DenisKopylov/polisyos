@@ -7,6 +7,22 @@ Related explanation: [Trinity](../../explanation/trinity.md).
 references. The package is intentionally execution-free: Scientist and Foundry
 consume these models, but business logic lives outside the IR layer.
 
+Freshness: 2026-04-17
+Owner: `@ir-owners`
+Source of truth: `src/polisyos/ir/**`, `schemas/abi_models.py`, `tests/ir/**`, `tests/contract/**`, `docs/contracts/E1_*.md`, `docs/contracts/E2_*.md`
+Source plan: `docs/IR_AUDIT_REMEDIATION_PLAN.md`, D1-L4 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+
+## D1-L4 Source Map
+
+| IR remediation phase | Documentation focus | Source of truth | Validation evidence |
+|----------------------|---------------------|-----------------|---------------------|
+| Phase 0 | Canon/CAS policy, registry/linker determinism, silent failure containment | `src/polisyos/ir/canon.py`, `src/polisyos/ir/registry_fragments.py`, `src/polisyos/ir/linker/**`, `src/polisyos/ir/trinity/**` | `tests/ir/test_canon_hardening.py`, `tests/contract/test_trinity_linker_contract.py`, `schemas/snapshots/ir/trinity_bundle.schema.json` |
+| Phase 1 | Cross-model invariants, validator cleanup, schema compatibility | `src/polisyos/ir/migrations/**`, `src/polisyos/ir/schema_catalog.py`, analytics model normalizers | `tests/ir/test_schema_catalog.py`, `tests/ir/analytics/test_shared_invariants.py`, `docs/adr/0107-ir-analytics-normalization-and-schema-compatibility.md` |
+| Phase 2 | Pass manager, analyses, estimand normalization, lineage graph, uncertainty algebra | `src/polisyos/ir/passes/**`, `src/polisyos/ir/analytics/estimand.py`, `src/polisyos/ir/artifacts/lineage.py`, `src/polisyos/ir/analytics/uncertainty.py` | `tests/ir/test_phase2_passes.py`, `tests/ir/analytics/test_estimand_normalization.py`, `tests/ir/test_uncertainty.py` |
+| Phase 3 | Public surface cleanup, hot-path optimization, property/fuzz/algebra verification | `src/polisyos/ir/public_surface.py`, lazy facades, canon/linker hot paths | `tests/ir/test_public_surface.py`, `tests/ir/test_phase3_properties.py`, `tests/ir/test_phase3_fuzz.py`, `tests/ir/test_phase3_benchmarks.py` |
+| Phase 4 | Reflection API, schema catalog, transport, streaming, ecosystem bridges | `src/polisyos/ir/schema_catalog.py`, `src/polisyos/ir/artifacts/transport.py`, bridge modules | `tools/diagnostics/generate_ir_reference_catalog.py --check`, `tests/ir/test_interoperability_bridges.py`, `docs/adr/0108-ir-schema-catalog-and-reflection.md`, `docs/adr/0109-ir-transport-and-interoperability-bridges.md` |
+| Phase 5 | Governance and causal frontier contracts | `src/polisyos/ir/governance/**`, frontier analytics modules | `tests/ir/governance/test_phase5_governance_contracts.py`, `tests/ir/test_frontier_causal_contracts.py`, `docs/adr/0110-ir-frontier-governance-and-causal-contracts.md` |
+
 ## Page Map
 
 | Page | Scope | Primary modules |
@@ -19,6 +35,15 @@ consume these models, but business logic lives outside the IR layer.
 | [Analytics](analytics.md) | Causal, HTE, backtest, uncertainty, strategic response | `ir.analytics.*` |
 | [Observation](observation.md) | Records, panels, manifests, routing, readiness, execution | `ir.observation.*` |
 | [Problem Framing](problem-framing.md) | Goals, KPIs, constraints, stakeholders | `ir.governance.problem_frame` |
+
+## Documentation Impact
+
+| Output cluster | Exact files | Source of truth | Validation |
+|---|---|---|---|
+| IR reference set | `docs/reference/ir/index.md`, `docs/reference/ir/public-surface.md`, `docs/reference/ir/schema-catalog.md`, `docs/reference/ir/compiler-pipeline.md`, `docs/reference/ir/interoperability.md`, `docs/reference/ir/governance.md`, `docs/reference/ir/analytics.md`, `docs/reference/ir/observation.md`, `docs/reference/ir/problem-framing.md` | IR facades, schema catalog/reflection layer, pass pipeline, analytics and observation packages, governance models | `uv run pytest tests/ir/test_public_surface.py tests/ir/test_phase2_passes.py tests/ir/test_uncertainty.py tests/ir/test_interoperability_bridges.py -q` |
+| Shared reference surfaces | `docs/reference/schemas.md`, `docs/reference/public-surface.md` | generated schema snapshots, public-surface manifests, architecture guardrails | `uv run --extra ml polisyos-tools diagnostics gen-schema --check` |
+| Contracts | `docs/contracts/TRINITY.md`, `docs/contracts/MERGE_SEMANTICS.md`, `docs/contracts/E1_*.md`, `docs/contracts/E2_*.md` | Trinity/linker contracts, merge semantics, ABI/schema contracts, snapshot-linked tests | `uv run polisyos-tools diagnostics generate-ir-reference-catalog --check` |
+| Package boundary READMEs | `src/polisyos/ir/README.md`, `src/polisyos/ir/trinity/README.md`, `src/polisyos/ir/analytics/README.md`, `src/polisyos/ir/observation/README.md`, `src/polisyos/ir/governance/README.md` | package facades and subsystem boundaries | `uv run pytest tests/ir/governance/test_phase5_governance_contracts.py tests/contract/test_trinity_linker_contract.py -q` |
 
 ## Core Policy And Governance Exports
 
@@ -72,3 +97,11 @@ consume these models, but business logic lives outside the IR layer.
 - `docs/reference/ir/compiler-pipeline.md` documents the execution-free pass layer introduced for compiler-grade IR validation and normalization.
 - `docs/reference/ir/analytics.md` also documents `polisyos.ir.analytics.strategic`, which is new in code but not yet re-exported from the root `polisyos.ir` facade.
 - Package-level facades are audited separately from the root boundary; see [Public Surface](public-surface.md) for lazy-facade policy and naming conventions.
+- Generated schema/reference freshness is checked by `uv run --extra ml polisyos-tools diagnostics gen-schema --check`.
+
+## Backlog
+
+| Gap | Priority | Tracking note |
+|---|---|---|
+| No missing required D1-L4 output pages | - | All required D1-L4 files are present and mapped above. |
+| Further generator consolidation for schema/public-surface pages | P2 | D1 only requires the source-of-truth mapping. Additional generator-driven refinement belongs to D2. |

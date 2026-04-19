@@ -6,6 +6,7 @@ import { getWorkspaceNavigationWithOptions } from "@/app/workspaces";
 import { getBlockedRunCount, useRunsSample } from "@/features/runs";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
+import { AtlasBrand } from "@/shared/brand/AtlasBrand";
 
 function ModeToggle() {
   const { t } = useI18n();
@@ -23,7 +24,7 @@ function ModeToggle() {
           <label
             key={value}
             className={cn(
-              "flex-1 cursor-pointer rounded-[var(--radius-pill)] px-3 py-1.5 text-center text-xs font-bold tracking-wider transition focus-within:outline-none focus-within:ring-2 focus-within:ring-white/40",
+              "flex-1 cursor-pointer rounded-[var(--radius-pill)] px-3 py-1.5 text-center text-xs font-bold tracking-wider transition focus-within:ring-2 focus-within:ring-white/40 focus-within:outline-none",
               mode === value
                 ? "bg-[rgba(255,255,255,0.16)] text-white"
                 : "text-[var(--rail-link)] hover:text-white",
@@ -49,6 +50,7 @@ export default function Sidebar() {
   const { t } = useI18n();
   const { flags } = useFeatureFlags();
   const { mode, isClerk } = useInterfaceMode();
+  const atlasEnabled = flags.enableAtlasV2;
   const authz = useMaybeAuthz();
   const runsQuery = useRunsSample();
   const blockedCount = getBlockedRunCount(runsQuery.data?.runs ?? []);
@@ -65,11 +67,30 @@ export default function Sidebar() {
       aria-label={t("shell.navAriaLabel")}
     >
       <div>
-        <p className="eyebrow">{t("shell.eyebrow")}</p>
-        <h1 className="mt-2">{t("shell.title")}</h1>
-        <p className="mt-4 text-sm leading-7 text-[rgba(245,240,230,0.72)]">
-          {t("shell.subtitle")}
-        </p>
+        {atlasEnabled ? (
+          <div className="atlas-sidebar-brand">
+            <AtlasBrand
+              alt={t("shell.title")}
+              className="max-w-[184px]"
+              inverted
+              size={184}
+              variant="lockup"
+            />
+            <p className="atlas-sidebar-note">
+              {isClerk
+                ? t("shell.atlasShellLiteSubtitle")
+                : t("shell.atlasAnalystSubtitle")}
+            </p>
+          </div>
+        ) : (
+          <>
+            <p className="eyebrow">{t("shell.eyebrow")}</p>
+            <h1 className="mt-2">{t("shell.title")}</h1>
+            <p className="mt-4 text-sm leading-7 text-[rgba(245,240,230,0.72)]">
+              {t("shell.subtitle")}
+            </p>
+          </>
+        )}
       </div>
 
       <nav aria-label={t("shell.navAriaLabel")}>

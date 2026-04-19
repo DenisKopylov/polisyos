@@ -142,6 +142,103 @@ def test_compiled_pipeline_execute_uses_topological_execution_order() -> None:
     assert list(result.data.columns) == ["seed", "a", "b"]
 
 
+def test_transform_pipeline_accepts_injected_observability(monkeypatch: pytest.MonkeyPatch) -> None:
+    class _Span:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            del exc_type, exc, tb
+            return None
+
+        def set_attribute(self, name: str, value: object) -> None:
+            del name, value
+
+    class _Tracer:
+        def __init__(self) -> None:
+            self.names: list[str] = []
+
+        def start_as_current_span(
+            self,
+            name: str,
+            attributes: dict[str, object] | None = None,
+        ):
+            del attributes
+            self.names.append(name)
+            return _Span()
+
+    class _Metrics:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def record_fabric_lineage_graph(
+            self,
+            *,
+            graph_id: str,
+            node_count: int,
+            edge_count: int,
+        ) -> None:
+            self.calls.append(
+                {
+                    "graph_id": graph_id,
+                    "node_count": node_count,
+                    "edge_count": edge_count,
+                }
+            )
+
+    class _Tracker:
+        def __init__(self) -> None:
+            self.graph = type(
+                "_Graph",
+                (),
+                {
+                    "graph_id": "graph.injected",
+                    "entities": [1, 2],
+                    "activities": [1],
+                    "agents": [1],
+                    "edges": [1, 2, 3],
+                },
+            )()
+
+        def record_transform_stage(self, **kwargs: object) -> None:
+            del kwargs
+
+    monkeypatch.setattr(
+        "polisyos.fabric.connectors.transform.pipeline._default_tracer",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global tracer lookup should not run when tracer is injected")
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.fabric.connectors.transform.pipeline._default_metrics",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global metrics lookup should not run when metrics are injected")
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.fabric.connectors.transform._common._default_metrics",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global metrics lookup should not run when lineage metrics are injected")
+        ),
+    )
+
+    tracer = _Tracer()
+    metrics = _Metrics()
+    pipeline = TransformPipeline(
+        tracer=tracer,
+        metrics=metrics,
+    ).normalize(field_mappings={"A": "a"})
+
+    result = pipeline.apply(
+        pd.DataFrame({"A": [1, 2]}),
+        TransformContext(metadata={"lineage_tracker": _Tracker(), "metrics": metrics}),
+    )
+
+    assert list(result.data.columns) == ["a"]
+    assert tracer.names
+    assert metrics.calls
+
+
 def test_cycle_detection() -> None:
     pipeline = TransformPipeline()
     pipeline.normalize(field_mappings={"A": "a"})

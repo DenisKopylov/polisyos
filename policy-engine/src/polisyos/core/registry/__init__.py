@@ -6,10 +6,23 @@ CAS and IR schemas unless a caller explicitly needs immutable registry bundles.
 """
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .base import BaseRegistry, DuplicateDecision
 from .generic import GenericRegistry, GenericRegistrySnapshot
+
+if TYPE_CHECKING:
+    from .builder import build_default_registry_bundle, build_registry_bundle
+    from .builder_from_fragments import (
+        FragmentPrecedencePolicy,
+        build_registry_bundle_from_components,
+    )
+    from .loader import (
+        RegistryBundleContent,
+        load_registry_bundle,
+        load_registry_bundle_content,
+        load_registry_bundle_payload,
+    )
 
 __all__ = [
     "BaseRegistry",

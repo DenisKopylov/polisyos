@@ -55,7 +55,7 @@ class LinearPipeline(Generic[StageT]):
         if stage_ids is None:
             selected = list(self._stages.values())
         else:
-            selected: list[StageT] = []
+            selected = []
             missing: list[str] = []
             for stage_id in stage_ids:
                 stage = self._stages.get(stage_id)

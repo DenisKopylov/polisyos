@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 if TYPE_CHECKING:
     from polisyos.core.governance.profiles import ValidationProfile
@@ -22,7 +22,7 @@ class PassContext:
     """
 
     ir: Optional["TrinityBundle"]
-    state: dict
+    state: dict[str, Any]
     registry_bundle: Optional[object]
     profile: "ValidationProfile"
     run_id: str

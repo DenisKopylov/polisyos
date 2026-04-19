@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import difflib
 import json
 import sys
 from collections.abc import Sequence
@@ -420,10 +421,37 @@ def report_timing_command(
     default=None,
     help="Optional markdown output path.",
 )
-def docs_command(output: Path | None) -> None:
+@click.option(
+    "--check",
+    is_flag=True,
+    help="Fail if the generated markdown differs from the file passed via --output.",
+)
+def docs_command(output: Path | None, check: bool) -> None:
     """Generate markdown reference documentation from registry metadata."""
 
     docs = render_reference_docs()
+    if check:
+        if output is None:
+            raise click.ClickException("--check requires --output so drift can be compared.")
+        if not output.exists():
+            raise click.ClickException(f"Generated docs target is missing: {output}")
+        current = output.read_text(encoding="utf-8")
+        if current != docs:
+            diff = "\n".join(
+                difflib.unified_diff(
+                    current.splitlines(),
+                    docs.splitlines(),
+                    fromfile=f"{output} (current)",
+                    tofile=f"{output} (generated)",
+                    lineterm="",
+                )
+            )
+            raise click.ClickException(
+                "Generated docs drift detected for "
+                f"{output}. Re-run `uv run polisyos-tools docs --output {output}`.\n{diff}"
+            )
+        click.echo(f"Generated docs are current: {output}")
+        return
     if output is None:
         click.echo(docs, nl=False)
         return

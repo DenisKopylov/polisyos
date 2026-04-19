@@ -3,6 +3,10 @@ from __future__ import annotations
 from datetime import date
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir.analytics.dual_certificate import (
+    load_dual_certificate_bundle,
+    validate_dual_certificate_bundle,
+)
 from polisyos.ir.analytics.partial_identification import BoundMethod, load_bounds_bundle
 from polisyos.ir.observation.bundles import BoundsChannelSpec, BoundsEstimationBundle
 from polisyos.ir.observation.causal_execution import BoundsEstimationTask
@@ -215,3 +219,60 @@ def test_bounds_estimation_runner_sanitizes_non_finite_thresholds(tmp_path) -> N
 
     assert entry.status == "ok"
     assert entry.bounds_bundle_ref is not None
+
+
+def test_bounds_estimation_runner_persists_dual_certificate_for_exact_auto_bounds(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    runner = BoundsEstimationRunner(store=store)
+    [entry] = runner.run(
+        [
+            BoundsEstimationTask(
+                task_id="exact-auto-bounds",
+                bounds_input=BoundsEstimationInput(
+                    outcome=[0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                    treatment=[0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+                ),
+                bundle=_bounds_bundle(),
+                params={"use_auto_bounds": True, "has_monotone": True},
+            )
+        ]
+    )
+
+    assert entry.status == "ok"
+    assert entry.bounds_bundle_ref is not None
+    bundle = load_bounds_bundle(store, entry.bounds_bundle_ref)
+    assert bundle.dual_certificate_ref is not None
+    assert bundle.sharpness_status == "sharp"
+
+    cert = load_dual_certificate_bundle(store, bundle.dual_certificate_ref)
+    validation = validate_dual_certificate_bundle(cert)
+    assert validation.ok, validation.errors
+
+
+def test_bounds_estimation_runner_persists_dual_certificate_for_exact_iv_bounds(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    runner = BoundsEstimationRunner(store=store)
+    [entry] = runner.run(
+        [
+            BoundsEstimationTask(
+                task_id="exact-iv-bounds",
+                bounds_input=BoundsEstimationInput(
+                    outcome=[0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                    treatment=[0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+                    instrument=[0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0],
+                ),
+                bundle=_bounds_bundle(),
+                params={"has_iv": True, "use_auto_bounds": True},
+            )
+        ]
+    )
+
+    assert entry.status == "ok"
+    assert entry.bounds_bundle_ref is not None
+    bundle = load_bounds_bundle(store, entry.bounds_bundle_ref)
+    assert bundle.dual_certificate_ref is not None
+    assert bundle.sharpness_status == "sharp"
+
+    cert = load_dual_certificate_bundle(store, bundle.dual_certificate_ref)
+    validation = validate_dual_certificate_bundle(cert)
+    assert validation.ok, validation.errors

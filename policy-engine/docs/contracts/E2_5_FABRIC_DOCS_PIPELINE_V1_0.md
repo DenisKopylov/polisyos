@@ -760,3 +760,11 @@ Run normalize/structure/chunk twice with identical options:
    - events for each step
 5) All new tests in §13 pass.
 
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 0 citation/world ID determinism and Phase 4 observation/interoperability bridge |
+| Contract tests | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_docs_pipeline.py`, `tests/fabric/test_world_materialization.py` |
+| Schema snapshots | `schemas/snapshots/ir/doc_meta.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/world_event.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

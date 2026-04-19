@@ -10,6 +10,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -35,6 +37,7 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.executor import WorkflowExecutionResult, WorkflowExecutor
 from polisyos.scientist.engine.registry import NodeRegistry, discover_nodes
 from polisyos.scientist.engine.runner.config import WorkflowRunnerConfig, build_workflow_runner
+from polisyos.scientist.engine.state_branching import snapshot_state
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
@@ -76,6 +79,21 @@ if TYPE_CHECKING:
         def get_enforcer(self, tenant_id: str) -> QuotaEnforcer: ...
 
 DEFAULT_CAS_ROOT = Path(".polisyos")
+_WORKFLOW_BUILDER_IMPORT_ERRORS = (ImportError, ModuleNotFoundError)
+_WORKFLOW_BUILDER_NAMESPACE_ERRORS = (
+    AttributeError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
+_WORKFLOW_BUILDER_PROVENANCE_ERRORS = (
+    AttributeError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+_WORKFLOW_BUILDER_ARTIFACT_REF_ERRORS = (TypeError, ValueError, ValidationError)
 
 
 def _build_default_store() -> ArtifactStore:
@@ -106,7 +124,7 @@ def _build_quota_registry() -> QuotaRegistry | None:
     """Construct a tenant quota registry only when quota enforcement is requested."""
     try:
         from polisyos.core.security.quota_registry import TenantQuotaRegistry
-    except (ImportError, ModuleNotFoundError):  # pragma: no cover - optional dependency
+    except _WORKFLOW_BUILDER_IMPORT_ERRORS:  # pragma: no cover - optional dependency
         return None
     return cast("QuotaRegistry", TenantQuotaRegistry())
 
@@ -141,7 +159,7 @@ def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
             "ArtifactStore",
             NamespacedArtifactStore(inner=store, tenant_id=tenant_id, cell_id=cell_id),
         )
-    except Exception:
+    except (*_WORKFLOW_BUILDER_IMPORT_ERRORS, *_WORKFLOW_BUILDER_NAMESPACE_ERRORS):
         return store
 
 
@@ -151,7 +169,7 @@ def _maybe_create_provenance_dag(run_id: str) -> object | None:
         from polisyos.scientist.provenance.run_dag import RunProvenanceDAG
         tenant_id = get_current_tenant_id_or_none()
         return cast("object", RunProvenanceDAG(run_id=run_id, tenant_id=tenant_id))
-    except Exception:
+    except (*_WORKFLOW_BUILDER_IMPORT_ERRORS, *_WORKFLOW_BUILDER_PROVENANCE_ERRORS):
         return None
 
 
@@ -161,9 +179,17 @@ def _artifact_ref_or_none(value: object) -> ArtifactRef | None:
     if isinstance(value, dict):
         try:
             return ArtifactRef.model_validate(value)
-        except Exception:
+        except _WORKFLOW_BUILDER_ARTIFACT_REF_ERRORS:
             return None
     return None
+
+
+def _prepare_workflow_state(initial_state: ExperimentState, *, workflow_id: str) -> ExperimentState:
+    state = snapshot_state(initial_state)
+    if not state.run_id:
+        state = state.model_copy(update={"run_id": new_run_id()})
+    state.params["workflow_id"] = workflow_id
+    return state
 
 
 def _pin_cross_layer_input_ref(
@@ -484,10 +510,10 @@ def run_policy_design_workflow(
     store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
-    state = initial_state.model_copy(deep=True)
-    if not state.run_id:
-        state = state.model_copy(update={"run_id": new_run_id()})
-    state.params["workflow_id"] = "scientist_policy_design"
+    state = _prepare_workflow_state(
+        initial_state,
+        workflow_id="scientist_policy_design",
+    )
     state.params.setdefault("policy_mode", True)
     state.execution_profile = state.execution_profile or "policy_design"
 
@@ -570,10 +596,10 @@ def run_discovery_workflow(
     store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
-    state = initial_state.model_copy(deep=True)
-    if not state.run_id:
-        state = state.model_copy(update={"run_id": new_run_id()})
-    state.params["workflow_id"] = "scientist_discovery"
+    state = _prepare_workflow_state(
+        initial_state,
+        workflow_id="scientist_discovery",
+    )
     state.execution_profile = state.execution_profile or "discovery"
 
     if registry_bundle_ref is None:
@@ -639,10 +665,10 @@ def run_default_workflow(
     store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
-    state = initial_state.model_copy(deep=True)
-    if not state.run_id:
-        state = state.model_copy(update={"run_id": new_run_id()})
-    state.params["workflow_id"] = "scientist_default"
+    state = _prepare_workflow_state(
+        initial_state,
+        workflow_id="scientist_default",
+    )
 
     if registry_bundle_ref is None:
         registry_bundle_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
@@ -729,10 +755,10 @@ def run_policy_verified_workflow(
     store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
-    state = initial_state.model_copy(deep=True)
-    if not state.run_id:
-        state = state.model_copy(update={"run_id": new_run_id()})
-    state.params["workflow_id"] = "scientist_policy_verified"
+    state = _prepare_workflow_state(
+        initial_state,
+        workflow_id="scientist_policy_verified",
+    )
     state.execution_profile = state.execution_profile or "policy_verified_async"
     state.params.setdefault("policy_answer_mode", "verified_async")
     state.params.setdefault("allow_hypotheses", True)
@@ -815,10 +841,10 @@ def run_causal_full_workflow(
     store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
-    state = initial_state.model_copy(deep=True)
-    if not state.run_id:
-        state = state.model_copy(update={"run_id": new_run_id()})
-    state.params["workflow_id"] = "scientist_causal_full"
+    state = _prepare_workflow_state(
+        initial_state,
+        workflow_id="scientist_causal_full",
+    )
     state.params.setdefault("allow_degraded_transport", False)
 
     if registry_bundle_ref is None:

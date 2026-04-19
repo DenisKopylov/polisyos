@@ -14,7 +14,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
 )
 from polisyos.scientist.workflows.builder import (
+    _artifact_ref_or_none,
+    run_causal_full_workflow,
     run_default_workflow,
+    run_discovery_workflow,
     run_policy_design_workflow,
     run_policy_verified_workflow,
 )
@@ -102,7 +105,13 @@ def test_default_workflow_accepts_injected_store_factory_and_quota_registry(
     monkeypatch.setattr(builder, "build_default_registry", lambda _store: registry_bundle_ref)
     monkeypatch.setattr(builder, "_ensure_snapshot_bind", lambda _state: None)
     monkeypatch.setattr(builder, "acquire_run_lock", lambda *args, **kwargs: lock)
-    monkeypatch.setattr(builder, "build_execution_context", lambda *args, **kwargs: object())
+    monkeypatch.setattr(
+        builder,
+        "build_execution_context",
+        lambda *args, **kwargs: SimpleNamespace(
+            run=SimpleNamespace(run_manifest=SimpleNamespace())
+        ),
+    )
     monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
     monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())
     monkeypatch.setattr(builder, "WorkflowExecutor", lambda *args, **kwargs: executor)
@@ -121,4 +130,88 @@ def test_default_workflow_accepts_injected_store_factory_and_quota_registry(
     enforcer.check_run_start.assert_called_once_with()
     enforcer.record_run_start.assert_called_once_with()
     enforcer.record_run_end.assert_called_once_with()
+    lock.release.assert_called_once_with()
+
+
+def test_artifact_ref_or_none_assertion_is_not_swallowed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("artifact-ref-broken")
+
+    import polisyos.scientist.workflows.builder as builder
+
+    monkeypatch.setattr(builder.ArtifactRef, "model_validate", _boom)
+
+    with pytest.raises(AssertionError, match="artifact-ref-broken"):
+        _artifact_ref_or_none({"artifact_id": "broken"})
+
+
+@pytest.mark.parametrize(
+    "runner",
+    [
+        run_default_workflow,
+        run_policy_design_workflow,
+        run_discovery_workflow,
+        run_policy_verified_workflow,
+        run_causal_full_workflow,
+    ],
+)
+def test_workflow_runners_use_branch_local_snapshot_state(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    runner,
+) -> None:
+    state = ExperimentState(
+        run_id="R_builder_snapshot",
+        inputs={INPUT_REGISTRY_BUNDLE_REF: _ref("1", "core.registry_bundle")},
+        params={"nested": {"value": "original"}},
+    )
+    execution_result = MagicMock(report=MagicMock(status="ok"))
+    lock = SimpleNamespace(release=MagicMock())
+    captured_state: dict[str, ExperimentState] = {}
+
+    import polisyos.scientist.workflows.builder as builder
+
+    class _Executor:
+        def execute(self, workflow, branch_state):
+            del workflow
+            captured_state["value"] = branch_state
+            branch_state.params["mutated"] = True
+            branch_state.params["nested"]["value"] = "updated"
+            branch_state.inputs["branch_only"] = _ref("2", "scientist.test")
+            return execution_result
+
+    monkeypatch.setattr(builder, "_ensure_snapshot_bind", lambda _state: None)
+    monkeypatch.setattr(builder, "acquire_run_lock", lambda *args, **kwargs: lock)
+    monkeypatch.setattr(
+        builder,
+        "build_execution_context",
+        lambda *args, **kwargs: SimpleNamespace(
+            run=SimpleNamespace(run_manifest=SimpleNamespace())
+        ),
+    )
+    monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
+    monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())
+    monkeypatch.setattr(builder, "WorkflowExecutor", lambda *args, **kwargs: _Executor())
+    monkeypatch.setattr(
+        builder.WorkflowRunnerConfig,
+        "from_env",
+        staticmethod(lambda: SimpleNamespace(backend="local", max_parallelism=1)),
+    )
+    monkeypatch.setattr(builder, "default_workflow_spec", lambda: object())
+    monkeypatch.setattr(builder, "policy_design_workflow_spec", lambda: object())
+    monkeypatch.setattr(builder, "discovery_workflow_spec", lambda: object())
+    monkeypatch.setattr(builder, "policy_verified_workflow_spec", lambda: object())
+    monkeypatch.setattr(builder, "causal_full_workflow_spec", lambda: object())
+
+    result = runner(state, store=FileSystemCAS(tmp_path), foundry=object())
+
+    assert result is execution_result
+    assert captured_state["value"] is not state
+    assert state.params == {"nested": {"value": "original"}}
+    assert state.inputs == {INPUT_REGISTRY_BUNDLE_REF: _ref("1", "core.registry_bundle")}
+    assert captured_state["value"].params["nested"]["value"] == "updated"
+    assert "branch_only" in captured_state["value"].inputs
     lock.release.assert_called_once_with()

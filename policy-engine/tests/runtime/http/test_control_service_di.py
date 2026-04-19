@@ -258,6 +258,47 @@ def test_control_service_builds_retrieval_with_injected_provider_bundle(
     service.close()
 
 
+def test_control_service_accepts_injected_observability(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    providers = _build_registry_providers()
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="external",
+        state_store_backend="sqlite",
+        sqlite_path=".polisyos/control.sqlite3",
+        postgres_dsn=None,
+    )
+    metrics = object()
+    tracer = object()
+
+    monkeypatch.setattr(
+        "polisyos.runtime.http.services.control._default_runtime_metrics",
+        lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
+    )
+    monkeypatch.setattr(
+        "polisyos.runtime.http.services.control._default_runtime_tracer",
+        lambda: (_ for _ in ()).throw(AssertionError("global tracer should not be used")),
+    )
+
+    service = ControlPlaneService(
+        cas_root=tmp_path / ".polisyos",
+        core_runs_root=tmp_path / ".polisyos" / "runs",
+        artifact_store=store,
+        retrieval_service=_NoOpRetrievalService(),
+        policy_resolver=resolver,
+        registry_providers=providers,
+        metrics=metrics,
+        tracer=tracer,
+    )
+
+    assert service._metrics is metrics
+    assert service._tracer is tracer
+    service.close()
+
+
 def test_task_runner_uses_shared_executor_by_default() -> None:
     runner = TaskRunner()
 

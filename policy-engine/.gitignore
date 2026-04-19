@@ -2,6 +2,11 @@ __pycache__/
 *.pyc
 *.egg-info/
 .venv/
+.venv_codex/
+.tmp_c7_venv/
+.tmp_c7_smoke/
+.uv-cache/
+.vscode/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -43,6 +48,9 @@ logs/
 benchmarks/_reports/
 benchmark-results/
 tools/benchmarks/_reports/
+dist/
+out/
+output/
 
 # Temporary directories
 .tmp/
@@ -52,6 +60,10 @@ tmp/
 
 # Local audit bundles
 *.polisyos-audit.tar.gz
+
+# Accidental local CSV / pip-redirection artifacts
+all_1000_policy_topics.csv
+env_example.txt
 
 # Frontend build artifacts
 frontend/runtime-dashboard/node_modules/
@@ -73,6 +85,7 @@ stale_sources_missing_paths.txt
 # Documentation
 docs/*
 !docs/IMPLEMENTATION_GUIDE.md
+!docs/DATA_FORGE_CONSOLIDATION_PLAN.md
 !docs/DOCUMENTATION_SOTA_PLAN.md
 !docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md
 !docs/UKRAINE_FUNDING_INTELLIGENCE_PLAN.md
@@ -92,6 +105,10 @@ docs/*
 !docs/archive/
 !docs/archive/plans/
 !docs/archive/plans/**
+!docs/archive/specs/
+!docs/archive/specs/**
+!docs/plans/
+!docs/plans/**
 docs/archive/reports/**
 !docs/archive/reports/
 !docs/archive/reports/platform-acceptance-manual.md

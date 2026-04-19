@@ -1,4 +1,4 @@
-"""Public backends runtime fingerprint module API."""
+"""Capture backend runtime posture for method availability and replay evidence."""
 from __future__ import annotations
 
 import json
@@ -75,7 +75,7 @@ class BackendRuntimeFingerprint:
 
 
 def safe_version(package_name: str) -> str | None:
-    """Safe version helper."""
+    """Return the installed distribution version without failing missing packages."""
     try:
         return metadata.version(package_name)
     except metadata.PackageNotFoundError:
@@ -139,7 +139,7 @@ def replay_semantics_for_tier(tier: DeterminismTier | None) -> str:
 
 
 def runtime_stack_for(method_class: type) -> tuple[str, ...]:
-    """Runtime stack for helper."""
+    """Normalize a method class runtime stack declaration into stable labels."""
     runtime_stack = getattr(method_class, "runtime_stack", ())
     if isinstance(runtime_stack, str):
         runtime_stack = (runtime_stack,)
@@ -154,7 +154,7 @@ def capture_versions(
     base_packages: tuple[str, ...],
     runtime_stack: tuple[str, ...],
 ) -> dict[str, str]:
-    """Capture versions helper."""
+    """Collect installed versions for backend base packages and runtime stack labels."""
     versions: dict[str, str] = {}
     packages = list(base_packages)
     for item in runtime_stack:

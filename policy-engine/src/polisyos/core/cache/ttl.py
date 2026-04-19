@@ -6,7 +6,7 @@ import time
 from collections import OrderedDict
 from collections.abc import Hashable
 from dataclasses import dataclass
-from typing import Callable, Generic
+from typing import Callable, Generic, cast
 
 from .protocol import K, T, V
 
@@ -172,14 +172,15 @@ class TTLCache(Generic[K, V]):
     def __contains__(self, key: object) -> bool:
         if not isinstance(key, Hashable):
             return False
+        cache_key = cast("K", key)
         now = self._time_fn()
         with self._lock:
-            item = self._values.get(key)
+            item = self._values.get(cache_key)
             if item is None:
                 return False
             _value, expires_at = item
             if now >= expires_at:
-                self._values.pop(key, None)
+                self._values.pop(cache_key, None)
                 self._expirations += 1
                 return False
             return True

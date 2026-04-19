@@ -6,7 +6,7 @@ import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from polisyos.common.logger import get_logger
 
@@ -230,7 +230,7 @@ def stable_json_dumps(value: Any, *, ensure_ascii: bool = True, sort_keys: bool 
     payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
     if orjson is not None and not ensure_ascii:
         option = orjson.OPT_SORT_KEYS if sort_keys else 0
-        return orjson.dumps(payload, option=option).decode("utf-8")
+        return cast(bytes, orjson.dumps(payload, option=option)).decode("utf-8")
     return json.dumps(
         payload,
         ensure_ascii=ensure_ascii,
@@ -244,7 +244,7 @@ def fast_json_dumps_bytes(value: Any, *, sort_keys: bool = False) -> bytes:
     payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
     if orjson is not None:
         option = orjson.OPT_SORT_KEYS if sort_keys else 0
-        return orjson.dumps(payload, option=option)
+        return cast(bytes, orjson.dumps(payload, option=option))
     rendered = json.dumps(
         payload,
         ensure_ascii=False,

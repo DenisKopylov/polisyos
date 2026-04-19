@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/topology/topology.schema.json",
+  "title": "Topology Registry",
+  "type": "object",
+  "required": ["topology", "path"],
+  "properties": {
+    "topology": {
+      "type": "object",
+      "required": ["version", "owner"],
+      "properties": {
+        "version": {"type": "integer"},
+        "status": {"type": "string"},
+        "owner": {"type": "string"}
+      }
+    },
+    "path": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scope", "path", "category", "commit_policy", "owner"],
+        "properties": {
+          "scope": {"enum": ["repo_root", "product_root"]},
+          "path": {"type": "string", "minLength": 1},
+          "category": {
+            "enum": [
+              "baseline_artifacts",
+              "build_output",
+              "cache",
+              "docs",
+              "generated_committed",
+              "legacy_local_env",
+              "legacy_wrapper",
+              "local_data",
+              "product_root",
+              "release_workspace",
+              "repo_control_plane",
+              "runtime_state",
+              "scratch",
+              "source",
+              "test_fixture"
+            ]
+          },
+          "commit_policy": {
+            "enum": [
+              "committed",
+              "committed_except_generated_outputs",
+              "committed_generated_baselines",
+              "committed_or_ignored_by_subpath",
+              "committed_small_fixtures_only",
+              "committed_with_lifecycle",
+              "committed_wrapper_only",
+              "ignored",
+              "ignored_except_markdown",
+              "registered_generated_artifacts",
+              "wrapper_only_until_sunset"
+            ]
+          },
+          "owner": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

@@ -18,7 +18,13 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityStatus,
 )
 from polisyos.core.contracts.feedback import DecisionMonitoringContract
-from polisyos.scientist.decision_validity import DecisionValidityService
+from polisyos.scientist.decision_validity import (
+    DecisionValidityService,
+    DecisionValidityStateStore,
+    _DecisionLineageState,
+    _load_baseline,
+    _load_envelope,
+)
 
 
 class _StoreWithRootProxy:
@@ -224,3 +230,41 @@ def test_decision_validity_service_accepts_protocol_store_proxy(tmp_path) -> Non
     )
 
     assert evaluation.status == DecisionValidityStatus.REQUIRES_HUMAN_REVIEW
+
+
+def test_decision_validity_state_store_load_model_assertion_is_not_swallowed(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "lineage.json"
+    path.write_text("{}", encoding="utf-8")
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("lineage-model-broken")
+
+    monkeypatch.setattr(_DecisionLineageState, "model_validate", _boom)
+
+    with pytest.raises(AssertionError, match="lineage-model-broken"):
+        DecisionValidityStateStore._load_model(path, _DecisionLineageState)
+
+
+def test_load_envelope_assertion_is_not_swallowed(monkeypatch: pytest.MonkeyPatch) -> None:
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("envelope-broken")
+
+    monkeypatch.setattr(DecisionValidityEnvelope, "model_validate", _boom)
+
+    with pytest.raises(AssertionError, match="envelope-broken"):
+        _load_envelope({"decision_validity_envelope": {}})
+
+
+def test_load_baseline_assertion_is_not_swallowed(monkeypatch: pytest.MonkeyPatch) -> None:
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("baseline-broken")
+
+    monkeypatch.setattr(DecisionValidityEvaluation, "model_validate", _boom)
+
+    with pytest.raises(AssertionError, match="baseline-broken"):
+        _load_baseline({"decision_validity_baseline": {}})

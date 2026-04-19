@@ -73,6 +73,7 @@ from polisyos.lex.legal_evaluation.transport_constraints import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
@@ -132,6 +133,7 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
     ],
     state_writes=[
+        "causal_capability_contract_ref",
         "params.transportability_status",
         "params.transportability_transport_mode",
         "params.transportability_identification_engine",
@@ -678,7 +680,7 @@ class RunTransportabilityNode:
         source_context = _resolve_context_profile(state.params.get("source_context"))
         target_context = _resolve_context_profile(state.params.get("target_context"))
         if source_context is None or target_context is None:
-            new_state = state.model_copy(deep=True)
+            new_state = branch_state(state, write_paths=_SPEC.state_writes).state
             new_state.params["transportability_warning"] = (
                 "missing_source_or_target_context: transportability skipped"
             )
@@ -698,7 +700,7 @@ class RunTransportabilityNode:
 
         graph = _resolve_causal_graph(ctx, state)
         if graph is None:
-            new_state = state.model_copy(deep=True)
+            new_state = branch_state(state, write_paths=_SPEC.state_writes).state
             new_state.params["transportability_warning"] = (
                 "missing_causal_graph: transportability skipped"
             )
@@ -787,7 +789,7 @@ class RunTransportabilityNode:
             ],
         )
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.params["transportability_status"] = transport_result.status.value
         new_state.params["transportability_transport_mode"] = transport_result.transport_mode.value
         new_state.params["transportability_identification_engine"] = (

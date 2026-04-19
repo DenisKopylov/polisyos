@@ -127,8 +127,16 @@ def _stage_result(*, score: float, passed: bool, stage_name: str) -> StageResult
     )
 
 
-def test_metrics_exporter_operational_signal() -> None:
+def test_metrics_exporter_operational_signal(monkeypatch: pytest.MonkeyPatch) -> None:
     registry = _FakeMetricsRegistry()
+
+    monkeypatch.setattr(
+        "polisyos.scientist.engine.metrics._default_metrics",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global metrics lookup should not run when metrics are injected")
+        ),
+    )
+
     metrics = build_engine_metrics(metrics=registry)
     health = get_metrics_exporter_health(metrics=registry)
 

@@ -1,6 +1,13 @@
 # Control Plane API
 Related explanation: [Security Model](../../explanation/security-model.md).
 
+Freshness: 2026-04-17
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/routes/control.py`, `src/polisyos/runtime/http/services/control.py`, `src/polisyos/runtime/http/mutation_policy.py`, `src/polisyos/runtime/http/execution_policy.py`, and `schemas/runtime_api_v1.openapi.json`
+Validation:
+- `uv run pytest -q tests/runtime/http/test_control_api.py tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_control_hardening.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+
 The control plane is the write-capable orchestration surface for launching runs, driving data collection, and operating Lex and decision-validity workflows.
 
 ## Execution Model
@@ -12,6 +19,30 @@ The control plane is the write-capable orchestration surface for launching runs,
 - Durable job state is read through `GET /api/v1/control/jobs/{job_id}`.
 - When the resolved worker backend is `embedded`, `ControlWorker` leases jobs from the durable control store and renews heartbeats while processing them.
 - `TaskRunner` is the lightweight in-process thread-pool executor intended for local/dev use. It is not the durable production path.
+
+## Write-Path Controls
+
+All `POST /api/v1/control/*` mutations pass through
+`MutationProtectionMiddleware` before the route handler.
+
+- Per-tenant write rate limits return `429 rate_limit_exceeded`.
+- Reused `X-Idempotency-Key` values replay the original successful response
+  only when tenant, method, path, and request hash match.
+- Reusing a key for a different payload returns `409 idempotency_key_reused`.
+- Concurrent reuse while the first request is still pending returns
+  `409 idempotency_request_in_progress`.
+- Mutation audit entries are appended to
+  `.polisyos/runtime/audit/mutations.jsonl`.
+- Control-store and CAS dependency guards return typed `503`/`504` problem
+  responses instead of hanging worker threads silently.
+
+Validation anchors:
+
+- `tests/runtime/http/test_runtime_api_write_path_hardening.py`
+- `tests/runtime/http/test_control_hardening.py`
+- `tests/runtime/http/test_control_plane_store.py`
+- `tests/runtime/http/test_control_service_di.py`
+- `tests/runtime/http/test_runtime_api_observability.py`
 
 ## Endpoint Summary
 
@@ -64,7 +95,10 @@ The control plane is the write-capable orchestration surface for launching runs,
 | `GET` | `/api/v1/control/runs/{run_id}/decision-validity` | None | `DecisionValiditySummaryResponse` |
 | `GET` | `/api/v1/control/decision-packets/{decision_packet_ref}/decision-validity` | None | `DecisionValiditySummaryResponse` |
 
-Committed OpenAPI endpoints share the standard response codes `200`, `400`, `401`, `403`, `404`, `422`, and `500`.
+Committed OpenAPI endpoints share the common response codes `200`, `400`,
+`401`, `403`, `404`, `422`, and `500`. Hardened write paths may additionally
+return `409`, `429`, `503`, or `504` depending on idempotency, rate-limit, and
+dependency state.
 
 ## Workflow Runs
 

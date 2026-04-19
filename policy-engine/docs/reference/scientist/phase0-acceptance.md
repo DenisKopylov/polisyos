@@ -1,10 +1,14 @@
 # Scientist Phase 0 Acceptance
 
-Related reference: [Scientist Remediation Status](remediation-status.md).
+Related references: [Scientist Remediation Status](remediation-status.md), [Phase 1 Acceptance](phase1-acceptance.md).
 
-> Acceptance contract for Phase 0 of `SCIENTIST_AUDIT_REMEDIATION_PLAN.md`.
-> This page does not claim closure by itself; it records what must be true
-> before Phase 0 can be signed off.
+Owner: `@scientist-owners`
+Source of truth: `tools/ci/check_scientist_phase0_gate.py` and the cited Phase 0 Scientist regressions on this page
+
+This page is the repo-tracked acceptance surface for Phase 0 of
+`SCIENTIST_AUDIT_REMEDIATION_PLAN.md`. Phase 0 is closed only when the code,
+direct regressions, repo-tracked evidence, and the published gate command all
+agree on the same containment contract.
 
 ## Scope
 
@@ -13,48 +17,75 @@ Related reference: [Scientist Remediation Status](remediation-status.md).
 
 ## Exit Criteria
 
-- Every critical `asyncio.gather()` call site either uses `return_exceptions=True` or has documented sibling-failure semantics.
-- Worker pools, retries, verifier processes, and lock heartbeats pass teardown tests without permit drift, stale locks, orphan threads, or orphan processes.
-- Request-attempt retries reuse stable idempotency keys.
-- Budget reservation accounting remains consistent across success, failure, and post-record adjustment paths.
-- Empty input, invalid depth, and zero-budget paths fail with typed errors.
-- Masking bypasses fail closed.
-- Statistical hotfixes on the default path have explicit regression coverage.
+- Critical async/lifecycle paths surface typed failures without masking control-flow exits.
+- Worker pools, retries, verifier workers, and lock probes pass teardown regressions without stale permits or silent probe degradation.
+- Request-attempt retries reuse stable idempotency keys and preserve deterministic idempotency inputs.
+- Budget reservation accounting remains consistent across success, failure, cancellation, and post-record reconciliation.
+- Masking bypasses fail closed with typed validation errors.
+- Foundry TEE env propagation sanitizes and restores environment state.
+- Default-path statistical hotfixes keep direct regression coverage.
 
 ## Required Evidence
 
 | Evidence | Current posture |
 |----------|-----------------|
-| Fault-injection tests for sibling failure and task cancellation | Partial |
-| Concurrency stress tests for pool shrink/expand and permit accounting | Partial |
-| Lock ownership and metadata atomicity tests | Partial |
-| Timeout cleanup tests for verifier/retry worker lifecycle | Partial |
-| Idempotency and budget regression tests | Partial |
-| Statistical regression tests for default-path hotfixes | Partial |
+| Fault-injection tests for sibling/runtime failure surfaces | Present via `tests/scientist/engine/test_retry.py`, `tests/scientist/engine/runner/test_worker_pool.py`, and lock probe regressions |
+| Concurrency and permit-accounting regressions | Present via `tests/scientist/engine/runner/test_worker_pool.py` and `tests/scientist/llm/test_budget_enforcer.py::test_parallel_calls_do_not_overspend_reserved_budget` |
+| Lock ownership, heartbeat, and metadata atomicity coverage | Present via `tests/scientist/engine/locks/test_fcntl_lock.py`, `test_lock_metrics.py`, `test_dynamodb_lock.py`, and `test_redis_lock.py` |
+| Timeout cleanup and worker lifecycle regressions | Present via `tests/scientist/engine/test_retry.py::test_timeout_worker_does_not_swallow_system_exit` |
+| Idempotency and budget regression pack | Present via `tests/scientist/llm/test_gateway_client_retry.py`, `tests/scientist/test_idempotency.py`, and `tests/scientist/llm/test_budget_enforcer.py` |
+| Statistical hotfix regressions for the default path | Present via `tests/scientist/backtesting/test_bootstrap.py`, `test_ipw.py`, `test_distributional.py`, and `tests/scientist/search/test_cheap_stage_autotune.py` |
+| Repo-tracked gate command | Present via `tools/ci/check_scientist_phase0_gate.py`; any live CI wiring for this evidence is operational/manual rather than versioned under `.github/workflows/` |
 
-## Finding Matrix
+## Acceptance Matrix
 
-| Finding | Reproducer | Fixed surface | Direct test |
-|---------|------------|---------------|-------------|
-| `retry_timeout_worker_masks_system_exit` | Forked timeout worker catches `BaseException` and converts control-flow exits into generic runtime payloads. | `src/polisyos/scientist/engine/retry.py` | `tests/scientist/engine/test_retry.py::test_timeout_worker_does_not_swallow_system_exit` |
-| `local_pool_worker_failure_swallow` | Local worker-pool runner catches broad worker errors instead of surfacing them through the future contract. | `src/polisyos/scientist/engine/runner/local_pool.py` | `tests/scientist/engine/runner/test_worker_pool.py::test_worker_runtime_error_surfaces_on_future` |
-| `redis_lock_probe_swallow` | Redis liveness/stale probes fall through broad handlers and silently report `False` without observable degraded semantics. | `src/polisyos/scientist/engine/locks/redis_lock.py` | `tests/scientist/engine/locks/test_redis_lock.py::test_is_alive_returns_false_on_runtime_probe_error`; `tests/scientist/engine/locks/test_redis_lock.py::test_detect_stale_returns_false_on_runtime_probe_error` |
-| `dynamodb_lock_probe_swallow` | DynamoDB liveness/stale probes and heartbeat extension use broad handlers that hide backend runtime failures. | `src/polisyos/scientist/engine/locks/dynamodb_lock.py` | `tests/scientist/engine/locks/test_dynamodb_lock.py::test_is_alive_runtime_probe_error_returns_false`; `tests/scientist/engine/locks/test_dynamodb_lock.py::test_detect_stale_runtime_probe_error_returns_false` |
-| `llm_fallback_router_broad_failover_catch` | Endpoint failover catches broad runtime failures and hides the degraded path behind silent state mutation. | `src/polisyos/scientist/llm/fallback_router.py` | `tests/scientist/llm/test_fallback_router.py::test_failover_emits_degraded_path`; `tests/scientist/llm/test_fallback_router.py::test_keyboard_interrupt_is_not_swallowed` |
-| `provider_verification_artifact_load_swallow` | Invalid provider-verification JSON degrades through a broad handler instead of typed load semantics. | `src/polisyos/scientist/llm/provider_verification.py` | `tests/scientist/llm/test_provider_verification.py::test_load_provider_verification_invalid_json_returns_none` |
-| `provider_verification_named_check_swallow` | Smoke-check wrapper catches all exceptions, including programmer errors, and converts them into failed checks. | `src/polisyos/scientist/llm/provider_verification.py` | `tests/scientist/llm/test_provider_verification.py::test_run_named_check_does_not_swallow_assertion_errors` |
+| Closure area | Evidence |
+|--------------|----------|
+| Retry timeout worker keeps control-flow exits visible | `tests/scientist/engine/test_retry.py::test_timeout_worker_does_not_swallow_system_exit` |
+| Local worker-pool runtime failure surfaces through the future contract | `tests/scientist/engine/runner/test_worker_pool.py::test_worker_runtime_error_surfaces_on_future` |
+| Lock metrics wrapper no longer swallows assertion-style failures | `tests/scientist/engine/locks/test_lock_metrics.py::test_measure_acquire_does_not_swallow_assertion_errors` |
+| DynamoDB and Redis stale/liveness probes fail closed instead of silently swallowing runtime faults | `tests/scientist/engine/locks/test_dynamodb_lock.py::test_detect_stale_runtime_probe_error_returns_false`, `tests/scientist/engine/locks/test_redis_lock.py::test_detect_stale_returns_false_on_runtime_probe_error` |
+| Gateway retries reuse one request-attempt idempotency key | `tests/scientist/llm/test_gateway_client_retry.py::test_retry_after_header_and_idempotency_key_are_reused` |
+| Gateway calls without retry budget still get a stable idempotency key | `tests/scientist/llm/test_gateway_client_retry.py::test_idempotency_key_is_added_even_without_retry_budget` |
+| Engine-level idempotency input hashing remains deterministic and artifact-sensitive | `tests/scientist/test_idempotency.py::test_compute_idempotency_key_stable_for_same_inputs`, `test_compute_idempotency_key_changes_on_artifact_change` |
+| Budget reservations are released on runtime error or cancellation and reconcile actual-vs-reserved cost | `tests/scientist/llm/test_budget_enforcer.py::{test_releases_reservation_when_generate_raises,test_releases_reservation_when_task_is_cancelled,test_actual_cost_commit_reconciles_estimate_delta,test_post_record_falls_back_to_reserved_cost_when_accounting_breaks}` |
+| Parallel budget reservations cannot overspend the reserved budget | `tests/scientist/llm/test_budget_enforcer.py::test_parallel_calls_do_not_overspend_reserved_budget` |
+| Masking fails closed on missing targets and invalid horizons | `tests/scientist/backtesting/test_masking.py::{test_masking_raises_when_target_metric_is_missing,test_masking_raises_when_intervention_step_exceeds_metric_horizon}` |
+| Foundry TEE environment values are sanitized and restored | `tests/scientist/adapters/test_foundry_bridge.py::{test_rejects_control_characters_in_env_values,test_sets_and_restores_sanitized_env_values}` |
+| RMSE CI, Ljung-Box, IPW, and Spearman tie handling stay regression-covered | `tests/scientist/backtesting/test_bootstrap.py::test_rmse_ci_bootstraps_rmse_directly`, `tests/scientist/backtesting/test_distributional.py::test_iid_data`, `tests/scientist/backtesting/test_ipw.py::test_equal_propensity`, `tests/scientist/search/test_cheap_stage_autotune.py::test_spearman_uses_average_ranks_for_ties` |
 
-## Current Blocking Themes
+## Gate Command
 
-- The full finding-to-reproducer matrix is not yet captured in one acceptance artifact.
-- Some fixes exist in code, but their Phase 0 closure evidence is still scattered across separate tests and modules; the table above is only the beginning of the required ledger.
-- Statistical validity fixes need a more explicit acceptance ledger before Phase 0 can be declared done.
+Phase 0 closure is enforced by:
 
-## Signoff Rule
+```bash
+uv run pytest \
+  tests/scientist/engine/test_retry.py \
+  tests/scientist/engine/runner/test_worker_pool.py \
+  tests/scientist/engine/locks/test_fcntl_lock.py \
+  tests/scientist/engine/locks/test_lock_metrics.py \
+  tests/scientist/engine/locks/test_dynamodb_lock.py \
+  tests/scientist/engine/locks/test_redis_lock.py \
+  tests/scientist/llm/test_gateway_client_retry.py \
+  tests/scientist/test_idempotency.py \
+  tests/scientist/llm/test_budget_enforcer.py \
+  tests/scientist/backtesting/test_masking.py \
+  tests/scientist/adapters/test_foundry_bridge.py \
+  tests/scientist/backtesting/test_bootstrap.py \
+  tests/scientist/backtesting/test_ipw.py \
+  tests/scientist/backtesting/test_distributional.py \
+  tests/scientist/search/test_cheap_stage_autotune.py \
+  -q --junitxml=.tmp/test-reports/scientist-phase0.xml
 
-Phase 0 is accepted only when every listed criterion has:
+uv run python tools/ci/check_scientist_phase0_gate.py \
+  --junit-xml .tmp/test-reports/scientist-phase0.xml \
+  --output .tmp/test-reports/scientist-phase0-gate.json \
+  --output-format json \
+  --require-passing
+```
 
-1. Code landed on the target surface.
-2. At least one direct reproducer or regression test.
-3. A repo-tracked reference to the acceptance evidence.
-4. A CI or release gate that prevents silent regression.
+## Signoff
+
+Phase 0 is accepted. The repo-tracked code, direct reproducer tests, acceptance
+ledger, and published gate command now agree that the remaining Task 0
+containment work is closed.

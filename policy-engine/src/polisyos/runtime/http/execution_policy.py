@@ -105,7 +105,7 @@ class RuntimeExecutionPolicyResolver:
         sqlite_path: str,
         postgres_dsn: str | None,
     ) -> None:
-        self._default_profile = self._coerce_profile(default_profile)
+        self._default_profile: ExecutionProfile = self._coerce_profile(default_profile)
         self._worker_backend = worker_backend.strip().lower()
         self._state_store_backend = state_store_backend.strip().lower()
         self._sqlite_path = sqlite_path
@@ -196,7 +196,9 @@ class RuntimeExecutionPolicyResolver:
         """
         flags = policy_flags or PolicyFlags()
         actor = principal or RuntimePrincipal()
-        requested = self._coerce_profile(requested_profile) if requested_profile else None
+        requested: ExecutionProfile | None = (
+            self._coerce_profile(requested_profile) if requested_profile else None
+        )
         if requested is not None and self._profile_rank(requested) < self._profile_rank(self._default_profile):
             raise ExecutionProfileError(
                 "execution_profile_downgrade_forbidden",
@@ -206,7 +208,7 @@ class RuntimeExecutionPolicyResolver:
                 ),
             )
 
-        effective = requested or self._default_profile
+        effective: ExecutionProfile = requested or self._default_profile
         if self._profile_rank(effective) < self._profile_rank(self._default_profile):
             effective = self._default_profile
 

@@ -12,7 +12,7 @@ test.describe("runtime-dashboard run flow", () => {
     await installDashboardTestState(page);
   });
 
-  test("@smoke launches an NL run, monitors tabs, and opens the audit report", async ({
+  test("@smoke launches an NL run, monitors tabs, and opens the audit report plus deck", async ({
     page,
   }) => {
     const metadata = readFixtureMetadata();
@@ -95,8 +95,13 @@ test.describe("runtime-dashboard run flow", () => {
     await page.goto(`/runs/${launchedRunId}/report`);
     await waitForDashboardSurface(page, "run-report");
     await expect(
-      page.getByRole("link", { name: /Export JSON/i }),
+      page.getByRole("button", { name: /Export JSON/i }),
     ).toBeVisible();
+
+    await page.getByRole("link", { name: /Open deck/i }).click();
+    await expect(page).toHaveURL(new RegExp(`/runs/${launchedRunId}/deck`));
+    await expect(page.getByTestId("run-deck-page")).toBeVisible();
+    await expect(page.getByTestId("run-deck-slide-evidence")).toBeVisible();
   });
 
   test("supports blocked-run replan and explorer-driven comparison", async ({
@@ -110,8 +115,7 @@ test.describe("runtime-dashboard run flow", () => {
       page.getByRole("link", { name: metadata.core_run_id }),
     ).toBeVisible();
 
-    await page.locator("main").click();
-    await page.keyboard.press("Enter");
+    await page.getByRole("link", { name: metadata.core_run_id }).click();
 
     await expect(page).toHaveURL(
       new RegExp(`/runs/${metadata.core_run_id}/overview`),
@@ -130,6 +134,6 @@ test.describe("runtime-dashboard run flow", () => {
       `/runs/compare?base=${metadata.core_run_id}&target=${metadata.core_run_id_secondary}`,
     );
     await waitForDashboardSurface(page, "run-compare");
-    await expect(page.getByRole("table")).toBeVisible();
+    await expect(page.locator("main table").first()).toBeVisible();
   });
 });

@@ -39,6 +39,14 @@ __all__ = [
 ]
 
 
+def _default_tracer():
+    return get_tracer()
+
+
+def _default_metrics():
+    return get_metrics()
+
+
 # =============================================================================
 # Exceptions
 # =============================================================================
@@ -261,12 +269,20 @@ class TransformPipeline:
     helpers to express explicit DAGs.
     """
 
-    def __init__(self, *, auto_chain: bool = True) -> None:
+    def __init__(
+        self,
+        *,
+        auto_chain: bool = True,
+        tracer: Any | None = None,
+        metrics: Any | None = None,
+    ) -> None:
         self._stages: list[TransformStage] = []
         self._graph = CoreDagPipeline[TransformStage](auto_chain=False)
         self._compiled: CompiledPipeline | None = None
         self._auto_chain = auto_chain
         self._tail: list[str] = []
+        self._tracer = tracer
+        self._metrics = metrics
 
     def add_stage(
         self,
@@ -519,6 +535,8 @@ class TransformPipeline:
         self._compiled = CompiledPipeline(
             stages=ordered_stages,
             execution_order=execution_order,
+            tracer=self._tracer,
+            metrics=self._metrics,
         )
 
         return self._compiled
@@ -549,6 +567,8 @@ class CompiledPipeline:
 
     stages: list[TransformStage]
     execution_order: list[str]
+    tracer: Any | None = None
+    metrics: Any | None = None
 
     def execute(
         self,
@@ -561,8 +581,8 @@ class CompiledPipeline:
         all_warnings: list[str] = []
         stage_by_name = {stage.name: stage for stage in self.stages}
         ordered_stage_names = self.execution_order or [stage.name for stage in self.stages]
-        tracer = get_tracer()
-        metrics = get_metrics()
+        tracer = self.tracer if self.tracer is not None else _default_tracer()
+        metrics = self.metrics if self.metrics is not None else _default_metrics()
 
         row_growth_threshold = float(context.metadata.get("row_growth_threshold", 10.0))
         row_growth_strict = bool(context.metadata.get("row_growth_strict", False))

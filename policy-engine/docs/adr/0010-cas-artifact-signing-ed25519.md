@@ -51,3 +51,9 @@ CAS в Policy OS уже гарантирует integrity (`sha256(blob)`), но 
 - Inline signature в manifest: отклонено (риски mutability/circularity).
 - Signature as separate CAS artifact: отклонено (сложный lookup и связь).
 - RSA/ECDSA: отклонено из-за размера/сложности/операционных tradeoff для этого use case.
+
+## Related Decisions
+
+- Extended by: ADR-0122 (lakehouse snapshot semantics), ADR-0123
+  (ArtifactRef governance metadata), ADR-0128 (hermetic reproducibility).
+- Related: ADR-0118 (release train and SemVer contracts).

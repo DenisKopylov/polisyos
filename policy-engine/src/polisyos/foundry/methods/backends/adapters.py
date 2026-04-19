@@ -3,11 +3,15 @@ from __future__ import annotations
 
 from typing import Any
 
-import jax
 import numpy as np
 
 from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.foundry.methods.exceptions import BackendAdaptationError
+
+try:
+    import jax
+except ModuleNotFoundError:  # pragma: no cover - exercised in environments without JAX
+    jax = None
 
 _HOST_BACKENDS = {
     ComputeBackend.NUMPY,
@@ -17,21 +21,37 @@ _HOST_BACKENDS = {
 
 
 def _tree_leaves(tree: Any) -> list[Any]:
+    if jax is None:
+        leaves: list[Any] = []
+        if isinstance(tree, dict):
+            for value in tree.values():
+                leaves.extend(_tree_leaves(value))
+            return leaves
+        if isinstance(tree, (list, tuple)):
+            for value in tree:
+                leaves.extend(_tree_leaves(value))
+            return leaves
+        leaves.append(tree)
+        return leaves
     try:
         return list(jax.tree_util.tree_leaves(tree))
     except (TypeError, ValueError, RuntimeError) as exc:
         raise BackendAdaptationError("tree", "tree", f"pytree flatten failed: {exc}") from exc
 
 
+def _is_jax_array(value: Any) -> bool:
+    return bool(jax is not None and isinstance(value, jax.Array))
+
+
 def _validate_no_device_leaks(tree: Any) -> None:
     leaked: list[str] = []
     for leaf in _tree_leaves(tree):
-        if isinstance(leaf, jax.Array):
+        if _is_jax_array(leaf):
             leaked.append(type(leaf).__name__)
             continue
         if isinstance(leaf, np.ndarray) and leaf.dtype == object:
             for item in leaf.flat:
-                if isinstance(item, jax.Array):
+                if _is_jax_array(item):
                     leaked.append("object_array[jax.Array]")
                     break
     if leaked:
@@ -61,6 +81,8 @@ def to_numpy(tree: Any) -> Any:
 
     Uses JAX canonical helpers when available to avoid custom tree recursion.
     """
+    if jax is None:
+        raise BackendAdaptationError("jax", "numpy", "JAX runtime is not installed")
     try:
         converted = jax.device_get(tree)
     except (TypeError, ValueError, RuntimeError) as exc:
@@ -72,6 +94,8 @@ def to_numpy(tree: Any) -> Any:
 
 def to_jax(tree: Any) -> Any:
     """Convert arrays in a pytree to JAX device arrays."""
+    if jax is None:
+        raise BackendAdaptationError("numpy", "jax", "JAX runtime is not installed")
     _validate_host_to_jax_inputs(tree)
     try:
         return jax.device_put(tree)

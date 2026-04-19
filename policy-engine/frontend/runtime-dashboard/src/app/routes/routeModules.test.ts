@@ -6,6 +6,7 @@ import { evidenceRouteHandle } from "@/features/evidence/routes.public";
 import { lexRouteHandle } from "@/features/lex";
 import { platformRouteHandle } from "@/features/platform";
 import {
+  runDeckRouteHandle,
   runDetailRouteHandle,
   runReportRouteHandle,
   runsCompareRouteHandle,
@@ -54,10 +55,13 @@ describe("route modules", () => {
     expect(runReportRouteHandle.buildHref({ runId: "run-1" })).toBe(
       "/runs/run-1/report",
     );
+    expect(runDeckRouteHandle.buildHref({ runId: "run-1" })).toBe(
+      "/runs/run-1/deck",
+    );
     expect(
       runDetailRouteHandle.buildHref({ runId: "run-1", tab: "debug" }),
     ).toBe("/runs/run-1/debug");
-    expect(runsRoutes).toHaveLength(4);
-    expect(runsRoutes[3]?.children).toHaveLength(9);
+    expect(runsRoutes).toHaveLength(5);
+    expect(runsRoutes[4]?.children).toHaveLength(9);
   });
 });

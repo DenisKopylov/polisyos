@@ -37,6 +37,22 @@ ExecutionProfile = Literal["dev", "research", "governed", "production"]
 ControlJobState = Literal["pending", "running", "completed", "failed"]
 ControlJobKind = Literal["workflow_run", "natural_language_run", "lex_pipeline"]
 
+_SUPPORTED_LOCALES: tuple[Literal["en", "uk"], ...] = ("en", "uk")
+_SUPPORTED_EXECUTION_PROFILES: tuple[ExecutionProfile, ...] = (
+    "dev",
+    "research",
+    "governed",
+    "production",
+)
+
+
+def _default_supported_locales() -> list[Literal["en", "uk"]]:
+    return list(_SUPPORTED_LOCALES)
+
+
+def _default_supported_execution_profiles() -> list[ExecutionProfile]:
+    return list(_SUPPORTED_EXECUTION_PROFILES)
+
 # ---------------------------------------------------------------------------
 # Data source binding
 # ---------------------------------------------------------------------------
@@ -696,10 +712,10 @@ class CapabilityManifestResponse(BaseModel):
     runtime_api_version: str = "1.0.0"
     shell_flavor: str = "atlas"
     default_locale: Literal["en", "uk"] = "en"
-    supported_locales: list[Literal["en", "uk"]] = Field(default_factory=lambda: ["en", "uk"])
+    supported_locales: list[Literal["en", "uk"]] = Field(default_factory=_default_supported_locales)
     default_execution_profile: ExecutionProfile = "dev"
     supported_execution_profiles: list[ExecutionProfile] = Field(
-        default_factory=lambda: ["dev", "research", "governed", "production"]
+        default_factory=_default_supported_execution_profiles
     )
     worker_backend: str = "embedded"
     state_store_backend: str = "sqlite"

@@ -42,6 +42,13 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from typing import Concatenate
 
+    from .tracer import PolicyOSTracer
+
+
+def _default_tracer() -> PolicyOSTracer:
+    return get_tracer()
+
+
 def _extract_attributes_from_args(
     func: Callable[..., Any],
     args: tuple[Any, ...],
@@ -176,7 +183,7 @@ def traced[**P, T](
 
     def decorator(fn: Callable[P, T]) -> Callable[P, T]:
         span_name = name or fn.__qualname__
-        resolved_tracer_factory = tracer_factory or get_tracer
+        resolved_tracer_factory = tracer_factory or _default_tracer
 
         # Build static attributes
         static_attrs: dict[str, Any] = {}
@@ -265,6 +272,7 @@ def traced_method[**P, T](
     capture_args: bool = False,
     phase: str | None = None,
     agent: str | None = None,
+    tracer_factory: Callable[[], Any] | None = None,
 ) -> Callable[[Callable[Concatenate[Any, P], T]], Callable[Concatenate[Any, P], T]]:
     """
     Specialized decorator for class methods.
@@ -274,10 +282,11 @@ def traced_method[**P, T](
 
     def decorator(fn: Callable[Concatenate[Any, P], T]) -> Callable[Concatenate[Any, P], T]:
         span_name = name or fn.__qualname__
+        resolved_tracer_factory = tracer_factory or _default_tracer
 
         @functools.wraps(fn)
         def wrapper(self: Any, *args: Any, **kwargs: Any) -> T:
-            tracer = get_tracer()
+            tracer = resolved_tracer_factory()
 
             # Build attributes
             attributes: dict[str, Any] = {}

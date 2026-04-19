@@ -9,7 +9,12 @@ from opentelemetry.trace import SpanKind
 
 from polisyos.core.observability import get_tracer
 from polisyos.core.observability.config import OTelConfig
-from polisyos.core.observability.tracer import ErrorAwareSampler, PolicyOSTracer
+import polisyos.core.observability.tracer as tracer_module
+from polisyos.core.observability.tracer import (
+    ErrorAwareSampler,
+    PolicyOSTracer,
+    get_current_trace_context,
+)
 
 
 class TestPolicyOSTracer:
@@ -148,3 +153,22 @@ class TestSamplerBehavior:
         with ThreadPoolExecutor(max_workers=8) as pool:
             instances = list(pool.map(lambda _: get_tracer(), range(32)))
         assert len({id(instance) for instance in instances}) == 1
+
+    def test_get_current_trace_context_uses_default_helper(self, monkeypatch):
+        class _Tracer:
+            def get_current_trace_id(self) -> str:
+                return "a" * 32
+
+            def get_current_span_id(self) -> str:
+                return "b" * 16
+
+        monkeypatch.setattr(
+            tracer_module,
+            "_default_tracer",
+            lambda: _Tracer(),
+        )
+
+        assert get_current_trace_context() == {
+            "trace_id": "a" * 32,
+            "span_id": "b" * 16,
+        }

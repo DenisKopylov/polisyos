@@ -2,26 +2,65 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import socket
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Protocol
+from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.scientist.engine.budget import BudgetState
 
+_CANONICAL_LEDGER_CONTRACT = "scientist.multi_host_budget_ledger.v1"
+_COORDINATION_MODE = "shared_posix_file_lock"
+
 __all__ = [
     "BudgetLedger",
+    "BudgetLedgerMutation",
     "BudgetLedgerMutationResult",
     "BudgetLedgerSnapshot",
+    "BudgetLedgerWriter",
     "FileBudgetLedger",
 ]
+
+
+class BudgetLedgerWriter(BaseModel):
+    """Identity of the process or host that last mutated the ledger."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    host_id: str = Field(min_length=1)
+    writer_id: str = Field(min_length=1)
+    pid: int = Field(ge=0)
+
+
+class BudgetLedgerMutation(BaseModel):
+    """Bounded mutation journal entry for the canonical ledger contract."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    revision: int = Field(ge=0)
+    operation: Literal[
+        "bootstrap",
+        "record_spend",
+        "reserve",
+        "release",
+        "commit_reservation",
+    ]
+    key: str | None = None
+    amount: Decimal | None = None
+    applied_amount: Decimal | None = None
+    provider: str | None = None
+    reserved: bool | None = None
+    writer: BudgetLedgerWriter
+    committed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class BudgetLedgerSnapshot(BaseModel):
@@ -29,8 +68,14 @@ class BudgetLedgerSnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    canonical_contract: str = Field(default=_CANONICAL_LEDGER_CONTRACT, min_length=1)
+    coordination_mode: str = Field(default=_COORDINATION_MODE, min_length=1)
+    ledger_id: str | None = None
     revision: int = Field(default=0, ge=0)
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    last_writer: BudgetLedgerWriter | None = None
+    recent_mutations: list[BudgetLedgerMutation] = Field(default_factory=list)
     state: BudgetState = Field(default_factory=BudgetState)
 
 
@@ -48,6 +93,7 @@ class BudgetLedger(Protocol):
     """Protocol for distributed-safe budget ledgers."""
 
     def load(self) -> BudgetState: ...
+    def snapshot(self) -> BudgetLedgerSnapshot: ...
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState: ...
     def record_spend(
         self, key: str, amount: Decimal, *, provider: str | None = None,
@@ -70,14 +116,41 @@ def _fsync_dir(path: Path) -> None:
 class FileBudgetLedger:
     """Atomic JSON budget ledger shared across threads/processes."""
 
-    def __init__(self, path: Path) -> None:
+    def __init__(
+        self,
+        path: Path,
+        *,
+        ledger_id: str | None = None,
+        host_id: str | None = None,
+        writer_id: str | None = None,
+        mutation_history_limit: int = 32,
+    ) -> None:
         self._path = Path(path)
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._thread_lock = threading.Lock()
+        self._ledger_id = str(ledger_id or _default_ledger_id(self._path))
+        resolved_host_id = str(host_id or os.getenv("POLISYOS_LEDGER_HOST_ID") or socket.gethostname())
+        self._host_id = resolved_host_id.strip() or "localhost"
+        resolved_writer_id = str(
+            writer_id
+            or f"{self._host_id}:{os.getpid()}:{self._path.name}"
+        )
+        self._writer = BudgetLedgerWriter(
+            host_id=self._host_id,
+            writer_id=resolved_writer_id.strip() or f"{self._host_id}:{os.getpid()}",
+            pid=os.getpid(),
+        )
+        self._mutation_history_limit = max(int(mutation_history_limit), 1)
 
     def load(self) -> BudgetState:
         snapshot = self._load_snapshot()
         return snapshot.state if snapshot is not None else BudgetState()
+
+    def snapshot(self) -> BudgetLedgerSnapshot:
+        snapshot = self._load_snapshot()
+        if snapshot is None:
+            return self._build_snapshot(state=BudgetState())
+        return self._normalize_snapshot(snapshot)
 
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState:
         with self._thread_lock:
@@ -91,7 +164,23 @@ class FileBudgetLedger:
                 fcntl.flock(fd, fcntl.LOCK_EX)
                 snapshot = self._read_snapshot_from_fd(fd)
                 if snapshot is None:
-                    snapshot = self._persist_snapshot(fd, BudgetLedgerSnapshot(state=initial_state))
+                    snapshot = self._persist_snapshot(
+                        fd,
+                        self._build_snapshot(
+                            state=initial_state,
+                            recent_mutations=(
+                                self._build_mutation(
+                                    revision=0,
+                                    operation="bootstrap",
+                                ),
+                            ),
+                        ),
+                    )
+                else:
+                    needs_upgrade = self._needs_contract_upgrade(snapshot)
+                    snapshot = self._normalize_snapshot(snapshot)
+                    if needs_upgrade:
+                        snapshot = self._persist_snapshot(fd, snapshot)
                 return snapshot.state
             finally:
                 fcntl.flock(fd, fcntl.LOCK_UN)
@@ -108,7 +197,13 @@ class FileBudgetLedger:
                 applied_amount=amount,
             )
 
-        return self._mutate(apply)
+        return self._mutate(
+            "record_spend",
+            key,
+            amount,
+            provider=provider,
+            operation=apply,
+        )
 
     def reserve(self, key: str, amount: Decimal) -> BudgetLedgerMutationResult:
         def apply(state: BudgetState) -> BudgetLedgerMutationResult:
@@ -120,7 +215,7 @@ class FileBudgetLedger:
                 reserved=reserved,
             )
 
-        return self._mutate(apply)
+        return self._mutate("reserve", key, amount, operation=apply)
 
     def release(self, key: str, amount: Decimal) -> BudgetLedgerMutationResult:
         def apply(state: BudgetState) -> BudgetLedgerMutationResult:
@@ -131,7 +226,7 @@ class FileBudgetLedger:
                 applied_amount=released,
             )
 
-        return self._mutate(apply)
+        return self._mutate("release", key, amount, operation=apply)
 
     def commit_reservation(
         self, key: str, amount: Decimal, *, provider: str | None = None,
@@ -144,10 +239,26 @@ class FileBudgetLedger:
                 applied_amount=committed,
             )
 
-        return self._mutate(apply)
+        return self._mutate(
+            "commit_reservation",
+            key,
+            amount,
+            provider=provider,
+            operation=apply,
+        )
 
     def _mutate(
         self,
+        mutation_kind: Literal[
+            "record_spend",
+            "reserve",
+            "release",
+            "commit_reservation",
+        ],
+        key: str,
+        amount: Decimal,
+        *,
+        provider: str | None = None,
         operation: Callable[[BudgetState], BudgetLedgerMutationResult],
     ) -> BudgetLedgerMutationResult:
         with self._thread_lock:
@@ -159,15 +270,30 @@ class FileBudgetLedger:
             fd = os.open(str(self._path), os.O_RDWR | os.O_CREAT, 0o644)
             try:
                 fcntl.flock(fd, fcntl.LOCK_EX)
-                snapshot = self._read_snapshot_from_fd(fd) or BudgetLedgerSnapshot()
+                snapshot = self._normalize_snapshot(
+                    self._read_snapshot_from_fd(fd) or BudgetLedgerSnapshot()
+                )
                 state = _branch_budget_state(snapshot.state)
                 result = operation(state)
+                revision = snapshot.revision + 1
+                mutations = list(snapshot.recent_mutations)
+                mutations.append(
+                    self._build_mutation(
+                        revision=revision,
+                        operation=mutation_kind,
+                        key=key,
+                        amount=amount,
+                        applied_amount=result.applied_amount,
+                        provider=provider,
+                        reserved=result.reserved,
+                    )
+                )
                 written = self._persist_snapshot(
                     fd,
-                    BudgetLedgerSnapshot(
-                        revision=snapshot.revision + 1,
-                        updated_at=datetime.now(UTC),
+                    self._build_snapshot(
+                        revision=revision,
                         state=state,
+                        recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
                     )
                 )
                 return BudgetLedgerMutationResult(
@@ -196,7 +322,8 @@ class FileBudgetLedger:
         return BudgetLedgerSnapshot.model_validate(json.loads(raw))
 
     def _persist_snapshot(self, fd: int, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
-        payload = snapshot.model_dump_json(by_alias=True, exclude_none=True, indent=2).encode(
+        normalized = self._normalize_snapshot(snapshot)
+        payload = normalized.model_dump_json(by_alias=True, exclude_none=True, indent=2).encode(
             "utf-8"
         )
         os.ftruncate(fd, 0)
@@ -204,7 +331,69 @@ class FileBudgetLedger:
         os.write(fd, payload)
         os.fsync(fd)
         _fsync_dir(self._path.parent)
-        return snapshot
+        return normalized
+
+    def _build_snapshot(
+        self,
+        *,
+        state: BudgetState,
+        revision: int = 0,
+        recent_mutations: tuple[BudgetLedgerMutation, ...] | list[BudgetLedgerMutation] = (),
+    ) -> BudgetLedgerSnapshot:
+        return BudgetLedgerSnapshot(
+            canonical_contract=_CANONICAL_LEDGER_CONTRACT,
+            coordination_mode=_COORDINATION_MODE,
+            ledger_id=self._ledger_id,
+            revision=revision,
+            updated_at=datetime.now(UTC),
+            last_writer=self._writer,
+            recent_mutations=list(recent_mutations)[-self._mutation_history_limit :],
+            state=state,
+        )
+
+    def _build_mutation(
+        self,
+        *,
+        revision: int,
+        operation: Literal[
+            "bootstrap",
+            "record_spend",
+            "reserve",
+            "release",
+            "commit_reservation",
+        ],
+        key: str | None = None,
+        amount: Decimal | None = None,
+        applied_amount: Decimal | None = None,
+        provider: str | None = None,
+        reserved: bool | None = None,
+    ) -> BudgetLedgerMutation:
+        return BudgetLedgerMutation(
+            revision=revision,
+            operation=operation,
+            key=key,
+            amount=amount,
+            applied_amount=applied_amount,
+            provider=provider,
+            reserved=reserved,
+            writer=self._writer,
+        )
+
+    def _normalize_snapshot(self, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
+        return snapshot.model_copy(
+            update={
+                "canonical_contract": snapshot.canonical_contract or _CANONICAL_LEDGER_CONTRACT,
+                "coordination_mode": snapshot.coordination_mode or _COORDINATION_MODE,
+                "ledger_id": snapshot.ledger_id or self._ledger_id,
+            }
+        )
+
+    def _needs_contract_upgrade(self, snapshot: BudgetLedgerSnapshot) -> bool:
+        return bool(
+            snapshot.ledger_id is None
+            or snapshot.canonical_contract != _CANONICAL_LEDGER_CONTRACT
+            or snapshot.coordination_mode != _COORDINATION_MODE
+        )
 
 
 def _branch_budget_state(state: BudgetState) -> BudgetState:
@@ -216,3 +405,8 @@ def _branch_budget_state(state: BudgetState) -> BudgetState:
     branched.provider_spent = dict(state.provider_spent)
     branched.reserved = dict(state.reserved)
     return branched
+
+
+def _default_ledger_id(path: Path) -> str:
+    digest = hashlib.sha256(str(path.resolve()).encode("utf-8")).hexdigest()
+    return f"ledger:{digest[:16]}"

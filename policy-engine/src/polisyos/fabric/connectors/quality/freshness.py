@@ -27,6 +27,10 @@ from .report import FreshnessLevel, FreshnessStatus
 
 logger = get_logger(__name__)
 
+
+def _default_metrics():
+    return get_metrics()
+
 KNOWN_SCHEDULES = {
     "real-time",
     "hourly",
@@ -152,6 +156,7 @@ class FreshnessChecker:
         metadata: Any | None,
         fetched_at: datetime,
         last_updated: datetime | None = None,
+        metrics: Any | None = None,
     ) -> FreshnessStatus:
         now = utc_now()
 
@@ -240,12 +245,12 @@ class FreshnessChecker:
             fetched_at=fetched_at,
             message=message,
         )
-        metrics = get_metrics()
+        resolved_metrics = metrics if metrics is not None else _default_metrics()
         tracked_age_seconds = freshness.data_age_seconds
         if tracked_age_seconds is None:
             tracked_age_seconds = freshness.cache_age_seconds
-        if getattr(metrics, "record_fabric_freshness_age", None):
-            metrics.record_fabric_freshness_age(
+        if getattr(resolved_metrics, "record_fabric_freshness_age", None):
+            resolved_metrics.record_fabric_freshness_age(
                 dataset_id=dataset_id,
                 age_seconds=float(max(tracked_age_seconds, 0)),
             )

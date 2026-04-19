@@ -8,6 +8,21 @@ Related how-to: [Deploy Runtime](../how-to/deploy-runtime.md),
 > или частично: health, runs, artifacts, control-plane endpoints либо operator
 > dashboard перестали быть usable.
 
+Owner: `@runtime-owners`
+Last tested: `2026-04-17` against current runtime contract and observability evidence.
+Evidence path: `docs/archive/reports/core-runtime-closeout.md`; `docs/archive/reports/platform-acceptance.md`; `tests/runtime/http/test_runtime_api_contract_hardening.py`
+Rollback path: restore the last known-good deployment, preserve read-only access when possible, and block new risky changes until the service is stable.
+
+## Operational Metadata
+
+| Field | Value |
+|---|---|
+| Primary owner | `@runtime-owners` |
+| Coordination owner | `@platform-owners` |
+| Last tested | 2026-04-17, D1-L1 documentation validation pass |
+| Evidence anchors | `tests/runtime/http/test_runtime_api_contract_hardening.py`, `tests/runtime/http/test_runtime_api_observability.py`, `tools/runtime/check_runtime_api_contract.py` |
+| Rollback posture | restore last known-good deployment, preserve read-only surface when write path is the failing branch |
+
 ## Symptom
 
 - `/health` или `/ready` не отвечают либо отвечают `degraded`/`5xx`;

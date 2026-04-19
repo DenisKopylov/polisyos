@@ -391,7 +391,7 @@ class ProvenanceCoreGraph:
                 }
                 for e in self.entities.values()
             ],
-            key=lambda x: x["id"],
+            key=lambda x: str(x["id"]),
         )
 
         sorted_activities = sorted(
@@ -409,7 +409,7 @@ class ProvenanceCoreGraph:
                 }
                 for a in self.activities.values()
             ],
-            key=lambda x: x["id"],
+            key=lambda x: str(x["id"]),
         )
 
         sorted_agents = sorted(
@@ -422,7 +422,7 @@ class ProvenanceCoreGraph:
                 }
                 for g in self.agents.values()
             ],
-            key=lambda x: x["id"],
+            key=lambda x: str(x["id"]),
         )
 
         sorted_edges = sorted([e.to_tuple() for e in self.edges])

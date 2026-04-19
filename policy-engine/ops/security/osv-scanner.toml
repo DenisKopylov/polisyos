@@ -1,0 +1,12 @@
+[osv]
+version = 1
+owner = "team-security"
+
+[[lockfiles]]
+path = "uv.lock"
+ecosystem = "PyPI"
+
+[[lockfiles]]
+path = "frontend/pnpm-lock.yaml"
+ecosystem = "npm"
+optional = true

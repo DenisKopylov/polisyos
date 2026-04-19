@@ -53,6 +53,7 @@ _SPEC = NodeSpec(
         "params.max_source_docs",
         "params.max_reference_hops",
         "params.verification_cycles_completed",
+        "artifacts_index",
     ],
     state_writes=[
         "legal_candidate_pack_ref",

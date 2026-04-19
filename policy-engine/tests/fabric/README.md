@@ -1,54 +1,85 @@
 # Fabric Tests
 
-`tests/fabric` проверяет data-layer `polisyos.fabric`: connectors, ingestion/data plane, trust/provenance, world и прикладные data pipelines.
+`tests/fabric` covers the data-fabric layer: connectors, data plane,
+provenance, trust, world queries, claims/docs pipelines, and the fabric-facing
+parts of lex and scholar. The slice currently contains `87` `test_*.py` files.
 
-Актуально на **11 марта 2026**.
+## Purpose
 
-## Состав
+- Protect the connector framework and built-in sources.
+- Keep provenance, trust, quality, semantic-diff, and world materialization
+  behavior stable.
+- Validate the document, claim, legal, and scholar-facing fabric pipelines that
+  upstream subsystems depend on.
 
-- `64` файла `test_*.py`
-- `1` `README.md`
-- `1` `conftest.py` (в `connectors/`)
+## Where To Start
 
-## Структура
+- [`../../src/polisyos/fabric/README.md`](../../src/polisyos/fabric/README.md)
+- `connectors/` if the change touches source adapters, profiles, schema, cache,
+  or resilience.
+- `data_plane/` for semantic diff, cursor store, replay, and ingestion
+  orchestration issues.
 
-| Подкаталог | `test_*.py` | Что покрывает |
-|---|---:|---|
-| `fabric/` (корень) | 24 | catalog, provenance/trust, world, claims/docs/legal/lex/scholar |
-| `fabric/connectors/` | 33 | protocol/registry/schema/cache/resilience/federation/sources |
-| `fabric/data_plane/` | 6 | watermark, incremental, cursor store, orchestrator, record replay |
-| `fabric/pii/` | 1 | PII detection |
+## Public Entrypoints
 
-## Ключевые зоны
+- `tests/fabric/` root: `39` tests for trust, provenance, world, claims/docs,
+  legal-evaluation, lex-corpus, and scholar-facing flows.
+- `tests/fabric/connectors/`: `36` tests for protocol compliance, registry,
+  schema/type systems, transform pipeline, cache, federation, and sources.
+- `tests/fabric/data_plane/`: `11` tests for incremental ingestion, replay,
+  watermarks, cursor store, and semantic diff.
+- `tests/fabric/pii/`: `1` test for PII detection behavior.
 
-- Data contracts и quality/trust gates: `test_data_catalog.py`, `test_quality_indicators.py`, `test_trust*.py`, `test_conflicts.py`.
-- Historical revision diff: `test_semantic_diff.py` проверяет primary-key path, derived grain fallback и manual-review degraded mode.
-- Provenance и world: `test_provenance.py`, `test_world_*`.
-- Domain pipelines: `test_claims_pipeline.py`, `test_docs_pipeline.py`, `test_normpack.py`, `test_legal_evaluation.py`, `test_lex_corpus.py`.
-- Scholar/freshness: `test_scholar_*`.
+## Depends On / Depended On By
 
-### Connectors
+**Depends on**
 
-- Framework: `test_protocol_compliance.py`, `test_contract_system.py`, `test_registry.py`, `test_schema_system.py`, `test_type_system.py`.
-- Runtime behavior: `test_transform_pipeline.py`, `test_quality_system.py`, `test_cache_system.py`, `test_resilience.py`, `test_federation.py`.
-- Sources/reference: `sources/test_*.py`, `reference/test_*.py`.
+- [`../../src/polisyos/fabric/README.md`](../../src/polisyos/fabric/README.md)
+- `src/polisyos/lex`
+- `src/polisyos/scholar`
+- `src/polisyos/ir`
 
-`fabric/connectors/reference/*` auto-classified как `integration`; явный `@pytest.mark.integration` остаётся допустимым, но больше не обязателен.
+**Depended on by**
 
-## Связи с кодом
+- [`../scientist/README.md`](../scientist/README.md),
+  [`../scholar/README.md`](../scholar/README.md), and
+  [`../datasets/README.md`](../datasets/README.md)
+- The integration and local-stack flows that need connector and data-plane
+  behavior to stay consistent
 
-- `policy-engine/src/polisyos/fabric`
-- `policy-engine/src/polisyos/lex`
-- `policy-engine/src/polisyos/scholar`
-- `policy-engine/src/polisyos/ir`
+## Common Commands
 
-## Запуск
+Run commands from `policy-engine/`.
 
 ```bash
-pytest tests/fabric -q
-pytest tests/fabric/connectors -q
-pytest tests/fabric/data_plane -q
+# conceptual: full fabric slice
+uv run pytest tests/fabric -q
 
-# integration subset
-pytest tests/fabric/connectors/reference -q -m integration
+# conceptual: focused slices
+uv run pytest tests/fabric/connectors -q
+uv run pytest tests/fabric/data_plane -q
+
+# conceptual: integration-classified connector reference subset
+uv run pytest tests/fabric/connectors/reference -q -m integration
 ```
+
+## Test And Verification Commands
+
+The collect-only commands below were smoke-checked on `2026-04-17`.
+
+```bash
+cd policy-engine
+uv run pytest --collect-only tests/fabric -q
+uv run pytest --collect-only tests/fabric/connectors -q
+```
+
+## Reference Docs
+
+- [`../../src/polisyos/fabric/README.md`](../../src/polisyos/fabric/README.md)
+- [`../../src/polisyos/fabric/connectors/README.md`](../../src/polisyos/fabric/connectors/README.md)
+- [`../../src/polisyos/fabric/data_plane/README.md`](../../src/polisyos/fabric/data_plane/README.md)
+- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+
+## Last Updated
+
+2026-04-17

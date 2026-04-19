@@ -1,40 +1,86 @@
 # Agent Simulation (`polisyos.foundry.agent_sim`)
 
-`agent_sim` - micro-level ABM/RL subsystem Foundry for agent dynamics, population
-evolution, graph effects and training-heavy simulation workflows.
+`polisyos.foundry.agent_sim` is the low-level ABM/RL runtime for agent
+dynamics, population turnover, graph spillovers, distribution-aware metrics,
+and training-heavy policy simulation workflows.
 
-## Role in System
+- Last updated: 2026-04-17
 
-- **Depends on:** `polisyos.foundry.contracts`, `polisyos.ir.observation`, JAX stack
-- **Used by:** `polisyos.foundry.plugins`, research flows that need direct low-level sim access
-- Canonical Foundry surface теперь дополняется `wiring/`, когда нужны contract-aware executors.
+## Purpose
 
-## Key Concepts
+Use `agent_sim` when a Foundry workflow needs endogenous agent behavior rather
+than only patch-first mechanism execution over the compile/execute state
+contract. This package owns the standalone ABM/RL state, executor variants,
+training helpers, and contract-aware wiring adapters.
 
-- **State-of-arrays runtime** - `AgentState`, `FirmState`, `MarketState`, `GlobalState`.
-- **Multiscale state** - `CellState`, `HouseholdCellState`, `ProcurementGraphState`, `AgentSimRuntimeState`.
-- **Execution layers** - pure, distribution, graph, population и temporal executors.
-- **Training stack** - actor-critic, RL, JIT training, MPC, VFI и evolution strategies.
-- **Wiring layer** - contracts-based executors and event batches for firm lifecycle / procurement shocks.
-- **Analytics** - distribution metrics, demographics, visualization and dashboard helpers.
+## Where to Start
 
-## Public API
+- [state.py](state.py) for the standalone agent-sim `GlobalState`.
+- [executor.py](executor.py) for `PureExecutor` and deterministic mechanism
+  ordering.
+- [distribution_executor.py](distribution_executor.py),
+  [graph_executor.py](graph_executor.py), and
+  [population_executor.py](population_executor.py) for specialized executor
+  layers.
+- [training.py](training.py), [jit_training.py](jit_training.py), and
+  [government_policy.py](government_policy.py) for learning-oriented flows.
+- [wiring/contracts.py](wiring/contracts.py) and
+  [wiring/executors.py](wiring/executors.py) for contract-aware runtime
+  adapters.
 
-| Type/Function | Description |
+## Public Entrypoints
+
+| Entrypoint | Description |
 |---|---|
-| `GlobalState` | Композиция agent, firm, market и optional multiscale state. |
-| `PureExecutor` | Базовый deterministic executor для agent-sim steps. |
-| `create_distribution_aware_executor()` | Создает executor с distribution metrics updates. |
-| `create_graph_aware_executor()` | Создает executor с graph-aware updates. |
-| `create_population_manager()` | Инициализирует population lifecycle and slot allocation. |
-| `ContractsPopulationAwareExecutor` | Contracts-aware executor для multiscale scenario wiring. |
-| `FirmLifecycleEventBatch` | Batch событий entry/exit/type transition для firms. |
-| `ProcurementShockBatch` | Batch shocks для procurement graph propagation. |
+| `GlobalState` | Standalone ABM/RL state bundle for agent-sim workloads. |
+| `PureExecutor` | Deterministic base executor for agent-sim steps. |
+| `create_distribution_aware_executor()` | Adds distribution metric updates. |
+| `create_graph_aware_executor()` | Adds graph-aware updates and metrics. |
+| `create_population_manager()` | Initializes lifecycle slot allocation and bookkeeping. |
+| `ContractsPopulationAwareExecutor` | Contract-aware executor for population and firm lifecycle updates. |
+| `ContractsGraphAwareExecutor` | Contract-aware procurement shock propagation. |
+| `ContractsDistributionAwareExecutor` | Contract-aware transfer/tax/distribution execution path. |
+| `train_actor_critic()` | Baseline actor-critic training loop. |
 
-→ Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
+## Depends On / Depended On By
 
-## Current State
+- Depends on: JAX/chex numerical stack, `polisyos.foundry.contracts` fidelity
+  and wiring state contracts, and optional graph/distribution/training helpers
+  within this package tree.
+- Depended on by: `polisyos.foundry.plugins`, contract-aware runtime wiring,
+  ABM benchmarks, and simulation-heavy research flows.
 
-- Last updated: 2026-04-03
-- Files: 42 Python files
-- Exports: 185
+## Common Commands
+
+Smoke-tested on 2026-04-17:
+
+```bash
+uv run python - <<'PY'
+from polisyos.foundry.agent_sim import GlobalState, PureExecutor, TaxationMechanism
+
+state = GlobalState.empty(n_agents=4, seed=0, max_agents=4)
+executor = PureExecutor([TaxationMechanism(progressive_factor=0.1)])
+next_state, metrics = executor.step(state)
+print(int(next_state.time_step))
+print(sorted(metrics))
+PY
+```
+
+## Test / Verification Commands
+
+```bash
+uv run pytest tests/foundry/agent_sim/test_executor.py \
+  tests/foundry/agent_sim/test_graph_mechanisms.py \
+  tests/foundry/agent_sim/test_wiring.py -q
+
+uv run pytest tests/foundry/agent_sim/test_jit_compatibility.py \
+  tests/foundry/agent_sim/test_actor_critic_numerics.py \
+  tests/foundry/agent_sim/test_training.py -q
+```
+
+## Reference Docs
+
+- [docs/reference/foundry/agent-sim.md](../../../../docs/reference/foundry/agent-sim.md)
+- [docs/reference/foundry/state.md](../../../../docs/reference/foundry/state.md)
+- [docs/adr/0082-abm-bridge-adaptive-tolerance.md](../../../../docs/adr/0082-abm-bridge-adaptive-tolerance.md)
+- [docs/how-to/run-benchmarks.md](../../../../docs/how-to/run-benchmarks.md)

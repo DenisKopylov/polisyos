@@ -12,6 +12,7 @@ import { TabBoundary } from "@/app/routes/TabBoundary";
 import { WorkspaceBoundary } from "@/app/routes/WorkspaceBoundary";
 import {
   buildRunCompareHref,
+  buildRunDeckHref,
   buildRunDetailHref,
   buildRunReportHref,
   buildRunsListHref,
@@ -37,6 +38,7 @@ const RunInspectorLayout = lazy(
 const RunReportPage = lazy(
   () => import("@/features/runs/routes/RunReportPage"),
 );
+const RunDeckPage = lazy(() => import("@/features/runs/routes/RunDeckPage"));
 const RunOverviewTab = lazy(
   () => import("@/features/runs/routes/tabs/OverviewTab"),
 );
@@ -97,6 +99,13 @@ export const runReportRouteHandle = {
   workspaceKey: "runsDecisions",
 } satisfies AppRouteModule<Record<string, never>, RunRouteHrefInput>["handle"];
 
+export const runDeckRouteHandle = {
+  buildHref: (input) => buildRunDeckHref(input?.runId ?? ""),
+  parseSearch: () => ({}),
+  routeId: "runs.deck",
+  workspaceKey: "runsDecisions",
+} satisfies AppRouteModule<Record<string, never>, RunRouteHrefInput>["handle"];
+
 export const runDetailRouteHandle = {
   buildHref: (input) =>
     buildRunDetailHref(input?.runId ?? "", input?.tab ?? "overview"),
@@ -119,6 +128,7 @@ export const runsCompareLoader = createWorkspaceLoader(
 export const runReportLoader = createRunDetailLoader(
   runReportRouteHandle.routeId,
 );
+export const runDeckLoader = createRunDetailLoader(runDeckRouteHandle.routeId);
 export const runDetailLoader = createRunDetailLoader(
   runDetailRouteHandle.routeId,
 );
@@ -173,6 +183,16 @@ export const runsRoutes: RouteObject[] = [
     element: (
       <WorkspaceBoundary workspaceKey="runsDecisions">
         <RunReportPage />
+      </WorkspaceBoundary>
+    ),
+  },
+  {
+    path: "runs/:runId/deck",
+    loader: runDeckLoader,
+    handle: runDeckRouteHandle,
+    element: (
+      <WorkspaceBoundary workspaceKey="runsDecisions">
+        <RunDeckPage />
       </WorkspaceBoundary>
     ),
   },

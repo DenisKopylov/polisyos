@@ -79,101 +79,10 @@ jobs:
           extras: "lint test runtime docs causal-discovery"
 
       - name: Run mypy strict gate
-        run: |
-          uv run mypy --strict --follow-imports=skip \
-            src/polisyos/common/logger.py \
-            src/polisyos/common/async_tools.py \
-            src/polisyos/core/artifacts/ir_adapter.py \
-            src/polisyos/runtime/api.py \
-            src/polisyos/runtime/http/app.py \
-            src/polisyos/runtime/http/cell_router_middleware.py \
-            src/polisyos/runtime/http/container.py \
-            src/polisyos/runtime/http/compliance.py \
-            src/polisyos/runtime/http/dependencies.py \
-            src/polisyos/runtime/http/errors.py \
-            src/polisyos/runtime/http/jwt_auth_middleware.py \
-            src/polisyos/runtime/http/resilience.py \
-            src/polisyos/runtime/http/services/control.py \
-            src/polisyos/runtime/http/services/task_runner.py \
-            src/polisyos/common/serialization.py \
-            src/polisyos/core/artifacts/_signature_ops.py \
-            src/polisyos/core/artifacts/_transfer_ops.py \
-            src/polisyos/core/artifacts/async_store.py \
-            src/polisyos/core/llm/traced_client.py \
-            src/polisyos/core/observability/decorators.py \
-            src/polisyos/core/run/context.py \
-            src/polisyos/core/registry/builder.py \
-            src/polisyos/core/registry/builder_from_fragments.py \
-            src/polisyos/core/registry/loader.py \
-            src/polisyos/core/artifacts/protocol.py \
-            src/polisyos/core/artifacts/write_contract.py \
-            src/polisyos/scholar/freshness.py \
-            src/polisyos/scientist/api.py \
-            src/polisyos/scientist/agent/drafter_factory.py \
-            src/polisyos/scientist/compute/runner.py \
-            src/polisyos/scientist/engine/runner/_activity_worker.py \
-            src/polisyos/scientist/error_semantics.py \
-            src/polisyos/scientist/agent/knowledge_base.py \
-            src/polisyos/scientist/autotune/models.py \
-            src/polisyos/scientist/engine/metrics_otel.py \
-            src/polisyos/scientist/engine/operational_monitoring.py \
-            src/polisyos/scientist/governance/preflight.py \
-            src/polisyos/scientist/governance/pipeline.py \
-            src/polisyos/scientist/llm/budget_enforcer.py \
-            src/polisyos/scientist/llm_cycle.py \
-            src/polisyos/scientist/workflows/builder.py \
-            src/polisyos/core/components/_cli_store.py \
-            src/polisyos/core/security/audit_sink.py \
-            src/polisyos/core/security/authz.py \
-            src/polisyos/core/security/audit_verifier.py \
-            src/polisyos/core/security/identity.py \
-            src/polisyos/core/resilience/retry.py \
-            src/polisyos/core/security/settings.py \
-            src/polisyos/core/security/rotation.py \
-            src/polisyos/core/security/sbom.py \
-            src/polisyos/core/security/tee_middleware.py \
-            src/polisyos/core/artifacts/backends/caching_store.py \
-            src/polisyos/fabric/_connector_bridge.py \
-            src/polisyos/scientist/adapters/fabric_bridge.py \
-            src/polisyos/fabric/catalog/providers.py \
-            src/polisyos/fabric/catalog/resolver_fast_lane.py \
-            src/polisyos/fabric/data_plane/cli.py \
-            src/polisyos/fabric/ingestion_providers.py \
-            src/polisyos/fabric/data_plane/cursor_store.py \
-            src/polisyos/fabric/data_plane/quarantine.py \
-            src/polisyos/fabric/data_plane/modes.py \
-            src/polisyos/fabric/data_plane/orchestrator.py \
-            src/polisyos/fabric/data_plane/streaming.py \
-            src/polisyos/fabric/ingestion.py \
-            src/polisyos/fabric/retrieval/providers.py \
-            src/polisyos/fabric/retrieval/executor.py \
-            src/polisyos/fabric/retrieval/explore_lane.py \
-            src/polisyos/fabric/retrieval/service.py \
-            src/polisyos/fabric/connectors/cache/_store_core.py \
-            src/polisyos/fabric/connectors/cache/prefetch.py \
-            src/polisyos/fabric/connectors/cache/proxy.py \
-            src/polisyos/fabric/connectors/resilience/fallback.py \
-            src/polisyos/fabric/connectors/resilience/circuit_breaker.py \
-            src/polisyos/fabric/connectors/resilience/rate_limiter.py \
-            src/polisyos/fabric/storage/tenant_cas.py \
-            src/polisyos/fabric/world/providers.py \
-            src/polisyos/fabric/world/events.py \
-            src/polisyos/fabric/world/store/segments.py \
-            src/polisyos/fabric/world/store/persist.py \
-            src/polisyos/fabric/connectors/profiles/registry.py \
-            src/polisyos/fabric/connectors/bindings/registry.py \
-            src/polisyos/fabric/connectors/bindings/resolver.py \
-            src/polisyos/scholar/orchestrator/bundle.py \
-            src/polisyos/scholar/api.py \
-            src/polisyos/scientist/llm/factory.py \
-            src/polisyos/scientist/llm/profiles/registry.py \
-            src/polisyos/runtime/replay.py \
-            src/polisyos/runtime/http/services/adapters/core_run.py \
-            src/polisyos/runtime/http/services/control_plane_store.py \
-            src/polisyos/runtime/http/services/control_registry_providers.py
+        run: uv run python tools/workspace/core_runtime_mypy.py
 
       - name: Run basedpyright gate
-        run: uv run --extra lint basedpyright
+        run: uv run --extra lint python tools/workspace/core_runtime_basedpyright.py
 
       - name: Run expanded Ruff gate
         run: |
@@ -359,7 +268,7 @@ jobs:
         uses: ./.github/actions/setup-policy-engine-python
         with:
           python-version: "3.11"
-          extras: "test runtime causal-discovery"
+          extras: "test runtime causal-discovery security"
 
       - name: Run targeted runtime contract tests
         run: |
@@ -547,7 +456,7 @@ jobs:
         uses: ./.github/actions/setup-policy-engine-python
         with:
           python-version: "3.11"
-          extras: "test runtime causal-discovery"
+          extras: "test runtime causal-discovery sandbox"
 
       - name: Run performance smoke benchmarks
         run: |
@@ -569,6 +478,139 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+  scientist-phase0-gate:
+    name: Scientist / Phase 0 Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: policy-engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          python-version: "3.11"
+          extras: "test runtime causal-discovery security"
+
+      - name: Run Phase 0 acceptance regressions
+        run: |
+          mkdir -p .tmp/test-reports
+          uv run pytest -q \
+            tests/scientist/engine/test_retry.py \
+            tests/scientist/engine/runner/test_worker_pool.py \
+            tests/scientist/engine/locks/test_fcntl_lock.py \
+            tests/scientist/engine/locks/test_lock_metrics.py \
+            tests/scientist/engine/locks/test_dynamodb_lock.py \
+            tests/scientist/engine/locks/test_redis_lock.py \
+            tests/scientist/llm/test_gateway_client_retry.py \
+            tests/scientist/test_idempotency.py \
+            tests/scientist/llm/test_budget_enforcer.py \
+            tests/scientist/backtesting/test_masking.py \
+            tests/scientist/adapters/test_foundry_bridge.py \
+            tests/scientist/backtesting/test_bootstrap.py \
+            tests/scientist/backtesting/test_ipw.py \
+            tests/scientist/backtesting/test_distributional.py \
+            tests/scientist/search/test_cheap_stage_autotune.py \
+            --junitxml=.tmp/test-reports/scientist-phase0.xml
+
+      - name: Build Phase 0 acceptance report
+        run: |
+          uv run python tools/ci/check_scientist_phase0_gate.py \
+            --junit-xml .tmp/test-reports/scientist-phase0.xml \
+            --output .tmp/test-reports/scientist-phase0-gate.json \
+            --output-format json \
+            --require-passing
+
+      - name: Upload Phase 0 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: scientist-phase0-gate
+          path: |
+            policy-engine/.tmp/test-reports/scientist-phase0.xml
+            policy-engine/.tmp/test-reports/scientist-phase0-gate.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  scientist-phase1-gate:
+    name: Scientist / Phase 1 Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    defaults:
+      run:
+        working-directory: policy-engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          python-version: "3.11"
+          extras: "test runtime causal-discovery sandbox"
+
+      - name: Run Phase 1 reliability and mutation regressions
+        run: |
+          mkdir -p .tmp/test-reports
+          uv run pytest -q \
+            tests/scientist/test_remediation_status.py \
+            tests/scientist/test_reliability_scorecard.py \
+            tests/scientist/test_reliability_operational_evidence.py \
+            tests/scientist/integration/test_workflow_reliability_scenarios.py \
+            tests/scientist/agent/test_data_need_extractor.py \
+            tests/scientist/test_norm_loader.py \
+            tests/scientist/agent/test_drafter_factory.py \
+            tests/scientist/agent/test_drafter_formatting.py \
+            tests/scientist/agent/test_router.py \
+            tests/scientist/agent/test_supervisor.py \
+            tests/scientist/test_rag_index.py \
+            tests/scientist/test_cross_graph_evidence.py \
+            tests/scientist/cross_graph/test_gatherers.py \
+            tests/scientist/autotune/test_execution_plan_autotune.py \
+            tests/scientist/autotune/test_calibration_autotune.py \
+            tests/scientist/search/funnel/test_level2_causal.py \
+            tests/scientist/test_code_verifier.py \
+            tests/scientist/nodes/builtins/decide/test_policy_translation.py \
+            tests/scientist/engine/test_budget_middleware.py \
+            tests/scientist/workflows/test_builder_pinning.py \
+            --junitxml=.tmp/test-reports/scientist-phase1.xml
+
+      - name: Run Phase 1 runtime benchmarks
+        run: |
+          uv run pytest \
+            tests/performance/test_scientist_runtime_paths.py \
+            --benchmark-only \
+            --benchmark-json=.tmp/test-reports/scientist-phase1-benchmarks.json \
+            --benchmark-warmup=on \
+            --benchmark-min-rounds=5 \
+            -q
+
+      - name: Build Phase 1 acceptance report
+        run: |
+          uv run python tools/ci/check_scientist_phase1_gate.py \
+            --benchmark-json .tmp/test-reports/scientist-phase1-benchmarks.json \
+            --junit-xml .tmp/test-reports/scientist-phase1.xml \
+            --output .tmp/test-reports/scientist-phase1-gate.json \
+            --output-format json \
+            --require-passing
+
+      - name: Upload Phase 1 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: scientist-phase1-gate
+          path: |
+            policy-engine/.tmp/test-reports/scientist-phase1.xml
+            policy-engine/.tmp/test-reports/scientist-phase1-benchmarks.json
+            policy-engine/.tmp/test-reports/scientist-phase1-gate.json
+          if-no-files-found: warn
+          retention-days: 30
+
   release-review-evidence:
     name: Core Runtime / Release Review Evidence
     if: github.event_name == 'workflow_dispatch'
@@ -579,6 +621,8 @@ jobs:
       - linkcheck
       - mutation-subset
       - performance-smoke
+      - scientist-phase0-gate
+      - scientist-phase1-gate
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -606,6 +650,18 @@ jobs:
         with:
           name: core-runtime-contracts
           path: policy-engine/release-review/contracts
+
+      - name: Download Scientist Phase 0 evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: scientist-phase0-gate
+          path: policy-engine/release-review/scientist-phase0
+
+      - name: Download Scientist Phase 1 evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: scientist-phase1-gate
+          path: policy-engine/release-review/scientist-phase1
 
       - name: Assemble release review bundle
         run: |

@@ -1,9 +1,10 @@
 """Store discovered components and resolve versions by metadata indices."""
 from __future__ import annotations
 
+from collections.abc import Callable, Hashable, Mapping
 from dataclasses import dataclass
 from enum import Enum
-from typing import Sequence
+from typing import List, Sequence
 
 from polisyos.core.registry import BaseRegistry
 
@@ -58,28 +59,28 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
 
     def register(
         self,
-        entry: ComponentEntry,
+        value: ComponentEntry,
         *,
+        override: bool = False,
         on_duplicate: DuplicateComponentIdPolicy = DuplicateComponentIdPolicy.ERROR,
         source_precedence: SourcePrecedencePolicy | None = None,
-    ) -> None:
+    ) -> str:
         """Register one component entry while applying duplicate and source-precedence policy."""
+        entry = value
         component_id = str(entry.metadata.component_id)
 
         existing = self.get(component_id)
         if existing is None:
-            super().register(entry)
-            return
+            return super().register(entry, override=override)
 
         precedence = source_precedence or SourcePrecedencePolicy()
-        if _should_replace(existing=existing, incoming=entry, precedence=precedence):
-            super().register(entry, override=True)
-            return
+        if override or _should_replace(existing=existing, incoming=entry, precedence=precedence):
+            return super().register(entry, override=True)
 
         if on_duplicate == DuplicateComponentIdPolicy.IGNORE:
-            return
+            return component_id
         if on_duplicate == DuplicateComponentIdPolicy.WARN:
-            return
+            return component_id
         raise ValueError(f"Duplicate component_id: {component_id}")
 
     def list_all(self) -> list[ComponentEntry]:
@@ -98,9 +99,9 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
             reverse=True,
         )
 
-    def get(self, component_id: ComponentId | str) -> ComponentEntry | None:
+    def get(self, key: ComponentId | str) -> ComponentEntry | None:
         """Return one exact component version by `ComponentId` or boundary string."""
-        comp = ComponentId.parse(component_id) if isinstance(component_id, str) else component_id
+        comp = ComponentId.parse(key) if isinstance(key, str) else key
         return super().get(str(comp))
 
     def resolve(
@@ -140,13 +141,18 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
     def query(
         self,
         *,
+        index_filters: Mapping[str, Hashable] | None = None,
+        predicate: Callable[[ComponentEntry], bool] | None = None,
         kind: ComponentKind | None = None,
         domain: str | None = None,
         jurisdiction: str | None = None,
         capabilities: Capability | None = None,
         tags: Sequence[str] | None = None,
-    ) -> list[ComponentEntry]:
+    ) -> List[ComponentEntry]:
         """Filter entries by kind, domain, jurisdiction, capabilities, and tags."""
+        if index_filters is not None or predicate is not None:
+            return super().query(index_filters=index_filters, predicate=predicate)
+
         results: list[ComponentEntry] = []
         required_tags = set(tags or [])
 
@@ -176,7 +182,7 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
         *,
         constraint: SemverRange | str | None = None,
         kind: ComponentKind | None = None,
-    ) -> list[ComponentEntry]:
+    ) -> List[ComponentEntry]:
         """Return candidate versions that satisfy `constraint` and optional kind filtering."""
         rows = self.find("base_id", base_id)
         if not rows:

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/topology/migration_shims.schema.json",
+  "title": "Migration Shim Registry",
+  "type": "object",
+  "required": ["migration_shims", "shim"],
+  "properties": {
+    "migration_shims": {
+      "type": "object",
+      "required": ["version"],
+      "properties": {
+        "version": {"type": "integer"},
+        "status": {"type": "string"}
+      }
+    },
+    "shim": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "source_path", "target_path", "type", "reason", "owner", "sunset_date"],
+        "properties": {
+          "id": {"type": "string"},
+          "source_path": {"type": "string"},
+          "target_path": {"type": "string"},
+          "type": {"type": "string"},
+          "reason": {"type": "string"},
+          "owner": {"type": "string"},
+          "created": {"type": "string"},
+          "sunset_date": {"type": "string"},
+          "issue": {"type": "string"},
+          "split_targets": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

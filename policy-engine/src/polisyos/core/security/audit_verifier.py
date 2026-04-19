@@ -14,6 +14,10 @@ if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 @dataclass
 class ChainVerificationResult:
     """Outcome of verifying one chained audit segment for continuity and integrity."""
@@ -29,7 +33,7 @@ class ChainVerifier:
     """Verify contiguous chained-audit segments for tamper evidence."""
 
     def __init__(self, *, metrics: MetricsRegistry | None = None) -> None:
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     def verify_segment(self, entries: list[ChainedLogEntry]) -> ChainVerificationResult:
         result = ChainVerificationResult(total_entries=len(entries))

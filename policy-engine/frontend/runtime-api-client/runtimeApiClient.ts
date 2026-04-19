@@ -676,6 +676,10 @@ export type FetchPlanFallback = {
   filters?: {
   [key: string]: Array<string>;
 };
+  metadata?: {
+  [key: string]: unknown;
+};
+  metric_id?: string | null;
   profile_id?: string | null;
 };
 

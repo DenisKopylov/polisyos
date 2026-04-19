@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/topology/package_boundaries.schema.json",
+  "title": "Package Boundaries",
+  "type": "object",
+  "required": ["package_boundaries", "package"],
+  "properties": {
+    "package_boundaries": {
+      "type": "object",
+      "required": ["version"],
+      "properties": {
+        "version": {"type": "integer"},
+        "status": {"type": "string"}
+      }
+    },
+    "package": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["module", "owner", "public_facade"],
+        "properties": {
+          "module": {"type": "string"},
+          "owner": {"type": "string"},
+          "public_facade": {"type": "string"},
+          "legacy": {"type": "boolean"},
+          "frozen": {"type": "boolean"},
+          "migration_target": {"type": "string"},
+          "migration_shim_id": {"type": "string"},
+          "sunset_phase": {"type": "string"},
+          "runtime_allowed_submodules": {"type": "array", "items": {"type": "string"}},
+          "allowed_dependencies": {"type": "array", "items": {"type": "string"}},
+          "forbidden_dependencies": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

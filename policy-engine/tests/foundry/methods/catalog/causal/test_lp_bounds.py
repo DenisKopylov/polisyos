@@ -4,7 +4,11 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.bounds import BalkePearlBoundsEstimator
-from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds
+from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds, auto_bounds_with_metadata
+from polisyos.ir.analytics.dual_certificate import (
+    BoundsDualCertificateBundle,
+    validate_dual_certificate_bundle,
+)
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
     PartialIdentificationResult,
@@ -35,6 +39,23 @@ def test_lp_bounds_binary_iv_matches_balke_pearl() -> None:
     assert auto.lower_bound == pytest.approx(bp.lower_bound, abs=1e-6)
     assert auto.upper_bound == pytest.approx(bp.upper_bound, abs=1e-6)
     assert auto.discretization_method == "instrument_exact"
+
+
+def test_binary_iv_exact_lp_emits_valid_dual_certificate_payload() -> None:
+    state = _binary_iv_state()
+
+    result, metadata = auto_bounds_with_metadata(
+        outcome=state["outcome"],
+        treatment=state["treatment"],
+        instrument=state["instrument"],
+    )
+
+    assert result.method == BoundMethod.LP_BALKE_PEARL
+    assert result.bounds_type == "sharp_lp"
+    assert "dual_certificate_payload" in metadata
+    cert = BoundsDualCertificateBundle.model_validate(metadata["dual_certificate_payload"])
+    validation = validate_dual_certificate_bundle(cert)
+    assert validation.ok, validation.errors
 
 
 def test_lp_bounds_with_monotonicity_tightens_unconstrained_and_manski() -> None:
@@ -86,6 +107,29 @@ def test_small_multivalued_discrete_uses_exact_lp() -> None:
     assert result.discretization_method == "exact"
     assert result.relaxation_gap == 0.0
     assert "exact_discrete_support" in result.assumptions_used
+
+
+def test_exact_lp_emits_valid_dual_certificate_payload() -> None:
+    rng = np.random.default_rng(31)
+    n = 450
+    treatment = rng.integers(0, 3, size=n).astype(float)
+    outcome = np.where(
+        treatment < 0.5,
+        rng.choice(np.array([0.0, 1.0, 2.0]), size=n, replace=True, p=[0.55, 0.30, 0.15]),
+        np.where(
+            treatment < 1.5,
+            rng.choice(np.array([0.0, 1.0, 2.0]), size=n, replace=True, p=[0.25, 0.40, 0.35]),
+            rng.choice(np.array([0.0, 1.0, 2.0]), size=n, replace=True, p=[0.10, 0.30, 0.60]),
+        ),
+    )
+
+    result, metadata = auto_bounds_with_metadata(outcome=outcome, treatment=treatment)
+
+    assert result.bounds_type == "sharp_lp"
+    assert "dual_certificate_payload" in metadata
+    cert = BoundsDualCertificateBundle.model_validate(metadata["dual_certificate_payload"])
+    validation = validate_dual_certificate_bundle(cert)
+    assert validation.ok, validation.errors
 
 
 def test_high_cardinality_discrete_uses_relaxed_outer_approximation() -> None:

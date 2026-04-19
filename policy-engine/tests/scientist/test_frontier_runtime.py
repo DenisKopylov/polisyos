@@ -7,6 +7,14 @@ from polisyos.scientist.frontier_runtime import (
 )
 
 
+def test_frontier_runtime_report_marks_disabled_capabilities_disabled() -> None:
+    report = build_frontier_runtime_report(FrontierRuntimeConfig())
+
+    assert report.default_enable_eligible is False
+    assert report.requested_capabilities == []
+    assert {item.status for item in report.capabilities} == {FrontierCapabilityStatus.DISABLED}
+
+
 def test_frontier_runtime_report_requires_validation_and_benchmark_refs() -> None:
     report = build_frontier_runtime_report(
         FrontierRuntimeConfig(

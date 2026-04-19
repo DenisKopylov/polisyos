@@ -27,6 +27,7 @@ from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -286,7 +287,7 @@ class RunCausalQueriesNode:
             inputs=input_refs,
         )
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.params["query_treatment"] = query.treatment_variable
         new_state.artifacts_index[ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF] = scm_spec_ref
         new_state.artifacts_index[ARTIFACT_CAUSAL_QUERY_RESULT_REF] = query_result_ref

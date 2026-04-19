@@ -1,49 +1,81 @@
 # Onboarding: Security / Compliance Reviewer
 
 Related explanation: [Security Model](../../explanation/security-model.md).
-Related reference: [Ownership](../../reference/ownership.md),
-[Operations Reference](../../reference/operations/index.md).
+Related reference: [Security and Compliance Operations](../../reference/security-compliance.md),
+[Platform Acceptance Audit](../../reference/operations/platform-acceptance-audit.md).
 
-## Understand First
+## Goal
 
-- artifact signing, provenance, SBOM, authz, tenancy, and TEE are operational
-  control surfaces, not side topics;
-- ownership and escalation still route through logical owner groups even when
-  the current GitHub reviewer is a single account;
-- security exceptions must be scoped, named, and time-boxed.
+Научиться собирать review packet из текущих docs, tests, workflows и retained
+evidence, а не из устных объяснений.
 
-## Safely Ignore at First
+## Inputs
 
-- most feature-level UX details unrelated to security or audit evidence;
-- benchmark families that do not affect release, provenance, or policy controls;
-- optional LLM/data surfaces outside your current review scope.
+- доступ к коду и docs;
+- понимание текущего review scope: authz, signing, SBOM, tenancy, replay,
+  release evidence или acceptance;
+- готовность опираться на validation anchors из tests/workflows.
 
-## Commands and Docs to Use
+## Output
 
-Recommended setup:
+После этого onboarding вы должны уметь:
+
+- собрать проверяемый evidence map для одной review темы;
+- связать control claim с кодом, docs и validation anchor;
+- быстро понять, где не хватает owner, evidence или rollback story.
+
+## Canonical Commands
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace bootstrap --skip-playwright
 python3 -m tools.cli workspace doctor --surface runtime-signing --surface runtime-oidc
-uv run pytest \
+uv run pytest -q \
   tests/core/phase0/test_cli_signing.py \
   tests/core/phase0/test_store_signing.py \
-  tests/core/security/test_sbom.py
+  tests/core/security/test_sbom.py \
+  tests/core/security/test_tenant_context.py \
+  tests/runtime/http/test_runtime_api_authz.py \
+  tests/runtime/http/test_access_invariants_properties.py
 ```
 
-Primary docs:
+## Start Here By Task
 
-- [Security Model](../../explanation/security-model.md)
-- [Key Rotation](../../key-rotation.md)
-- [Artifact Signing or SBOM Failure](../../runbooks/artifact-signing-sbom-failure.md)
-- [Retention and Recovery Policy](../../reference/operations/retention-and-recovery.md)
+| Task | Primary doc |
+|---|---|
+| Операционный security contract | [Security and Compliance Operations](../../reference/security-compliance.md) |
+| Где искать proof/evidence по control area | [Platform Acceptance Audit](../../reference/operations/platform-acceptance-audit.md) and `docs/fedramp/gap-analysis.md` |
+| Rotation / incident response | [Key Rotation](../../runbooks/key-rotation.md), [Artifact Signing or SBOM Failure](../../runbooks/artifact-signing-sbom-failure.md) |
+| Retention, replay, acceptance evidence | [Retention and Recovery](../../reference/operations/retention-and-recovery.md), [Platform Acceptance Audit](../../reference/operations/platform-acceptance-audit.md) |
 
-## First Productive Task
+## First Productive Slice
 
-Review one operational security path from evidence to enforcement:
+Выберите один control area:
 
-- confirm how keys, trust store, and signer identity are expected to work;
-- verify how SBOM gate decisions are made and surfaced;
-- identify one missing owner, alert, restore step, or exception-expiry rule and
-  propose the fix in docs or policy.
+- JWT/OIDC and tenant enforcement;
+- artifact signing and trust anchors;
+- SBOM and supply-chain evidence;
+- replay/retention and audit export.
+
+Для него соберите четыре anchors:
+
+1. reference doc;
+2. code surface;
+3. validation test/workflow;
+4. runbook or retained evidence.
+
+## Rollback / Handoff
+
+- если control claim не подтверждается тестом, не заменяйте это prose-only
+  утверждением: зафиксируйте gap;
+- если review уходит в deployment plumbing, передайте operational часть в
+  [Platform / Ops Engineer](platform-ops-engineer.md);
+- если проблема purely API/DTO-level, синхронизируйтесь с backend owner.
+
+## Troubleshooting
+
+- security docs кажутся слишком широкими: начните с evidence map, а не со всего
+  reference page сразу;
+- локальный review не требует полного browser stack, поэтому `skip-playwright`
+  path часто нормален;
+- если workflow evidence отсутствует в repo, фиксируйте это как missing control
+  anchor, а не как "наверное где-то есть".

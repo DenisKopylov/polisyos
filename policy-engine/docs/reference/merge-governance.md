@@ -1,84 +1,117 @@
 # Merge Governance
 
-This page is the repository-facing merge contract for `main`.
+Owner: `@platform-owners`  
+Backup owner: `@tools-owners`  
+Source of truth: `docs/reference/{quality-gates.md,ownership.md}`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/labels.yml`, and the current root workflow inventory under `.github/workflows/*.yml`
 
-GitHub-native settings cannot be fully versioned in product code, so the
-repo-tracked source of truth is `.github/repository-rulesets/main.yml`. The
-live GitHub ruleset should match that file.
+This page describes the repo-tracked part of the merge contract for `main`.
 
-For the exact click-path to apply that configuration in GitHub itself, see
-[Apply Phase 1 Governance in GitHub UI](../how-to/apply-github-governance.md).
+Important boundary: this repository does not currently version a
+`.github/repository-rulesets/main.yml` file or a `.github/CODEOWNERS` file
+under `policy-engine/`. Any enforcement that exists only in the GitHub UI is
+therefore operational/manual truth rather than a repo-tracked contract.
 
-## Default Branch Ruleset
+For the current manual GitHub-UI checklist, see
+[Apply GitHub Governance Manually](../how-to/apply-github-governance.md).
 
-- target branch: `main`
-- pull requests required for all merges
-- minimum approvals: `1`
-- code-owner review required on owned paths
-- stale approvals dismissed on every new push
-- approval from the most recent reviewable push required
-- blocking review threads must be resolved before merge
+## Repo-Tracked Controls
 
-## Required Checks
+The repository itself currently versions these merge-governance surfaces:
 
-The default-branch ruleset should require these canonical GitHub Actions gate
-contexts:
+- PR taxonomy and reviewer prompts in `.github/PULL_REQUEST_TEMPLATE.md`;
+- label vocabulary in `.github/labels.yml`;
+- owner routing in [Ownership](ownership.md);
+- published gate inventory in [Quality Gates](quality-gates.md);
+- local and CI validation commands referenced from those pages;
+- the actual workflow files present under `.github/workflows/`.
 
-- `Fast PR / Gate`
-- `Standard PR / Gate`
+Those files are the factual control plane that reviewers can audit from a
+checkout without relying on out-of-band GitHub settings.
 
-`Fast PR / Gate` already aggregates workflow governance, dependency review,
-Python quality/unit, docs quality, and ABI drift handling. `Standard PR / Gate`
-already aggregates runtime HTTP, frontend quality, component smoke, runtime
-contract drift, frontend smoke, and integration coverage.
+## What Is Manual Today
 
-## Supplemental Checks
+The following settings may still exist in GitHub, but they are not versioned in
+this repository today:
 
-Additional checks may still appear on a PR for diagnostics or legacy coverage,
-but they are not part of the required default-branch merge contract unless they
-are promoted into one of the canonical gates above.
+- required status-check selections;
+- branch-protection toggles such as “require pull request before merging”;
+- approval count and stale-review behavior;
+- merge queue enablement;
+- reviewer-routing rules configured only in GitHub.
 
-The archived `Frontend Quality (Archived)` workflow is explicitly not part of
-the required merge contract.
+When you need to verify or update those settings, treat GitHub as the manual
+source of truth and reconcile it against the repo-tracked pages above.
+
+## Reviewer Routing Without CODEOWNERS
+
+Because there is no repo-tracked `.github/CODEOWNERS` file in this checkout,
+review routing is documented instead of auto-derived.
+
+Use these sources in order:
+
+- [Ownership](ownership.md) for subsystem and shared-surface owners;
+- the nearest package `README.md` for boundary-specific reviewer hints;
+- [Quality Gates](quality-gates.md) for category-specific review expectations.
+
+Changes to shared control-plane paths should request `@platform-owners`
+attention explicitly even without CODEOWNERS automation. That includes:
+
+- `.github/workflows/**`
+- `.github/PULL_REQUEST_TEMPLATE.md`
+- `.github/labels.yml`
+- `mkdocs.yml`
+- shared pages under `docs/reference/**`
+- release ledgers and closeout manifests under `release/**`
+
+## Current Workflow Reality
+
+The current repo-tracked workflow inventory is the one listed in
+[Quality Gates](quality-gates.md). In particular:
+
+- `.github/workflows/abi.yml`, `.github/workflows/arch.yml`, and
+  `.github/workflows/docs.yml` are present and factual;
+- subsystem evidence workflows such as `perf.yml`, `replay.yml`,
+  `signatures.yml`, and `foundry-release-gate.yml` are factual but may or may
+  not be selected as required GitHub checks in the UI.
+
+## Recommended Manual Branch-Protection Posture
+
+If you are configuring GitHub manually, the documented posture is:
+
+- require pull requests for `main`;
+- require at least one approval;
+- require conversations to be resolved before merge;
+- choose required-check contexts only from workflows that currently exist in
+  `.github/workflows/`;
+- avoid selecting historical or otherwise absent check contexts.
+
+Because the exact GitHub check-context names are produced by live workflow runs,
+capture them from the GitHub UI rather than hardcoding them into this page.
+
+## Tools and Docs Drift Expectations
+
+Tools and docs changes are mergeable only when the generated and validated
+surfaces agree with the registry and manifests:
+
+- command-metadata changes regenerate `docs/reference/tools.md`;
+- generated-reference changes regenerate the affected published pages;
+- docs changes keep `check-docs-accuracy` and strict MkDocs green unless a
+  tracked exception is explicitly recorded.
 
 ## Merge Queue
 
-Merge queue is intentionally not enabled yet.
-
-Rationale:
-
-- the repository is currently hosted as a personal repository under
-  `DenisKopylov/polisyos`, while GitHub merge queue is documented for eligible
-  organization-owned repositories rather than this hosting shape;
-- the repository is currently low-volume and single-maintainer enough that a
-  queue does not buy much throughput;
-- the active workflows do not yet declare `merge_group` triggers, so enabling a
-  queue would create a weaker contract than the normal PR path.
-
-Revisit this when branch traffic justifies queueing and the required workflows
-have `merge_group` coverage, and the repository hosting model makes queueing
-available.
-
-## Protected Control-Plane Paths
-
-The following paths are self-protected by repository owners through
-`.github/CODEOWNERS`:
-
-- `.github/**`
-- `.github/CODEOWNERS`
-- `SECURITY.md`
-- `SUPPORT.md`
-- `CODE_OF_CONDUCT.md`
-
-These files define the repository control plane and should not change without a
-designated repository-owner review.
+Merge queue is not part of the repo-tracked contract today. If it is enabled in
+GitHub later, that remains an operational/manual decision until the repository
+starts versioning the relevant policy and workflow context.
 
 ## Signatures Policy
 
-- signed release tags are required for release-critical cuts;
-- verified commit signatures on `main` are recommended but not enforced yet;
-- enforcement stays off until contributor key management and automation signing
-  posture are standardized enough to avoid blocking legitimate merges.
+- `signatures.yml` is the repo-tracked regression surface for artifact-signing
+  behavior and private-key hygiene;
+- `build-and-push.yml` is the repo-tracked SBOM/signing bundle for manual build
+  dispatches;
+- commit-signature enforcement on `main`, if enabled in GitHub, is currently a
+  manual platform setting rather than a versioned repo contract.
 
-This means provenance is anchored at release boundaries first, with commit-level
-signature enforcement reserved for a later hardening step.
+This keeps provenance anchored in versioned tests and build steps without
+pretending that live GitHub enforcement is tracked in-repo when it is not.

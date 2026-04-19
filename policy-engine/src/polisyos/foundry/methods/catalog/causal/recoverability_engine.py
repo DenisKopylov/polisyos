@@ -28,12 +28,20 @@ from __future__ import annotations
 
 import dataclasses
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
     from polisyos.ir.analytics.estimand import EstimandAST
     from polisyos.ir.analytics.mgraph import MGraphMetadata
+    from polisyos.ir.analytics.negative_certificate import NegativeCertificate
+    from polisyos.ir.analytics.recoverability import (
+        JointDecisionCertificate,
+        RecoverabilityCertificate,
+        RecoverabilityCertificateStatus,
+        RecoveryScope,
+        RecoveryStep,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -59,7 +67,7 @@ class RecoverabilityResult:
     trace: list[str]
     blocking_r_nodes: frozenset[str]
     """R-nodes that block recoverability (empty when RECOVERABLE)."""
-    recovery_estimand: "EstimandAST | None"
+    recovery_estimand: EstimandAST | None
     """Populated only when status == RECOVERABLE."""
     algorithm_version: str = "recover_v1"
 
@@ -72,8 +80,8 @@ class RecoverabilityResult:
 def test_recoverability(
     *,
     query_vars: frozenset[str],
-    graph: "CausalGraphModel",
-    mgraph_meta: "MGraphMetadata",
+    graph: CausalGraphModel,
+    mgraph_meta: MGraphMetadata,
 ) -> RecoverabilityResult:
     """Test whether P(S) is recoverable from incomplete data.
 
@@ -117,7 +125,6 @@ def test_recoverability(
     proxy_names: frozenset[str] = frozenset(
         pn.proxy_name for pn in mgraph_meta.proxy_nodes
     )
-    all_graph_nodes = frozenset(graph.nodes)
     kept_nodes = [n for n in graph.nodes if n not in proxy_names]
     kept_edges = [
         e for e in graph.edges
@@ -223,10 +230,10 @@ def test_recoverability(
 
 def ordered_recovery(
     *,
-    graph: "CausalGraphModel",
-    mgraph_meta: "MGraphMetadata",
+    graph: CausalGraphModel,
+    mgraph_meta: MGraphMetadata,
     dataset_ref: str | None = None,
-) -> "EstimandAST":
+) -> EstimandAST:
     """Recover the full-data joint P(V) from P*(V) using topological ordering.
 
     Implements the ordered fixing operator from Mohan, Pearl & Tian (2013):
@@ -360,9 +367,9 @@ def ordered_recovery(
 
 
 def _project_to_base_dag(
-    graph: "CausalGraphModel",
-    mgraph_meta: "MGraphMetadata",
-) -> "CausalGraphModel":
+    graph: CausalGraphModel,
+    mgraph_meta: MGraphMetadata,
+) -> CausalGraphModel:
     """Extract the causal subgraph (substantive variables only) from an M-graph.
 
     Strips all R_* and *_star nodes and their incident edges, leaving only
@@ -402,9 +409,9 @@ def _project_to_base_dag(
 
 
 def _annotate_with_recovery(
-    causal_ast: "EstimandAST",
-    recovery_ast: "EstimandAST",
-) -> "EstimandAST":
+    causal_ast: EstimandAST,
+    recovery_ast: EstimandAST,
+) -> EstimandAST:
     """Annotate a causal EstimandAST with a note that distributions come from
     recovered full-data P(V).  Currently returns causal_ast unchanged
     (the recovery context is captured in proof_steps).  This hook is provided
@@ -413,6 +420,341 @@ def _annotate_with_recovery(
     # For now, just return the causal AST — the recovery proof steps provide
     # the audit trail and the RecoveredDistNode factors are in recovery_ast.
     return causal_ast
+
+
+def _target_query(treatment: frozenset[str], outcome: frozenset[str]) -> str:
+    return f"P({', '.join(sorted(outcome))}|do({', '.join(sorted(treatment))}))"
+
+
+def _dump_estimand(ast: object) -> dict[str, Any] | None:
+    if ast is None:
+        return None
+    if hasattr(ast, "model_dump"):
+        return ast.model_dump(mode="json")
+    if isinstance(ast, dict):
+        return dict(ast)
+    return {"repr": str(ast)}
+
+
+def _step_to_recovery_step(step: object, *, theorem: str = "") -> RecoveryStep:
+    from polisyos.ir.analytics.recoverability import RecoveryStep
+
+    variables = tuple(
+        sorted(
+            set(getattr(step, "antecedent_vars", ()) or ())
+            | set(getattr(step, "consequent_vars", ()) or ())
+        )
+    )
+    return RecoveryStep(
+        rule_name=str(getattr(step, "rule_name", "") or "RECOVERY_STEP"),
+        rule_formal_name=str(getattr(step, "rule_formal_name", "") or ""),
+        applicable_theorem=theorem,
+        description=str(getattr(step, "applied_to_graph_state", "") or ""),
+        variables_affected=variables,
+        depth=int(getattr(step, "depth", 0) or 0),
+    )
+
+
+def _minimal_repair_sets(blocking_r_nodes: frozenset[str]) -> tuple[Any, ...]:
+    from polisyos.ir.analytics.recoverability import (
+        MinimalRepairSet,
+        RepairSetTestability,
+        RepairSetType,
+    )
+
+    repairs: list[MinimalRepairSet] = []
+    for r_node in sorted(blocking_r_nodes):
+        target = r_node[2:] if r_node.startswith("R_") else r_node
+        repairs.append(
+            MinimalRepairSet(
+                repair_type=RepairSetType.ASSUMPTION,
+                items=(
+                    f"remove_edge({target} -> {r_node})",
+                    f"assume {r_node} independent_of {target} given Pa({r_node})\\{{{target}}}",
+                ),
+                testability=RepairSetTestability.NOT_TESTABLE,
+                notes=(
+                    "Structural MAR-like strengthening for the blocking "
+                    f"missingness mechanism of {target}."
+                ),
+            )
+        )
+        repairs.append(
+            MinimalRepairSet(
+                repair_type=RepairSetType.DATA,
+                items=(
+                    f"collect_complete_case({target})",
+                    f"measure_auxiliary_variable_for({r_node})",
+                ),
+                testability=RepairSetTestability.UNKNOWN,
+                notes=(
+                    "Additional observed data can block or audit the MNAR "
+                    f"path into {r_node}."
+                ),
+            )
+        )
+    return tuple(repairs)
+
+
+def _recoverability_certificate_from_result(
+    *,
+    result: RecoverabilityResult,
+    graph: CausalGraphModel,
+    target_query: str,
+    scope: RecoveryScope,
+    expression_ast: object = None,
+    status_override: RecoverabilityCertificateStatus | None = None,
+    warnings: tuple[str, ...] = (),
+    computable_functionals: tuple[str, ...] = (),
+    theorem_family: str = "Mohan-Pearl-Tian-2013",
+    completeness_regime: str = "sound_incomplete",
+    metadata: dict[str, Any] | None = None,
+) -> RecoverabilityCertificate:
+    from polisyos.ir.analytics.recoverability import (
+        RecoverabilityCertificate,
+        RecoverabilityCertificateStatus,
+        RecoverabilityEstimatorFamily,
+        mgraph_fingerprint,
+    )
+
+    if status_override is not None:
+        status = status_override
+    elif result.status is RecoverabilityStatus.RECOVERABLE:
+        status = RecoverabilityCertificateStatus.RECOVERABLE
+    elif result.status is RecoverabilityStatus.PARTIALLY_RECOVERABLE:
+        status = RecoverabilityCertificateStatus.RECOVERABLE_UNDER_ASSUMPTIONS
+    else:
+        repairs = _minimal_repair_sets(result.blocking_r_nodes)
+        status = (
+            RecoverabilityCertificateStatus.RECOVERABLE_UNDER_ASSUMPTIONS
+            if repairs
+            else RecoverabilityCertificateStatus.NOT_RECOVERABLE
+        )
+
+    expression = expression_ast
+    if expression is None and result.recovery_estimand is not None:
+        expression = result.recovery_estimand
+
+    blocking = tuple(sorted(result.blocking_r_nodes))
+    estimator = None
+    if status is RecoverabilityCertificateStatus.RECOVERABLE:
+        estimator = RecoverabilityEstimatorFamily.G_FORMULA_REWEIGHT
+
+    return RecoverabilityCertificate(
+        target_query=target_query,
+        mgraph_fingerprint=mgraph_fingerprint(graph),
+        status=status,
+        recovery_scope=scope,
+        recovery_expression_ast=_dump_estimand(expression),
+        recovery_steps=tuple(
+            _step_to_recovery_step(step, theorem=theorem_family)
+            for step in result.proof_steps
+        ),
+        blocking_r_nodes=blocking,
+        blocking_explanation=(
+            "Blocking R-nodes indicate self-affecting missingness paths."
+            if blocking
+            else ""
+        ),
+        minimal_repair_sets=_minimal_repair_sets(result.blocking_r_nodes),
+        recommended_estimator_family=estimator,
+        computable_functionals=computable_functionals,
+        warnings=warnings,
+        completeness_regime=completeness_regime,  # type: ignore[arg-type]
+        theorem_family=theorem_family,
+        metadata=metadata or {},
+    )
+
+
+def _negative_certificate_from_recoverability(
+    certificate: RecoverabilityCertificate,
+) -> NegativeCertificate:
+    from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+
+    missing_vars = tuple(
+        sorted(
+            {
+                node[2:] if node.startswith("R_") else node
+                for node in certificate.blocking_r_nodes
+            }
+        )
+    )
+    suggested = NegativeCertificate.auto_suggest_experiments(
+        BlockingType.MISSINGNESS_NOT_RECOVERABLE,
+        missing_vars=missing_vars,
+    )
+    return NegativeCertificate(
+        blocking_type=BlockingType.MISSINGNESS_NOT_RECOVERABLE,
+        blocking_description=(
+            f"Missingness graph blocks recovery of {certificate.target_query}."
+        ),
+        technical_detail=certificate.blocking_explanation,
+        suggested_experiments=suggested,
+        quantitative_diagnostics={
+            "identification_status": "identified",
+            "recoverability": certificate.to_summary_dict(),
+            "blocking_r_nodes_count": float(len(certificate.blocking_r_nodes)),
+        },
+        constructive_message=(
+            "Use one of the missingness repair sets: add complete-case or "
+            "auxiliary data, or record the explicit structural missingness "
+            "assumption before estimation."
+        ),
+    )
+
+
+def _attach_recoverability_to_negative_certificate(
+    certificate: NegativeCertificate,
+    *,
+    recoverability: RecoverabilityCertificate,
+    verdict: JointDecisionStatus,
+    computable_functionals: tuple[str, ...] = (),
+) -> NegativeCertificate:
+    diagnostics = {
+        **dict(certificate.quantitative_diagnostics or {}),
+        "recoverability": recoverability.to_summary_dict(),
+        "joint_decision_verdict": verdict.value,
+    }
+    if computable_functionals:
+        diagnostics["computable_functionals"] = list(computable_functionals)
+
+    constructive_message = str(getattr(certificate, "constructive_message", "") or "").strip()
+    if computable_functionals:
+        computable_note = (
+            "Computable functionals under current missingness assumptions: "
+            f"{', '.join(computable_functionals)}."
+        )
+        if computable_note not in constructive_message:
+            constructive_message = (
+                f"{constructive_message} {computable_note}".strip()
+                if constructive_message
+                else computable_note
+            )
+
+    return certificate.model_copy(
+        update={
+            "quantitative_diagnostics": diagnostics,
+            "constructive_message": constructive_message,
+        }
+    )
+
+
+def _negative_certificate_from_id_failure(
+    *,
+    result: object,
+    treatment: frozenset[str],
+    outcome: frozenset[str],
+) -> NegativeCertificate:
+    from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+
+    status = str(getattr(getattr(result, "status", None), "value", "") or "non_identified")
+    hedge = getattr(result, "hedge_certificate", None)
+    treatment_str = ", ".join(sorted(treatment))
+    outcome_str = ", ".join(sorted(outcome))
+    if hedge is not None:
+        missing_vars = tuple(sorted(getattr(hedge, "minimal_required_s_nodes", frozenset()) or ()))
+        return NegativeCertificate(
+            blocking_type=BlockingType.HEDGE_STRUCTURE,
+            blocking_description=(
+                f"Non-identifiable: hedge blocks P({outcome_str}|do({treatment_str}))."
+            ),
+            technical_detail=str(getattr(hedge, "description", "") or ""),
+            suggested_experiments=NegativeCertificate.auto_suggest_experiments(
+                BlockingType.HEDGE_STRUCTURE,
+                missing_vars=missing_vars,
+            ),
+            quantitative_diagnostics={
+                "identification_status": status,
+                "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
+                "proof_trace": list(getattr(result, "trace", []) or []),
+            },
+            constructive_message=(
+                "The causal effect is not nonparametrically identifiable from "
+                "the available observational law. Consider randomized or "
+                "oracle-backed evidence, or compute bounds."
+            ),
+        )
+    return NegativeCertificate(
+        blocking_type=BlockingType.MISSING_DISTRIBUTION,
+        blocking_description=(
+            f"Could not identify P({outcome_str}|do({treatment_str}))."
+        ),
+        technical_detail=status,
+        quantitative_diagnostics={
+            "identification_status": status,
+            "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
+            "proof_trace": list(getattr(result, "trace", []) or []),
+        },
+        constructive_message=(
+            "Provide the missing identifying distributions or use an oracle-backed "
+            "identification backend."
+        ),
+    )
+
+
+def _identification_result_payload(result: object) -> dict[str, Any]:
+    return {
+        "status": str(getattr(getattr(result, "status", None), "value", "") or ""),
+        "estimand_ast": _dump_estimand(getattr(result, "estimand_ast", None)),
+        "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
+        "trace": list(getattr(result, "trace", []) or []),
+        "required_distributions_count": len(getattr(result, "required_distributions", []) or []),
+        "proof_steps": [
+            {
+                "rule_name": str(getattr(step, "rule_name", "") or ""),
+                "antecedent_vars": list(getattr(step, "antecedent_vars", ()) or ()),
+                "consequent_vars": list(getattr(step, "consequent_vars", ()) or ()),
+                "applied_to_graph_state": str(
+                    getattr(step, "applied_to_graph_state", "") or ""
+                ),
+                "depth": int(getattr(step, "depth", 0) or 0),
+            }
+            for step in getattr(result, "proof_steps", []) or []
+        ],
+    }
+
+
+def _strings_from_estimand_payload(payload: object) -> set[str]:
+    interesting_keys = {
+        "all_variables",
+        "conditioning",
+        "integration_vars",
+        "intervention_set",
+        "outcome",
+        "summation_vars",
+        "treatment",
+        "variable",
+        "variables",
+    }
+    found: set[str] = set()
+    if hasattr(payload, "model_dump"):
+        payload = payload.model_dump(mode="json")
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            if key in interesting_keys:
+                if isinstance(value, str):
+                    found.add(value)
+                elif isinstance(value, (list, tuple)):
+                    found.update(str(item) for item in value if isinstance(item, str))
+            found.update(_strings_from_estimand_payload(value))
+    elif isinstance(payload, (list, tuple)):
+        for item in payload:
+            found.update(_strings_from_estimand_payload(item))
+    return found
+
+
+def _required_vars_for_identification(
+    *,
+    id_result: object,
+    fallback: frozenset[str],
+    substantive_vars: tuple[str, ...],
+) -> frozenset[str]:
+    substantive = set(substantive_vars)
+    variables = _strings_from_estimand_payload(getattr(id_result, "estimand_ast", None))
+    variables = {var for var in variables if var in substantive}
+    if not variables:
+        variables = set(fallback)
+    return frozenset(sorted(variables))
 
 
 # ---------------------------------------------------------------------------
@@ -424,8 +766,8 @@ def full_law_identify(
     *,
     treatment: frozenset[str],
     outcome: frozenset[str],
-    graph: "CausalGraphModel",
-    mgraph_meta: "MGraphMetadata",
+    graph: CausalGraphModel,
+    mgraph_meta: MGraphMetadata,
     dataset_ref: str | None = None,
     oracle: str = "none",
 ) -> object:  # returns IdentificationResult — typed as object to avoid circular imports
@@ -487,6 +829,17 @@ def full_law_identify(
     trace.extend(rec.trace)
 
     if rec.status == RecoverabilityStatus.NOT_RECOVERABLE:
+        from polisyos.ir.analytics.recoverability import RecoveryScope
+
+        certificate = _recoverability_certificate_from_result(
+            result=rec,
+            graph=graph,
+            target_query=_target_query(treatment, outcome),
+            scope=RecoveryScope.FULL_LAW,
+            theorem_family="Mohan-Pearl-2021",
+            completeness_regime="complete",
+            warnings=("full_law_not_recoverable",),
+        )
         trace.append(
             "full_law_identify: Stage 1 FAILED — "
             f"blocking R-nodes: {sorted(rec.blocking_r_nodes)}"
@@ -499,6 +852,7 @@ def full_law_identify(
             required_distributions=[],
             algorithm_version="full_law_v1",
             proof_steps=all_steps,
+            metadata={"recoverability_certificate": certificate.to_summary_dict()},
         )
 
     # Stage 1 passed
@@ -519,10 +873,6 @@ def full_law_identify(
     # Stage 2: ID algorithm on the base DAG
     # ------------------------------------------------------------------
     base_graph = _project_to_base_dag(graph, mgraph_meta)
-
-    # Resolve treatment/outcome to single strings for id_algorithm
-    treatment_var = next(iter(treatment)) if len(treatment) == 1 else sorted(treatment)[0]
-    outcome_var = next(iter(outcome)) if len(outcome) == 1 else sorted(outcome)[0]
 
     id_result = id_with_oracle_fallback(
         treatment=frozenset(treatment),
@@ -549,11 +899,27 @@ def full_law_identify(
     )
 
     if id_result.status != IdentificationStatus.IDENTIFIED:
+        from polisyos.ir.analytics.recoverability import RecoveryScope
+
+        certificate = _recoverability_certificate_from_result(
+            result=rec,
+            graph=graph,
+            target_query="P(V)",
+            scope=RecoveryScope.FULL_LAW,
+            computable_functionals=("P(V)",),
+            theorem_family="Nabi-Bhattacharya-Shpitser-2020",
+            completeness_regime="complete",
+        )
         return _dc.replace(
             id_result,
             trace=trace + list(id_result.trace),
             proof_steps=all_steps,
             algorithm_version="full_law_v1",
+            metadata={
+                **dict(getattr(id_result, "metadata", {}) or {}),
+                "recoverability_certificate": certificate.to_summary_dict(),
+                "computable_functionals": ["P(V)"],
+            },
         )
 
     # Both stages succeeded — annotate estimand with recovery context
@@ -561,19 +927,325 @@ def full_law_identify(
         id_result.estimand_ast,
         rec.recovery_estimand,
     )
+    from polisyos.ir.analytics.recoverability import RecoveryScope
+
+    certificate = _recoverability_certificate_from_result(
+        result=rec,
+        graph=graph,
+        target_query=_target_query(treatment, outcome),
+        scope=RecoveryScope.FULL_LAW,
+        expression_ast=rec.recovery_estimand,
+        computable_functionals=("P(V)", _target_query(treatment, outcome)),
+        theorem_family="Nabi-Bhattacharya-Shpitser-2020",
+        completeness_regime="complete",
+    )
     return _dc.replace(
         id_result,
         estimand_ast=combined_ast,
         trace=trace,
         proof_steps=all_steps,
         algorithm_version="full_law_v1",
+        metadata={
+            **dict(getattr(id_result, "metadata", {}) or {}),
+            "recoverability_certificate": certificate.to_summary_dict(),
+            "identification_estimand_ast": _dump_estimand(combined_ast),
+        },
+    )
+
+
+def identify_joint_recoverability(
+    *,
+    treatment: frozenset[str],
+    outcome: frozenset[str],
+    graph: CausalGraphModel,
+    mgraph_meta: MGraphMetadata,
+    dataset_ref: str | None = None,
+    oracle: str = "none",
+) -> JointDecisionCertificate:
+    """Joint ID + recoverability decision procedure for M-graphs.
+
+    The implementation is a certified cascade:
+      1. full-law recoverability fast path;
+      2. standard ID on the projected causal graph;
+      3. sound-incomplete direct recovery of variables used by the ID estimand;
+      4. observational-query fallback for non-ID cases.
+
+    The direct layer is intentionally conservative. It only returns
+    ``IdentifiedAndRecoverable`` when every substantive variable referenced by
+    the identified estimand passes the M-graph recoverability screen.
+    """
+    from polisyos.foundry.methods.catalog.causal.id_engine import (
+        IdentificationStatus,
+        ProofStep,
+        id_with_oracle_fallback,
+    )
+    from polisyos.ir.analytics.estimand import (
+        DistributionDomain,
+        DistributionRef,
+        EstimandAST,
+    )
+    from polisyos.ir.analytics.recoverability import (
+        JointDecisionCertificate,
+        JointDecisionStatus,
+        RecoverabilityCertificateStatus,
+        RecoveryScope,
+    )
+
+    target_query = _target_query(treatment, outcome)
+    base_graph = _project_to_base_dag(graph, mgraph_meta)
+    id_result = id_with_oracle_fallback(
+        treatment=treatment,
+        outcome=outcome,
+        graph=base_graph,
+        oracle=oracle,
+        dataset_ref=dataset_ref,
+    )
+    id_status = str(id_result.status.value)
+
+    full_rec = test_recoverability(
+        query_vars=frozenset(mgraph_meta.substantive_vars),
+        graph=graph,
+        mgraph_meta=mgraph_meta,
+    )
+    full_law_computable = (
+        ("P(V)",) if full_rec.status is RecoverabilityStatus.RECOVERABLE else ()
+    )
+    full_cert = _recoverability_certificate_from_result(
+        result=full_rec,
+        graph=graph,
+        target_query="P(V)",
+        scope=RecoveryScope.FULL_LAW,
+        computable_functionals=full_law_computable,
+        theorem_family="Nabi-Bhattacharya-Shpitser-2020",
+        completeness_regime="complete",
+        warnings=()
+        if full_rec.status is RecoverabilityStatus.RECOVERABLE
+        else ("full_law_not_recoverable",),
+    )
+
+    if full_rec.status is RecoverabilityStatus.RECOVERABLE:
+        if id_result.status is IdentificationStatus.IDENTIFIED:
+            cert = _recoverability_certificate_from_result(
+                result=full_rec,
+                graph=graph,
+                target_query=target_query,
+                scope=RecoveryScope.FULL_LAW,
+                expression_ast=full_rec.recovery_estimand,
+                computable_functionals=("P(V)", target_query),
+                theorem_family="Nabi-Bhattacharya-Shpitser-2020",
+                completeness_regime="complete",
+            )
+            return JointDecisionCertificate(
+                verdict=JointDecisionStatus.IDENTIFIED_AND_RECOVERABLE,
+                target_query=target_query,
+                id_status=id_status,
+                recoverability=cert,
+                identification_result=_identification_result_payload(id_result),
+                computable_functionals=("P(V)", target_query),
+                recommended_estimator_family=cert.recommended_estimator_family,
+                metadata={
+                    "cascade_level": "full_law",
+                    "identification_estimand_ast": _dump_estimand(id_result.estimand_ast),
+                },
+            )
+
+        negative = _negative_certificate_from_id_failure(
+            result=id_result,
+            treatment=treatment,
+            outcome=outcome,
+        )
+        negative = _attach_recoverability_to_negative_certificate(
+            negative,
+            recoverability=full_cert,
+            verdict=JointDecisionStatus.RECOVERABLE_BUT_NOT_IDENTIFIED,
+            computable_functionals=("P(V)",),
+        )
+        return JointDecisionCertificate(
+            verdict=JointDecisionStatus.RECOVERABLE_BUT_NOT_IDENTIFIED,
+            target_query=target_query,
+            id_status=id_status,
+            recoverability=full_cert,
+            identification_result=_identification_result_payload(id_result),
+            negative_certificate=negative,
+            computable_functionals=("P(V)",),
+            recommended_estimator_family=full_cert.recommended_estimator_family,
+            metadata={"cascade_level": "full_law_non_id"},
+        )
+
+    if id_result.status is IdentificationStatus.IDENTIFIED:
+        required_vars = _required_vars_for_identification(
+            id_result=id_result,
+            fallback=treatment | outcome,
+            substantive_vars=mgraph_meta.substantive_vars,
+        )
+        direct_rec = test_recoverability(
+            query_vars=required_vars,
+            graph=graph,
+            mgraph_meta=mgraph_meta,
+        )
+        direct_steps = list(direct_rec.proof_steps)
+        direct_steps.extend(
+            [
+                ProofStep(
+                    rule_name="DIRECT_CAUSAL_RECOVERY_SCREEN",
+                    antecedent_vars=tuple(sorted(required_vars)),
+                    consequent_vars=tuple(sorted(outcome)),
+                    applied_to_graph_state=(
+                        "Sound-incomplete direct recovery: every substantive "
+                        "variable referenced by the identified estimand is recoverable."
+                    ),
+                    depth=0,
+                )
+            ]
+        )
+        direct_result = dataclasses.replace(direct_rec, proof_steps=direct_steps)
+        if direct_rec.status is RecoverabilityStatus.RECOVERABLE:
+            cert = _recoverability_certificate_from_result(
+                result=direct_result,
+                graph=graph,
+                target_query=target_query,
+                scope=RecoveryScope.CAUSAL_QUERY,
+                expression_ast=id_result.estimand_ast,
+                computable_functionals=(target_query,),
+                theorem_family="Mohan-Pearl-2014 + ID-v1",
+                completeness_regime="sound_incomplete",
+                metadata={"required_recoverable_variables": sorted(required_vars)},
+            )
+            return JointDecisionCertificate(
+                verdict=JointDecisionStatus.IDENTIFIED_AND_RECOVERABLE,
+                target_query=target_query,
+                id_status=id_status,
+                recoverability=cert,
+                identification_result=_identification_result_payload(id_result),
+                computable_functionals=(target_query,),
+                recommended_estimator_family=cert.recommended_estimator_family,
+                metadata={
+                    "cascade_level": "direct_query",
+                    "full_law_recoverability": full_cert.to_summary_dict(),
+                },
+            )
+
+        cert = _recoverability_certificate_from_result(
+            result=direct_result,
+            graph=graph,
+            target_query=target_query,
+            scope=RecoveryScope.CAUSAL_QUERY,
+            expression_ast=id_result.estimand_ast,
+            status_override=RecoverabilityCertificateStatus.RECOVERABLE_UNDER_ASSUMPTIONS,
+            warnings=("assumption_dependent_missingness_recovery",),
+            theorem_family="Mohan-Pearl-2014 + ID-v1",
+            completeness_regime="sound_incomplete",
+            metadata={
+                "required_recoverable_variables": sorted(required_vars),
+                "full_law_recoverability": full_cert.to_summary_dict(),
+            },
+        )
+        negative = _negative_certificate_from_recoverability(cert)
+        negative = _attach_recoverability_to_negative_certificate(
+            negative,
+            recoverability=cert,
+            verdict=JointDecisionStatus.IDENTIFIED_BUT_NOT_RECOVERABLE,
+        )
+        return JointDecisionCertificate(
+            verdict=JointDecisionStatus.IDENTIFIED_BUT_NOT_RECOVERABLE,
+            target_query=target_query,
+            id_status=id_status,
+            recoverability=cert,
+            identification_result=_identification_result_payload(id_result),
+            negative_certificate=negative,
+            metadata={"cascade_level": "direct_query_repairs"},
+        )
+
+    obs_vars = treatment | outcome
+    obs_rec = test_recoverability(
+        query_vars=obs_vars,
+        graph=graph,
+        mgraph_meta=mgraph_meta,
+    )
+    y_vars = tuple(sorted(outcome))
+    x_vars = tuple(sorted(treatment))
+    obs_ast = EstimandAST(
+        query_str=f"P({', '.join(y_vars)}|{', '.join(x_vars)})",
+        root=DistributionRef(
+            domain=DistributionDomain.SOURCE,
+            variables=y_vars,
+            conditioning=x_vars,
+            dataset_ref=dataset_ref,
+        ),
+        treatment=x_vars[0] if x_vars else "",
+        outcome=y_vars[0] if y_vars else "",
+        all_variables=tuple(sorted(obs_vars)),
+        identification_method="observational_recoverability_fallback",
+    )
+    negative = _negative_certificate_from_id_failure(
+        result=id_result,
+        treatment=treatment,
+        outcome=outcome,
+    )
+    if obs_rec.status is RecoverabilityStatus.RECOVERABLE:
+        obs_cert = _recoverability_certificate_from_result(
+            result=obs_rec,
+            graph=graph,
+            target_query=obs_ast.query_str,
+            scope=RecoveryScope.OBSERVATIONAL_QUERY,
+            expression_ast=obs_ast,
+            computable_functionals=(obs_ast.query_str,),
+            theorem_family="Mohan-Pearl-2014",
+            completeness_regime="sound_incomplete",
+        )
+        negative = _attach_recoverability_to_negative_certificate(
+            negative,
+            recoverability=obs_cert,
+            verdict=JointDecisionStatus.RECOVERABLE_BUT_NOT_IDENTIFIED,
+            computable_functionals=(obs_ast.query_str,),
+        )
+        return JointDecisionCertificate(
+            verdict=JointDecisionStatus.RECOVERABLE_BUT_NOT_IDENTIFIED,
+            target_query=target_query,
+            id_status=id_status,
+            recoverability=obs_cert,
+            identification_result=_identification_result_payload(id_result),
+            negative_certificate=negative,
+            computable_functionals=(obs_ast.query_str,),
+            recommended_estimator_family=obs_cert.recommended_estimator_family,
+            metadata={
+                "cascade_level": "observational_fallback",
+                "full_law_recoverability": full_cert.to_summary_dict(),
+            },
+        )
+
+    obs_cert = _recoverability_certificate_from_result(
+        result=obs_rec,
+        graph=graph,
+        target_query=obs_ast.query_str,
+        scope=RecoveryScope.OBSERVATIONAL_QUERY,
+        status_override=RecoverabilityCertificateStatus.RECOVERABLE_UNDER_ASSUMPTIONS,
+        warnings=("observational_query_recovery_requires_repairs",),
+        theorem_family="Mohan-Pearl-2014",
+        completeness_regime="sound_incomplete",
+        metadata={"full_law_recoverability": full_cert.to_summary_dict()},
+    )
+    negative = _attach_recoverability_to_negative_certificate(
+        negative,
+        recoverability=obs_cert,
+        verdict=JointDecisionStatus.NOT_IDENTIFIED,
+    )
+    return JointDecisionCertificate(
+        verdict=JointDecisionStatus.NOT_IDENTIFIED,
+        target_query=target_query,
+        id_status=id_status,
+        recoverability=obs_cert,
+        identification_result=_identification_result_payload(id_result),
+        negative_certificate=negative,
+        metadata={"cascade_level": "not_identified"},
     )
 
 
 __all__ = [
-    "RecoverabilityStatus",
     "RecoverabilityResult",
-    "test_recoverability",
-    "ordered_recovery",
+    "RecoverabilityStatus",
     "full_law_identify",
+    "identify_joint_recoverability",
+    "ordered_recovery",
+    "test_recoverability",
 ]

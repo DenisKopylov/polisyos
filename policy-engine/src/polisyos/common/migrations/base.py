@@ -2,14 +2,21 @@
 from __future__ import annotations
 
 import copy
-from typing import Callable, Dict, Tuple
+from typing import Callable
 
-MigrationFn = Callable[[dict], dict]
+ArtifactPayload = dict[str, object]
+MigrationDecorator = Callable[["MigrationFn"], "MigrationFn"]
 
-_MIGRATIONS: Dict[str, Dict[str, Tuple[str, MigrationFn]]] = {}
+MigrationFn = Callable[[ArtifactPayload], ArtifactPayload]
+
+_MIGRATIONS: dict[str, dict[str, tuple[str, MigrationFn]]] = {}
 
 
-def register_migration(artifact: str, from_version: str, to_version: str):
+def register_migration(
+    artifact: str,
+    from_version: str,
+    to_version: str,
+) -> MigrationDecorator:
     """Register migration."""
     def decorator(fn: MigrationFn) -> MigrationFn:
         _MIGRATIONS.setdefault(artifact, {})[from_version] = (to_version, fn)
@@ -18,12 +25,21 @@ def register_migration(artifact: str, from_version: str, to_version: str):
     return decorator
 
 
-def migrate_artifact(data: dict, artifact: str, target_version: str) -> dict:
+def migrate_artifact(
+    data: ArtifactPayload,
+    artifact: str,
+    target_version: str,
+) -> ArtifactPayload:
     """Apply the registered migration chain without mutating caller-owned input."""
     current_data = copy.deepcopy(data)
     if "schema_version" not in current_data:
         raise ValueError(f"Missing schema_version for artifact '{artifact}'")
-    current_version = current_data["schema_version"]
+    schema_version = current_data["schema_version"]
+    if not isinstance(schema_version, str):
+        raise TypeError(
+            f"schema_version for '{artifact}' must be a string, got {type(schema_version).__name__}"
+        )
+    current_version = schema_version
     if current_version == target_version:
         return current_data
 

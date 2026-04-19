@@ -17,11 +17,13 @@ from typing import Any, Mapping, MutableMapping
 from polisyos.common.env_parsing import parse_bool, parse_int
 
 try:  # pragma: no cover - optional dependency
+    load_dotenv: Any | None
     from dotenv import load_dotenv
 except ModuleNotFoundError:  # pragma: no cover
     load_dotenv = None
 
 try:  # pragma: no cover - optional dependency
+    logger: Any | None
     from loguru import logger
 except ModuleNotFoundError:  # pragma: no cover
     logger = None

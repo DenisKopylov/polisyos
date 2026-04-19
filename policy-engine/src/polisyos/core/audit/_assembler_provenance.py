@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 from polisyos.common.logger import get_logger
@@ -80,6 +81,9 @@ def collect_public_keys(
             try:
                 pem = key_file.read_bytes()
                 public_key = load_pem_public_key(pem)
+                if not isinstance(public_key, Ed25519PublicKey):
+                    logger.debug("Skipping unsupported public key type in %s", key_file)
+                    continue
                 key_id = compute_key_id(public_key)
             except (OSError, TypeError, ValueError) as exc:
                 logger.debug(
@@ -215,12 +219,12 @@ def build_merged_provenance(
                 exc,
             )
             continue
-        for item in sub_graph.entities.values():
-            graph.add_entity(item)
-        for item in sub_graph.activities.values():
-            graph.add_activity(item)
-        for item in sub_graph.agents.values():
-            graph.add_agent(item)
+        for entity in sub_graph.entities.values():
+            graph.add_entity(entity)
+        for activity in sub_graph.activities.values():
+            graph.add_activity(activity)
+        for agent in sub_graph.agents.values():
+            graph.add_agent(agent)
         for edge in sub_graph.edges:
             graph.edges.append(edge)
 

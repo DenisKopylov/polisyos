@@ -1,12 +1,26 @@
 # Configuration Reference
 Related explanation: [Security Model](../explanation/security-model.md).
 
+Freshness: 2026-04-17
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/common/config.py`, `src/polisyos/core/security/settings.py`, `src/polisyos/core/artifacts/backends/config.py`, `src/polisyos/runtime/http/{app.py,execution_policy.py,resilience.py,response_policies.py,mutation_policy.py,routes/runs.py}`
+Validation:
+- `uv run pytest -q tests/common/test_config_bootstrap.py tests/runtime/http/test_api_maturity.py tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_runtime_api_write_path_hardening.py`
+
 This page documents dependency extras, execution/security profiles, and the
 `POLISYOS_*` environment variables consumed by WS-7E platform layers.
 
 For the governing docs around install tiers and secret handling, see
 [Dependency Platform](dependency-platform.md) and
 [Configuration Profiles](configuration-profiles.md).
+
+Related L1 references:
+
+- [Bootstrap Environment Registry](configuration-env-registry.md)
+- [Runtime Auth and Tenant Model](api/auth-tenant-model.md)
+- [Runtime API Error Semantics](api/error-semantics.md)
+- [CAS and Storage Reference](operations/cas-storage.md)
+- [Runtime API Versioning and Deprecation Policy](api/versioning.md)
 
 ## Installation Groups
 
@@ -66,7 +80,6 @@ through `RuntimeExecutionPolicyResolver`.
 | `POLISYOS_CONTROL_SQLITE_PATH` | `.polisyos/control_plane.sqlite3` | SQLite control-plane DB path |
 | `POLISYOS_CONTROL_POSTGRES_DSN` | empty | Required for durable profiles using PostgreSQL |
 | `POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE` | unset | Allow embedded/sqlite control-plane in `research` deployments |
-| `POLISYOS_CONTROL_MAX_WORKERS` | auto | In-process control worker thread-pool size |
 | `POLISYOS_LLM_MULTIMODEL_ENABLED` | `true` | Allow multiple NL model variants per launch |
 | `POLISYOS_REQUIRED_PREFLIGHT_ENABLED` | `true` | Enable required execution-plan preflight gates |
 | `POLISYOS_AUTO_MATERIALIZATION_ENABLED` | `true` | Enable automatic result materialization where supported |
@@ -201,23 +214,57 @@ through `RuntimeExecutionPolicyResolver`.
 | `POLISYOS_LLM_DEFAULT_INPUT_USD` | built-in default | Default per-token LLM input cost fallback |
 | `POLISYOS_LLM_DEFAULT_OUTPUT_USD` | built-in default | Default per-token LLM output cost fallback |
 
+## Runtime HTTP Guard, CSRF, And Versioning Env Vars
+
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY` | `false` | Enable the explicit development fixture identity when the full security chain is disabled |
+| `POLISYOS_CSRF_ENABLED` | unset | Explicitly enable CSRF protection for `/api/v1/*` writes |
+| `POLISYOS_COOKIE_AUTH_ENABLED` | unset | Auto-enable CSRF protection when cookie auth is in use and `POLISYOS_CSRF_ENABLED` is unset |
+| `POLISYOS_SESSION_COOKIE_NAME` | `polisyos_session` | Session cookie name used by the CSRF middleware |
+| `POLISYOS_CSRF_COOKIE_NAME` | `polisyos_csrf` | Double-submit CSRF cookie name |
+| `POLISYOS_CSRF_HEADER_NAME` | `X-CSRF-Token` | Header that must match the CSRF cookie |
+| `POLISYOS_RUNTIME_WRITE_RATE_LIMIT` | `24` | Per-tenant write budget for `POST /api/v1/control/*` |
+| `POLISYOS_RUNTIME_WRITE_RATE_WINDOW_SECONDS` | `60` | Window for the write budget |
+| `POLISYOS_RUNTIME_LIVE_RATE_LIMIT` | `8` | Per-tenant live-stream connection budget |
+| `POLISYOS_RUNTIME_LIVE_RATE_WINDOW_SECONDS` | `60` | Window for live-stream rate limiting |
+| `POLISYOS_RUNTIME_LIVE_CONCURRENCY_LIMIT` | `4` | Per-tenant concurrent live-stream cap |
+| `POLISYOS_RUNTIME_LIVE_MIN_INTERVAL_SECONDS` | `1.0` | Minimum SSE poll interval for run live streams |
+| `POLISYOS_RUNTIME_LIVE_MAX_INTERVAL_SECONDS` | `5.0` | Maximum SSE poll interval for run live streams |
+| `POLISYOS_RUNTIME_LIVE_KEEPALIVE_SECONDS` | `15.0` | SSE keepalive cadence |
+| `POLISYOS_RUNTIME_LIVE_MAX_DURATION_SECONDS` | `120` | Max live-stream lifetime before timeout event |
+| `POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS` | `1.5` | Timeout for guarded blocking CAS operations |
+| `POLISYOS_RUNTIME_CAS_EXECUTOR_MAX_WORKERS` | `4` | Executor budget for guarded CAS calls |
+| `POLISYOS_RUNTIME_CAS_BREAKER_{FAILURE_THRESHOLD,TIMEOUT_SECONDS,WINDOW_SECONDS}` | `3`, `30`, `60` | Circuit-breaker thresholds for CAS dependency failures |
+| `POLISYOS_RUNTIME_CONTROL_STORE_TIMEOUT_SECONDS` | `1.5` | Timeout for guarded control-store calls |
+| `POLISYOS_RUNTIME_CONTROL_STORE_EXECUTOR_MAX_WORKERS` | `4` | Executor budget for guarded control-store calls |
+| `POLISYOS_RUNTIME_CONTROL_STORE_BREAKER_{FAILURE_THRESHOLD,TIMEOUT_SECONDS,WINDOW_SECONDS}` | `3`, `30`, `60` | Circuit-breaker thresholds for control-store failures |
+| `POLISYOS_RUNTIME_OPA_TIMEOUT_SECONDS` | `1.5` | Timeout for runtime OPA checks |
+| `POLISYOS_RUNTIME_OPA_BREAKER_{FAILURE_THRESHOLD,TIMEOUT_SECONDS,WINDOW_SECONDS}` | `3`, `30`, `60` | Circuit-breaker thresholds for runtime OPA failures |
+| `POLISYOS_RUNTIME_API_VERSION` | `1` | Runtime API major version header value |
+| `POLISYOS_RUNTIME_API_COMPATIBILITY_WINDOW` | `12 months` | `X-API-Compatibility-Window` header value |
+| `POLISYOS_RUNTIME_API_MIGRATION_GUIDE_URL` | `https://polisyos.dev/docs/reference/api/versioning` | `Link rel="describedby"` target for versioning docs |
+| `POLISYOS_RUNTIME_API_DEPRECATED` | `false` | Emit `Deprecation: true` on `/api/v1/*` responses |
+| `POLISYOS_RUNTIME_API_SUNSET` | unset | Emit `Sunset` when the surface has a scheduled removal date |
+
 ## Common Runtime Env Vars
 
-`polisyos.common.config` mutates process-level JAX/Torch settings at import time
-and should be imported only from entrypoints that intentionally want those
-safeguards before the first JAX import.
+`polisyos.common.config` is import-side-effect free. Entry points that want
+bootstrap defaults must call `apply_process_bootstrap()` explicitly; the
+authoritative bootstrap subset is documented in
+[Bootstrap Environment Registry](configuration-env-registry.md).
 
 | Variable | Default | Effect |
 |----------|---------|--------|
 | `LOG_LEVEL` | `DEBUG` | Console logging level for `loguru` |
 | `DUCKDB_MEMORY_LIMIT` | `4GB` | DuckDB memory limit used by platform services |
 | `DUCKDB_THREADS` | auto | DuckDB thread count |
-| `JAX_PLATFORM_NAME` | forced to `cpu` | JAX backend pin applied by `polisyos.common.config` |
-| `JAX_ENABLE_X64` | forced to `false` | Disable x64 by default |
-| `JAX_DISABLE_MOST_OPTIMIZATIONS` | forced to `true` | Favor lower-risk CPU defaults |
-| `JAX_CHECK_TRACER_LEAKS` | forced to `false` | Disable expensive tracer-leak checks |
-| `XLA_PYTHON_CLIENT_PREALLOCATE` | `false` when unset | Disable eager device memory preallocation |
-| `XLA_FLAGS` | auto when unset | Constrain CPU intra-op parallelism |
+| `JAX_PLATFORM_NAME` | `cpu` | Explicit bootstrap default for JAX backend selection |
+| `JAX_ENABLE_X64` | `false` | Explicit bootstrap default for x64 mode |
+| `JAX_DISABLE_MOST_OPTIMIZATIONS` | `true` | Explicit bootstrap default for safer local JAX posture |
+| `JAX_CHECK_TRACER_LEAKS` | `false` | Explicit bootstrap default for tracer leak checks |
+| `XLA_PYTHON_CLIENT_PREALLOCATE` | `false` when unset | Bootstrap default for eager device memory preallocation |
+| `XLA_FLAGS` | auto when unset | Bootstrap default for CPU intra-op parallelism |
 | `SCIENTIST_TORCH_DEVICE` | `cpu` | Default Scientist Torch device |
 | `SCIENTIST_TORCH_NUM_THREADS` | auto | Torch intra-op thread count |
 | `SCIENTIST_TORCH_NUM_INTEROP_THREADS` | `1` | Torch inter-op thread count |

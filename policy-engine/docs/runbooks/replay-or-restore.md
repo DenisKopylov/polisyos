@@ -7,6 +7,11 @@ how-to: [Use Control Plane](../how-to/use-control-plane.md),
 > Используйте этот runbook, когда нужно восстановить record/replay session,
 > checkpoint-backed workflow progress, snapshot manifest или retained archive.
 
+Owner: `@platform-owners`
+Last tested: `2026-04-17` against current replay/checkpoint regressions and retained-artifact references.
+Evidence path: `docs/reference/operations/retention-and-recovery.md`; `docs/archive/reports/platform-acceptance-manual.md`; `tests/fabric/data_plane/test_record_replay.py`
+Rollback path: stop destructive restore steps, preserve the current broken head or replay bundle, and switch to another trusted retained copy or documented replay source.
+
 ## Symptom
 
 - `replay_ref` не воспроизводится или даёт другой результат, чем исходный run;

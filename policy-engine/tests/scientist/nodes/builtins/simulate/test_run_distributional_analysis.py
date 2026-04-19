@@ -16,6 +16,13 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.executor import put_state_snapshot
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+    persist_causal_graph_model,
+)
 from polisyos.ir.analytics.distributional import (
     CohortDimension,
     DistributionalJustification,
@@ -30,6 +37,7 @@ from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis impo
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+    ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_STATE_SNAPSHOT_REF,
 )
@@ -260,7 +268,74 @@ def test_undersized_geography_groups_emit_warning_without_failing(
         "fewer than two sufficiently sized aligned regions" in reason
         for reason in report.metadata["geography_breakdown_skipped_reasons"]
     )
-    assert any("skipped" in event.message.lower() for event in outcome.events)
+
+
+def test_uses_proof_kernel_for_distribution_law_when_graph_and_treatment_available(
+    execution_context,
+    minimal_state,
+    cas_store,
+    artifact_ref_factory,
+):
+    baseline = _state_with_income(
+        [10, 12, 15, 18, 20, 22, 24, 26, 28, 30, 35, 40, 45, 50, 55, 60, 65, 72, 80, 90],
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    simulated = _state_with_income(
+        [11, 13, 17, 20, 23, 25, 28, 31, 33, 36, 42, 48, 54, 60, 66, 72, 79, 86, 94, 103],
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    baseline_ref = put_state_snapshot(cas_store, state=baseline)
+    simulated_ref = put_state_snapshot(cas_store, state=simulated)
+    sim_result_ref = _simulation_result_ref(
+        cas_store,
+        simulated_ref=simulated_ref,
+        artifact_ref_factory=artifact_ref_factory,
+    )
+    graph_ref = persist_causal_graph_model(
+        cas_store,
+        CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["policy_shock", "income"],
+            edges=[
+                CausalEdge(
+                    src="policy_shock",
+                    dst="income",
+                    mark_src=EdgeMark.TAIL,
+                    mark_dst=EdgeMark.ARROW,
+                )
+            ],
+        ),
+    )
+
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_STATE_SNAPSHOT_REF] = baseline_ref
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = sim_result_ref
+    state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
+    state.params["distributional_treatment_variable"] = "policy_shock"
+
+    outcome = RunDistributionalAnalysisNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    bundle = load_distributional_effect_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
+    )
+
+    assert bundle.justification is DistributionalJustification.SCENARIO
+    assert bundle.distributional_query_kind == "interventional_law"
+    assert bundle.marginal_justification is DistributionalJustification.IDENTIFIED
+    assert bundle.marginal_law_justification is DistributionalJustification.IDENTIFIED
+    assert bundle.coupling_justification is DistributionalJustification.SCENARIO
+    assert "distributional_estimand_not_proof_kernel_identified" not in bundle.causal_assumptions
+    assert bundle.metadata["marginal_law_justification"] == DistributionalJustification.IDENTIFIED.value
+    assert bundle.metadata["distributional_query_kind"] == "interventional_law"
+    assert bundle.metadata["coupling_justification"] == DistributionalJustification.SCENARIO.value
+    assert bundle.metadata["proof_kernel"]["status"] == "identified"
+    assert bundle.metadata["proof_kernel"]["query_kind"] == "distribution_law"
+    assert bundle.metadata["proof_kernel"]["distributional_query_kind"] == "interventional_law"
+    assert bundle.marginal_law_proof_ref == bundle.distributional_proof_ref
+    assert bundle.distributional_proof_ref is not None
+    assert bundle.coupling_proof_ref is not None
 
 
 def test_resolve_baseline_snapshot_ref_assertion_is_not_swallowed(

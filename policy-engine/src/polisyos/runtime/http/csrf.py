@@ -2,27 +2,30 @@
 from __future__ import annotations
 
 import hmac
-from typing import Any, Callable
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.runtime.http.errors import problem_response
 
-try:  # pragma: no cover - optional runtime dependency
-    BaseHTTPMiddleware: Any
-    Request: Any
-    Response: Any
-    from starlette.middleware.base import BaseHTTPMiddleware
+if TYPE_CHECKING:
+    from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
     from starlette.requests import Request
     from starlette.responses import Response
-except ModuleNotFoundError:  # pragma: no cover
-    BaseHTTPMiddleware = object
-    Request = Any
-    Response = Any
+else:  # pragma: no cover - optional runtime dependency
+    try:
+        from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
+        from starlette.requests import Request
+        from starlette.responses import Response
+    except ModuleNotFoundError:  # pragma: no cover
+        _BaseHTTPMiddleware = cast("type[Any]", object)
+        Request = cast("Any", None)
+        Response = cast("Any", None)
 
 
 _UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 
 
-class CSRFMiddleware(BaseHTTPMiddleware):
+class CSRFMiddleware(_BaseHTTPMiddleware):
     """Enforce a double-submit CSRF token for cookie-authenticated mutations.
 
     Bearer-token requests are intentionally out of scope: the protection is
@@ -44,7 +47,11 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         self._csrf_header_name = csrf_header_name
         self._protected_path_prefix = protected_path_prefix
 
-    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         method = str(getattr(request, "method", "GET")).upper()
         path = str(getattr(request.url, "path", ""))
         if method not in _UNSAFE_METHODS or not path.startswith(self._protected_path_prefix):

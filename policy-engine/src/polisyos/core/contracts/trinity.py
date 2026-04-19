@@ -25,8 +25,8 @@ class ProblemFrameRef(ArtifactRef):
         )
     """
 
-    kind: Literal["ir.problem_frame"] = "ir.problem_frame"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "ir.problem_frame"
+    media_type: str = "application/json"
 
 
 class PolicySpecRef(ArtifactRef):
@@ -41,8 +41,8 @@ class PolicySpecRef(ArtifactRef):
         )
     """
 
-    kind: Literal["ir.policy_spec"] = "ir.policy_spec"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "ir.policy_spec"
+    media_type: str = "application/json"
 
 
 class PolicyPortfolioRef(ArtifactRef):
@@ -50,8 +50,8 @@ class PolicyPortfolioRef(ArtifactRef):
     Typed reference to a PolicyPortfolio artifact.
     """
 
-    kind: Literal["ir.policy_portfolio"] = "ir.policy_portfolio"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "ir.policy_portfolio"
+    media_type: str = "application/json"
 
 
 class ModelSpecRef(ArtifactRef):
@@ -66,8 +66,8 @@ class ModelSpecRef(ArtifactRef):
         )
     """
 
-    kind: Literal["ir.model_spec"] = "ir.model_spec"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "ir.model_spec"
+    media_type: str = "application/json"
 
 
 class TrinityBundleRef(ArtifactRef):
@@ -77,8 +77,8 @@ class TrinityBundleRef(ArtifactRef):
     Used when the bundle itself is stored as a single artifact in CAS.
     """
 
-    kind: Literal["ir.trinity_bundle"] = "ir.trinity_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "ir.trinity_bundle"
+    media_type: str = "application/json"
 
 
 class TrinityBundle(BaseModel):

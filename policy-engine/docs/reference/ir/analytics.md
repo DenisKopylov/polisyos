@@ -12,6 +12,11 @@ most common analytics contracts, but it is no longer a wildcard mirror of
 every analytics implementation module. For advanced/report-specific APIs use
 the defining submodule import path.
 
+Freshness: 2026-04-17
+Owner: `@ir-owners`
+Source of truth: `src/polisyos/ir/analytics/**`, `src/polisyos/ir/refs.py`, `schemas/snapshots/ir/*.schema.json`, `tests/ir/analytics/**`, `tests/ir/test_uncertainty.py`, `tests/ir/test_frontier_causal_contracts.py`
+Source plan phases: D1-L4 Phase 2 estimand/uncertainty normalization, Phase 3 verification, and Phase 5 causal frontier contracts.
+
 ## Source Modules
 
 | Module | Focus | Key exports |
@@ -116,3 +121,13 @@ support evaluation.
 ## Recourse And Explanations
 
 ::: polisyos.ir.analytics.recourse
+
+## Validation Hooks
+
+| Claim | Source of truth | Evidence |
+|-------|-----------------|----------|
+| Estimand normalization produces semantic content hashes | `src/polisyos/ir/analytics/estimand.py` | `tests/ir/analytics/test_estimand_normalization.py` |
+| Uncertainty algebra is explicit and trust-policy aware | `src/polisyos/ir/analytics/uncertainty.py` | `tests/ir/test_uncertainty.py`, `docs/adr/0012-uncertainty-envelope-ir-contract.md` |
+| Causal, HTE, distributional, backtest, and transportability contracts are ABI-backed where public | `schemas/abi_models.py` | [JSON Schema Catalog](../schemas.md), `tests/ir/analytics/test_shared_invariants.py` |
+| Frontier causal reports are typed research contracts, not runtime support promises | frontier analytics modules | `tests/ir/test_frontier_causal_contracts.py`, `docs/adr/0110-ir-frontier-governance-and-causal-contracts.md` |
+| Package facade counts and lazy import behavior stay ratcheted | `src/polisyos/ir/public_surface.py` | `tests/ir/test_public_surface.py` |

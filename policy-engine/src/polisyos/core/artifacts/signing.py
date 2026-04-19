@@ -112,8 +112,7 @@ class SignatureVerificationResult(BaseModel):
     message: str | None = None
     checked_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    @computed_field
-    @property
+    @computed_field(return_type=bool)
     def ok(self) -> bool:
         """Return `True` only for `SignatureVerificationStatus.VALID`."""
         return self.status == SignatureVerificationStatus.VALID
@@ -134,8 +133,7 @@ class BulkVerificationReport(BaseModel):
     details: list[SignatureVerificationResult] = Field(default_factory=list)
     checked_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    @computed_field
-    @property
+    @computed_field(return_type=bool)
     def ok(self) -> bool:
         """Return `True` when bulk verification has no invalid, revoked, or error results."""
         return self.invalid == 0 and self.revoked == 0 and self.errors == 0

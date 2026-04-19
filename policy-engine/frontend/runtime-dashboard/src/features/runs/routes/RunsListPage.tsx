@@ -1,17 +1,16 @@
-import {
-  startTransition,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { startTransition, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { useRuns } from "@/api/hooks/useRuns";
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
+import { buildEvidenceHref } from "@/features/evidence";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { formatDate, formatDuration } from "@/lib/utils";
 import {
+  buildRunDeckHref,
+  buildRunDetailHref,
+  buildRunReportHref,
   buildRunsListHref,
   parseRunsListSearchParams,
 } from "@/features/runs/domain/searchParams";
@@ -55,6 +54,21 @@ function statusKind(status: string) {
 function statusBadgeKind(status: string) {
   const kind = statusKind(status);
   return kind === "unknown" ? "neutral" : kind;
+}
+
+function isBlockedStatus(status: string) {
+  const normalized = status.toLowerCase();
+  return (
+    normalized.includes("blocked") ||
+    normalized === "failed" ||
+    normalized === "fail" ||
+    normalized === "rejected"
+  );
+}
+
+function isRunningStatus(status: string) {
+  const normalized = status.toLowerCase();
+  return normalized === "running" || normalized === "pending";
 }
 
 function localDateTimeToIso(value: string | null): string | undefined {
@@ -154,12 +168,7 @@ export default function RunsList() {
     if (!activeRunIsVisible) {
       setActiveRunId(firstDisplayedRunId);
     }
-  }, [
-    activeRunId,
-    activeRunIsVisible,
-    firstDisplayedRunId,
-    setActiveRunId,
-  ]);
+  }, [activeRunId, activeRunIsVisible, firstDisplayedRunId, setActiveRunId]);
 
   const currentCursorIndex = cursorTrail.lastIndexOf(cursor);
   const previousCursor =
@@ -171,6 +180,13 @@ export default function RunsList() {
     activeRunId != null
       ? (displayedRuns.find((run) => run.run_id === activeRunId) ?? null)
       : null;
+  const visibleRuns = displayedRuns.length;
+  const runningRuns = displayedRuns.filter((run) =>
+    isRunningStatus(run.status),
+  );
+  const blockedRuns = displayedRuns.filter((run) =>
+    isBlockedStatus(run.status),
+  );
   const activeRunAnnouncement = activeRun
     ? t("pages.runs.activeRunAnnouncement", {
         count: displayedRuns.length,
@@ -288,9 +304,8 @@ export default function RunsList() {
     }
 
     const focusActiveRow = () => {
-      const rows = explorerRef.current?.querySelectorAll<HTMLElement>(
-        "[data-run-row-id]",
-      );
+      const rows =
+        explorerRef.current?.querySelectorAll<HTMLElement>("[data-run-row-id]");
       if (!rows) {
         return false;
       }
@@ -453,13 +468,142 @@ export default function RunsList() {
   return (
     <div className="space-y-4" data-testid="runs-list-page">
       <Card>
-        <p className="text-muted text-xs font-semibold tracking-[0.24em] uppercase">
-          {t("pages.runs.title")}
-        </p>
-        <h2 className="mt-2 text-3xl font-semibold">
-          {t("pages.runs.explorerTitle")}
-        </h2>
-        <p className="text-muted mt-2 text-sm">{t("pages.runs.subtitle")}</p>
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
+          <div>
+            <p className="eyebrow">{t("pages.runs.fleetEyebrow")}</p>
+            <h2>{t("pages.runs.fleetHeading")}</h2>
+            <p className="topbar-subtitle">{t("pages.runs.subtitle")}</p>
+            <p className="text-muted mt-2 max-w-3xl text-sm">
+              {t("pages.runs.fleetBody")}
+            </p>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              <div className="bg-surface/75 border-line rounded-2xl border p-4">
+                <span className="text-muted text-xs tracking-wide uppercase">
+                  {t("pages.runs.visibleRuns")}
+                </span>
+                <strong className="mt-2 block text-2xl font-semibold">
+                  {visibleRuns}
+                </strong>
+              </div>
+              <div className="bg-surface/75 border-line rounded-2xl border p-4">
+                <span className="text-muted text-xs tracking-wide uppercase">
+                  {t("pages.runs.runningNow")}
+                </span>
+                <strong className="mt-2 block text-2xl font-semibold">
+                  {runningRuns.length}
+                </strong>
+              </div>
+              <div className="bg-surface/75 border-line rounded-2xl border p-4">
+                <span className="text-muted text-xs tracking-wide uppercase">
+                  {t("pages.runs.blockedNow")}
+                </span>
+                <strong className="mt-2 block text-2xl font-semibold">
+                  {blockedRuns.length}
+                </strong>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-surface/70 border-line rounded-2xl border p-4">
+            <p className="eyebrow">{t("pages.runs.selectedRunTitle")}</p>
+            {activeRun ? (
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {activeRun.run_id}
+                    </h3>
+                    <p className="text-muted mt-2 text-sm">
+                      {t("pages.runs.selectedRunBody")}
+                    </p>
+                  </div>
+                  <Badge kind={statusBadgeKind(activeRun.status)}>
+                    {label("runStatuses", activeRun.status, activeRun.status)}
+                  </Badge>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="compact-metric">
+                    <p className="text-muted text-xs uppercase">
+                      {t("pages.runs.duration")}
+                    </p>
+                    <p className="mt-1 font-semibold">
+                      {formatDuration(activeRun.duration_ms, locale)}
+                    </p>
+                  </div>
+                  <div className="compact-metric">
+                    <p className="text-muted text-xs uppercase">
+                      {t("pages.runs.columns.artifacts")}
+                    </p>
+                    <p className="mt-1 font-semibold">
+                      {activeRun.root_artifact_count ?? 0}
+                    </p>
+                  </div>
+                  <div className="compact-metric">
+                    <p className="text-muted text-xs uppercase">
+                      {t("pages.runs.columns.source")}
+                    </p>
+                    <p className="mt-1 font-semibold">
+                      {label(
+                        "runSourceKinds",
+                        activeRun.source_kind,
+                        activeRun.source_kind,
+                      )}
+                    </p>
+                  </div>
+                  <div className="compact-metric">
+                    <p className="text-muted text-xs uppercase">
+                      {t("pages.runs.columns.started")}
+                    </p>
+                    <p className="mt-1 font-semibold">
+                      {formatDate(activeRun.started_at, locale)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    to={buildRunDetailHref(activeRun.run_id)}
+                    variant="primary"
+                  >
+                    {t("pages.runs.openRun")}
+                  </Button>
+                  <Button
+                    to={buildEvidenceHref({
+                      focus: "overview",
+                      runId: activeRun.run_id,
+                    })}
+                    variant="ghost"
+                  >
+                    {t("pages.runs.openEvidence")}
+                  </Button>
+                  <Button
+                    to={buildRunReportHref(activeRun.run_id)}
+                    variant="ghost"
+                  >
+                    {t("pages.runs.auditReport")}
+                  </Button>
+                  <Button
+                    to={buildRunDeckHref(activeRun.run_id)}
+                    variant="ghost"
+                  >
+                    {t("pages.runs.openDeck")}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">
+                  {t("pages.runs.noActiveRunTitle")}
+                </h3>
+                <p className="text-muted text-sm">
+                  {t("pages.runs.noActiveRunBody")}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </Card>
 
       <FilterPanel

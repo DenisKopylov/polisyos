@@ -5,6 +5,9 @@ Related ADR: [ADR-0006](../../adr/0006-slo-definitions.md). Related reference:
 [Runtime API Outage](../../runbooks/runtime-api-outage.md),
 [Canary Rollback or Failed Promotion](../../runbooks/canary-rollback-or-promotion-failure.md).
 
+Owner: `@platform-owners`
+Source of truth: `docs/reference/operations/observability-topology.md`, linked runbooks, `tools/devx/workspace/acceptance_audit.py`, and the repo-tracked workflows that exercise runtime/performance gates
+
 > Эта страница даёт общий язык для того, когда reliability “достаточно хороша”,
 > когда feature work идёт дальше, а когда платформа обязана приостановиться и
 > чинить устойчивость.
@@ -18,6 +21,21 @@ Phase 6 фиксирует три operational service surfaces вокруг runt
 | Runtime API read surface | Health, readiness, runs, artifacts и operator read APIs доступны и правдивы | synthetic `/health`, `/ready`, request success/error/latency, trace/log correlation | `@runtime-owners` |
 | Control-plane write surface | `POST /api/v1/control/*` создаёт и двигает jobs без silent stalls | job admission success, DAG success rate, outbox/worker health, queue age, timeline continuity | `@runtime-owners` + `@scientist-owners` |
 | Critical execution dependencies | LLM, connectors, authz, state store и security gates не разрушают runtime silently | connector error rate, agent errors, SBOM/security signals, dependency-specific dashboards | affected subsystem owner with `@platform-owners` coordination |
+
+## Acceptance and Runtime Gates
+
+Runtime SLO review is tied to current executable gates, not only to dashboards.
+The acceptance audit and release gate should be read together when runtime
+availability, auth, tenant isolation, OpenAPI, or control-plane write semantics
+change.
+
+| Gate | Command or workflow | What it proves |
+|---|---|---|
+| Runtime OpenAPI contract | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py` | committed OpenAPI, generated client, examples, problem payloads, and contract invariants stay fresh |
+| Auth and tenant middleware | `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/core/security/test_tenant_context.py tests/runtime/http/test_runtime_api_authz.py` | JWT, tenant/cell routing, OPA denial, timeout, and fail-closed access behavior match docs |
+| Runtime write path | `uv run pytest -q tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_control_hardening.py` | idempotency, rate limiting, mutation audit, dependency timeouts, and lifecycle cleanup remain enforced |
+| Core-runtime closeout ledger | `uv run polisyos-tools workspace core-runtime-closeout` and `uv run polisyos-tools workspace core-runtime-long-soak` | release-review evidence, reopen gaps, and long-soak runtime signals stay tied to the current repo-tracked ledger |
+| Platform acceptance audit | `uv run polisyos-tools workspace acceptance-audit` | cross-surface platform checks still reference the current runtime contract and contributor gates |
 
 ## Initial SLO Set
 
@@ -36,7 +54,7 @@ existing DAG/simulation/connector SLOs lives in `ops/prometheus/slo_*`.
 | Scientist DAG latency | `p99 <= 300s` | `polisyos:slo_dag_p99_latency_seconds:5m` | from ADR-0006 |
 | Simulation numerical health | NaN rate `< 0.1%` | `polisyos:slo_simulation_nan_rate:rate5m` | from ADR-0006 |
 | Connector reliability | error rate `< 1%` per connector/env | `polisyos:slo_connector_error_rate:rate5m` | from ADR-0006 |
-| Docs publication freshness | successful publish within one green `main` CI cycle | `Docs Pages` workflow success + timestamp of published site | silent docs staleness is operational debt |
+| Docs publication freshness | successful strict build on the current docs tree | `.github/workflows/docs.yml` or local `mkdocs build --strict` evidence | silent docs drift is operational debt even when site publication is handled separately |
 
 ## Error Budget Model
 

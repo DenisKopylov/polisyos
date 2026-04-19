@@ -763,13 +763,16 @@ class UnifiedDiscoveryData(BaseModel):
 
     data: Any  # shape: (n_obs, n_vars)
     variable_names: list[str]
+    domain_labels: Any | None = None  # shape: (n_obs,)
     literature_prior: LiteratureCausalPrior | None = None
     llm_hints: list["LLMStructuralHint"] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    @field_validator("data", mode="before")
+    @field_validator("data", "domain_labels", mode="before")
     @classmethod
     def _coerce_numpy(cls, value: Any) -> Any:
+        if value is None:
+            return None
         return _to_numpy(value)
 
     @model_validator(mode="after")
@@ -788,9 +791,16 @@ class UnifiedDiscoveryData(BaseModel):
             raise ValueError("variable_names must be unique")
         if any(not name for name in self.variable_names):
             raise ValueError("variable_names must not contain empty values")
+        if self.domain_labels is not None:
+            if not isinstance(self.domain_labels, np.ndarray) or self.domain_labels.ndim != 1:
+                raise ValueError("domain_labels must be a 1D numpy array when provided")
+            if self.domain_labels.shape[0] != self.data.shape[0]:
+                raise ValueError(
+                    "len(domain_labels) must match data.shape[0] when provided"
+                )
         return self
 
-    @field_serializer("data", mode="plain", when_used="json")
+    @field_serializer("data", "domain_labels", mode="plain", when_used="json")
     def _serialize_data(self, value: Any) -> Any:
         if isinstance(value, np.ndarray):
             return value.tolist()

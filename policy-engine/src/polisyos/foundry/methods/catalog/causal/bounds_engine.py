@@ -54,7 +54,7 @@ from polisyos.foundry.methods.catalog.causal.bounds import (
     ManskiBoundsEstimator,
     OptimizationBasedBoundsEstimator,
 )
-from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds
+from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds_with_metadata
 from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
     IntersectionBoundsEstimator,
     TanBoundsEstimator,
@@ -309,12 +309,15 @@ class BoundsEngineMethod:
         base_state = {"outcome": Y, "treatment": T}
 
         partial_id_results: list[PartialIdentificationResult] = []
+        certificate_candidates: list[tuple[PartialIdentificationResult, dict[str, Any]]] = []
         warnings: list[str] = []
+        auto_pid: PartialIdentificationResult | None = None
+        auto_payload: dict[str, Any] = {}
 
         # --- Auto bounds (Phase 7 first-pass LP / relaxation) ---
         if use_auto_bounds:
             try:
-                auto_pid = auto_bounds(
+                auto_pid, auto_payload = auto_bounds_with_metadata(
                     outcome=Y,
                     treatment=T,
                     instrument=(
@@ -327,6 +330,9 @@ class BoundsEngineMethod:
                     constraints={"monotone": has_monotone},
                 )
                 partial_id_results.append(auto_pid)
+                candidate_payload = auto_payload.get("dual_certificate_payload")
+                if isinstance(candidate_payload, dict):
+                    certificate_candidates.append((auto_pid, candidate_payload))
             except Exception as exc:  # pragma: no cover - defensive fallback
                 warnings.append(f"auto_bounds failed: {exc}")
 
@@ -360,6 +366,9 @@ class BoundsEngineMethod:
                 pid = _extract_partial_id(gbp_out)
                 if pid is not None:
                     partial_id_results.append(pid)
+                    candidate_payload = gbp_out.get("result", {}).get("dual_certificate_payload")
+                    if isinstance(candidate_payload, dict):
+                        certificate_candidates.append((pid, candidate_payload))
             elif is_binary_iv:
                 # Balke-Pearl sharp IV bounds (binary IV + treatment + outcome)
                 bp_state = {**base_state, "instrument": Z}
@@ -367,6 +376,9 @@ class BoundsEngineMethod:
                 pid = _extract_partial_id(bp_out)
                 if pid is not None:
                     partial_id_results.append(pid)
+                    candidate_payload = bp_out.get("result", {}).get("dual_certificate_payload")
+                    if isinstance(candidate_payload, dict):
+                        certificate_candidates.append((pid, candidate_payload))
                 # Also run Imbens-Manski for CI
                 if run_all:
                     im_params = {**base_params, "alpha": alpha}
@@ -498,10 +510,24 @@ class BoundsEngineMethod:
                 "n_methods": len(report.results),
             },
         )
+        dual_certificate_payload = None
+        if partial_id_results:
+            tightest = min(partial_id_results, key=lambda item: item.bound_width)
+            for candidate_pid, candidate_payload in certificate_candidates:
+                if candidate_pid == tightest:
+                    dual_certificate_payload = candidate_payload
+                    break
+            if tightest.bounds_type == "sharp_lp" and dual_certificate_payload is None:
+                bundle_warnings = list(bundle.warnings)
+                bundle_warnings.append("tightest_sharp_lp_missing_dual_certificate")
+                bundle = bundle.model_copy(update={"warnings": bundle_warnings})
 
-        return {
+        response: dict[str, Any] = {
             "bounds_report": bundle.model_dump(mode="json"),
         }
+        if dual_certificate_payload is not None:
+            response["dual_certificate_payload"] = dual_certificate_payload
+        return response
 
 
 __all__ = ["BoundsEngineMethod"]

@@ -7,6 +7,11 @@ Related reference: [Logging and Trace Context](../reference/logging.md),
 > answer "who changed what, when, and under which request context" for runtime
 > mutations.
 
+Owner: `@runtime-owners`
+Last tested: `2026-04-17` against audit-chain evidence and current compliance-review docs.
+Evidence path: `docs/reference/security-compliance.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/core/security/test_audit_chain.py`
+Rollback path: preserve original audit evidence, separate remediation from historical records, and record any corrective mutation as a new audited action.
+
 ## Symptom
 
 - a run, job, or decision-validity event exists and its origin is unclear;

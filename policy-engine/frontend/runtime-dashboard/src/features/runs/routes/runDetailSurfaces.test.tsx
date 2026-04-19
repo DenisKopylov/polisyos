@@ -204,6 +204,7 @@ vi.mock("@/features/runs/routes/useRunDetailSummary", async () => {
 });
 
 import RunComparePage from "@/features/runs/routes/RunComparePage";
+import RunDeckPage from "@/features/runs/routes/RunDeckPage";
 import RunDetailLayout from "@/features/runs/routes/RunDetailLayout";
 import RunReportPage from "@/features/runs/routes/RunReportPage";
 import AgentsTab from "@/features/runs/routes/tabs/AgentsTab";
@@ -599,7 +600,31 @@ describe("run detail surfaces", () => {
     expect(await screen.findByTestId("run-replan-link")).toBeInTheDocument();
   });
 
-  it("renders comparison and report pages", async () => {
+  it("renders the Atlas decision packet summary in RunDetailLayout", async () => {
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(
+      await screen.findByTestId("run-decision-packet"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.runs.decisionPacketHeading"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.runs.impactDeltasTitle"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.runs.strongestEvidenceTitle"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("pages.runs.uncertaintyTitle")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Inflation Dataset is queued on Explorelane with 82% confidence.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Decision Card")).toBeInTheDocument();
+  });
+
+  it("renders comparison, report, and deck pages", async () => {
     renderRoute("/runs/compare", "/runs/compare", <RunComparePage />);
     expect(
       screen.getByText("pages.runs.compare.requiredTitle"),
@@ -627,6 +652,18 @@ describe("run detail surfaces", () => {
       screen.getByRole("button", { name: "pages.runs.report.exportJson" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Runtime failed")).toBeInTheDocument();
+
+    renderRoute("/deck", "/deck", <RunDeckPage />);
+    expect(
+      screen.getByText("pages.runs.deck.requiredTitle"),
+    ).toBeInTheDocument();
+
+    renderRoute("/runs/run-1/deck", "/runs/:runId/deck", <RunDeckPage />);
+    expect(screen.getByTestId("run-deck-page")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "pages.runs.deck.printPdf" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("run-deck-slide-evidence")).toBeInTheDocument();
   });
 
   it("renders OverviewTab with decision, governance, evidence, and timeline sections", () => {

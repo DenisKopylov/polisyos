@@ -2,6 +2,9 @@
 
 Related reference: [Platform Acceptance Audit](platform-acceptance-audit.md), [SLO Error Budget](slo-error-budget.md), [Quality Gates](../quality-gates.md). Related runbooks: [Runbooks](../../runbooks/index.md).
 
+Owner: `@runtime-owners`
+Source of truth: `release/core-runtime-closeout.ledger.toml`, `release/core-runtime-closeout.evidence.template.toml`, `docs/archive/reports/core-runtime-closeout.{md,json}`, and the `polisyos-tools workspace core-runtime-closeout` / `core-runtime-long-soak` commands
+
 > This page is the executable Wave 0 / Stream G artifact for
 > `CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md`: one canonical closure ledger
 > for `WS-0A .. WS-3C`, with machine-readable evidence, reopen gaps, and final
@@ -64,8 +67,10 @@ The long-soak runner exercises:
 - async checkpoint restore cycles;
 - async cursor-store stream progress persistence.
 
-The scheduled/manual CI workflow for this evidence lives at
-`.github/workflows/core-runtime-long-soak.yml`.
+This evidence is repo-tracked through the command and archived reports above.
+If a team also schedules it in external CI or GitHub Actions, that automation
+is operational/manual truth rather than a versioned workflow contract in this
+repository.
 
 ## Final Closeout Mode
 

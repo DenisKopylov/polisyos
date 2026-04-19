@@ -1,36 +1,70 @@
 # Common (`polisyos.common`)
 
-`polisyos.common` is the low-level utility layer for PolicyOS. It contains shared bootstrap,
-logging, serialization, time, async, and local migration helpers with no domain logic.
+## Purpose
 
-## Role in System
+`polisyos.common` is the lowest reusable layer in the PolicyOS dependency
+graph. It owns side-effect-sensitive bootstrap helpers, logging, async
+bridging, canonical JSON serialization, UTC time utilities, and package-local
+migration primitives. Keep domain logic out of this package.
 
-- **Depends on:** the standard library and a few optional runtime packages.
-- **Used by:** nearly every higher layer, especially `core`, `fabric`, `foundry`, `scientist`, `runtime`, `lex`, and `scholar`.
-- **Boundary function:** stays at the bottom of the dependency graph and must remain stable.
+## Where to Start
 
-## Key Concepts
+- `src/polisyos/common/__init__.py` for the lazy facade contract.
+- `src/polisyos/common/serialization.py` for canonical JSON helpers and
+  round-trip guarantees.
+- `src/polisyos/common/timestamps.py` for aware-UTC parsing and formatting.
+- `src/polisyos/common/async_tools.py` for sync/async bridge utilities and the
+  shared executor.
+- `src/polisyos/common/config.py` and `src/polisyos/common/jax_env.py` for
+  early-process bootstrap behavior.
+- `src/polisyos/common/migrations/README.md` for package-local artifact
+  migrations.
+- `src/polisyos/common/env_parsing.py` if you are working on bootstrap
+  internals; it is intentionally not part of the exported facade.
 
-- **Bootstrap** - `config.py` and `jax_env.py` handle early runtime setup.
-- **Logging** - `logger.py` provides the shared logging facade.
-- **Async bridge** - `async_tools.py` runs coroutines from synchronous code.
-- **Serialization** - `serialization.py` canonicalizes Python objects into JSON-friendly data.
-- **Time utilities** - `timestamps.py` keeps UTC parsing/formatting consistent.
-- **Environment parsing** - `env_parsing.py` supports bootstrap configuration parsing, even though it is not part of the top-level facade.
-- **Local migrations** - `migrations/` owns only the artifacts this package is responsible for.
+## Public entrypoints
 
-## Public API
+- Supported package entrypoint: `polisyos.common`
+- Lazy facade exports from `src/polisyos/common/__init__.py`:
+  `async_tools`, `config`, `jax_env`, `logger`, `migrations`,
+  `serialization`, `timestamps`
+- Internal-but-frequently-touched helper: `env_parsing.py`; do not treat it as
+  stable public surface without updating the facade and
+  [Public Surface](../../../docs/reference/public-surface.md).
 
-- `async_tools`
-- `config`
-- `jax_env`
-- `logger`
-- `serialization`
-- `timestamps`
-- `migrations`
+## Depends on / depended on by
 
-## Current State
+Depends on: Python stdlib plus a small set of optional bootstrap/runtime
+dependencies pulled in by individual helper modules.
 
-- Last updated: 2026-04-03
-- The tree now includes `env_parsing.py` alongside the legacy bootstrap and utility helpers.
-- `common.migrations` remains intentionally separate from `polisyos.ir.migrations`.
+Depended on by: `polisyos.core`, `polisyos.runtime`, `polisyos.fabric`,
+`polisyos.foundry`, `polisyos.scientist`, `polisyos.lex`,
+`polisyos.scholar`, and workspace tooling.
+
+## Common commands
+
+Run commands from the repository root `policy-engine/`.
+
+- Smoke-tested:
+  `PYTHONPATH=src:. uv run python -c "import polisyos.common as common; print(sorted(common.__all__))"`
+- Smoke-tested:
+  `PYTHONPATH=src:. uv run python -c "from polisyos.common.migrations.manifest import MANIFEST_CURRENT_VERSION; print(MANIFEST_CURRENT_VERSION)"`
+
+## Test/verification commands
+
+Run commands from the repository root `policy-engine/`.
+
+- Smoke-tested:
+  `uv run pytest -q tests/common/test_async_tools.py tests/common/test_config_bootstrap.py tests/common/test_fast_json_serialization.py tests/common/test_serialization_properties.py tests/common/test_timestamps.py tests/common/test_migrations_purity.py`
+- Conceptual release gate: `uv run python tools/workspace/core_runtime_mypy.py`
+- Conceptual release gate:
+  `uv run python tools/workspace/core_runtime_basedpyright.py`
+
+## Reference docs
+
+- [Public Surface](../../../docs/reference/public-surface.md)
+- [Generated Artifacts](../../../docs/reference/generated-artifacts.md)
+- [Core / Common / Runtime Audit Remediation Plan](../../../docs/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md)
+- [Common migrations](migrations/README.md)
+
+- Last updated: 2026-04-17

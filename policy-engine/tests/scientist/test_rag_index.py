@@ -2,10 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime
 
+import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame as IRProblemFrame
+from polisyos.ir.governance.problem_frame import ProblemDomain
+from polisyos.ir.governance.problem_frame import ProblemFrame as IRProblemFrame
+from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 from polisyos.scientist.agent.rag import (
@@ -13,6 +16,7 @@ from polisyos.scientist.agent.rag import (
     HashEmbeddingBackend,
     RAGCaseEntry,
     RAGSearchResult,
+    build_or_load_rag_index,
     format_few_shot_block,
 )
 
@@ -150,3 +154,78 @@ def test_format_few_shot_block() -> None:
     block = format_few_shot_block([result], max_chars=2000)
     assert "SIMILAR PAST DECISIONS" in block
     assert "tax_subsidy" in block
+
+
+def test_rag_build_from_cas_manifest_assertion_is_not_swallowed() -> None:
+    class _BrokenCAS:
+        def iter_artifact_ids(self):
+            return ["sha256:" + ("a" * 64)]
+
+        def get_manifest(self, _artifact_id):
+            raise AssertionError("manifest invariant failed")
+
+    index = CASRAGIndex(HashEmbeddingBackend(dimension=32), similarity_threshold=0.0)
+
+    with pytest.raises(AssertionError, match="manifest invariant failed"):
+        index.build_from_cas(_BrokenCAS())
+
+
+def test_rag_entry_trinity_assertion_is_not_swallowed(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cas = FileSystemCAS(tmp_path)
+    index = CASRAGIndex(HashEmbeddingBackend(dimension=32), similarity_threshold=0.0)
+    payload = {
+        "run_id": "run_approve_assertion",
+        "governance": {"verdict": "APPROVE", "issues": []},
+        "inputs": {"trinity_bundle_ref": "sha256:" + ("b" * 64)},
+    }
+
+    def _boom(_cls, _payload):
+        raise AssertionError("trinity validation invariant failed")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.rag.TrinityBundle.model_validate",
+        classmethod(_boom),
+    )
+    monkeypatch.setattr(cas, "get_bytes", lambda _artifact_id: b"{}")
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.rag.from_canonical_bytes",
+        lambda _payload: {},
+    )
+
+    with pytest.raises(AssertionError, match="trinity validation invariant failed"):
+        index._entry_from_decision_packet_payload(
+            cas,
+            payload,
+            "sha256:" + ("a" * 64),
+        )
+
+
+def test_build_or_load_rag_index_load_assertion_is_not_swallowed(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cas = FileSystemCAS(tmp_path)
+
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.rag.find_latest_rag_snapshot_ref",
+        lambda _cas: "sha256:" + ("c" * 64),
+    )
+
+    def _boom(_cls, cas, *, snapshot_ref, embedder):
+        del _cls, cas, snapshot_ref, embedder
+        raise AssertionError("rag load invariant failed")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.rag.CASRAGIndex.load",
+        classmethod(_boom),
+    )
+
+    with pytest.raises(AssertionError, match="rag load invariant failed"):
+        build_or_load_rag_index(
+            cas,
+            config=type("Cfg", (), {"similarity_threshold": 0.0, "max_entries": 10})(),
+            embedder=HashEmbeddingBackend(dimension=16),
+        )

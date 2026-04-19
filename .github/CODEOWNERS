@@ -8,9 +8,17 @@
 
 /.github/CODEOWNERS                  @DenisKopylov
 /.github/**                          @DenisKopylov
+/.editorconfig                       @DenisKopylov
+/.gitattributes                      @DenisKopylov
 /SECURITY.md                         @DenisKopylov
 /SUPPORT.md                          @DenisKopylov
 /CODE_OF_CONDUCT.md                  @DenisKopylov
+/policy-engine/architecture/**            @DenisKopylov
+/policy-engine/architecture/public_surface/** @DenisKopylov
+/policy-engine/schemas/**                 @DenisKopylov
+/policy-engine/schemas/topology/**        @DenisKopylov
+/policy-engine/schemas/api/**             @DenisKopylov
+/policy-engine/schemas/artifacts/**       @DenisKopylov
 /policy-engine/src/polisyos/core/**       @DenisKopylov
 /policy-engine/src/polisyos/ir/**         @DenisKopylov
 /policy-engine/src/polisyos/fabric/**     @DenisKopylov
@@ -18,6 +26,12 @@
 /policy-engine/src/polisyos/scientist/**  @DenisKopylov
 /policy-engine/src/polisyos/lex/**        @DenisKopylov
 /policy-engine/src/polisyos/runtime/**    @DenisKopylov
+/policy-engine/src/polisyos/data_forge/** @DenisKopylov
 /policy-engine/frontend/**                @DenisKopylov
+/policy-engine/docs/adr/**                @DenisKopylov
+/policy-engine/docs/plans/active/**       @DenisKopylov
 /policy-engine/docs/**                    @DenisKopylov
+/policy-engine/ops/observability/**       @DenisKopylov
+/policy-engine/ops/security/**            @DenisKopylov
 /policy-engine/ops/**                     @DenisKopylov
+/policy-engine/tools/architecture/**      @DenisKopylov

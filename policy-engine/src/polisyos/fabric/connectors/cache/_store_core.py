@@ -51,6 +51,14 @@ __all__ = [
 logger = get_logger(__name__)
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
+def _default_tracer() -> PolicyOSTracer:
+    return get_tracer()
+
+
 class ConnectorCacheStore:
     """
     Content-addressable cache for connector fetch results.
@@ -85,8 +93,8 @@ class ConnectorCacheStore:
         self._miss_count = 0
         self._eviction_count = 0
         self._stats_lock = threading.Lock()
-        self._metrics = metrics or get_metrics()
-        self._tracer = tracer or get_tracer()
+        self._metrics = metrics if metrics is not None else _default_metrics()
+        self._tracer = tracer if tracer is not None else _default_tracer()
         self._closed = False
 
     # ---------------------------------------------------------------------

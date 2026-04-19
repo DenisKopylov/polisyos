@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import threading
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from ._metrics_helpers import GaugeProxy, HistogramTimer
-from ._metrics_registry_base import _MetricsRegistryBase
+from ._metrics_registry_base import MetricsRegistryBase
 
 
-class MetricsRegistry(_MetricsRegistryBase):
+class MetricsRegistry(MetricsRegistryBase):
     """Metrics registry implementation."""
     def time_simulation(
         self,
@@ -922,27 +922,30 @@ class MetricsRegistry(_MetricsRegistryBase):
 
 
 
-_metrics_registry: Optional[MetricsRegistry] = None
+_metrics_registry: Optional[MetricsRegistryBase] = None
 _metrics_registry_lock = threading.Lock()
 
 
 def get_metrics() -> MetricsRegistry:
     """Get the global MetricsRegistry instance."""
     global _metrics_registry
+    current_instance = MetricsRegistry.current_instance()
     if (
         _metrics_registry is not None
-        and MetricsRegistry._instance is not None
-        and _metrics_registry is MetricsRegistry._instance
+        and current_instance is not None
+        and _metrics_registry is current_instance
     ):
-        return _metrics_registry
+        return cast("MetricsRegistry", _metrics_registry)
     with _metrics_registry_lock:
+        current_instance = MetricsRegistry.current_instance()
         if (
             _metrics_registry is None
-            or MetricsRegistry._instance is None
-            or _metrics_registry is not MetricsRegistry._instance
+            or current_instance is None
+            or _metrics_registry is not current_instance
         ):
             _metrics_registry = MetricsRegistry()
-    return _metrics_registry
+    assert _metrics_registry is not None
+    return cast("MetricsRegistry", _metrics_registry)
 
 
 __all__ = [

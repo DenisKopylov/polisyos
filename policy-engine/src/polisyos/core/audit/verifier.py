@@ -11,6 +11,7 @@ from typing import Any
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.x509 import load_pem_x509_certificate
 
@@ -101,6 +102,9 @@ class AuditPackageVerifier:
             index = json.loads(index_path.read_text("utf-8"))
         except (OSError, ValueError, TypeError) as exc:
             report.add_failure("INVALID_INDEX", f"index.json is invalid: {exc}", path="index.json")
+            return None
+        if not isinstance(index, dict):
+            report.add_failure("INVALID_INDEX", "index.json must contain a JSON object", path="index.json")
             return None
         if index.get("package_format") != "polisyos-audit-v1":
             report.add_failure(
@@ -433,8 +437,8 @@ class AuditPackageVerifier:
         step.duration_ms = (time.perf_counter() - started) * 1000
         return step
 
-    def _load_trusted_keys(self, pkg_dir: Path) -> tuple[dict[str, Any], dict[str, str]]:
-        trusted: dict[str, Any] = {}
+    def _load_trusted_keys(self, pkg_dir: Path) -> tuple[dict[str, Ed25519PublicKey], dict[str, str]]:
+        trusted: dict[str, Ed25519PublicKey] = {}
         identities: dict[str, str] = {}
 
         if self._trusted_keys_dir and self._trusted_keys_dir.exists():
@@ -443,6 +447,9 @@ class AuditPackageVerifier:
                     continue
                 try:
                     key = load_pem_public_key(item.read_bytes())
+                    if not isinstance(key, Ed25519PublicKey):
+                        logger.debug("Skipping unsupported trusted key type from %s", item)
+                        continue
                     trusted[compute_key_id(key)] = key
                 except (OSError, ValueError, TypeError):
                     continue
@@ -451,6 +458,9 @@ class AuditPackageVerifier:
                 continue
             try:
                 key = load_pem_public_key(path.read_bytes())
+                if not isinstance(key, Ed25519PublicKey):
+                    logger.debug("Skipping unsupported trusted key type from %s", path)
+                    continue
                 trusted[compute_key_id(key)] = key
             except (OSError, ValueError, TypeError):
                 continue
@@ -463,6 +473,9 @@ class AuditPackageVerifier:
                         continue
                     try:
                         key = load_pem_public_key(item.read_bytes())
+                        if not isinstance(key, Ed25519PublicKey):
+                            logger.debug("Skipping unsupported package key type from %s", item)
+                            continue
                         trusted[compute_key_id(key)] = key
                     except (OSError, ValueError, TypeError):
                         continue
@@ -780,6 +793,8 @@ class AuditPackageVerifier:
                     try:
                         certificate = load_pem_x509_certificate(certificate_pem.encode("utf-8"))
                         public_key = certificate.public_key()
+                        if not isinstance(public_key, ec.EllipticCurvePublicKey):
+                            raise TypeError("SLSA certificate public key must be elliptic-curve")
                         public_key.verify(
                             bytes.fromhex(signature_hex),
                             canonical_payload,

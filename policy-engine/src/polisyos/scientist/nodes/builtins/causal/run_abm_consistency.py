@@ -37,6 +37,7 @@ from polisyos.ir.refs import FiniteStateAbstractionMapRef, StructuralCausalModel
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
@@ -689,7 +690,7 @@ class RunABMConsistencyCheckNode:
 
         report_ref = persist_abm_alignment_report(ctx.store, report, inputs=input_refs)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF] = report_ref
         if abstraction_map_ref is not None:
             new_state.artifacts_index[ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF] = abstraction_map_ref

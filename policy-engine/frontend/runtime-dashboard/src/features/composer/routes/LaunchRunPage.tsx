@@ -9,7 +9,8 @@ import {
   isCapabilityEnabled,
   readNumericConstraint,
 } from "@/lib/capabilities";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
+import { Button, Card } from "@/shared/ui";
 import { parseComposerSearchParams } from "../domain/searchParams";
 import {
   NaturalLanguageComposerSection,
@@ -62,6 +63,36 @@ export default function LaunchRunPage() {
       ),
     [manifest],
   );
+  const journeySteps = useMemo(
+    () => [
+      {
+        body: t("pages.composer.stepBodies.workflow"),
+        id: "workflow",
+        title: t("pages.composer.steps.workflow"),
+      },
+      {
+        body: t("pages.composer.stepBodies.nl"),
+        id: "nl",
+        title: t("pages.composer.steps.nl"),
+      },
+      {
+        body: t("pages.composer.stepBodies.evidence"),
+        id: "evidence",
+        title: t("pages.composer.steps.evidence"),
+      },
+      {
+        body: t("pages.composer.stepBodies.guardrails"),
+        id: "guardrails",
+        title: t("pages.composer.steps.guardrails"),
+      },
+      {
+        body: t("pages.composer.stepBodies.launch"),
+        id: "launch",
+        title: t("pages.composer.steps.launch"),
+      },
+    ],
+    [t],
+  );
 
   function addRecentLaunch(runId: string, status: string) {
     setRecentLaunches((previous) =>
@@ -73,52 +104,113 @@ export default function LaunchRunPage() {
     <div className="space-y-5" data-testid="composer-page">
       <h1 className="sr-only">{t("pages.composer.title")}</h1>
 
-      <div className="border-line bg-panel grid gap-3 rounded-3xl border p-3 md:grid-cols-5">
-        {(["workflow", "nl", "evidence", "guardrails", "launch"] as const).map(
-          (step, index) => {
+      <Card className="space-y-4">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
+          <div>
+            <p className="eyebrow">{t("pages.composer.title")}</p>
+            <h2>{t("pages.composer.heroTitle")}</h2>
+            <p className="topbar-subtitle">
+              {t("pages.composer.journeyTitle")}
+            </p>
+            <p className="text-muted mt-2 max-w-3xl text-sm">
+              {fromRunId
+                ? t("pages.composer.journeyReplanBody", { runId: fromRunId })
+                : t("pages.composer.journeyBody")}
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            <div className="bg-surface/75 border-line rounded-2xl border p-4">
+              <span className="text-muted text-xs tracking-wide uppercase">
+                {t("pages.composer.journeyMetrics.mode")}
+              </span>
+              <strong className="mt-2 block text-lg font-semibold">
+                {mode === "workflow"
+                  ? t("pages.composer.workflow")
+                  : t("pages.composer.naturalLanguage")}
+              </strong>
+            </div>
+            <div className="bg-surface/75 border-line rounded-2xl border p-4">
+              <span className="text-muted text-xs tracking-wide uppercase">
+                {t("pages.composer.journeyMetrics.capabilities")}
+              </span>
+              <strong className="mt-2 block text-lg font-semibold">
+                {formatNumber(capabilityHighlights.length)}
+              </strong>
+            </div>
+            <div className="bg-surface/75 border-line rounded-2xl border p-4">
+              <span className="text-muted text-xs tracking-wide uppercase">
+                {t("pages.composer.journeyMetrics.models")}
+              </span>
+              <strong className="mt-2 block text-lg font-semibold">
+                {formatNumber(llmProfiles.length)}
+              </strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-5">
+          {journeySteps.map((step, index) => {
             const isActive =
-              step === "workflow"
-                ? mode === "workflow"
-                : step === "nl"
-                  ? mode === "nl"
-                  : true;
-            const labelKey = `pages.composer.steps.${step}`;
+              (step.id === "workflow" && mode === "workflow") ||
+              (step.id === "nl" && mode === "nl") ||
+              (step.id !== "workflow" && step.id !== "nl");
+
             return (
-              <button
-                key={step}
-                type="button"
-                onClick={
-                  step === "workflow" || step === "nl"
-                    ? () => setMode(step)
-                    : undefined
-                }
-                disabled={step !== "workflow" && step !== "nl"}
-                data-testid={
-                  step === "workflow"
-                    ? "composer-mode-workflow"
-                    : step === "nl"
-                      ? "composer-mode-nl"
-                      : undefined
-                }
+              <div
+                key={step.id}
                 className={cn(
-                  "rounded-2xl border px-3 py-4 text-left",
+                  "rounded-2xl border px-3 py-4",
                   isActive
                     ? "border-accent/35 bg-accent/10"
                     : "bg-surface/75 border-line",
-                  step !== "workflow" && step !== "nl"
-                    ? "cursor-default opacity-75"
-                    : "",
                 )}
               >
                 <span className="text-muted block text-xs tracking-wide uppercase">
                   {index + 1}
                 </span>
-                <strong className="mt-2 block text-sm">{t(labelKey)}</strong>
-              </button>
+                <strong className="mt-2 block text-sm">{step.title}</strong>
+                <p className="text-muted mt-2 text-xs">{step.body}</p>
+              </div>
             );
-          },
-        )}
-      </div>
+          })}
+        </div>
+
+        <div className="bg-surface/70 border-line flex flex-wrap items-center justify-between gap-4 rounded-2xl border p-4">
+          <div>
+            <p className="eyebrow">{t("pages.composer.modeTitle")}</p>
+            <h3 className="text-lg font-semibold">
+              {mode === "workflow"
+                ? t("pages.composer.modeWorkflowTitle")
+                : t("pages.composer.modeNlTitle")}
+            </h3>
+            <p className="text-muted mt-2 text-sm">
+              {mode === "workflow"
+                ? t("pages.composer.modeWorkflowBody")
+                : t("pages.composer.modeNlBody")}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              data-testid="composer-mode-workflow"
+              onClick={() => setMode("workflow")}
+              variant={mode === "workflow" ? "primary" : "ghost"}
+            >
+              {t("pages.composer.workflow")}
+            </Button>
+            <Button
+              type="button"
+              data-testid="composer-mode-nl"
+              onClick={() => setMode("nl")}
+              variant={mode === "nl" ? "primary" : "ghost"}
+            >
+              {t("pages.composer.naturalLanguage")}
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       {mode === "workflow" ? (
         <WorkflowComposerSection

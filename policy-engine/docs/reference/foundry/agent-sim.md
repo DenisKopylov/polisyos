@@ -1,47 +1,85 @@
 # Foundry Agent Sim
+
 Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 
-The agent-simulation wiring layer bridges intervention contracts into runtime
-updates over population, firm networks, and distribution-aware policy
-mechanisms.
+The `polisyos.foundry.agent_sim` package is the low-level ABM/RL runtime for
+agent dynamics, population evolution, graph effects, and training-heavy
+simulation workflows. It maps primarily to Phase 3 JAX semantics, Phase 4
+performance/reproducibility, and Phase 6 agent-simulation frontier work.
 
-## What belongs here
+Freshness: 2026-04-17
+Owner: `@foundry-owners`
+Source plan: `docs/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+Source of truth: `src/polisyos/foundry/agent_sim/**`, `src/polisyos/foundry/agent_sim/wiring/**`, and the linked agent-sim tests/ADR
 
-- Use the `agent_sim` surface when a Foundry run needs endogenous agent behavior, population turnover, graph spillovers, or distribution-aware rewards.
-- Reach for the executor variants in stages: `DistributionAwareExecutor` for inequality metrics, `GraphAwareExecutor` for graph rewiring, and `PopulationAwareExecutor` when lifecycle events must run around the base executor step.
-- Treat the config/result bundles in this package as runtime state carriers and replay receipts, not as generic DTOs. They exist so training, dashboards, and experiment tracking can persist the same simulation lifecycle.
+`polisyos.foundry.agent_sim` exports its own
+`polisyos.foundry.agent_sim.state.GlobalState` for standalone ABM/RL workloads.
+That type is distinct from `polisyos.foundry.contracts.state.GlobalState`,
+which is the compile/execute state contract documented on [State](state.md).
+
+## What Belongs Here
+
+- Use `agent_sim` when a Foundry run needs endogenous agent behavior,
+  population turnover, graph spillovers, distribution-aware rewards, or
+  training loops.
+- Use executor variants by need: pure executor for deterministic stepping,
+  distribution-aware executor for inequality metrics, graph-aware executor for
+  network updates, and population-aware executor for lifecycle events.
+- Use the `wiring` layer when contracts need to drive firm lifecycle,
+  procurement shock, tax/transfer, or multiscale runtime updates.
+- Treat runtime bundles and result records as replay receipts, not generic DTOs.
 
 ## State and Measurement Boundaries
 
+- `GlobalState`, `AgentState`, `FirmState`, and optional multiscale fields are
+  synthetic runtime state.
 - `FirmLifecycleEventBatch`, `ProcurementShockBatch`, and
-  `InterventionMechanismConfig` are synthetic control inputs for
-  `GlobalState` updates.
-- `Contracts*Executor.apply()` mutates synthetic runtime state and returns
-  runtime diagnostics only; observed-data comparison and loss weighting belong
-  to calibration modules, not this wiring layer.
-- Helper functions with a leading underscore remain internal implementation
-  details. The stable public surface is the set re-exported from
-  `polisyos.foundry.agent_sim.wiring`.
+  `InterventionMechanismConfig` are synthetic control inputs.
+- Observed-data comparison and loss weighting belong to calibration modules.
+- Policy-facing causal validation belongs to Scientist governance and the causal
+  workflow, not to the low-level executor itself.
 
 ## Public Surface
 
 | API | Role |
-|-----|------|
-| `FirmLifecycleEventBatch` | Vectorized firm entry/exit/type-transition input |
-| `ProcurementShockBatch` | Vectorized procurement shock input |
-| `InterventionMechanismConfig` | Normalized mechanism parameters for tax/transfer wiring |
-| `ContractsPopulationAwareExecutor` | Population and firm-lifecycle updates |
-| `ContractsGraphAwareExecutor` | Procurement shock propagation |
-| `ContractsDistributionAwareExecutor` | Combined tax, transfer, population, and graph execution |
+|---|---|
+| `GlobalState` | Agent-sim-specific state of arrays plus policy, aggregates, distributions, graph, and population manager. |
+| `PureExecutor` | Deterministic base executor for agent-sim steps. |
+| `create_distribution_aware_executor()` | Adds distribution metrics updates. |
+| `create_graph_aware_executor()` | Adds graph-aware updates. |
+| `create_population_manager()` | Initializes population lifecycle and slot allocation. |
+| `ContractsPopulationAwareExecutor` | Contract-aware executor for population and firm lifecycle updates. |
+| `ContractsGraphAwareExecutor` | Contract-aware procurement shock propagation. |
+| `ContractsDistributionAwareExecutor` | Combined tax, transfer, population, and graph execution. |
+
+## Evidence Links
+
+- JIT compatibility:
+  `tests/foundry/agent_sim/test_jit_compatibility.py`
+- Actor-critic numeric guardrails:
+  `tests/foundry/agent_sim/test_actor_critic_numerics.py`
+- Graph mechanisms:
+  `tests/foundry/agent_sim/test_graph_mechanisms.py`
+- Population and lifecycle:
+  `tests/foundry/agent_sim/test_population.py`
+- Wiring contracts:
+  `tests/foundry/agent_sim/test_wiring.py`
+- ABM bridge tolerance ADR:
+  [`docs/adr/0082-abm-bridge-adaptive-tolerance.md`](../../adr/0082-abm-bridge-adaptive-tolerance.md)
 
 ## Typical Lifecycle
 
-1. Initialize policy, distribution, and population configs.
-2. Build an executor stack that matches the mechanisms you need to simulate.
-3. Roll trajectories or training episodes while the executor refreshes graphs, distributions, and lifecycle events on schedule.
-4. Persist experiment outputs, dashboards, and diagnostics from the emitted runtime bundles.
+1. Initialize policy, distribution, graph, and population configs.
+2. Build an executor stack that matches the simulated mechanisms.
+3. Roll trajectories or training episodes while executors refresh graphs,
+   distributions, and lifecycle events on schedule.
+4. Persist experiment outputs, dashboards, diagnostics, and runtime bundles.
+5. If the result supports policy claims, hand the evidence to causal/Scientist
+   governance rather than treating ABM output as self-validating.
 
 ## Reference
+
+::: polisyos.foundry.agent_sim
 
 ::: polisyos.foundry.agent_sim.wiring
 

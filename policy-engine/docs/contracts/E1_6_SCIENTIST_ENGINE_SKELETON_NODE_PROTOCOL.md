@@ -886,3 +886,12 @@ def execute_workflow(ctx, registry, workflow, state):
   ]
 }
 ```
+
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 2 pass/analysis contracts and Phase 5 governance-frontier handoff |
+| Contract tests | `tests/contract/test_scientist_workflow_spec_contract.py`, `tests/scientist/nodes/builtins/compile/test_link_trinity.py`, `tests/scientist/governance/test_validation_pipeline.py`, `tests/scientist/governance/test_pass_registry.py` |
+| Schema snapshots | `schemas/snapshots/ir/gate_request.schema.json`, `schemas/snapshots/ir/gate_decision.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

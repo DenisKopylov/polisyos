@@ -29,18 +29,20 @@ class ManifestLifecycle:
         sha: str,
         opts: ArtifactWriteOptions,
     ) -> ArtifactManifest:
-        return ArtifactManifest(
-            artifact_id=artifact_id,
-            kind=opts.kind,
-            media_type=opts.media_type,
-            byte_size=len(data),
-            artifact_schema=opts.schema,
-            canon=opts.canon,
-            inputs=list(opts.inputs or []),
-            producer=opts.producer,
-            env=opts.env,
-            governance=getattr(opts, "governance", None),
-            integrity=IntegrityInfo(sha256=sha),
+        return ArtifactManifest.model_validate(
+            {
+                "artifact_id": artifact_id,
+                "kind": opts.kind,
+                "media_type": opts.media_type,
+                "byte_size": len(data),
+                "schema": opts.schema,
+                "canon": opts.canon,
+                "inputs": list(opts.inputs or []),
+                "producer": opts.producer,
+                "env": opts.env,
+                "governance": getattr(opts, "governance", None),
+                "integrity": IntegrityInfo(sha256=sha),
+            }
         )
 
     @staticmethod

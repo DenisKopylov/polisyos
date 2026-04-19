@@ -1,0 +1,271 @@
+import { useMemo, useRef } from "react";
+import { useParams } from "react-router-dom";
+
+import { useRunErrors } from "@/api/hooks/useRunErrors";
+import { useRunTimeline } from "@/api/hooks/useRunTimeline";
+import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
+import { PrefetchButton } from "@/app/routes/PrefetchButton";
+import {
+  RunInspectorProvider,
+  useRunInspector,
+} from "@/features/runs/context/RunInspectorContext";
+import { RunBreadcrumbs } from "@/features/runs/components/RunBreadcrumbs";
+import {
+  AtlasRunDeck,
+  type AtlasRunDeckCopy,
+  type AtlasRunDeckSlideId,
+} from "@/features/runs/components/AtlasRunDeck";
+import {
+  buildAuditTrail,
+  buildRunDeckSnapshot,
+  buildRunReportSnapshot,
+} from "@/features/runs/domain/compare";
+import {
+  buildRunDetailHref,
+  buildRunReportHref,
+} from "@/features/runs/domain/searchParams";
+import { useI18n } from "@/i18n/LocaleProvider";
+import { formatNumber } from "@/lib/utils";
+import {
+  exportElementAsImage,
+  triggerPrint,
+} from "@/shared/export/printExport";
+import {
+  ApiErrorAlert,
+  Button,
+  Card,
+  copyShareLink,
+  EmptyState,
+  exportJson,
+} from "@/shared/ui";
+
+function RunDeckContent({ runId }: { runId: string }) {
+  const { t } = useI18n();
+  const summary = useRunInspector();
+  const timelineQuery = useRunTimeline(runId, Boolean(summary.run));
+  const errorsQuery = useRunErrors(runId, Boolean(summary.run));
+  const deckRef = useRef<HTMLDivElement | null>(null);
+  const auditTrail = useMemo(
+    () =>
+      buildAuditTrail({
+        errors: errorsQuery.data?.errors ?? [],
+        governanceIssues: summary.governanceIssues,
+        timelineEvents: timelineQuery.data?.timeline.events ?? [],
+      }),
+    [
+      errorsQuery.data?.errors,
+      summary.governanceIssues,
+      timelineQuery.data?.timeline.events,
+    ],
+  );
+  const report = useMemo(
+    () => buildRunReportSnapshot(summary, auditTrail),
+    [auditTrail, summary],
+  );
+  const deck = useMemo(
+    () => buildRunDeckSnapshot(summary, report),
+    [report, summary],
+  );
+  const deckCopy = useMemo<AtlasRunDeckCopy>(
+    () => ({
+      blockerState: t("pages.runs.deck.blockerState"),
+      closingEyebrow: t("pages.runs.deck.closingEyebrow"),
+      closingTitle: t("pages.runs.deck.closingTitle"),
+      confidence: t("pages.runs.deck.confidence"),
+      dependencies: t("pages.runs.deck.dependencies"),
+      evidenceEyebrow: t("pages.runs.deck.evidenceEyebrow"),
+      exportSlide: t("pages.runs.deck.exportSlidePng"),
+      holdForReview: t("pages.runs.deck.holdForReview"),
+      metricsEyebrow: t("pages.runs.deck.metricsEyebrow"),
+      ratifyNow: t("pages.runs.deck.ratifyNow"),
+      recommendation: t("pages.runs.deck.recommendation"),
+      tradeoffEyebrow: t("pages.runs.deck.tradeoffEyebrow"),
+      verdictEyebrow: t("pages.runs.deck.verdictEyebrow"),
+      verdictTitle: t("pages.runs.deck.verdictTitle"),
+    }),
+    [t],
+  );
+
+  async function exportSlide(id: AtlasRunDeckSlideId) {
+    const element = deckRef.current?.querySelector<HTMLElement>(
+      `#run-deck-slide-${id}`,
+    );
+    if (!element) {
+      return;
+    }
+    await exportElementAsImage(element, `run-${runId}-${id}.png`);
+  }
+
+  if (summary.runDetailsQuery.isError) {
+    return (
+      <ApiErrorAlert
+        title={t("pages.runs.loadRunDetailsError")}
+        error={summary.runDetailsQuery.error}
+      />
+    );
+  }
+
+  if (!summary.run) {
+    return (
+      <EmptyState
+        title={t("pages.runs.unavailableRun")}
+        body={t("pages.runs.deck.unavailableBody")}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <Card className="space-y-4 print:hidden">
+        <RunBreadcrumbs runId={runId} />
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="eyebrow">{t("pages.runs.deck.eyebrow")}</p>
+            <h3>{deck.cover.title}</h3>
+            <p className="topbar-subtitle">{deck.verdict.headline}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              onClick={() => exportJson(`run-${runId}-deck.json`, deck)}
+              variant="ghost"
+            >
+              {t("pages.runs.deck.exportJson")}
+            </Button>
+            <Button
+              type="button"
+              onClick={() =>
+                void copyShareLink(
+                  new URL(
+                    window.location.pathname + window.location.search,
+                    window.location.origin,
+                  ),
+                )
+              }
+              variant="ghost"
+            >
+              {t("common.shareView")}
+            </Button>
+            <Button
+              type="button"
+              onClick={async () => {
+                if (!deckRef.current) {
+                  return;
+                }
+                await exportElementAsImage(
+                  deckRef.current,
+                  `run-${runId}-deck.png`,
+                );
+              }}
+              variant="ghost"
+            >
+              {t("pages.runs.deck.exportDeckPng")}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() =>
+                triggerPrint({
+                  contentSelector: "#run-deck-root",
+                  includeTimestamp: true,
+                  title: `Atlas decision deck ${runId}`,
+                })
+              }
+            >
+              {t("pages.runs.deck.printPdf")}
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <PrefetchButton
+            prefetch="intent"
+            to={buildRunDetailHref(runId)}
+            variant="ghost"
+          >
+            {t("pages.runs.deck.backToRun")}
+          </PrefetchButton>
+          <PrefetchButton
+            prefetch="intent"
+            to={buildRunReportHref(runId)}
+            variant="ghost"
+          >
+            {t("pages.runs.auditReport")}
+          </PrefetchButton>
+        </div>
+      </Card>
+
+      <AtlasRunDeck
+        copy={deckCopy}
+        deck={deck}
+        deckRef={deckRef}
+        onExportSlide={exportSlide}
+      />
+
+      <Card className="space-y-4">
+        <div className="grid gap-3 md:grid-cols-4">
+          <div className="bg-surface/75 border-line rounded-2xl border p-4">
+            <p className="text-muted text-xs tracking-wide uppercase">
+              {t("pages.runs.report.decisionScore")}
+            </p>
+            <p className="mt-2 text-2xl font-semibold">
+              {formatNumber(report.decisionScore, {
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          </div>
+          <div className="bg-surface/75 border-line rounded-2xl border p-4">
+            <p className="text-muted text-xs tracking-wide uppercase">
+              {t("pages.runs.report.blockers")}
+            </p>
+            <p className="mt-2 text-2xl font-semibold">
+              {formatNumber(report.blockerCount)}
+            </p>
+          </div>
+          <div className="bg-surface/75 border-line rounded-2xl border p-4">
+            <p className="text-muted text-xs tracking-wide uppercase">
+              {t("pages.runs.report.artifacts")}
+            </p>
+            <p className="mt-2 text-2xl font-semibold">
+              {formatNumber(report.artifactRefs.length)}
+            </p>
+          </div>
+          <div className="bg-surface/75 border-line rounded-2xl border p-4">
+            <p className="text-muted text-xs tracking-wide uppercase">
+              {t("pages.runs.report.transport")}
+            </p>
+            <p className="mt-2 text-2xl font-semibold">
+              {report.transportStatus}
+            </p>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+export default function RunDeckPage() {
+  const { t } = useI18n();
+  const { runId } = useParams();
+
+  useTelemetryReadyMark("runs.deck.page", {
+    routeId: "runs.deck",
+    runId,
+  });
+
+  if (!runId) {
+    return (
+      <Card>
+        <EmptyState
+          title={t("pages.runs.deck.requiredTitle")}
+          body={t("pages.runs.deck.requiredBody")}
+        />
+      </Card>
+    );
+  }
+
+  return (
+    <RunInspectorProvider runId={runId}>
+      <RunDeckContent runId={runId} />
+    </RunInspectorProvider>
+  );
+}

@@ -50,6 +50,7 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
+        "run_id",
         "params.bounds_estimation_tasks",
         "params.temporal_dtr_tasks",
     ],

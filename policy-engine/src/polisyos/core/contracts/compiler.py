@@ -10,14 +10,14 @@ from ..artifacts.manifest import ArtifactRef
 
 class LinkReportRef(ArtifactRef):
     """Artifact reference for a linker report produced while wiring a policy graph."""
-    kind: Literal["compiler.link_report"] = "compiler.link_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "compiler.link_report"
+    media_type: str = "application/json"
 
 
 class CompileReportRef(ArtifactRef):
     """Artifact reference for the high-level report emitted by Foundry compilation."""
-    kind: Literal["compiler.compile_report"] = "compiler.compile_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "compiler.compile_report"
+    media_type: str = "application/json"
 
 
 class CompilerNotes(BaseModel):

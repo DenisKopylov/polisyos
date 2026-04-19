@@ -1,31 +1,74 @@
 # Integration Tests
 
-`tests/integration` содержит сквозные сценарии на стыке `core` и `scientist`, где важна корректность полной цепочки исполнения.
+`tests/integration` contains the smallest cross-subsystem scenarios that should
+still behave like real workflows. The directory currently contains `3`
+`test_*.py` files: human-gate audit flow, a synthetic full pipeline, and a
+phase0 quality validation path.
 
-Актуально на **17 февраля 2026**.
+## Purpose
 
-## Текущее покрытие
+- Keep the end-to-end execution chain honest across subsystem boundaries.
+- Preserve trace/audit semantics for approval and escalation workflows.
+- Provide a narrow integration lane outside the heavier runtime HTTP coverage.
 
-- `1` файл `test_*.py`: `test_human_gate_audit.py`
-- `2` сценария:
-  - проверка цикла `human_gate -> approve` с аудит-трейлом;
-  - проверка `escalate` (рост `iteration`, новый `request_id`, приоритет `critical`).
+## Where To Start
 
-## Что важно
+- `test_human_gate_audit.py` for governance and audit flow expectations.
+- `test_c7_synthetic_full_pipeline.py` for synthetic full-pipeline coverage.
+- `test_phase0_quality_validation.py` for the phase0 quality path.
 
-- Вся папка auto-classified как `integration` через `tests/conftest.py`, поэтому основной быстрый цикл её не включает.
-- Проверяются события trace: `GATE_REQUESTED`, `GATE_DECIDED`.
+## Public Entrypoints
 
-## Связи с кодом
+- `tests/integration/test_human_gate_audit.py`
+- `tests/integration/test_c7_synthetic_full_pipeline.py`
+- `tests/integration/test_phase0_quality_validation.py`
 
-- `policy-engine/src/polisyos/core/run`
-- `policy-engine/src/polisyos/scientist/nodes/builtins/governance`
-- `policy-engine/src/polisyos/scientist/engine`
+## Depends On / Depended On By
 
-## Запуск
+**Depends on**
+
+- `src/polisyos/core/run`
+- `src/polisyos/scientist/engine`
+- `src/polisyos/scientist/nodes/builtins/governance`
+- `src/polisyos/foundry` and `src/polisyos/fabric` for the synthetic pipeline
+  scenario
+
+**Depended on by**
+
+- The `integration` taxonomy lane in
+  [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- Local and CI workflows that need a narrow end-to-end confidence slice
+
+## Common Commands
+
+Run commands from `policy-engine/`.
 
 ```bash
-pytest tests/integration -q
-pytest -m integration --ignore=tests/runtime/http
-pytest tests/integration/test_human_gate_audit.py -q
+# conceptual: full integration slice
+uv run pytest tests/integration -q
+
+# conceptual: taxonomy lane without runtime/http
+uv run pytest -m integration --ignore=tests/runtime/http
+
+# conceptual: targeted scenario
+uv run pytest tests/integration/test_human_gate_audit.py -q
 ```
+
+## Test And Verification Commands
+
+The collect-only command below was smoke-checked on `2026-04-17`.
+
+```bash
+cd policy-engine
+uv run pytest --collect-only tests/integration -q
+```
+
+## Reference Docs
+
+- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- [`../../src/polisyos/scientist/README.md`](../../src/polisyos/scientist/README.md)
+- [`../../src/polisyos/core/README.md`](../../src/polisyos/core/README.md)
+
+## Last Updated
+
+2026-04-17

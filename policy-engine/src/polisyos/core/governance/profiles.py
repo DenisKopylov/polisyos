@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, FrozenSet
+from typing import Any, Dict, FrozenSet
 
 
 class ProfileLevel(Enum):
@@ -144,7 +144,7 @@ class ValidationProfile:
         )
 
     @classmethod
-    def from_dict(cls, data: dict) -> "ValidationProfile":
+    def from_dict(cls, data: dict[str, Any]) -> "ValidationProfile":
         """Deserialize from dictionary (for configuration files)."""
 
         return cls(

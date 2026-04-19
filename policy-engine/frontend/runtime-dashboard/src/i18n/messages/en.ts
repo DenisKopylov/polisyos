@@ -28,6 +28,8 @@ const en = {
     blocked: "Blocked",
     pending: "Pending",
     active: "Active",
+    confidence: "Confidence",
+    gaps: "Gaps",
     input: "Input",
     output: "Output",
     openArtifact: "Open artifact",
@@ -69,6 +71,10 @@ const en = {
     eyebrow: "PolisyOS Runtime",
     title: "Atlas",
     subtitle: "Control room for runtime, evidence, and governance",
+    atlasAnalystSubtitle:
+      "Editorial analyst shell for command, evidence, and decision work.",
+    atlasShellLiteSubtitle:
+      "Shell-lite for chat-first operator workflows, exports, and run handoff.",
     navAriaLabel: "Primary workspace navigation",
     watchStatusTitle: "Watch status",
     watchStatusBlocked: "Gov. drift detected",
@@ -103,6 +109,8 @@ const en = {
         light: "Theme: light",
         system: "Theme: auto",
       },
+      analystShell: "Atlas analyst shell",
+      shellLite: "Atlas shell-lite",
       workspaceDisabled:
         "This workspace is disabled by feature flags for the current deployment.",
       workspaceAccessDenied: "Your role does not allow opening this workspace.",
@@ -166,6 +174,21 @@ const en = {
         "Launch a scenario or wait for new decision-bearing runs to materialize.",
       actionQueueTitle: "Action queue",
       actionQueueHeading: "Decision packets ready for review",
+      narrativeTitle: "Operator order",
+      narrativeHeading:
+        "Attention first, throughput second, evidence always in reach",
+      narrativeAttention: "Attention now",
+      narrativeThroughput: "Throughput",
+      narrativeQueue: "Queue posture",
+      narrativeEvidence: "Evidence concentration",
+      narrativeAttentionBody:
+        "{{count}} active runs and {{blocked}} blocked packets need immediate review posture.",
+      narrativeThroughputBody:
+        "Current sample shows {{success}} successful outcomes across {{total}} total runs.",
+      narrativeQueueBody:
+        "{{count}} decision-bearing runs are ready to open from the fleet.",
+      narrativeEvidenceBody:
+        "{{docs}} docs were added last run and {{promotions}} promotion candidates remain in lane.",
       runCardMeta: "duration {{duration}} · artifacts {{artifacts}}",
       activeRunsHint: "runs still executing in the current sample",
       blockedRunsHint: "runs blocked by governance, failures, or preflight",
@@ -237,8 +260,26 @@ const en = {
       subtitle:
         "Compose workflow and NL runs with budgets, constraints, and expected outputs.",
       heroTitle: "Capability-driven scenario composer",
+      journeyTitle:
+        "Framing, levers, evidence, guardrails, and launch stay in one operating flow.",
+      journeyBody:
+        "Atlas keeps workflow structure intact while reshaping the composition into an operator-friendly launch journey.",
+      journeyReplanBody:
+        "Replanning {{runId}} keeps the existing run context nearby while Atlas rebuilds framing, evidence, and guardrails around the next launch.",
+      journeyMetrics: {
+        mode: "Current mode",
+        capabilities: "Visible capabilities",
+        models: "Model roster",
+      },
       workflow: "Workflow run",
       naturalLanguage: "Natural-language run",
+      modeTitle: "Launch mode",
+      modeWorkflowTitle: "Workflow framing stays explicit",
+      modeWorkflowBody:
+        "Use workflow mode when source refs, bundles, and checkpoint posture need to be spelled out before launch.",
+      modeNlTitle: "NL mode keeps levers close",
+      modeNlBody:
+        "Use natural-language mode when the brief, model roster, and budget levers should stay compact and fast to adjust.",
       workflowHeading: "Build a reproducible workflow launch",
       nlHeading: "Draft a grounded natural-language run",
       orchestration: "Execution controls",
@@ -320,11 +361,18 @@ const en = {
       addOutput: "Add output",
       addConstraint: "Add constraint",
       steps: {
-        workflow: "Workflow",
-        nl: "Brief",
+        workflow: "Framing",
+        nl: "Levers",
         evidence: "Evidence",
         guardrails: "Guardrails",
         launch: "Launch",
+      },
+      stepBodies: {
+        workflow: "Set the run frame, task shape, and operator intent.",
+        nl: "Tune models, budgets, and orchestration controls.",
+        evidence: "Bind source refs, snapshots, and expected outputs.",
+        guardrails: "Keep governance posture and constraints visible.",
+        launch: "Ship with a clear packet, not an opaque form state.",
       },
       expectedOutputKindPlaceholder: "artifact kind",
       expectedOutputDescriptionPlaceholder: "What should the run produce?",
@@ -359,6 +407,20 @@ const en = {
       title: "Runs & Decisions",
       subtitle:
         "Inspect run lifecycle, decisions, governance, and provenance in one workspace.",
+      fleetEyebrow: "Decision fleet",
+      fleetHeading: "Explorer keeps the active decision packet ready",
+      fleetBody:
+        "Filter the fleet, keep one run highlighted, and jump straight into evidence, audit, or deck without losing keyboard flow.",
+      selectedRunTitle: "Highlighted run packet",
+      selectedRunBody:
+        "Atlas keeps the active run visible as you move through the fleet so audit actions stay one click away.",
+      noActiveRunTitle: "No highlighted run packet",
+      noActiveRunBody:
+        "Move through the explorer to load evidence, report, and deck shortcuts for one selected run.",
+      visibleRuns: "Visible runs",
+      runningNow: "Running now",
+      blockedNow: "Blocked or failed",
+      openRun: "Open run",
       explorerTitle: "Run explorer with decision paths",
       searchLabel: "Search runs",
       searchPlaceholder: "Search run_id",
@@ -528,6 +590,30 @@ const en = {
         timelineEyebrow: "Severity-filterable timeline",
         auditTrailTitle: "Audit trail",
       },
+      deck: {
+        requiredTitle: "Run deck requires a run id",
+        requiredBody: "Open a concrete /runs/:runId/deck route.",
+        unavailableBody: "Run deck is unavailable.",
+        eyebrow: "Presentation deck",
+        exportJson: "Export deck JSON",
+        exportDeckPng: "Export deck PNG",
+        exportSlidePng: "Slide PNG",
+        printPdf: "Print / Save PDF",
+        backToRun: "Back to run",
+        verdictEyebrow: "Verdict and recommendation",
+        verdictTitle: "Recommendation for the current run",
+        recommendation: "Recommendation",
+        confidence: "Confidence",
+        blockerState: "Blocker state",
+        metricsEyebrow: "Real runtime metrics",
+        tradeoffEyebrow: "Ratify versus hold",
+        ratifyNow: "Ratify now",
+        holdForReview: "Hold for review",
+        evidenceEyebrow: "Evidence and dissent",
+        closingEyebrow: "Action window",
+        closingTitle: "Next action and comment window",
+        dependencies: "Downstream dependencies",
+      },
       decisionCandidatesEmptyTitle: "No decision artifact candidates",
       decisionCandidatesEmptyBody:
         "Run has no root artifacts that can be used for decision rendering.",
@@ -556,6 +642,18 @@ const en = {
       quickActions: "Quick actions",
       replan: "replan",
       openEvidence: "evidence",
+      openDeck: "Open deck",
+      decisionPacketTitle: "Decision packet",
+      decisionPacketHeading: "Verdict, uncertainty, and downstream posture",
+      verdictLabel: "Verdict",
+      confidenceLabel: "Confidence",
+      blockerStateLabel: "Blocker state",
+      impactDeltasTitle: "Key impact deltas",
+      impactDeltasEmpty:
+        "Runtime did not return impact deltas for this run packet.",
+      strongestEvidenceTitle: "Strongest evidence",
+      uncertaintyTitle: "Main uncertainty",
+      downstreamDependenciesTitle: "Downstream dependencies",
       verdict: {
         approveWithConditions: "Approve with conditions",
         approve: "Approve",
@@ -639,6 +737,9 @@ const en = {
       backToRun: "Back to run",
       clearContext: "Clear context",
       sourceProfiles: "Source profiles",
+      sourceAtlasTitle: "Connector health, freshness, and trust coverage",
+      sourceAtlasBody:
+        "Track loaded connectors, curated profiles, freshness, and unresolved source gaps before opening deep review.",
       totalProfiles: "{{count}} total curated profiles",
       connectors: "Connectors",
       totalConnectors: "{{count}} registered connectors",
@@ -671,6 +772,9 @@ const en = {
       profilesLoadError: "Unable to load source profiles",
       datasetsCount: "{{count}} datasets",
       evidenceGraph: "Knowledge weave",
+      knowledgeWeaveTitle: "Claims, needs, plans, and artifact context",
+      knowledgeWeaveBody:
+        "Keep needs, fetch plans, promotions, and artifact refs in one compact weave before diving into detail context.",
       connectorsCachePosture: "Connectors and cache posture",
       connectorsLoading: "Loading connectors...",
       connectorsLoadError: "Unable to load connectors",
@@ -678,6 +782,9 @@ const en = {
       contextRefs: "Context refs",
       promotionLane: "Promotion lane",
       selectedArtifact: "Selected artifact",
+      promotionReviewTitle: "Promotion review and collaboration lane",
+      promotionReviewBody:
+        "Surface pending, ready, and rejected promotion candidates with confidence and review posture.",
       promotionLoadError: "Unable to load promotion candidates",
       noPromotionCandidates: "No promotion candidates are waiting for review.",
       degraded: {
@@ -1314,11 +1421,13 @@ const en = {
   },
   whatIf: {
     title: "What-If Analysis",
-    subtitle: "Explore counterfactual scenarios by adjusting treatment parameters and observing projected impacts.",
+    subtitle:
+      "Explore counterfactual scenarios by adjusting treatment parameters and observing projected impacts.",
     panelTitle: "Scenario Parameters",
     baseRun: "Base run",
     selectBaseRun: "Select a base run for counterfactual analysis",
-    noBaseRun: "No base run selected. Choose a run to begin what-if exploration.",
+    noBaseRun:
+      "No base run selected. Choose a run to begin what-if exploration.",
     parameters: "Parameters",
     adjustParameter: "Adjust parameter",
     resetAll: "Reset all",
@@ -1346,17 +1455,20 @@ const en = {
       load: "Load",
       delete: "Delete",
       compare: "Compare",
-      empty: "No saved scenarios yet. Adjust parameters and save your first scenario.",
-      confirmDelete: "Delete scenario \"{{name}}\"?",
+      empty:
+        "No saved scenarios yet. Adjust parameters and save your first scenario.",
+      confirmDelete: 'Delete scenario "{{name}}"?',
       saved: "Scenario saved",
     },
     methodology: "Methodology",
-    methodNote: "What-if projections use the causal model from the base run. Results assume no unmeasured confounding beyond the identified adjustment set.",
+    methodNote:
+      "What-if projections use the causal model from the base run. Results assume no unmeasured confounding beyond the identified adjustment set.",
     exportScenario: "Export scenario",
   },
   causal: {
     title: "Causal Graph",
-    subtitle: "Directed acyclic graph of causal relationships identified in this analysis.",
+    subtitle:
+      "Directed acyclic graph of causal relationships identified in this analysis.",
     nodeTypes: {
       treatment: "Treatment",
       outcome: "Outcome",
@@ -1461,7 +1573,8 @@ const en = {
   },
   compliance: {
     badgeLabel: "Compliant",
-    badgeAriaLabel: "View compliance status for accessibility and security standards",
+    badgeAriaLabel:
+      "View compliance status for accessibility and security standards",
     tooltipTitle: "Compliance Standards",
     eaa: {
       description:

@@ -56,6 +56,7 @@ _SPEC = NodeSpec(
         "params.environment_audit_enabled",
         "params.environment_audit_alpha",
         "params.environment_audit_correction",
+        "artifacts_index",
         f"inputs.{INPUT_KNOWLEDGE_BUNDLE_REF}",
     ],
     state_writes=[

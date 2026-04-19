@@ -8,21 +8,20 @@ Covers:
   - Foundry methods: pure_step interfaces
 """
 
-from __future__ import annotations
-
-import pytest
 import numpy as np
+import pytest
 
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+)
 from polisyos.ir.analytics.mgraph import (
-    MGraphMetadata,
     MissingnessKind,
-    ProxyNode,
-    RNode,
     build_mgraph,
     extract_mgraph_metadata,
 )
-
 
 # ---------------------------------------------------------------------------
 # Shared DGP helpers
@@ -98,6 +97,15 @@ def make_confounded_mcar_mgraph() -> CausalGraphModel:
         directed_edges=[("X", "Y")],
         bidirected_edges=[("X", "Y")],
         missingness_map={"X": MissingnessKind.MCAR},
+    )
+
+
+def make_irrelevant_mnar_mgraph() -> CausalGraphModel:
+    """X -> Y is cleanly identified, but unrelated Z has MNAR missingness."""
+    return build_mgraph(
+        substantive_vars=["X", "Y", "Z"],
+        directed_edges=[("X", "Y")],
+        missingness_map={"Z": MissingnessKind.MNAR},
     )
 
 
@@ -348,7 +356,6 @@ def test_ordered_recovery_topological_order():
 
 def test_ordered_recovery_proof_steps_count():
     from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
-        RecoverabilityStatus,
         test_recoverability,
     )
 
@@ -478,6 +485,143 @@ def test_full_law_identify_proof_steps_include_both_stages():
     rule_names = {s.rule_name for s in result.proof_steps}
     assert "FULL_LAW_STAGE1_PASS" in rule_names
     assert "FULL_LAW_STAGE2" in rule_names
+
+
+def test_joint_recoverability_full_law_identified_and_recoverable():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        identify_joint_recoverability,
+    )
+    from polisyos.ir.analytics.recoverability import JointDecisionStatus
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    decision = identify_joint_recoverability(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+
+    assert decision.verdict is JointDecisionStatus.IDENTIFIED_AND_RECOVERABLE
+    assert decision.recoverability.status.value == "recoverable"
+    assert decision.recoverability.recovery_scope.value == "full_law"
+    assert decision.recoverability.recovery_expression_ast is not None
+
+
+def test_joint_recoverability_direct_query_survives_irrelevant_mnar():
+    """Full law is blocked by Z, but P(Y|do(X)) only needs recoverable X/Y."""
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        identify_joint_recoverability,
+    )
+    from polisyos.ir.analytics.recoverability import JointDecisionStatus
+
+    graph = make_irrelevant_mnar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    decision = identify_joint_recoverability(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+
+    assert decision.verdict is JointDecisionStatus.IDENTIFIED_AND_RECOVERABLE
+    assert decision.recoverability.recovery_scope.value == "causal_query"
+    assert decision.metadata["full_law_recoverability"]["status"] == (
+        "recoverable_under_assumptions"
+    )
+    assert decision.recoverability.metadata["required_recoverable_variables"] == ["X", "Y"]
+
+
+def test_joint_recoverability_identified_but_not_recoverable_has_repairs():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        identify_joint_recoverability,
+    )
+    from polisyos.ir.analytics.negative_certificate import BlockingType
+    from polisyos.ir.analytics.recoverability import JointDecisionStatus
+
+    graph = make_mnar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    decision = identify_joint_recoverability(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+
+    assert decision.verdict is JointDecisionStatus.IDENTIFIED_BUT_NOT_RECOVERABLE
+    assert "R_X" in decision.recoverability.blocking_r_nodes
+    assert decision.recoverability.minimal_repair_sets
+    assert decision.negative_certificate is not None
+    assert decision.negative_certificate.blocking_type is BlockingType.MISSINGNESS_NOT_RECOVERABLE
+
+
+def test_causal_engine_identify_joint_exposes_joint_certificate():
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+    from polisyos.ir.analytics.recoverability import JointDecisionStatus
+
+    graph = make_mcar_mgraph()
+    decision = CausalEngine().identify_joint("X", "Y", graph)
+
+    assert decision.verdict is JointDecisionStatus.IDENTIFIED_AND_RECOVERABLE
+    assert decision.target_query == "P(Y|do(X))"
+
+
+def test_causal_engine_identify_legacy_path_uses_joint_direct_recovery():
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+    from polisyos.ir.analytics.negative_certificate import NegativeCertificate
+
+    graph = make_irrelevant_mnar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = CausalEngine().identify("X", "Y", graph, mgraph_meta=meta)
+
+    assert not isinstance(result, NegativeCertificate)
+    assert result.status is IdentificationStatus.IDENTIFIED
+    assert result.metadata["recoverability_certificate"]["recovery_scope"] == "causal_query"
+    assert result.metadata["joint_decision"]["verdict"] == "IdentifiedAndRecoverable"
+
+
+def test_causal_engine_identify_auto_extracts_mgraph_metadata_for_joint_direct_recovery():
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+    from polisyos.ir.analytics.negative_certificate import NegativeCertificate
+
+    graph = make_irrelevant_mnar_mgraph()
+    result = CausalEngine().identify("X", "Y", graph)
+
+    assert not isinstance(result, NegativeCertificate)
+    assert result.status is IdentificationStatus.IDENTIFIED
+    assert result.metadata["recoverability_certificate"]["recovery_scope"] == "causal_query"
+    assert result.metadata["joint_decision"]["verdict"] == "IdentifiedAndRecoverable"
+
+
+def test_causal_engine_identify_legacy_path_returns_missingness_certificate():
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+    from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+
+    graph = make_mnar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = CausalEngine().identify("X", "Y", graph, mgraph_meta=meta)
+
+    assert isinstance(result, NegativeCertificate)
+    assert result.blocking_type is BlockingType.MISSINGNESS_NOT_RECOVERABLE
+    assert result.quantitative_diagnostics["recoverability"]["status"] == (
+        "recoverable_under_assumptions"
+    )
+
+
+def test_causal_engine_identify_auto_extracts_mgraph_metadata_for_missingness_blocker():
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+    from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+
+    graph = make_mnar_mgraph()
+    result = CausalEngine().identify("X", "Y", graph)
+
+    assert isinstance(result, NegativeCertificate)
+    assert result.blocking_type is BlockingType.MISSINGNESS_NOT_RECOVERABLE
+    assert result.quantitative_diagnostics["recoverability"]["status"] == (
+        "recoverable_under_assumptions"
+    )
 
 
 # ---------------------------------------------------------------------------

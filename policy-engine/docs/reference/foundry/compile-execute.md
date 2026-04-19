@@ -1,49 +1,105 @@
 # Foundry Compile and Execute
+
 Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 
 The compile/execute surface is the narrow public entry point into Foundry.
-`compile()` turns a Trinity-backed policy bundle into CAS artifacts that define
-the runtime program, while `execute()` replays that program from a bound
-synthetic state snapshot and persists simulation outputs.
+`compile()` turns a Trinity-backed policy bundle into replayable CAS artifacts,
+while `execute()` replays the compiled plan from a bound `GlobalState` snapshot
+and persists simulation evidence.
 
-## When to call which API
+Freshness: 2026-04-17
+Owner: `@foundry-owners`
+Source plan: `docs/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+Source of truth: `src/polisyos/foundry/__init__.py`, `src/polisyos/foundry/compile/api.py`, `src/polisyos/foundry/execute/api.py`, `src/polisyos/foundry/data_plane/bindings.py`, `src/polisyos/foundry/quickstart.py`
 
-- Call `compile()` when a Scientist or Trinity workflow has produced a new bundle and you need a replayable `ExecPlanRef`.
-- Call `build_input_bindings()` after structure is fixed and you are ready to bind registry-backed datasets into concrete `GlobalState` inputs.
-- Call `execute()` once both an `exec_plan_ref` and `input_bindings_ref` exist and you want durable evidence: simulation results, metrics, state deltas, and constraint diagnostics.
+## Phase Coverage
+
+| Source phase | Compile/execute meaning |
+|---|---|
+| Phase 0 | Non-critical runtime expansion is frozen behind the Trinity-only facade and default registry bundle. |
+| Phase 1 | Facade failures return structured `CompileResult` or `ExecuteResult` envelopes where the contract says they should; malformed requests still raise validation errors. |
+| Phase 2 | ProgramGraph, ExecPlan, state delta, and snapshot hand-offs are the hardened kernel boundary. |
+| Phase 3 | Execution posture carries NaN guard and determinism metadata; numeric claims are verified through the numeric/JAX tests linked below. |
+| Phase 4 | Identical CAS inputs, registry bundle, seed, and execution config are the replay unit for reproducibility checks. |
+
+## When to Call Which API
+
+- Call `compile()` when a Scientist or Trinity workflow has produced a new
+  `ir.trinity_bundle` and you need an `ExecPlanRef`.
+- Call `build_input_bindings()` after structure is fixed and a data snapshot is
+  ready to bind into concrete `GlobalState` inputs.
+- Call `execute()` once both `exec_plan_ref` and `input_bindings_ref` exist and
+  you need durable evidence: simulation result, metrics, state delta, constraint
+  diagnostics, and optional environment metadata.
 
 ## Runtime Contract
 
-- `compile()` is deterministic for identical Trinity bundle, registry bundle,
-  and compile flags. Unsupported bundle kinds or compile failures return
-  `CompileResult(ok=False, exec_plan_ref=None, compile_report_ref=...)` instead
-  of raising at the facade boundary.
-- `execute()` expects `ExecuteRequest.input_bindings_ref` to reference a
-  `FoundryInputBindings` artifact produced by `build_input_bindings()`. It
-  persists `foundry.simulation_result`, `metrics`, `state_delta`, and optional
-  `constraint_report` / `environment_manifest` artifacts.
-- Runtime failures that reflect unsupported mechanisms or hard constraint
-  violations are returned as `ExecuteResult(ok=False, notes=[...])`; malformed
-  requests and missing `registry_bundle_ref` are raised as regular exceptions.
+- `compile()` accepts `input_kind="trinity"` or `input_kind="auto"` for
+  `policy_ref.kind == "ir.trinity_bundle"`.
+- Unsupported compile requests produce `CompileResult(ok=False,
+  exec_plan_ref=None, compile_report_ref=...)` instead of raising at the facade
+  boundary.
+- `execute()` requires `ExecuteRequest.input_bindings_ref`; this is validated by
+  `tests/foundry/test_execute_requires_input_bindings_ref.py`.
+- `execute()` requires `registry_bundle_ref` and raises `ValueError` when it is
+  absent, because runtime mechanism resolution must be explicit.
+- Unsupported runtime mechanisms and hard constraint failures return
+  `ExecuteResult(ok=False, notes=[...])` envelopes.
 
-## Flow
+## Artifact Flow
 
-| Step | API | Output |
-|------|-----|--------|
-| Compile | `polisyos.foundry.compile()` | `CompileResult` with `exec_plan_ref` |
-| Bind data | `build_input_bindings()` | `FoundryInputBindingsRef`, bound `StateSnapshotRef` |
-| Execute | `polisyos.foundry.execute()` | `ExecuteResult` with `SimulationResultRef` |
+| Step | API | Primary output |
+|---|---|---|
+| Compile | `polisyos.foundry.compile(store, request)` | `CompileResult.exec_plan_ref` |
+| Bind data | `build_input_bindings(store, data_snapshot_ref=..., registry_bundle_ref=...)` | `FoundryInputBindingsRef` and bound `StateSnapshotRef` |
+| Execute | `polisyos.foundry.execute(store, request)` | `ExecuteResult.simulation_result_ref` |
 
-## Operational Notes
+The downstream contract is refs, not in-memory objects. Consumers should persist
+`CompileResult.exec_plan_ref`, `FoundryInputBindingsRef`, and
+`ExecuteResult.simulation_result_ref` rather than rebuilding graphs from local
+process state.
 
-- `CompileResult.exec_plan_ref` is the hand-off object downstream runners, replay tooling, and governance reports should persist instead of rebuilding graphs in memory.
-- `FoundryInputBindingsRef` is the boundary between structural planning and data readiness. If bindings change, rerun `execute()`; if the Trinity bundle changes, rerun `compile()` first.
-- `ExecuteResult` is an evidence-emission receipt. Consumers should treat it as a pointer to persisted artifacts, not as the full payload itself.
+## Runnable Quickstart
 
-## Minimal Flow
+This quickstart is verified against the current code path and is not
+conceptual:
+
+```bash
+uv run python - <<'PY'
+from tempfile import TemporaryDirectory
+from polisyos.foundry.quickstart import run_trivial_compile_execute
+
+with TemporaryDirectory(prefix="foundry-docs-") as tmp:
+    result = run_trivial_compile_execute(cas_root=tmp)
+    print(result)
+    assert result.compile_ok is True
+    assert result.execute_ok is True
+    assert result.exec_plan_artifact_id is not None
+    assert result.simulation_result_artifact_id is not None
+PY
+```
+
+`run_trivial_compile_execute()` pins the docs path to CPU by default via
+`JAX_PLATFORMS=cpu` and `JAX_PLATFORM_NAME=cpu` unless the caller already set
+those variables.
+
+Expected shape:
+
+```text
+QuickstartRunResult(...) with `compile_ok=True`, `execute_ok=True`, and
+non-null `exec_plan_artifact_id` / `simulation_result_artifact_id`.
+```
+
+The same helper is covered by
+`tests/foundry/test_quickstart.py`.
+
+## Minimal Programmatic Flow
 
 ```python
-compile_result = polisyos.foundry.compile(store, compile_request)
+from polisyos.foundry import compile, execute
+from polisyos.foundry.data_plane.bindings import build_input_bindings
+
+compile_result = compile(store, compile_request)
 if not compile_result.ok:
     raise RuntimeError(compile_result.notes)
 
@@ -53,7 +109,7 @@ bindings = build_input_bindings(
     registry_bundle_ref=registry_bundle_ref,
 )
 
-execute_result = polisyos.foundry.execute(
+execute_result = execute(
     store,
     execute_request.model_copy(
         update={
@@ -65,18 +121,27 @@ execute_result = polisyos.foundry.execute(
 )
 ```
 
-## Root API
+## Evidence Links
+
+- Compile determinism:
+  `tests/foundry/test_compile_determinism.py`
+- Compile facade:
+  `tests/foundry/test_compile_facade.py`
+- Execute facade smoke:
+  `tests/foundry/test_execute_facade_smoke.py`
+- Input bindings:
+  `tests/foundry/test_execute_input_bindings.py`
+- Fail-closed executor semantics:
+  `tests/foundry/test_executor_fail_semantics.py`
+
+## Reference
 
 ::: polisyos.foundry
 
-## Compile API
-
 ::: polisyos.foundry.compile.api
-
-## Execute API
 
 ::: polisyos.foundry.execute.api
 
-## Input Binding Bridge
-
 ::: polisyos.foundry.data_plane.bindings
+
+::: polisyos.foundry.quickstart

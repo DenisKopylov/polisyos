@@ -5,10 +5,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+import duckdb
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.academic.knowledge.skg_query import ParameterCandidate, SKGQuery
-from polisyos.datasets.knowledge.proxy_resolver import ProxyChain, resolve_proxy
+from polisyos.datasets.knowledge.proxy_resolver import resolve_proxy
 from polisyos.datasets.knowledge.registry import DatasetRegistry
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel
 from polisyos.ir.analytics.context import ContextProfile
@@ -16,17 +17,16 @@ from polisyos.ir.analytics.cross_graph import (
     BridgeRelation,
     CanonicalConcept,
     ConceptBridge,
-    ConceptKind,
     CrossGraphDiagnostic,
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
     CrossGraphSourceRefs,
-    EvidenceSourceKind,
-    EvidenceSourceState,
-    EvidenceSourceStatus,
     EvidenceNeed,
     EvidenceNeedAssessment,
     EvidenceNeedType,
+    EvidenceSourceKind,
+    EvidenceSourceState,
+    EvidenceSourceStatus,
     EvidenceStatus,
     LegalStatus,
     ObservabilityStatus,
@@ -35,16 +35,13 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.literature import LiteratureCausalPrior
 from polisyos.ir.analytics.transportability import TransportMode
-from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
+from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
-    KPISpec,
-    ObjectiveSpec,
-    ProblemFrame,
-    SuccessCriterion,
 )
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.api import evaluate_transport_constraints
+from polisyos.lex.errors import LexError
 from polisyos.lex.legal_evaluation.transport_constraints import LegalConstraintSet
 from polisyos.scientist.cross_graph.alignment import (
     alignment_tokens,
@@ -53,6 +50,31 @@ from polisyos.scientist.cross_graph.alignment import (
 )
 from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer
 from polisyos.scientist.evidence_sources import build_path_source_status, update_source_status
+
+_CROSS_GRAPH_QUERY_ERRORS = (
+    duckdb.Error,
+    LexError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+_CROSS_GRAPH_INIT_ERRORS = (
+    duckdb.Error,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+_CROSS_GRAPH_DISTANCE_ERRORS = (
+    ArithmeticError,
+    AttributeError,
+    LookupError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+_CROSS_GRAPH_MODEL_ERRORS = (TypeError, ValueError, ValidationError)
 
 
 class CrossGraphEvidenceConfig(BaseModel):
@@ -637,7 +659,7 @@ class _LegalGraphAdapter:
                 ),
                 legal_kg_db_path=Path(self._config.legal_db_path),
             )
-        except Exception as exc:
+        except _CROSS_GRAPH_QUERY_ERRORS as exc:
             diagnostics.append(
                 CrossGraphDiagnostic(
                     code="cross_graph.legal.query_failed",
@@ -1519,7 +1541,7 @@ def _build_academic_query(
         index_dir = db_path.parent
     try:
         return SKGQuery(db_path=db_path, index_dir=index_dir), status
-    except Exception as exc:
+    except _CROSS_GRAPH_INIT_ERRORS as exc:
         return None, update_source_status(
             status,
             state=EvidenceSourceState.INIT_FAILED,
@@ -1541,7 +1563,7 @@ def _build_dataset_registry(
     db_path = Path(config.datasets_db_path)
     try:
         return DatasetRegistry(db_path), status
-    except Exception as exc:
+    except _CROSS_GRAPH_INIT_ERRORS as exc:
         return None, update_source_status(
             status,
             state=EvidenceSourceState.INIT_FAILED,
@@ -1570,7 +1592,7 @@ def _candidate_distance(
         return None
     try:
         return float(candidate.source_context.distance_to(target_context))
-    except Exception:
+    except _CROSS_GRAPH_DISTANCE_ERRORS:
         return None
 
 
@@ -1864,7 +1886,7 @@ def build_fragment_alignment_ontology_warnings(
         elif isinstance(concept, dict):
             try:
                 normalized_ontology.append(CanonicalConcept.model_validate(concept))
-            except Exception:
+            except _CROSS_GRAPH_MODEL_ERRORS:
                 continue
     if not normalized_ontology:
         return []

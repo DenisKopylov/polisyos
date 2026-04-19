@@ -32,6 +32,14 @@ def _make_iv_state(n: int = 300, *, seed: int = 7) -> dict:
     return {"outcome": Y, "treatment": T, "instrument": Z}
 
 
+def _make_exact_lp_state(n: int = 300, *, seed: int = 17) -> dict:
+    del n, seed
+    return {
+        "outcome": np.array([0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0], dtype=float),
+        "treatment": np.array([0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0], dtype=float),
+    }
+
+
 def _make_selection_state(n: int = 300, *, seed: int = 13) -> dict:
     rng = np.random.default_rng(seed)
     T = rng.integers(0, 2, size=n).astype(float)
@@ -107,6 +115,19 @@ class TestBoundsEngineMethodDefault:
         assert reloaded.lower_bound == report.lower_bound
         assert len(reloaded.method_summaries) == len(report.method_summaries)
 
+    def test_exact_auto_bounds_returns_certificate_payload_but_bundle_stays_unknown_until_persisted(self):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        state = _make_exact_lp_state()
+        result = BoundsEngineMethod.pure_step(
+            state,
+            {"use_auto_bounds": True, "has_monotone": True},
+        )
+        report = BoundsBundle.model_validate(result["bounds_report"])
+
+        assert "dual_certificate_payload" in result
+        assert report.sharpness_status == "unknown"
+
 
 class TestBoundsEngineMethodWithIV:
     def test_with_binary_iv_runs_balke_pearl(self):
@@ -117,6 +138,16 @@ class TestBoundsEngineMethodWithIV:
         report = BoundsBundle.model_validate(result["bounds_report"])
         methods = {r.method for r in report.method_summaries}
         assert BoundMethod.LP_BALKE_PEARL in methods
+
+    def test_with_binary_iv_emits_dual_certificate_payload_for_tightest_exact_lp(self):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        state = _make_iv_state()
+        result = BoundsEngineMethod.pure_step(state, {"has_iv": True})
+        report = BoundsBundle.model_validate(result["bounds_report"])
+
+        assert "dual_certificate_payload" in result
+        assert report.sharpness_status == "unknown"
 
     def test_with_iv_reports_tighter_than_manski(self):
         """Balke-Pearl bounds should be at most as wide as Manski (typically tighter)."""

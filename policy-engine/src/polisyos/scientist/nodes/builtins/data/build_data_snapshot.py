@@ -13,6 +13,7 @@ from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef, DataVi
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -36,7 +37,7 @@ _SPEC = NodeSpec(
         f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
         f"inputs.{INPUT_DATA_VIEW_REQUEST_REF}",
     ],
-    state_writes=[f"inputs.{INPUT_DATA_SNAPSHOT_REF}"],
+    state_writes=[f"inputs.{INPUT_DATA_SNAPSHOT_REF}", "params.pii_scan_results"],
     produces=[INPUT_DATA_SNAPSHOT_REF],
 )
 _logger = get_logger(__name__)
@@ -78,7 +79,7 @@ class BuildDataSnapshotNode:
             )
             snapshot_ref = ctx.fabric.snapshot(ctx.store, request_ref)
             pii_scan_summary = _read_snapshot_pii_summary(ctx, snapshot_ref)
-            new_state = state.model_copy(deep=True)
+            new_state = branch_state(state, write_paths=_SPEC.state_writes).state
             new_state.inputs[INPUT_DATA_SNAPSHOT_REF] = snapshot_ref
             if pii_scan_summary is not None:
                 new_state.params["pii_scan_results"] = pii_scan_summary

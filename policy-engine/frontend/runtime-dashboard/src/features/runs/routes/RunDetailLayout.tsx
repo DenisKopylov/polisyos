@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { useCapabilities } from "@/api/hooks/useCapabilities";
@@ -17,7 +17,14 @@ import { MetricCard } from "@/features/runs/components/MetricCard";
 import { getRunBadgeKind } from "@/features/runs/domain/status";
 import { LEGACY_RUN_DETAIL_TAB_MAP } from "@/features/runs/routes/useRunDetailSummary";
 import { buildEvidenceHref } from "@/features/evidence";
-import { parseRunDetailLegacySearchParams } from "@/features/runs/domain/searchParams";
+import {
+  buildRunDeckSnapshot,
+  buildRunReportSnapshot,
+} from "@/features/runs/domain/compare";
+import {
+  buildRunDeckHref,
+  parseRunDetailLegacySearchParams,
+} from "@/features/runs/domain/searchParams";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { cn, formatDate, formatDuration, formatNumber } from "@/lib/utils";
 import {
@@ -90,6 +97,14 @@ function RunInspectorContent() {
   const location = useLocation();
   const authz = useMaybeAuthz();
   const summary = useRunInspector();
+  const decisionPacket = useMemo(
+    () => buildRunReportSnapshot(summary, []),
+    [summary],
+  );
+  const deckSnapshot = useMemo(
+    () => buildRunDeckSnapshot(summary, decisionPacket),
+    [decisionPacket, summary],
+  );
   const tabs = getVisibleRunInspectorTabs(capabilitiesQuery.data, {
     canAccessTab: (tab) => {
       const permission = getRunReviewTabPermission(tab);
@@ -280,6 +295,13 @@ function RunInspectorContent() {
                   >
                     {t("pages.runs.auditReport")}
                   </PrefetchButton>
+                  <PrefetchButton
+                    to={buildRunDeckHref(runId)}
+                    prefetch="intent"
+                    variant="ghost"
+                  >
+                    {t("pages.runs.openDeck")}
+                  </PrefetchButton>
                   {summary.pipeline?.preflight?.ready_to_run === false ||
                   summary.pipeline?.evaluator?.verdict?.startsWith("REPLAN") ? (
                     canLaunchRuns ? (
@@ -362,6 +384,113 @@ function RunInspectorContent() {
                   })}
                 />
               </div>
+            </Card>
+
+            <Card className="space-y-4" data-testid="run-decision-packet">
+              <div className="panel-header">
+                <div>
+                  <p className="eyebrow">
+                    {t("pages.runs.decisionPacketTitle")}
+                  </p>
+                  <h3>{t("pages.runs.decisionPacketHeading")}</h3>
+                </div>
+                <Badge kind="neutral">{decisionPacket.transportStatus}</Badge>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <MetricCard
+                  label={t("pages.runs.verdictLabel")}
+                  value={
+                    label(
+                      "evaluatorVerdicts",
+                      decisionPacket.primaryVerdict,
+                      decisionPacket.primaryVerdict ?? t("common.unknown"),
+                    ) ?? t("common.unknown")
+                  }
+                  meta={decisionPacket.decisionHeadline}
+                />
+                <MetricCard
+                  label={t("pages.runs.confidenceLabel")}
+                  value={
+                    decisionPacket.decisionConfidence ?? t("common.unknown")
+                  }
+                  meta={t("pages.runs.report.decisionScore")}
+                />
+                <MetricCard
+                  label={t("pages.runs.blockerStateLabel")}
+                  value={formatNumber(decisionPacket.blockerCount)}
+                  meta={t("pages.runs.governance")}
+                />
+              </div>
+
+              <div className="grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.95fr)]">
+                <section className="bg-surface/80 border-line rounded-2xl border p-4">
+                  <p className="eyebrow">{t("pages.runs.impactDeltasTitle")}</p>
+                  <div className="mt-4 space-y-3">
+                    {decisionPacket.impactRows.length > 0 ? (
+                      decisionPacket.impactRows.slice(0, 4).map((row) => (
+                        <div
+                          key={row.label}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <span className="text-sm font-semibold">
+                            {row.label}
+                          </span>
+                          <span className="text-muted font-mono text-sm">
+                            {row.display}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-muted text-sm">
+                        {t("pages.runs.impactDeltasEmpty")}
+                      </p>
+                    )}
+                  </div>
+                </section>
+
+                <section className="bg-surface/80 border-line rounded-2xl border p-4">
+                  <p className="eyebrow">
+                    {t("pages.runs.strongestEvidenceTitle")}
+                  </p>
+                  <strong className="mt-4 block text-base">
+                    {decisionPacket.strongestEvidence.title}
+                  </strong>
+                  <p className="text-muted mt-3 text-sm leading-6">
+                    {decisionPacket.strongestEvidence.body}
+                  </p>
+                  <Badge kind="neutral" className="mt-4">
+                    {decisionPacket.strongestEvidence.provenance}
+                  </Badge>
+                </section>
+
+                <section className="bg-surface/80 border-line rounded-2xl border p-4">
+                  <p className="eyebrow">{t("pages.runs.uncertaintyTitle")}</p>
+                  <p className="mt-4 text-sm leading-6 font-semibold">
+                    {decisionPacket.mainUncertainty}
+                  </p>
+                </section>
+              </div>
+
+              <section className="bg-surface/80 border-line rounded-2xl border p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="eyebrow">
+                      {t("pages.runs.downstreamDependenciesTitle")}
+                    </p>
+                    <p className="text-muted mt-2 text-sm">
+                      {t("pages.runs.deck.dependencies")}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {deckSnapshot.close.downstreamDependencies.map((item) => (
+                      <Badge key={item} kind="neutral">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </section>
             </Card>
 
             <nav

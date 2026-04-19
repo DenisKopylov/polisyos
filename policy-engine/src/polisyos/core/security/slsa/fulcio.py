@@ -8,7 +8,12 @@ from typing import Protocol
 import httpx
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric.ec import ECDSA, SECP256R1, generate_private_key
+from cryptography.hazmat.primitives.asymmetric.ec import (
+    ECDSA,
+    SECP256R1,
+    EllipticCurvePrivateKey,
+    generate_private_key,
+)
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.x509.oid import NameOID
 
@@ -197,7 +202,7 @@ class FulcioClient:
             raise RuntimeError("Fulcio response certificate chain is empty")
         return certs
 
-    def _build_self_signed_certificate(self, private_key) -> bytes:
+    def _build_self_signed_certificate(self, private_key: EllipticCurvePrivateKey) -> bytes:
         issuer = x509.Name(
             [
                 x509.NameAttribute(NameOID.COMMON_NAME, "PolicyOS Local Fulcio"),

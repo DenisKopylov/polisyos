@@ -1,0 +1,299 @@
+[package_boundaries]
+version = 2
+status = "draft"
+description = """
+Canonical per-package dependency contract. Each [[package]] entry is the
+source of truth for the tools/quality/validation/package_boundaries.py guard.
+Legacy packages are marked with `legacy = true` and carry a `migration_target`
+plus `frozen = true`: no new code in-bound or out-bound.
+"""
+
+# ---------------------------------------------------------------------------
+# Active product layers.
+# ---------------------------------------------------------------------------
+
+[[package]]
+module = "polisyos.common"
+owner = "team-core"
+public_facade = "polisyos.common"
+allowed_dependencies = []
+forbidden_dependencies = ["polisyos.*"]
+
+[[package]]
+module = "polisyos.ir"
+owner = "team-ir"
+public_facade = "polisyos.ir"
+allowed_dependencies = ["polisyos.common"]
+forbidden_dependencies = [
+  "polisyos.core",
+  "polisyos.fabric",
+  "polisyos.foundry",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.data_forge",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.packs",
+]
+
+[[package]]
+module = "polisyos.core"
+owner = "team-core"
+public_facade = "polisyos.core"
+allowed_dependencies = ["polisyos.common", "polisyos.ir"]
+forbidden_dependencies = [
+  "polisyos.fabric",
+  "polisyos.foundry",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.data_forge",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.packs",
+]
+
+[[package]]
+module = "polisyos.data_forge"
+owner = "team-data-forge"
+public_facade = "polisyos.data_forge"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric.connectors",
+]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.scientist",
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scholar",
+]
+runtime_allowed_submodules = ["polisyos.data_forge.read_api"]
+
+[[package]]
+module = "polisyos.fabric"
+owner = "team-fabric"
+public_facade = "polisyos.fabric"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.data_forge.read_api",
+]
+forbidden_dependencies = [
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scholar",
+]
+
+[[package]]
+module = "polisyos.lex"
+owner = "team-lex"
+public_facade = "polisyos.lex"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric",
+  "polisyos.data_forge.read_api",
+]
+forbidden_dependencies = [
+  "polisyos.foundry",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.scholar",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+]
+
+[[package]]
+module = "polisyos.foundry"
+owner = "team-foundry"
+public_facade = "polisyos.foundry"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric.data_plane",
+  "polisyos.data_forge.read_api",
+]
+forbidden_dependencies = [
+  "polisyos.scientist",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+]
+
+[[package]]
+module = "polisyos.scholar"
+owner = "team-scholar"
+public_facade = "polisyos.scholar"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric",
+  "polisyos.data_forge.read_api",
+]
+forbidden_dependencies = [
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+]
+
+[[package]]
+module = "polisyos.scientist"
+owner = "team-scientist"
+public_facade = "polisyos.scientist"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric",
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.data_forge.read_api",
+]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+]
+
+[[package]]
+module = "polisyos.runtime"
+owner = "team-runtime"
+public_facade = "polisyos.runtime"
+allowed_dependencies = ["public_facades_only"]
+forbidden_dependencies = [
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.lex.batch",
+  "polisyos.academic",
+  "polisyos.datasets",
+  "polisyos.ukraine_data",
+  "polisyos.batch_common",
+  "polisyos.batch_snapshot",
+]
+
+[[package]]
+module = "polisyos.packs"
+owner = "team-domain-packs"
+public_facade = "polisyos.packs"
+allowed_dependencies = ["public_facades_only"]
+forbidden_dependencies = ["private_modules"]
+
+# ---------------------------------------------------------------------------
+# Legacy (frozen) packages kept alive only by migration shims.
+# ---------------------------------------------------------------------------
+
+[[package]]
+module = "polisyos.academic"
+owner = "team-data-forge"
+public_facade = "polisyos.data_forge.domains.academic"
+legacy = true
+frozen = true
+migration_target = "polisyos.data_forge.domains.academic"
+migration_shim_id = "polisyos-academic-to-data-forge"
+sunset_phase = "Phase 1"
+allowed_dependencies = ["polisyos.common", "polisyos.ir", "polisyos.core"]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.scientist",
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scholar",
+]
+
+[[package]]
+module = "polisyos.datasets"
+owner = "team-data-forge"
+public_facade = "polisyos.data_forge.domains.catalog"
+legacy = true
+frozen = true
+migration_target = "polisyos.data_forge.domains.catalog"
+migration_shim_id = "polisyos-datasets-to-data-forge"
+sunset_phase = "Phase 2"
+allowed_dependencies = ["polisyos.common", "polisyos.ir", "polisyos.core"]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.scientist",
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scholar",
+]
+
+[[package]]
+module = "polisyos.ukraine_data"
+owner = "team-data-forge"
+public_facade = "polisyos.data_forge.domains.ukraine"
+legacy = true
+frozen = true
+migration_target = "polisyos.data_forge.domains.ukraine"
+migration_shim_id = "polisyos-ukraine-data-to-data-forge"
+sunset_phase = "Phase 3"
+allowed_dependencies = ["polisyos.common", "polisyos.ir", "polisyos.core"]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.scientist",
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scholar",
+]
+
+[[package]]
+module = "polisyos.batch_common"
+owner = "team-data-forge"
+public_facade = "polisyos.data_forge.kernel"
+legacy = true
+frozen = true
+migration_target = "polisyos.data_forge.kernel"
+migration_shim_id = "polisyos-batch-common-to-data-forge-kernel"
+sunset_phase = "Phase 1"
+allowed_dependencies = ["polisyos.common", "polisyos.ir", "polisyos.core"]
+forbidden_dependencies = ["polisyos.*"]
+
+[[package]]
+module = "polisyos.batch_snapshot"
+owner = "team-data-forge"
+public_facade = "polisyos.data_forge.kernel.snapshot"
+legacy = true
+frozen = true
+migration_target = "polisyos.data_forge.kernel.snapshot"
+migration_shim_id = "polisyos-batch-snapshot-to-data-forge-kernel-snapshot"
+sunset_phase = "Phase 1"
+allowed_dependencies = ["polisyos.common", "polisyos.ir", "polisyos.core"]
+forbidden_dependencies = ["polisyos.*"]
+
+[[package]]
+module = "polisyos.lex.batch"
+owner = "team-data-forge"
+public_facade = "polisyos.data_forge.domains.legal"
+legacy = true
+frozen = true
+migration_target = "polisyos.data_forge.domains.legal"
+migration_shim_id = "polisyos-lex-batch-to-data-forge-legal"
+sunset_phase = "Phase 4"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric",
+]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.scientist",
+  "polisyos.foundry",
+  "polisyos.scholar",
+]

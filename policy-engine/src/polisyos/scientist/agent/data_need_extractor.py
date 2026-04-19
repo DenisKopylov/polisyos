@@ -16,6 +16,19 @@ from polisyos.scientist.llm import TracedLLMClient
 logger = get_logger(__name__)
 
 _YEAR_RE = re.compile(r"(19|20)\d{2}")
+_DATA_NEED_PARSE_ERRORS = (
+    json.JSONDecodeError,
+    TypeError,
+    ValueError,
+)
+_DATASET_CATALOG_LOOKUP_ERRORS = (
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
 
 
 class MockDataNeedExtractorAgent:
@@ -145,8 +158,8 @@ class LLMDataNeedExtractorAgent:
                 )
             if needs:
                 return self._enrich_with_catalog(needs)
-        except Exception as exc:
-            logger.debug("Ignored exception: %s", exc)
+        except _DATA_NEED_PARSE_ERRORS as exc:
+            logger.debug("Falling back to mock data-need extraction after parse error: %s", exc)
         return await self._fallback.extract_data_needs(problem_frame)
 
 
@@ -161,7 +174,7 @@ class LLMDataNeedExtractorAgent:
         for need in needs:
             try:
                 results = find_fn(need.metric, top_k=1)
-            except Exception:
+            except _DATASET_CATALOG_LOOKUP_ERRORS:
                 logger.debug(
                     "Catalog lookup failed for metric %r",
                     need.metric,
@@ -203,4 +216,3 @@ _verify_protocol()
 
 
 __all__ = ["LLMDataNeedExtractorAgent", "MockDataNeedExtractorAgent"]
-

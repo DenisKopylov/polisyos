@@ -1,4 +1,8 @@
 # Dependency Platform
+Owner: `@tools-owners`  
+Backup owner: `@platform-owners`  
+Source of truth: `pyproject.toml`, `tools/devx/workspace/_common.py`, `tools/devx/workspace/bootstrap.py`, `.github/actions/setup-policy-engine-python/action.yml`
+
 Related guides: [Installation](../how-to/install.md), [Environment Matrix](environment-matrix.md), [Configuration Profiles](configuration-profiles.md).
 
 This page is the source of truth for dependency tiers, curated extras, and the
@@ -27,6 +31,20 @@ Repo-local workspace helpers encode the same tiers:
 - `uv run polisyos-tools workspace bootstrap --profile runtime`
 - `uv run polisyos-tools workspace bootstrap --profile research`
 - GitHub Actions should use the same profile names through `.github/actions/setup-policy-engine-python`.
+
+## Tooling Dependency Rules
+
+The tools platform uses the same dependency tiers as contributors:
+
+- command metadata and the unified CLI must import under the minimal/runtime
+  contributor path;
+- docs validation may rely on the `docs` extra and is pulled by
+  `polisyos-tools workspace ci-parity` only when docs checks are enabled;
+- optional command families should declare missing imports or host executables
+  through registry/preflight metadata instead of failing after partial work;
+- cloud, benchmark, and release tools should document external prerequisites
+  in their nearest README and keep Python wheels out of base install unless
+  they are needed by the stable package import surface.
 
 ## Curated Extras
 

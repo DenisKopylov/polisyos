@@ -43,6 +43,40 @@ def test_fail_when_foundry_port_missing(execution_context, minimal_state, artifa
     assert outcome.error.code == node_errors.ERROR_FOUNDATION_MISSING
 
 
+def test_run_simulation_accepts_injected_metrics(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    class _MetricsStub:
+        def __init__(self) -> None:
+            self.calls: list[tuple[str, str]] = []
+
+        def record_slo_simulation_run(self, status: str, *, method: str) -> None:
+            self.calls.append((status, method))
+
+    metrics = _MetricsStub()
+    ctx = replace(execution_context, foundry=None, metrics=metrics)
+    ref = artifact_ref_factory(kind="foundry.exec_plan")
+    bindings_ref = artifact_ref_factory(kind="foundry.input_bindings")
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = ref
+    state.inputs[INPUT_INPUT_BINDINGS_REF] = bindings_ref
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_simulation._default_metrics",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global metrics lookup should not run when metrics are injected")
+        ),
+    )
+
+    outcome = RunSimulationNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert metrics.calls == [("error", "foundry.execute")]
+
+
 def test_fail_when_exec_plan_ref_missing(execution_context, minimal_state, artifact_ref_factory):
     """No exec_plan_ref in artifacts_index -> fail with ERROR_MISSING_INPUT."""
     ctx = replace(execution_context, foundry=MagicMock())

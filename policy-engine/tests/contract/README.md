@@ -1,68 +1,89 @@
 # Contract Tests
 
-`tests/contract` проверяет стабильность контрактов между слоями: модели IR, ABI-снимки, typed refs, migration/compatibility правила и golden records.
+`tests/contract` is the compatibility slice for cross-layer contracts: Trinity
+and IR bundles, typed artifact refs, ABI snapshots, migration rules, golden
+records, and governance-facing protocol models. The directory currently
+contains `19` `test_*.py` files plus a local `conftest.py`.
 
-Актуально на **17 февраля 2026**.
+## Purpose
 
-## Состав
+- Keep inter-package schemas and typed references stable.
+- Catch ABI and migration drift before it reaches runtime or downstream data.
+- Provide a focused place to inspect golden-record and compatibility failures.
 
-- `18` файлов `test_*.py`
-- `1` `conftest.py` (fixture `golden_records` из `golden_records.json`)
+## Where To Start
 
-## Что покрывается
+- [`../../src/polisyos/ir/README.md`](../../src/polisyos/ir/README.md)
+- [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
+- `golden_records.json` and `conftest.py` if the failing test mentions golden
+  fixtures.
 
-### Trinity / IR контракты
+## Public Entrypoints
 
-- `test_trinity_contracts.py`
-- `test_trinity_migration.py`
-- `test_trinity_linker_contract.py`
-- `test_ir_migrations.py`
+- Trinity and IR contracts:
+  `test_trinity_contracts.py`, `test_trinity_migration.py`,
+  `test_trinity_linker_contract.py`, `test_ir_migrations.py`
+- Foundry, Scientist, and Core contract surfaces:
+  `test_foundry_facade_contracts.py`,
+  `test_foundry_input_bindings_contract.py`,
+  `test_scientist_workflow_spec_contract.py`, `test_kernel_models.py`
+- Governance, world, and citation models:
+  `test_gate_models.py`, `test_gate_protocol.py`,
+  `test_world_abi_contract.py`, `test_citations_contract.py`,
+  `test_applicability_contract.py`
+- Compatibility helpers and budgets:
+  `test_abi_diff_tool.py`, `test_golden_record_ids.py`,
+  `test_run_experiment_slo.py`, `test_slo_metrics.py`,
+  `test_security_metrics_helpers.py`
 
-Проверяются: валидность Trinity bundle, linker-ограничения, миграции schema-version, совместимость загрузчиков.
+## Depends On / Depended On By
 
-### Foundry / Scientist / Core contract surface
+**Depends on**
 
-- `test_foundry_facade_contracts.py`
-- `test_foundry_input_bindings_contract.py`
-- `test_scientist_workflow_spec_contract.py`
-- `test_kernel_models.py`
+- `src/polisyos/core/contracts`
+- `src/polisyos/ir`
+- `src/polisyos/foundry`
+- `src/polisyos/scientist`
+- [`../../tools/diagnostics/abi_diff.py`](../../tools/diagnostics/abi_diff.py)
 
-Проверяются: canonical serialization, typed artifact refs, input bindings, kernel model invariants.
+**Depended on by**
 
-### Governance / World / Citation контракты
+- Release and compatibility gates that need ABI drift to fail loudly
+- [`../foundry/README.md`](../foundry/README.md),
+  [`../scientist/README.md`](../scientist/README.md), and
+  [`../runtime/README.md`](../runtime/README.md) when a schema or typed-ref
+  contract changes
 
-- `test_gate_models.py`, `test_gate_protocol.py`
-- `test_world_abi_contract.py`
-- `test_citations_contract.py`
-- `test_applicability_contract.py`
+## Common Commands
 
-Проверяются: human-gate модели и протокол, world entities/ids, citation/locator правила, applicability refs.
-
-### Совместимость и стабильность
-
-- `test_abi_diff_tool.py`
-- `test_golden_record_ids.py`
-- `test_run_experiment_slo.py`
-- `test_slo_metrics.py`
-- `test_security_metrics_helpers.py`
-
-Проверяются: ABI diff budget, стабильность canonical hashes/ID, SLO и security telemetry helpers.
-
-## Связи с кодом
-
-- `policy-engine/src/polisyos/core/contracts`
-- `policy-engine/src/polisyos/ir`
-- `policy-engine/src/polisyos/foundry`
-- `policy-engine/src/polisyos/scientist`
-- `policy-engine/tools/diagnostics/abi_diff.py`
-
-## Запуск
+Run commands from `policy-engine/`.
 
 ```bash
-pytest tests/contract -q
+# conceptual: full contract slice
+uv run pytest tests/contract -q
 
-# точечно
-pytest tests/contract/test_trinity_contracts.py -q
-pytest tests/contract/test_abi_diff_tool.py -q
-pytest tests/contract/test_golden_record_ids.py -q
+# conceptual: targeted checks
+uv run pytest tests/contract/test_trinity_contracts.py -q
+uv run pytest tests/contract/test_abi_diff_tool.py -q
+uv run pytest tests/contract/test_golden_record_ids.py -q
 ```
+
+## Test And Verification Commands
+
+The collect-only command below was smoke-checked on `2026-04-17`.
+
+```bash
+cd policy-engine
+uv run pytest --collect-only tests/contract -q
+```
+
+## Reference Docs
+
+- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- [`../../src/polisyos/ir/README.md`](../../src/polisyos/ir/README.md)
+- [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
+- [`../../docs/reference/generated-artifacts.md`](../../docs/reference/generated-artifacts.md)
+
+## Last Updated
+
+2026-04-17

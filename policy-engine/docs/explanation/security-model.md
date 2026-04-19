@@ -1,112 +1,67 @@
 # Security Model
 
-## Threat Model
+Related reference: [Auth and tenant model](../reference/api/auth-tenant-model.md), [error semantics](../reference/api/error-semantics.md), [security and compliance operations](../reference/security-compliance.md), [operations diagrams](../reference/operations/platform-architecture-diagrams.md).
+Related ADRs: [ADR-0097](../adr/0097-runtime-rate-limiting-and-idempotency.md), [ADR-0100](../adr/0100-runtime-api-versioning-and-deprecation-policy.md), [ADR-0101](../adr/0101-runtime-audit-trail-model.md), [ADR-0102](../adr/0102-key-rotation-lifecycle-and-trust-store-policy.md).
+Evidence: `tests/runtime/http/test_runtime_api_authz.py`, `tests/runtime/http/test_runtime_api_write_path_hardening.py`, `tests/core/security/test_auth_middlewares.py`, `tests/core/security/test_audit_chain.py`, [key rotation runbook](../runbooks/key-rotation.md), [CAS or OPA outage runbook](../runbooks/cas-opa-outage.md).
 
-Policy recommendations affect real people, budgets, and regulated decisions. That means the platform cannot rely on notebook-grade security assumptions. The PolicyOS security model is built around zero-trust identity, deny-by-default authorization, tamper-evident artifacts, chained audit, and deployment postures that become stricter in production.
+The default runtime posture is fail closed: missing identity, tenant mismatch,
+OPA failure, or integrity failure should stop the request before policy work or
+side effects happen.
 
-The threat model is therefore broader than "protect the API." It includes unauthorized data access, cross-tenant leakage, artifact tampering, weak provenance, model or supply-chain compromise, and audit gaps that would make a published recommendation impossible to defend after the fact.
+## Auth And Request Flow
 
-## Authentication: JWT
+```mermaid
+flowchart LR
+    Client["Client request"] --> JWT["JWT auth middleware"]
+    JWT --> Cell["Cell router / tenant binding"]
+    Cell --> Authz["OPA authz middleware"]
+    Authz --> Guard["Idempotency, rate limit, resilience guards"]
+    Guard --> Route["Route and service layer"]
+    Route --> Audit["Audit and telemetry"]
+    Audit --> Response["Success or typed error"]
+```
 
-User authentication is based on validated OIDC/JWT claims, while service identity is handled separately through SPIFFE.
+This matches the middleware order enforced by
+`create_runtime_api_app(...)` and the runtime middleware assertions in
+`src/polisyos/runtime/http/app.py`.
 
-- ``UserIdentityClaims`` (`../../src/polisyos/core/security/identity.py`) normalizes user-facing claims into PolicyOS fields such as `sub`, `tenant_id`, `cell_id`, `roles`, `mfa_verified`, `iss`, `aud`, `exp`, and `jti`.
-- ``SPIFFEIdentityProvider`` (`../../src/polisyos/core/security/identity.py`) validates JWTs against the configured issuer, JWKS endpoint, and expected audience.
-- Role mapping is explicit through `map_roles_from_claims()`, and MFA is derived through `infer_mfa_verified()`.
-- Tokens missing `tenant_id`, violating cell binding, or failing MFA requirements for high-privilege roles are rejected.
+## Auth And Tenant Isolation
 
-In other words, PolicyOS mostly delegates issuance to an external IdP such as Keycloak/OIDC, but it performs strict validation, claim normalization, and tenant/cell binding locally.
+```mermaid
+flowchart TB
+    Token["JWT claims: subject, tenant_id, cell_id, roles"] --> Verify["Identity provider verifies issuer, audience, kid, MFA policy"]
+    Verify --> Route["Cell router resolves tenant -> cell"]
+    Route --> Scope["AccessScope and request.state binding"]
+    Scope --> OPA["OPA input includes tenant, cell, resource, and action"]
+    OPA --> Namespace["CAS and run/artifact namespace guards"]
+    Namespace --> Audit["Audit records request_id, tenant, actor, resource"]
+```
 
-### Key Rotation
+The same tenant and cell identity should agree across token claims, route
+state, OPA input, namespaced IDs, and audit records. If they disagree, the
+request is denied rather than reconciled heuristically.
 
-Artifact-signing rotation is documented in [`docs/key-rotation.md`](../key-rotation.md).
+## Security Layers
 
-- Ed25519 key pairs are generated per rotation window.
-- Public keys move through `trusted/` and `revoked/` trust-store directories.
-- `identities.json` binds `key_id` fingerprints to signer identities.
-- Old keys remain trusted for a grace period and then move to `revoked/`.
-- Verification can fail on unsigned, untrusted, revoked, or identity-mismatched artifacts.
+| Layer | Default role | Operational anchor |
+|---|---|---|
+| JWT and OIDC validation | verify user claims, MFA requirements, key rotation windows | [auth and tenant model](../reference/api/auth-tenant-model.md) |
+| SPIFFE service identity | verify peer services separately from user auth | [security compliance](../reference/security-compliance.md) |
+| Cell routing and namespacing | bind requests and artifact IDs to tenant/cell scope | [runtime API outage](../runbooks/runtime-api-outage.md) |
+| OPA authorization | policy-as-code deny-by-default decisions | [CAS or OPA outage](../runbooks/cas-opa-outage.md) |
+| Idempotency and mutation guards | reduce replay, duplicate side effects, and overload | [idempotency incident](../runbooks/idempotency-incident.md) |
+| CAS signing and verification | prove integrity and signer identity for durable artifacts | [artifact signing or SBOM failure](../runbooks/artifact-signing-sbom-failure.md) |
+| Chained audit | correlate reads, writes, and governance events | [mutation audit investigation](../runbooks/mutation-audit-investigation.md) |
 
-## Authorization: OPA
+## Compliance Posture
 
-Authorization is policy-as-code and deny-by-default.
+The repo already tracks compliance mappings and open operational gaps in:
 
-- ``OPAClient`` (`../../src/polisyos/core/security/authz.py`) sends structured `AuthzInput` payloads to OPA and caches decisions with a TTL cache.
-- When OPA is unreachable, authorization returns `DENY` rather than silently allowing access.
-- `AuthzInput` includes request metadata, normalized identity, peer SPIFFE identity, resource tenant, artifact identifiers, PII tier, and anonymization requirements.
+- [security and compliance operations](../reference/security-compliance.md)
+- `docs/fedramp/gap-analysis.md`
+- `docs/fedramp/nist-800-53-mapping.json`
+- `docs/fedramp/poam.json`
 
-The runtime recognizes three authorization modes through `POLISYOS_AUTHZ_MODE`.
-
-- `off`
-- `shadow`
-- `enforce`
-
-Shadow mode is useful in development because denials are still logged and measured without blocking the request path. Enforce mode is the production posture.
-
-## Identity: SPIFFE
-
-Service-to-service identity is separate from end-user authentication.
-
-- ``ServiceIdentityInfo`` (`../../src/polisyos/core/security/identity.py`) carries verified SPIFFE metadata such as trust domain, cell ID, service name, and certificate lifetime.
-- ``SPIFFEIdentityProvider`` (`../../src/polisyos/core/security/identity.py`) parses SPIFFE IDs, verifies peers, and prevents unapproved cross-cell communication.
-- `AccessScope.for_service()` binds SPIFFE identity into the same request-scoped authorization context used by OPA and observability.
-
-This split matters because internal service identity should not piggyback on user JWT semantics. The system treats them as different security domains with different proofs.
-
-## Artifact Integrity: CAS and Ed25519
-
-Content-addressable storage already gives PolicyOS tamper evidence through hashes. The signing layer adds authenticity and non-repudiation.
-
-- [`ADR-0010`](../adr/0010-cas-artifact-signing-ed25519.md) defines detached Ed25519 signatures in `<artifact>.sig` sidecars.
-- The canonical signed statement covers `artifact_id`, `blob_sha256`, `manifest_sha256`, and `key_id`.
-- Verification returns typed statuses such as `valid`, `unsigned`, `invalid`, `untrusted`, `revoked`, or `error`.
-- The trust store is externalized under `.polisyos/keys/`.
-
-This creates a usable chain of custody: source ingestion produces CAS artifacts, later analytical stages consume those artifacts by ID, and signature verification can prove not only that the bytes were unchanged, but also which trusted signer produced them.
-
-## Compliance: FedRAMP and NIST 800-53
-
-The FedRAMP documentation in `docs/fedramp/` currently maps PolicyOS to 17 NIST SP 800-53 Rev. 5 controls. The mapping file is [`nist-800-53-mapping.json`](../fedramp/nist-800-53-mapping.json), and the active gap narrative is in [`gap-analysis.md`](../fedramp/gap-analysis.md).
-
-Controls currently marked implemented include:
-
-- `AC-2`, `AC-3`, `AC-4`
-- `AU-2`, `AU-10`
-- `CM-14`
-- `IA-2`
-- `RA-5`
-- `SC-8`, `SC-28`
-- `SI-7`
-- `SR-4`
-
-Controls currently tracked as partial include:
-
-- `CA-8`
-- `CP-9`
-- `IR-4`
-- `PL-2`
-- `SC-12`
-
-The current POAM in [`poam.json`](../fedramp/poam.json) tracks six open milestones, including HSM-backed root signing, penetration testing, backup/restore evidence, incident-response evidence, and formal ISA agreements for external providers.
-
-## Trusted Execution and Supply Chain
-
-The security model also includes deployment-time hardening beyond JWT and OPA.
-
-- Trusted execution is modeled in ``tee.py`` (`../../src/polisyos/core/security/tee.py`) and enforced through ``TEEGatekeeper`` (`../../src/polisyos/core/security/tee_middleware.py`).
-- The current implementation supports attestation models for `sev-snp`, `tdx`, and `nitro`, with strict policy checks on measurement, host data, TCB version, report age, and signature validation.
-- SBOM generation and verification live in ``sbom.py`` (`../../src/polisyos/core/security/sbom.py`).
-- Supply-chain attestation clients for Fulcio/Rekor and SLSA material live under ``core/security/slsa/`` (`../../src/polisyos/core/security/slsa/`).
-
-This is why the FedRAMP gap analysis now treats the remaining security debt as mostly operational evidence rather than missing architecture primitives.
-
-## Audit Trail
-
-Audit is not an append-only log in name only; it is a chained model with tamper verification.
-
-- ``ChainedAuditSink`` (`../../src/polisyos/core/security/audit_sink.py`) writes append-only local entries and can replicate them to hot and cold tiers.
-- ``ChainVerifier`` (`../../src/polisyos/core/security/audit_verifier.py`) checks sequence continuity and hash chaining.
-- `AuditEventType` includes governance decisions, access grants and denials, PII detection, signing events, tool events, checkpoints, and general audit actions.
-- The audit adapter can attach OpenTelemetry trace and span identifiers so security and execution events stay correlated.
-
-The result is an audit trail that captures data access, authorization outcomes, governance decisions, checkpoint events, and artifact-signing activity in a form that can be verified later for tamper evidence.
+This page therefore describes the architecture primitives that exist today,
+while compliance debt and evidence gaps stay on the compliance reference page
+instead of being described here as fully closed.

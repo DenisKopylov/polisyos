@@ -19,14 +19,11 @@ def _normalize_root(root: str | Path) -> Path:
 def build_cli_artifact_store(root: str | Path) -> ArtifactStore:
     """Construct the default CLI artifact store through the declarative backend factory."""
 
-    return cast(
-        "ArtifactStore",
-        build_artifact_store(
-            ArtifactStoreConfig(
-                backend="filesystem",
-                root=str(_normalize_root(root)),
-            )
-        ),
+    return build_artifact_store(
+        ArtifactStoreConfig(
+            backend="filesystem",
+            root=str(_normalize_root(root)),
+        )
     )
 
 

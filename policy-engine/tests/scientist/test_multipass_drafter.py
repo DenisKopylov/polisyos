@@ -211,6 +211,93 @@ def test_all_four_passes_execute() -> None:
     assert "Updated narrative after consolidation" in result.narrative
 
 
+def test_multipass_drafter_accepts_injected_observability(monkeypatch) -> None:
+    class _Span:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            del exc_type, exc, tb
+            return None
+
+        def set_attribute(self, name: str, value: object) -> None:
+            del name, value
+
+        def set_status(self, status: object) -> None:
+            del status
+
+        def record_exception(self, exc: BaseException) -> None:
+            del exc
+
+    class _Tracer:
+        def __init__(self) -> None:
+            self.names: list[str] = []
+
+        def start_as_current_span(self, name: str, attributes=None):
+            del attributes
+            self.names.append(name)
+            return _Span()
+
+    class _Metrics:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def record_constitution_generated(
+            self,
+            *,
+            domain: str,
+            duration_seconds: float,
+            section_counts: dict[str, int],
+        ) -> None:
+            self.calls.append(
+                {
+                    "domain": domain,
+                    "duration_seconds": duration_seconds,
+                    "section_counts": section_counts,
+                }
+            )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.agent._drafter_orchestrator._default_tracer",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global tracer lookup should not run when tracer is injected")
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.agent._drafter_orchestrator._default_metrics",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global metrics lookup should not run when metrics are injected")
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.agent._drafter_passes._default_tracer",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global tracer lookup should not run when tracer is injected")
+        ),
+    )
+
+    tracer = _Tracer()
+    metrics = _Metrics()
+    llm = SequenceLLM(['{"findings":[],"confidence_adjustment":0.0}'])
+    agent = MultiPassLLMDrafter(
+        MockDrafterAgent(),
+        config=MultiPassConfig(
+            max_passes=2,
+            constitution_enabled=True,
+            early_exit_confidence=0.99,
+        ),
+        llm_client=llm,
+        tracer=tracer,
+        metrics=metrics,
+    )
+
+    result = run(agent.draft_policy(_problem_frame()))
+
+    assert result.problem_frame_ref == "pf_multipass_001"
+    assert tracer.names
+    assert metrics.calls
+
+
 def test_early_exit_on_high_confidence() -> None:
     llm = SequenceLLM(['{"findings":[],"confidence_adjustment":0.0}'])
     agent = MultiPassLLMDrafter(

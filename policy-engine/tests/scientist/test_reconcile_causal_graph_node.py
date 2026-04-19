@@ -6,6 +6,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.alignment_certification import (
+    AlignmentVerificationConfig,
     load_alignment_report,
     persist_alignment_report,
     verify_fragment_bundle_alignment,
@@ -25,6 +26,10 @@ from polisyos.ir.analytics.cross_graph import (
     load_interface_mapping,
     persist_interface_mapping,
     persist_scm_fragment,
+)
+from polisyos.ir.analytics.negative_certificate import (
+    BlockingType,
+    load_negative_certificate,
 )
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
     load_composition_failure_card_bundle,
@@ -47,6 +52,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_INTERFACE_MAPPING_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.ir.refs import NegativeCertificateRef
 
 
 def _build_ctx(tmp_path):
@@ -382,6 +388,233 @@ def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_re
     diagnostics = replay_outcome.state.params["reconciliation_diagnostics"]
     assert diagnostics["query_preservation_statuses"] == certificate.checked_queries
     assert set(diagnostics["query_preservation_reasons"].values()) == {"evaluated"}
+
+
+def test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    graph_a = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["policy", "shared_pressure", "mediator"],
+        edges=[
+            CausalEdge(
+                src="shared_pressure",
+                dst="policy",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            ),
+            CausalEdge(
+                src="policy",
+                dst="mediator",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            ),
+        ],
+    )
+    graph_b = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["shared_pressure", "mediator", "outcome"],
+        edges=[
+            CausalEdge(
+                src="shared_pressure",
+                dst="outcome",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            ),
+            CausalEdge(
+                src="mediator",
+                dst="outcome",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            ),
+        ],
+    )
+    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
+    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    fragment_a_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="a",
+            graph_ref=str(graph_a_ref.artifact_id),
+            semantic_namespace="policy.a",
+            interface_variables=["shared_pressure", "mediator"],
+            exposed_outputs=["shared_pressure", "mediator"],
+            variable_definitions={
+                "shared_pressure": "Shared pressure index",
+                "mediator": "Observed mediator",
+            },
+            variable_units={"shared_pressure": "index", "mediator": "points"},
+        ),
+    )
+    fragment_b_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="b",
+            graph_ref=str(graph_b_ref.artifact_id),
+            semantic_namespace="policy.b",
+            interface_variables=["shared_pressure", "mediator"],
+            exposed_inputs=["shared_pressure", "mediator"],
+            variable_definitions={
+                "shared_pressure": "Shared pressure index",
+                "mediator": "Observed mediator",
+            },
+            variable_units={"shared_pressure": "index", "mediator": "points"},
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_phase9_latent_projection_frontdoor",
+        params={
+            "scm_fragment_refs": [
+                str(fragment_a_ref.artifact_id),
+                str(fragment_b_ref.artifact_id),
+            ],
+            "alignment_verification_config": AlignmentVerificationConfig(
+                explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+                human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
+            ).model_dump(mode="json"),
+            "query_preservation_queries": [
+                CausalQuery(
+                    query_type=QueryType.INTERVENTIONAL,
+                    treatment_variable="policy",
+                    treatment_value=1.0,
+                    outcome_variable="outcome",
+                ).model_dump(mode="json")
+            ],
+        },
+    )
+
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    certificate = load_composition_certificate(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
+    )
+    assert len(certificate.query_certificates) == 1
+    record = next(iter(certificate.query_certificates.values()))
+    assert record.status == "preserved"
+    assert record.theorem_family == "frontdoor_exact"
+    assert record.latent_projection_ref is not None
+    assert record.negative_certificate_ref is None
+    diagnostics = outcome.state.params["reconciliation_diagnostics"]
+    trace_payload = next(iter(diagnostics["query_preservation_traces"].values()))
+    assert trace_payload["theorem_family"] == "frontdoor_exact"
+    assert trace_payload["latent_projection_ref"] == record.latent_projection_ref
+
+
+def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    graph_a = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["shared_pressure", "policy"],
+        edges=[
+            CausalEdge(
+                src="shared_pressure",
+                dst="policy",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            ),
+        ],
+    )
+    graph_b = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["shared_pressure", "policy", "outcome"],
+        edges=[
+            CausalEdge(
+                src="shared_pressure",
+                dst="outcome",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            ),
+            CausalEdge(
+                src="policy",
+                dst="outcome",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            ),
+        ],
+    )
+    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
+    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    fragment_a_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="a",
+            graph_ref=str(graph_a_ref.artifact_id),
+            semantic_namespace="policy.a",
+            interface_variables=["shared_pressure", "policy"],
+            exposed_outputs=["shared_pressure", "policy"],
+            variable_definitions={
+                "shared_pressure": "Shared pressure index",
+                "policy": "Policy switch",
+            },
+            variable_units={"shared_pressure": "index", "policy": "binary"},
+        ),
+    )
+    fragment_b_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="b",
+            graph_ref=str(graph_b_ref.artifact_id),
+            semantic_namespace="policy.b",
+            interface_variables=["shared_pressure", "policy"],
+            exposed_inputs=["shared_pressure", "policy"],
+            variable_definitions={
+                "shared_pressure": "Shared pressure index",
+                "policy": "Policy switch",
+            },
+            variable_units={"shared_pressure": "index", "policy": "binary"},
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_phase9_latent_projection_hedge",
+        params={
+            "scm_fragment_refs": [
+                str(fragment_a_ref.artifact_id),
+                str(fragment_b_ref.artifact_id),
+            ],
+            "alignment_verification_config": AlignmentVerificationConfig(
+                explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+                human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
+            ).model_dump(mode="json"),
+            "query_preservation_queries": [
+                CausalQuery(
+                    query_type=QueryType.INTERVENTIONAL,
+                    treatment_variable="policy",
+                    treatment_value=1.0,
+                    outcome_variable="outcome",
+                ).model_dump(mode="json")
+            ],
+        },
+    )
+
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    certificate = load_composition_certificate(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
+    )
+    assert len(certificate.query_certificates) == 1
+    record = next(iter(certificate.query_certificates.values()))
+    assert record.status == "broken"
+    assert record.negative_certificate_ref is not None
+    negative_certificate = load_negative_certificate(
+        ctx.store,
+        NegativeCertificateRef.model_validate({"artifact_id": record.negative_certificate_ref}),
+    )
+    assert negative_certificate.blocking_type is BlockingType.HEDGE_STRUCTURE
+    diagnostics = outcome.state.params["reconciliation_diagnostics"]
+    trace_payload = next(iter(diagnostics["query_preservation_traces"].values()))
+    assert trace_payload["negative_certificate_ref"] == record.negative_certificate_ref
 
 
 def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition(tmp_path) -> None:

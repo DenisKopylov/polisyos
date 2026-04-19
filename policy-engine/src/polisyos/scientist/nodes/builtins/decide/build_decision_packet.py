@@ -47,6 +47,7 @@ from polisyos.ir.analytics.normative_arbitration import (
     NormativeArbitrationResult,
     load_normative_arbitration_result,
 )
+from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 from polisyos.ir.analytics.sensitivity import load_sensitivity_result
 from polisyos.ir.analytics.strategic import (
     load_post_adaptation_policy_value_summary,
@@ -93,6 +94,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
+    ARTIFACT_BOUNDS_BUNDLE_REF,
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -100,6 +102,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_CARD_REF,
+    ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_ECONOMETRIC_ENVELOPE_REF,
@@ -145,6 +148,7 @@ from polisyos.scientist.policy_verified import (
     load_source_verification_report,
     load_verified_policy_report,
 )
+from polisyos.scientist.search.readiness import load_decision_readiness_contract
 
 logger = get_logger(__name__)
 
@@ -173,6 +177,8 @@ _SPEC = NodeSpec(
         "artifacts_index.policy_output_bundle_ref",
         "artifacts_index.source_verification_report_ref",
         "artifacts_index.verified_policy_report_ref",
+        "artifacts_index.bounds_bundle_ref",
+        "artifacts_index.decision_readiness_contract_ref",
     ],
     state_writes=[f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}"],
     produces=[ARTIFACT_DECISION_PACKET_REF],
@@ -689,6 +695,9 @@ def _build_artifacts_section(
             artifacts_index, ARTIFACT_ECONOMETRIC_ENVELOPE_REF
         ),
         ARTIFACT_DECISION_CARD_REF: _ref_from_dict(artifacts_index, ARTIFACT_DECISION_CARD_REF),
+        ARTIFACT_DECISION_READINESS_CONTRACT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_DECISION_READINESS_CONTRACT_REF
+        ),
         ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF
         ),
@@ -704,6 +713,7 @@ def _build_artifacts_section(
         ARTIFACT_STRESS_TEST_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_STRESS_TEST_REPORT_REF
         ),
+        ARTIFACT_BOUNDS_BUNDLE_REF: _ref_from_dict(artifacts_index, ARTIFACT_BOUNDS_BUNDLE_REF),
         ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF
         ),
@@ -796,7 +806,16 @@ def _build_causal_section(
     envelope_ref = artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
     ensemble_ref = artifacts_index.get(ARTIFACT_CAUSAL_ENSEMBLE_REF)
     validity_ref = artifacts_index.get(ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF)
-    if report_ref is None and envelope_ref is None and ensemble_ref is None and validity_ref is None:
+    bounds_ref = artifacts_index.get(ARTIFACT_BOUNDS_BUNDLE_REF)
+    readiness_ref = artifacts_index.get(ARTIFACT_DECISION_READINESS_CONTRACT_REF)
+    if (
+        report_ref is None
+        and envelope_ref is None
+        and ensemble_ref is None
+        and validity_ref is None
+        and bounds_ref is None
+        and readiness_ref is None
+    ):
         return None
 
     payload: dict[str, object] = {
@@ -804,6 +823,10 @@ def _build_causal_section(
         "envelope_ref": str(envelope_ref.artifact_id) if envelope_ref is not None else None,
         "ensemble_ref": str(ensemble_ref.artifact_id) if ensemble_ref is not None else None,
         "causal_validity_ref": str(validity_ref.artifact_id) if validity_ref is not None else None,
+        "bounds_ref": str(bounds_ref.artifact_id) if bounds_ref is not None else None,
+        "decision_readiness_contract_ref": (
+            str(readiness_ref.artifact_id) if readiness_ref is not None else None
+        ),
         "ensemble_member_count": None,
         "ensemble_methods": [],
         "ensemble_consensus_graph_ref": None,
@@ -876,7 +899,101 @@ def _build_causal_section(
                 artifact_key=ARTIFACT_CAUSAL_REPORT_REF,
             )
 
+    if bounds_ref is not None:
+        try:
+            bounds_bundle = load_bounds_bundle(ctx.store, bounds_ref)
+            payload["bounds_interval"] = (
+                None
+                if bounds_bundle.lower_bound is None or bounds_bundle.upper_bound is None
+                else [bounds_bundle.lower_bound, bounds_bundle.upper_bound]
+            )
+            payload["bounds_warning_codes"] = list(bounds_bundle.warnings)
+            payload["bounds_sharpness_status"] = bounds_bundle.sharpness_status
+            dp_summary = _normalize_dp_summary(bounds_bundle.metadata)
+            if dp_summary is not None:
+                _merge_dp_summary_into_causal_payload(payload, dp_summary)
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            payload["bounds_parse_warning"] = "bounds_bundle_parse_failed"
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_bounds_bundle",
+                reason="bounds_bundle_load_failed",
+                exc=exc,
+                ref=bounds_ref,
+                artifact_key=ARTIFACT_BOUNDS_BUNDLE_REF,
+            )
+
+    if readiness_ref is not None:
+        try:
+            readiness = load_decision_readiness_contract(ctx.store, readiness_ref)
+            payload["decision_readiness_level"] = readiness.readiness_level.value
+            payload["decision_readiness_cap"] = readiness.metadata.get("readiness_cap")
+            if readiness.metadata.get("data_readiness_decision") is not None:
+                payload["data_readiness_decision"] = readiness.metadata.get(
+                    "data_readiness_decision"
+                )
+            dp_summary = _normalize_dp_summary(readiness.metadata)
+            if dp_summary is not None:
+                _merge_dp_summary_into_causal_payload(payload, dp_summary)
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            payload["decision_readiness_parse_warning"] = (
+                "decision_readiness_contract_parse_failed"
+            )
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_decision_readiness_contract",
+                reason="decision_readiness_contract_load_failed",
+                exc=exc,
+                ref=readiness_ref,
+                artifact_key=ARTIFACT_DECISION_READINESS_CONTRACT_REF,
+            )
+
     return payload
+
+
+def _normalize_dp_summary(payload: Any) -> dict[str, object] | None:
+    if not isinstance(payload, dict):
+        return None
+    candidate = payload.get("dp_robustness")
+    if isinstance(candidate, dict):
+        payload = candidate
+    effective_status = payload.get("effective_status", payload.get("dp_effective_status"))
+    if effective_status is None:
+        return None
+    summary: dict[str, object] = {"effective_status": str(effective_status)}
+    reason = payload.get("reason")
+    if reason is not None:
+        summary["reason"] = reason
+    block_reason = payload.get("block_reason", payload.get("dp_block_reason"))
+    if block_reason is not None:
+        summary["block_reason"] = block_reason
+    distortion_radius = payload.get("distortion_radius", payload.get("dp_distortion_radius"))
+    if distortion_radius is not None:
+        summary["distortion_radius"] = distortion_radius
+    mechanism_family = payload.get("mechanism_family", payload.get("dp_mechanism_family"))
+    if mechanism_family is not None:
+        summary["mechanism_family"] = mechanism_family
+    effect_interval = payload.get("effect_interval", payload.get("dp_effect_interval"))
+    if isinstance(effect_interval, (list, tuple)) and len(effect_interval) == 2:
+        summary["effect_interval"] = [effect_interval[0], effect_interval[1]]
+    return summary
+
+
+def _merge_dp_summary_into_causal_payload(
+    payload: dict[str, object],
+    summary: dict[str, object],
+) -> None:
+    payload["dp_effective_status"] = summary["effective_status"]
+    if summary.get("reason") is not None:
+        payload["dp_reason"] = summary["reason"]
+    if summary.get("block_reason") is not None:
+        payload["dp_block_reason"] = summary["block_reason"]
+    if summary.get("distortion_radius") is not None:
+        payload["dp_distortion_radius"] = summary["distortion_radius"]
+    if summary.get("mechanism_family") is not None:
+        payload["dp_mechanism_family"] = summary["mechanism_family"]
+    if summary.get("effect_interval") is not None:
+        payload["dp_effect_interval"] = summary["effect_interval"]
 
 
 def _build_strategic_section(

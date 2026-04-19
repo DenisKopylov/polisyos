@@ -2,6 +2,28 @@
 
 > Use this guide when a change crosses schema, SQL, OpenAPI, generated-client, or infra boundaries.
 
+## Inputs
+
+- a PR or rollout plan that crosses package, schema, API, generated-client,
+  infra, or operational runbook boundaries;
+- the proposed rollout order and owner;
+- the validation and mitigation evidence for the affected surfaces.
+
+## Output
+
+- a reviewer decision about migration class, rollout order, rollback stance, and
+  migration-owner clarity;
+- a concrete list of missing rollout metadata when the change is not yet ready.
+
+## Commands
+
+```bash
+cd policy-engine
+uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
+uv run polisyos-tools workspace ci-parity --skip-browser
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+```
+
 ## 1. Migration Classes
 
 | Class | What it means | Expected reviewer stance | Default rollback stance |
@@ -63,7 +85,7 @@ Reviewer rule:
 3. Define the mitigation path as another forward action.
 4. Record canary, shadow, or phased rollout stance if runtime risk exists.
 
-## 4. Rollback / Mitigation Guidance
+## Rollback / Mitigation Guidance
 
 | Migration class | Preferred response if rollout goes wrong |
 |---|---|
@@ -84,3 +106,12 @@ That owner is accountable for:
 - deciding whether to abort, pause, or promote.
 
 If a reviewer cannot identify that owner, the PR is missing rollout governance metadata.
+
+## Troubleshooting
+
+- If the PR claims to be additive but also requires synchronized client or
+  operator action, reclassify it as consumer-sync or destructive as appropriate.
+- If rollback is described only as "revert the PR" for a forward-only operation,
+  the mitigation plan is incomplete.
+- If docs or runbooks lag behind the rollout order, treat that as a rollout
+  blocker rather than a post-merge cleanup item.

@@ -5,7 +5,12 @@
 | Guide | Описание |
 |-------|----------|
 | [Installation](install.md) | Source installs, extras, and troubleshooting |
+| [Post-Refactor Migration](post-refactor-migration.md) | Как переводить legacy/stale branches onto current Trinity, public-surface, and runtime-contract paths |
+| [Add Runtime Route](add-runtime-route.md) | Новый runtime endpoint: scaffold, app wiring, OpenAPI/client checks |
+| [Add Public Facade](add-public-facade.md) | Поддерживаемый import surface через `__all__` и guardrails |
+| [Add Schema-Backed IR Type](add-schema-backed-ir-type.md) | IR model/enum, schema catalog, ABI snapshots |
 | [Add Data Source](add-data-source.md) | Регистрация нового Fabric connector и profile |
+| [Update Runtime Dashboard API Client](update-runtime-dashboard-api-client.md) | OpenAPI -> generated client -> dashboard types |
 | [Write Governance Pass](write-governance-pass.md) | Создание governance pass для Scientist |
 | [Run Benchmarks](run-benchmarks.md) | Запуск benchmark registry и чтение report artifacts |
 | [Deploy Runtime](deploy-runtime.md) | Runtime API app factory, config, dashboard, production notes |

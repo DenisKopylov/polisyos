@@ -4,6 +4,28 @@ Related reference: [Schemas](../reference/schemas.md). Related explanation: [IR 
 
 > Эта страница для инженеров, которые меняют публичные IR/runtime контракты и должны сохранить ABI discipline, а не просто "перегенерировать JSON".
 
+Freshness: 2026-04-17.
+
+## Вход
+
+- изменение публичной Pydantic модели, Enum или runtime DTO
+- понимание, это additive, breaking или accidental drift
+- готовность обновить docs/reference и generated client, если меняется runtime surface
+
+## Выход
+
+- ABI snapshots и runtime OpenAPI соответствуют коду
+- compatibility story задокументирована
+- IR schema catalog и reference pages не расходятся с фактическим surface
+
+## Команды
+
+```bash
+PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+cd frontend/runtime-dashboard && npm run generate:api
+```
+
 В репозитории сейчас есть два важных schema surface:
 
 - ABI snapshots в `schemas/snapshots/**`, которые собираются через `tools/diagnostics/gen_schema.py`;
@@ -130,6 +152,20 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_ru
 uv run --extra docs python -m mkdocs build --strict
 uv run --extra docs python tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt
 ```
+
+## Откат
+
+Если drift оказался accidental:
+
+1. откатите snapshot/OpenAPI/client diff;
+2. повторно запустите `--check` команды;
+3. убедитесь, что код снова совпадает с committed baseline без ручной правки generated files.
+
+## Troubleshooting
+
+- Если непонятно, какая модель вызвала drift, начните с `gen_schema.py --check` и сузьте проверку до затронутых моделей.
+- Если runtime client расходится с OpenAPI, сначала экспортируйте committed OpenAPI, потом регенерируйте client.
+- Если change выглядит breaking, а compatible path неочевиден, нужен explicit compatibility rule или ADR, а не просто новый snapshot.
 
 ## Что дальше
 

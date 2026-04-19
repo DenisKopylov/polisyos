@@ -28,6 +28,8 @@ const uk = {
     blocked: "Заблоковано",
     pending: "В очікуванні",
     active: "Активно",
+    confidence: "Впевненість",
+    gaps: "Прогалини",
     input: "Вхід",
     output: "Вихід",
     openArtifact: "Відкрити артефакт",
@@ -69,6 +71,10 @@ const uk = {
     eyebrow: "PolisyOS Runtime",
     title: "Atlas",
     subtitle: "Операційна панель для runtime, evidence та governance",
+    atlasAnalystSubtitle:
+      "Редакційний analyst shell для командного центру, evidence та decision workflows.",
+    atlasShellLiteSubtitle:
+      "Shell-lite для chat-first сценаріїв, експортів і handoff у run workspace.",
     navAriaLabel: "Основна навігація workspace",
     watchStatusTitle: "Статус нагляду",
     watchStatusBlocked: "Виявлено governance drift",
@@ -105,6 +111,8 @@ const uk = {
         light: "Тема: світла",
         system: "Тема: авто",
       },
+      analystShell: "Atlas analyst shell",
+      shellLite: "Atlas shell-lite",
       workspaceDisabled:
         "Цей workspace вимкнений feature flags для поточного deployment.",
       workspaceAccessDenied: "Ваша роль не дозволяє відкривати цей workspace.",
@@ -169,6 +177,21 @@ const uk = {
         "Запустіть сценарій або дочекайтесь нових запусків із decision artifacts.",
       actionQueueTitle: "Черга дій",
       actionQueueHeading: "Decision packets, готові до review",
+      narrativeTitle: "Порядок оператора",
+      narrativeHeading:
+        "Спершу увага, потім throughput, а evidence завжди поруч",
+      narrativeAttention: "Що потребує уваги",
+      narrativeThroughput: "Throughput",
+      narrativeQueue: "Стан черги",
+      narrativeEvidence: "Концентрація evidence",
+      narrativeAttentionBody:
+        "{{count}} активних запусків і {{blocked}} заблокованих packet вже вимагають review posture.",
+      narrativeThroughputBody:
+        "У поточній вибірці {{success}} успішних результатів із {{total}} загальних запусків.",
+      narrativeQueueBody:
+        "{{count}} decision-bearing запусків уже готові відкриватися з fleet.",
+      narrativeEvidenceBody:
+        "За останній run додано {{docs}} docs, а в lane ще залишаються {{promotions}} promotion candidates.",
       runCardMeta: "тривалість {{duration}} · артефакти {{artifacts}}",
       activeRunsHint: "запуски, які ще виконуються в поточній вибірці",
       blockedRunsHint: "запуски, заблоковані governance, failure або preflight",
@@ -241,8 +264,26 @@ const uk = {
       subtitle:
         "Побудова workflow та NL запусків із бюджетами, constraints та expected outputs.",
       heroTitle: "Capability-driven scenario composer",
+      journeyTitle:
+        "Framing, levers, evidence, guardrails і launch зібрані в одному робочому потоці.",
+      journeyBody:
+        "Atlas не змінює модель workflow, а перебудовує композицію у більш операторський launch journey.",
+      journeyReplanBody:
+        "Для перепланування {{runId}} Atlas лишає run context поруч і заново збирає framing, evidence та guardrails навколо наступного запуску.",
+      journeyMetrics: {
+        mode: "Поточний режим",
+        capabilities: "Видимі можливості",
+        models: "Реєстр моделей",
+      },
       workflow: "Workflow запуск",
       naturalLanguage: "Natural-language запуск",
+      modeTitle: "Режим запуску",
+      modeWorkflowTitle: "Workflow framing залишається явним",
+      modeWorkflowBody:
+        "Workflow режим підходить, коли перед запуском потрібно явно зафіксувати source refs, bundle та checkpoint posture.",
+      modeNlTitle: "NL режим тримає важелі поруч",
+      modeNlBody:
+        "Natural-language режим підходить, коли brief, roster моделей і бюджетні важелі мають лишатися компактними та швидкими для правок.",
       workflowHeading: "Побудуйте відтворюваний workflow launch",
       nlHeading: "Підготуйте grounded natural-language run",
       orchestration: "Керування виконанням",
@@ -324,11 +365,19 @@ const uk = {
       addOutput: "Додати output",
       addConstraint: "Додати constraint",
       steps: {
-        workflow: "Workflow",
-        nl: "Brief",
+        workflow: "Фреймінг",
+        nl: "Важелі",
         evidence: "Evidence",
         guardrails: "Guardrails",
         launch: "Launch",
+      },
+      stepBodies: {
+        workflow:
+          "Зафіксуйте рамку запуску, shape задачі та операторський намір.",
+        nl: "Налаштуйте моделі, бюджети й orchestration controls.",
+        evidence: "Прив'яжіть source refs, snapshots та expected outputs.",
+        guardrails: "Тримайте governance posture і constraints видимими.",
+        launch: "Запускайте з чітким packet, а не з непрозорим form state.",
       },
       expectedOutputKindPlaceholder: "kind артефакту",
       expectedOutputDescriptionPlaceholder: "Що саме повинен produce run?",
@@ -364,6 +413,20 @@ const uk = {
       title: "Запуски та рішення",
       subtitle:
         "Єдиний workspace для run lifecycle, рішень, governance та provenance.",
+      fleetEyebrow: "Decision fleet",
+      fleetHeading: "Explorer тримає активний decision packet напоготові",
+      fleetBody:
+        "Фільтруйте fleet, лишайте один run підсвіченим і переходьте в evidence, audit або deck без втрати keyboard flow.",
+      selectedRunTitle: "Підсвічений run packet",
+      selectedRunBody:
+        "Atlas тримає активний run у фокусі, поки ви рухаєтесь fleet, щоб audit actions були на відстані одного кліку.",
+      noActiveRunTitle: "Підсвіченого run packet немає",
+      noActiveRunBody:
+        "Рухайтесь explorer, щоб завантажити shortcuts до evidence, report і deck для одного вибраного запуску.",
+      visibleRuns: "Видимі запуски",
+      runningNow: "Запущено зараз",
+      blockedNow: "Заблоковано або впало",
+      openRun: "Відкрити run",
       explorerTitle: "Огляд запусків із decision paths",
       searchLabel: "Пошук запусків",
       searchPlaceholder: "Пошук за run_id",
@@ -533,6 +596,30 @@ const uk = {
         timelineEyebrow: "Timeline з фільтрацією за severity",
         auditTrailTitle: "Аудитний слід",
       },
+      deck: {
+        requiredTitle: "Для deck потрібен run id",
+        requiredBody: "Відкрийте конкретний маршрут /runs/:runId/deck.",
+        unavailableBody: "Deck запуску недоступний.",
+        eyebrow: "Презентаційний deck",
+        exportJson: "Експортувати deck JSON",
+        exportDeckPng: "Експортувати deck PNG",
+        exportSlidePng: "PNG слайду",
+        printPdf: "Друк / Зберегти PDF",
+        backToRun: "Назад до запуску",
+        verdictEyebrow: "Вердикт і рекомендація",
+        verdictTitle: "Рекомендація для поточного запуску",
+        recommendation: "Рекомендація",
+        confidence: "Впевненість",
+        blockerState: "Стан блокерів",
+        metricsEyebrow: "Реальні runtime-метрики",
+        tradeoffEyebrow: "Ratify versus hold",
+        ratifyNow: "Ратифікувати зараз",
+        holdForReview: "Утримати для review",
+        evidenceEyebrow: "Evidence та dissent",
+        closingEyebrow: "Вікно дій",
+        closingTitle: "Наступна дія та вікно коментарів",
+        dependencies: "Downstream dependencies",
+      },
       decisionCandidatesEmptyTitle: "Немає кандидатів на decision artifact",
       decisionCandidatesEmptyBody:
         "У запуску немає root artifacts, які можна використати для decision rendering.",
@@ -561,6 +648,18 @@ const uk = {
       quickActions: "Швидкі дії",
       replan: "перепланувати",
       openEvidence: "evidence",
+      openDeck: "Відкрити deck",
+      decisionPacketTitle: "Decision packet",
+      decisionPacketHeading: "Вердикт, невизначеність і downstream posture",
+      verdictLabel: "Вердикт",
+      confidenceLabel: "Впевненість",
+      blockerStateLabel: "Стан блокерів",
+      impactDeltasTitle: "Ключові impact deltas",
+      impactDeltasEmpty:
+        "Runtime не повернув impact deltas для цього run packet.",
+      strongestEvidenceTitle: "Найсильніший доказ",
+      uncertaintyTitle: "Головна невизначеність",
+      downstreamDependenciesTitle: "Downstream dependencies",
       verdict: {
         approveWithConditions: "Схвалити з умовами",
         approve: "Схвалити",
@@ -645,6 +744,9 @@ const uk = {
       backToRun: "Назад до запуску",
       clearContext: "Очистити контекст",
       sourceProfiles: "Профілі джерел",
+      sourceAtlasTitle: "Стан конекторів, актуальність і trust coverage",
+      sourceAtlasBody:
+        "Відстежуйте завантажені конектори, curated profiles, freshness і невирішені source gaps до переходу в deep review.",
       totalProfiles: "{{count}} curated profiles загалом",
       connectors: "Конектори",
       totalConnectors: "{{count}} зареєстрованих конекторів",
@@ -677,6 +779,9 @@ const uk = {
       profilesLoadError: "Не вдалося завантажити профілі джерел",
       datasetsCount: "{{count}} наборів даних",
       evidenceGraph: "Knowledge weave",
+      knowledgeWeaveTitle: "Claims, needs, plans і artifact context",
+      knowledgeWeaveBody:
+        "Тримайте needs, fetch plans, promotions і artifact refs в одному компактному weave перед переходом у detail context.",
       connectorsCachePosture: "Конектори та стан кешу",
       connectorsLoading: "Завантаження конекторів...",
       connectorsLoadError: "Не вдалося завантажити конектори",
@@ -684,6 +789,9 @@ const uk = {
       contextRefs: "Context refs",
       promotionLane: "Promotion lane",
       selectedArtifact: "Вибраний артефакт",
+      promotionReviewTitle: "Лінія review та collaboration для promotion",
+      promotionReviewBody:
+        "Показуйте pending, ready і rejected promotion candidates разом із confidence та review posture.",
       promotionLoadError: "Не вдалося завантажити кандидатів на промоцію",
       noPromotionCandidates: "Немає кандидатів на промоцію для review.",
       degraded: {
@@ -1219,7 +1327,8 @@ const uk = {
     },
     howItWorksTitle: "Як це працює",
     stepQuestion: "Питання",
-    stepQuestionDescription: "Сформулюйте питання щодо політики природною мовою",
+    stepQuestionDescription:
+      "Сформулюйте питання щодо політики природною мовою",
     stepAnalysis: "Аналіз",
     stepAnalysisDescription:
       "Система будує каузальний граф та ідентифікує ефекти",
@@ -1321,11 +1430,13 @@ const uk = {
   },
   whatIf: {
     title: "Аналіз «Що, якщо»",
-    subtitle: "Дослідіть контрфактуальні сценарії, змінюючи параметри та спостерігаючи прогнозований вплив.",
+    subtitle:
+      "Дослідіть контрфактуальні сценарії, змінюючи параметри та спостерігаючи прогнозований вплив.",
     panelTitle: "Параметри сценарію",
     baseRun: "Базовий запуск",
     selectBaseRun: "Оберіть базовий запуск для контрфактуального аналізу",
-    noBaseRun: "Базовий запуск не обрано. Оберіть запуск для початку what-if аналізу.",
+    noBaseRun:
+      "Базовий запуск не обрано. Оберіть запуск для початку what-if аналізу.",
     parameters: "Параметри",
     adjustParameter: "Налаштувати параметр",
     resetAll: "Скинути все",
@@ -1353,17 +1464,20 @@ const uk = {
       load: "Завантажити",
       delete: "Видалити",
       compare: "Порівняти",
-      empty: "Збережених сценаріїв ще немає. Змініть параметри та збережіть свій перший сценарій.",
+      empty:
+        "Збережених сценаріїв ще немає. Змініть параметри та збережіть свій перший сценарій.",
       confirmDelete: "Видалити сценарій «{{name}}»?",
       saved: "Сценарій збережено",
     },
     methodology: "Методологія",
-    methodNote: "Прогнози what-if використовують каузальну модель із базового запуску. Результати передбачають відсутність невиміряних confounders за межами ідентифікованого adjustment set.",
+    methodNote:
+      "Прогнози what-if використовують каузальну модель із базового запуску. Результати передбачають відсутність невиміряних confounders за межами ідентифікованого adjustment set.",
     exportScenario: "Експортувати сценарій",
   },
   causal: {
     title: "Каузальний граф",
-    subtitle: "Спрямований ациклічний граф каузальних зв'язків, виявлених у цьому аналізі.",
+    subtitle:
+      "Спрямований ациклічний граф каузальних зв'язків, виявлених у цьому аналізі.",
     nodeTypes: {
       treatment: "Лікування (treatment)",
       outcome: "Результат (outcome)",
@@ -1468,15 +1582,15 @@ const uk = {
   },
   compliance: {
     badgeLabel: "Відповідність",
-    badgeAriaLabel: "Переглянути стан відповідності стандартам доступності та безпеки",
+    badgeAriaLabel:
+      "Переглянути стан відповідності стандартам доступності та безпеки",
     tooltipTitle: "Стандарти відповідності",
     eaa: {
       description:
         "EU European Accessibility Act — відповідність WCAG 2.2 AA для всіх потоків користувачів.",
     },
     ada: {
-      description:
-        "US ADA Title II — WCAG 2.1 AA для урядових інструментів.",
+      description: "US ADA Title II — WCAG 2.1 AA для урядових інструментів.",
     },
     nist: {
       description:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
 from polisyos.scientist.agent.norm_loader import CASNormPackLoader, StaticNormPackLoader
@@ -42,3 +44,26 @@ def test_cas_norm_loader_loads_by_context(tmp_path) -> None:
 
     assert loaded is not None
     assert loaded.pack_id == "pack_test"
+
+
+def test_cas_norm_loader_assertion_is_not_swallowed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _FakeCAS:
+        def get_bytes(self, artifact_id):
+            del artifact_id
+            return b"{}"
+
+    def _boom(value):
+        del value
+        raise AssertionError("artifact id invariant failed")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.norm_loader.ArtifactID.model_validate",
+        _boom,
+    )
+
+    loader = CASNormPackLoader(_FakeCAS(), default_ref="sha256:" + ("0" * 64))
+
+    with pytest.raises(AssertionError, match="artifact id invariant failed"):
+        loader.load_for_context(jurisdiction="uk", domain="fiscal")

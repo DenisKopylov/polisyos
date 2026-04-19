@@ -8,16 +8,11 @@ import os
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from pydantic import ValidationError
+
+from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.core.contracts.scientist import (
-    LegalCandidatePackRef,
-    LegalSourcePackRef,
-    PolicyRequestFrameRef,
-    SourceVerificationReportRef,
-    VerifiedPolicyReportRef,
-)
 from polisyos.core.contracts.scholar import ResearchIntent, ResearchIntentRef
 from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.ir.analytics.cross_graph import (
@@ -29,9 +24,9 @@ from polisyos.ir.analytics.cross_graph import (
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.knowledge.types import LegalFactResult, LegalSourceBundle
 from polisyos.scientist.agent.formalizer import MockFormalizerAgent
+from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
 from polisyos.scientist.agent.prompts import get_source_verifier_prompt
 from polisyos.scientist.agent.protocols import DraftResult
-from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.evidence_sources import (
@@ -41,9 +36,9 @@ from polisyos.scientist.evidence_sources import (
 )
 from polisyos.scientist.llm.factory import create_traced_gateway_client
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_METRICS_REF,
-    ARTIFACT_CAUSAL_REPORT_REF,
     INPUT_RESEARCH_INTENT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
@@ -59,6 +54,24 @@ from polisyos.scientist.policy_verified.models import (
     VerifiedLegalClaim,
     VerifiedPolicyReport,
 )
+
+_POLICY_VERIFIED_MODEL_ERRORS = (TypeError, ValueError, ValidationError)
+_POLICY_VERIFIED_ARTIFACT_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+_POLICY_VERIFIED_TOOLKIT_ERRORS = (
+    AttributeError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+_POLICY_VERIFIED_JSON_ERRORS = (TypeError, ValueError, json.JSONDecodeError)
+_POLICY_VERIFIED_ASYNC_RUN_ERRORS = (RuntimeError, TypeError, ValueError)
 
 
 def build_policy_request_frame(ctx: ExecutionContext, state: ExperimentState) -> PolicyRequestFrame:
@@ -588,15 +601,15 @@ def _load_research_intent(store: FileSystemCAS, raw_ref: Any) -> ResearchIntent 
         return None
     try:
         ref = ResearchIntentRef.model_validate(raw_ref.model_dump() if hasattr(raw_ref, "model_dump") else raw_ref)
-    except Exception:
+    except _POLICY_VERIFIED_MODEL_ERRORS:
         return None
     try:
         payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
-    except Exception:
+    except _POLICY_VERIFIED_ARTIFACT_LOAD_ERRORS:
         return None
     try:
         return ResearchIntent.model_validate(payload)
-    except Exception:
+    except _POLICY_VERIFIED_MODEL_ERRORS:
         return None
 
 
@@ -615,7 +628,7 @@ def _build_legal_toolkit(ctx: ExecutionContext, state: ExperimentState) -> Knowl
             index_dir=db_path.parent,
             openai_api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_1"),
         )
-    except Exception:
+    except _POLICY_VERIFIED_TOOLKIT_ERRORS:
         return None
     return KnowledgeToolkit(legal_graph=legal_graph)
 
@@ -694,7 +707,7 @@ def _load_cross_graph_profile(
         return CrossGraphEvidenceProfile.model_validate(
             from_canonical_bytes(store.get_bytes(raw_ref.artifact_id))
         )
-    except Exception:
+    except (*_POLICY_VERIFIED_ARTIFACT_LOAD_ERRORS, *_POLICY_VERIFIED_MODEL_ERRORS):
         return None
 
 
@@ -982,6 +995,8 @@ def _maybe_verify_with_llm(
         )
         for outcome in results:
             if isinstance(outcome, BaseException):
+                if isinstance(outcome, (AssertionError, KeyboardInterrupt, SystemExit)):
+                    raise outcome
                 continue
             bundle_claims, bundle_gaps = outcome
             claims.extend(bundle_claims)
@@ -990,7 +1005,7 @@ def _maybe_verify_with_llm(
 
     try:
         claims, gaps, verifier_calls = asyncio.run(_run())
-    except Exception:
+    except _POLICY_VERIFIED_ASYNC_RUN_ERRORS:
         return [], [], 0, 0, 0.0
     disagreement_rate = 0.0
     if baseline_claims and claims:
@@ -1012,26 +1027,26 @@ def _parse_json_object(text: str) -> dict[str, Any] | None:
         raw = raw.split("\n", 1)[-1]
     try:
         payload = json.loads(raw)
-    except Exception:
+    except _POLICY_VERIFIED_JSON_ERRORS:
         start = raw.find("{")
         end = raw.rfind("}")
         if start < 0 or end <= start:
             return None
         try:
             payload = json.loads(raw[start : end + 1])
-        except Exception:
+        except _POLICY_VERIFIED_JSON_ERRORS:
             return None
     return payload if isinstance(payload, dict) else None
 
 
 __all__ = [
-    "build_policy_request_frame",
     "assemble_legal_candidate_pack",
-    "expand_legal_source_pack",
-    "verify_source_pack",
-    "review_source_gaps",
-    "recover_source_gaps",
-    "draft_policy_option_set",
-    "formalize_policy_option_set",
+    "build_policy_request_frame",
     "build_verified_policy_report",
+    "draft_policy_option_set",
+    "expand_legal_source_pack",
+    "formalize_policy_option_set",
+    "recover_source_gaps",
+    "review_source_gaps",
+    "verify_source_pack",
 ]

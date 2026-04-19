@@ -1,65 +1,62 @@
-# Scientist Causal Validity Bundle
-Related reference: [Scientist Causal Runners](causal.md), [Reliability scorecard](reliability-scorecard.md).
+# Scientist Causal Validity
+Related references: [Scientist Causal Runners](causal.md), [Reliability scorecard](reliability-scorecard.md).
 
-`run_causal_evaluation` now persists an auxiliary `scientist.causal_validity_bundle`
-artifact whenever the causal estimate succeeds and the input surface supports at
-least one validity check. The bundle is designed to keep statistical and causal
-diagnostics visible on the default Scientist path instead of leaving them inside
-method-local metadata or notebook-only workflows.
+Owner: `@scientist-owners`
+Backup owner: `@platform-owners`
+Source of truth: `src/polisyos/scientist/causal/validity.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, `src/polisyos/scientist/frontier_runtime.py`, `tests/scientist/test_causal_evaluation_node.py`, `tests/scientist/test_decision_packet_node_v3.py`, and `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py`
+
+> Owner lane: `L6 Scientist`  
+> Type: Manual reference (not generated).  
+> Source of truth: `src/polisyos/scientist/causal/validity.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, `src/polisyos/scientist/frontier_runtime.py`, `tests/scientist/test_causal_evaluation_node.py`, `tests/scientist/test_decision_packet_node_v3.py`, and `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py`.
+
+`RunCausalEvaluationNode` persists a best-effort
+`scientist.causal_validity_bundle` artifact through
+`persist_causal_validity_bundle(...)`. The bundle exists to keep default-path
+validity diagnostics visible in CAS artifacts and downstream decision surfaces
+instead of hiding them inside method-local metadata.
+
+## When The Bundle Is Written
+
+| Condition | Current behavior |
+|---|---|
+| `state.params["causal_validity"].enabled` or `observational_data.metadata["causal_validity"].enabled` is explicitly `false` | No validity bundle is written. |
+| Bundle enabled and the base estimate succeeds | Persist the bundle and store its ref under `artifacts_index.causal_validity_bundle_ref`. |
+| Optional inputs for a check are missing | The check is recorded as `skipped`; the base estimate still succeeds. |
 
 ## Artifact Contract
 
+The persisted JSON payload currently contains:
+
 | Field | Meaning |
-|------|---------|
-| `base_method_fqn` | Foundry method used for the primary estimate |
-| `base_status` | Success/failure status of the primary causal estimate |
-| `confidence` | Confidence surface for the base estimate, including honest-HTE metadata for forest estimators |
-| `checks.sensitivity` | E-value / Rosenbaum summary and sensitivity artifact linkage |
-| `checks.icp_invariance` | Multi-domain invariance check when domain labels are supplied |
-| `checks.proximal_bridge` | Proximal bridge diagnostic when negative-control proxies are available |
-| `checks.recoverability` | Selection-bias / M-graph recoverability result when an M-graph is available |
-| `checks.pag_refinement` | PAG or CPDAG refinement output and refined graph artifact |
-| `capability_matrix` | Runtime-visible matrix of available vs experimental causal-validity capabilities |
-| `warnings` | Typed skipped/failed checks that should remain operator-visible |
+|---|---|
+| `base_method_fqn` | Method fqdn used for the primary estimate. |
+| `base_method` | `CausalMethod` enum value for the base estimate. |
+| `base_status` | Base `EstimationStatus`. |
+| `confidence` | Confidence interval and inference metadata for the base estimate, including honest-HTE metadata for forest methods. |
+| `checks.sensitivity` | Sensitivity artifact linkage and summary metrics. |
+| `checks.icp_invariance` | ICP-style multi-domain invariance result when domain labels are available. |
+| `checks.proximal_bridge` | Proximal bridge result when proxy inputs are available. |
+| `checks.recoverability` | Recoverability / missing-data result when recoverability inputs are available. |
+| `checks.pag_refinement` | PAG/CPDAG refinement result when a suitable graph is available. |
+| `capability_matrix` | Availability/status summary derived from the checks. |
+| `experimental_methods` | Frontier capability summaries mirrored from `build_frontier_runtime_report(...)`. |
+| `frontier_runtime` | Serialized frontier-runtime rollout report. |
+| `warnings` | Typed skipped/failed check summaries. |
 
-## When Checks Run
+## Check Activation Rules
 
-| Check | Required inputs | Default behavior |
-|------|------------------|------------------|
-| Sensitivity metrics | successful estimate plus graph/HDE-coercible input | enabled |
-| ICP invariance | `domain_labels` with at least two domains | enabled when inputs are present |
-| Proximal bridge | treatment/outcome proxies or named proxy columns | enabled when inputs are present |
-| Recoverability | M-graph artifact or explicit `mgraph_data` | enabled when inputs are present |
-| PAG refinement | PAG/CPDAG artifact in state or explicit causal graph | enabled when inputs are present |
+| Check | Inputs required by the helper | Current default |
+|---|---|---|
+| Sensitivity | Successful estimate plus sensitivity-compatible data | Enabled when causal sensitivity is available. |
+| ICP invariance | `domain_labels` with at least two domains | Best-effort and skipped otherwise. |
+| Proximal bridge | Proxy configuration in state/data metadata | Best-effort and skipped otherwise. |
+| Recoverability | Recoverability config or M-graph style inputs | Best-effort and skipped otherwise. |
+| PAG refinement | Reconciled/prior graph ref or explicit graph in validity settings | Best-effort and skipped otherwise. |
 
-All checks are best-effort. Missing optional inputs produce typed `skipped`
-statuses instead of breaking the base estimate.
+## Configuration Surface
 
-## Decision Packet Surface
-
-`build_decision_packet` now exposes two explicit sections for WS-3A:
-
-- `payload["sensitivity"]`: persisted sensitivity artifact plus a short
-  robustness summary.
-- `payload["causal_validity"]`: the causal-validity bundle artifact and content.
-
-The diagnostics summary also mirrors high-signal states such as:
-
-- `sensitivity_status`
-- `sensitivity_robust`
-- `icp_status`
-- `proximal_status`
-- `recoverability_status`
-- `pag_refinement_status`
-
-This keeps confidence and sensitivity visible on the default decision path.
-
-## Configuration
-
-Runtime toggles live under `state.params["causal_validity"]` or
-`observational_data.metadata["causal_validity"]`.
-
-Supported knobs:
+Validity settings are merged from observational-data metadata and
+`state.params["causal_validity"]`. The helper currently recognizes:
 
 - `enabled`
 - `enable_icp`
@@ -72,21 +69,27 @@ Supported knobs:
 - `mgraph_data`
 - `causal_graph`
 
-## Current Coverage
+## Frontier/Phase 4 Interaction
 
-The bundle is intentionally explicit about what is not yet production-ready.
-These capabilities are emitted as `experimental_not_wired` in the
-`capability_matrix` until a separate Phase 3 validation program lands:
+The validity bundle also mirrors the current frontier rollout report. Today this
+means:
 
-- `anchor_regression`
-- `bayesian_causal_discovery`
-- `neural_causal_discovery`
-- `causal_representation_learning`
+- wired validity checks can surface as part of the bundle without becoming
+  default-on beyond the current helper logic;
+- frontier capability ids and statuses come from `build_frontier_runtime_report(...)`;
+- Phase 4 methods still need explicit offline validation and benchmark evidence
+  before they become default-enable eligible.
 
-## Regression Evidence
+## Decision-Packet Surface
 
-Core regression coverage for the bundle and decision-path surfacing lives in:
+When the relevant artifacts are present, the decision-packet node can surface
+causal-validity and sensitivity material alongside the base causal report. The
+authoritative contract for that surfacing is the decision-packet artifact schema
+plus the linked decision-packet tests.
 
-- `tests/scientist/test_causal_evaluation_node.py`
-- `tests/scientist/test_decision_packet_node_v3.py`
-- `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py`
+## Validation
+
+```bash
+uv run pytest tests/scientist/test_causal_evaluation_node.py tests/scientist/test_decision_packet_node_v3.py -q
+uv run pytest tests/foundry/methods/catalog/causal/test_validity_eval_pack.py -q
+```

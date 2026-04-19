@@ -249,8 +249,11 @@ class CeleryExecutionBackend(DelegatingExecutionBackend):
 
 
 def _build_filesystem_artifact_store(cas_root: Path) -> ArtifactStore:
-    return build_artifact_store(
-        ArtifactStoreConfig(backend="filesystem", root=str(cas_root)),
+    return cast(
+        "ArtifactStore",
+        build_artifact_store(
+            ArtifactStoreConfig(backend="filesystem", root=str(cas_root)),
+        ),
     )
 
 
@@ -442,10 +445,8 @@ def run_partitioned_ingestion(
         _make_partition_job(partition)
         for partition in plan.partitions
     ]
-    return cast(
-        "list[PartitionExecutionResult]",
-        run_coro_sync(backend_impl.execute(jobs)),
-    )
+    result: list[PartitionExecutionResult] = run_coro_sync(backend_impl.execute(jobs))
+    return result
 
 
 def run_orchestrated_ingestion(

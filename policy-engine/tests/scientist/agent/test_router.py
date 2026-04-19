@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
-
 import pytest
 
 from polisyos.scientist.agent.protocols import AgentRole, AgentRouter, RoutingState
@@ -13,7 +11,6 @@ from polisyos.scientist.agent.router import (
     FixedPipelineRouter,
     ParallelAgentRunner,
 )
-
 
 # ---------------------------------------------------------------------------
 # RoutingState
@@ -217,6 +214,19 @@ class TestAgentFallbackChain:
             await chain.execute("draft_policy")
 
     @pytest.mark.asyncio
+    async def test_assertion_is_not_swallowed(self):
+        def fail_factory():
+            obj = type("A", (), {})()
+            obj.draft_policy = lambda *a, **kw: (_ for _ in ()).throw(
+                AssertionError("fallback invariant failed")
+            )
+            return obj
+
+        chain = AgentFallbackChain(agents=[("a", fail_factory)])
+        with pytest.raises(AssertionError, match="fallback invariant failed"):
+            await chain.execute("draft_policy")
+
+    @pytest.mark.asyncio
     async def test_async_handler(self):
         async def async_draft(*a, **kw):
             return "async_result"
@@ -263,3 +273,12 @@ class TestParallelAgentRunner:
         out = await runner.run_parallel([("fail", fail_agent), ("ok", ok_agent)])
         assert isinstance(out[0], ValueError)
         assert out[1] == "ok"
+
+    @pytest.mark.asyncio
+    async def test_parallel_assertion_is_not_swallowed(self):
+        def fail_agent():
+            raise AssertionError("parallel invariant failed")
+
+        runner = ParallelAgentRunner()
+        with pytest.raises(AssertionError, match="parallel invariant failed"):
+            await runner.run_parallel([("fail", fail_agent)])

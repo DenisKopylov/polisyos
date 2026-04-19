@@ -76,7 +76,7 @@ def put_state_snapshot(
     step: int | None = None,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Put state snapshot helper."""
+    """Persist a GlobalState-compatible object as a checksummed NPZ snapshot."""
     flat = dict(_flatten_state(state))
     buf = BytesIO()
     np.savez(buf, **flat)
@@ -115,7 +115,7 @@ def put_state_snapshot(
 
 
 def export_seed_state_npz(state: GlobalState, path: str | Path) -> Path:
-    """Export seed state npz helper."""
+    """Write a seed GlobalState to an NPZ file for deterministic fixture reuse."""
     destination = Path(path)
     flat = dict(_flatten_state(state))
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -124,7 +124,7 @@ def export_seed_state_npz(state: GlobalState, path: str | Path) -> Path:
 
 
 def import_seed_state_npz(path: str | Path) -> GlobalState:
-    """Import seed state npz helper."""
+    """Load a seed GlobalState from an NPZ file produced by the exporter."""
     with np.load(Path(path), allow_pickle=False) as loaded:
         nested = _nest_state_from_keys(loaded.files)
         try:

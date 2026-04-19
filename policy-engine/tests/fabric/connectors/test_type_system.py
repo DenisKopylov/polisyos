@@ -27,6 +27,7 @@ import pytest
 from polisyos.fabric.connectors.types.dimensions import (
     Dimension,
     DimensionRegistry,
+    get_dimension_registry,
 )
 
 from polisyos.fabric.connectors.types.units import (
@@ -489,12 +490,30 @@ class TestUnitRegistry:
         reg2 = get_unit_registry()
         assert reg1 is reg2
 
+    def test_singleton_helper_override(self, monkeypatch: pytest.MonkeyPatch):
+        sentinel = object()
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors.types._units_registry._default_unit_registry",
+            lambda: sentinel,
+        )
+
+        assert get_unit_registry() is sentinel
+
     def test_get_unit(self):
         """Test getting units from registry."""
         registry = get_unit_registry()
         m = registry.get("m")
         assert m is not None
         assert m.dimension == Dimension(length=1)
+
+    def test_dimension_registry_helper_override(self, monkeypatch: pytest.MonkeyPatch):
+        sentinel = object()
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors.types.dimensions._default_dimension_registry",
+            lambda: sentinel,
+        )
+
+        assert get_dimension_registry() is sentinel
 
     def test_exchange_rates(self):
         """Test setting and using exchange rates."""

@@ -229,6 +229,7 @@ class BatchConfig:
     # --- Pipeline control ---
     stages: frozenset[str] = field(default_factory=lambda: ALL_STAGES)
     resume: bool = False
+    manifest_is_pre_sharded: bool = False
 
     # --- Pipeline limits ---
     max_docs: int | None = None  # stop after processing this many NEW docs (None = unlimited)
@@ -316,6 +317,8 @@ class BatchConfig:
 
     def is_doc_in_shard(self, doc_id: str) -> bool:
         """Deterministically assign a document id to one shard."""
+        if self.manifest_is_pre_sharded:
+            return True
         if not self.sharded:
             return True
         digest = hashlib.sha1(doc_id.encode("utf-8")).digest()

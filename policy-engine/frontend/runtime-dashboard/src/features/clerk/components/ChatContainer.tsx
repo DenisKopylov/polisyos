@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
+import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useI18n } from "@/i18n/LocaleProvider";
+import { AtlasBrand } from "@/shared/brand/AtlasBrand";
 import { Button } from "@/shared/ui";
 import { useChatStore } from "../state/useChatStore";
 import { useClerkNlRun } from "../hooks/useClerkNlRun";
@@ -13,11 +15,13 @@ import { ConversationHistorySearch } from "./ConversationHistorySearch";
 
 export function ChatContainer() {
   const { t } = useI18n();
+  const { flags } = useFeatureFlags();
   const { messages, isStreaming } = useChatStore();
   const { submit, isLoading } = useClerkNlRun();
   const ctx = useConversationContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const atlasEnabled = flags.enableAtlasV2;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,10 +38,21 @@ export function ChatContainer() {
   }));
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden rounded-[var(--radius-panel)] panel">
+    <div className="panel flex flex-1 flex-col overflow-hidden rounded-[var(--radius-panel)]">
       {/* Top bar: history + export */}
-      <div className="flex items-center justify-between border-b border-[var(--line)] px-4 py-2">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between border-b border-[var(--line)] px-4 py-3">
+        <div className="flex items-center gap-3">
+          {atlasEnabled ? (
+            <div className="flex items-center gap-3">
+              <AtlasBrand size={32} variant="mark" />
+              <div className="grid gap-1">
+                <p className="eyebrow">{t("shell.header.shellLite")}</p>
+                <p className="text-sm font-semibold text-[var(--ink)]">
+                  {t("clerk.newAnalysis")}
+                </p>
+              </div>
+            </div>
+          ) : null}
           <Button
             type="button"
             variant="ghost"
@@ -65,6 +80,7 @@ export function ChatContainer() {
       >
         {messages.length === 0 && (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
+            {atlasEnabled ? <AtlasBrand size={48} variant="mark" /> : null}
             <h2 className="text-xl font-bold text-[var(--ink)]">
               {t("clerk.welcomeTitle")}
             </h2>

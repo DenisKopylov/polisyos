@@ -1,14 +1,19 @@
 from __future__ import annotations
 
-import duckdb
+from types import SimpleNamespace
 
-from polisyos.core.governance.passes.base import PassContext
-from polisyos.core.governance.profiles import ValidationProfile
+import duckdb
+import pytest
+
 from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.academic.knowledge.skg_store import ensure_skg_schema, next_skg_version
+from polisyos.core.governance.passes.base import PassContext
+from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.cross_graph import (
-    CrossGraphEvidenceProfile,
+    CanonicalConcept,
     CrossGraphDiagnostic,
+    CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
     EvidenceNeed,
     EvidenceNeedAssessment,
@@ -18,21 +23,23 @@ from polisyos.ir.analytics.cross_graph import (
     ObservabilityStatus,
     TransportStatus,
 )
-from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
     EnvironmentAuditReport,
     LiteratureCausalPrior,
     LiteratureEdgePrior,
 )
 from polisyos.ir.analytics.transportability import TransportMode
-from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
 from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.cross_graph.compiler import (
     CrossGraphEvidenceCompiler,
     CrossGraphEvidenceConfig,
     _assess_academic_need,
+    _build_academic_query,
+    _candidate_distance,
+    build_fragment_alignment_ontology_warnings,
     extract_evidence_needs,
 )
 from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer
@@ -134,6 +141,84 @@ def test_cross_graph_compiler_routes_literature_prior_context_through_academic_g
         for diagnostic in profile.diagnostics
     )
     assert "environment_audit_status:warning" in profile.notes
+
+
+def test_cross_graph_compiler_legal_assertion_is_not_swallowed(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    bundle = _bundle()
+
+    def _boom(**kwargs):
+        del kwargs
+        raise AssertionError("legal bridge contract broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.cross_graph.compiler.evaluate_transport_constraints",
+        _boom,
+    )
+
+    compiler = CrossGraphEvidenceCompiler(
+        CrossGraphEvidenceConfig(
+            legal_db_path=str(tmp_path / "legal.duckdb"),
+            jurisdiction="UA",
+            policy_domain="social",
+        )
+    )
+
+    with pytest.raises(AssertionError, match="legal bridge contract broken"):
+        compiler.compile(bundle)
+
+
+def test_build_academic_query_assertion_is_not_swallowed(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    academic_db_path = tmp_path / "academic.duckdb"
+    academic_db_path.write_text("", encoding="utf-8")
+
+    class _BrokenQuery:
+        def __init__(self, db_path, index_dir) -> None:
+            del db_path, index_dir
+            raise AssertionError("academic init exploded")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.cross_graph.compiler.SKGQuery",
+        _BrokenQuery,
+    )
+
+    with pytest.raises(AssertionError, match="academic init exploded"):
+        _build_academic_query(
+            CrossGraphEvidenceConfig(academic_db_path=str(academic_db_path))
+        )
+
+
+def test_candidate_distance_assertion_is_not_swallowed() -> None:
+    class _BrokenContext:
+        def distance_to(self, other) -> float:
+            del other
+            raise AssertionError("distance invariant failed")
+
+    candidate = SimpleNamespace(source_context=_BrokenContext())
+
+    with pytest.raises(AssertionError, match="distance invariant failed"):
+        _candidate_distance(candidate, ContextProfile(context_id="UA", context_label="Ukraine"))
+
+
+def test_fragment_alignment_ontology_assertion_is_not_swallowed(monkeypatch) -> None:
+    def _boom(cls, payload):
+        del cls, payload
+        raise AssertionError("ontology validation invariant failed")
+
+    monkeypatch.setattr(CanonicalConcept, "model_validate", classmethod(_boom))
+
+    with pytest.raises(AssertionError, match="ontology validation invariant failed"):
+        build_fragment_alignment_ontology_warnings(
+            fragment_a={},
+            fragment_b={},
+            certificates=[],
+            ontology=[{"concept_id": "x"}],
+        )
 
 
 def test_academic_gatherer_uses_literature_prior_baseline_without_backend() -> None:
@@ -356,7 +441,7 @@ def test_assess_academic_need_uses_hybrid_edge_support(tmp_path) -> None:
     con = duckdb.connect(str(db_path))
     try:
         ensure_skg_schema(con)
-        version_id = next_skg_version(con, description="test")
+        next_skg_version(con, description="test")
         con.execute(
             """
             INSERT INTO ac_skg_family_edges(
@@ -538,7 +623,7 @@ def test_assess_academic_need_treats_moderated_conflict_as_supported_when_replic
     con = duckdb.connect(str(db_path))
     try:
         ensure_skg_schema(con)
-        version_id = next_skg_version(con, description="moderated-test")
+        next_skg_version(con, description="moderated-test")
         con.execute(
             """
             INSERT INTO ac_skg_family_edges(

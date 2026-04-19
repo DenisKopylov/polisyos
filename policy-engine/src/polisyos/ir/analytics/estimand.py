@@ -28,7 +28,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
@@ -117,6 +117,87 @@ class DistributionRef(BaseModel):
         if parts:
             return f"{domain_prefix}({vars_str} \\mid {', '.join(parts)})"
         return f"{domain_prefix}({vars_str})"
+
+
+class DistributionLawQuery(BaseModel):
+    """Typed proof-kernel query for an interventional outcome law.
+
+    The query denotes the full marginal or conditional interventional law
+    P(Y in · | do(X), W), rather than a scalar functional derived from it.
+    In this first implementation, the proof kernel uses the query metadata to
+    wrap an existing ID/IDC result in a law-valued AST node and record the
+    countable generator used to determine the measure.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    kind: Literal["interventional_law"] = "interventional_law"
+    outcome_variables: tuple[str, ...] = Field(min_length=1)
+    intervention_set: tuple[str, ...] = Field(min_length=1)
+    conditioning: tuple[str, ...] = ()
+    support_space: Literal["real", "real_vector", "finite"] = "real"
+    representation: Literal["cdf", "orthant_cdf", "pmf"] = "cdf"
+    parameter_domain: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_query(self) -> "DistributionLawQuery":
+        if self.support_space == "real" and self.representation != "cdf":
+            raise ValueError("support_space='real' requires representation='cdf'")
+        if self.support_space == "real_vector" and self.representation != "orthant_cdf":
+            raise ValueError("support_space='real_vector' requires representation='orthant_cdf'")
+        if self.support_space == "finite" and self.representation != "pmf":
+            raise ValueError("support_space='finite' requires representation='pmf'")
+        return self
+
+    @property
+    def generator_type(self) -> Literal["halfline_cdf", "orthant_cdf", "finite_atoms"]:
+        if self.representation == "orthant_cdf":
+            return "orthant_cdf"
+        if self.representation == "pmf":
+            return "finite_atoms"
+        return "halfline_cdf"
+
+    @property
+    def resolved_parameter_domain(self) -> str:
+        if self.parameter_domain is not None and self.parameter_domain.strip():
+            return self.parameter_domain.strip()
+        if self.support_space == "real_vector":
+            return "Q^d"
+        if self.support_space == "finite":
+            return "atoms"
+        return "Q"
+
+
+class DistributionLawNode(BaseModel):
+    """Law-valued estimand node for interventional distributions.
+
+    Represents a family of event probabilities indexed by a countable generator
+    such as rational half-lines or rational orthants. Downstream layers can use
+    this node to distinguish an identified marginal law from scenario-level
+    couplings or cross-world constructions.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    node_type: Literal["distribution_law"] = "distribution_law"
+    outcome: tuple[str, ...] = Field(min_length=1)
+    conditioning: tuple[str, ...] = ()
+    intervention_set: tuple[str, ...] = ()
+    support_space: Literal["real", "real_vector", "finite"] = "real"
+    generator_type: Literal["halfline_cdf", "orthant_cdf", "finite_atoms"] = "halfline_cdf"
+    parameter_domain: str = "Q"
+    identified_family_ref: str | None = None
+    domain: DistributionDomain = DistributionDomain.SOURCE
+    dataset_ref: str | None = None
+
+    def to_latex(self) -> str:
+        outcome_str = ", ".join(self.outcome)
+        cond_parts: list[str] = []
+        if self.intervention_set:
+            cond_parts.append("do(" + ", ".join(self.intervention_set) + ")")
+        cond_parts.extend(self.conditioning)
+        cond = f" \\mid {', '.join(cond_parts)}" if cond_parts else ""
+        return f"P({outcome_str} \\in \\cdot{cond})"
 
 
 # ---------------------------------------------------------------------------
@@ -376,6 +457,71 @@ class PathSpecificNode(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+class EdgeInterventionAssignment(BaseModel):
+    """One edge-level assignment X->Y := value used by edge interventions."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source: str
+    target: str
+    value_expr: str
+
+
+class EdgeInterventionNode(BaseModel):
+    """Edge intervention estimand wrapper.
+
+    Represents interventions that set the value transmitted along selected
+    causal edges without necessarily replacing the source node mechanism for
+    all children. The inner node is optional because v1 may only be able to
+    carry an oracle-backed certificate rather than a fully lowered edge
+    g-formula.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    node_type: Literal["edge_intervention"] = "edge_intervention"
+    assignments: tuple[EdgeInterventionAssignment, ...] = Field(min_length=1)
+    inner_node: "EstimandNode | None" = None
+    domain: DistributionDomain = DistributionDomain.SOURCE
+    dataset_ref: str | None = None
+
+    def to_latex(self) -> str:
+        assignments = ", ".join(
+            f"{item.source}\\to{item.target}:={item.value_expr}"
+            for item in self.assignments
+        )
+        inner = f"[{_node_latex(self.inner_node)}]" if self.inner_node is not None else ""
+        return f"\\text{{EdgeDo}}({assignments}){inner}"
+
+
+class ModifiedTreatmentPolicyNode(BaseModel):
+    """Modified treatment policy estimand wrapper.
+
+    MTPs differ from ordinary stochastic policies because the intervention can
+    depend on the natural value of the exposure, e.g. ``A_delta = d(A, W)``.
+    The explicit ``natural_treatment_var`` is the proof-kernel hook used by
+    typechecking to block ambiguous compositions after ``A`` has already been
+    intervened on.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    node_type: Literal["modified_treatment_policy"] = "modified_treatment_policy"
+    treatment_var: str
+    policy_expr: str
+    natural_treatment_var: str
+    covariates: tuple[str, ...] = ()
+    inner_node: "EstimandNode | None" = None
+    domain: DistributionDomain = DistributionDomain.SOURCE
+    dataset_ref: str | None = None
+
+    def to_latex(self) -> str:
+        covariates = ", ".join(self.covariates)
+        args = ", ".join(item for item in (self.natural_treatment_var, covariates) if item)
+        inner = f"[{_node_latex(self.inner_node)}]" if self.inner_node is not None else ""
+        return f"\\text{{MTP}}({self.treatment_var}:={self.policy_expr}({args})){inner}"
+
+
 class StochasticPolicy(BaseModel):
     """Policy specification for a stochastic / soft intervention.
 
@@ -624,8 +770,8 @@ class CtfInterventionNode(BaseModel):
 
 EstimandNode = Annotated[
     DistributionRef | SumNode | ProductNode | RatioNode
-    | NuisanceNode | ExpectationNode | IntegralNode
-    | PathSpecificNode | RecoveredDistNode
+    | NuisanceNode | ExpectationNode | IntegralNode | DistributionLawNode
+    | PathSpecificNode | EdgeInterventionNode | ModifiedTreatmentPolicyNode | RecoveredDistNode
     | StochasticInterventionNode | ConditionalInterventionNode | ProxyAdjustmentNode
     | CounterfactualNode | NestedCounterfactualNode | CrossWorldNode | CtfInterventionNode,
     Field(discriminator="node_type"),
@@ -723,7 +869,13 @@ def _node_latex(node: EstimandNode) -> str:
         return node.to_latex()
     if isinstance(node, IntegralNode):
         return node.to_latex()
+    if isinstance(node, DistributionLawNode):
+        return node.to_latex()
     if isinstance(node, PathSpecificNode):
+        return node.to_latex()
+    if isinstance(node, EdgeInterventionNode):
+        return node.to_latex()
+    if isinstance(node, ModifiedTreatmentPolicyNode):
         return node.to_latex()
     if isinstance(node, RecoveredDistNode):
         return node.to_latex()
@@ -749,9 +901,23 @@ def _collect_dataset_refs(node: EstimandNode, out: list[str]) -> None:
         if node.dataset_ref is not None:
             out.append(node.dataset_ref)
         return
-    if isinstance(node, (NuisanceNode, ExpectationNode, PathSpecificNode)):
+    if isinstance(
+        node,
+        (
+            NuisanceNode,
+            ExpectationNode,
+            DistributionLawNode,
+            PathSpecificNode,
+            EdgeInterventionNode,
+            ModifiedTreatmentPolicyNode,
+        ),
+    ):
         if node.dataset_ref is not None:
             out.append(node.dataset_ref)
+        if isinstance(node, EdgeInterventionNode) and node.inner_node is not None:
+            _collect_dataset_refs(node.inner_node, out)
+        if isinstance(node, ModifiedTreatmentPolicyNode) and node.inner_node is not None:
+            _collect_dataset_refs(node.inner_node, out)
         return
     if isinstance(node, RecoveredDistNode):
         if node.dataset_ref is not None:
@@ -761,8 +927,9 @@ def _collect_dataset_refs(node: EstimandNode, out: list[str]) -> None:
         node,
         (StochasticInterventionNode, ConditionalInterventionNode, ProxyAdjustmentNode),
     ):
-        if node.dataset_ref is not None:
-            out.append(node.dataset_ref)
+        dataset_ref = getattr(node, "dataset_ref", None)
+        if dataset_ref is not None:
+            out.append(dataset_ref)
         _collect_dataset_refs(node.inner_do_node, out)
         return
     if isinstance(node, CounterfactualNode):
@@ -799,8 +966,22 @@ def _collect_domains(node: EstimandNode, out: set[DistributionDomain]) -> None:
     if isinstance(node, DistributionRef):
         out.add(node.domain)
         return
-    if isinstance(node, (NuisanceNode, ExpectationNode, PathSpecificNode)):
+    if isinstance(
+        node,
+        (
+            NuisanceNode,
+            ExpectationNode,
+            DistributionLawNode,
+            PathSpecificNode,
+            EdgeInterventionNode,
+            ModifiedTreatmentPolicyNode,
+        ),
+    ):
         out.add(node.domain)
+        if isinstance(node, EdgeInterventionNode) and node.inner_node is not None:
+            _collect_domains(node.inner_node, out)
+        if isinstance(node, ModifiedTreatmentPolicyNode) and node.inner_node is not None:
+            _collect_domains(node.inner_node, out)
         return
     if isinstance(node, RecoveredDistNode):
         out.add(node.domain)
@@ -843,8 +1024,25 @@ def _collect_dist_refs(node: EstimandNode, out: list[DistributionRef]) -> None:
     if isinstance(node, DistributionRef):
         out.append(node)
         return
-    if isinstance(node, (NuisanceNode, ExpectationNode, PathSpecificNode, RecoveredDistNode)):
+    if isinstance(
+        node,
+        (
+            NuisanceNode,
+            ExpectationNode,
+            DistributionLawNode,
+            PathSpecificNode,
+            RecoveredDistNode,
+        ),
+    ):
         return  # leaf nodes — no DistributionRef children
+    if isinstance(node, EdgeInterventionNode):
+        if node.inner_node is not None:
+            _collect_dist_refs(node.inner_node, out)
+        return
+    if isinstance(node, ModifiedTreatmentPolicyNode):
+        if node.inner_node is not None:
+            _collect_dist_refs(node.inner_node, out)
+        return
     if isinstance(
         node,
         (StochasticInterventionNode, ConditionalInterventionNode, ProxyAdjustmentNode),
@@ -969,6 +1167,15 @@ def _normalize_node(node: EstimandNode) -> EstimandNode:
                 "intervention_set": _unique_sorted(node.intervention_set),
             }
         )
+    if isinstance(node, DistributionLawNode):
+        return node.model_copy(
+            update={
+                "outcome": _unique_sorted(node.outcome),
+                "conditioning": _unique_sorted(node.conditioning),
+                "intervention_set": _unique_sorted(node.intervention_set),
+                "parameter_domain": str(node.parameter_domain).strip() or "Q",
+            }
+        )
     if isinstance(node, IntegralNode):
         operand = _normalize_node(node.operand)
         integration_vars = _unique_sorted(node.integration_vars)
@@ -988,6 +1195,38 @@ def _normalize_node(node: EstimandNode) -> EstimandNode:
                 "active_paths": tuple(sorted(dict.fromkeys(node.active_paths))),
                 "frozen_paths": tuple(sorted(dict.fromkeys(node.frozen_paths))),
             }
+        )
+    if isinstance(node, EdgeInterventionNode):
+        assignments_by_key = {
+            (item.source, item.target, item.value_expr): item
+            for item in node.assignments
+        }
+        return EdgeInterventionNode(
+            assignments=tuple(
+                assignments_by_key[key]
+                for key in sorted(assignments_by_key)
+            ),
+            inner_node=(
+                _normalize_node(node.inner_node)
+                if node.inner_node is not None
+                else None
+            ),
+            domain=node.domain,
+            dataset_ref=node.dataset_ref,
+        )
+    if isinstance(node, ModifiedTreatmentPolicyNode):
+        return ModifiedTreatmentPolicyNode(
+            treatment_var=node.treatment_var,
+            policy_expr=node.policy_expr,
+            natural_treatment_var=node.natural_treatment_var,
+            covariates=_unique_sorted(node.covariates),
+            inner_node=(
+                _normalize_node(node.inner_node)
+                if node.inner_node is not None
+                else None
+            ),
+            domain=node.domain,
+            dataset_ref=node.dataset_ref,
         )
     if isinstance(node, RecoveredDistNode):
         return node.model_copy(update={"conditioning": _unique_sorted(node.conditioning)})
@@ -1085,6 +1324,11 @@ def _collect_variable_names(node: EstimandNode, out: set[str]) -> None:
         out.update(node.conditioning)
         out.update(node.intervention_set)
         return
+    if isinstance(node, DistributionLawNode):
+        out.update(node.outcome)
+        out.update(node.conditioning)
+        out.update(node.intervention_set)
+        return
     if isinstance(node, IntegralNode):
         out.update(node.integration_vars)
         _collect_variable_names(node.operand, out)
@@ -1094,6 +1338,20 @@ def _collect_variable_names(node: EstimandNode, out: set[str]) -> None:
         out.add(node.outcome)
         for path in node.active_paths + node.frozen_paths:
             out.update(path)
+        return
+    if isinstance(node, EdgeInterventionNode):
+        for assignment in node.assignments:
+            out.add(assignment.source)
+            out.add(assignment.target)
+        if node.inner_node is not None:
+            _collect_variable_names(node.inner_node, out)
+        return
+    if isinstance(node, ModifiedTreatmentPolicyNode):
+        out.add(node.treatment_var)
+        out.add(node.natural_treatment_var)
+        out.update(node.covariates)
+        if node.inner_node is not None:
+            _collect_variable_names(node.inner_node, out)
         return
     if isinstance(node, RecoveredDistNode):
         out.add(node.variable)
@@ -1163,6 +1421,45 @@ def normalize_estimand_ast(estimand: EstimandAST) -> EstimandAST:
 # ---------------------------------------------------------------------------
 # Convenience constructors
 # ---------------------------------------------------------------------------
+
+
+def make_distribution_law_estimand(
+    *,
+    query: DistributionLawQuery,
+    domain: DistributionDomain = DistributionDomain.SOURCE,
+    dataset_ref: str | None = None,
+    side_conditions: tuple[SideCondition, ...] = (),
+    identification_method: str = "dist_id_reduction",
+) -> EstimandAST:
+    """Construct a law-valued estimand from a typed distribution query."""
+    node = DistributionLawNode(
+        outcome=query.outcome_variables,
+        conditioning=query.conditioning,
+        intervention_set=query.intervention_set,
+        support_space=query.support_space,
+        generator_type=query.generator_type,
+        parameter_domain=query.resolved_parameter_domain,
+        domain=domain,
+        dataset_ref=dataset_ref,
+    )
+    all_variables = tuple(
+        sorted(
+            {
+                *query.outcome_variables,
+                *query.conditioning,
+                *query.intervention_set,
+            }
+        )
+    )
+    return EstimandAST(
+        query_str=node.to_latex(),
+        root=node,
+        treatment=query.intervention_set[0],
+        outcome=query.outcome_variables[0],
+        all_variables=all_variables,
+        side_conditions=side_conditions,
+        identification_method=identification_method,
+    )
 
 
 def make_backdoor_estimand(
@@ -1535,6 +1832,8 @@ ProductNode.model_rebuild()
 RatioNode.model_rebuild()
 IntegralNode.model_rebuild()
 PathSpecificNode.model_rebuild()
+EdgeInterventionNode.model_rebuild()
+ModifiedTreatmentPolicyNode.model_rebuild()
 RecoveredDistNode.model_rebuild()
 StochasticInterventionNode.model_rebuild()
 ConditionalInterventionNode.model_rebuild()
@@ -1548,6 +1847,7 @@ EstimandAST.model_rebuild()
 
 __all__ = [
     "DistributionDomain",
+    "DistributionLawQuery",
     "SideConditionKind",
     "SideCondition",
     "DistributionRef",
@@ -1557,7 +1857,11 @@ __all__ = [
     "NuisanceNode",
     "ExpectationNode",
     "IntegralNode",
+    "DistributionLawNode",
     "PathSpecificNode",
+    "EdgeInterventionAssignment",
+    "EdgeInterventionNode",
+    "ModifiedTreatmentPolicyNode",
     "EstimandNode",
     "EstimandAST",
     "RecoveredDistNode",
@@ -1572,6 +1876,7 @@ __all__ = [
     "CrossWorldNode",
     "CtfInterventionNode",
     "make_counterfactual_estimand",
+    "make_distribution_law_estimand",
     "make_backdoor_estimand",
     "make_frontdoor_estimand",
     "make_transport_reweight_estimand",

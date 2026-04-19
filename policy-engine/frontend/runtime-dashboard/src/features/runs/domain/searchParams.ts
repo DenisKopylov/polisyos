@@ -75,3 +75,7 @@ export function buildRunDetailHref(
 export function buildRunReportHref(runId: string) {
   return `/runs/${runId}/report`;
 }
+
+export function buildRunDeckHref(runId: string) {
+  return `/runs/${runId}/deck`;
+}

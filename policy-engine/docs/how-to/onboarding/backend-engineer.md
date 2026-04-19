@@ -1,51 +1,71 @@
 # Onboarding: Backend Engineer
 
-Related reference: [IR](../../reference/ir/index.md),
-[Fabric](../../reference/fabric/index.md),
-[Scientist](../../reference/scientist/index.md),
-[Foundry](../../reference/foundry/index.md).
+Related reference: [REST API](../../reference/api/index.md),
+[IR](../../reference/ir/index.md), [Public Surface](../../reference/public-surface.md),
+[Generated Artifacts](../../reference/generated-artifacts.md).
 
-## Understand First
+## Goal
 
-- canonical product root is `policy-engine/`;
-- the contributor path is `bootstrap -> doctor -> verify`;
-- how contracts, runtime routes, and generated artifacts relate to each other;
-- which subsystem you are actually touching before you edit it.
+Стать продуктивным на runtime/IR/Fabric boundary без лишнего погружения в
+frontend и without breaking contract surfaces.
 
-## Safely Ignore at First
+## Inputs
 
-- non-owning frontend route details unless your change crosses the API boundary;
-- full benchmark universe beyond the suite relevant to your area;
-- long-tail optional surfaces until your task needs them.
+- установленный профиль `runtime` или эквивалентный manual setup;
+- понимание, меняете ли вы route, service, public facade или schema-backed type;
+- готовность держаться за generated-artifact and contract checks.
 
-## Commands and Docs to Use
+## Output
 
-Canonical setup:
+После этого onboarding вы должны уметь:
+
+- добавить новый runtime route;
+- обновить public facade без deep-import drift;
+- провести change через schema/OpenAPI/public-surface checks.
+
+## Canonical Commands
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace bootstrap
-python3 -m tools.cli workspace doctor
-python3 -m tools.cli workspace verify --backend-only
+python3 -m tools.cli workspace bootstrap --profile runtime --skip-playwright
+python3 -m tools.cli workspace verify --backend-only --skip-doctor
+uv run polisyos-tools architecture guardrails check
+uv run --extra ml polisyos-tools diagnostics gen-schema --check
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
 ```
 
-High-signal docs:
+## Start Here By Task
 
-- [Installation](../install.md)
-- [Manage Schemas](../manage-schemas.md)
-- [Deploy Runtime](../deploy-runtime.md)
-- [Ownership](../../reference/ownership.md)
-- [Operations Reference](../../reference/operations/index.md)
+| Task | Primary doc | Why it matters |
+|---|---|---|
+| Новый HTTP endpoint | [REST API](../../reference/api/index.md) and `src/polisyos/runtime/http/` | Route module, app wiring, OpenAPI drift, contract checks |
+| Новый package export / supported import path | [Public Surface](../../reference/public-surface.md) | `__all__`, public-surface manifest, guardrails |
+| Новый IR model/enum с schema/catalog impact | [Manage Schemas](../manage-schemas.md) and [IR Schema Catalog](../../reference/ir/schema-catalog.md) | ABI snapshots, schema catalog, IR docs |
+| Runtime deploy/debug context | [Deploy Runtime](../deploy-runtime.md), [Use Control Plane](../use-control-plane.md), [Debug Failed Run](../debug-failed-run.md) | End-to-end operational reality |
 
-## First Productive Task
+## First Productive Slice
 
-Choose one bounded backend task:
+Возьмите одну bounded задачу:
 
-- update a contract-backed endpoint and regenerate the affected artifacts;
-- fix a failing backend gate caught by
-  `python3 -m tools.cli workspace verify --backend-only`;
-- trace one failed run from `job_id` to `run_id` to artifact lineage and patch
-  the broken service path.
+- починить backend gate, падающий в `workspace verify --backend-only`;
+- добавить небольшой route или DTO и довести change до OpenAPI check;
+- сделать один intentional IR/public-surface update и провести его через
+  guardrails/schema catalog.
 
-The goal is to finish one change that exercises contracts, tests, and docs
-together.
+## Rollback / Handoff
+
+- если изменение оказалось purely frontend-consumer-facing, передайте его в
+  [Frontend Engineer](frontend-engineer.md);
+- если route change не должен быть публичным, не добавляйте его в OpenAPI/client
+  path и зафиксируйте это в API reference;
+- если новая export surface не должна жить долго, не добавляйте ее в supported
+  `__all__`.
+
+## Troubleshooting
+
+- `check-runtime-api-contract.py` падает: проверьте, обновили ли вы OpenAPI
+  snapshot и generated clients;
+- `guardrails check` падает: обычно проблема в `__all__`, public-surface
+  manifest или deep-import drift;
+- `gen-schema --check` падает: новый IR type не внесен в `schemas/abi_models.py`
+  или не прошел через schema catalog/docs generation.

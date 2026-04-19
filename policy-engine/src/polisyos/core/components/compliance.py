@@ -1,7 +1,7 @@
 """Validate component metadata and runtime shape against host ABI contracts."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -378,7 +378,12 @@ def _dependency_satisfied(*, dep: ComponentDep, available_components: object) ->
     matching_entries = getattr(available_components, "matching_entries", None)
     if callable(matching_entries):
         try:
-            matches = list(matching_entries(dep.base_id, constraint=dep.version, kind=dep.kind))
+            matches = list(
+                cast(
+                    "Iterable[object]",
+                    matching_entries(dep.base_id, constraint=dep.version, kind=dep.kind),
+                )
+            )
         except (AttributeError, TypeError, ValueError) as exc:
             logger.warning(
                 "Component dependency lookup failed for %s via matching_entries: %s",
@@ -390,7 +395,7 @@ def _dependency_satisfied(*, dep: ComponentDep, available_components: object) ->
     list_entries = getattr(available_components, "list", None)
     if callable(list_entries):
         try:
-            entries = list_entries(dep.base_id)
+            entries = cast("Iterable[object]", list_entries(dep.base_id))
         except (AttributeError, TypeError, ValueError) as exc:
             logger.warning(
                 "Component dependency lookup failed for %s via list: %s",
@@ -404,7 +409,10 @@ def _dependency_satisfied(*, dep: ComponentDep, available_components: object) ->
             try:
                 if dep.kind is not None and getattr(meta, "kind", None) != dep.kind:
                     continue
-                version = str(meta.component_id.version)
+                component_id = getattr(meta, "component_id", None)
+                if component_id is None:
+                    continue
+                version = str(component_id.version)
                 if dep_range.matches(version):
                     return True
             except (AttributeError, TypeError, ValueError) as exc:

@@ -69,11 +69,11 @@ def _require_filesystem_store(store: ArtifactStore, *, operation: str) -> FileSy
     raise TypeError(f"{operation} requires a filesystem-backed artifact store")
 
 
-def _get_method_registry() -> MethodRegistry:
+def _default_method_registry() -> MethodRegistry:
     return MethodRegistry.get_instance()
 
 
-def _get_method_dispatcher() -> MethodDispatcher:
+def _default_method_dispatcher() -> MethodDispatcher:
     return MethodDispatcher.get_instance()
 
 
@@ -118,12 +118,12 @@ def resolve_method_runtime_providers(
         registry_provider=(
             registry_provider
             or (providers.registry_provider if providers is not None else None)
-            or _get_method_registry
+            or _default_method_registry
         ),
         dispatcher_provider=(
             dispatcher_provider
             or (providers.dispatcher_provider if providers is not None else None)
-            or _get_method_dispatcher
+            or _default_method_dispatcher
         ),
     )
 

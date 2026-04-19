@@ -1,0 +1,16 @@
+service: runtime
+version: 1
+owner: team-runtime
+objectives:
+  - name: runtime_api_p95_latency
+    sli: histogram_quantile(0.95, rate(http_server_duration_seconds_bucket{service="runtime"}[5m]))
+    threshold: "< 1s"
+    window: 28d
+    owner: team-runtime
+    runbook: docs/runbooks/runtime-api-outage.md
+  - name: runtime_error_rate
+    sli: rate(http_server_requests_total{service="runtime",status=~"5.."}[5m]) / rate(http_server_requests_total{service="runtime"}[5m])
+    threshold: "< 0.01"
+    window: 28d
+    owner: team-runtime
+    runbook: docs/runbooks/runtime-api-outage.md

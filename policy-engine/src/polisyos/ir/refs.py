@@ -85,6 +85,20 @@ class ProofBundleRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class FrontierSketchRef(ArtifactRefModel):
+    """Stable handle for persisted research-boundary sketches attached to Phase-closure artifacts."""
+
+    kind: Literal["ir.frontier_sketch"] = "ir.frontier_sketch"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DPRobustnessCertificateRef(ArtifactRefModel):
+    """Stable handle for DP distortion audits attached to causal proof bundles."""
+
+    kind: Literal["ir.dp_robustness_certificate"] = "ir.dp_robustness_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class DataReadinessReportRef(ArtifactRefModel):
     """Stable handle for persisted data-readiness reports emitted before execution is allowed to proceed."""
     kind: Literal["ir.data_readiness_report"] = "ir.data_readiness_report"
@@ -94,6 +108,36 @@ class DataReadinessReportRef(ArtifactRefModel):
 class BoundsBundleRef(ArtifactRefModel):
     """Stable handle for persisted partial-identification outputs consumed by readiness checks and reporting."""
     kind: Literal["ir.bounds_bundle"] = "ir.bounds_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DualCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted LP dual certificates consumed by bounds auditing."""
+
+    kind: Literal["ir.dual_certificate"] = "ir.dual_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ProximalIdentificationCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted proximal identification certificates consumed by proof bundles."""
+
+    kind: Literal["ir.proximal_identification_certificate"] = (
+        "ir.proximal_identification_certificate"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class RecoverabilityCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted recoverability certificates consumed by readiness and proof layers."""
+
+    kind: Literal["ir.recoverability_certificate"] = "ir.recoverability_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class JointDecisionCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted joint identification-recoverability decisions."""
+
+    kind: Literal["ir.joint_decision_certificate"] = "ir.joint_decision_certificate"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -118,6 +162,15 @@ class LiteratureCausalPriorRef(ArtifactRefModel):
 class CausalDiscoveryReportRef(ArtifactRefModel):
     """Stable handle for persisted discovery diagnostics used when selecting or auditing graph structure."""
     kind: Literal["ir.causal_discovery_report"] = "ir.causal_discovery_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class RegimeShiftIdentificationCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted ICP regime-shift identification certificates."""
+
+    kind: Literal["ir.regime_shift_identification_certificate"] = (
+        "ir.regime_shift_identification_certificate"
+    )
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -243,6 +296,19 @@ class InterferenceCertificateRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class InterventionCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted proof-kernel intervention type certificates."""
+    kind: Literal["ir.intervention_certificate"] = "ir.intervention_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class InterventionQueryRef(ArtifactRefModel):
+    """Stable handle for persisted typed proof-kernel intervention queries."""
+
+    kind: Literal["ir.intervention_query"] = "ir.intervention_query"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class TwinNetworkResultRef(ArtifactRefModel):
     """Stable handle for persisted twin-network results used in counterfactual analysis."""
     kind: Literal["ir.twin_network_result"] = "ir.twin_network_result"
@@ -360,6 +426,8 @@ __all__ = [
     "CrossGraphEvidenceProfileRef",
     "InteractionComplexRef",
     "InterferenceCertificateRef",
+    "InterventionCertificateRef",
+    "InterventionQueryRef",
     "SCMFragmentRef",
     "StructuralCausalModelSpecRef",
     "CausalQueryResultRef",
@@ -367,10 +435,12 @@ __all__ = [
     "DynamicTreatmentRegimeRef",
     "EffectTrajectoryBundleRef",
     "FiniteStateAbstractionMapRef",
+    "FrontierSketchRef",
     "TwinNetworkResultRef",
     "CausalModelEnsembleRef",
     "DistributionalEffectBundleRef",
     "DistributionalReportRef",
+    "DPRobustnessCertificateRef",
     "EstimandASTRef",
     "EvidenceBundleRef",
     "ArtifactRefModel",
@@ -379,6 +449,10 @@ __all__ = [
     "NormativeArbitrationResultRef",
     "PolicyRecommendationRef",
     "ProofBundleRef",
+    "ProximalIdentificationCertificateRef",
+    "RegimeShiftIdentificationCertificateRef",
+    "RecoverabilityCertificateRef",
+    "JointDecisionCertificateRef",
     "CausalReadinessBundleRef",
     "CausalExecutionBundleRef",
     "StrategicPayoffTableRef",

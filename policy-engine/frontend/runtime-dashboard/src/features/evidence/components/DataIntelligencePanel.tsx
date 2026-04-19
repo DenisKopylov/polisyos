@@ -95,6 +95,33 @@ function focusLabel(
   return t(`pages.evidence.focus.${focus}`);
 }
 
+function EvidenceLayerCard({
+  body,
+  children,
+  eyebrow,
+  testId,
+  title,
+}: {
+  body: string;
+  children: ReactNode;
+  eyebrow: string;
+  testId?: string;
+  title: string;
+}) {
+  return (
+    <Card className="space-y-4" data-testid={testId}>
+      <div className="panel-header">
+        <div>
+          <p className="eyebrow">{eyebrow}</p>
+          <h3>{title}</h3>
+          <p className="text-muted mt-2 text-sm">{body}</p>
+        </div>
+      </div>
+      {children}
+    </Card>
+  );
+}
+
 export default function DataIntelligencePanel({
   mode = "workspace",
   runId = null,
@@ -312,6 +339,26 @@ export default function DataIntelligencePanel({
     ],
     [promotionQueueWithOverrides],
   );
+  const unresolvedGapCount = Math.max(
+    0,
+    (mode === "context"
+      ? (runContext?.dataNeeds.length ?? 0)
+      : canRun
+        ? 1
+        : 0) -
+      Math.max(
+        resolvedPlans.length,
+        selectedPlan ? 1 : 0,
+        discoverCandidates.length > 0 ? 1 : 0,
+      ),
+  );
+  const averagePromotionConfidence =
+    promotionQueueWithOverrides.length > 0
+      ? promotionQueueWithOverrides.reduce(
+          (sum, candidate) => sum + candidate.confidence,
+          0,
+        ) / promotionQueueWithOverrides.length
+      : 0;
 
   function renderSimpleList<
     T extends { candidate_id?: string; promotionId?: string },
@@ -423,8 +470,8 @@ export default function DataIntelligencePanel({
 
   return (
     <div className="space-y-4">
-      <div className="panel">
-        <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+      <Card className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h3 className="text-muted text-sm font-semibold tracking-wider uppercase">
               {t("panels.dataIntelligence.title")}
@@ -446,7 +493,7 @@ export default function DataIntelligencePanel({
         </div>
 
         {mode === "context" ? (
-          <div className="bg-surface/80 border-line mb-4 rounded-2xl border p-3">
+          <div className="bg-surface/80 border-line rounded-2xl border p-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-1 text-sm">
                 <p className="font-semibold">
@@ -545,7 +592,7 @@ export default function DataIntelligencePanel({
         ) : null}
 
         {degradedMessages.length > 0 ? (
-          <div className="border-warning/30 bg-warning/5 text-warning mb-4 rounded-2xl border p-3 text-sm">
+          <div className="border-warning/30 bg-warning/5 text-warning rounded-2xl border p-3 text-sm">
             <p className="font-semibold">
               {t("panels.dataIntelligence.degradedTitle")}
             </p>
@@ -556,6 +603,50 @@ export default function DataIntelligencePanel({
             </ul>
           </div>
         ) : null}
+      </Card>
+
+      <EvidenceLayerCard
+        body={t("pages.evidence.sourceAtlasBody")}
+        eyebrow={t("pages.evidence.sourceProfiles")}
+        testId="evidence-source-atlas-panel"
+        title={t("pages.evidence.sourceAtlasTitle")}
+      >
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="compact-metric">
+            <p className="text-muted text-xs uppercase">
+              {t("panels.dataIntelligence.indexedSources")}
+            </p>
+            <p className="mt-1 font-semibold">
+              {formatNumber(indexStatsQuery.data?.stats.indexed_sources ?? 0)}
+            </p>
+          </div>
+          <div className="compact-metric">
+            <p className="text-muted text-xs uppercase">
+              {t("panels.dataIntelligence.docsAddedLastRun")}
+            </p>
+            <p className="mt-1 font-semibold">
+              {formatNumber(
+                indexStatsQuery.data?.stats.docs_added_last_run ?? 0,
+              )}
+            </p>
+          </div>
+          <div className="compact-metric">
+            <p className="text-muted text-xs uppercase">{t("common.gaps")}</p>
+            <p className="mt-1 font-semibold">
+              {formatNumber(unresolvedGapCount)}
+            </p>
+          </div>
+          <div className="compact-metric">
+            <p className="text-muted text-xs uppercase">
+              {t("common.confidence")}
+            </p>
+            <p className="mt-1 font-semibold">
+              {formatPercent(averagePromotionConfidence, {
+                maximumFractionDigits: 1,
+              })}
+            </p>
+          </div>
+        </div>
 
         <div className="grid gap-3 md:grid-cols-3">
           <div>
@@ -667,7 +758,7 @@ export default function DataIntelligencePanel({
           </div>
         </div>
 
-        <div className="mt-3 grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-4">
           <div>
             <Label
               htmlFor="evidence-retrieval-mode-select"
@@ -705,7 +796,7 @@ export default function DataIntelligencePanel({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             disabled={
@@ -749,27 +840,17 @@ export default function DataIntelligencePanel({
         </div>
 
         {resolveMutation.error ? (
-          <div className="mt-3">
-            <ApiErrorAlert
-              title={t("panels.dataIntelligence.resolveFailed")}
-              error={resolveMutation.error}
-            />
-          </div>
+          <ApiErrorAlert
+            title={t("panels.dataIntelligence.resolveFailed")}
+            error={resolveMutation.error}
+          />
         ) : null}
         {discoverMutation.error ? (
-          <div className="mt-3">
-            <ApiErrorAlert
-              title={t("panels.dataIntelligence.discoverFailed")}
-              error={discoverMutation.error}
-            />
-          </div>
+          <ApiErrorAlert
+            title={t("panels.dataIntelligence.discoverFailed")}
+            error={discoverMutation.error}
+          />
         ) : null}
-      </div>
-
-      <Card>
-        <h3 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
-          {t("panels.dataIntelligence.indexStats")}
-        </h3>
         {indexStatsQuery.isLoading ? (
           <p className="text-muted text-sm">
             {t("panels.dataIntelligence.indexLoading")}
@@ -815,7 +896,7 @@ export default function DataIntelligencePanel({
               </div>
             </div>
             {discoverMutation.data ? (
-              <p className="text-muted mt-3 text-xs">
+              <p className="text-muted text-xs">
                 {t("panels.dataIntelligence.lastDiscoverSummary", {
                   docs: formatNumber(discoverMutation.data.docs_fetched_total),
                   candidates: formatNumber(
@@ -826,12 +907,102 @@ export default function DataIntelligencePanel({
             ) : null}
           </>
         ) : null}
-      </Card>
 
-      <Card>
-        <h3 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
-          {t("panels.dataIntelligence.resolveResults")}
-        </h3>
+        <div className="space-y-3">
+          <h4 className="text-lg font-semibold">
+            {t("panels.dataIntelligence.exploreBudget")}
+          </h4>
+          <div className="grid gap-3 md:grid-cols-4">
+            <div>
+              <Label
+                htmlFor="evidence-max-sources-input"
+                className="text-muted mb-1 block text-xs"
+              >
+                {t("panels.dataIntelligence.maxSourcesPerQuery")}
+              </Label>
+              <input
+                id="evidence-max-sources-input"
+                type="number"
+                min={1}
+                max={50}
+                value={maxSourcesPerQuery}
+                onChange={(event) =>
+                  setMaxSourcesPerQuery(Number(event.target.value))
+                }
+                aria-label={t("panels.dataIntelligence.maxSourcesPerQuery")}
+                className="atlas-input"
+              />
+            </div>
+            <div>
+              <Label
+                htmlFor="evidence-max-calls-input"
+                className="text-muted mb-1 block text-xs"
+              >
+                {t("panels.dataIntelligence.maxCallsPerSource")}
+              </Label>
+              <input
+                id="evidence-max-calls-input"
+                type="number"
+                min={1}
+                max={500}
+                value={maxDiscoveryCallsPerSource}
+                onChange={(event) =>
+                  setMaxDiscoveryCallsPerSource(Number(event.target.value))
+                }
+                aria-label={t("panels.dataIntelligence.maxCallsPerSource")}
+                className="atlas-input"
+              />
+            </div>
+            <div>
+              <Label
+                htmlFor="evidence-max-candidates-input"
+                className="text-muted mb-1 block text-xs"
+              >
+                {t("panels.dataIntelligence.maxCandidatesTotal")}
+              </Label>
+              <input
+                id="evidence-max-candidates-input"
+                type="number"
+                min={1}
+                max={500}
+                value={maxCandidatesTotal}
+                onChange={(event) =>
+                  setMaxCandidatesTotal(Number(event.target.value))
+                }
+                aria-label={t("panels.dataIntelligence.maxCandidatesTotal")}
+                className="atlas-input"
+              />
+            </div>
+            <div>
+              <Label
+                htmlFor="evidence-time-budget-input"
+                className="text-muted mb-1 block text-xs"
+              >
+                {t("panels.dataIntelligence.timeBudgetMs")}
+              </Label>
+              <input
+                id="evidence-time-budget-input"
+                type="number"
+                min={100}
+                max={120000}
+                value={timeBudgetMs}
+                onChange={(event) =>
+                  setTimeBudgetMs(Number(event.target.value))
+                }
+                aria-label={t("panels.dataIntelligence.timeBudgetMs")}
+                className="atlas-input"
+              />
+            </div>
+          </div>
+        </div>
+      </EvidenceLayerCard>
+
+      <EvidenceLayerCard
+        body={t("pages.evidence.knowledgeWeaveBody")}
+        eyebrow={t("pages.evidence.evidenceGraph")}
+        testId="evidence-knowledge-weave-panel"
+        title={t("pages.evidence.knowledgeWeaveTitle")}
+      >
         {catalogQuery.isLoading ? (
           <p className="text-muted text-sm">
             {t("panels.dataIntelligence.catalogLoading")}
@@ -841,7 +1012,7 @@ export default function DataIntelligencePanel({
           <ApiErrorAlert error={catalogQuery.error} />
         ) : null}
         {catalogQuery.data ? (
-          <p className="text-muted mb-2 text-xs">
+          <p className="text-muted text-xs">
             {t("panels.dataIntelligence.catalogMatches", {
               count: formatNumber(catalogQuery.data.total_matches),
               query: catalogQuery.data.query,
@@ -868,7 +1039,7 @@ export default function DataIntelligencePanel({
         ))}
 
         {resolveMutation.data ? (
-          <div className="mt-3 space-y-2">
+          <div className="space-y-2">
             <p className="text-muted text-xs">
               {t("panels.dataIntelligence.resolvedSummary", {
                 plans: formatNumber(resolvedPlans.length),
@@ -934,8 +1105,8 @@ export default function DataIntelligencePanel({
         ) : null}
 
         {discoverCandidates.length > 0 ? (
-          <div className="mt-3">
-            <p className="text-muted mb-1 text-xs">
+          <div className="space-y-2">
+            <p className="text-muted text-xs">
               {t("panels.dataIntelligence.discoverCandidates", {
                 count: formatNumber(discoverCandidates.length),
               })}
@@ -958,15 +1129,20 @@ export default function DataIntelligencePanel({
             ))}
           </div>
         ) : null}
-      </Card>
+      </EvidenceLayerCard>
 
-      <Card>
+      <EvidenceLayerCard
+        body={t("pages.evidence.promotionReviewBody")}
+        eyebrow={t("pages.evidence.promotionLane")}
+        testId="evidence-promotion-lane-panel"
+        title={t("pages.evidence.promotionReviewTitle")}
+      >
         <div ref={promotionReviewSurfaceRef} className="relative">
           <ReviewCursorLayer cursors={promotionCollaboration.cursors} />
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-muted text-sm font-semibold tracking-wider uppercase">
+            <h4 className="text-lg font-semibold">
               {t("panels.dataIntelligence.promotionQueue")}
-            </h3>
+            </h4>
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
@@ -1132,109 +1308,19 @@ export default function DataIntelligencePanel({
             96,
           )}
           {approveError ? (
-            <div className="mt-2">
-              <ApiErrorAlert
-                title={t("panels.dataIntelligence.approveFailed")}
-                error={approveError}
-              />
-            </div>
+            <ApiErrorAlert
+              title={t("panels.dataIntelligence.approveFailed")}
+              error={approveError}
+            />
           ) : null}
           {rejectError ? (
-            <div className="mt-2">
-              <ApiErrorAlert
-                title={t("panels.dataIntelligence.rejectFailed")}
-                error={rejectError}
-              />
-            </div>
+            <ApiErrorAlert
+              title={t("panels.dataIntelligence.rejectFailed")}
+              error={rejectError}
+            />
           ) : null}
         </div>
-      </Card>
-
-      <Card>
-        <h3 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
-          {t("panels.dataIntelligence.exploreBudget")}
-        </h3>
-        <div className="grid gap-3 md:grid-cols-4">
-          <div>
-            <Label
-              htmlFor="evidence-max-sources-input"
-              className="text-muted mb-1 block text-xs"
-            >
-              {t("panels.dataIntelligence.maxSourcesPerQuery")}
-            </Label>
-            <input
-              id="evidence-max-sources-input"
-              type="number"
-              min={1}
-              max={50}
-              value={maxSourcesPerQuery}
-              onChange={(event) =>
-                setMaxSourcesPerQuery(Number(event.target.value))
-              }
-              aria-label={t("panels.dataIntelligence.maxSourcesPerQuery")}
-              className="atlas-input"
-            />
-          </div>
-          <div>
-            <Label
-              htmlFor="evidence-max-calls-input"
-              className="text-muted mb-1 block text-xs"
-            >
-              {t("panels.dataIntelligence.maxCallsPerSource")}
-            </Label>
-            <input
-              id="evidence-max-calls-input"
-              type="number"
-              min={1}
-              max={500}
-              value={maxDiscoveryCallsPerSource}
-              onChange={(event) =>
-                setMaxDiscoveryCallsPerSource(Number(event.target.value))
-              }
-              aria-label={t("panels.dataIntelligence.maxCallsPerSource")}
-              className="atlas-input"
-            />
-          </div>
-          <div>
-            <Label
-              htmlFor="evidence-max-candidates-input"
-              className="text-muted mb-1 block text-xs"
-            >
-              {t("panels.dataIntelligence.maxCandidatesTotal")}
-            </Label>
-            <input
-              id="evidence-max-candidates-input"
-              type="number"
-              min={1}
-              max={500}
-              value={maxCandidatesTotal}
-              onChange={(event) =>
-                setMaxCandidatesTotal(Number(event.target.value))
-              }
-              aria-label={t("panels.dataIntelligence.maxCandidatesTotal")}
-              className="atlas-input"
-            />
-          </div>
-          <div>
-            <Label
-              htmlFor="evidence-time-budget-input"
-              className="text-muted mb-1 block text-xs"
-            >
-              {t("panels.dataIntelligence.timeBudgetMs")}
-            </Label>
-            <input
-              id="evidence-time-budget-input"
-              type="number"
-              min={100}
-              max={120000}
-              value={timeBudgetMs}
-              onChange={(event) => setTimeBudgetMs(Number(event.target.value))}
-              aria-label={t("panels.dataIntelligence.timeBudgetMs")}
-              className="atlas-input"
-            />
-          </div>
-        </div>
-      </Card>
+      </EvidenceLayerCard>
     </div>
   );
 }

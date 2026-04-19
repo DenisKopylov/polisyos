@@ -1,8 +1,12 @@
 """Decomposed module wrapper; implementation moved to `metrics_parts`."""
 
-from .metrics_parts import *  # noqa: F401,F403
+from __future__ import annotations
 
-try:
-    from .metrics_parts import __all__ as __all__
-except ImportError:
-    pass
+from .metrics_parts import GaugeProxy, HistogramTimer, MetricsRegistry, get_metrics
+
+__all__ = [
+    "GaugeProxy",
+    "HistogramTimer",
+    "MetricsRegistry",
+    "get_metrics",
+]

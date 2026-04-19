@@ -25,6 +25,16 @@ if TYPE_CHECKING:
     from polisyos.scientist.engine.operational_monitoring import ScientistOperationalMonitor
 
 
+def _default_metrics() -> MetricsRegistry:
+    from polisyos.core.observability import get_metrics
+
+    return get_metrics()
+
+
+def _default_operational_monitor() -> ScientistOperationalMonitor:
+    return get_operational_monitor()
+
+
 @dataclass(slots=True)
 class _BudgetReservation:
     estimated_cost: Decimal
@@ -355,17 +365,16 @@ class LLMBudgetEnforcer:
         if self._metrics is not None:
             return self._metrics
         try:
-            from polisyos.core.observability import get_metrics
+            self._metrics = _default_metrics()
         except _OBSERVABILITY_IMPORT_ERRORS:
             return None
-        self._metrics = get_metrics()
         return self._metrics
 
     def _resolve_operational_monitor(self) -> ScientistOperationalMonitor | None:
         if self._operational_monitor is not None:
             return self._operational_monitor
         try:
-            monitor = get_operational_monitor()
+            monitor = _default_operational_monitor()
         except _OBSERVABILITY_IMPORT_ERRORS:
             return None
         self._operational_monitor = monitor

@@ -882,3 +882,12 @@ Fixture‑минимум:
 2) `LegalReport` и `ChangeProposal` сохраняются в CAS с правильными kind’ами.
 3) В world fact log появляется `WorldEvent(kind=evaluate_legality)` + PROV edges, и это материализуется в DuckDB (`world.world_events`).
 4) Есть тест `test_legal_evaluation_phase18.py`, который проходит end‑to‑end и проверяет artifacts + world event + ключевые поля отчёта/предложений.
+
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 5 governance/frontier contract and Phase 4 world-event interoperability |
+| Contract tests | `tests/fabric/test_legal_evaluation.py`, `tests/scientist/test_legal_check_node.py`, `tests/scientist/governance/test_legal_pass.py` |
+| Schema snapshots | `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/world_event.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

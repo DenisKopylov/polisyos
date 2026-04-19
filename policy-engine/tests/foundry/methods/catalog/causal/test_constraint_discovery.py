@@ -70,6 +70,14 @@ def _complete_adj(n_variables: int) -> np.ndarray:
     return adjacency
 
 
+def _common_parent_adj() -> np.ndarray:
+    adjacency = np.zeros((5, 5), dtype=int)
+    for dst in range(1, 5):
+        adjacency[0, dst] = -1
+        adjacency[dst, 0] = 1
+    return adjacency
+
+
 def _one_factor_state(n_samples: int = 800, seed: int = 7) -> TabularCausalDiscoveryData:
     rng = np.random.default_rng(seed)
     latent = rng.normal(0.0, 1.0, size=n_samples)
@@ -119,6 +127,62 @@ def _full_rank_state(n_samples: int = 900, seed: int = 19) -> TabularCausalDisco
     return TabularCausalDiscoveryData(
         data=data,
         variable_names=["M1", "M2", "M3", "M4", "M5"],
+    )
+
+
+def _trek_rank_state(n_samples: int = 1200, seed: int = 29) -> TabularCausalDiscoveryData:
+    rng = np.random.default_rng(seed)
+    latent = rng.normal(0.0, 1.0, size=n_samples)
+    noise = rng.normal(0.0, 0.12, size=(n_samples, 4))
+    data = np.column_stack(
+        [
+            0.95 * latent + noise[:, 0],
+            0.80 * latent + noise[:, 1],
+            1.05 * latent + noise[:, 2],
+            0.75 * latent + noise[:, 3],
+        ]
+    )
+    return TabularCausalDiscoveryData(
+        data=data,
+        variable_names=["A1", "A2", "B1", "B2"],
+    )
+
+
+def _trek_full_rank_state(n_samples: int = 1200, seed: int = 31) -> TabularCausalDiscoveryData:
+    rng = np.random.default_rng(seed)
+    latent_a = rng.normal(0.0, 1.0, size=n_samples)
+    latent_b = rng.normal(0.0, 1.0, size=n_samples)
+    noise = rng.normal(0.0, 0.12, size=(n_samples, 4))
+    data = np.column_stack(
+        [
+            0.95 * latent_a + noise[:, 0],
+            0.85 * latent_b + noise[:, 1],
+            1.00 * latent_a + noise[:, 2],
+            0.75 * latent_b + noise[:, 3],
+        ]
+    )
+    return TabularCausalDiscoveryData(
+        data=data,
+        variable_names=["A1", "A2", "B1", "B2"],
+    )
+
+
+def _auto_trek_rank_state(n_samples: int = 1200, seed: int = 37) -> TabularCausalDiscoveryData:
+    rng = np.random.default_rng(seed)
+    source = rng.normal(0.0, 1.0, size=n_samples)
+    noise = rng.normal(0.0, 0.12, size=(n_samples, 5))
+    data = np.column_stack(
+        [
+            source + noise[:, 0],
+            0.90 * source + noise[:, 1],
+            0.75 * source + noise[:, 2],
+            1.05 * source + noise[:, 3],
+            0.80 * source + noise[:, 4],
+        ]
+    )
+    return TabularCausalDiscoveryData(
+        data=data,
+        variable_names=["L", "A1", "A2", "B1", "B2"],
     )
 
 
@@ -523,6 +587,226 @@ def test_overcomplete_block_flags_full_rank_violation(monkeypatch) -> None:
     assert report.algebraic_constraints is not None
     assert report.algebraic_constraints.violated_by_family["overcomplete"] >= 1
     assert report.algebraic_constraints.severity == "warning"
+
+
+def test_trek_rank_block_passes_for_rank_one_cross_covariance(monkeypatch) -> None:
+    state = _trek_rank_state()
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_complete_adj(4),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "trek_rank_1",
+                    "family": "trek_rank",
+                    "variables": ["A1", "A2", "B1", "B2"],
+                    "row_variables": ["A1", "A2"],
+                    "col_variables": ["B1", "B2"],
+                    "max_rank": 1,
+                    "assumption_regime": "linear_gaussian_continuous",
+                    "test_mode": "bootstrap_rank",
+                    "max_residual_energy": 0.12,
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert AlgebraicConstraintFamily.TREK_RANK.value in report.metadata["algebraic_constraint_families_run"]
+    assert report.algebraic_constraints.violated_by_family["trek_rank"] == 0
+    assert report.algebraic_constraints.blocker_conditions_met_by_family["trek_rank"] is True
+    assert report.algebraic_constraints.graph_ranking_penalty == 0.0
+
+
+def test_trek_rank_block_flags_full_rank_cross_covariance_as_blocker(monkeypatch) -> None:
+    state = _trek_full_rank_state()
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_complete_adj(4),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "trek_rank_1",
+                    "family": "trek_rank",
+                    "variables": ["A1", "A2", "B1", "B2"],
+                    "row_variables": ["A1", "A2"],
+                    "col_variables": ["B1", "B2"],
+                    "max_rank": 1,
+                    "assumption_regime": "linear_gaussian_continuous",
+                    "test_mode": "bootstrap_minor",
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert report.algebraic_constraints.violated_by_family["trek_rank"] >= 1
+    assert report.algebraic_constraints.severity == "blocker"
+    assert report.algebraic_constraints.blocker_conditions_met_by_family["trek_rank"] is True
+    assert report.algebraic_constraints.graph_ranking_penalty > 0.0
+    trek_violation = next(
+        violation
+        for violation in report.algebraic_constraints.violated_constraints_preview
+        if violation.family is AlgebraicConstraintFamily.TREK_RANK
+    )
+    assert trek_violation.scope_of_falsification.value == "graph_class"
+    assert trek_violation.reproducibility_tier.value == "stochastic_bootstrap"
+    assert trek_violation.ranking_weight > 0.0
+
+
+def test_graph_implied_trek_rank_blocks_are_auto_inferred(monkeypatch) -> None:
+    state = _auto_trek_rank_state()
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_common_parent_adj(),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={"timeout_seconds": 30},
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert AlgebraicConstraintFamily.TREK_RANK.value in report.metadata["algebraic_constraint_families_run"]
+    assert report.algebraic_constraints.tested_by_family["trek_rank"] >= 1
+    assert report.algebraic_constraints.violated_by_family["trek_rank"] == 0
+    assert any(
+        constraint.source_block_id and constraint.source_block_id.startswith("auto_trek_rank:")
+        for constraint in report.algebraic_constraints.implied_constraints_preview
+        if constraint.family is AlgebraicConstraintFamily.TREK_RANK
+    )
+    assert any(
+        "trek_rank_auto_inferred" in warning
+        for warning in report.algebraic_constraints.warnings
+    )
+
+
+def test_algebraic_geometry_invariant_block_is_ranking_only_info_signal(monkeypatch) -> None:
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_adj_without_edges(),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        _state(),
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "geom_1",
+                    "family": "algebraic_geometry_invariant",
+                    "variables": ["X", "Y", "Z"],
+                    "invariant_polynomials": [
+                        "sigma_xy * sigma_yz - sigma_xz * sigma_yy"
+                    ],
+                    "semi_algebraic_inequalities": [
+                        "det(Sigma[X,Y,Z]) >= 0"
+                    ],
+                    "derivation_method": "groebner_elimination",
+                    "precomputed_violation_score": 0.7,
+                    "test_mode": "offline_catalog",
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert (
+        AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT.value
+        in report.metadata["algebraic_constraint_families_run"]
+    )
+    assert report.algebraic_constraints.tested_by_family["algebraic_geometry_invariant"] == 0
+    assert report.algebraic_constraints.violated_by_family["algebraic_geometry_invariant"] == 1
+    assert report.algebraic_constraints.severity == "info"
+    assert report.algebraic_constraints.graph_ranking_penalty > 0.0
+    geometry_violation = next(
+        violation
+        for violation in report.algebraic_constraints.violated_constraints_preview
+        if violation.family is AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT
+    )
+    assert geometry_violation.scope_of_falsification.value == "ranking_only"
+    assert geometry_violation.reproducibility_tier.value == "research_preview"
+
+
+def test_nested_verma_block_is_recorded_as_research_preview(monkeypatch) -> None:
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_complete_adj(3),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        _state(),
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "verma_1",
+                    "family": "nested_verma",
+                    "variables": ["X", "Y"],
+                    "cadmg_scope": "X->M->Y with latent U",
+                    "fixing_sequence": ["fix(M)"],
+                    "kernel_statement": "sum_m p(m|x) p(y|m,x') is invariant in x",
+                    "model_family": "gaussian_nested",
+                    "positivity_required": True,
+                    "test_mode": "research_preview",
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert AlgebraicConstraintFamily.NESTED_VERMA.value in report.metadata["algebraic_constraint_families_run"]
+    assert report.algebraic_constraints.tested_by_family["nested_verma"] == 0
+    assert report.algebraic_constraints.violated_by_family["nested_verma"] == 0
+    assert report.algebraic_constraints.blocker_conditions_met_by_family["nested_verma"] is False
+    assert report.algebraic_constraints.graph_ranking_penalty == 0.0
+    assert any(
+        "nested_verma_research_preview" in warning
+        for warning in report.algebraic_constraints.warnings
+    )
 
 
 def test_algebraic_audit_failure_degrades_to_warning(monkeypatch) -> None:

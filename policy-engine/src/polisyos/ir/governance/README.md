@@ -1,43 +1,72 @@
 # Governance (`polisyos.ir.governance`)
 
-`polisyos.ir.governance` задает policy-facing контракты Trinity: постановку
-задачи, спецификацию интервенций, selector expressions, schedule semantics и
-gate events. После последних расширений модуль также несет temporal intervention
-surface и observation-aware metadata, необходимые для causal readiness и
-strategic-response workflows.
+## Purpose
 
-## Роль в системе
+`polisyos.ir.governance` задает policy-facing authoring surface Trinity:
+problem framing, intervention specs, selector expressions, schedule semantics,
+gate events, temporal logic и layered policy composition. Здесь находятся
+контракты, которые отвечают на вопросы "зачем", "что именно делаем" и "какие
+governance constraints должны соблюдаться" до compile/runtime стадии.
 
-- **Зависит от:** `polisyos.ir.kernel`, `polisyos.ir.observation.contracts`
-- **Используется в:** `polisyos.ir.trinity`, `polisyos.ir.linker`, `polisyos.scientist.governance`, `polisyos.core.governance`
-- Governance contracts задают `Why` и `What` части Trinity; `How` остается в `polisyos.ir.model_spec`.
+## Where to Start
 
-## Ключевые концепции
+- [`problem_frame.py`](./problem_frame.py) — `ProblemFrame`, objectives, KPI, constraints и stakeholders.
+- [`policy_spec.py`](./policy_spec.py) — `PolicySpec`, `InterventionSpec`, bindings и temporal intervention sequencing.
+- [`selector_expr.py`](./selector_expr.py) — targeting AST, quantifiers и temporal predicates.
+- [`schedule.py`](./schedule.py) — step-based schedule semantics.
+- [`temporal_logic.py`](./temporal_logic.py) — LTL/MTL-style policy constraints и execution semantics.
+- [`policy_composition.py`](./policy_composition.py) — layered policy stacks, overrides и compatibility rules.
+- [`game_design.py`](./game_design.py) — mechanism/game-design contracts для frontier governance surface.
+- [`validation.py`](./validation.py) — validation diagnostics и report builders.
 
-- **Problem framing** — `ProblemFrame` хранит objectives, KPI, constraints и stakeholders.
-- **Policy interventions** — `PolicySpec` описывает interventions, bindings и tunable params.
-- **Temporal sequencing** — `TemporalInterventionSequence` и `TemporalInterventionStep` моделируют staged policy rollouts.
-- **Observation-aware metadata** — `InterventionSpec` теперь несет `identification_mode`, `strategic_response_expected` и transmission channels.
-- **Selector AST** — policy targeting задается через `SelectorPredicate`, `SelectorAll`, `SelectorAny`, `SelectorNot`.
-- **Gate protocol** — `GateRequest`, `GateDecision` и `GateEvent` стандартизируют governance decisions.
+## Public entrypoints
 
-## Public API
+| Entrypoint | Use when | Defined in |
+|---|---|---|
+| `polisyos.ir.governance.ProblemFrame` | Нужно описать policy problem, goals и success criteria | [`problem_frame.py`](./problem_frame.py) |
+| `polisyos.ir.governance.PolicySpec` | Нужно описать interventions, bindings и execution metadata | [`policy_spec.py`](./policy_spec.py) |
+| `polisyos.ir.governance.InterventionSpec` | Нужен contract одного intervention | [`policy_spec.py`](./policy_spec.py) |
+| `polisyos.ir.governance.TemporalInterventionSequence` | Нужен staged rollout / temporal intervention plan | [`policy_spec.py`](./policy_spec.py) |
+| `polisyos.ir.governance.ScheduleSpec` | Нужны step-based activation windows | [`schedule.py`](./schedule.py) |
+| `polisyos.ir.governance.SelectorPredicate`, `SelectorAll`, `SelectorAny`, `SelectorNot` | Нужно описать targeting surface | [`selector_expr.py`](./selector_expr.py) |
+| `polisyos.ir.governance.GateRequest`, `GateDecision`, `GateEvent` | Нужен typed governance gate protocol | [`gate.py`](./gate.py) |
+| `polisyos.ir.governance.ValidationReport` | Нужны structured validation diagnostics | [`validation.py`](./validation.py) |
 
-| Type/Function | Description |
-|---|---|
-| `ProblemFrame` | Контракт постановки policy problem и success criteria |
-| `PolicySpec` | Спецификация активных interventions и их bindings |
-| `InterventionSpec` | Один intervention с policy metadata, targeting и measurement expectations |
-| `TemporalInterventionSequence` | Упорядоченная последовательность temporal intervention steps |
-| `ScheduleSpec` | Step-based activation window для interventions |
-| `GateRequest`, `GateDecision`, `GateEvent` | Typed governance gate protocol |
-| `ValidationIssue`, `ValidationReport` | Validation diagnostics для governance payloads |
+## Depends on / depended on by
 
-Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
+- Depends on: [`../kernel/README.md`](../kernel/README.md), [`../observation/README.md`](../observation/README.md) for observation-aware metadata and mappings.
+- Depended on by: [`../trinity/README.md`](../trinity/README.md), [`../linker/README.md`](../linker/README.md), `polisyos.foundry`, `polisyos.scientist.governance`, `polisyos.core.governance`, `polisyos.lex`.
 
-## Текущее состояние
+## Common commands
 
-- Последнее обновление: 2026-04-03
-- Files: 8 Python files
-- Exports: package facade from 6 governance modules
-- Recent delta: `policy_spec.py` расширен temporal intervention sequence и observation/strategic-response metadata для interventions
+Run from the repository root (`policy-engine/`).
+
+Smoke-tested on `2026-04-17`.
+
+```bash
+uv run python -c "import polisyos.ir.governance as governance; from polisyos.ir.governance import ProblemFrame, PolicySpec; print(len(governance.__all__), ProblemFrame.__name__, PolicySpec.__name__)"
+```
+
+## Test/verification commands
+
+Run from the repository root (`policy-engine/`).
+
+Conceptual in this README refresh; run this governance suite before landing
+policy-authoring contract changes.
+
+```bash
+uv run pytest tests/ir/governance/test_policy_spec_c0.py tests/ir/governance/test_phase5_governance_contracts.py tests/contract/test_trinity_contracts.py -q
+```
+
+## Reference docs
+
+- [IR governance reference](../../../../docs/reference/ir/governance.md)
+- [IR problem framing reference](../../../../docs/reference/ir/problem-framing.md)
+- [TRINITY contract](../../../../docs/contracts/TRINITY.md)
+- [IR root README](../README.md)
+- [Trinity README](../trinity/README.md)
+- [Linker README](../linker/README.md)
+
+## Last updated
+
+`2026-04-17`

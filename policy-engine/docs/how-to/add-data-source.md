@@ -1,338 +1,212 @@
 # Добавление источника данных
 
-> Создайте новый Fabric source connector, зарегистрируйте reusable profile и подключите тесты и CI-проверки, которые делают коннектор production-safe.
+> Создайте Fabric source connector, reusable profile, schema contract и тесты,
+> которые делают источник production-safe.
+
+Freshness: 2026-04-17.
+
+## Вход
+
+- описание upstream source, auth и transport assumptions
+- понимание, подходит ли существующая connector family
+- sample payload или fixture для schema/normalization decisions
+
+## Выход
+
+- connector class под `src/polisyos/fabric/connectors/sources/`
+- export из `sources/__init__.py`
+- built-in `SourceProfile`, а при необходимости и schema contract
+- source-specific tests и schema-governance evidence
+
+## Команды
+
+```bash
+uv run polisyos-tools connectors scaffold create --name "MyDataSource" --type REST --dry-run
+uv run pytest tests/fabric/connectors/test_registry.py -q
+uv run polisyos-tools validation fabric-schema-governance --check --evidence-out .tmp/fabric-schema-governance.json
+```
 
 ## Перед началом
 
-Сначала прочитайте [Connector CONTRIBUTING](../connectors/CONTRIBUTING.md).
-Текущая connector-платформа уже содержит готовые production patterns для:
+Прочитайте [Connector CONTRIBUTING](../connectors/CONTRIBUTING.md),
+[Fabric Connectors](../reference/fabric/connectors.md) и
+[Fabric Data Plane](../reference/fabric/data-plane.md). Текущая Fabric
+платформа содержит 20 exported connector classes и 38 built-in source profiles.
 
-- HTTP/JSON источников
-- SDMX API
-- CKAN resources
-- SPARQL endpoints
+Новый источник должен закрывать D1-L2 obligations: safe query construction,
+bounded input, deterministic lifecycle, schema/quality validation,
+observability/lineage, quarantine for poison records, and catalog
+discoverability.
 
-## 1. Выберите тип коннектора
+## 1. Выберите ближайшую family
 
-Используйте актуальные class names и файлы из `src/polisyos/fabric/connectors/sources/`:
+| Источник | Стартовый класс |
+|---|---|
+| HTTP/REST JSON | `RestJsonConnector`, `WHOConnector`, `WorldBankConnector` |
+| SDMX | `SDMXSourceConnector`, `EurostatConnector` |
+| CKAN | `CKANCatalogConnector`, `CKANResourceConnector` |
+| Socrata / Opendatasoft | `SocrataConnector`, `OpendatasoftConnector` |
+| SPARQL | `SPARQLConnector` |
+| CSV, JSONL, Parquet, Excel | `FileTabularConnector` |
+| S3/GCS/Azure-style object | `ObjectStorageConnector` |
+| SQLite/DuckDB read-only SQL | `SQLQueryConnector` |
+| GraphQL | `GraphQLConnector` |
+| GeoJSON | `GeoJSONConnector` |
+| JSONL event stream | `EventStreamConnector` |
 
-- Обычный REST или HTTP API:
-  - наследуйтесь от `polisyos.fabric.connectors.sources.http_base.HTTPConnectorBase`
-- SDMX-источник:
-  - наследуйтесь от `polisyos.fabric.connectors.sources.sdmx_source.SDMXSourceConnector`
-- CKAN resource endpoint:
-  - наследуйтесь от `polisyos.fabric.connectors.sources.ckan_resource.CKANResourceConnector`
-- SPARQL endpoint:
-  - наследуйтесь от `polisyos.fabric.connectors.sources.sparql.SPARQLConnector`
+Если нужен новый custom connector, начните со scaffold:
 
-Если ваш источник — это “ещё один HTTP API”, проще всего начать с `who.py` или `world_bank.py`.
-
-## 2. Создайте класс коннектора
-
-Новый файл размещайте под `src/polisyos/fabric/connectors/sources/`, например:
-
-```python
-# src/polisyos/fabric/connectors/sources/my_source.py
-from __future__ import annotations
-
-import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
-
-import pandas as pd
-
-from polisyos.core.canon import streaming_hash
-from polisyos.fabric.connectors.base import ConnectionHandle, FetchRequest, FetchResult, HealthStatus
-from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
-from polisyos.fabric.connectors.types import DatasetDescriptor, FetchError
-from polisyos.ir.connectors import (
-    ConnectorCapability,
-    ConnectorMetadataSpec,
-    QualityTier,
-    TrustLevel,
-    capabilities_from_flags,
-)
-
-
-class MySourceConnector(HTTPConnectorBase[pd.DataFrame]):
-    namespace: ClassVar[str] = "my_source"
-    short_id: ClassVar[str] = "public"
-    connector_id: ClassVar[str] = f"{namespace}.{short_id}"
-    _BASE_URL: ClassVar[str] = "https://api.example.com"
-    resilience_profile: ClassVar[HTTPResilienceProfile] = HTTPResilienceProfile(base_delay=1.0)
-
-    capabilities: ClassVar[ConnectorCapability] = (
-        ConnectorCapability.FULL_FETCH
-        | ConnectorCapability.DATE_RANGE_FILTER
-        | ConnectorCapability.DIMENSION_FILTER
-        | ConnectorCapability.CATALOG_BROWSE
-        | ConnectorCapability.SCHEMA_INTROSPECTION
-    )
-
-    metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(
-        connector_id=short_id,
-        version="1.0.0",
-        namespace=namespace,
-        source_name="My Source",
-        source_organization="Example Organization",
-        source_url=_BASE_URL,
-        trust_level=TrustLevel.MEDIUM,
-        quality_tier=QualityTier.SILVER,
-        capabilities=capabilities_from_flags(
-            ConnectorCapability.FULL_FETCH,
-            ConnectorCapability.DATE_RANGE_FILTER,
-            ConnectorCapability.DIMENSION_FILTER,
-            ConnectorCapability.CATALOG_BROWSE,
-            ConnectorCapability.SCHEMA_INTROSPECTION,
-        ),
-    )
-
-    async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
-        started = time.monotonic()
-        try:
-            await self._resilient_request_json(handle, f"{self._base_url(handle)}/health")
-            return HealthStatus(
-                healthy=True,
-                message="HTTP 200",
-                latency_ms=self._elapsed_ms(started),
-            )
-        except Exception as exc:
-            return HealthStatus(
-                healthy=False,
-                message=str(exc),
-                latency_ms=self._elapsed_ms(started),
-            )
-
-    async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator[DatasetDescriptor]:
-        body, _headers, _raw = await self._resilient_request_json(
-            handle,
-            f"{self._base_url(handle)}/datasets",
-        )
-        for row in body.get("items", []):
-            yield DatasetDescriptor(
-                dataset_id=str(row["id"]),
-                name=str(row.get("name") or row["id"]),
-                description=str(row.get("description") or ""),
-                tags=("my_source",),
-            )
-
-    async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[pd.DataFrame]:
-        body, headers, raw = await self._resilient_request_json(
-            handle,
-            f"{self._base_url(handle)}/datasets/{request.dataset_id}",
-        )
-        frame = pd.DataFrame(body["rows"])
-        now = datetime.now(timezone.utc)
-        return self._build_fetch_result(
-            data=frame,
-            row_count=len(frame),
-            schema_id="my_source.generic",
-            schema_version="1.0.0",
-            quality_tier=QualityTier.SILVER,
-            bytes_transferred=len(raw),
-            completeness=1.0 if len(frame) else 0.0,
-            fetched_at=now,
-            fetch_duration_ms=0.0,
-            content_hash=streaming_hash((raw,), prefix=True),
-            etag=headers.get("ETag"),
-            last_modified=headers.get("Last-Modified"),
-        )
-
-    async def get_dataset_schema(self, handle: ConnectionHandle, dataset_id: str) -> dict[str, Any]:
-        del handle
-        return {
-            "schema_id": "my_source.generic",
-            "dataset_id": dataset_id,
-            "fields": ["field_a", "field_b"],
-        }
+```bash
+uv run polisyos-tools connectors scaffold create --name "MyDataSource" --type REST --dry-run
 ```
 
-Что полезно копировать из существующих простых коннекторов:
+`python tools/connectors/scaffold.py ...` остаётся compatibility wrapper, но в
+workflow-доках канонический boundary теперь `polisyos-tools connectors ...`.
 
-- `who.py`: чистый паттерн HTTP + нормализация в DataFrame
-- `world_bank.py`: batched indicator fetch и более сильная metadata surface
+## 2. Реализуйте connector class
 
-## 3. Зарегистрируйте коннектор в `sources/__init__.py`
+Новый файл размещайте под `src/polisyos/fabric/connectors/sources/`.
 
-Добавьте и import, и имя в exported symbols:
+Минимальная surface:
 
-```python
-from polisyos.fabric.connectors.sources.my_source import MySourceConnector
+| Method | Что должно быть реализовано |
+|---|---|
+| `connect()` / `disconnect()` | Validate config, create/release handle, close sessions and pools deterministically. |
+| `health_check()` | Lightweight source probe returning `HealthStatus`. |
+| `fetch()` | Return `FetchResult` with `row_count`, `schema_id`, `schema_version`, `DataVersion`, UTC `fetched_at`, `completeness`, and provenance-friendly hashes/metadata. |
+| `validate_config()` | Reject missing auth, unsafe paths/query settings, unsupported formats, or unbounded execution settings. |
 
-__all__ = [
-    # ...
-    "MySourceConnector",
-]
-```
+Если family поддерживает discovery или streaming, добавьте
+`list_datasets()`, `get_dataset_schema()`, `fetch_stream()`, async fetch lease
+helpers, или source-specific capability methods.
 
-## 4. Создайте built-in source profile
+Полезные production examples:
 
-Profiles находятся в `src/polisyos/fabric/connectors/profiles/`.
-Добавьте запись в `builtin_profiles.py`:
+- `who.py` and `world_bank.py` for HTTP + DataFrame normalization.
+- `sdmx_source.py` and `eurostat.py` for statistical APIs and async/bulk hints.
+- `file_tabular.py` for files with schema introspection.
+- `event_stream.py` for stream chunks and message IDs.
+- `geojson.py` for CRS/spatial metadata preservation.
 
-```python
-from .models import SourceProfile
+## 3. Примените safety rules
 
-SourceProfile(
-    profile_id="my_source_public",
-    display_name="My Source Public API",
-    description="Example public endpoint for My Source",
-    connector_family="my_source",
-    base_url="https://api.example.com",
-    auth_policy="none",
-    rate_limit_rps=5.0,
-    max_concurrency=2,
-    preferred_transport="default",
-    preferred_core_transport="api_grouped",
-    preferred_backfill_transport="api_grouped",
-    supports_async_fetch=False,
-    core_group_limit=100,
-    backfill_group_limit=100,
-    capability_cache_ttl_hours=24,
-    negative_cache_ttl_hours=24,
-    soft_negative_cache_ttl_hours=12,
-    tags=["example", "public"],
-    source_organization="Example Organization",
-    source_url="https://example.com",
-    estimated_datasets=100,
-)
-```
+- Не интерполируйте untrusted identifiers/literals в SQL, SPARQL, SoQL, ODSQL,
+  REST paths, GraphQL data paths или file/object paths.
+- Используйте Fabric safety helpers, включая `safe_path_segment()`,
+  `validate_data_path()` and `extract_bounded_data_path()`, либо
+  family-specific identifier validators.
+- Используйте только timezone-aware UTC datetimes.
+- Reject or quarantine `NaN`, `Inf`, out-of-range quality scores and invalid
+  row-count bounds.
+- Keep resolver caches, prefetch queues, audit logs, and per-source maps
+  bounded by TTL/LRU/maxsize.
+- Runtime imports из `polisyos.scientist.*` and `polisyos.foundry.*` запрещены.
 
-### Какие поля `SourceProfile` обязательны?
+## 4. Зарегистрируйте connector
 
-Обязательные по текущей Pydantic-модели:
+Добавьте import/export в `src/polisyos/fabric/connectors/sources/__init__.py`.
+
+Если connector должен быть discoverable через package entry points, добавьте
+component в `src/polisyos/fabric/connectors/components.py` и запись в
+`pyproject.toml` group `polisyos.fabric_connectors`. Internal/scaffold
+families can stay direct-import/registry-only until promoted.
+
+## 5. Добавьте built-in source profile
+
+Profiles находятся в `src/polisyos/fabric/connectors/profiles/builtin_profiles.py`.
+
+Минимальные поля:
 
 - `profile_id`
 - `display_name`
 - `connector_family`
 - `base_url`
 
-Поля, которые технически optional, но для production-коннектора очень желательны:
+Production profiles should also set auth policy, rate limit, max concurrency,
+core/backfill transport, group limits, sync/async cell envelopes, capability
+cache TTLs, tags, source organization, source URL, and estimated datasets.
 
-- `description`
-- `auth_policy`
-- `rate_limit_rps`
-- `max_concurrency`
-- `preferred_transport`
-- `preferred_core_transport`
-- `preferred_backfill_transport`
-- `supports_async_fetch`
-- `core_group_limit`
-- `backfill_group_limit`
-- `max_sync_cells`
-- `max_async_cells`
-- `capability_cache_ttl_hours`
-- `negative_cache_ttl_hours`
-- `soft_negative_cache_ttl_hours`
-- `tags`
-- `source_organization`
-- `source_url`
-- `estimated_datasets`
+## 6. Добавьте schema contract
 
-!!! note
-    `SourceExecutionPolicy` автоматически вычисляется из profile через profile resolver.
-    В обычном connector onboarding создавать `SourceExecutionPolicy` вручную не нужно.
-
-## 5. Добавьте schema contract (опционально, но рекомендуется)
-
-Если ваш коннектор возвращает стабильную форму данных, добавьте contract-файл в:
+Если payload shape stable, добавьте contract под:
 
 ```text
 src/polisyos/fabric/connectors/sources/_contracts/
 ```
 
-Минимальный паттерн:
+Return matching `schema_id` and `schema_version` from `fetch()` and
+`get_dataset_schema()`, and include the contract in `ALL_SOURCE_CONTRACTS`.
 
-```python
-# src/polisyos/fabric/connectors/sources/_contracts/my_source_contracts.py
-from pydantic import BaseModel
+Run compatibility gates when schema contracts change:
 
-
-class MySourceGenericSchema(BaseModel):
-    schema_id: str = "my_source.generic"
-    version: str = "1.0.0"
-    fields: tuple[str, ...] = ("field_a", "field_b")
+```bash
+uv run python tools/connectors/check_contracts.py --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ```
 
-После этого возвращайте `schema_id` и `schema_version` из `fetch()` и `get_dataset_schema()`.
+Breaking changes require approved major bump metadata: owner, reviewer, risk
+level, migration status, downstream impact summary, migration note, and ADR refs
+when applicable.
 
-## 6. Протестируйте коннектор
+## 7. Протестируйте
 
-В качестве шаблона используйте production-тесты коннекторов:
+Minimum local checks:
 
-- `tests/fabric/connectors/sources/test_production_connectors.py`
-- другие source-specific тесты под `tests/fabric/connectors/sources/`
-
-Типичный unit-test паттерн локально:
-
-```python
-import asyncio
-
-from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
-from polisyos.fabric.connectors.sources.my_source import MySourceConnector
-
-
-def _run_async(coro):
-    return asyncio.run(coro)
-
-
-def test_my_source_fetch_with_mock_http(monkeypatch) -> None:
-    connector = MySourceConnector()
-
-    async def _fake_request_json(_session, _url, *, params=None, connector_id=None):
-        return {"rows": [{"field_a": 1, "field_b": 2}]}, {}, b'{"rows":[{"field_a":1,"field_b":2}]}'
-
-    async def _fake_get_session(self, _handle):
-        return object()
-
-    monkeypatch.setattr(MySourceConnector, "_request_json", staticmethod(_fake_request_json))
-    monkeypatch.setattr(MySourceConnector, "_get_session", _fake_get_session)
-
-    async def _exercise():
-        handle = await connector.connect(ConnectionConfig(url="https://example.test"))
-        result = await connector.fetch(handle, FetchRequest(dataset_id="demo"))
-        await connector.disconnect(handle)
-        return result
-
-    result = _run_async(_exercise())
-    assert result.row_count == 1
+```bash
+uv run pytest tests/fabric/connectors/test_registry.py -q
+uv run pytest tests/fabric/connectors/test_protocol_compliance.py -q
+uv run pytest tests/fabric/connectors/test_contract_system.py -q
+uv run pytest tests/fabric/connectors/sources/test_connector_family_expansion.py -q
 ```
 
-Integration-тесты против реального upstream API помечайте явно:
+Add source-specific tests under `tests/fabric/connectors/sources/`. Live
+upstream tests must be marked `integration` and should use recorded fixtures or
+record/replay mode where possible.
 
-```python
-import pytest
+For streaming, quarantine, or poison-row behavior:
 
-
-@pytest.mark.integration
-def test_my_source_live_fetch():
-    ...
+```bash
+uv run pytest tests/fabric/data_plane/test_quarantine.py tests/fabric/test_ingestion_quarantine.py -q
+uv run pytest tests/fabric/data_plane/test_streaming_runtime.py tests/fabric/data_plane/test_streaming_windowed.py -q
 ```
 
-## 7. Валидация в CI
+## Откат
 
-Перед PR убедитесь, что коннектор проходит те же проверки, что и остальной репозиторий:
+Если connector family или schema story оказались ошибочными, откат обычно
+сводится к трём действиям:
 
-- connector tests под `tests/fabric/connectors/...`
-- architecture и connector checks в `.github/workflows/ci.yml`
-- schema / ABI-related checks в `.github/workflows/abi.yml`, если вы меняете публичные contracts
+1. удалить незавершённый connector export, built-in profile и source-specific tests;
+2. откатить contract/snapshot изменения в
+   `src/polisyos/fabric/connectors/sources/_contracts/` и
+   `schemas/snapshots/connectors/contracts.json`;
+3. повторно прогнать `check-contracts --check` и Fabric schema governance gate,
+   чтобы убедиться, что дерево снова совпадает с committed baseline.
 
-Связанные lint/CI-части:
+## Troubleshooting
 
-- `.github/workflows/ci.yml`
-- `tools/lint/lint_connector_hardening.py`
-- `tools/lint/lint_connectors.py`
+- Если connector не виден в registry, проверьте export в `sources/__init__.py`
+  и built-in profile wiring.
+- Если schema-governance gate сигналит breaking drift, либо добавьте одобренный
+  major-bump metadata block, либо откатите accidental schema change.
+- Если source-specific tests unstable из-за живого upstream, переходите на
+  recorded fixtures или replay-oriented integration path.
 
 ## Чеклист
 
-- новый файл коннектора под `src/polisyos/fabric/connectors/sources/`
-- import/export добавлен в `sources/__init__.py`
-- built-in `SourceProfile` добавлен
-- тесты добавлены в `tests/fabric/connectors/sources/`
-- docs или schemas обновлены, если источник имеет стабильный публичный контракт
+- Connector class under `src/polisyos/fabric/connectors/sources/`.
+- Import/export added to `sources/__init__.py`.
+- Optional entry-point component added only when package discovery needs it.
+- Built-in `SourceProfile` added with bounded execution policy.
+- Schema contract added or intentionally omitted with a documented reason.
+- Registry, protocol, contract, source-specific, and schema-governance tests
+  pass.
+- Quality/lineage examples point to current artifacts or executable tests.
 
 ## Связанные документы
 
 - [Connector CONTRIBUTING](../connectors/CONTRIBUTING.md)
-- [Installation](install.md)
-- [Deploy Runtime](deploy-runtime.md)
+- [Fabric Connectors](../reference/fabric/connectors.md)
+- [Fabric Profiles](../reference/fabric/profiles.md)
+- [Fabric Data Plane](../reference/fabric/data-plane.md)
+- [Manage Generated Artifacts](manage-generated-artifacts.md)

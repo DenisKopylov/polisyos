@@ -854,3 +854,12 @@ Smoke test:
    - unit tests для surface и trinity компиляции зелёные
    - determinism test зелёный
    - smoke execute зелёный
+
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 0 Trinity/linker contract and Phase 2 compiler pipeline inputs |
+| Contract tests | `tests/contract/test_foundry_facade_contracts.py`, `tests/contract/test_foundry_input_bindings_contract.py`, `tests/foundry/compile/test_trinity_compiler.py`, `tests/foundry/test_trinity_field_coverage.py` |
+| Schema snapshots | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/model_spec.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

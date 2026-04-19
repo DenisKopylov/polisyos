@@ -17,6 +17,7 @@ import { isRunInReview, useRunsSample } from "@/features/runs";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
 import { formatTime } from "@/lib/utils";
+import { AtlasBrand } from "@/shared/brand/AtlasBrand";
 import { Badge, Button } from "@/shared/ui";
 
 function resolveHealthBadge(
@@ -41,6 +42,7 @@ export default function Header() {
   const authz = useMaybeAuthz();
   const { flags } = useFeatureFlags();
   const { isClerk, mode } = useInterfaceMode();
+  const atlasEnabled = flags.enableAtlasV2;
   const { theme, toggleTheme } = useTheme();
   const { locale, setLocale, t } = useI18n();
   const workspace = WORKSPACES[resolveWorkspaceKey(location.pathname)];
@@ -66,6 +68,21 @@ export default function Header() {
   return (
     <header className="topbar" data-testid="shell-header">
       <div className="topbar-copy">
+        {atlasEnabled ? (
+          <div className="topbar-brand-chip">
+            <AtlasBrand
+              alt={t("shell.title")}
+              inverted={theme === "dark"}
+              size={24}
+              variant="mark"
+            />
+            <span>
+              {isClerk
+                ? t("shell.header.shellLite")
+                : t("shell.header.analystShell")}
+            </span>
+          </div>
+        ) : null}
         <p className="eyebrow">{t(header.eyebrowKey)}</p>
         <h2>{t(header.titleKey)}</h2>
         <p className="topbar-subtitle">{t(header.subtitleKey)}</p>

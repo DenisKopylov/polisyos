@@ -1,14 +1,24 @@
 # Cache Rebuild Storm
 
 Related reference: [Observability Topology](../reference/operations/observability-topology.md),
-[Platform Architecture Diagrams](../reference/operations/platform-architecture-diagrams.md).
+[Platform Architecture Diagrams](../reference/operations/platform-architecture-diagrams.md),
+[Fabric Data Plane](../reference/fabric/data-plane.md).
 
 > Use this runbook when runtime cache/index services repeatedly rebuild, causing
 > sustained CPU, I/O, or latency spikes.
 
+Owner: `@runtime-owners`
+Last tested: `2026-04-17` against current cache, streaming, and lineage regression coverage.
+Evidence path: `docs/reference/operations/observability-topology.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/fabric/data_plane/test_streaming_runtime.py`
+Rollback path: reduce rebuild pressure or roll back the invalidation change, preserve one failing cache snapshot, and only then clear or rebuild state.
+
+Freshness: 2026-04-17.
+
 ## Symptom
 
 - elevated latency on run list, timeline, or lineage endpoints;
+- elevated latency on Fabric connector fetches, retrieval previews, world
+  queries, or materialization refreshes;
 - repeated cache/index rebuild log entries within a short window;
 - CPU or filesystem I/O saturation without matching request throughput growth;
 - cache-hit rate drops while rebuild duration rises.
@@ -19,6 +29,10 @@ Related reference: [Observability Topology](../reference/operations/observabilit
 - repeated cold-start behavior due to lifecycle churn or failed startup;
 - unbounded tenant or artifact scan triggered by one pathological workload;
 - cache corruption or incompatible on-disk state forcing repeated fallback.
+- Fabric connector schema/profile changes repeatedly invalidating capability or
+  schema-aware caches;
+- streaming/CDC replay or cursor recovery replaying the same source window and
+  rebuilding dependent materialization indexes.
 
 ## Timeline Capture Expectations
 
@@ -26,6 +40,9 @@ Related reference: [Observability Topology](../reference/operations/observabilit
 - request volume versus rebuild volume;
 - cache hit rate, rebuild duration, item count, and eviction signals;
 - last deploy/config change touching runtime index, timeline, or lineage logic.
+- connector id, dataset id, profile id, schema id/version, and CAS artifact ids
+  if the storm is Fabric-scoped;
+- whether quarantine or CDC artifacts increased at the same time.
 
 ## First Triage Steps
 
@@ -33,15 +50,29 @@ Related reference: [Observability Topology](../reference/operations/observabilit
    - run index;
    - timeline index;
    - lineage graph;
-   - telemetry aggregation cache.
+   - telemetry aggregation cache;
+   - Fabric connector cache;
+   - Fabric capability/schema cache;
+   - Fabric retrieval local index or promotion queue;
+   - world materialization/projection state.
 2. Check whether rebuilds are:
    - incremental but too frequent;
    - full scan fallbacks;
-   - startup-only loops after repeated restarts.
+   - startup-only loops after repeated restarts;
+   - schema/profile invalidation loops;
+   - streaming replay loops from cursor/checkpoint state.
 3. Correlate the first spike with deployment, runtime restart, or one large
    tenant workload.
 4. Capture representative request IDs and resource IDs before clearing cache
    state.
+5. For Fabric, run targeted cache and data-plane regressions before destructive
+   cleanup:
+
+```bash
+uv run pytest tests/fabric/connectors/test_cache_system.py tests/fabric/connectors/test_schema_aware_cache.py -q
+uv run pytest tests/fabric/data_plane/test_cursor_store.py tests/fabric/data_plane/test_streaming_runtime.py -q
+uv run pytest tests/fabric/test_lineage.py tests/fabric/test_world_materialization.py -q
+```
 
 ## Rollback / Mitigation
 
@@ -53,11 +84,16 @@ Related reference: [Observability Topology](../reference/operations/observabilit
   that path rather than degrading the whole runtime;
 - if cache state must be cleared, preserve one failing snapshot first so the
   rebuild trigger can be reproduced.
+- for Fabric connector cache storms, prefer disabling prefetch or reducing
+  source concurrency through the profile before deleting CAS-backed evidence;
+- for schema-aware cache storms, verify the Fabric schema governance gate before
+  accepting new snapshots.
 
 ## Escalation Owner
 
 - primary: `@runtime-owners`
 - supporting: `@platform-owners`
+- Fabric-scoped storm: `@fabric-owners`
 
 ## Follow-up Checklist
 
@@ -65,6 +101,8 @@ Related reference: [Observability Topology](../reference/operations/observabilit
   pathological workload;
 - add a benchmark or regression test for the reproduced trigger;
 - verify dashboards expose the exact cache that stormed.
+- if Fabric schema/profile invalidation was involved, record the contract id,
+  profile id, and schema-governance evidence artifact.
 
 ## Blameless Postmortem
 

@@ -34,6 +34,7 @@ from .constraint_discovery import FCIDiscovery, GESDiscovery, PCDiscovery
 from .dagma_discovery import DAGMADiscovery
 from .discovery_pipeline import UnifiedCausalDiscovery
 from .diagnostics import ParallelTrendsCheck
+from .invariance_tests import InvariantDiscoveryFromRegimes
 from .did import (
     StandardDifferenceInDifferences,
     StaggeredDifferenceInDifferences,
@@ -53,7 +54,9 @@ from .query_preservation import (
     check_query_preservation_batch,
     evaluate_query_preservation,
     evaluate_query_preservation_batch,
+    negative_certificate_from_query_preservation_trace,
     update_query_preservation_cache,
+    update_query_preservation_artifact_refs,
 )
 from .literature_prior import BuildLiteraturePrior
 from .mediation import CausalMediationEstimator, ControlledDirectEffectEstimator
@@ -69,6 +72,7 @@ from .modern_did import (
 from .parameter_transfer import ParameterTransfer
 from .pcmci_discovery import PCMCIDiscovery
 from .policy_learning import OptimalPolicyLearner
+from .proximal_identify import proximal_identify_v1
 from .strategic import (
     StrategicSolveResult,
     build_strategic_response_bundle,
@@ -208,6 +212,7 @@ __all__ = [
     "TabularCausalDiscoveryData",
     "SyntheticControlMethod",
     "ParallelTrendsCheck",
+    "InvariantDiscoveryFromRegimes",
     "StandardDifferenceInDifferences",
     "StaggeredDifferenceInDifferences",
     "RegressionDiscontinuity",
@@ -233,8 +238,11 @@ __all__ = [
     "check_query_preservation_batch",
     "evaluate_query_preservation",
     "evaluate_query_preservation_batch",
+    "negative_certificate_from_query_preservation_trace",
     "update_query_preservation_cache",
+    "update_query_preservation_artifact_refs",
     "PCMCIDiscovery",
+    "proximal_identify_v1",
     "PCDiscovery",
     "FCIDiscovery",
     "GESDiscovery",

@@ -75,6 +75,30 @@ class BenchmarkRegistryContract(Protocol):
         suite_id: str | None = None,
     ) -> ArtifactRef | None: ...
 
+    def resolve_family_bundle(
+        self,
+        *,
+        family: str,
+        claim_mode: str,
+        run_id: str | None = None,
+        loop_id: str | None = None,
+        query_type: str | None = None,
+        estimator_name: str | None = None,
+        readiness_target: str | None = None,
+    ) -> Any: ...
+
+    def require_promotion_evidence(
+        self,
+        *,
+        family: str,
+        claim_mode: str,
+        run_id: str | None = None,
+        loop_id: str | None = None,
+        query_type: str | None = None,
+        estimator_name: str | None = None,
+        readiness_target: str | None = None,
+    ) -> list[str]: ...
+
 
 class DiscoveryHypothesisRegistryContract(Protocol):
     """Protocol for publishing discovery hypotheses back into the runtime search surface."""

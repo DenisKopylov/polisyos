@@ -748,6 +748,22 @@ def inspect_public_subjects(
     return list(subjects.values())
 
 
+def filter_subjects_by_prefix(
+    subjects: Iterable[DocstringSubject],
+    module_prefixes: Iterable[str],
+) -> list[DocstringSubject]:
+    """Keep only subjects rooted under the selected module prefixes."""
+
+    prefixes = tuple(prefix for prefix in module_prefixes if prefix)
+    if not prefixes:
+        return list(subjects)
+    return [
+        subject
+        for subject in subjects
+        if any(subject.ref.fqname.startswith(prefix) for prefix in prefixes)
+    ]
+
+
 def print_report(
     repo_root: Path,
     violations: list[DocstringViolation],
@@ -828,6 +844,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional minimum semantic-docstring coverage percentage for the selected scope.",
     )
+    parser.add_argument(
+        "--module-prefix",
+        action="append",
+        default=[],
+        help=(
+            "Optional dotted module prefix filter. Repeat to scope checks to the "
+            "changed public API surface."
+        ),
+    )
     return parser
 
 
@@ -842,6 +867,16 @@ def main(argv: list[str] | None = None) -> int:
 
     allowlist = parse_allowlist(allowlist_path)
     subjects = inspect_public_subjects(docs_root=docs_root, src_root=src_root)
+    subjects = filter_subjects_by_prefix(subjects, args.module_prefix)
+    if not subjects:
+        if args.module_prefix:
+            print("Semantic docstring quality report")
+            print("- inspected public symbols: 0")
+            print(
+                "- note: no public docstring subjects matched "
+                f"the requested module prefixes: {', '.join(args.module_prefix)}"
+            )
+            return 0
     violations, package_gaps, overall_coverage, public_surface_coverage = check_docstrings(
         subjects,
         allowlist,

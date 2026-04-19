@@ -1,6 +1,9 @@
 # Environment Matrix
 Related guides: [Installation](../how-to/install.md), [Dependency Platform](dependency-platform.md).
 
+Owner: `@platform-owners`
+Source of truth: `pyproject.toml`, `.python-version`, `.nvmrc`, and `.github/workflows/{abi,arch,docs,perf,foundry-release-gate,replay,signatures}.yml`
+
 This document is the reference point for contributor setup, CI design, and bug
 triage.
 

@@ -32,7 +32,13 @@ _METADATA = ComponentMetadata(
 
 _SPEC = NodeSpec(
     metadata=_METADATA,
-    state_reads=["params.execution_plan", "params.stop_criteria", "params.governance_constraints", "params.expected_outputs"],
+    state_reads=[
+        "run_id",
+        "params.execution_plan",
+        "params.stop_criteria",
+        "params.governance_constraints",
+        "params.expected_outputs",
+    ],
     state_writes=[
         "params.execution_plan_ref",
         f"inputs.{INPUT_EXECUTION_PLAN_REF}",

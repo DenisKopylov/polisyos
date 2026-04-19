@@ -6,7 +6,7 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.execution_plan import (
@@ -18,14 +18,18 @@ from polisyos.core.contracts.execution_plan import (
 )
 from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.base import parse_fqn
-from polisyos.foundry.methods.selection import suggest_adapter_methods, suggest_plan_node_alternatives
+from polisyos.foundry.methods.exceptions import FoundryMethodError, MethodNotFoundError
+from polisyos.foundry.methods.selection import (
+    suggest_adapter_methods,
+    suggest_plan_node_alternatives,
+)
 from polisyos.scientist.governance.report import GovernanceReport
 
 from .models import (
+    BenchmarkedEvaluator,
     BenchmarkEvaluation,
     BenchmarkSplit,
     BenchmarkSuite,
-    BenchmarkedEvaluator,
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
@@ -42,6 +46,17 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
+_EXECUTION_PLAN_MODEL_ERRORS = (TypeError, ValueError, ValidationError)
+_EXECUTION_PLAN_METHOD_LOOKUP_ERRORS = (
+    AttributeError,
+    FoundryMethodError,
+    MethodNotFoundError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+
+
 def _resolve_registry(
     registry: MethodRegistry | None,
     registry_provider: Callable[[], MethodRegistry] | None,
@@ -49,6 +64,32 @@ def _resolve_registry(
     if registry is not None:
         return registry
     return (registry_provider or MethodRegistry.get_instance)()
+
+
+def _clone_runtime_payload(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: _clone_runtime_payload(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_clone_runtime_payload(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_clone_runtime_payload(item) for item in value)
+    if isinstance(value, set):
+        return {_clone_runtime_payload(item) for item in value}
+    return value
+
+
+def _clone_method_dag_node(node: MethodDagNode) -> MethodDagNode:
+    return node.model_copy(
+        update={
+            "params": _clone_runtime_payload(node.params),
+            "depends_on": list(node.depends_on),
+            "reads_slots": list(node.reads_slots),
+            "writes_slots": list(node.writes_slots),
+            "incompatibilities": list(node.incompatibilities),
+            "deprecations": list(node.deprecations),
+            "notes": list(node.notes),
+        }
+    )
 
 
 class ExecutionPlanSearchMode(str, Enum):
@@ -126,7 +167,7 @@ class ExecutionPlanSearchConfig(MutationArtifact):
         registry_provider: Callable[[], MethodRegistry] | None = None,
     ) -> "ExecutionPlanSearchConfig":
         reg = _resolve_registry(registry, registry_provider)
-        nodes = [node.model_copy(deep=True) for node in self.method_dag]
+        nodes = [_clone_method_dag_node(node) for node in self.method_dag]
         node_by_id = {node.node_id: node for node in nodes}
         target = node_by_id.get(mutation.node_id)
         if target is None:
@@ -143,10 +184,7 @@ class ExecutionPlanSearchConfig(MutationArtifact):
                 target.method_version = None
             else:
                 target.method_version = version
-            try:
-                target.backend = reg.get(replacement).signature.execution_backend.value
-            except Exception:
-                target.backend = None
+            target.backend = _backend_for_method(reg, replacement)
         elif mutation.kind is TopologyMutationKind.INSERT_ADAPTER:
             adapter_fqn = str(mutation.adapter_method_fqn or "").strip()
             if not adapter_fqn:
@@ -465,7 +503,7 @@ def _coerce_candidate_config(raw: Any) -> ExecutionPlanSearchConfig | None:
     if isinstance(raw, dict):
         try:
             return ExecutionPlanSearchConfig.model_validate(raw)
-        except Exception:
+        except _EXECUTION_PLAN_MODEL_ERRORS:
             return None
     return None
 
@@ -564,14 +602,14 @@ def _version_from_fqn(fqn: str) -> str | None:
 def _backend_for_method(registry: MethodRegistry, fqn: str) -> str | None:
     try:
         return registry.get(fqn).signature.execution_backend.value
-    except Exception:
+    except _EXECUTION_PLAN_METHOD_LOOKUP_ERRORS:
         return None
 
 
 def _input_slot_names(registry: MethodRegistry, fqn: str) -> tuple[str, ...]:
     try:
         signature = registry.get(fqn).signature
-    except Exception:
+    except _EXECUTION_PLAN_METHOD_LOOKUP_ERRORS:
         return ()
     return tuple(sorted(signature.input_slot_names))
 
@@ -579,7 +617,7 @@ def _input_slot_names(registry: MethodRegistry, fqn: str) -> tuple[str, ...]:
 def _output_slot_names(registry: MethodRegistry, fqn: str) -> tuple[str, ...]:
     try:
         signature = registry.get(fqn).signature
-    except Exception:
+    except _EXECUTION_PLAN_METHOD_LOOKUP_ERRORS:
         return ()
     return tuple(sorted(signature.output_slot_names))
 

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/topology/public_surface.schema.json",
+  "title": "Public Surface Policy",
+  "type": "object",
+  "required": ["public_surface", "package"],
+  "properties": {
+    "public_surface": {
+      "type": "object",
+      "required": ["version"],
+      "properties": {
+        "version": {"type": "integer"},
+        "internal_rule": {"type": "string"}
+      }
+    },
+    "package": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["module", "classification", "owner", "supported_entrypoints"],
+        "properties": {
+          "module": {"type": "string", "minLength": 1},
+          "classification": {
+            "enum": ["public_stable", "public_experimental", "internal"]
+          },
+          "facade_mode": {"type": "string"},
+          "owner": {"type": "string", "minLength": 1},
+          "readme": {"type": "string"},
+          "reference_doc": {"type": "string"},
+          "supported_entrypoints": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "major_subsystem": {"type": "boolean"},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}

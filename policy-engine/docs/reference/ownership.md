@@ -1,12 +1,18 @@
 # Ownership
 
+Owner: `@platform-owners`
+Source of truth: `docs/DOCUMENTATION_SOTA_PLAN.md`, `architecture/*.toml`,
+`src/polisyos/**`, `frontend/**`, `tools/**`, `ops/**`, `docs/**`, and the
+logical owner-group policy documented on this page
+
 This page defines human ownership for the PolicyOS canonical product root under
 `policy-engine/`.
 
 Per [ADR-0096](../adr/0096-canonical-product-root-and-workspace-boundary.md),
 `policy-engine/` is the product root and the repository root is repo control
-plane. GitHub evaluates `CODEOWNERS` from the repository root, so the matching
-rules live in `.github/CODEOWNERS` and use `/policy-engine/...` prefixes.
+plane. The active GitHub enforcement file is the repository-root
+`.github/CODEOWNERS`; this page remains the logical owner-group reference for
+reviews and escalation.
 
 ## Ownership Model
 
@@ -30,9 +36,37 @@ rules live in `.github/CODEOWNERS` and use `/policy-engine/...` prefixes.
 | Scientist | `src/polisyos/scientist/**` | `@scientist-owners` | `@DenisKopylov` | `@platform-owners` |
 | Lex | `src/polisyos/lex/**` | `@lex-owners` | `@DenisKopylov` | `@platform-owners` |
 | Runtime | `src/polisyos/runtime/**` | `@runtime-owners` | `@DenisKopylov` | `@platform-owners` |
+| Common | `src/polisyos/common/**` | `@core-owners` | `@DenisKopylov` | `@platform-owners` |
+| Data Forge | `src/polisyos/data_forge/**`, `schemas/artifacts/**`, `schemas/manifests/**` | `@data-forge-owners` | `@DenisKopylov` | `@platform-owners` |
+| Architecture contracts | `architecture/**`, `schemas/topology/**` | `@architecture-owners` | `@DenisKopylov` | `@platform-owners` |
+| Schemas | `schemas/**` | `@architecture-owners` | `@DenisKopylov` | `@platform-owners` |
 | Frontend | `frontend/**` | `@frontend-owners` | `@DenisKopylov` | `@platform-owners` |
+| Tools | `tools/**` | `@tools-owners` | `@DenisKopylov` | `@platform-owners` |
 | Docs | `docs/**` | `@docs-owners` | `@DenisKopylov` | `@platform-owners` |
+| ADRs and active plans | `docs/adr/**`, `docs/plans/**` | `@architecture-owners` | `@DenisKopylov` | `@platform-owners` |
 | Ops | `ops/**` | `@platform-owners` | `@DenisKopylov` | `@platform-owners` |
+| Observability and security ops | `ops/observability/**`, `ops/security/**` | `@platform-owners` | `@DenisKopylov` | `@runtime-owners` |
+
+## Documentation SOTA Lane Owners
+
+This matrix is the Phase D0 owner map for the documentation refresh described
+by `docs/DOCUMENTATION_SOTA_PLAN.md`. The logical owner is responsible for
+technical correctness; the backup owner is responsible for unblocking review,
+conflict resolution, and escalation when the primary owner is unavailable.
+
+| Lane | Documentation surfaces | Primary owner | Backup owner |
+|---|---|---|---|
+| L0 Program / IA | `docs/reference/documentation-inventory.md`, `mkdocs.yml`, `docs/index.md`, `docs/reference/index.md`, archive policy | `@docs-owners` | `@platform-owners` |
+| L1 Core/Common/Runtime | `README.md`, `src/polisyos/common/README.md`, `src/polisyos/core/README.md`, `src/polisyos/runtime/README.md`, `docs/reference/api/**`, `docs/reference/operations/**`, runtime runbooks | `@runtime-owners` | `@core-owners` |
+| L2 Fabric | `src/polisyos/fabric/README.md`, `docs/reference/fabric/**`, `docs/connectors/CONTRIBUTING.md`, Fabric how-to and runbook surfaces | `@fabric-owners` | `@platform-owners` |
+| L3 Foundry | `src/polisyos/foundry/README.md`, `docs/reference/foundry/**`, causal-engine explanation, benchmark and reproducibility docs | `@foundry-owners` | `@platform-owners` |
+| L4 IR | `src/polisyos/ir/README.md`, `docs/reference/ir/**`, `docs/reference/schemas.md`, `docs/contracts/**`, IR ADR surfaces | `@ir-owners` | `@platform-owners` |
+| L5 Tools | `tools/README.md`, `docs/reference/tools.md`, CI/CD how-to, validation and contributor command maps | `@tools-owners` | `@platform-owners` |
+| L6 Scientist | `src/polisyos/scientist/README.md`, `docs/reference/scientist/**`, Scientist tutorials and how-to surfaces | `@scientist-owners` | `@platform-owners` |
+| L7 Frontend/API consumers | `frontend/**` docs, runtime API client docs, dashboard/API-consumer reference surfaces | `@frontend-owners` | `@runtime-owners` |
+| L8 Ops/Security/Compliance | `docs/runbooks/**`, `docs/reference/security-compliance.md`, SLO, audit, FedRAMP, release-gate evidence | `@platform-owners` | `@runtime-owners` |
+| L9 Automation/Gates | `docs/reference/quality-gates.md`, generated reference pages, docs QA commands, CI gate docs | `@platform-owners` | `@tools-owners` |
+| L10 Data Forge | `docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md`, Data Forge ADRs, `schemas/artifacts/**`, Data Forge runbooks | `@data-forge-owners` | `@platform-owners` |
 
 ## Boundary-Crossing Approval
 
@@ -59,6 +93,6 @@ rules live in `.github/CODEOWNERS` and use `/policy-engine/...` prefixes.
 
 - The logical owner groups above are intentionally stable even if GitHub team
   handles change later.
-- When the repository moves under an organization with provisioned teams,
-  `.github/CODEOWNERS` should switch from `@DenisKopylov` to the logical team
-  handles documented here without changing the ownership model itself.
+- When the repository moves under an organization with provisioned teams, the
+  manual owner mapping here can be projected into a repo-tracked `CODEOWNERS`
+  file without changing the ownership model itself.

@@ -1,153 +1,168 @@
 # Operate the CI/CD Platform
 
-> Canonical workflow inventory, required checks, release policy, and supply-chain governance for Phase 3.
+This guide documents the current repo-tracked CI/CD surface. It intentionally
+describes only workflows, commands, and evidence paths that exist in the
+repository today.
+
+## Inputs
+
+- a repo change that touches workflows, docs-sensitive surfaces, release gates,
+  or platform evidence;
+- the current checkout of `.github/workflows/**`, docs, and workspace tooling;
+- intent to validate or operate the active CI/CD platform rather than historical
+  workflows.
+
+## Output
+
+- a verified understanding of which workflows and local commands are canonical
+  today;
+- a minimal operating path for local parity, GitHub governance reconciliation,
+  and release/security evidence.
+
+## Commands
+
+```bash
+cd policy-engine
+uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
+uv run polisyos-tools workspace ci-parity --skip-browser
+uv run polisyos-tools docs --output docs/reference/tools.md
+```
 
 ## 1. Workflow Inventory
 
-Package-level GitHub Actions workflows are **not** part of the active PolicyOS platform today.
-The maintained workflow surface is root-only under `.github/workflows/`.
+Package-level GitHub Actions workflows are not part of the active platform
+today. The maintained automation surface is the root inventory under
+`.github/workflows/`.
 
 | Workflow file | Status | Tier | Trigger | Purpose |
 |---|---|---|---|---|
-| `.github/workflows/abi.yml` | canonical | Fast PR | pull request, push to `main` | workflow governance, dependency review, python/docs quality, ABI drift |
-| `.github/workflows/ci.yml` | canonical | Standard PR | pull request, push to `main` | runtime HTTP, frontend quality, contract drift, smoke, integration |
-| `.github/workflows/frontend-nightly.yml` | canonical | Nightly | schedule, manual | benchmark contours, bundle/lighthouse, dependency and action audits, Scorecard |
-| `.github/workflows/release.yml` | canonical | Release | tags `v*`, manual | reproducible artifacts, release notes, signatures, SBOM/vuln gate, canary, attestations |
-| `.github/workflows/docs-pages.yml` | canonical | Publish | `PR Fast` success on `main`, manual | strict MkDocs build and GitHub Pages deployment |
-| `.github/workflows/frontend-quality.yml` | archival | none | manual only | legacy duplicate surface kept only as an explicit archive marker |
+| `.github/workflows/abi.yml` | active | PR gate | pull request on ABI-visible paths | ABI snapshot generation, semantic diff, and committed-snapshot freshness |
+| `.github/workflows/arch.yml` | active | PR/push gate | pull request, push | architecture import gate, runtime contract drift, schema drift, guardrails, and dashboard API type freshness |
+| `.github/workflows/docs.yml` | active | docs gate | pull request | strict MkDocs build and external link checks |
+| `.github/workflows/perf.yml` | active | evidence / regression | pull request, push to `main`, manual | performance regression checks and Scientist reliability evidence |
+| `.github/workflows/replay.yml` | active | smoke | pull request, push | replay and artifact smoke coverage |
+| `.github/workflows/signatures.yml` | active | security | pull request, push | signing regressions and private-key hygiene |
+| `.github/workflows/causal-phases.yml` | active | subsystem validation | pull request, push, manual | governed causal-phase validation bundle |
+| `.github/workflows/foundry-release-gate.yml` | active | subsystem release gate | pull request, push, schedule, manual | Foundry correctness, coverage, capabilities, and benchmark evidence |
+| `.github/workflows/arch-freeze.yml` | active | baseline collection | pull request, push, manual | architecture metrics snapshot and freeze comparison |
+| `.github/workflows/build-and-push.yml` | active | manual build pipeline | manual dispatch | container build, SBOM generation, vulnerability scan, and SBOM signing bundle |
+
+Historical workflow names that are absent from this checkout should not be used
+as current automation anchors. The table above is the factual inventory.
 
 Operational rule:
 
-- If a process matters for branch protection, releases, nightly platform assurance, or docs publish, it must live in one of the canonical workflows above.
-- `frontend-quality.yml` must not be reactivated for PR or push triggers. Any new frontend gate belongs in `ci.yml` or `frontend-nightly.yml`.
+- If a CI/CD control matters, it should either exist in the workflow inventory
+  above or be documented as a canonical local command.
+- If a workflow file is absent, docs should not describe it as current policy.
 
-## 2. Required Check Matrix
+## 2. Local Parity Before a PR
 
-| Tier | Budget target | Workflow | Required gate | Scope |
-|---|---:|---|---|---|
-| Fast PR | `< 10 min` | `.github/workflows/abi.yml` | `Fast PR / Gate` | actionlint, workflow policy, dependency review, import/docs/schema drift, fast unit checks, ABI drift |
-| Standard PR | `< 25 min` | `.github/workflows/ci.yml` | `Standard PR / Gate` | runtime HTTP, frontend quality/a11y, component smoke, contract drift, e2e smoke, integration |
-| Nightly | `30-90 min` | `.github/workflows/frontend-nightly.yml` | none by branch protection | benchmark contours, platform cost/perf visibility, scheduled audits, Scorecard |
-| Release | variable | `.github/workflows/release.yml` | environment gates + workflow success | release packaging, SBOM/vuln gate, canary, provenance attestations, publish |
+Before opening a PR that changes docs-sensitive surfaces, start with the D6
+docs drift gate:
 
-Branch protection / ruleset mapping:
+```bash
+uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
+```
 
-1. Require `Fast PR / Gate`.
-2. Require `Standard PR / Gate`.
-3. Do **not** require Nightly or Release checks on normal pull requests.
-4. Keep `Docs Pages / Deploy` out of the required-check set; docs publish is a post-merge production path, not a PR admission gate.
+This command is path-aware: it dispatches strict MkDocs, docs accuracy,
+semantic docstrings, public-surface drift, schema reference drift, Runtime API
+contract drift, and the required impact-note/runbook evidence rules only for
+the surfaces touched by your change.
 
-If you are applying or re-checking the live repository settings manually, use
-the UI checklist in [Apply Phase 1 Governance in GitHub UI](apply-github-governance.md).
+If your worktree already contains unrelated local changes, repeat
+`--changed-path <repo-relative-path>` to scope the gate to the change set you
+are validating.
 
-This split is intentional: fast and slow lanes are independent workflows, so slower platform checks cannot accidentally block or serialize the fast confidence path.
+If the PR is broader than docs drift alone, finish with the CI-like umbrella
+path:
 
-## 3. Repository Security Posture
+```bash
+uv run polisyos-tools workspace ci-parity --skip-browser
+```
 
-### Token, actions, and workflow policy
+For tool-registry or CLI changes, refresh the generated tools reference after
+the gate tells you it drifted:
 
-- Repository default `GITHUB_TOKEN` posture should be configured as read-only in GitHub settings.
-- Workflows keep top-level permissions read-only and escalate writes only at the job that truly needs them.
-- Third-party actions must be pinned to full commit SHAs.
-- `actionlint` plus `policy-engine/tools/ci/check_workflow_policy.py` run in Fast PR and Nightly to prevent YAML drift, dead paths, unsafe `pull_request_target`, unpinned actions, and over-broad workflow permissions.
-- Dependency review is part of the Fast PR tier and therefore part of the branch-protected PR policy.
+```bash
+uv run polisyos-tools docs --output docs/reference/tools.md
+```
 
-### Secret scanning and untrusted PR handling
+The backend parity lane includes docs accuracy, strict MkDocs build, semantic
+docstring quality, schema drift, runtime contract drift, and the fast platform
+gate unless explicit skip flags are used.
 
-- GitHub secret scanning and push protection should be enabled in repository security settings.
-- Untrusted PR metadata must not be interpolated directly inside `run:` blocks.
-- PR-triggered workflows use `pull_request`, not `pull_request_target`, unless a separately reviewed exception is approved.
+## 3. Manual GitHub Settings
 
-### Identity, runners, and provenance
+Required checks, branch protection, approval counts, and merge queue settings
+are currently operational/manual truth in GitHub rather than repo-tracked
+files.
 
-- Cloud deployment/auth steps should use OIDC or another short-lived credential mechanism where the target supports it.
-- GitHub-hosted runners are the default trust model.
-- Any future self-hosted runner requires an owner, an isolation boundary, secret minimization, and an ephemeral / just-in-time story before it can be added to policy.
-- Release artifacts are signed with Sigstore keyless signatures and release evidence is attested with GitHub artifact attestations so downstream automation can verify both signatures and provenance.
+Use [Apply GitHub Governance Manually](apply-github-governance.md) when you
+need to reconcile the live repository settings with the repo-tracked workflow
+inventory and docs.
 
-### Vulnerability exception policy
+## 4. Release, Build, and Security Surfaces
 
-- Release-time vulnerability exceptions live in `release/cve-exceptions.toml`.
-- Every exception must have a concrete rationale and `expires_on`.
-- Expired exceptions fail the release gate until renewed or removed.
-- Fresh SBOMs are generated at release time and during scheduled audits. Transitive dependency coverage is expected wherever the underlying scanner can discover it from the source tree or produced artifacts.
+The current repo-tracked release/build/security surfaces are:
 
-## 4. Release Policy
+- `build-and-push.yml` for manual image build, SBOM generation, vulnerability
+  scan, and SBOM signing;
+- `signatures.yml` for artifact-signing regressions and private-key hygiene;
+- `docs/reference/operations/core-runtime-closeout.md` plus
+  `polisyos-tools workspace core-runtime-closeout` /
+  `core-runtime-long-soak` for core-runtime closeout evidence;
+- `docs/reference/operations/platform-acceptance-audit.md` plus
+  `polisyos-tools workspace acceptance-audit` for cross-surface platform
+  acceptance.
 
-### Entry and versioning
+Release/build evidence is currently split across `build-and-push.yml`,
+`signatures.yml`, and the closeout commands/docs rather than one monolithic
+release workflow.
 
-- Releases are cut from tags in `vX.Y.Z` form, or from a manual dispatch carrying the same tag.
-- `pyproject.toml` and `frontend/runtime-dashboard/package.json` must match that version exactly.
-- Published release versions are immutable. If a release is wrong, ship `vX.Y.(Z+1)` rather than mutating the existing release.
+## 5. Docs and Benchmark Surfaces
 
-### Release notes
+- `docs.yml` is the current published-doc quality gate: the path-aware docs
+  drift gate plus link checking.
+- `perf.yml` is the current performance-evidence workflow: benchmark regression
+  comparison, overhead checks, and Scientist reliability artifacts.
+- Local benchmark truth still comes from `polisyos-tools benchmarks ...` and the
+  published benchmark/how-to/reference docs, not from a removed
+  `frontend-nightly.yml`.
 
-- PRs add TOML fragments under `release-fragments/unreleased/`.
-- Release prep freezes those entries into `release-fragments/releases/<version>/`.
-- The release workflow renders notes only from that immutable versioned snapshot.
-- The published notes follow Keep a Changelog sectioning and must include:
-  - compatibility notes;
-  - migration notes;
-  - schema/runtime/API changes;
-  - known limitations.
+## 6. Workflow Security Posture
 
-### Progressive delivery
+- Prefer read-only default `GITHUB_TOKEN` posture in GitHub settings.
+- Keep top-level workflow permissions minimal and escalate writes only where a
+  job truly needs them.
+- Pin third-party actions to specific major versions or SHAs as the owning
+  workflow policy requires.
+- Keep PR-triggered workflows on `pull_request` unless a separately reviewed
+  exception is needed.
+- Enable secret scanning and push protection in GitHub settings; those are live
+  platform controls, not repo-tracked files.
 
-- `release-canary` is the first runtime-bearing checkpoint.
-- It launches a live runtime API from the installed release wheel in a fresh
-  environment, verifies health/readiness endpoints, checks that the shipped
-  dashboard bundle extracts cleanly, then runs runtime smoke and benchmark
-  smoke against the same release candidate.
-- Canary abort thresholds are:
-  - SBOM / vulnerability policy violations;
-  - failed live runtime canary probes;
-  - failed runtime smoke checks;
-  - failed benchmark smoke checks.
-- Release artifacts are signed with Sigstore keyless signatures before publish.
-- Promotion only happens after the `release-production` environment job is allowed to proceed.
+## 7. Rule of Thumb
 
-### Evidence and retention
+If you need to answer “which workflow matters now?”, start from the table in
+this page and the files that actually exist under `.github/workflows/`, not
+from old filenames, historical plans, or tribal memory.
 
-| Artifact | Retention |
-|---|---:|
-| PR debug evidence | 14 days |
-| Nightly audit / benchmark evidence | 30 days |
-| Release artifacts, notes, signatures, SBOM, vuln report, asset-size policy, canary evidence | 180 days in Actions artifacts, plus permanent GitHub Release assets where published |
+## Rollback / Handoff
 
-## 5. Benchmark Platform
+- if a platform change introduces governance or docs drift, restore the previous
+  repo-tracked workflow/doc state before retrying the CI/CD change;
+- if the live GitHub settings diverge from the repo inventory, hand off through
+  [Apply GitHub Governance Manually](apply-github-governance.md) instead of
+  documenting an unverified setting as current truth;
+- if release evidence is incomplete, stop at the evidence gap rather than
+  widening the rollout on assumption alone.
 
-The benchmark platform is intentionally broader than `pytest-benchmark`.
+## Troubleshooting
 
-| Taxonomy slice | Current path | Owner | Current ratchet |
-|---|---|---|---|
-| Unit microbench | `polisyos-tools benchmarks run-all` circuits and `benchmarks/foundry/` tests | Foundry maintainers | nightly benchmark contour summaries must stay green |
-| Workflow throughput | contour summaries from `tools/validation/run_benchmark_contours.sh` | Platform | release / nightly summaries must keep `passes_all=true` |
-| Frontend bundle | `npm run check:bundle` | Runtime dashboard owners | bundle budgets must pass |
-| Frontend lighthouse | `npm run lighthouse:ci` | Runtime dashboard owners | Lighthouse CI must pass configured budgets |
-| Selected infra-cost checks | `release/artifact-size-policy.toml` plus release asset summaries | Platform | release artifacts must stay within repo-tracked size thresholds before widening budgets |
-
-Policy for baselines:
-
-1. New baselines must come with an owner and a reason they matter for runtime or cost.
-2. Raising a threshold is a conscious ratchet change and should be called out in the PR summary and release fragment.
-3. Retiring a baseline needs an explicit justification in docs or an ADR if it changes release posture.
-
-## 6. SSDF / SLSA / Scorecard Crosswalk
-
-| Control | Enforced in repo policy | Enforced by process / platform |
-|---|---|---|
-| Pinned third-party actions | yes, via workflow policy scanner + review | — |
-| Read-only default token posture | partially, via workflow files | yes, repository settings must enforce default read-only |
-| Dependency review on PRs | yes | — |
-| Release-time SBOM generation | yes | — |
-| Release-time vulnerability gating with expiring exceptions | yes | exception approvals still need human review |
-| Signed release artifacts and provenance / attestations | yes | downstream verification is consumer process |
-| Secret scanning / push protection | no | yes, GitHub security settings |
-| Protected release checkpoints | partially, via environment jobs | yes, environment reviewer rules live in GitHub settings |
-| OIDC for cloud deploy auth | no direct enforcement today | yes, required when future deployment jobs are added |
-| OpenSSF Scorecard external lens | yes, scheduled workflow | triage of findings is an engineering process |
-| Scheduled action freshness audit | yes, scheduled workflow | upgrade decisions remain an engineering process |
-
-## 7. Legacy vs Canonical Rule of Thumb
-
-If you need to answer “which workflow matters now?” the answer should come from the canonical table in this page, not from old filenames, tribal memory, or package-local experiments.
+- If a workflow is mentioned in docs but absent from `.github/workflows/`,
+  treat the doc as stale until the inventory is updated.
+- If a local parity command feels too broad, start with the path-aware docs gate
+  and add only the subsystem checks the diff actually triggered.
+- If repo-tracked policy and GitHub UI disagree, the docs should describe the
+  repo truth and explicitly mark the live setting as manual until reconciled.

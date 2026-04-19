@@ -105,9 +105,16 @@ def test_knowledge_base_prompt_context_uses_threshold(tmp_path) -> None:
     assert "BUDGET_EXCEEDED" in context
 
 
-def test_knowledge_base_accepts_injected_metrics(tmp_path) -> None:
+def test_knowledge_base_accepts_injected_metrics(
+    monkeypatch,
+    tmp_path,
+) -> None:
     cas = FileSystemCAS(tmp_path)
     metrics = _FakeMetrics()
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.knowledge_base._default_metrics",
+        lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
+    )
     kb = CriticKnowledgeBase(cas, metrics=metrics, persist_threshold=100)
 
     report = CritiqueReport(

@@ -1,9 +1,15 @@
 """Exports base governance-pass interfaces plus lazily loaded legal and safety passes."""
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from .base import ComplianceIssue, IssueSeverity, PassContext, ValidatorPass
+from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
+
+from .base import PassContext, ValidatorPass
+
+if TYPE_CHECKING:
+    from .legal_pass import LegalPass
+    from .safety_pass import SafetyPass
 
 __all__ = [
     "ComplianceIssue",

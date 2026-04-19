@@ -84,6 +84,7 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
+        "run_id",
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
         f"artifacts_index.{ARTIFACT_METRICS_REF}",

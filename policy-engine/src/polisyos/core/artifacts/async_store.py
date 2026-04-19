@@ -12,9 +12,10 @@ from .protocol import ArtifactStore, AsyncArtifactStore
 if TYPE_CHECKING:
     from polisyos.core.canon.canon_json import CanonSpec
 
+    from ._integrity_ops import VerificationReport
     from .ids import ArtifactID
     from .manifest import ArtifactManifest, ArtifactRef
-    from .store import VerificationReport
+    from .backends.config import ArtifactStoreConfig
     from .write_contract import ArtifactWriteOptions
 
 
@@ -33,17 +34,23 @@ class AsyncArtifactStoreAdapter:
     timeout_seconds: float | None = None
 
     async def has(self, artifact_id: ArtifactID) -> bool:
-        return await run_blocking_async(
-            self.store.has,
-            artifact_id,
-            timeout_seconds=self.timeout_seconds,
+        return cast(
+            "bool",
+            await run_blocking_async(
+                self.store.has,
+                artifact_id,
+                timeout_seconds=self.timeout_seconds,
+            ),
         )
 
     async def get_bytes(self, artifact_id: ArtifactID) -> bytes:
-        return await run_blocking_async(
-            self.store.get_bytes,
-            artifact_id,
-            timeout_seconds=self.timeout_seconds,
+        return cast(
+            "bytes",
+            await run_blocking_async(
+                self.store.get_bytes,
+                artifact_id,
+                timeout_seconds=self.timeout_seconds,
+            ),
         )
 
     async def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
@@ -87,12 +94,15 @@ class AsyncArtifactStoreAdapter:
         )
 
     async def iter_artifact_ids(self) -> list[ArtifactID]:
-        return await run_blocking_async(
-            self.store.iter_artifact_ids,
-            timeout_seconds=self.timeout_seconds,
+        return cast(
+            "list[ArtifactID]",
+            await run_blocking_async(
+                self.store.iter_artifact_ids,
+                timeout_seconds=self.timeout_seconds,
+            ),
         )
 
-    def artifact_store_config(self):
+    def artifact_store_config(self) -> ArtifactStoreConfig | None:
         from .backends.config import infer_artifact_store_config
 
         return infer_artifact_store_config(self.store)
@@ -106,17 +116,23 @@ class AsyncFileSystemArtifactStore:
     timeout_seconds: float | None = None
 
     async def has(self, artifact_id: ArtifactID) -> bool:
-        return await run_blocking_async(
-            self.store.has,
-            artifact_id,
-            timeout_seconds=self.timeout_seconds,
+        return cast(
+            "bool",
+            await run_blocking_async(
+                self.store.has,
+                artifact_id,
+                timeout_seconds=self.timeout_seconds,
+            ),
         )
 
     async def get_bytes(self, artifact_id: ArtifactID) -> bytes:
-        return await run_blocking_async(
-            self.store.get_bytes,
-            artifact_id,
-            timeout_seconds=self.timeout_seconds,
+        return cast(
+            "bytes",
+            await run_blocking_async(
+                self.store.get_bytes,
+                artifact_id,
+                timeout_seconds=self.timeout_seconds,
+            ),
         )
 
     async def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
@@ -160,12 +176,15 @@ class AsyncFileSystemArtifactStore:
         )
 
     async def iter_artifact_ids(self) -> list[ArtifactID]:
-        return await run_blocking_async(
-            self.store.iter_artifact_ids,
-            timeout_seconds=self.timeout_seconds,
+        return cast(
+            "list[ArtifactID]",
+            await run_blocking_async(
+                self.store.iter_artifact_ids,
+                timeout_seconds=self.timeout_seconds,
+            ),
         )
 
-    def artifact_store_config(self):
+    def artifact_store_config(self) -> ArtifactStoreConfig | None:
         from .backends.config import infer_artifact_store_config
 
         return infer_artifact_store_config(self.store)

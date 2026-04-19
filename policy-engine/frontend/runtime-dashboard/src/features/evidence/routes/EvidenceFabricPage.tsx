@@ -25,7 +25,7 @@ import {
   normalizeRunEvidenceContext,
   resolveDefaultEvidenceFocus,
 } from "@/lib/domain/evidence";
-import { formatDate, formatNumber } from "@/lib/utils";
+import { formatDate, formatNumber, formatPercent } from "@/lib/utils";
 import {
   markUiMilestone,
   measureUiLatency,
@@ -39,9 +39,11 @@ import {
   EvidenceChain,
   copyShareLink,
 } from "@/shared/ui";
+import { useIsMobile } from "@/shared/ui/responsive";
 
 export default function EvidenceFabric() {
   const { t, label } = useI18n();
+  const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     artifactId,
@@ -124,6 +126,17 @@ export default function EvidenceFabric() {
           metadata: candidate.metadata ?? {},
         }))
   ).slice(0, 3);
+  const sourceGapCount = Math.max(
+    profiles.length - availableProfiles.length,
+    0,
+  );
+  const averagePromotionConfidence =
+    featuredPromotions.length > 0
+      ? featuredPromotions.reduce(
+          (total, candidate) => total + (candidate.confidence ?? 0),
+          0,
+        ) / featuredPromotions.length
+      : 0;
 
   const degradedMessages: string[] = [];
   if (runId && needId && !selectedNeed) {
@@ -308,206 +321,335 @@ export default function EvidenceFabric() {
         ) : null}
       </div>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(280px,0.8fr)]">
-        <article className="panel">
-          <div className="panel-header">
-            <div>
-              <p className="eyebrow">{t("pages.evidence.sourceProfiles")}</p>
-              <h4>
+      {isMobile ? (
+        <section className="grid gap-3" data-testid="evidence-mobile-overview">
+          <Card className="space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="eyebrow">Source Atlas</p>
+                <h4>{t("pages.evidence.sourceAtlasTitle")}</h4>
+              </div>
+              <Badge kind="neutral">
+                {t("pages.evidence.docsAdded", {
+                  count: formatNumber(
+                    indexStatsQuery.data?.stats.docs_added_last_run ?? 0,
+                  ),
+                })}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="compact-metric">
+                <span>{t("pages.evidence.connectors")}</span>
+                <strong>{formatNumber(loadedConnectors.length)}</strong>
+              </div>
+              <div className="compact-metric">
+                <span>{t("pages.evidence.sourceProfiles")}</span>
+                <strong>{formatNumber(availableProfiles.length)}</strong>
+              </div>
+              <div className="compact-metric">
+                <span>{t("common.gaps")}</span>
+                <strong>{formatNumber(sourceGapCount)}</strong>
+              </div>
+            </div>
+          </Card>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Card className="space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="eyebrow">Promotion Lane</p>
+                  <h4>{t("pages.evidence.promotionReviewTitle")}</h4>
+                </div>
+                <Badge kind="warn">
+                  {formatNumber(featuredPromotions.length)}
+                </Badge>
+              </div>
+              <p className="text-muted text-sm">
+                {t("pages.evidence.promotionReviewBody")}
+              </p>
+              {runId ? (
+                <Button
+                  type="button"
+                  onClick={() => updateContext({ focus: "promotion" })}
+                  variant="ghost"
+                >
+                  {t("pages.evidence.focus.promotion")}
+                </Button>
+              ) : null}
+            </Card>
+
+            <Card className="space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="eyebrow">Knowledge Weave</p>
+                  <h4>{t("pages.evidence.relatedArtifacts")}</h4>
+                </div>
+                <Badge kind="neutral">
+                  {formatNumber(contextArtifactRefs.length)}
+                </Badge>
+              </div>
+              <p className="text-muted text-sm">
+                {selectedArtifact
+                  ? label(
+                      "artifactKinds",
+                      selectedArtifact.kind,
+                      selectedArtifact.kind ?? selectedArtifact.artifact_id,
+                    )
+                  : t("pages.evidence.noArtifacts")}
+              </p>
+              {runId ? (
+                <Button
+                  type="button"
+                  onClick={() => updateContext({ focus: "artifact" })}
+                  variant="ghost"
+                >
+                  {t("pages.evidence.focus.artifact")}
+                </Button>
+              ) : null}
+            </Card>
+          </div>
+        </section>
+      ) : (
+        <>
+          <section className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(280px,0.8fr)]">
+            <article className="panel">
+              <div className="panel-header">
+                <div>
+                  <p className="eyebrow">Source Atlas</p>
+                  <h4>{t("pages.evidence.sourceAtlasTitle")}</h4>
+                  <p className="topbar-subtitle mt-2">
+                    {t("pages.evidence.sourceAtlasBody")}
+                  </p>
+                </div>
+                <span className="text-muted font-mono text-[11px] tracking-[0.18em] uppercase">
+                  {t("pages.evidence.docsAdded", {
+                    count: formatNumber(
+                      indexStatsQuery.data?.stats.docs_added_last_run ?? 0,
+                    ),
+                  })}
+                </span>
+              </div>
+              <div className="grid gap-3">
+                {featuredProfiles.map((profile) => (
+                  <div
+                    key={profile.profile_id}
+                    className="bg-surface/75 border-line rounded-2xl border p-4"
+                  >
+                    <strong>{profile.display_name}</strong>
+                    <p className="text-muted mt-2 text-sm">
+                      {profile.source_organization} · {profile.connector_family}{" "}
+                      ·{" "}
+                      {profile.estimated_datasets != null
+                        ? t("pages.evidence.datasetsCount", {
+                            count: formatNumber(profile.estimated_datasets),
+                          })
+                        : t("common.unavailable")}
+                    </p>
+                  </div>
+                ))}
+                {featuredProfiles.length === 0 ? (
+                  <div className="bg-surface/75 border-line rounded-2xl border p-4">
+                    <strong>{t("pages.evidence.sourceProfiles")}</strong>
+                    <p className="text-muted mt-2 text-sm">
+                      {t("pages.evidence.profilesLoading")}
+                    </p>
+                  </div>
+                ) : null}
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div className="compact-metric">
+                    <span>{t("pages.evidence.connectors")}</span>
+                    <strong>{formatNumber(loadedConnectors.length)}</strong>
+                  </div>
+                  <div className="compact-metric">
+                    <span>{t("pages.evidence.sourceProfiles")}</span>
+                    <strong>{formatNumber(availableProfiles.length)}</strong>
+                  </div>
+                  <div className="compact-metric">
+                    <span>{t("common.gaps")}</span>
+                    <strong>{formatNumber(sourceGapCount)}</strong>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article className="panel">
+              <div className="panel-header">
+                <div>
+                  <p className="eyebrow">Knowledge Weave</p>
+                  <h4>{t("pages.evidence.knowledgeWeaveTitle")}</h4>
+                  <p className="topbar-subtitle mt-2">
+                    {t("pages.evidence.knowledgeWeaveBody")}
+                  </p>
+                </div>
+                <span className="text-muted font-mono text-[11px] tracking-[0.18em] uppercase">
+                  {t("pages.evidence.indexDocs")}
+                </span>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="bg-surface/75 border-line rounded-2xl border p-4">
+                  <p className="text-muted text-xs tracking-wide uppercase">
+                    {t("pages.evidence.focus.overview")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold">
+                    {formatNumber(contextArtifactRefs.length)}
+                  </p>
+                  <p className="text-muted mt-2 text-sm">
+                    {t("pages.evidence.relatedArtifacts")}
+                  </p>
+                </div>
+                <div className="bg-surface/75 border-line rounded-2xl border p-4">
+                  <p className="text-muted text-xs tracking-wide uppercase">
+                    {t("pages.evidence.dataNeeds")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold">
+                    {formatNumber(runContext?.dataNeeds.length ?? 0)}
+                  </p>
+                  <p className="text-muted mt-2 text-sm">
+                    {t("pages.evidence.fetchPlans")}
+                  </p>
+                </div>
+                <div className="bg-surface/75 border-line rounded-2xl border p-4">
+                  <p className="text-muted text-xs tracking-wide uppercase">
+                    {t("pages.evidence.fetchPlans")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold">
+                    {formatNumber(runContext?.fetchPlans.length ?? 0)}
+                  </p>
+                  <p className="text-muted mt-2 text-sm">
+                    {t("pages.evidence.contextRefs")}
+                  </p>
+                </div>
+                <div className="bg-surface/75 border-line rounded-2xl border p-4">
+                  <p className="text-muted text-xs tracking-wide uppercase">
+                    {t("pages.evidence.promotion")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold">
+                    {formatNumber(
+                      runId
+                        ? (runContext?.promotionCandidates.length ?? 0)
+                        : (promotionCandidatesQuery.data?.candidates?.length ??
+                            0),
+                    )}
+                  </p>
+                  <p className="text-muted mt-2 text-sm">
+                    {t("pages.evidence.runScopedPromotion")}
+                  </p>
+                </div>
+              </div>
+            </article>
+
+            <article className="panel">
+              <div className="panel-header">
+                <div>
+                  <p className="eyebrow">Promotion Lane</p>
+                  <h4>{t("pages.evidence.promotionReviewTitle")}</h4>
+                  <p className="topbar-subtitle mt-2">
+                    {t("pages.evidence.promotionReviewBody")}
+                  </p>
+                </div>
+              </div>
+              <div className="grid gap-3">
+                {featuredPromotions.map((candidate) => (
+                  <div
+                    key={candidate.promotionId}
+                    className="bg-surface/75 border-line rounded-2xl border p-4"
+                  >
+                    <strong>{candidate.metricId}</strong>
+                    <span className="bg-accent/10 text-accent mt-3 inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide uppercase">
+                      {candidate.status}
+                    </span>
+                  </div>
+                ))}
+                {featuredPromotions.length === 0 ? (
+                  <div className="bg-surface/75 border-line rounded-2xl border p-4">
+                    <strong>{t("pages.evidence.noPromotionCandidates")}</strong>
+                    <span className="bg-surface text-muted mt-3 inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide uppercase">
+                      -
+                    </span>
+                  </div>
+                ) : null}
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="compact-metric">
+                    <span>{t("pages.evidence.promotionCandidates")}</span>
+                    <strong>{formatNumber(featuredPromotions.length)}</strong>
+                  </div>
+                  <div className="compact-metric">
+                    <span>{t("common.confidence")}</span>
+                    <strong>
+                      {formatPercent(averagePromotionConfidence, {
+                        maximumFractionDigits: 0,
+                      })}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <Card>
+              <p className="text-muted text-xs uppercase">
+                {t("pages.evidence.sourceProfiles")}
+              </p>
+              <p className="text-2xl font-semibold">
+                {formatNumber(availableProfiles.length)}
+              </p>
+              <p className="text-muted text-xs">
                 {t("pages.evidence.totalProfiles", {
                   count: formatNumber(profiles.length),
                 })}
-              </h4>
-            </div>
-            <span className="text-muted font-mono text-[11px] tracking-[0.18em] uppercase">
-              {t("pages.evidence.docsAdded", {
-                count: formatNumber(
-                  indexStatsQuery.data?.stats.docs_added_last_run ?? 0,
-                ),
-              })}
-            </span>
-          </div>
-          <div className="grid gap-3">
-            {featuredProfiles.map((profile) => (
-              <div
-                key={profile.profile_id}
-                className="bg-surface/75 border-line rounded-2xl border p-4"
-              >
-                <strong>{profile.display_name}</strong>
-                <p className="text-muted mt-2 text-sm">
-                  {profile.source_organization} · {profile.connector_family} ·{" "}
-                  {profile.estimated_datasets != null
-                    ? t("pages.evidence.datasetsCount", {
-                        count: formatNumber(profile.estimated_datasets),
-                      })
-                    : t("common.unavailable")}
-                </p>
-              </div>
-            ))}
-            {featuredProfiles.length === 0 ? (
-              <div className="bg-surface/75 border-line rounded-2xl border p-4">
-                <strong>{t("pages.evidence.sourceProfiles")}</strong>
-                <p className="text-muted mt-2 text-sm">
-                  {t("pages.evidence.profilesLoading")}
-                </p>
-              </div>
-            ) : null}
-          </div>
-        </article>
-
-        <article className="panel">
-          <div className="panel-header">
-            <div>
-              <p className="eyebrow">{t("pages.evidence.evidenceGraph")}</p>
-              <h4>{t("pages.evidence.contextRefs")}</h4>
-            </div>
-            <span className="text-muted font-mono text-[11px] tracking-[0.18em] uppercase">
-              {t("pages.evidence.indexDocs")}
-            </span>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <p className="text-muted text-xs tracking-wide uppercase">
-                {t("pages.evidence.focus.overview")}
               </p>
-              <p className="mt-2 text-2xl font-semibold">
-                {formatNumber(contextArtifactRefs.length)}
+            </Card>
+            <Card>
+              <p className="text-muted text-xs uppercase">
+                {t("pages.evidence.connectors")}
               </p>
-              <p className="text-muted mt-2 text-sm">
-                {t("pages.evidence.relatedArtifacts")}
+              <p className="text-2xl font-semibold">
+                {formatNumber(loadedConnectors.length)}
               </p>
-            </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <p className="text-muted text-xs tracking-wide uppercase">
-                {t("pages.evidence.dataNeeds")}
+              <p className="text-muted text-xs">
+                {t("pages.evidence.totalConnectors", {
+                  count: formatNumber(connectors.length),
+                })}
               </p>
-              <p className="mt-2 text-2xl font-semibold">
-                {formatNumber(runContext?.dataNeeds.length ?? 0)}
+            </Card>
+            <Card>
+              <p className="text-muted text-xs uppercase">
+                {t("pages.evidence.indexDocs")}
               </p>
-              <p className="text-muted mt-2 text-sm">
-                {t("pages.evidence.fetchPlans")}
+              <p className="text-2xl font-semibold">
+                {formatNumber(
+                  indexStatsQuery.data?.stats.index_docs_total ?? 0,
+                )}
               </p>
-            </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <p className="text-muted text-xs tracking-wide uppercase">
-                {t("pages.evidence.fetchPlans")}
+              <p className="text-muted text-xs">
+                {t("pages.evidence.docsAdded", {
+                  count: formatNumber(
+                    indexStatsQuery.data?.stats.docs_added_last_run ?? 0,
+                  ),
+                })}
               </p>
-              <p className="mt-2 text-2xl font-semibold">
-                {formatNumber(runContext?.fetchPlans.length ?? 0)}
-              </p>
-              <p className="text-muted mt-2 text-sm">
-                {t("pages.evidence.contextRefs")}
-              </p>
-            </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <p className="text-muted text-xs tracking-wide uppercase">
+            </Card>
+            <Card>
+              <p className="text-muted text-xs uppercase">
                 {t("pages.evidence.promotion")}
               </p>
-              <p className="mt-2 text-2xl font-semibold">
+              <p className="text-2xl font-semibold">
                 {formatNumber(
                   runId
                     ? (runContext?.promotionCandidates.length ?? 0)
                     : (promotionCandidatesQuery.data?.candidates?.length ?? 0),
                 )}
               </p>
-              <p className="text-muted mt-2 text-sm">
-                {t("pages.evidence.runScopedPromotion")}
+              <p className="text-muted text-xs">
+                {runId
+                  ? t("pages.evidence.runScopedPromotion")
+                  : t("pages.evidence.globalPromotion")}
               </p>
-            </div>
+            </Card>
           </div>
-        </article>
-
-        <article className="panel">
-          <div className="panel-header">
-            <div>
-              <p className="eyebrow">{t("pages.evidence.promotion")}</p>
-              <h4>{t("pages.evidence.promotionLane")}</h4>
-            </div>
-          </div>
-          <div className="grid gap-3">
-            {featuredPromotions.map((candidate) => (
-              <div
-                key={candidate.promotionId}
-                className="bg-surface/75 border-line rounded-2xl border p-4"
-              >
-                <strong>{candidate.metricId}</strong>
-                <span className="bg-accent/10 text-accent mt-3 inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide uppercase">
-                  {candidate.status}
-                </span>
-              </div>
-            ))}
-            {featuredPromotions.length === 0 ? (
-              <div className="bg-surface/75 border-line rounded-2xl border p-4">
-                <strong>{t("pages.evidence.noPromotionCandidates")}</strong>
-                <span className="bg-surface text-muted mt-3 inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide uppercase">
-                  -
-                </span>
-              </div>
-            ) : null}
-          </div>
-        </article>
-      </section>
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <p className="text-muted text-xs uppercase">
-            {t("pages.evidence.sourceProfiles")}
-          </p>
-          <p className="text-2xl font-semibold">
-            {formatNumber(availableProfiles.length)}
-          </p>
-          <p className="text-muted text-xs">
-            {t("pages.evidence.totalProfiles", {
-              count: formatNumber(profiles.length),
-            })}
-          </p>
-        </Card>
-        <Card>
-          <p className="text-muted text-xs uppercase">
-            {t("pages.evidence.connectors")}
-          </p>
-          <p className="text-2xl font-semibold">
-            {formatNumber(loadedConnectors.length)}
-          </p>
-          <p className="text-muted text-xs">
-            {t("pages.evidence.totalConnectors", {
-              count: formatNumber(connectors.length),
-            })}
-          </p>
-        </Card>
-        <Card>
-          <p className="text-muted text-xs uppercase">
-            {t("pages.evidence.indexDocs")}
-          </p>
-          <p className="text-2xl font-semibold">
-            {formatNumber(indexStatsQuery.data?.stats.index_docs_total ?? 0)}
-          </p>
-          <p className="text-muted text-xs">
-            {t("pages.evidence.docsAdded", {
-              count: formatNumber(
-                indexStatsQuery.data?.stats.docs_added_last_run ?? 0,
-              ),
-            })}
-          </p>
-        </Card>
-        <Card>
-          <p className="text-muted text-xs uppercase">
-            {t("pages.evidence.promotion")}
-          </p>
-          <p className="text-2xl font-semibold">
-            {formatNumber(
-              runId
-                ? (runContext?.promotionCandidates.length ?? 0)
-                : (promotionCandidatesQuery.data?.candidates?.length ?? 0),
-            )}
-          </p>
-          <p className="text-muted text-xs">
-            {runId
-              ? t("pages.evidence.runScopedPromotion")
-              : t("pages.evidence.globalPromotion")}
-          </p>
-        </Card>
-      </div>
+        </>
+      )}
 
       {runId ? (
         <Card>

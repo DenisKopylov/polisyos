@@ -1,6 +1,13 @@
 # Runs API
 Related explanation: [Architecture](../../explanation/architecture.md).
 
+Freshness: 2026-04-17
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/dependencies.py`, and `schemas/runtime_api_v1.openapi.json`
+Validation:
+- `uv run pytest -q tests/runtime/http/test_runs_api.py tests/runtime/http/test_timeline_api.py tests/runtime/http/test_runtime_api_authz.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+
 The runs surface is the read-only operational view over runtime executions. Every run-specific endpoint enforces tenant access before returning data.
 
 ## Endpoint Summary
@@ -16,10 +23,18 @@ The runs surface is the read-only operational view over runtime executions. Ever
 | `GET` | `/api/v1/runs/{run_id}/agents` | `AgentPipelineResponse` | Agent attempts, steps, scoring |
 | `GET` | `/api/v1/runs/{run_id}/evidence-context` | `RunEvidenceContextResponse` | Evidence bundle and context resolution |
 | `GET` | `/api/v1/runs/{run_id}/workflow` | `RunWorkflowResponse` | Workflow/DAG view |
-| `GET` | `/api/v1/runs/live` | `text/event-stream` | Route-only global live stream |
-| `GET` | `/api/v1/runs/{run_id}/live` | `text/event-stream` | Route-only per-run live stream |
+| `GET` | `/api/v1/runs/live` | `text/event-stream` | Route-only, schema-hidden global live stream |
+| `GET` | `/api/v1/runs/{run_id}/live` | `text/event-stream` | Route-only, schema-hidden per-run live stream |
 
 Common status codes for committed endpoints: `200`, `400`, `401`, `403`, `404`, `422`, `500`.
+
+Validation anchors:
+
+- `tests/runtime/http/test_runs_api.py`
+- `tests/runtime/http/test_timeline_api.py`
+- `tests/runtime/http/test_core_only_runs_api.py`
+- `tests/runtime/http/test_runtime_api_authz.py`
+- `tests/runtime/http/test_access_invariants_properties.py`
 
 ## `GET /api/v1/runs`
 
@@ -28,6 +43,7 @@ List runs visible to the current tenant scope.
 - Query parameters:
   - `limit`: page size, default `50`, max `200`
   - `cursor`: opaque pagination cursor
+  - `q`: optional free-text run search
   - `status`: optional status filter
   - `from_ts`: lower bound timestamp
   - `to_ts`: upper bound timestamp
@@ -212,13 +228,17 @@ http GET :8000/api/v1/runs/$RUN_ID/workflow \
 
 ## Live Streams
 
-The runtime also exposes two server-sent event streams from `routes/runs.py`. Both are currently excluded from the committed OpenAPI snapshot.
+The runtime also exposes two server-sent event streams from `routes/runs.py`.
+Both are current runtime routes, but they are deliberately excluded from the
+committed OpenAPI snapshot and generated clients with `include_in_schema=False`.
+They are operator affordances, not a versioned SDK contract.
 
 ### `GET /api/v1/runs/live`
 
 Global live stream of run status snapshots.
 
 - Response media type: `text/event-stream`
+- Response header: `X-SSE-Flow-Control`
 - Event type: `snapshot`
 - Payload highlights:
   - `status_counts`
@@ -236,6 +256,7 @@ curl -N -H "Authorization: Bearer $TOKEN" \
 Per-run live stream with timeline, agent, governance, and decision-validity summaries.
 
 - Response media type: `text/event-stream`
+- Response header: `X-SSE-Flow-Control`
 - Event type: `snapshot`
 - Payload highlights:
   - `status`

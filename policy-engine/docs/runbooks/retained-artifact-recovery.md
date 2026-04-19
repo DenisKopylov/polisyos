@@ -2,10 +2,18 @@
 
 Related reference: [Retention and Recovery Policy](../reference/operations/retention-and-recovery.md).
 Related runbook: [Replay or Restore Workflow](replay-or-restore.md).
+Related Fabric reference: [Fabric Data Plane](../reference/fabric/data-plane.md).
 
 > Используйте этот runbook, когда нужно восстановить retained operational
 > artifact family: CI diagnostics, benchmark outputs, replay/state bundles,
 > audit packages, local snapshots или cold-tier archives.
+
+Owner: `@platform-owners`
+Last tested: `2026-04-17` against the current retention policy and restore drill evidence.
+Evidence path: `docs/reference/operations/retention-and-recovery.md`; `docs/archive/reports/platform-acceptance-manual.md`; `docs/archive/reports/platform-acceptance.md`
+Rollback path: freeze cleanup on the affected artifact family, preserve surviving copies, and restore only from a retained bundle that still has its required sidecars and hashes.
+
+Freshness: 2026-04-17.
 
 ## Symptom
 
@@ -23,6 +31,9 @@ Related runbook: [Replay or Restore Workflow](replay-or-restore.md).
 - retained copy существует, но owner, storage tier или exact lookup key не
   были зафиксированы в incident timeline;
 - local snapshot promoted в archive без проверки целостности и restoreability.
+- Fabric connector fixture, quarantine record, CDC event, quality report,
+  lineage graph, or schema-governance evidence was produced but not retained
+  with its manifest or lookup key.
 
 ## Timeline Capture Expectations
 
@@ -37,6 +48,8 @@ Related runbook: [Replay or Restore Workflow](replay-or-restore.md).
 - storage location: CI, CAS, local snapshot tree, compliance storage, cold
   archive;
 - whether another retained copy exists.
+- for Fabric: connector id, dataset id, schema id/version, profile id,
+  artifact kind, quarantine reason, CDC event kind, or lineage graph id.
 
 ## First Triage Steps
 
@@ -50,6 +63,18 @@ Related runbook: [Replay or Restore Workflow](replay-or-restore.md).
    manifest, replay bundle с connector context.
 4. Если restore касается evidence или compliance, не редактируйте bundle
    in-place и не перепаковывайте его до верификации.
+
+### Fabric retained families
+
+| Family | Lookup key | Validation |
+|---|---|---|
+| Connector recorded fixtures | fixture path under `tests/fabric/connectors/sources/fixtures/` plus connector id | source-specific connector tests and record/replay tests |
+| Connector contract snapshots | contract id and schema id/version | `tools/connectors/check_contracts.py --check` and `tools/ci/check_fabric_schema_registry.py --check` |
+| Data-plane replay bundles | connector id, dataset id, replay ref, cursor/checkpoint key | `tests/fabric/data_plane/test_record_replay.py` |
+| Quarantine/DLQ records | `artifact_id`, reason, source, schema version | `tests/fabric/data_plane/test_quarantine.py` and `list_quarantine_records()` |
+| CDC schema-change events | CAS artifact kind `fabric.cdc_schema_change` and stream dataset id | `tests/fabric/data_plane/test_streaming_runtime.py` |
+| Quality reports | metric id, run id, profile, `DataFitnessReport` payload | `tests/fabric/test_quality_indicators.py` |
+| Lineage graphs | graph id such as `graph.lineage.test` or production graph id | `tests/fabric/test_lineage.py` and OpenLineage export validation |
 
 ### Useful commands
 
@@ -82,6 +107,16 @@ uv run pytest tests/fabric/data_plane/test_record_replay.py
 uv run pytest tests/scientist/test_checkpoint.py tests/scientist/engine/test_checkpoint_gc.py
 ```
 
+Fabric schema and retained-artifact checks:
+
+```bash
+cd policy-engine
+uv run python tools/connectors/check_contracts.py --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run pytest tests/fabric/data_plane/test_quarantine.py tests/fabric/data_plane/test_streaming_runtime.py -q
+uv run pytest tests/fabric/test_quality_indicators.py tests/fabric/test_lineage.py -q
+```
+
 ## Rollback / Mitigation
 
 - если bundle integrity не подтверждена, stop restore и переключайтесь на
@@ -92,6 +127,9 @@ uv run pytest tests/scientist/test_checkpoint.py tests/scientist/engine/test_che
   longer retention class до завершения postmortem;
 - если restore drill failed on clean workspace, treat it как operational defect
   и открывайте remediation до следующего retention purge.
+- если Fabric artifact family восстановлена из replay, сохраните связь между
+  новым artifact id и original incident/ref, чтобы lineage не выглядела как
+  independent source.
 
 ## Escalation Owner
 
@@ -107,6 +145,8 @@ uv run pytest tests/scientist/test_checkpoint.py tests/scientist/engine/test_che
 - documented, было ли восстановление recovery или reproduction;
 - retention class, owner и expiry assumptions обновлены, если были неверны;
 - restore drill backlog пополнен, если восстановление потребовало ad hoc шагов.
+- Fabric schema-governance evidence, quarantine report, quality report, or
+  lineage export regenerated only from trusted source state.
 
 ## Blameless Postmortem
 

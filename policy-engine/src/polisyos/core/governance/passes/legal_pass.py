@@ -4,12 +4,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Dict, List
 
 from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError
+from polisyos.core.contracts.lex import ComplianceIssue
 from polisyos.core.governance.legal.backends.expr_ast import (
     ExpressionASTBackend,
 )
 from polisyos.core.governance.legal.backends.stub import StubBackend
 from polisyos.core.governance.passes.base import (
-    ComplianceIssue,
     PassContext,
     ValidatorPass,
 )
@@ -20,13 +20,13 @@ if TYPE_CHECKING:
     from polisyos.ir.norm_pack import NormPack
 
 
-_BACKEND_REGISTRY: Dict[str, type] = {
+_BACKEND_REGISTRY: Dict[str, type["RuleBackend"]] = {
     "stub": StubBackend,
     "expr_ast": ExpressionASTBackend,
 }
 
 
-def _build_backend(backend_id: str):
+def _build_backend(backend_id: str) -> "RuleBackend":
     backend_cls = _BACKEND_REGISTRY.get(backend_id)
     if backend_cls is None:
         raise BackendNotAvailableError(backend_id, reason="unknown backend")
@@ -47,7 +47,7 @@ class LegalPass(ValidatorPass):
         self,
         backend: "RuleBackend | str | None" = None,
         enabled: bool = False,
-    ):
+    ) -> None:
         """
         Args:
             backend: Rule evaluation backend.
@@ -56,10 +56,11 @@ class LegalPass(ValidatorPass):
                      - RuleBackend: Uses directly
             enabled: Force enable regardless of profile
         """
+        self._backend: RuleBackend
         if backend is None:
             self._backend = StubBackend()
         elif isinstance(backend, str):
-            dispatcher = BackendDispatcher[str, object](factory=_build_backend)
+            dispatcher = BackendDispatcher[str, RuleBackend](factory=_build_backend)
             try:
                 self._backend = dispatcher.resolve(backend)
             except BackendNotAvailableError:

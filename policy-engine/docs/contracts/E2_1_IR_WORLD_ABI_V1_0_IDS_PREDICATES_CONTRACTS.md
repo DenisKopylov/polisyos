@@ -617,3 +617,12 @@ No direct test needed: existing `test_arch_import_gate` must stay green after ad
    - id patterns + determinism
    - float rejection
    - invariants (doc/claim/event)
+
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 0 canon/CAS containment and Phase 4 PROV/interoperability bridge |
+| Contract tests | `tests/contract/test_world_abi_contract.py`, `tests/contract/test_citations_contract.py`, `tests/contract/test_golden_record_ids.py`, `tests/ir/test_canon_hash_parity.py` |
+| Schema snapshots | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/doc_meta.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/claim.schema.json`, `schemas/snapshots/fabric/node_kind.schema.json`, `schemas/snapshots/fabric/edge_kind.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

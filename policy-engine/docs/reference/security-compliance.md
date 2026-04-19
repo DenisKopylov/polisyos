@@ -2,9 +2,29 @@
 
 Related runbooks: [Key Rotation](../runbooks/key-rotation.md),
 [Mutation Audit Investigation](../runbooks/mutation-audit-investigation.md).
+Related reference: [Operations reference](operations/index.md), [platform acceptance audit](operations/platform-acceptance-audit.md), [security model](../explanation/security-model.md).
+
+Owner: `@platform-owners`
+Source of truth: `src/polisyos/core/security/**`, `src/polisyos/runtime/http/{csrf.py,jwt_auth_middleware.py,authz_middleware.py,fail_closed_middleware.py}`, and the linked runbooks
 
 > This page defines the production operating contract for runtime key rotation,
 > CSRF posture, and audit-trail compliance review.
+
+## Evidence Map And Open Gaps
+
+This page describes the operating controls that exist in the current repo. The
+compliance evidence and the still-open program gaps live in these tracked
+artifacts:
+
+- `docs/fedramp/nist-800-53-mapping.json`
+- `docs/fedramp/gap-analysis.md`
+- `docs/fedramp/poam.json`
+- `docs/archive/reports/platform-acceptance.md`
+- `docs/archive/reports/core-runtime-closeout.md`
+
+If a control is only partially evidenced today, the FedRAMP gap analysis or
+POAM should remain the source of truth for that gap instead of this page
+describing it as fully closed.
 
 ## Secret and Trust-Anchor Rotation
 
@@ -81,6 +101,31 @@ The runtime supports double-submit token enforcement for unsafe methods:
 
 Unsafe cookie-authenticated requests without a matching header fail with
 `403 csrf_token_required`.
+
+## Runtime Auth and Tenant Validation
+
+Security/compliance review for the runtime API should link claims to current
+middleware tests rather than only to architecture prose.
+
+| Control area | Runtime behavior | Validation anchor |
+|---|---|---|
+| JWT claim normalization | bearer tokens populate `request.state.access_scope` and `authenticated_tenant_id` | `tests/core/security/test_auth_middlewares.py` |
+| Tenant/header binding | authenticated tenant and `X-Tenant-ID` mismatch fails closed | `tests/core/security/test_auth_middlewares.py`, `tests/core/security/test_router.py` |
+| Tenant context discipline | code requiring tenant scope raises when context is absent | `tests/core/security/test_tenant_context.py` |
+| Runtime read authorization | cross-tenant run/artifact access returns typed `403` problems | `tests/runtime/http/test_runtime_api_authz.py` |
+| Property coverage | run/artifact tenant guards fail closed across generated tenant combinations | `tests/runtime/http/test_access_invariants_properties.py` |
+| OPA dependency posture | timeout or denial returns typed deny/timeout responses | `tests/runtime/http/test_runtime_api_authz.py` |
+
+Focused local check:
+
+```bash
+uv run pytest -q \
+  tests/core/security/test_auth_middlewares.py \
+  tests/core/security/test_router.py \
+  tests/core/security/test_tenant_context.py \
+  tests/runtime/http/test_runtime_api_authz.py \
+  tests/runtime/http/test_access_invariants_properties.py
+```
 
 ## Audit Retention and Export
 

@@ -3,9 +3,14 @@ Related reference: [Schemas](../schemas.md).
 
 > This page is generated from `polisyos.ir.schema_catalog` and the current package facades.
 
+Canonical regeneration command (snapshots + reference docs):
+```bash
+PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
+```
+
 ## Summary
 
-- Total IR types: `899`.
+- Total IR types: `931`.
 - Public/root-or-package facade types: `463`.
 - ABI snapshot-backed types: `82`.
 - Export enumeration covers these public packages:
@@ -29,7 +34,7 @@ Related reference: [Schemas](../schemas.md).
 
 | Section | Type count | Public types | Snapshot-backed |
 |---------|------------|--------------|-----------------|
-| `analytics` | 391 | 100 | 24 |
+| `analytics` | 422 | 100 | 24 |
 | `artifacts` | 25 | 25 | 0 |
 | `governance` | 75 | 75 | 8 |
 | `kernel` | 39 | 38 | 0 |
@@ -51,7 +56,7 @@ Related reference: [Schemas](../schemas.md).
 | `portfolio` | 5 | 4 | 1 |
 | `predicate` | 5 | 0 | 0 |
 | `queries` | 9 | 0 | 0 |
-| `refs` | 49 | 4 | 0 |
+| `refs` | 50 | 4 | 0 |
 | `registry_fragments` | 28 | 0 | 0 |
 | `schema_catalog` | 6 | 6 | 0 |
 | `types` | 6 | 0 | 0 |
@@ -1418,20 +1423,21 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: —
+- References: `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsAttachment`
 - Summary: Canonical public proof artifact for causal identification.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
 | `assumptions` | `list[str]` | `no` | `—` | — |
 | `completeness_regime` | `Literal[complete, sound_incomplete, heuristic_backed]` | `yes` | `—` | — |
+| `dynamic_semantics` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsAttachment | NoneType` | `no` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsAttachment` |
 | `estimand_ast` | `dict[str, Any] | NoneType` | `no` | `—` | — |
 | `graph_ref` | `str | NoneType` | `no` | `—` | — |
 | `implementation_coverage` | `str` | `yes` | `—` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
 | `negative_certificate_summary` | `str | NoneType` | `no` | `—` | — |
 | `proof_status` | `Literal[identified, non_identified, oracle_needed]` | `yes` | `—` | — |
-| `proof_stratum` | `Literal[A0_trusted, A1_extended, A2_oracle_backed]` | `yes` | `—` | — |
+| `proof_stratum` | `Literal[A0_trusted, A1_extended, A1_dynamic, A2_oracle_backed]` | `yes` | `—` | — |
 | `proof_trace` | `list[str]` | `no` | `—` | — |
 | `query_ref` | `str | NoneType` | `no` | `—` | — |
 | `schema_version` | `str` | `no` | `'1.0'` | — |
@@ -1556,6 +1562,42 @@ Related reference: [Schemas](../schemas.md).
 | `c_component_factorization` |
 | `bounds_manski` |
 
+### `polisyos.ir.analytics.causal_discovery.AlgebraicAssumptionRegime` { #polisyos-ir-analytics-causal-discovery-algebraicassumptionregime }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Declare the statistical regime assumed by one algebraic constraint family.
+
+| Enum values |
+|-------------|
+| `linear_gaussian_continuous` |
+| `discrete_nested` |
+| `gaussian_nested` |
+| `unspecified` |
+
+### `polisyos.ir.analytics.causal_discovery.AlgebraicAssumptionStatus` { #polisyos-ir-analytics-causal-discovery-algebraicassumptionstatus }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Describe whether a constraint's declared assumptions matched the observed regime.
+
+| Enum values |
+|-------------|
+| `declared` |
+| `validated` |
+| `mismatch` |
+| `unknown` |
+
 ### `polisyos.ir.analytics.causal_discovery.AlgebraicBlockSpec` { #polisyos-ir-analytics-causal-discovery-algebraicblockspec }
 
 - Kind: `pydantic_model`
@@ -1564,17 +1606,56 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily`
+- References: `polisyos.ir.analytics.causal_discovery.AlgebraicAssumptionRegime`, `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily`, `polisyos.ir.analytics.causal_discovery.AlgebraicTestMode`, `polisyos.ir.analytics.causal_discovery.NestedMarkovModelFamily`, `polisyos.ir.refs.ArtifactRefModel`
 - Summary: Declare one variable block whose implied algebraic constraints should be tested.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
+| `assumption_regime` | `polisyos.ir.analytics.causal_discovery.AlgebraicAssumptionRegime | NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_discovery.AlgebraicAssumptionRegime` |
 | `block_id` | `str` | `yes` | `—` | — |
+| `cadmg_scope` | `str | NoneType` | `no` | `—` | — |
+| `certificate_ref` | `polisyos.ir.refs.ArtifactRefModel | NoneType` | `no` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
+| `col_variables` | `tuple[str]` | `no` | `()` | — |
+| `derivation_method` | `str | NoneType` | `no` | `—` | — |
 | `expected_rank` | `int | NoneType` | `no` | `—` | — |
 | `family` | `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily` | `yes` | `—` | `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily` |
+| `fixing_sequence` | `tuple[str]` | `no` | `()` | — |
+| `graph_scope` | `str | NoneType` | `no` | `—` | — |
+| `identified_kernel_ref` | `polisyos.ir.refs.ArtifactRefModel | NoneType` | `no` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
+| `invariant_polynomials` | `tuple[str]` | `no` | `()` | — |
+| `kernel_statement` | `str | NoneType` | `no` | `—` | — |
+| `left_choke_set` | `tuple[str]` | `no` | `()` | — |
+| `max_rank` | `int | NoneType` | `no` | `—` | — |
 | `max_residual_energy` | `float | NoneType` | `no` | `—` | — |
+| `model_family` | `polisyos.ir.analytics.causal_discovery.NestedMarkovModelFamily | NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_discovery.NestedMarkovModelFamily` |
+| `positivity_required` | `bool | NoneType` | `no` | `—` | — |
+| `precomputed_violation_score` | `float | NoneType` | `no` | `—` | — |
 | `quadruples` | `tuple[tuple[str, str, str, str]]` | `no` | `()` | — |
+| `right_choke_set` | `tuple[str]` | `no` | `()` | — |
+| `row_variables` | `tuple[str]` | `no` | `()` | — |
+| `semi_algebraic_inequalities` | `tuple[str]` | `no` | `()` | — |
+| `test_mode` | `polisyos.ir.analytics.causal_discovery.AlgebraicTestMode | NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_discovery.AlgebraicTestMode` |
 | `variables` | `tuple[str]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.causal_discovery.AlgebraicCalibrationMode` { #polisyos-ir-analytics-causal-discovery-algebraiccalibrationmode }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Capture the calibration route attached to one evaluated constraint.
+
+| Enum values |
+|-------------|
+| `analytic` |
+| `bootstrap` |
+| `parametric_bootstrap` |
+| `holdout` |
+| `research_preview` |
+| `unknown` |
 
 ### `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily` { #polisyos-ir-analytics-causal-discovery-algebraicconstraintfamily }
 
@@ -1592,6 +1673,9 @@ Related reference: [Schemas](../schemas.md).
 | `ci` |
 | `tetrad` |
 | `overcomplete` |
+| `trek_rank` |
+| `nested_verma` |
+| `algebraic_geometry_invariant` |
 
 ### `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintReport` { #polisyos-ir-analytics-causal-discovery-algebraicconstraintreport }
 
@@ -1606,7 +1690,9 @@ Related reference: [Schemas](../schemas.md).
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
+| `blocker_conditions_met_by_family` | `dict[str, bool]` | `no` | `—` | — |
 | `families_run` | `list[polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily]` | `no` | `—` | `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily` |
+| `graph_ranking_penalty` | `float` | `no` | `0.0` | — |
 | `implied_constraints_preview` | `list[polisyos.ir.analytics.causal_discovery.ImpliedConstraintSpec]` | `no` | `—` | `polisyos.ir.analytics.causal_discovery.ImpliedConstraintSpec` |
 | `implied_constraints_ref` | `polisyos.ir.refs.ArtifactRefModel | NoneType` | `no` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
 | `n_implied_constraints` | `int` | `no` | `0` | — |
@@ -1618,6 +1704,101 @@ Related reference: [Schemas](../schemas.md).
 | `violated_constraints_preview` | `list[polisyos.ir.analytics.causal_discovery.ConstraintEvaluationResult]` | `no` | `—` | `polisyos.ir.analytics.causal_discovery.ConstraintEvaluationResult` |
 | `violated_constraints_ref` | `polisyos.ir.refs.ArtifactRefModel | NoneType` | `no` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
 | `warnings` | `list[str]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.causal_discovery.AlgebraicFalsificationScope` { #polisyos-ir-analytics-causal-discovery-algebraicfalsificationscope }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Clarify which claim a failed algebraic test actually falsifies.
+
+| Enum values |
+|-------------|
+| `graph_class` |
+| `edge_local` |
+| `ranking_only` |
+| `measurement_block` |
+| `unknown` |
+
+### `polisyos.ir.analytics.causal_discovery.AlgebraicNullDistribution` { #polisyos-ir-analytics-causal-discovery-algebraicnulldistribution }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Record the null distribution family used to calibrate an algebraic test.
+
+| Enum values |
+|-------------|
+| `analytic` |
+| `asymptotic` |
+| `bootstrap` |
+| `research_preview` |
+| `unknown` |
+
+### `polisyos.ir.analytics.causal_discovery.AlgebraicRegularityStatus` { #polisyos-ir-analytics-causal-discovery-algebraicregularitystatus }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Summarize whether the test operated in a regular or potentially singular regime.
+
+| Enum values |
+|-------------|
+| `regular` |
+| `potentially_singular` |
+| `irregular` |
+| `unknown` |
+
+### `polisyos.ir.analytics.causal_discovery.AlgebraicReproducibilityTier` { #polisyos-ir-analytics-causal-discovery-algebraicreproducibilitytier }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Describe whether the evaluation was deterministic, resampled, or preview-only.
+
+| Enum values |
+|-------------|
+| `deterministic` |
+| `stochastic_bootstrap` |
+| `research_preview` |
+| `unknown` |
+
+### `polisyos.ir.analytics.causal_discovery.AlgebraicTestMode` { #polisyos-ir-analytics-causal-discovery-algebraictestmode }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Choose the concrete finite-sample calibration route used for one block.
+
+| Enum values |
+|-------------|
+| `lr` |
+| `wald` |
+| `score` |
+| `bootstrap_minor` |
+| `bootstrap_rank` |
+| `offline_catalog` |
+| `research_preview` |
 
 ### `polisyos.ir.analytics.causal_discovery.CausalDiscoveryReport` { #polisyos-ir-analytics-causal-discovery-causaldiscoveryreport }
 
@@ -1653,16 +1834,23 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily`
+- References: `polisyos.ir.analytics.causal_discovery.AlgebraicAssumptionStatus`, `polisyos.ir.analytics.causal_discovery.AlgebraicCalibrationMode`, `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily`, `polisyos.ir.analytics.causal_discovery.AlgebraicFalsificationScope`, `polisyos.ir.analytics.causal_discovery.AlgebraicNullDistribution`, `polisyos.ir.analytics.causal_discovery.AlgebraicRegularityStatus`, `polisyos.ir.analytics.causal_discovery.AlgebraicReproducibilityTier`
 - Summary: Store the test outcome for one implied or user-declared algebraic constraint.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
 | `adjusted_p_value` | `float | NoneType` | `no` | `—` | — |
+| `assumption_status` | `polisyos.ir.analytics.causal_discovery.AlgebraicAssumptionStatus` | `no` | `<AlgebraicAssumptionStatus.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.causal_discovery.AlgebraicAssumptionStatus` |
+| `calibration_mode` | `polisyos.ir.analytics.causal_discovery.AlgebraicCalibrationMode` | `no` | `<AlgebraicCalibrationMode.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.causal_discovery.AlgebraicCalibrationMode` |
 | `constraint_id` | `str` | `yes` | `—` | — |
 | `family` | `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily` | `yes` | `—` | `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintFamily` |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `null_distribution` | `polisyos.ir.analytics.causal_discovery.AlgebraicNullDistribution` | `no` | `<AlgebraicNullDistribution.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.causal_discovery.AlgebraicNullDistribution` |
 | `p_value` | `float | NoneType` | `no` | `—` | — |
+| `ranking_weight` | `float` | `no` | `0.0` | — |
+| `regularity_status` | `polisyos.ir.analytics.causal_discovery.AlgebraicRegularityStatus` | `no` | `<AlgebraicRegularityStatus.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.causal_discovery.AlgebraicRegularityStatus` |
+| `reproducibility_tier` | `polisyos.ir.analytics.causal_discovery.AlgebraicReproducibilityTier` | `no` | `<AlgebraicReproducibilityTier.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.causal_discovery.AlgebraicReproducibilityTier` |
+| `scope_of_falsification` | `polisyos.ir.analytics.causal_discovery.AlgebraicFalsificationScope` | `no` | `<AlgebraicFalsificationScope.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.causal_discovery.AlgebraicFalsificationScope` |
 | `severity` | `Literal[info, warning, blocker]` | `no` | `'info'` | — |
 | `statistic` | `float | NoneType` | `no` | `—` | — |
 | `status` | `Literal[passed, violated, skipped, error, unsupported]` | `yes` | `—` | — |
@@ -1853,6 +2041,22 @@ Related reference: [Schemas](../schemas.md).
 | `research` |
 | `conditional` |
 | `validated` |
+
+### `polisyos.ir.analytics.causal_discovery.NestedMarkovModelFamily` { #polisyos-ir-analytics-causal-discovery-nestedmarkovmodelfamily }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Restrict a nested/Verma constraint to one fitted supermodel family.
+
+| Enum values |
+|-------------|
+| `discrete_nested` |
+| `gaussian_nested` |
 
 ### `polisyos.ir.analytics.causal_ensemble.CausalModelEnsemble` { #polisyos-ir-analytics-causal-ensemble-causalmodelensemble }
 
@@ -3377,11 +3581,16 @@ Related reference: [Schemas](../schemas.md).
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
 | `baseline_distribution_ref` | `polisyos.ir.refs.ArtifactRefModel` | `yes` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
+| `causal_assumption_refs` | `list[polisyos.ir.refs.ArtifactRefModel]` | `no` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
 | `causal_assumptions` | `list[str]` | `no` | `—` | — |
 | `counterfactual_distribution_ref` | `polisyos.ir.refs.ArtifactRefModel` | `yes` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
 | `coupling_diagnostics` | `polisyos.ir.analytics.distributional.CouplingDiagnostics` | `yes` | `—` | `polisyos.ir.analytics.distributional.CouplingDiagnostics` |
+| `coupling_justification` | `polisyos.ir.analytics.distributional.DistributionalJustification | NoneType` | `no` | `—` | `polisyos.ir.analytics.distributional.DistributionalJustification` |
+| `coupling_proof_ref` | `polisyos.ir.refs.ArtifactRefModel | NoneType` | `no` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
 | `coupling_ref` | `polisyos.ir.refs.ArtifactRefModel | NoneType` | `no` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
+| `distributional_proof_ref` | `polisyos.ir.refs.ArtifactRefModel | NoneType` | `no` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
 | `justification` | `polisyos.ir.analytics.distributional.DistributionalJustification` | `yes` | `—` | `polisyos.ir.analytics.distributional.DistributionalJustification` |
+| `marginal_justification` | `polisyos.ir.analytics.distributional.DistributionalJustification | NoneType` | `no` | `—` | `polisyos.ir.analytics.distributional.DistributionalJustification` |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
 | `outcome_name` | `str` | `yes` | `—` | — |
 | `quantile_shift_ref` | `polisyos.ir.refs.ArtifactRefModel | NoneType` | `no` | `—` | `polisyos.ir.refs.ArtifactRefModel` |
@@ -3638,6 +3847,396 @@ Related reference: [Schemas](../schemas.md).
 | `losers` | `list[polisyos.ir.analytics.distributional.WinnersLosersEntry]` | `no` | `—` | `polisyos.ir.analytics.distributional.WinnersLosersEntry` |
 | `neutral` | `list[polisyos.ir.analytics.distributional.WinnersLosersEntry]` | `no` | `—` | `polisyos.ir.analytics.distributional.WinnersLosersEntry` |
 | `winners` | `list[polisyos.ir.analytics.distributional.WinnersLosersEntry]` | `no` | `—` | `polisyos.ir.analytics.distributional.WinnersLosersEntry` |
+
+### `polisyos.ir.analytics.dual_certificate.BinaryIVLPProblemSpec` { #polisyos-ir-analytics-dual-certificate-binaryivlpproblemspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Canonical LP problem description for binary Balke-Pearl bounds.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `joint` | `tuple[tuple[tuple[float]]]` | `yes` | `—` | — |
+| `problem_kind` | `Literal[binary_iv_lp]` | `no` | `'binary_iv_lp'` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+
+### `polisyos.ir.analytics.dual_certificate.BoundsDualCertificateBundle` { #polisyos-ir-analytics-dual-certificate-boundsdualcertificatebundle }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dual_certificate.BinaryIVLPProblemSpec`, `polisyos.ir.analytics.dual_certificate.GeneralIVLPProblemSpec`, `polisyos.ir.analytics.dual_certificate.LPDualCertificate`, `polisyos.ir.analytics.dual_certificate.ResponseFunctionLPProblemSpec`
+- Summary: Pair of exact LP certificates for lower and upper bounds.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `certificate_family` | `Literal[response_function_lp_bounds, binary_iv_lp_bounds, general_iv_lp_bounds]` | `no` | `'response_function_lp_bounds'` | — |
+| `lower_cert` | `polisyos.ir.analytics.dual_certificate.LPDualCertificate` | `yes` | `—` | `polisyos.ir.analytics.dual_certificate.LPDualCertificate` |
+| `problem` | `polisyos.ir.analytics.dual_certificate.ResponseFunctionLPProblemSpec | polisyos.ir.analytics.dual_certificate.BinaryIVLPProblemSpec | polisyos.ir.analytics.dual_certificate.GeneralIVLPProblemSpec` | `yes` | `—` | `polisyos.ir.analytics.dual_certificate.BinaryIVLPProblemSpec`, `polisyos.ir.analytics.dual_certificate.GeneralIVLPProblemSpec`, `polisyos.ir.analytics.dual_certificate.ResponseFunctionLPProblemSpec` |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `upper_cert` | `polisyos.ir.analytics.dual_certificate.LPDualCertificate` | `yes` | `—` | `polisyos.ir.analytics.dual_certificate.LPDualCertificate` |
+
+### `polisyos.ir.analytics.dual_certificate.DualCertificateValidationResult` { #polisyos-ir-analytics-dual-certificate-dualcertificatevalidationresult }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Validation verdict for a dual certificate bundle.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `errors` | `tuple[str]` | `no` | `()` | — |
+| `max_complementary_slackness` | `float` | `no` | `0.0` | — |
+| `max_dual_violation` | `float` | `no` | `0.0` | — |
+| `max_duality_gap` | `float` | `no` | `0.0` | — |
+| `max_primal_residual` | `float` | `no` | `0.0` | — |
+| `max_stationarity_residual` | `float` | `no` | `0.0` | — |
+| `ok` | `bool` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.dual_certificate.GeneralIVLPProblemSpec` { #polisyos-ir-analytics-dual-certificate-generalivlpproblemspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Canonical LP problem description for multi-valued Balke-Pearl bounds.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `joint` | `tuple[tuple[tuple[float]]]` | `yes` | `—` | — |
+| `n_outcome_levels` | `int` | `yes` | `—` | — |
+| `n_treatment_levels` | `int` | `yes` | `—` | — |
+| `outcome_scale` | `float` | `no` | `1.0` | — |
+| `problem_kind` | `Literal[general_iv_lp]` | `no` | `'general_iv_lp'` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `treatment_ref` | `int` | `no` | `0` | — |
+| `treatment_target` | `int` | `no` | `1` | — |
+
+### `polisyos.ir.analytics.dual_certificate.LPDualCertificate` { #polisyos-ir-analytics-dual-certificate-lpdualcertificate }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dual_certificate.LPVerificationTolerances`, `polisyos.ir.analytics.dual_certificate.SparsePrimalEntry`
+- Summary: Primal/dual witness for one LP optimization.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `bound_direction` | `Literal[lower, upper]` | `yes` | `—` | — |
+| `certificate_kind` | `Literal[lp_primal_dual]` | `no` | `'lp_primal_dual'` | — |
+| `dual_eq_marginals` | `tuple[float]` | `yes` | `—` | — |
+| `dual_lower_marginals` | `tuple[float]` | `yes` | `—` | — |
+| `duality_gap` | `float` | `yes` | `—` | — |
+| `lp_form` | `Literal[min_cTx_s.t._Aeqx=beq_x>=0]` | `no` | `'min_cTx_s.t._Aeqx=beq_x>=0'` | — |
+| `objective_dual` | `float` | `yes` | `—` | — |
+| `objective_primal` | `float` | `yes` | `—` | — |
+| `primal_solution_sparse` | `tuple[polisyos.ir.analytics.dual_certificate.SparsePrimalEntry]` | `yes` | `—` | `polisyos.ir.analytics.dual_certificate.SparsePrimalEntry` |
+| `problem_fingerprint` | `str` | `yes` | `—` | — |
+| `solver` | `str` | `no` | `'scipy.linprog.highs'` | — |
+| `solver_status` | `str` | `no` | `'optimal'` | — |
+| `tolerances` | `polisyos.ir.analytics.dual_certificate.LPVerificationTolerances` | `no` | `—` | `polisyos.ir.analytics.dual_certificate.LPVerificationTolerances` |
+
+### `polisyos.ir.analytics.dual_certificate.LPVerificationTolerances` { #polisyos-ir-analytics-dual-certificate-lpverificationtolerances }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Numerical tolerances for certificate validation.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `dual_feasibility` | `float` | `no` | `1e-08` | — |
+| `duality_gap` | `float` | `no` | `1e-08` | — |
+| `primal_feasibility` | `float` | `no` | `1e-08` | — |
+| `stationarity` | `float` | `no` | `1e-08` | — |
+
+### `polisyos.ir.analytics.dual_certificate.ResponseFunctionLPProblemSpec` { #polisyos-ir-analytics-dual-certificate-responsefunctionlpproblemspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Canonical LP problem description for response-function bounds.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `joint` | `tuple[tuple[float]]` | `yes` | `—` | — |
+| `monotone` | `bool` | `no` | `False` | — |
+| `outcome_levels` | `tuple[float]` | `yes` | `—` | — |
+| `outcome_lower` | `tuple[float]` | `yes` | `—` | — |
+| `outcome_upper` | `tuple[float]` | `yes` | `—` | — |
+| `problem_kind` | `Literal[response_function_lp]` | `no` | `'response_function_lp'` | — |
+| `reference_index` | `int` | `no` | `0` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `target_index` | `int` | `no` | `1` | — |
+| `treatment_levels` | `tuple[float]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.dual_certificate.SparsePrimalEntry` { #polisyos-ir-analytics-dual-certificate-sparseprimalentry }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One non-zero component of a sparse primal LP solution.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `index` | `int` | `yes` | `—` | — |
+| `mass` | `float` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.DynamicReductionStatus` { #polisyos-ir-analytics-dynamic-causal-semantics-dynamicreductionstatus }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: How far the engine reduced the dynamic query to a certified backend.
+
+| Enum values |
+|-------------|
+| `validated_reduction` |
+| `heuristic_only` |
+| `blocked` |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.DynamicScopeStatement` { #polisyos-ir-analytics-dynamic-causal-semantics-dynamicscopestatement }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Declared supported and excluded dynamic-semantics families.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `covered_families` | `tuple[str]` | `no` | `()` | — |
+| `excluded_families` | `tuple[str]` | `no` | `()` | — |
+| `notes` | `tuple[str]` | `no` | `()` | — |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsAttachment` { #polisyos-ir-analytics-dynamic-causal-semantics-dynamicsemanticsattachment }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dynamic_causal_semantics.DynamicReductionStatus`, `polisyos.ir.analytics.dynamic_causal_semantics.DynamicScopeStatement`, `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsFamily`, `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalMarkovCertificate`, `polisyos.ir.analytics.dynamic_causal_semantics.InterventionScope`, `polisyos.ir.analytics.dynamic_causal_semantics.LocalIndependenceAttachment`, `polisyos.ir.analytics.dynamic_causal_semantics.WellPosednessWitness`
+- Summary: Top-level proof attachment for cyclic and continuous-time semantics.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `continuous_time_attachment` | `polisyos.ir.analytics.dynamic_causal_semantics.LocalIndependenceAttachment | NoneType` | `no` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.LocalIndependenceAttachment` |
+| `intervention_scope` | `polisyos.ir.analytics.dynamic_causal_semantics.InterventionScope | NoneType` | `no` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.InterventionScope` |
+| `markov_criterion_certificate` | `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalMarkovCertificate | NoneType` | `no` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalMarkovCertificate` |
+| `reduction_status` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicReductionStatus` | `no` | `<DynamicReductionStatus.HEURISTIC_ONLY: 'heuristic_only'>` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicReductionStatus` |
+| `scope_statement` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicScopeStatement | NoneType` | `no` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicScopeStatement` |
+| `semantics_family` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsFamily` | `yes` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsFamily` |
+| `well_posedness_witness` | `polisyos.ir.analytics.dynamic_causal_semantics.WellPosednessWitness | NoneType` | `no` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.WellPosednessWitness` |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsFamily` { #polisyos-ir-analytics-dynamic-causal-semantics-dynamicsemanticsfamily }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Semantic family used to interpret a dynamic or cyclic causal query.
+
+| Enum values |
+|-------------|
+| `ioSCM` |
+| `simple_SCM` |
+| `local_independence_graph` |
+| `admg` |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalMarkovCertificate` { #polisyos-ir-analytics-dynamic-causal-semantics-graphicalmarkovcertificate }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsFamily`, `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind`, `polisyos.ir.analytics.dynamic_causal_semantics.InterventionScope`, `polisyos.ir.analytics.dynamic_causal_semantics.SeparationClaim`
+- Summary: Constructive graphical-causal certificate for dynamic semantics.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `certificate_type` | `str` | `no` | `'graphical_markov'` | — |
+| `graphical_oracle` | `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind` | `yes` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind` |
+| `intervention_spec` | `polisyos.ir.analytics.dynamic_causal_semantics.InterventionScope | NoneType` | `no` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.InterventionScope` |
+| `latent_projection_ref` | `str | NoneType` | `no` | `—` | — |
+| `notes` | `tuple[str]` | `no` | `()` | — |
+| `required_distributions` | `tuple[str]` | `no` | `()` | — |
+| `semantics_family` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsFamily` | `yes` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsFamily` |
+| `separation_claim` | `polisyos.ir.analytics.dynamic_causal_semantics.SeparationClaim | NoneType` | `no` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.SeparationClaim` |
+| `source_graph_ref` | `str | NoneType` | `no` | `—` | — |
+| `theorem_family` | `str` | `yes` | `—` | — |
+| `transformation_trace` | `tuple[str]` | `no` | `()` | — |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind` { #polisyos-ir-analytics-dynamic-causal-semantics-graphicaloraclekind }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Graphical Markov criterion used by a dynamic proof path.
+
+| Enum values |
+|-------------|
+| `d` |
+| `sigma` |
+| `mu` |
+| `delta` |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.InterventionKind` { #polisyos-ir-analytics-dynamic-causal-semantics-interventionkind }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Intervention kinds currently distinguished by the proof kernel.
+
+| Enum values |
+|-------------|
+| `node_do` |
+| `mechanism_swap` |
+| `intensity_intervention` |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.InterventionScope` { #polisyos-ir-analytics-dynamic-causal-semantics-interventionscope }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dynamic_causal_semantics.InterventionKind`
+- Summary: Admissible intervention summary for a dynamic proof path.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `admissibility_theorem` | `str | NoneType` | `no` | `—` | — |
+| `admissible` | `bool` | `no` | `True` | — |
+| `kind` | `polisyos.ir.analytics.dynamic_causal_semantics.InterventionKind` | `yes` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.InterventionKind` |
+| `targets` | `tuple[str]` | `no` | `()` | — |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.LocalIndependenceAttachment` { #polisyos-ir-analytics-dynamic-causal-semantics-localindependenceattachment }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind`
+- Summary: Continuous-time attachment for local-independence-based semantics.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `causal_validity_rule` | `str | NoneType` | `no` | `—` | — |
+| `eliminable_processes` | `tuple[str]` | `no` | `()` | — |
+| `graphical_oracle` | `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind` | `yes` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind` |
+| `notes` | `tuple[str]` | `no` | `()` | — |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.SeparationClaim` { #polisyos-ir-analytics-dynamic-causal-semantics-separationclaim }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind`
+- Summary: Statement of a graphical separation query used in the proof path.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `criterion` | `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind` | `yes` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.GraphicalOracleKind` |
+| `holds` | `bool` | `yes` | `—` | — |
+| `x_set` | `tuple[str]` | `no` | `()` | — |
+| `y_set` | `tuple[str]` | `no` | `()` | — |
+| `z_set` | `tuple[str]` | `no` | `()` | — |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.WellPosednessStatus` { #polisyos-ir-analytics-dynamic-causal-semantics-wellposednessstatus }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Status of the well-posedness witness for a cyclic or dynamic fragment.
+
+| Enum values |
+|-------------|
+| `proved` |
+| `refuted` |
+| `heuristic_blocked` |
+
+### `polisyos.ir.analytics.dynamic_causal_semantics.WellPosednessWitness` { #polisyos-ir-analytics-dynamic-causal-semantics-wellposednesswitness }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dynamic_causal_semantics.WellPosednessStatus`
+- Summary: Machine-checkable summary of the semantics well-posedness check.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `confidence` | `str` | `yes` | `—` | — |
+| `evidence` | `dict[str, Any]` | `no` | `—` | — |
+| `family` | `str` | `yes` | `—` | — |
+| `lipschitz_constant` | `float | NoneType` | `no` | `—` | — |
+| `method` | `str` | `yes` | `—` | — |
+| `status` | `polisyos.ir.analytics.dynamic_causal_semantics.WellPosednessStatus` | `yes` | `—` | `polisyos.ir.analytics.dynamic_causal_semantics.WellPosednessStatus` |
+| `warning` | `str | NoneType` | `no` | `—` | — |
 
 ### `polisyos.ir.analytics.dynamic_regime.BanditResult` { #polisyos-ir-analytics-dynamic-regime-banditresult }
 
@@ -4126,7 +4725,7 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Conditional intervention estimand: P(Y | do(X | Z=z)).
 
 | Field | Type | Required | Default | IR refs |
@@ -4134,7 +4733,7 @@ Related reference: [Schemas](../schemas.md).
 | `condition_vars` | `tuple[str]` | `yes` | `—` | — |
 | `dataset_ref` | `str | NoneType` | `no` | `—` | — |
 | `domain` | `polisyos.ir.analytics.estimand.DistributionDomain` | `no` | `<DistributionDomain.SOURCE: 'source'>` | `polisyos.ir.analytics.estimand.DistributionDomain` |
-| `inner_do_node` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `inner_do_node` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 | `node_type` | `Literal[conditional_do]` | `no` | `'conditional_do'` | — |
 | `outcome` | `str` | `yes` | `—` | — |
 | `treatment` | `str` | `yes` | `—` | — |
@@ -4168,14 +4767,14 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Cross-world query node for joint/independent counterfactual collections.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
 | `joint` | `bool` | `no` | `True` | — |
 | `node_type` | `Literal[cross_world]` | `no` | `'cross_world'` | — |
-| `worlds` | `tuple[polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode]` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `worlds` | `tuple[polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode]` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 
 ### `polisyos.ir.analytics.estimand.CtfInterventionNode` { #polisyos-ir-analytics-estimand-ctfinterventionnode }
 
@@ -4185,12 +4784,12 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Counterfactual intervention node for ctf-calculus rewriting.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
-| `ctf_context` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `ctf_context` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 | `dataset_ref` | `str | NoneType` | `no` | `—` | — |
 | `domain` | `polisyos.ir.analytics.estimand.DistributionDomain` | `no` | `<DistributionDomain.SOURCE: 'source'>` | `polisyos.ir.analytics.estimand.DistributionDomain` |
 | `intervention` | `dict[str, Any]` | `yes` | `—` | — |
@@ -4213,6 +4812,51 @@ Related reference: [Schemas](../schemas.md).
 | `source` |
 | `target` |
 | `experimental` |
+
+### `polisyos.ir.analytics.estimand.DistributionLawNode` { #polisyos-ir-analytics-estimand-distributionlawnode }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.estimand.DistributionDomain`
+- Summary: Law-valued estimand node for interventional distributions.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `conditioning` | `tuple[str]` | `no` | `()` | — |
+| `dataset_ref` | `str | NoneType` | `no` | `—` | — |
+| `domain` | `polisyos.ir.analytics.estimand.DistributionDomain` | `no` | `<DistributionDomain.SOURCE: 'source'>` | `polisyos.ir.analytics.estimand.DistributionDomain` |
+| `generator_type` | `Literal[halfline_cdf, orthant_cdf, finite_atoms]` | `no` | `'halfline_cdf'` | — |
+| `identified_family_ref` | `str | NoneType` | `no` | `—` | — |
+| `intervention_set` | `tuple[str]` | `no` | `()` | — |
+| `node_type` | `Literal[distribution_law]` | `no` | `'distribution_law'` | — |
+| `outcome` | `tuple[str]` | `yes` | `—` | — |
+| `parameter_domain` | `str` | `no` | `'Q'` | — |
+| `support_space` | `Literal[real, real_vector, finite]` | `no` | `'real'` | — |
+
+### `polisyos.ir.analytics.estimand.DistributionLawQuery` { #polisyos-ir-analytics-estimand-distributionlawquery }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Typed proof-kernel query for an interventional outcome law.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `conditioning` | `tuple[str]` | `no` | `()` | — |
+| `intervention_set` | `tuple[str]` | `yes` | `—` | — |
+| `kind` | `Literal[interventional_law]` | `no` | `'interventional_law'` | — |
+| `outcome_variables` | `tuple[str]` | `yes` | `—` | — |
+| `parameter_domain` | `str | NoneType` | `no` | `—` | — |
+| `representation` | `Literal[cdf, orthant_cdf, pmf]` | `no` | `'cdf'` | — |
+| `support_space` | `Literal[real, real_vector, finite]` | `no` | `'real'` | — |
 
 ### `polisyos.ir.analytics.estimand.DistributionRef` { #polisyos-ir-analytics-estimand-distributionref }
 
@@ -4243,7 +4887,7 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.SideCondition`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.SideCondition`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Root container for a fully symbolic causal estimand.
 
 | Field | Type | Required | Default | IR refs |
@@ -4252,7 +4896,7 @@ Related reference: [Schemas](../schemas.md).
 | `identification_method` | `str` | `no` | `''` | — |
 | `outcome` | `str` | `yes` | `—` | — |
 | `query_str` | `str` | `yes` | `—` | — |
-| `root` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `root` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 | `schema_version` | `str` | `no` | `'1.0'` | — |
 | `side_conditions` | `tuple[polisyos.ir.analytics.estimand.SideCondition]` | `no` | `()` | `polisyos.ir.analytics.estimand.SideCondition` |
 | `treatment` | `str` | `yes` | `—` | — |
@@ -4286,7 +4930,7 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Continuous marginalisation: ∫ operand d(integration_vars).
 
 | Field | Type | Required | Default | IR refs |
@@ -4294,7 +4938,7 @@ Related reference: [Schemas](../schemas.md).
 | `integration_vars` | `tuple[str]` | `yes` | `—` | — |
 | `measure` | `str` | `no` | `'lebesgue'` | — |
 | `node_type` | `Literal[integral]` | `no` | `'integral'` | — |
-| `operand` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `operand` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 
 ### `polisyos.ir.analytics.estimand.NestedCounterfactualNode` { #polisyos-ir-analytics-estimand-nestedcounterfactualnode }
 
@@ -4304,14 +4948,14 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Nested counterfactual query for ctf-calculus.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
 | `dataset_ref` | `str | NoneType` | `no` | `—` | — |
 | `domain` | `polisyos.ir.analytics.estimand.DistributionDomain` | `no` | `<DistributionDomain.SOURCE: 'source'>` | `polisyos.ir.analytics.estimand.DistributionDomain` |
-| `inner_counterfactual` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `inner_counterfactual` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 | `node_type` | `Literal[nested_counterfactual]` | `no` | `'nested_counterfactual'` | — |
 | `outer_intervention` | `dict[str, Any]` | `yes` | `—` | — |
 | `outer_variable` | `str` | `yes` | `—` | — |
@@ -4368,12 +5012,12 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Product of factors: factor₁ · factor₂ · …
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
-| `factors` | `tuple[polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode]` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `factors` | `tuple[polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode]` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 | `node_type` | `Literal[product]` | `no` | `'product'` | — |
 
 ### `polisyos.ir.analytics.estimand.ProxyAdjustmentNode` { #polisyos-ir-analytics-estimand-proxyadjustmentnode }
@@ -4384,7 +5028,7 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Proxy-adjusted estimand under measurement error (Kuroki & Pearl 2014).
 
 | Field | Type | Required | Default | IR refs |
@@ -4392,7 +5036,7 @@ Related reference: [Schemas](../schemas.md).
 | `dataset_ref` | `str | NoneType` | `no` | `—` | — |
 | `domain` | `polisyos.ir.analytics.estimand.DistributionDomain` | `no` | `<DistributionDomain.SOURCE: 'source'>` | `polisyos.ir.analytics.estimand.DistributionDomain` |
 | `identification_theorem` | `str` | `no` | `'Kuroki-Pearl-2014-Thm2'` | — |
-| `inner_do_node` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `inner_do_node` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 | `measurement_model` | `Literal[known, estimated, unknown]` | `no` | `'unknown'` | — |
 | `node_type` | `Literal[proxy_adjustment]` | `no` | `'proxy_adjustment'` | — |
 | `proxy_map` | `tuple[tuple[str, str]]` | `yes` | `—` | — |
@@ -4405,14 +5049,14 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Ratio: numerator / denominator.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
-| `denominator` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `denominator` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 | `node_type` | `Literal[ratio]` | `no` | `'ratio'` | — |
-| `numerator` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `numerator` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 
 ### `polisyos.ir.analytics.estimand.RecoveredDistNode` { #polisyos-ir-analytics-estimand-recovereddistnode }
 
@@ -4484,13 +5128,13 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.StochasticPolicy`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionDomain`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.StochasticPolicy`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Stochastic intervention estimand: E_π[Y] = ∫ P(Y|do(X=x)) π(x|Z) dx.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
 | `domain` | `polisyos.ir.analytics.estimand.DistributionDomain` | `no` | `<DistributionDomain.SOURCE: 'source'>` | `polisyos.ir.analytics.estimand.DistributionDomain` |
-| `inner_do_node` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `inner_do_node` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 | `integration_var` | `str` | `yes` | `—` | — |
 | `node_type` | `Literal[stochastic_intervention]` | `no` | `'stochastic_intervention'` | — |
 | `policy` | `polisyos.ir.analytics.estimand.StochasticPolicy` | `yes` | `—` | `polisyos.ir.analytics.estimand.StochasticPolicy` |
@@ -4522,13 +5166,13 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
+- References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
 - Summary: Marginalisation: Σ_{summation_vars} operand.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
 | `node_type` | `Literal[sum]` | `no` | `'sum'` | — |
-| `operand` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
+| `operand` | `polisyos.ir.analytics.estimand.DistributionRef | polisyos.ir.analytics.estimand.SumNode | polisyos.ir.analytics.estimand.ProductNode | polisyos.ir.analytics.estimand.RatioNode | polisyos.ir.analytics.estimand.NuisanceNode | polisyos.ir.analytics.estimand.ExpectationNode | polisyos.ir.analytics.estimand.IntegralNode | polisyos.ir.analytics.estimand.DistributionLawNode | polisyos.ir.analytics.estimand.PathSpecificNode | polisyos.ir.analytics.estimand.RecoveredDistNode | polisyos.ir.analytics.estimand.StochasticInterventionNode | polisyos.ir.analytics.estimand.ConditionalInterventionNode | polisyos.ir.analytics.estimand.ProxyAdjustmentNode | polisyos.ir.analytics.estimand.CounterfactualNode | polisyos.ir.analytics.estimand.NestedCounterfactualNode | polisyos.ir.analytics.estimand.CrossWorldNode | polisyos.ir.analytics.estimand.CtfInterventionNode` | `yes` | `—` | `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode` |
 | `summation_vars` | `tuple[str]` | `yes` | `—` | — |
 
 ### `polisyos.ir.analytics.evidence_bundle.CompilationStep` { #polisyos-ir-analytics-evidence-bundle-compilationstep }
@@ -6190,6 +6834,8 @@ Related reference: [Schemas](../schemas.md).
 | `positivity_violation` |
 | `support_mismatch` |
 | `missing_distribution` |
+| `semantics_not_well_defined` |
+| `coupling_not_identified` |
 
 ### `polisyos.ir.analytics.negative_certificate.EpistemicTier` { #polisyos-ir-analytics-negative-certificate-epistemictier }
 
@@ -6647,13 +7293,14 @@ Related reference: [Schemas](../schemas.md).
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.partial_identification.BoundsMethodSummary`
+- References: `polisyos.ir.analytics.partial_identification.BoundsMethodSummary`, `polisyos.ir.refs.DualCertificateRef`
 - Summary: Canonical public bounds contract for non-point-identified queries.
 
 | Field | Type | Required | Default | IR refs |
 |-------|------|----------|---------|---------|
 | `consensus_lower` | `float | NoneType` | `no` | `—` | — |
 | `consensus_upper` | `float | NoneType` | `no` | `—` | — |
+| `dual_certificate_ref` | `polisyos.ir.refs.DualCertificateRef | NoneType` | `no` | `—` | `polisyos.ir.refs.DualCertificateRef` |
 | `estimand_type` | `str` | `no` | `'ate'` | — |
 | `lower_bound` | `float | NoneType` | `no` | `—` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
@@ -8443,6 +9090,7 @@ Related reference: [Schemas](../schemas.md).
 | `env` | `Any` | `no` | `None` | — |
 | `inputs` | `list[dict[str, Any]] | None` | `no` | `None` | — |
 | `canon` | `dict[str, Any] | None` | `no` | `None` | — |
+| `governance` | `dict[str, Any] | None` | `no` | `None` | — |
 
 ### `polisyos.ir.artifacts.lineage.ArtifactLineageEdge` { #polisyos-ir-artifacts-lineage-artifactlineageedge }
 
@@ -16794,6 +17442,23 @@ Related reference: [Schemas](../schemas.md).
 |-------|------|----------|---------|---------|
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.distributional_report]` | `no` | `'ir.distributional_report'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.refs.DualCertificateRef` { #polisyos-ir-refs-dualcertificateref }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for persisted LP dual certificates consumed by bounds auditing.
+
+| Field | Type | Required | Default | IR refs |
+|-------|------|----------|---------|---------|
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.dual_certificate]` | `no` | `'ir.dual_certificate'` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.refs.DynamicTreatmentRegimeRef` { #polisyos-ir-refs-dynamictreatmentregimeref }

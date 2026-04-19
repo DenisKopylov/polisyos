@@ -4,7 +4,7 @@ internal_prefix = "polisyos"
 src_root = "src"
 
 [roots]
-known = ["common","ir","core","fabric","foundry","scientist","runtime","scholar","lex","packs","academic","batch_common","batch_snapshot","datasets"]
+known = ["common","ir","core","fabric","foundry","scientist","runtime","scholar","lex","packs","academic","batch_common","batch_snapshot","datasets","ukraine_data"]
 
 [internal.allow]
 common = ["common"]
@@ -21,6 +21,7 @@ academic = ["academic","batch_common","ir","core","common"]
 batch_common = ["batch_common","ir","core","common"]
 batch_snapshot = ["batch_snapshot","batch_common","ir","core","common"]
 datasets = ["datasets","batch_common","fabric","ir","core","common"]
+ukraine_data = ["ukraine_data","scientist","lex","foundry","fabric","batch_common","ir","core","common"]
 
 [external.allow.ir]
 # Top-level external modules allowed in IR (stdlib is always allowed).

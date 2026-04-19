@@ -8,16 +8,23 @@ from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
+from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, cast
 
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.contracts.execution_plan import (
+    EvaluatorVerdict,
+    IterationLifecycleState,
+    StopReason,
+)
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
     AgentPipelineStep,
@@ -27,6 +34,7 @@ from polisyos.core.contracts.runtime import (
     GovernanceDebugView,
     IterationLifecycleView,
     NodeDebugView,
+    NodeStatus,
     PreflightDiagnosticView,
     PreflightReportView,
     ReproducibilityView,
@@ -82,6 +90,8 @@ _AGENT_ALIASES: dict[str, str] = {
 
 
 logger = get_logger(__name__)
+
+AgentStepStatus = Literal["ok", "warn", "fail", "info"]
 
 
 class DebugService:
@@ -259,9 +269,12 @@ class DebugService:
     ) -> dict[str, Any] | None:
         if ref is None:
             return None
-        return self._decision_validity_service.get_summary(
-            str(ref.artifact_id),
-            packet_payload=packet_payload,
+        return cast(
+            "dict[str, Any] | None",
+            self._decision_validity_service.get_summary(
+                str(ref.artifact_id),
+                packet_payload=packet_payload,
+            ),
         )
 
     def get_run_errors(self, run: IndexedRunRecord) -> list[RunErrorView]:
@@ -273,7 +286,10 @@ class DebugService:
                 RunErrorView(
                     source="manifest",
                     code=_as_str(item.get("code")) or "manifest.error",
-                    message=_sanitize_string(_as_str(item.get("message")) or "Run manifest error"),
+                    message=(
+                        _sanitize_string(_as_str(item.get("message")) or "Run manifest error")
+                        or "Run manifest error"
+                    ),
                     details=_sanitize_payload(dict(item), sensitive_keys=self._sensitive_keys),
                 )
             )
@@ -285,7 +301,10 @@ class DebugService:
                 RunErrorView(
                     source="workflow_report",
                     code=node.error_code or "node.failure",
-                    message=_sanitize_string(node.error_message or "Node execution failed"),
+                    message=(
+                        _sanitize_string(node.error_message or "Node execution failed")
+                        or "Node execution failed"
+                    ),
                     node_alias=node.alias,
                     details=_sanitize_payload(
                         dict(node.error_details),
@@ -301,7 +320,10 @@ class DebugService:
                         RunErrorView(
                             source="trace",
                             code=_as_str(payload.get("code")) or "trace.error",
-                            message=_sanitize_string(_as_str(payload.get("msg")) or "Trace error"),
+                            message=(
+                                _sanitize_string(_as_str(payload.get("msg")) or "Trace error")
+                                or "Trace error"
+                            ),
                             timestamp=record.ts,
                             details=_sanitize_payload(
                                 dict(payload),
@@ -433,7 +455,7 @@ class DebugService:
             else EvaluatorScoresView()
         )
         evaluator_view = EvaluatorReportView(
-            verdict=_as_str(evaluator_payload.get("verdict")),
+            verdict=_as_evaluator_verdict(evaluator_payload.get("verdict")),
             scores=evaluator_scores,
             reasons=_as_list_of_strings(evaluator_payload.get("reasons")),
             replanning_hints=_as_list_of_strings(evaluator_payload.get("replanning_hints")),
@@ -447,9 +469,9 @@ class DebugService:
 
         iteration_view = IterationLifecycleView(
             iteration=max(1, _as_int(iteration_payload.get("iteration") or 1)),
-            state=_as_str(iteration_payload.get("lifecycle_state")) or "plan_created",
-            stop_reason=_as_str(iteration_payload.get("stop_reason")),
-            last_verdict=_as_str(iteration_payload.get("last_verdict")),
+            state=_as_iteration_lifecycle_state(iteration_payload.get("lifecycle_state")),
+            stop_reason=_as_stop_reason(iteration_payload.get("stop_reason")),
+            last_verdict=_as_evaluator_verdict(iteration_payload.get("last_verdict")),
             state_ref=iteration_state_ref,
             notes=_as_list_of_strings(iteration_payload.get("notes")),
         ) if iteration_state_ref is not None else None
@@ -791,7 +813,7 @@ class DebugService:
             )
         enriched_nodes.sort(key=lambda item: (item.depth, item.alias))
 
-        status_counts = defaultdict(int)
+        status_counts: defaultdict[str, int] = defaultdict(int)
         for node in enriched_nodes:
             status_counts[node.status] += 1
         critical_path = _critical_path_duration_ms(enriched_nodes)
@@ -901,9 +923,9 @@ class DebugService:
                 return ref
         manifest_payload = self._load_run_manifest_payload(run)
         for raw in _as_list_of_dicts(manifest_payload.get("outputs")):
-            ref = _artifact_ref_from_payload(raw)
-            if ref is not None and ref.kind == kind:
-                return ref
+            parsed_ref = _artifact_ref_from_payload(raw)
+            if parsed_ref is not None and parsed_ref.kind == kind:
+                return parsed_ref
         return None
 
     def _find_run_input_ref_by_kind(self, run: IndexedRunRecord, kind: str) -> ArtifactRef | None:
@@ -950,14 +972,6 @@ def _nodes_from_timeline(events: list[Any]) -> list[RunNodeRecord]:
     return [grouped[key] for key in sorted(grouped)]
 
 
-def _artifact_ref_from_payload(value: dict[str, Any]) -> ArtifactRef | None:
-    try:
-        return ArtifactRef.model_validate(value)
-    except (TypeError, ValueError, ValidationError) as exc:
-        logger.debug("Failed to parse artifact ref from payload %s: %s", value, exc)
-        return None
-
-
 def _state_ref_from_param(
     state_payload: dict[str, Any],
     key: str,
@@ -971,13 +985,7 @@ def _state_ref_from_param(
         value = state_payload.get(key)
     if isinstance(value, dict):
         return _artifact_ref_from_payload(value)
-    if not isinstance(value, str) or not value:
-        return None
-    try:
-        return ArtifactRef(artifact_id=value, kind=kind, media_type=media_type)
-    except (TypeError, ValueError) as exc:
-        logger.debug("Failed to construct artifact ref for %s/%s: %s", kind, media_type, exc)
-        return None
+    return _artifact_ref_from_string(value if isinstance(value, str) else None, kind=kind, media_type=media_type)
 
 
 def _workflow_report_nodes_by_alias(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -1196,8 +1204,8 @@ def _status_from_agent_action(
     *,
     action: str | None,
     details: dict[str, Any],
-    fallback: str = "info",
-) -> str:
+    fallback: AgentStepStatus = "info",
+) -> AgentStepStatus:
     lowered_action = (action or "").lower()
     verdict = (_as_str(details.get("verdict")) or "").lower()
     if any(token in lowered_action for token in ("fail", "error", "reject", "abort")):
@@ -1357,13 +1365,12 @@ def _agent_steps_from_model_variants(
                 nested_response = _as_str(nested.get("response"))
                 nested_details = _sanitize_payload(nested.get("details"), sensitive_keys=sensitive_keys)
                 raw_status = _as_str(nested.get("status"))
-                nested_status = (
-                    raw_status
-                    if raw_status in {"ok", "warn", "fail", "info"}
-                    else _status_from_agent_action(
+                nested_status = _agent_step_status(
+                    raw_status,
+                    fallback=_status_from_agent_action(
                         action=_as_str(nested.get("action")),
                         details=nested if isinstance(nested, dict) else {},
-                    )
+                    ),
                 )
                 steps.append(
                     AgentPipelineStep(
@@ -1388,13 +1395,14 @@ def _agent_steps_from_model_variants(
             continue
 
         details = _sanitize_payload(raw_variant, sensitive_keys=sensitive_keys)
-        summary_status = {
+        summary_status_map: dict[str, AgentStepStatus] = {
             "completed": "ok",
             "fallback_mock": "warn",
             "budget_exceeded": "warn",
             "failed": "fail",
             "skipped_budget_guard": "warn",
-        }.get(variant_status, "info")
+        }
+        summary_status = summary_status_map.get(variant_status, "info")
         steps.append(
             AgentPipelineStep(
                 attempt=attempt,
@@ -1639,13 +1647,14 @@ def _extract_report_ref(payload: dict[str, Any], key: str) -> ArtifactRef | None
     if not isinstance(raw_ref, dict):
         return None
     try:
-        return ArtifactRef.model_validate(raw_ref)
+        parsed_ref: ArtifactRef = ArtifactRef.model_validate(raw_ref)
+        return parsed_ref
     except (TypeError, ValueError) as exc:
         logger.debug("Failed to parse report ref for key %s: %s", key, exc)
         return None
 
 
-def _iter_trace_records(path: Path):
+def _iter_trace_records(path: Path) -> Iterator[TraceRecord]:
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:
             stripped = line.strip()
@@ -1664,9 +1673,9 @@ def _error_sort_key(error: RunErrorView) -> tuple[float, str, str]:
     return (float("inf"), error.source, error.code)
 
 
-def _normalize_status(raw: str | None):
+def _normalize_status(raw: str | None) -> NodeStatus:
     if raw in {"ok", "skip", "fail", "unknown"}:
-        return raw
+        return cast("NodeStatus", raw)
     return "unknown"
 
 
@@ -1696,15 +1705,6 @@ def _as_float(value: Any, *, default: float = 0.0) -> float:
     return max(parsed, 0.0)
 
 
-def _as_datetime(value: Any) -> datetime | None:
-    if not isinstance(value, str) or not value:
-        return None
-    try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
-        return None
-
-
 def _stable_id(prefix: str, *parts: str) -> str:
     digest = hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:16]
     return f"{prefix}_{digest}"
@@ -1716,13 +1716,10 @@ def _artifact_ref_from_string(
     kind: str,
     media_type: str = "application/json",
 ) -> ArtifactRef | None:
-    if not value:
+    artifact_id = _artifact_id_from_string(value)
+    if artifact_id is None:
         return None
-    try:
-        return ArtifactRef(artifact_id=value, kind=kind, media_type=media_type)
-    except (TypeError, ValueError) as exc:
-        logger.debug("Failed to build artifact ref from %s: %s", value, exc)
-        return None
+    return ArtifactRef(artifact_id=artifact_id, kind=kind, media_type=media_type)
 
 
 def _path_get_as_str(payload: dict[str, Any], path: tuple[str, ...]) -> str | None:
@@ -1861,19 +1858,71 @@ def _governance_links_from_payload(payload: dict[str, Any]) -> dict[str, Artifac
 def _artifact_ref_from_payload(value: Any) -> ArtifactRef | None:
     if isinstance(value, dict):
         try:
-            return ArtifactRef.model_validate(value)
+            parsed_ref: ArtifactRef = ArtifactRef.model_validate(value)
+            return parsed_ref
         except (TypeError, ValueError) as exc:
             logger.debug(
                 "Failed to parse generic artifact ref payload %s: %s", value, exc
             )
             return None
     if isinstance(value, str):
-        return ArtifactRef(
-            artifact_id=value,
+        return _artifact_ref_from_string(
+            value,
             kind="artifact.unknown",
             media_type="application/json",
         )
     return None
+
+
+def _agent_step_status(
+    value: str | None,
+    *,
+    fallback: AgentStepStatus = "info",
+) -> AgentStepStatus:
+    if value in {"ok", "warn", "fail", "info"}:
+        return cast("AgentStepStatus", value)
+    return fallback
+
+
+def _as_evaluator_verdict(value: Any) -> EvaluatorVerdict | None:
+    if value in {"APPROVE", "REPLAN_DATA", "REPLAN_METHOD", "REPLAN_PARAMS", "STOP_BUDGET"}:
+        return cast("EvaluatorVerdict", value)
+    return None
+
+
+def _as_iteration_lifecycle_state(value: Any) -> IterationLifecycleState:
+    if value in {
+        "plan_created",
+        "preflight_running",
+        "preflight_failed",
+        "ready_to_run",
+        "executing",
+        "evaluating",
+        "replanning",
+        "approved",
+        "stopped_budget",
+        "stopped_no_delta",
+        "stopped_guardrail",
+    }:
+        return cast("IterationLifecycleState", value)
+    return "plan_created"
+
+
+def _as_stop_reason(value: Any) -> StopReason | None:
+    if value in {"approved", "budget_exhausted", "no_delta", "guardrail_violation"}:
+        return cast("StopReason", value)
+    return None
+
+
+def _artifact_id_from_string(value: str | None) -> ArtifactID | None:
+    if not value:
+        return None
+    try:
+        parsed_id: ArtifactID = ArtifactID.model_validate(value)
+        return parsed_id
+    except (TypeError, ValueError, ValidationError) as exc:
+        logger.debug("Failed to parse artifact id %s: %s", value, exc)
+        return None
 
 
 def _has_replay_payload(payload: dict[str, Any]) -> bool:

@@ -87,7 +87,7 @@ class ExecutionStrictness(str, Enum):
 
 @dataclass(frozen=True)
 class ExecuteArtifacts:
-    """Execute artifacts public type."""
+    """CAS references and diagnostics produced by an execute call."""
     state_delta_ref: ArtifactRef
     metrics_ref: ArtifactRef
     constraint_report_ref: ConstraintReportRef | None = None
@@ -102,7 +102,7 @@ class ExecuteArtifacts:
 
 @dataclass(frozen=True)
 class ApplyArtifacts:
-    """Apply artifacts public type."""
+    """CAS references produced after applying state changes."""
     state_snapshot_ref: ArtifactRef
 
 
@@ -112,7 +112,7 @@ class ApplyArtifacts:
 
 
 def artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
-    """Artifact ID helper."""
+    """Normalize artifact refs and strings into an ArtifactID instance."""
     if isinstance(value, ArtifactRef):
         return value.artifact_id
     if isinstance(value, ArtifactID):
@@ -139,7 +139,7 @@ def load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> d
 
 
 def put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
-    """Put tensor helper."""
+    """Persist an array-like value as a NumPy tensor artifact."""
     array = np.asarray(value)
     buf = BytesIO()
     np.save(buf, array, allow_pickle=False)
@@ -188,7 +188,7 @@ def get_state_path(obj: Any, path: str) -> Any:
 
 
 def set_state_path(obj: Any, path: str, value: Any) -> Any:
-    """Set state path helper."""
+    """Return a dataclass-updated state with one dotted path replaced."""
     if not isinstance(path, str) or not path.strip():
         raise StatePathTraversalError(str(path), operation="write")
     return _set_state_path_parts(obj, path, path.split("."), value, segment_offset=0)

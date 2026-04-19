@@ -36,6 +36,14 @@ _JITTER_RANDOM = random.SystemRandom()
 T = TypeVar("T")
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
+def _default_tracer() -> PolicyOSTracer:
+    return get_tracer()
+
+
 class RetryExhaustedError(Exception):
     """Raised when all retry attempts are exhausted."""
 
@@ -193,7 +201,7 @@ class RetryPolicy:
         total_delay = 0.0
         last_error: Exception | None = None
         connector_id = _extract_connector_id(args, kwargs)
-        metrics = self.metrics or get_metrics()
+        metrics = self.metrics if self.metrics is not None else _default_metrics()
 
         async def _run() -> T:
             nonlocal attempt, total_delay, last_error
@@ -269,7 +277,7 @@ class RetryPolicy:
 
             raise RuntimeError("RetryPolicy.execute reached unexpected state")
 
-        tracer = self.tracer or get_tracer()
+        tracer = self.tracer if self.tracer is not None else _default_tracer()
 
         with tracer.start_as_current_span(
             "retry.execute",

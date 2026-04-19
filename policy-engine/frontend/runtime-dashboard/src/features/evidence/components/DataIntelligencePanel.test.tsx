@@ -1,4 +1,10 @@
-import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders } from "@/test/render";
@@ -250,6 +256,16 @@ describe("DataIntelligencePanel", () => {
       interactiveProviders: true,
     });
 
+    expect(
+      screen.getByText("pages.evidence.sourceAtlasTitle"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.evidence.knowledgeWeaveTitle"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.evidence.promotionReviewTitle"),
+    ).toBeInTheDocument();
+
     await user.type(
       screen.getByLabelText("panels.dataIntelligence.metric"),
       "inflation",
@@ -356,9 +372,7 @@ describe("DataIntelligencePanel", () => {
       interactiveProviders: true,
     });
 
-    const metricInput = screen.getByLabelText(
-      "panels.dataIntelligence.metric",
-    );
+    const metricInput = screen.getByLabelText("panels.dataIntelligence.metric");
     for (const value of ["i", "in", "inf", "inflation"]) {
       fireEvent.change(metricInput, { target: { value } });
     }

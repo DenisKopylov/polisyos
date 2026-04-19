@@ -9,7 +9,9 @@ approval_owner = "team-polisyos"
 source_of_truth = "schemas/abi_models.py + src/polisyos/** Pydantic/Enum contracts"
 outputs = [
   "schemas/snapshots/ir/",
-  "schemas/snapshots/fabric/",
+  "schemas/snapshots/fabric/edge_kind.schema.json",
+  "schemas/snapshots/fabric/node_kind.schema.json",
+  "schemas/snapshots/fabric/_manifest.json",
 ]
 regenerate_commands = [
   "PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py",
@@ -20,6 +22,25 @@ drift_gate = "automated"
 workflow = ".github/workflows/abi.yml"
 check_cwd = "."
 check_command = ["uv", "run", "--extra", "ml", "python", "tools/diagnostics/gen_schema.py", "--check"]
+
+[[family]]
+id = "fabric-connector-contract-registry"
+label = "Fabric connector contract registry"
+owner = "team-polisyos"
+approval_owner = "team-polisyos"
+source_of_truth = "polisyos.fabric.connectors.sources._contracts.ALL_SOURCE_CONTRACTS and tools/quality/validation/fabric_schema_governance.py"
+outputs = [
+  "schemas/snapshots/fabric/connector_contract_registry.json",
+]
+regenerate_commands = [
+  "uv run python tools/ci/check_fabric_schema_registry.py --update",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever source connector contracts or their governance metadata change."
+drift_gate = "automated"
+workflow = "tools/ci/check_fabric_schema_registry.py"
+check_cwd = "."
+check_command = ["uv", "run", "python", "tools/ci/check_fabric_schema_registry.py", "--check", "--evidence-out", ".tmp/fabric-schema-governance.json"]
 
 [[family]]
 id = "runtime-openapi-snapshot"
@@ -36,7 +57,7 @@ regenerate_commands = [
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever runtime routes, request/response DTOs, or OpenAPI examples change."
 drift_gate = "automated"
-workflow = ".github/workflows/ci.yml"
+workflow = ".github/workflows/arch.yml"
 check_cwd = "."
 check_command = ["uv", "run", "--extra", "runtime", "--extra", "ml", "python", "tools/runtime/check_runtime_api_contract.py", "--skip-client-drift"]
 
@@ -56,7 +77,7 @@ regenerate_commands = [
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever the runtime OpenAPI snapshot changes."
 drift_gate = "automated"
-workflow = ".github/workflows/ci.yml"
+workflow = ".github/workflows/arch.yml"
 check_cwd = "."
 check_command = ["uv", "run", "--extra", "runtime", "--extra", "ml", "python", "tools/runtime/check_runtime_api_contract.py"]
 
@@ -75,7 +96,7 @@ regenerate_commands = [
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever runtime OpenAPI changes affect dashboard-facing types."
 drift_gate = "automated"
-workflow = ".github/workflows/ci.yml"
+workflow = ".github/workflows/arch.yml"
 check_cwd = "frontend/runtime-dashboard"
 check_command = ["npm", "run", "generate:api"]
 check_git_diff_paths = ["src/api/types.ts"]
@@ -133,7 +154,7 @@ regenerate_commands = [
 commit_policy = "mixed"
 freshness_rule = "Commit benchmark reports only when they serve as intentional baselines, evidence packs, or review artifacts. `frontend/runtime-dashboard/dist/bundle-stats.json` is local by default and is committed only when reviewers explicitly want a checked-in bundle baseline."
 drift_gate = "manual_review"
-workflow = ".github/workflows/frontend-nightly.yml"
+workflow = ".github/workflows/perf.yml"
 
 [[family]]
 id = "audit-and-evidence-artifacts"
@@ -153,3 +174,38 @@ commit_policy = "mixed"
 freshness_rule = "Only intentionally reviewed evidence packs and audit outputs stay committed; transient local diagnostics such as raw audit captures remain ignored."
 drift_gate = "manual_review"
 workflow = "frontend/runtime-dashboard/scripts/run-audit.mjs"
+
+[[family]]
+id = "public-surface-inventory"
+label = "Public surface inventory"
+owner = "team-architecture"
+approval_owner = "team-architecture"
+source_of_truth = "architecture/public_surface.toml and src/polisyos/**/__init__.py public exports"
+outputs = [
+  "architecture/public_surface_inventory.json",
+  "architecture/public_surface/",
+]
+regenerate_commands = [
+  "uv run polisyos-tools quality public-surface snapshot --all",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate whenever supported public entrypoints, __all__, or public signatures change."
+drift_gate = "automated"
+workflow = ".github/workflows/arch.yml"
+
+[[family]]
+id = "release-sbom"
+label = "Release SBOM"
+owner = "team-security"
+approval_owner = "team-security"
+source_of_truth = "uv.lock, frontend workspace lockfile, Dockerfile.reproducible, and release manifest inputs"
+outputs = [
+  "release/sbom/",
+]
+regenerate_commands = [
+  "uv run polisyos-tools security sbom --output release/sbom/",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit for every release candidate or dependency-lock change that enters a release branch."
+drift_gate = "automated"
+workflow = ".github/workflows/core-runtime-release-gate.yml"

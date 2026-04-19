@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from importlib import import_module
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 _EXPORTS: dict[str, tuple[str, str]] = {
     "CellAssignment": ("polisyos.core.security.cell", "CellAssignment"),
@@ -159,7 +159,202 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "VulnerabilitySeverity": ("polisyos.core.security.sbom", "VulnerabilitySeverity"),
 }
 
-__all__ = sorted(_EXPORTS)
+if TYPE_CHECKING:
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.audit_models import (
+        AuditActor,
+        AuditCorrelation,
+        AuditEventType,
+        AuditResource,
+        ChainedLogEntry,
+    )
+    from polisyos.core.security.audit_sink import (
+        ChainedAuditSink,
+        ColdTierBackend,
+        HotTierBackend,
+        LocalJsonlBackend,
+        build_default_audit_backends_from_env,
+    )
+    from polisyos.core.security.audit_verifier import (
+        ChainVerificationResult,
+        ChainVerifier,
+    )
+    from polisyos.core.security.authz import (
+        AuthzDecision,
+        AuthzInput,
+        AuthzResult,
+        OPAClient,
+    )
+    from polisyos.core.security.cell import (
+        CellAssignment,
+        CellSpec,
+        CellTier,
+        IsolationLevel,
+        TenantSpec,
+    )
+    from polisyos.core.security.db_backend import (
+        DatabaseBackend,
+        DuckDBLegacyBackend,
+        PostgresBackend,
+    )
+    from polisyos.core.security.delegation import (
+        DelegationContextClaims,
+        DelegationTokenManager,
+    )
+    from polisyos.core.security.exceptions import (
+        AuthorizationDeniedError,
+        AuthorizationError,
+        CellCapacityError,
+        CrossTenantAccessError,
+        DelegationError,
+        DelegationVerificationError,
+        IdentityError,
+        IdentityNotAvailableError,
+        IdentityVerificationError,
+        MFARequiredError,
+        TenantContextNotSetError,
+        TenantIsolationError,
+        TenantNotFoundError,
+        TokenValidationError,
+    )
+    from polisyos.core.security.identity import (
+        PIIAccessLevel,
+        PolicyOSRole,
+        SPIFFEIdentityProvider,
+        ServiceIdentity,
+        ServiceIdentityInfo,
+        UserIdentityClaims,
+    )
+    from polisyos.core.security.registry import (
+        CellRegistry,
+        CellResolution,
+    )
+    from polisyos.core.security.router import (
+        MissingTenantHeaderError,
+        RoutingResult,
+        TENANT_HEADER,
+        TenantRoutingError,
+        resolve_routing,
+    )
+    from polisyos.core.security.sbom import (
+        SBOMGenerator,
+        SBOMMetadata,
+        SBOMVerificationResult,
+        SBOMVerifier,
+        VulnerabilityRecord,
+        VulnerabilitySeverity,
+    )
+    from polisyos.core.security.settings import (
+        SecuritySettings,
+        get_security_settings,
+    )
+    from polisyos.core.security.tee import (
+        AttestationPolicy,
+        AttestationReport,
+        AttestationResult,
+        AttestationStatus,
+        NoOpVerifier,
+        SEVSNPVerifier,
+        TEEPlatform,
+    )
+    from polisyos.core.security.tee_middleware import (
+        AttestationDeniedError,
+        TEEGatekeeper,
+    )
+    from polisyos.core.security.tenant_context import (
+        TenantContext,
+        get_current_access_scope_or_none,
+        get_current_cell_id,
+        get_current_tenant_id,
+        get_current_tenant_id_or_none,
+        require_tenant_context,
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
+
+__all__ = [
+    'AccessScope',
+    'AttestationDeniedError',
+    'AttestationPolicy',
+    'AttestationReport',
+    'AttestationResult',
+    'AttestationStatus',
+    'AuditActor',
+    'AuditCorrelation',
+    'AuditEventType',
+    'AuditResource',
+    'AuthorizationDeniedError',
+    'AuthorizationError',
+    'AuthzDecision',
+    'AuthzInput',
+    'AuthzResult',
+    'CellAssignment',
+    'CellCapacityError',
+    'CellRegistry',
+    'CellResolution',
+    'CellSpec',
+    'CellTier',
+    'ChainVerificationResult',
+    'ChainVerifier',
+    'ChainedAuditSink',
+    'ChainedLogEntry',
+    'ColdTierBackend',
+    'CrossTenantAccessError',
+    'DatabaseBackend',
+    'DelegationContextClaims',
+    'DelegationError',
+    'DelegationTokenManager',
+    'DelegationVerificationError',
+    'DuckDBLegacyBackend',
+    'HotTierBackend',
+    'IdentityError',
+    'IdentityNotAvailableError',
+    'IdentityVerificationError',
+    'IsolationLevel',
+    'LocalJsonlBackend',
+    'MFARequiredError',
+    'MissingTenantHeaderError',
+    'NoOpVerifier',
+    'OPAClient',
+    'PIIAccessLevel',
+    'PolicyOSRole',
+    'PostgresBackend',
+    'RoutingResult',
+    'SBOMGenerator',
+    'SBOMMetadata',
+    'SBOMVerificationResult',
+    'SBOMVerifier',
+    'SEVSNPVerifier',
+    'SPIFFEIdentityProvider',
+    'SecuritySettings',
+    'ServiceIdentity',
+    'ServiceIdentityInfo',
+    'TEEGatekeeper',
+    'TEEPlatform',
+    'TENANT_HEADER',
+    'TenantContext',
+    'TenantContextNotSetError',
+    'TenantIsolationError',
+    'TenantNotFoundError',
+    'TenantRoutingError',
+    'TenantSpec',
+    'TokenValidationError',
+    'UserIdentityClaims',
+    'VulnerabilityRecord',
+    'VulnerabilitySeverity',
+    'build_default_audit_backends_from_env',
+    'get_current_access_scope_or_none',
+    'get_current_cell_id',
+    'get_current_tenant_id',
+    'get_current_tenant_id_or_none',
+    'get_security_settings',
+    'require_tenant_context',
+    'reset_current_access_scope',
+    'resolve_routing',
+    'set_current_access_scope',
+    'tenant_scope',
+]
 
 
 def __getattr__(name: str) -> Any:

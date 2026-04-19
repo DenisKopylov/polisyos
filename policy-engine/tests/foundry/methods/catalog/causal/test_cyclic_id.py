@@ -97,29 +97,55 @@ def test_well_posedness_detects_multiple_fixed_points() -> None:
 
 def test_cyclic_algorithm_identifies_well_posed_feedback_loop() -> None:
     graph = _cyclic_graph(
-        [("A", "B"), ("B", "A")],
+        [("X", "A"), ("A", "B"), ("B", "A"), ("Y", "B")],
         metadata={"well_posedness_spec": {"linear_system_matrix": np.array([[0.1, 0.1], [0.1, 0.1]])}},
     )
-    result = cyclic_id_algorithm(frozenset({"A"}), frozenset({"B"}), graph)
+    result = cyclic_id_algorithm(frozenset({"X"}), frozenset({"Y"}), graph)
     assert result.status.name == "IDENTIFIED"
-    assert result.algorithm_version == "cyclic_id_experimental_v1"
+    assert result.algorithm_version == "cyclic_id_scoped_v1"
     assert result.estimand_ast is not None
     assert "cyclic_id" in result.estimand_ast.identification_method
+    dynamic_semantics = result.metadata.get("dynamic_semantics")
+    assert isinstance(dynamic_semantics, dict)
+    assert dynamic_semantics["semantics_family"] == "ioSCM"
+    assert dynamic_semantics["reduction_status"] == "validated_reduction"
+    assert dynamic_semantics["markov_criterion_certificate"]["graphical_oracle"] == "sigma"
 
 
-def test_engine_routes_cycle_to_cyclic_identification() -> None:
+def test_engine_routes_supported_cycle_to_validated_dynamic_reduction() -> None:
     graph = _cyclic_graph(
-        [("A", "B"), ("B", "A")],
+        [("X", "A"), ("A", "B"), ("B", "A"), ("Y", "B")],
         metadata={"well_posedness_spec": {"linear_system_matrix": np.array([[0.1, 0.1], [0.1, 0.1]])}},
     )
     engine = CausalEngine(registry=None, knowledge_base=None)
-    result = engine.identify("A", "B", graph)
+    result = engine.identify("X", "Y", graph)
     assert not isinstance(result, NegativeCertificate)
     assert result.status.name == "IDENTIFIED"
-    assert result.algorithm_version == "cyclic_id_experimental_v1"
+    assert result.algorithm_version == "dynamic_acyclic_reduction_v1"
 
     eg = engine.compile(result)
-    assert any(isinstance(node, CyclicExecutionBlock) for node in eg.nodes)
+    assert not any(isinstance(node, CyclicExecutionBlock) for node in eg.nodes)
+
+
+def test_cyclic_algorithm_returns_oracle_needed_when_validated_reduction_is_unavailable() -> None:
+    graph = _cyclic_graph(
+        [("A", "B"), ("B", "A")],
+        metadata={
+            "well_posedness_spec": {
+                "update_fn": lambda x: 0.2 * float(np.asarray(x).reshape(-1)[0]),
+                "lipschitz_constant": 0.2,
+            }
+        },
+    )
+
+    result = cyclic_id_algorithm(frozenset({"A"}), frozenset({"B"}), graph)
+
+    assert result.status.name == "ORACLE_NEEDED"
+    assert result.estimand_ast is None
+    assert result.algorithm_version == "cyclic_id_scoped_v1"
+    assert result.metadata["dynamic_semantics"]["reduction_status"] == "blocked"
+    assert result.metadata["frontier_sketch"]["stage_id"] == "4.4"
+    assert result.metadata["frontier_sketch"]["typed_integration_target"] == "ProofBundle.dynamic_semantics"
 
 
 def test_compiler_classifies_cyclic_marker() -> None:
@@ -144,3 +170,6 @@ def test_cyclic_algorithm_returns_negative_certificate_when_not_well_posed() -> 
     engine = CausalEngine(registry=None, knowledge_base=None)
     result = engine.identify("A", "B", graph)
     assert isinstance(result, NegativeCertificate)
+    assert result.blocking_type.value == "semantics_not_well_defined"
+    assert "dynamic_semantics" in result.quantitative_diagnostics
+    assert result.quantitative_diagnostics["dynamic_semantics"]["reduction_status"] == "blocked"

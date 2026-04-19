@@ -12,52 +12,52 @@ from .uncertainty import UncertaintyEnvelopeRef
 
 class DataViewRequestRef(ArtifactRef):
     """Artifact reference for the original Fabric data-view request payload."""
-    kind: Literal["ir.data_view_request"] = "ir.data_view_request"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "ir.data_view_request"
+    media_type: str = "application/json"
 
 
 class QueryPlanRef(ArtifactRef):
     """Artifact reference for the query plan emitted before Fabric data retrieval runs."""
-    kind: Literal["fabric.query_plan"] = "fabric.query_plan"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "fabric.query_plan"
+    media_type: str = "application/json"
 
 
 class FabricResultRef(ArtifactRef):
     """Artifact reference for the top-level Fabric result bundle returned to callers."""
-    kind: Literal["fabric.result_bundle"] = "fabric.result_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "fabric.result_bundle"
+    media_type: str = "application/json"
 
 
 class EvidenceBundleRef(ArtifactRef):
     """Artifact reference for the evidence bundle backing a Fabric result."""
-    kind: Literal["fabric.evidence_bundle"] = "fabric.evidence_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "fabric.evidence_bundle"
+    media_type: str = "application/json"
 
 
 class UncertaintyBoundsRef(ArtifactRef):
     """Artifact reference for numeric uncertainty bounds attached to a Fabric result."""
-    kind: Literal["fabric.uncertainty_bounds"] = "fabric.uncertainty_bounds"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "fabric.uncertainty_bounds"
+    media_type: str = "application/json"
 
 
 class WarningsRef(ArtifactRef):
     """Artifact reference for machine-readable warnings emitted during Fabric retrieval."""
-    kind: Literal["fabric.warnings"] = "fabric.warnings"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "fabric.warnings"
+    media_type: str = "application/json"
 
 
 class DataSnapshotRef(ArtifactRef):
     """Artifact reference for a materialized snapshot of retrieved data and its metadata."""
-    kind: Literal["fabric.data_snapshot"] = "fabric.data_snapshot"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "fabric.data_snapshot"
+    media_type: str = "application/json"
 
 
 class HistoricalSemanticDiffReportRef(ArtifactRef):
     """Historical semantic diff report ref data model."""
-    kind: Literal["fabric.historical_semantic_diff_report"] = (
+    kind: str = (
         "fabric.historical_semantic_diff_report"
     )
-    media_type: Literal["application/json"] = "application/json"
+    media_type: str = "application/json"
 
 
 class QueryPlanStep(BaseModel):
@@ -106,7 +106,7 @@ class EvidenceBundle(BaseModel):
     trust_policy_id: str | None = None
     notes: list[str] = Field(default_factory=list)
     provenance_ref: ProvenanceCoreRefModel | None = None
-    quality_indicators: dict[str, dict] | None = None
+    quality_indicators: dict[str, dict[str, Any]] | None = None
 
 
 class UncertaintyBounds(BaseModel):

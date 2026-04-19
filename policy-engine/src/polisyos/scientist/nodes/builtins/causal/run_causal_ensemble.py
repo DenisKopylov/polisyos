@@ -52,6 +52,7 @@ from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF,
@@ -464,7 +465,7 @@ class RunCausalEnsembleNode:
             )
 
         if not candidates:
-            new_state = state.model_copy(deep=True)
+            new_state = branch_state(state, write_paths=_SPEC.state_writes).state
             new_state.params["causal_ensemble_warning"] = (
                 "No causal ensemble candidates available; ensemble node skipped."
             )
@@ -495,7 +496,7 @@ class RunCausalEnsembleNode:
                 )
 
         if query is None and any(item.query_result_ref is None for item in candidates):
-            new_state = state.model_copy(deep=True)
+            new_state = branch_state(state, write_paths=_SPEC.state_writes).state
             new_state.params["causal_ensemble_warning"] = (
                 "Missing params.causal_query and no member-level causal_query_result_ref fallback."
             )
@@ -726,7 +727,7 @@ class RunCausalEnsembleNode:
             ],
         )
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF] = ArtifactRef.model_validate(
             ensemble_ref.model_dump(mode="json")
         )

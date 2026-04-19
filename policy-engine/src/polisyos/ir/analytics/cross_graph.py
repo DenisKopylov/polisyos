@@ -26,7 +26,7 @@ _SCM_FRAGMENT_SCHEMA_VERSION = "1.1"
 _INTERFACE_MAPPING_SCHEMA_NAME = "ir.interface_mapping"
 _INTERFACE_MAPPING_SCHEMA_VERSION = "1.0"
 _COMPOSITION_CERTIFICATE_SCHEMA_NAME = "ir.composition_certificate"
-_COMPOSITION_CERTIFICATE_SCHEMA_VERSION = "1.1"
+_COMPOSITION_CERTIFICATE_SCHEMA_VERSION = "1.2"
 
 
 class InterfaceRole(str, Enum):
@@ -205,11 +205,38 @@ class InterfaceMapping(BaseModel):
         return self
 
 
+class QueryPreservationCertificate(BaseModel):
+    """Machine-checkable per-query preservation verdict for composed graphs."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["preserved", "broken", "unknown"]
+    reason_code: str = Field(min_length=1)
+    query_semantics: str = ""
+    source_fragment_id: str | None = None
+    witness_fragment_ids: list[str] = Field(default_factory=list)
+    source_witness_kind: str = ""
+    assumption_boundary: str | None = None
+    theorem_family: str | None = None
+    identification_status: str | None = None
+    identification_method: str | None = None
+    identification_trace: list[str] = Field(default_factory=list)
+    obligations_checked: list[dict[str, Any]] = Field(default_factory=list)
+    latent_projection_signature: dict[str, Any] | None = None
+    latent_projection_ref: str | None = None
+    identifying_estimand: dict[str, Any] | None = None
+    required_distributions: list[dict[str, Any]] = Field(default_factory=list)
+    positive_witness: dict[str, Any] | None = None
+    hedge_witness: dict[str, Any] | None = None
+    negative_certificate_ref: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
 class CompositionCertificate(BaseModel):
     """Composition certificate public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.2", pattern=r"^\d+\.\d+$")
     structure_status: Literal["valid", "invalid"] = "valid"
     review_status: Literal["clear", "pending_review"] = "clear"
     status: Literal["preserved", "deferred", "broken", "unknown"] = "unknown"
@@ -217,6 +244,7 @@ class CompositionCertificate(BaseModel):
     interface_mapping_ref: str = Field(min_length=1)
     alignment_report_ref: str = Field(min_length=1)
     checked_queries: dict[str, Literal["preserved", "broken", "unknown"]] = Field(default_factory=dict)
+    query_certificates: dict[str, QueryPreservationCertificate] = Field(default_factory=dict)
     newly_required_assumptions: list[str] = Field(default_factory=list)
     structural_assumptions: list[str] = Field(default_factory=list)
     alignment_assumptions: list[str] = Field(default_factory=list)
@@ -614,6 +642,7 @@ __all__ = [
     "BridgeRelation",
     "CanonicalConcept",
     "CompositionCertificate",
+    "QueryPreservationCertificate",
     "ConceptBridge",
     "ConceptKind",
     "CrossGraphDiagnostic",

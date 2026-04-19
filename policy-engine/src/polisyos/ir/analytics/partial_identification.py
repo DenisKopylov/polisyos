@@ -10,13 +10,14 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import BoundsBundleRef
+from polisyos.ir.refs import BoundsBundleRef, DualCertificateRef
 
 
 class BoundMethod(str, Enum):
     """Bound method public type."""
     MANSKI = "manski_bounds"
     TRANSPORT_BOUNDS = "transport_bounds"
+    DP_ROBUSTNESS = "dp_robustness_bounds"
     IV_BOUNDS = "iv_bounds"
     MONOTONE_TREATMENT = "monotone_treatment"
     LP_BALKE_PEARL = "lp_balke_pearl"
@@ -208,6 +209,7 @@ class BoundsBundle(BaseModel):
     upper_bound: float | None = None
     consensus_lower: float | None = None
     consensus_upper: float | None = None
+    dual_certificate_ref: DualCertificateRef | None = None
     sharpness_status: Literal["sharp", "inner_approx", "outer_approx", "unknown"] = "unknown"
     method_summaries: list[BoundsMethodSummary] = Field(default_factory=list)
     rescue_actions: list[str] = Field(default_factory=list)
@@ -219,12 +221,16 @@ def bounds_bundle_from_partial_identification_result(
     result: PartialIdentificationResult,
     *,
     estimand_type: str = "ate",
+    dual_certificate_ref: DualCertificateRef | None = None,
     rescue_actions: list[str] | None = None,
     warnings: list[str] | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> BoundsBundle:
     """Lift one partial-identification result into the canonical public bundle."""
-    sharpness_status = _sharpness_from_bounds_type(result.bounds_type)
+    sharpness_status = _sharpness_from_bounds_type(
+        result.bounds_type,
+        has_dual_certificate=dual_certificate_ref is not None,
+    )
     return BoundsBundle(
         estimand_type=estimand_type,
         point_identified=abs(result.upper_bound - result.lower_bound) <= 1e-12,
@@ -232,6 +238,7 @@ def bounds_bundle_from_partial_identification_result(
         upper_bound=result.upper_bound,
         consensus_lower=result.lower_bound,
         consensus_upper=result.upper_bound,
+        dual_certificate_ref=dual_certificate_ref,
         sharpness_status=sharpness_status,
         method_summaries=[
             BoundsMethodSummary(
@@ -253,6 +260,7 @@ def bounds_bundle_from_partial_identification_result(
 def bounds_bundle_from_bounds_report(
     report: BoundsReport,
     *,
+    dual_certificate_ref: DualCertificateRef | None = None,
     rescue_actions: list[str] | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> BoundsBundle:
@@ -272,7 +280,10 @@ def bounds_bundle_from_bounds_report(
     sharpness_status = "unknown"
     if report.tightest_method is not None:
         tightest = min(report.results, key=lambda item: item.bound_width)
-        sharpness_status = _sharpness_from_bounds_type(tightest.bounds_type)
+        sharpness_status = _sharpness_from_bounds_type(
+            tightest.bounds_type,
+            has_dual_certificate=dual_certificate_ref is not None,
+        )
     lower_bound = report.tightest_lower
     upper_bound = report.tightest_upper
     return BoundsBundle(
@@ -286,6 +297,7 @@ def bounds_bundle_from_bounds_report(
         upper_bound=upper_bound,
         consensus_lower=report.consensus_lower,
         consensus_upper=report.consensus_upper,
+        dual_certificate_ref=dual_certificate_ref,
         sharpness_status=sharpness_status,
         method_summaries=method_summaries,
         rescue_actions=list(rescue_actions or []),
@@ -301,15 +313,51 @@ def bounds_bundle_from_bounds_report(
 
 def _sharpness_from_bounds_type(
     bounds_type: str,
+    *,
+    has_dual_certificate: bool = False,
 ) -> Literal["sharp", "inner_approx", "outer_approx", "unknown"]:
     normalized = str(bounds_type or "").strip().lower()
     if normalized == "sharp_lp":
-        return "sharp"
+        return "sharp" if has_dual_certificate else "unknown"
     if normalized == "relaxed_polynomial":
         return "outer_approx"
     if normalized == "manski":
         return "outer_approx"
     return "unknown"
+
+
+def _tightest_method_summary(
+    method_summaries: list[BoundsMethodSummary],
+) -> BoundsMethodSummary | None:
+    if not method_summaries:
+        return None
+    return min(method_summaries, key=lambda item: item.bound_width)
+
+
+def refresh_bounds_bundle_sharpness(bundle: BoundsBundle) -> BoundsBundle:
+    """Recompute bundle sharpness from the tightest method and certificate availability."""
+
+    tightest = _tightest_method_summary(bundle.method_summaries)
+    sharpness_status = (
+        "unknown"
+        if tightest is None
+        else _sharpness_from_bounds_type(
+            tightest.bounds_type,
+            has_dual_certificate=bundle.dual_certificate_ref is not None,
+        )
+    )
+    return bundle.model_copy(update={"sharpness_status": sharpness_status})
+
+
+def attach_dual_certificate_ref(
+    bundle: BoundsBundle,
+    dual_certificate_ref: DualCertificateRef | None,
+) -> BoundsBundle:
+    """Attach a persisted dual-certificate ref and recompute sharpness."""
+
+    return refresh_bounds_bundle_sharpness(
+        bundle.model_copy(update={"dual_certificate_ref": dual_certificate_ref})
+    )
 
 
 def persist_bounds_bundle(
@@ -393,9 +441,11 @@ __all__ = [
     "BoundsReport",
     "PartialIdentificationResult",
     "SensitivitySweepResult",
+    "attach_dual_certificate_ref",
     "bounds_bundle_from_bounds_report",
     "bounds_bundle_from_partial_identification_result",
     "compute_manski_bounds",
     "load_bounds_bundle",
     "persist_bounds_bundle",
+    "refresh_bounds_bundle_sharpness",
 ]

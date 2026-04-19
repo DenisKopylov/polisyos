@@ -7,7 +7,7 @@ from ._env_models import (
     EnvironmentManifest,
     RiskLevel,
 )
-from ._env_utils import _risk_order, _short_hash
+from ._env_utils import risk_order, short_hash
 
 __all__ = [
     "compare_environments",
@@ -214,8 +214,8 @@ def compare_environments(a: EnvironmentManifest, b: EnvironmentManifest) -> list
                 EnvironmentDiff(
                     field_path="dependencies.lockfile_hash",
                     field_name="Dependency Lockfile Hash",
-                    value_a=_short_hash(a.dependencies.lockfile_hash),
-                    value_b=_short_hash(b.dependencies.lockfile_hash),
+                    value_a=short_hash(a.dependencies.lockfile_hash),
+                    value_b=short_hash(b.dependencies.lockfile_hash),
                     risk_level=RiskLevel.HIGH,
                     explanation="Package version changes may affect computation",
                 )
@@ -282,8 +282,8 @@ def compare_environments(a: EnvironmentManifest, b: EnvironmentManifest) -> list
                 EnvironmentDiff(
                     field_path=f"system_libraries.{name}.sha256",
                     field_name=f"System Library {name}",
-                    value_a=_short_hash(info_a.sha256),
-                    value_b=_short_hash(info_b.sha256),
+                    value_a=short_hash(info_a.sha256),
+                    value_b=short_hash(info_b.sha256),
                     risk_level=RiskLevel.HIGH,
                     explanation="System library changes can alter runtime behavior",
                 )
@@ -303,5 +303,5 @@ def compare_environments(a: EnvironmentManifest, b: EnvironmentManifest) -> list
             )
         )
 
-    diffs.sort(key=lambda diff: _risk_order(diff.risk_level))
+    diffs.sort(key=lambda diff: risk_order(diff.risk_level))
     return diffs

@@ -43,38 +43,38 @@ StopReason = Literal[
 
 class ExecutionPlanRef(ArtifactRef):
     """Artifact reference for the execution plan driving a Scientist iteration."""
-    kind: Literal["scientist.execution_plan"] = "scientist.execution_plan"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.execution_plan"
+    media_type: str = "application/json"
 
 
 class MethodCatalogSnapshotRef(ArtifactRef):
     """Artifact reference for the method-catalog snapshot available during planning."""
-    kind: Literal["foundry.method_catalog_snapshot"] = "foundry.method_catalog_snapshot"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.method_catalog_snapshot"
+    media_type: str = "application/json"
 
 
 class PreflightReportRef(ArtifactRef):
     """Artifact reference for readiness diagnostics generated before execution starts."""
-    kind: Literal["scientist.preflight_report"] = "scientist.preflight_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.preflight_report"
+    media_type: str = "application/json"
 
 
 class EvaluatorReportRef(ArtifactRef):
     """Artifact reference for the evaluator verdict emitted after an iteration runs."""
-    kind: Literal["scientist.evaluator_report"] = "scientist.evaluator_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.evaluator_report"
+    media_type: str = "application/json"
 
 
 class IterationStateRef(ArtifactRef):
     """Artifact reference for persisted lifecycle state of one planning iteration."""
-    kind: Literal["scientist.iteration_state"] = "scientist.iteration_state"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.iteration_state"
+    media_type: str = "application/json"
 
 
 class ReproducibilityManifestRef(ArtifactRef):
     """Artifact reference for the hashes and seeds required to replay an iteration."""
-    kind: Literal["scientist.reproducibility_manifest"] = "scientist.reproducibility_manifest"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "scientist.reproducibility_manifest"
+    media_type: str = "application/json"
 
 
 class PlanDataNeed(BaseModel):

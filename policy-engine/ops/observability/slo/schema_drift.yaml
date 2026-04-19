@@ -1,0 +1,10 @@
+service: schema_drift
+version: 1
+owner: team-architecture
+objectives:
+  - name: generated_schema_drift
+    sli: polisyos_schema_drift_total
+    threshold: "= 0"
+    window: 7d
+    owner: team-architecture
+    runbook: docs/runbooks/broken-contract-generation.md

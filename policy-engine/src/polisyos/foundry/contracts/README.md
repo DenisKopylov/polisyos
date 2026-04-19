@@ -1,44 +1,84 @@
 # Contracts (`polisyos.foundry.contracts`)
 
-`contracts` - shared runtime contracts for Foundry execution, agent simulation and
-state/patch semantics.
+`polisyos.foundry.contracts` defines the shared runtime state, patch, and
+fidelity contracts used by Foundry execution, calibration, and contract-aware
+agent simulation.
 
-## Role in System
+- Last updated: 2026-04-17
 
-- **Depends on:** `polisyos.foundry.agent_sim.distributions`, `polisyos.ir.observation`
-- **Used by:** Foundry executor, data_plane bindings, agent_sim wiring and state loaders
-- Defines the common state objects and patch-oriented protocol boundary for runtime code.
+## Purpose
 
-## Key Concepts
+Use this package as the common boundary for code that needs to agree on what
+runtime state looks like and how mechanisms describe fidelity and patch output.
+It is the stable contract layer beneath compile/execute helpers and contract-
+aware simulation adapters.
 
-- **State dataclasses** - `GlobalState`, `AgentState`, `FirmState`, `MarketState`.
-- **Multiscale runtime** - `CellState`, `HouseholdCellState`, `AgentSimRuntimeState`.
-- **Procurement graph** - `ProcurementGraphState` stores edge-level procurement dynamics.
-- **Mechanism contracts** - patch-oriented interfaces and complex mechanism wrappers.
-- **Fidelity** - explicit fidelity levels for execution and contract gating.
+## Where to Start
 
-## Public API
+- [state.py](state.py) for `GlobalState`, agent/firm/market arrays, multiscale
+  cells, and runtime-only simulation substate.
+- [mechanism.py](mechanism.py) for patch-oriented `Mechanism`,
+  `ComplexMechanism`, `PatchRecord`, and `PatchMap`.
+- [fidelity.py](fidelity.py) for runtime fidelity levels.
+- [../layout.py](../layout.py) for slot-to-state-path materialization that
+  targets these contracts.
+- [../executor.py](../executor.py) for snapshot and state-delta helpers that
+  apply these contracts at runtime.
 
-| Type/Function | Description |
+## Public Entrypoints
+
+| Entrypoint | Description |
 |---|---|
-| `GlobalState` | Top-level runtime state for Foundry / agent simulation. |
-| `AgentState` | Household/agent state array bundle. |
-| `FirmState` | Firm state array bundle. |
-| `MarketState` | Aggregate market state. |
-| `CellState` | Regional cell-level state for multiscale runs. |
-| `HouseholdCellState` | Household-cell aggregation state. |
-| `AgentSimRuntimeState` | Runtime wrapper with RNG and multiscale substate. |
-| `ProcurementGraphState` | Edge-oriented procurement graph state. |
-| `Mechanism` | Base mechanism contract. |
-| `ComplexMechanism` | Composite mechanism contract. |
-| `PatchMap` | Patch mapping used by merge/runtime layers. |
-| `PatchRecord` | Recorded patch emitted by mechanisms. |
-| `FidelityLevel` | Execution fidelity enum. |
+| `AgentState` | Household/agent state arrays used by runtime execution. |
+| `FirmState` | Firm production and finance arrays. |
+| `MarketState` | Aggregate market tensors. |
+| `CellState` | Regional/sectoral aggregate state. |
+| `HouseholdCellState` | Household-cell welfare aggregates. |
+| `ProcurementGraphState` | Procurement graph runtime tensors. |
+| `AgentSimRuntimeState` | RNG and runtime-only distribution/network state. |
+| `GlobalState` | Top-level compile/execute state contract. |
+| `Mechanism` | Patch-first mechanism contract. |
+| `ComplexMechanism` | Marker for complex mechanisms that still emit patches only. |
+| `PatchRecord` / `PatchMap` | Patch payload structures used by merge/runtime helpers. |
+| `FidelityLevel` | Runtime fidelity enum. |
 
-→ Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
+## Depends On / Depended On By
 
-## Current State
+- Depends on: JAX/chex/equinox runtime libraries and
+  `polisyos.foundry.agent_sim.distributions` for the embedded
+  `DistributionState`.
+- Depended on by: Foundry executor and registry layers, runtime mechanisms,
+  calibration pure-executor flows, agent-sim wiring, quickstart, and
+  release-acceptance paths.
 
-- Last updated: 2026-04-03
-- Files: 4 Python files
-- Exports: 13
+## Common Commands
+
+Smoke-tested on 2026-04-17:
+
+```bash
+uv run python - <<'PY'
+from polisyos.foundry.contracts import FidelityLevel, GlobalState
+
+state = GlobalState.empty(n_agents=2, n_firms=1, n_cells=1, n_household_cells=1)
+print(state.agents.size, state.firms.size)
+print([level.value for level in FidelityLevel])
+PY
+```
+
+## Test / Verification Commands
+
+```bash
+uv run pytest tests/foundry/contracts/test_state_contracts.py \
+  tests/foundry/contracts/test_fidelity.py -q
+
+uv run pytest tests/foundry/test_global_state.py \
+  tests/foundry/test_layout.py \
+  tests/foundry/test_executor_snapshots.py -q
+```
+
+## Reference Docs
+
+- [docs/reference/foundry/state.md](../../../../docs/reference/foundry/state.md)
+- [docs/reference/foundry/compile-execute.md](../../../../docs/reference/foundry/compile-execute.md)
+- [docs/reference/foundry/agent-sim.md](../../../../docs/reference/foundry/agent-sim.md)
+- [../README.md](../README.md)

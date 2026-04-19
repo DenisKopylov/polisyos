@@ -223,6 +223,7 @@ def _make_partial_id_result(
     assumptions: list[str],
     confidence: float = 0.9,
     display_label: str = "",
+    bounds_type: str = "manski",
 ) -> dict[str, Any]:
     """Build a PartialIdentificationResult-compatible dict for pure_step returns."""
     return PartialIdentificationResult(
@@ -232,10 +233,13 @@ def _make_partial_id_result(
         confidence=confidence,
         assumptions_used=assumptions,
         display_label=display_label,
+        bounds_type=bounds_type,
     ).model_dump()
 
 
-def _balke_pearl_lp(p_yxz: np.ndarray) -> tuple[float, float, str]:
+def _balke_pearl_lp(
+    p_yxz: np.ndarray,
+) -> tuple[float, float, str, dict[str, Any] | None]:
     """LP solver for Balke-Pearl sharp IV bounds.
 
     Parameters
@@ -281,8 +285,22 @@ def _balke_pearl_lp(p_yxz: np.ndarray) -> tuple[float, float, str]:
     res_hi = linprog(-c, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs")
 
     if res_lo.status == 0 and res_hi.status == 0:
-        return float(res_lo.fun), float(-res_hi.fun), "optimal"
-    return -1.0, 1.0, f"solver_failed(lo={res_lo.status},hi={res_hi.status})"
+        from polisyos.ir.analytics.dual_certificate import (  # noqa: PLC0415
+            build_binary_iv_dual_certificate_bundle,
+        )
+
+        cert = build_binary_iv_dual_certificate_bundle(
+            joint=p_yxz,
+            lower_result=res_lo,
+            upper_result=res_hi,
+        )
+        return (
+            float(res_lo.fun),
+            float(-res_hi.fun),
+            "optimal",
+            cert.model_dump(mode="json"),
+        )
+    return -1.0, 1.0, f"solver_failed(lo={res_lo.status},hi={res_hi.status})", None
 
 
 @foundry_method(
@@ -371,7 +389,7 @@ class BalkePearlBoundsEstimator:
         if clip_probs:
             p_yxz = np.clip(p_yxz, 0.0, 1.0)
 
-        lower, upper, solver_status = _balke_pearl_lp(p_yxz)
+        lower, upper, solver_status, dual_certificate_payload = _balke_pearl_lp(p_yxz)
 
         partial_id = _make_partial_id_result(
             lower=lower,
@@ -380,6 +398,7 @@ class BalkePearlBoundsEstimator:
             assumptions=["binary_iv", "binary_treatment", "binary_outcome", "iv_relevance"],
             confidence=0.95 if solver_status == "optimal" else 0.5,
             display_label="Balke-Pearl Sharp IV Bounds",
+            bounds_type="sharp_lp",
         )
 
         return {
@@ -390,6 +409,7 @@ class BalkePearlBoundsEstimator:
                 "solver_status": solver_status,
                 "n_obs": n,
                 "partial_id_result": partial_id,
+                "dual_certificate_payload": dual_certificate_payload,
             }
         }
 
@@ -863,8 +883,9 @@ def _general_balke_pearl_lp(
     n_outcome_levels: int,
     treatment_target: int = 1,
     treatment_ref: int = 0,
+    outcome_scale: float = 1.0,
     max_response_fns: int = 5_000,
-) -> tuple[float, float, str]:
+) -> tuple[float, float, str, dict[str, Any] | None]:
     """General Balke-Pearl LP for multi-valued T ∈ {0,...,K} and Y ∈ {0,...,J}.
 
     Parameters
@@ -936,7 +957,10 @@ def _general_balke_pearl_lp(
     # Normalise to [0,1] scale by dividing by (J1 - 1) so bounds are on original scale.
     scale = float(J1 - 1) if J1 > 1 else 1.0
     c = np.array(
-        [(yr[treatment_target] - yr[treatment_ref]) / scale for (_, yr) in all_rfs],
+        [
+            ((yr[treatment_target] - yr[treatment_ref]) / scale) * float(outcome_scale)
+            for (_, yr) in all_rfs
+        ],
         dtype=float,
     )
     bounds_lp = [(0.0, None)] * n_rf
@@ -945,8 +969,32 @@ def _general_balke_pearl_lp(
     res_hi = linprog(-c, A_eq=A_eq, b_eq=b_eq, bounds=bounds_lp, method="highs")
 
     if res_lo.status == 0 and res_hi.status == 0:
-        return float(res_lo.fun), float(-res_hi.fun), "optimal"
-    return -float(J1 - 1), float(J1 - 1), f"solver_failed(lo={res_lo.status},hi={res_hi.status})"
+        from polisyos.ir.analytics.dual_certificate import (  # noqa: PLC0415
+            build_general_iv_dual_certificate_bundle,
+        )
+
+        cert = build_general_iv_dual_certificate_bundle(
+            joint=p_yxz,
+            n_treatment_levels=K1,
+            n_outcome_levels=J1,
+            treatment_target=treatment_target,
+            treatment_ref=treatment_ref,
+            outcome_scale=outcome_scale,
+            lower_result=res_lo,
+            upper_result=res_hi,
+        )
+        return (
+            float(res_lo.fun),
+            float(-res_hi.fun),
+            "optimal",
+            cert.model_dump(mode="json"),
+        )
+    return (
+        -float(J1 - 1) * float(outcome_scale),
+        float(J1 - 1) * float(outcome_scale),
+        f"solver_failed(lo={res_lo.status},hi={res_hi.status})",
+        None,
+    )
 
 
 @foundry_method(
@@ -1072,6 +1120,10 @@ class GeneralBalkePearlBoundsEstimator:
         if tr >= K1:
             tr = 0
 
+        y_min = float(min(y_levels))
+        y_max = float(max(y_levels))
+        y_range = y_max - y_min if y_max != y_min else 1.0
+
         # Compute P̂(Y=y, X=x | Z=z) — shape (J1, K1, 2)
         p_yxz = np.zeros((J1, K1, 2))
         for zv in range(2):
@@ -1084,22 +1136,29 @@ class GeneralBalkePearlBoundsEstimator:
                     p_yxz[yv, xv, zv] = int(np.sum(mask_z & (T == xv) & (Y == yv))) / n_z
 
         try:
-            lower, upper, solver_status = _general_balke_pearl_lp(
-                p_yxz, K1, J1, tt, tr, max_rf
+            lower, upper, solver_status, dual_certificate_payload = _general_balke_pearl_lp(
+                p_yxz,
+                K1,
+                J1,
+                tt,
+                tr,
+                y_range,
+                max_rf,
             )
         except ValueError as exc:
+            failure_scale = float(y_range)
             return {
                 "result": {
-                    "ate_lower_bound": -float(J1 - 1),
-                    "ate_upper_bound": float(J1 - 1),
-                    "bound_width": 2.0 * float(J1 - 1),
+                    "ate_lower_bound": -float(J1 - 1) * failure_scale,
+                    "ate_upper_bound": float(J1 - 1) * failure_scale,
+                    "bound_width": 2.0 * float(J1 - 1) * failure_scale,
                     "solver_status": f"error: {exc}",
                     "n_obs": n,
                     "n_treatment_levels": K1,
                     "n_outcome_levels": J1,
                     "partial_id_result": _make_partial_id_result(
-                        lower=-float(J1 - 1),
-                        upper=float(J1 - 1),
+                        lower=-float(J1 - 1) * failure_scale,
+                        upper=float(J1 - 1) * failure_scale,
                         method=BoundMethod.GENERAL_LP_BOUNDS,
                         assumptions=["binary_iv"],
                         confidence=0.0,
@@ -1108,12 +1167,8 @@ class GeneralBalkePearlBoundsEstimator:
                 }
             }
 
-        # Scale back to original outcome units
-        y_min = float(min(y_levels))
-        y_max = float(max(y_levels))
-        y_range = y_max - y_min if y_max != y_min else 1.0
-        lower_orig = lower * y_range
-        upper_orig = upper * y_range
+        lower_orig = lower
+        upper_orig = upper
 
         partial_id = _make_partial_id_result(
             lower=lower_orig,
@@ -1122,6 +1177,7 @@ class GeneralBalkePearlBoundsEstimator:
             assumptions=["binary_iv", "iv_exogeneity", "iv_relevance"],
             confidence=0.95 if solver_status == "optimal" else 0.5,
             display_label=f"General Balke-Pearl Bounds (T={t_sorted[tt]} vs T={t_sorted[tr]})",
+            bounds_type="sharp_lp",
         )
 
         return {
@@ -1134,6 +1190,7 @@ class GeneralBalkePearlBoundsEstimator:
                 "n_treatment_levels": K1,
                 "n_outcome_levels": J1,
                 "partial_id_result": partial_id,
+                "dual_certificate_payload": dual_certificate_payload,
             }
         }
 

@@ -1,4 +1,4 @@
-"""Public data plane semantic diff module API."""
+"""Compare historical extracts by schema grain and row-level semantic identity."""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence

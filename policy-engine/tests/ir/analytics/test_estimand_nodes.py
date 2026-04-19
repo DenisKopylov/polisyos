@@ -4,10 +4,13 @@ from pydantic import ValidationError
 
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
+    DistributionLawNode,
+    DistributionLawQuery,
     DistributionRef,
     EstimandAST,
     ExpectationNode,
     IntegralNode,
+    make_distribution_law_estimand,
     NuisanceNode,
     ProductNode,
     SumNode,
@@ -218,6 +221,48 @@ class TestExpectationNode:
             all_variables=("Y",),
         )
         assert DistributionDomain.EXPERIMENTAL in ast.required_domains()
+
+
+class TestDistributionLawNode:
+    def test_distribution_query_defaults_to_halfline_cdf(self):
+        query = DistributionLawQuery(
+            outcome_variables=("income",),
+            intervention_set=("tax_policy",),
+        )
+        assert query.generator_type == "halfline_cdf"
+        assert query.resolved_parameter_domain == "Q"
+
+    def test_distribution_query_rejects_invalid_representation(self):
+        with pytest.raises(ValidationError):
+            DistributionLawQuery(
+                outcome_variables=("income",),
+                intervention_set=("tax_policy",),
+                support_space="real",
+                representation="pmf",
+            )
+
+    def test_distribution_law_node_latex_mentions_do(self):
+        node = DistributionLawNode(
+            outcome=("income",),
+            intervention_set=("tax_policy",),
+            conditioning=("region",),
+        )
+        latex = node.to_latex()
+        assert "\\in \\cdot" in latex
+        assert "do(tax_policy)" in latex
+        assert "region" in latex
+
+    def test_make_distribution_law_estimand_wraps_query(self):
+        query = DistributionLawQuery(
+            outcome_variables=("income",),
+            intervention_set=("tax_policy",),
+            conditioning=("region",),
+        )
+        ast = make_distribution_law_estimand(query=query, identification_method="dist_id_v1")
+        assert ast.root.node_type == "distribution_law"  # type: ignore[union-attr]
+        assert ast.identification_method == "dist_id_v1"
+        assert ast.required_datasets() == []
+        assert DistributionDomain.SOURCE in ast.required_domains()
 
     def test_collect_dataset_refs(self):
         node = ExpectationNode(outcome="Y", dataset_ref="exp_ds")

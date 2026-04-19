@@ -195,6 +195,21 @@ describe("layout surfaces", () => {
     expect(screen.getByText("Run workspace")).toBeInTheDocument();
   });
 
+  it("switches to Atlas brand lockups when Atlas v2 is enabled", () => {
+    useFeatureFlagsMock.mockReturnValueOnce({
+      flags: buildFeatureFlags({ enableAtlasV2: true }),
+    });
+
+    renderWithRouter(<Sidebar />);
+    expect(screen.getByTestId("atlas-logo-lockup")).toBeInTheDocument();
+
+    useFeatureFlagsMock.mockReturnValueOnce({
+      flags: buildFeatureFlags({ enableAtlasV2: true }),
+    });
+    renderWithRouter(<Header />);
+    expect(screen.getByTestId("atlas-logo-mark-24")).toBeInTheDocument();
+  });
+
   it("renders bottom navigation only on real mobile widths", () => {
     mockViewport(700);
     const tabletView = renderWithRouter(
@@ -218,6 +233,7 @@ describe("layout surfaces", () => {
     expect(
       screen.getByRole("navigation", { name: "mobile.nav.ariaLabel" }),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("mobile-nav-brand-point")).toBeInTheDocument();
   });
 
   it("renders header status badges and responds to theme and locale controls", async () => {
@@ -269,9 +285,7 @@ describe("layout surfaces", () => {
 
     expect(screen.getByTestId("shell-nav-commandCenter")).toBeInTheDocument();
     expect(screen.getByText("shell.watchStatusBlocked")).toBeInTheDocument();
-    expect(
-      screen.getByRole("radio", { name: "mode.analyst" }),
-    ).toBeChecked();
+    expect(screen.getByRole("radio", { name: "mode.analyst" })).toBeChecked();
 
     useRunsSampleMock.mockReturnValueOnce({
       data: {
@@ -323,7 +337,9 @@ describe("layout surfaces", () => {
     });
 
     renderWithRouter(<GlobalRuntimeBanner />);
-    expect(screen.getByRole("alert")).toBe(screen.getByTestId("runtime-banner"));
+    expect(screen.getByRole("alert")).toBe(
+      screen.getByTestId("runtime-banner"),
+    );
     expect(
       screen.getByText("shell.runtimeBanner.networkTitle"),
     ).toBeInTheDocument();

@@ -12,12 +12,19 @@ from polisyos.ir.analytics.causal import (
     persist_proof_bundle,
     proof_bundle_from_identification_result,
 )
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    DynamicReductionStatus,
+    DynamicSemanticsAttachment,
+    DynamicSemanticsFamily,
+    GraphicalMarkovCertificate,
+    GraphicalOracleKind,
+)
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
-    load_bounds_bundle,
     BoundsReport,
     PartialIdentificationResult,
     bounds_bundle_from_bounds_report,
+    load_bounds_bundle,
     persist_bounds_bundle,
 )
 
@@ -48,7 +55,37 @@ def test_proof_bundle_translation_preserves_identified_status() -> None:
     assert bundle.proof_trace == ["rule1", "rule2"]
 
 
-def test_bounds_bundle_translation_preserves_consensus_and_sharpness() -> None:
+def test_proof_bundle_translation_marks_dynamic_cyclic_path_as_heuristic() -> None:
+    result = SimpleNamespace(
+        status=IdentificationStatus.IDENTIFIED,
+        algorithm_version="cyclic_id_experimental_v1",
+        estimand_ast=None,
+        trace=["cyclic-start", "sigma-check"],
+        query_str="P(Y|cyclic do(X))",
+        required_distributions=[],
+        metadata={
+            "dynamic_semantics": DynamicSemanticsAttachment(
+                semantics_family=DynamicSemanticsFamily.IOSCM,
+                reduction_status=DynamicReductionStatus.HEURISTIC_ONLY,
+                markov_criterion_certificate=GraphicalMarkovCertificate(
+                    semantics_family=DynamicSemanticsFamily.IOSCM,
+                    graphical_oracle=GraphicalOracleKind.SIGMA,
+                    theorem_family="Forre-Mooij-2018",
+                ),
+            ).model_dump(mode="json")
+        },
+    )
+
+    bundle = proof_bundle_from_identification_result(result)
+
+    assert bundle.proof_status == "identified"
+    assert bundle.proof_stratum == "A1_dynamic"
+    assert bundle.completeness_regime == "heuristic_backed"
+    assert bundle.dynamic_semantics is not None
+    assert bundle.dynamic_semantics.reduction_status is DynamicReductionStatus.HEURISTIC_ONLY
+
+
+def test_bounds_bundle_translation_preserves_consensus_and_gates_sharpness_on_certificate() -> None:
     report = BoundsReport(
         estimand_type="ate",
         results=[
@@ -69,7 +106,7 @@ def test_bounds_bundle_translation_preserves_consensus_and_sharpness() -> None:
     assert bundle.upper_bound == report.tightest_upper
     assert bundle.consensus_lower == report.consensus_lower
     assert bundle.consensus_upper == report.consensus_upper
-    assert bundle.sharpness_status == "sharp"
+    assert bundle.sharpness_status == "unknown"
 
 
 def test_data_readiness_thresholds_block_warn_unknown() -> None:
@@ -98,6 +135,82 @@ def test_data_readiness_thresholds_block_warn_unknown() -> None:
     assert warned.can_run_estimation is True
     assert unknown.decision == "unknown"
     assert unknown.can_run_estimation is False
+
+
+def test_recoverability_certificate_embeds_in_proof_and_readiness() -> None:
+    from polisyos.ir.analytics.recoverability import (
+        MinimalRepairSet,
+        RecoverabilityCertificate,
+        RecoverabilityCertificateStatus,
+        RecoveryScope,
+        RepairSetTestability,
+        RepairSetType,
+    )
+
+    certificate = RecoverabilityCertificate(
+        target_query="P(Y|do(X))",
+        mgraph_fingerprint="sha256:test",
+        status=RecoverabilityCertificateStatus.RECOVERABLE_UNDER_ASSUMPTIONS,
+        recovery_scope=RecoveryScope.CAUSAL_QUERY,
+        blocking_r_nodes=("R_X",),
+        minimal_repair_sets=(
+            MinimalRepairSet(
+                repair_type=RepairSetType.ASSUMPTION,
+                items=("remove_edge(X -> R_X)",),
+                testability=RepairSetTestability.NOT_TESTABLE,
+            ),
+        ),
+        warnings=("assumption_dependent_missingness_recovery",),
+    )
+    result = SimpleNamespace(
+        status=IdentificationStatus.IDENTIFIED,
+        algorithm_version="id_v1",
+        estimand_ast=None,
+        trace=[],
+        query_str="P(Y|do(X))",
+        required_distributions=[],
+    )
+
+    proof = proof_bundle_from_identification_result(
+        result,
+        recoverability_certificate=certificate,
+    )
+    readiness = build_data_readiness_report(
+        recoverability_certificate=certificate,
+        fallback_data_available=True,
+    )
+
+    assert proof.metadata["recoverability"]["status"] == "recoverable_under_assumptions"
+    assert proof.metadata["recoverability"]["blocking_r_nodes"] == ["R_X"]
+    assert readiness.decision == "warn"
+    assert readiness.can_run_estimation is True
+    assert "assumption_dependent_missingness_recovery" in readiness.warnings
+    assert readiness.recoverability is not None
+
+
+def test_data_readiness_blocks_not_recoverable_missingness() -> None:
+    from polisyos.ir.analytics.recoverability import (
+        RecoverabilityCertificate,
+        RecoverabilityCertificateStatus,
+        RecoveryScope,
+    )
+
+    certificate = RecoverabilityCertificate(
+        target_query="P(Y|do(X))",
+        mgraph_fingerprint="sha256:test",
+        status=RecoverabilityCertificateStatus.NOT_RECOVERABLE,
+        recovery_scope=RecoveryScope.CAUSAL_QUERY,
+        blocking_r_nodes=("R_X",),
+    )
+
+    readiness = build_data_readiness_report(
+        recoverability_certificate=certificate,
+        fallback_data_available=True,
+    )
+
+    assert readiness.decision == "block"
+    assert readiness.can_run_estimation is False
+    assert "not_recoverable_missingness" in readiness.blocking_reasons
 
 
 def test_data_readiness_marks_malformed_positivity_as_warning_not_absence() -> None:

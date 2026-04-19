@@ -289,7 +289,7 @@ class StreamingSourceSession:
                 break
 
     async def pause(self, *, reason: str = "") -> None:
-        """Pause polling, optionally notifying a source-native implementation."""
+        """Pause polling and propagate backpressure to the connector when supported."""
         self._paused = True
         self.pool.register_backpressure(
             source=f"{self.connector_id}:{self.dataset_id}:{self.partition_key}",
@@ -356,6 +356,10 @@ def _resolve_connector_registry(
         return registry
     if registry_provider is not None:
         return registry_provider()
+    return _default_connector_registry()
+
+
+def _default_connector_registry() -> ConnectorRegistry:
     from polisyos.fabric.connectors.registry import ConnectorRegistry
 
     return ConnectorRegistry.get_instance()

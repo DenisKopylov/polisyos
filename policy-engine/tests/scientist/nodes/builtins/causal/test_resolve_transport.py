@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
+from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
     RunTransportabilityNode,
     _build_skg_query,
@@ -111,3 +113,50 @@ def test_build_skg_query_assertion_is_not_swallowed(
 
     with pytest.raises(AssertionError, match="skg invariant"):
         _build_skg_query(db_path, tmp_path)
+
+
+def test_run_transportability_uses_branch_state_for_skip_warning(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = artifact_ref_factory(
+        kind="ir.causal_effect_report"
+    )
+    state.params["nested"] = {"baseline": True}
+    observed: dict[str, tuple[str, ...]] = {}
+
+    def _spy_branch(base_state, *, write_paths=()):
+        observed["write_paths"] = tuple(write_paths)
+        return real_branch_state(base_state, write_paths=write_paths)
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.causal.resolve_transport.branch_state",
+            _spy_branch,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.causal.resolve_transport.load_causal_effect_report",
+            return_value=MagicMock(),
+        ),
+    ):
+        outcome = RunTransportabilityNode().execute(execution_context, state)
+
+    assert outcome.status == "skip"
+    assert observed["write_paths"] == (
+        "causal_capability_contract_ref",
+        "params.transportability_status",
+        "params.transportability_transport_mode",
+        "params.transportability_identification_engine",
+        "params.transportability_id_confidence_under_pag",
+        "params.transportability_capability_hash",
+        "params.transportability_degradation_policy",
+        "params.transportability_warning",
+        "artifacts_index.causal_report_ref",
+        "artifacts_index.causal_capability_contract_ref",
+        "artifacts_index.transportability_result_ref",
+    )
+    assert state.params["nested"] == {"baseline": True}
+    assert "transportability_warning" not in state.params
+    assert outcome.state.params["transportability_warning"].startswith(
+        "missing_source_or_target_context"
+    )

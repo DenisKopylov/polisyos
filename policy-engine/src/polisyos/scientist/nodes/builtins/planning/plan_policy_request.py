@@ -34,6 +34,7 @@ _SPEC = NodeSpec(
         "params.policy_request_jurisdiction",
         "params.policy_request_as_of",
         "params.policy_request_domain",
+        "artifacts_index",
     ],
     state_writes=[
         "policy_request_ref",

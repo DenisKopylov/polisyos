@@ -5,7 +5,12 @@ import json
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode, PreflightDiagnostic, PreflightReport
+from polisyos.core.contracts.execution_plan import (
+    ExecutionPlan,
+    MethodDagNode,
+    PreflightDiagnostic,
+    PreflightReport,
+)
 from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
 from polisyos.scientist.autotune import (
@@ -25,6 +30,8 @@ from polisyos.scientist.autotune.execution_plan import (
     ExecutionPlanSearchMode,
     TopologyMutation,
     TopologyMutationKind,
+    _backend_for_method,
+    _coerce_candidate_config,
     default_execution_plan_policy,
     execution_plan_search_loop_spec,
 )
@@ -278,3 +285,97 @@ def test_capability_aware_generator_emits_topology_candidate_for_missing_method(
 def test_execution_plan_search_loop_defaults_to_capability_aware_generator() -> None:
     spec = execution_plan_search_loop_spec()
     assert isinstance(spec.candidate_generator, CapabilityAwareExecutionPlanCandidateGenerator)
+
+
+def test_with_topology_mutation_uses_branch_local_method_dag_clone(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original = MethodDagNode(
+        node_id="node_lp",
+        method_fqn="optimization.resource_lp@1.0.0",
+        params={"nested": {"thresholds": [1, 2]}},
+        depends_on=["upstream"],
+        notes=["optional_leaf"],
+    )
+    config = ExecutionPlanSearchConfig(method_dag=[original])
+    registry = MethodRegistry()
+
+    class _FakeMethod:
+        signature = type(
+            "Sig",
+            (),
+            {
+                "execution_backend": type("Backend", (), {"value": "local"})(),
+                "input_slot_names": {"policy"},
+                "output_slot_names": {"result"},
+            },
+        )()
+
+    monkeypatch.setattr(registry, "get", lambda fqn: _FakeMethod())
+
+    mutated = config.with_topology_mutation(
+        TopologyMutation(
+            kind=TopologyMutationKind.SWAP_METHOD,
+            node_id="node_lp",
+            replacement_method_fqn="optimization.linear.resource_lp@1.0.0",
+        ),
+        registry=registry,
+    )
+
+    mutated.method_dag[0].params["nested"]["thresholds"][0] = 99
+    mutated.method_dag[0].depends_on.append("later")
+
+    assert config.method_dag[0].method_fqn == "optimization.resource_lp@1.0.0"
+    assert config.method_dag[0].params["nested"]["thresholds"] == [1, 2]
+    assert config.method_dag[0].depends_on == ["upstream"]
+    assert mutated.method_dag[0].backend == "local"
+
+
+def test_with_topology_mutation_does_not_swallow_registry_assertion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = ExecutionPlanSearchConfig(
+        method_dag=[MethodDagNode(node_id="node_lp", method_fqn="optimization.resource_lp@1.0.0")]
+    )
+    registry = MethodRegistry()
+
+    def _boom(_fqn: str):
+        raise AssertionError("registry invariant failed")
+
+    monkeypatch.setattr(registry, "get", _boom)
+
+    with pytest.raises(AssertionError, match="registry invariant failed"):
+        config.with_topology_mutation(
+            TopologyMutation(
+                kind=TopologyMutationKind.SWAP_METHOD,
+                node_id="node_lp",
+                replacement_method_fqn="optimization.linear.resource_lp@1.0.0",
+            ),
+            registry=registry,
+        )
+
+
+def test_coerce_candidate_config_does_not_swallow_assertion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _boom(_payload):
+        raise AssertionError("candidate validation invariant failed")
+
+    monkeypatch.setattr(ExecutionPlanSearchConfig, "model_validate", _boom)
+
+    with pytest.raises(AssertionError, match="candidate validation invariant failed"):
+        _coerce_candidate_config({"mode": "params_only"})
+
+
+def test_backend_for_method_does_not_swallow_assertion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry = MethodRegistry()
+
+    def _boom(_fqn: str):
+        raise AssertionError("backend invariant failed")
+
+    monkeypatch.setattr(registry, "get", _boom)
+
+    with pytest.raises(AssertionError, match="backend invariant failed"):
+        _backend_for_method(registry, "optimization.linear.resource_lp@1.0.0")

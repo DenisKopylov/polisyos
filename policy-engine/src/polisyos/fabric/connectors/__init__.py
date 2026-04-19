@@ -297,6 +297,10 @@ __version__ = "2.2.0"
 __phase__ = "Phase 2.2: Registry Architecture & Lazy Loading"
 
 
+def _default_connector_registry() -> ConnectorRegistry:
+    return ConnectorRegistry.get_instance()
+
+
 def get_registry() -> ConnectorRegistry:
     """
     Convenience function to get the ConnectorRegistry singleton.
@@ -307,4 +311,4 @@ def get_registry() -> ConnectorRegistry:
         registry = get_registry()
         connector = registry.get("world_bank")
     """
-    return ConnectorRegistry.get_instance()
+    return _default_connector_registry()

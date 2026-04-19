@@ -217,6 +217,10 @@ class DecisionReadinessEvaluator:
                 )
             except Exception:
                 resolved_data_readiness = None
+        resolved_dp_robustness = _resolve_dp_robustness_summary(
+            runtime_metadata,
+            data_readiness_report=resolved_data_readiness,
+        )
         readiness_cap_reason = None
         promotable_source = bool(runtime_metadata.get("promotable_source", True))
         degradation_mode = str(runtime_metadata.get("degradation_mode") or "").strip().lower()
@@ -230,9 +234,15 @@ class DecisionReadinessEvaluator:
             readiness_cap_reason = "evaluation_degradation_mode"
         elif claim_mode != "proof_only" and resolved_data_readiness is not None:
             if resolved_data_readiness.decision in {"block", "unknown"}:
-                readiness_cap_reason = "data_readiness_blocked"
+                readiness_cap_reason = _dp_readiness_cap_reason(
+                    resolved_dp_robustness,
+                    default="data_readiness_blocked",
+                )
             elif resolved_data_readiness.decision == "warn":
-                readiness_cap_reason = "data_readiness_warn"
+                readiness_cap_reason = _dp_readiness_cap_reason(
+                    resolved_dp_robustness,
+                    default="data_readiness_warn",
+                )
         readiness_cap = _resolve_readiness_cap(
             runtime_metadata,
             data_readiness_report=resolved_data_readiness,
@@ -333,6 +343,16 @@ class DecisionReadinessEvaluator:
             metadata["data_readiness_can_run_estimation"] = (
                 resolved_data_readiness.can_run_estimation
             )
+        if resolved_dp_robustness is not None:
+            metadata["dp_effective_status"] = resolved_dp_robustness["effective_status"]
+            metadata["dp_block_reason"] = resolved_dp_robustness.get("block_reason")
+            if resolved_dp_robustness.get("distortion_radius") is not None:
+                metadata["dp_distortion_radius"] = resolved_dp_robustness["distortion_radius"]
+            if resolved_dp_robustness.get("mechanism_family") is not None:
+                metadata["dp_mechanism_family"] = resolved_dp_robustness["mechanism_family"]
+            if resolved_dp_robustness.get("effect_interval") is not None:
+                metadata["dp_effect_interval"] = resolved_dp_robustness["effect_interval"]
+            metadata["dp_robustness"] = dict(resolved_dp_robustness)
         if data_readiness_report_ref is not None:
             metadata["data_readiness_report_ref"] = data_readiness_report_ref.model_dump(
                 mode="json"
@@ -477,6 +497,42 @@ def _resolve_latent_discovery_resolution_error(
     if not isinstance(payload, dict):
         return None
     return payload
+
+
+def _resolve_dp_robustness_summary(
+    evidence_metadata: dict[str, object],
+    *,
+    data_readiness_report: DataReadinessReport | None = None,
+) -> dict[str, object] | None:
+    if isinstance(getattr(data_readiness_report, "dp_distortion", None), dict):
+        return dict(data_readiness_report.dp_distortion)
+    payload = evidence_metadata.get("dp_robustness")
+    if not isinstance(payload, dict):
+        return None
+    effective_status = payload.get("effective_status") or payload.get("dp_effective_status")
+    if effective_status is None:
+        return None
+    return dict(payload)
+
+
+def _dp_readiness_cap_reason(
+    dp_robustness: dict[str, object] | None,
+    *,
+    default: str,
+) -> str:
+    if not isinstance(dp_robustness, dict):
+        return default
+    status = str(dp_robustness.get("effective_status") or "").strip().lower()
+    if status == "bounded":
+        return "dp_bounds_only"
+    if status == "unidentifiable":
+        return "dp_release_unidentifiable"
+    if status == "blocked":
+        block_reason = dp_robustness.get("block_reason")
+        if block_reason is not None:
+            return f"dp_release_blocked:{block_reason}"
+        return "dp_release_blocked"
+    return default
 
 
 def _dedupe_strings(values: list[str]) -> list[str]:

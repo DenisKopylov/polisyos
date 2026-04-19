@@ -135,12 +135,9 @@ ci_evidence = [
 [[workstreams]]
 id = "WS-1B"
 title = "Static Analysis, Typing and Packaging Ratchet"
-status = "partial"
-summary = "The runtime/core slice now has py.typed packaging, dual-checker CI, ratchet tooling, a clean runtime/http production type-ignore inventory, and expanded typed coverage for runtime/api, the shared async bridge and async artifact-store adapter, runtime/http app/container/middleware bootstrap, injected control-registry provider helpers, runtime/http dependencies and resilience guards, a newly dual-checked runtime control-plane service block, core run-context adapters, backend config, the extracted artifact integrity/storage helper slice, the wider core/security-resilience provider slice spanning identity, SBOM, audit sink, authz, audit verification, TEE middleware, and shared retry policy, plus injected observability blocks covering traced LLM clients, tracing decorators, gateway client factory wiring, the scholar async bridge, Scientist governance validation telemetry, scholar freshness metrics, a logger-agnostic degraded-path helper that now type-checks against both structured and stdlib logging callsites while safely dropping reserved stdlib extra keys instead of reopening configured basedpyright regressions, a typed-clean Scientist budget-enforcer plus operational-monitoring slice, a typed-clean provider-ready knowledge-base plus engine-metrics bridge slice, a typed-clean Scientist orchestration seam spanning the public API facade, workflow builder/provider hooks, and compute-runner provider injection, a worker-context slice covering distributed activity execution, a pyright-clean checkpoint/decision-validity/replay slice, a newly dual-checked mypy-clean autotune models slice, a typed-clean fabric/scholar storage seam spanning cursor-store protocol adapters, tenant-scoped CAS config export, world-event persistence, scholar bundle persistence, a newly dual-checked fabric ingestion/orchestration block, a newly dual-checked fabric ingestion-provider boundary whose explicit dependency bundle externalizes registry/tracer/metrics/store-factory resolution for the public ingestion entrypoint, a newly dual-checked factory-aware provider-resolver boundary across retrieval/catalog/ingestion/control bootstrap helpers, a protocol-owned binding-rules persistence helper, a newly dual-checked fabric retrieval/provider block whose explicit retrieval provider bundle, nested executor/explore construction, streaming async CDC persistence path, and runtime control retrieval wiring now pass strict mypy, basedpyright, expanded Ruff, targeted retrieval/streaming DI tests, and performance smoke coverage, a newly dual-checked Scientist-to-Fabric bridge slice whose public connector bridge and fabric-port adapter now pass strict mypy/basedpyright while using protocol-backed stores plus injected fetch, registry, and catalog seams instead of concrete CAS wiring and monkeypatched globals, plus a newly dual-checked world/quarantine boundary slice covering explicit world observability provider resolution, protocol-owned fact-segment manifest persistence, an indexed quarantine store contract with injected metrics, a typed-clean quarantine CLI storage-factory boundary, and a configured basedpyright baseline that now runs with zero errors and zero warnings on the curated checker surface, but the checker surface is still curated rather than fully generalized."
-blocking_gaps = [
-  "Basedpyright is wired into CI, but its configured include set is still curated rather than covering the full intended common/core/runtime package surface.",
-  "Residual type-escape inventory still needs a final closure pass across common/core service boundaries outside runtime/http.",
-]
+status = "implemented"
+summary = "The common/core/runtime surface now has py.typed packaging, dual-checker CI, ratchet tooling, package-level basedpyright coverage, a strict mypy runner that checks every Python file in the full common/core/runtime surface one-by-one, zero basedpyright errors or warnings across the required surface, zero strict mypy errors across the required surface, no residual type-ignore/pyright-ignore inventory in common/core/runtime, and a separate release-gate runner that preserves the curated scientist/scholar/fabric basedpyright extras without weakening the required common/core/runtime package-level scope."
+blocking_gaps = []
 code_evidence = [
   "pyproject.toml",
   "src/polisyos/py.typed",
@@ -191,9 +188,18 @@ code_evidence = [
   "src/polisyos/runtime/http/app.py",
   "src/polisyos/runtime/http/container.py",
   "src/polisyos/runtime/http/cell_router_middleware.py",
+  "src/polisyos/runtime/http/execution_policy.py",
   "src/polisyos/runtime/http/jwt_auth_middleware.py",
+  "src/polisyos/runtime/http/response_policies.py",
   "src/polisyos/runtime/http/resilience.py",
+  "src/polisyos/runtime/http/services/artifact_inspector.py",
   "src/polisyos/runtime/http/services/control.py",
+  "src/polisyos/runtime/http/services/control_worker.py",
+  "src/polisyos/runtime/http/services/feedback.py",
+  "src/polisyos/runtime/http/services/lineage.py",
+  "src/polisyos/runtime/http/services/review_collaboration.py",
+  "src/polisyos/runtime/http/services/run_index.py",
+  "src/polisyos/runtime/http/services/timeline.py",
   "src/polisyos/runtime/http/services/adapters/core_run.py",
   "src/polisyos/runtime/http/services/control_registry_providers.py",
   "src/polisyos/core/components/_cli_store.py",
@@ -290,7 +296,17 @@ test_evidence = [
   "tests/runtime/http/test_control_api.py",
   "tests/runtime/http/test_runtime_api_write_path_hardening.py",
   "tests/runtime/http/test_architecture_boundaries.py",
+  "tests/runtime/http/test_artifact_inspector_api.py",
+  "tests/runtime/http/test_artifact_inspector_service.py",
   "tests/runtime/http/test_control_service_di.py",
+  "tests/runtime/http/test_control_plane_store.py",
+  "tests/runtime/http/test_debug_api.py",
+  "tests/runtime/http/test_error_semantics.py",
+  "tests/runtime/http/test_review_collaboration_service.py",
+  "tests/runtime/http/test_runtime_api_contract_hardening.py",
+  "tests/runtime/http/test_runtime_api_observability.py",
+  "tests/runtime/http/test_timeline_api.py",
+  "tests/runtime/http/test_runs_api.py",
   "tests/runtime/http/test_runtime_api_observability.py",
 ]
 docs_evidence = [
@@ -486,12 +502,9 @@ ci_evidence = [
 [[workstreams]]
 id = "WS-2C"
 title = "Dependency Injection, Configuration and Lifecycle Architecture"
-status = "partial"
-summary = "A typed runtime container and explicit config bootstrap now exist, the control-plane service and runtime API context both reuse injected artifact-store metrics/providers, runtime routes consume public container accessors instead of direct legacy state reads, control-plane registry dependencies flow through an injectable provider bundle instead of inline singleton lookups, filesystem/cached CAS factory paths now accept explicit tracer+metrics providers, request telemetry uses container-owned observability providers instead of global bootstrap fallback, the wider core/security-resilience slice accepts injected observability providers across identity, SBOM, audit sink, authz, audit verification, TEE middleware, and shared retry policy instead of resolving globals on the hot path, the LLM/tracing bridge now accepts injected tracer/metrics providers across traced clients, tracing decorators, and gateway factory wiring, Scientist governance/freshness helpers now accept injected observability providers instead of forcing global lookups, the shared Scientist degraded-path envelope now accepts explicit metrics/logging seams instead of forcing global metrics resolution or one concrete logger type, the wider Scientist slice now supports injected providers across the informed critic, knowledge base, budget enforcer, engine metrics bridge, operational monitor, and portfolio-search metrics path, the Scientist orchestration layer now accepts injected providers across the public API facade, workflow builder/store+quota seams, compute-runner store+registry+dispatcher seams, governance preflight CAS helpers, llm-cycle preflight registry resolution, and C7 advanced-method adapters through an explicit method-runtime provider bundle plus explicit method-registry injection, the checkpoint runtime metadata path now serializes declarative artifact-store configs instead of filesystem-only assumptions, remote activity workers rebuild stores from declarative store configs, method-runner protocol seams now fail closed only where legacy Foundry execution still needs a filesystem CAS, the wider common/core utility layer routes local CLI CAS construction through a declarative store helper, autotune storage helpers now build and consume artifact stores through the protocol/factory boundary instead of concrete FileSystemCAS wiring, Scholar deep-search jobs and cache persistence support protocol-backed stores without a concrete `root` attribute via explicit status/cache roots, scientist decision-validity/replay helpers now accept protocol stores where they only need backend-agnostic CAS operations, the public Scientist-to-Fabric bridge now uses protocol-backed stores plus injected fetch, connector-registry, and catalog seams rather than concrete CAS annotations and monkeypatched global fetch wiring, the fabric ingestion entrypoint now resolves registry/tracer/metrics/store-factory through an explicit dependency bundle hosted in a dedicated provider module, that bundle is now propagated through orchestrated ingestion, batch incremental, record/replay mode, streaming-windowed mode, and runtime control ingestion dispatch, the fabric retrieval stack now resolves registry/profiles/tracer/metrics through an explicit retrieval provider bundle that is propagated through nested executor/explore construction and runtime control retrieval wiring, the catalog, retrieval, ingestion, and runtime-control provider bundles now all support factory-aware resolution at the bootstrap boundary instead of forcing singleton construction when callers want deferred or test-specific registries, the world segment/index and world materialization paths now resolve observability through an explicit world provider bundle, quarantine persistence now uses an indexed artifact-store protocol with injected metrics instead of a concrete CAS+global-metrics pair, the quarantine CLI now resolves filesystem storage through the artifact-store config boundary rather than direct FileSystemCAS construction, the streaming runtime accepts injected connector registries and async store/cursor adapters, and connector cache/resilience helpers plus the structured logging shim now support injected providers and structured callsites without falling back to global bootstrap behavior on the hot path, but provider/factory conversion is not fully complete across common/core/runtime."
-blocking_gaps = [
-  "Provider/factory substitution and singleton cleanup are still incomplete across wider common/core registries outside the runtime storage, middleware, and widened core/security-resilience slices.",
-  "Private attribute and contract-optional coupling needs one final architecture sweep tied to the closeout ledger rather than point fixes.",
-]
+status = "implemented"
+summary = "A typed runtime container and explicit config bootstrap now exist, the control-plane service and runtime API context both reuse injected artifact-store metrics/providers, runtime routes consume public container accessors instead of direct legacy state reads, control-plane registry dependencies flow through an injectable provider bundle instead of inline singleton lookups, filesystem/cached CAS factory paths now accept explicit tracer+metrics providers, request telemetry uses container-owned observability providers instead of global bootstrap fallback, the wider core/security-resilience slice accepts injected observability providers across identity, SBOM, audit sink, authz, audit verification, TEE middleware, and shared retry policy instead of resolving globals on the hot path, the LLM/tracing bridge now accepts injected tracer/metrics providers across traced clients, tracing decorators, and gateway factory wiring, Scientist governance/freshness helpers now accept injected observability providers instead of forcing global lookups, the shared Scientist degraded-path envelope now accepts explicit metrics/logging seams instead of forcing global metrics resolution or one concrete logger type, the wider Scientist slice now supports injected providers across the informed critic, knowledge base, budget enforcer, engine metrics bridge, operational monitor, and portfolio-search metrics path, the Scientist orchestration layer now accepts injected providers across the public API facade, workflow builder/store+quota seams, compute-runner store+registry+dispatcher seams, governance preflight CAS helpers, llm-cycle preflight registry resolution, and C7 advanced-method adapters through an explicit method-runtime provider bundle plus explicit method-registry injection, the checkpoint runtime metadata path now serializes declarative artifact-store configs instead of filesystem-only assumptions, remote activity workers rebuild stores from declarative store configs, method-runner protocol seams now fail closed only where legacy Foundry execution still needs a filesystem CAS, the wider common/core utility layer routes local CLI CAS construction through a declarative store helper, autotune storage helpers now build and consume artifact stores through the protocol/factory boundary instead of concrete FileSystemCAS wiring, Scholar deep-search jobs and cache persistence support protocol-backed stores without a concrete `root` attribute via explicit status/cache roots, scientist decision-validity/replay helpers now accept protocol stores where they only need backend-agnostic CAS operations, the public Scientist-to-Fabric bridge now uses protocol-backed stores plus injected fetch, connector-registry, and catalog seams rather than concrete CAS annotations and monkeypatched global fetch wiring, the fabric ingestion entrypoint now resolves registry/tracer/metrics/store-factory through an explicit dependency bundle hosted in a dedicated provider module, that bundle is now propagated through orchestrated ingestion, batch incremental, record/replay mode, streaming-windowed mode, and runtime control ingestion dispatch, the fabric retrieval stack now resolves registry/profiles/tracer/metrics through an explicit retrieval provider bundle that is propagated through nested executor/explore construction and runtime control retrieval wiring, the catalog, retrieval, ingestion, and runtime-control provider bundles now all support factory-aware resolution at the bootstrap boundary instead of forcing singleton construction when callers want deferred or test-specific registries, the world segment/index and world materialization paths now resolve observability through an explicit world provider bundle, quarantine persistence now uses an indexed artifact-store protocol with injected metrics instead of a concrete CAS+global-metrics pair, the quarantine CLI now resolves filesystem storage through the artifact-store config boundary rather than direct FileSystemCAS construction, the streaming runtime accepts injected connector registries and async store/cursor adapters, connector cache/resilience helpers plus the structured logging shim now support injected providers and structured callsites without falling back to global bootstrap behavior on the hot path, and the final closeout sweep now leaves zero direct `get_instance`/`get_metrics`/`get_tracer` calls outside `_default_*` helpers across the audited common/core/runtime surface."
+blocking_gaps = []
 code_evidence = [
   "src/polisyos/runtime/http/container.py",
   "src/polisyos/common/config.py",
@@ -573,6 +586,22 @@ code_evidence = [
   "src/polisyos/runtime/http/cell_router_middleware.py",
   "src/polisyos/runtime/http/jwt_auth_middleware.py",
   "src/polisyos/fabric/_connector_bridge.py",
+  "src/polisyos/fabric/connectors/__init__.py",
+  "src/polisyos/fabric/connectors/_registry_lifecycle.py",
+  "src/polisyos/fabric/connectors/components_bridge.py",
+  "src/polisyos/fabric/connectors/federation/composer.py",
+  "src/polisyos/fabric/connectors/quality/freshness.py",
+  "src/polisyos/fabric/connectors/transform/_common.py",
+  "src/polisyos/fabric/connectors/transform/pipeline.py",
+  "src/polisyos/fabric/connectors/types/_units_base.py",
+  "src/polisyos/fabric/connectors/types/_units_registry.py",
+  "src/polisyos/fabric/connectors/types/dimensions.py",
+  "src/polisyos/fabric/observability.py",
+  "src/polisyos/fabric/quality.py",
+  "src/polisyos/scientist/agent/_drafter_orchestrator.py",
+  "src/polisyos/scientist/agent/_drafter_passes.py",
+  "src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+  "src/polisyos/core/observability/tracer.py",
 ]
 test_evidence = [
   "tests/common/test_config_bootstrap.py",
@@ -635,6 +664,18 @@ test_evidence = [
   "tests/core/artifacts/backends/test_s3_store.py",
   "tests/core/artifacts/backends/test_config.py",
   "tests/runtime/http/test_api_maturity.py",
+  "tests/fabric/connectors/test_components_bridge.py",
+  "tests/fabric/connectors/test_federation.py",
+  "tests/fabric/connectors/test_quality_system.py",
+  "tests/fabric/connectors/test_registry.py",
+  "tests/fabric/connectors/test_transform_pipeline.py",
+  "tests/fabric/connectors/test_type_system.py",
+  "tests/fabric/test_fabric_observability.py",
+  "tests/fabric/test_quality_indicators.py",
+  "tests/scientist/agent/test_drafter_passes.py",
+  "tests/scientist/nodes/builtins/simulate/test_run_simulation.py",
+  "tests/scientist/test_multipass_drafter.py",
+  "tests/core/phase0/test_tracer.py",
 ]
 docs_evidence = [
   "docs/adr/0099-runtime-lifecycle-and-di-container.md",

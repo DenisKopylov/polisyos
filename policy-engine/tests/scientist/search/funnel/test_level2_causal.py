@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 from polisyos.scientist.search.funnel.level2_causal import Level2CausalPlausibility
 from polisyos.scientist.search.funnel.types import CheapSignalVector, FunnelStageResult
 
@@ -197,3 +198,81 @@ class TestLevel2Identifiability:
 
         assert result.audit_refs
         assert "data_readiness_report_ref" in result.feedback
+
+    def test_persist_bounds_bundle_attaches_dual_certificate_when_payload_present(self, tmp_path):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        store = FileSystemCAS(tmp_path / "cas")
+        stage = Level2CausalPlausibility(artifact_store=store)
+        result = BoundsEngineMethod.pure_step(
+            {
+                "outcome": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                "treatment": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+            },
+            {"use_auto_bounds": True, "has_monotone": True},
+        )
+
+        ref = stage._persist_bounds_bundle(
+            result["bounds_report"],
+            result.get("dual_certificate_payload"),
+        )
+
+        assert ref is not None
+        bundle = load_bounds_bundle(store, ref)
+        assert bundle.dual_certificate_ref is not None
+        assert bundle.sharpness_status == "sharp"
+
+    def test_evaluate_propagates_recoverability_into_data_readiness(self):
+        stage = Level2CausalPlausibility()
+
+        def _mock_identifiability(*_args, **_kwargs):
+            stage._last_identification_artifacts = {
+                "recoverability": {
+                    "status": "not_recoverable",
+                    "blocking_r_nodes": ["R_X"],
+                    "blocking_r_nodes_count": 1,
+                }
+            }
+            return 1.0, []
+
+        with patch.object(stage, "_check_identifiability", side_effect=_mock_identifiability):
+            candidate = _make_candidate(causal_graph=MagicMock(nodes=["X", "Y"]))
+            result = stage.evaluate(candidate, {"sample_size": 100})
+
+        assert result.feedback["data_readiness_decision"] == "block"
+        assert result.feedback["data_readiness_can_run_estimation"] is False
+
+
+def test_coerce_context_data_does_not_swallow_assertion() -> None:
+    class _Payload:
+        def model_dump(self, *, mode: str):
+            del mode
+            raise AssertionError("context serialization invariant failed")
+
+    with pytest.raises(AssertionError, match="context serialization invariant failed"):
+        Level2CausalPlausibility._coerce_context_data({"data": _Payload()})
+
+
+def test_fast_propensity_check_does_not_swallow_assertion() -> None:
+    class _BrokenData:
+        def __getitem__(self, _key):
+            raise AssertionError("propensity access invariant failed")
+
+    with pytest.raises(AssertionError, match="propensity access invariant failed"):
+        Level2CausalPlausibility._fast_propensity_check(_BrokenData(), "treatment")
+
+
+def test_fast_proxy_estimate_does_not_swallow_assertion() -> None:
+    class _BrokenData:
+        def __getitem__(self, _key):
+            raise AssertionError("proxy access invariant failed")
+
+    with pytest.raises(AssertionError, match="proxy access invariant failed"):
+        Level2CausalPlausibility._fast_proxy_estimate(
+            {},
+            {
+                "data": _BrokenData(),
+                "treatment_col": "treatment",
+                "outcome_col": "gdp",
+            },
+        )

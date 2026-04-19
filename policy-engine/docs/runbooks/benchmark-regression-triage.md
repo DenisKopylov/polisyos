@@ -6,6 +6,11 @@ Related how-to: [Run Benchmarks](../how-to/run-benchmarks.md). Related reference
 > Используйте этот runbook, когда benchmark suite начинает проигрывать по
 > quality, latency, stability, comparator completeness или release gate result.
 
+Owner: `@foundry-owners`
+Last tested: `2026-04-17` against current benchmark and release-gate evidence surfaces.
+Evidence path: `docs/reference/scientist/reliability-scorecard.md`; `docs/archive/reports/platform-release-canary.md`; `.github/workflows/perf.yml`
+Rollback path: stop promotion, preserve baseline and candidate reports, then roll back or pin the change that introduced the confirmed regression.
+
 ## Symptom
 
 - smoke или extended benchmark reports показывают lower pass rate;

@@ -1,192 +1,192 @@
-# Contributing a Data Connector to Policy OS
+# Contributing A Fabric Connector
 
-This guide walks you through every step required to add a new data
-connector to the Policy OS Connector system. By the time you finish,
-your connector will be protocol-compliant, lint-clean, and covered by
-the shared test harness.
+Freshness: 2026-04-17.
 
----
+This guide covers the current Fabric connector workflow. A connector is not
+ready when it can fetch rows once; it is ready when it is protocol-compliant,
+bounded, schema-governed, replayable, and covered by the shared registry and
+contract tests.
 
-## Prerequisites
+Related reference: [Fabric Connectors](../reference/fabric/connectors.md).
 
-- Python 3.14.x
-- The Policy OS repository checked out and contributor dependencies prepared via `polisyos-tools workspace bootstrap`
-- Familiarity with the SourceConnector protocol (see `src/polisyos/fabric/connectors/base.py`)
+## Inputs
 
----
+- upstream source contract, auth story, and bounded query plan
+- chosen existing family or a justified need for a new family
+- executable sample payloads or fixtures for normalization/schema work
 
-## Step 1 - Generate the Skeleton
+## Outputs
 
-Use the scaffold CLI to generate a compliant starting point:
+- connector implementation and export
+- built-in profile metadata
+- schema contract and compatibility evidence when payload shape is stable
+- registry/protocol/source-specific tests
+
+## Canonical Commands
 
 ```bash
-python tools/connectors/scaffold.py create --name "MyDataSource" --type REST
+uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run
+uv run polisyos-tools connectors check-contracts --check
+uv run polisyos-tools validation fabric-schema-governance --check --evidence-out .tmp/fabric-schema-governance.json
 ```
 
-Unified Phase 5 golden path also exposes the same flow through:
+## Source-Plan Contract
+
+Every connector contribution maps to the D1-L2 Fabric remediation phases:
+
+| Phase | Contributor obligation |
+|---|---|
+| Phase 0 | Validate query identifiers, literals, URL/path segments, REST/GraphQL data paths, bounded response size, provenance serialization, and UTC-aware timestamps. |
+| Phase 1 | Close sessions, pools, handles, caches, and background work deterministically; keep shared state locked or immutable; keep queues/caches bounded. |
+| Phase 2 | Return stable `schema_id`, `schema_version`, `DataVersion`, finite quality values, normalized units, and deterministic transform output. |
+| Phase 3 | Add or update schema contracts and run the schema compatibility gates when payload shape changes. |
+| Phase 5 | Use quarantine/DLQ patterns for poison rows/messages and fixture-backed tests for new families. |
+| Phase 6 | Expose catalog/search metadata in profiles and schemas; do not make natural-language discovery the only resolution path. |
+
+## Choose A Family
+
+Start with the closest existing source module under
+`src/polisyos/fabric/connectors/sources/`.
+
+| Need | Existing family |
+|---|---|
+| Public HTTP JSON API | `RestJsonConnector`, `WHOConnector`, `WorldBankConnector` |
+| SDMX statistical source | `SDMXSourceConnector`, `EurostatConnector` |
+| CKAN catalog/resource | `CKANCatalogConnector`, `CKANResourceConnector` |
+| Socrata or Opendatasoft | `SocrataConnector`, `OpendatasoftConnector` |
+| SPARQL endpoint | `SPARQLConnector` |
+| CSV/JSONL/Parquet/Excel file | `FileTabularConnector` |
+| S3/GCS/Azure-style object | `ObjectStorageConnector` |
+| SQLite/DuckDB read-only query | `SQLQueryConnector` |
+| GraphQL API | `GraphQLConnector` |
+| GeoJSON features | `GeoJSONConnector` |
+| JSONL event stream/replay log | `EventStreamConnector` |
+
+Use the scaffold only for a new custom family:
 
 ```bash
-python tools/architecture/scaffold.py connector --name "MyDataSource" --type REST --dry-run
+uv run polisyos-tools connectors scaffold create --name "MyDataSource" --type REST --dry-run
+uv run polisyos-tools architecture scaffold connector --name "MyDataSource" --type REST --dry-run
 ```
 
-**`--type` options:**
+## Implement The Connector
 
-| Type | Capabilities generated | Use when... |
-|---|---|---|
-| `REST` | FULL_FETCH, DATE_RANGE_FILTER, RATE_LIMIT_AWARE | Your source is an HTTP/REST API |
-| `CSV` | FULL_FETCH, SCHEMA_INTROSPECTION | Your source is a static or periodically-updated CSV file |
-| `SQL` | FULL_FETCH, DATE_RANGE_FILTER, SCHEMA_INTROSPECTION | Your source is a relational database |
-| `SDMX` | FULL_FETCH, CATALOG_BROWSE, STREAMING, FRESHNESS_CHECK | Your source is an SDMX-compliant statistical agency (IMF, Eurostat, OECD) |
+The minimum implementation remains:
 
-This creates two files:
+| Method | Requirement |
+|---|---|
+| `connect()` / `disconnect()` | Validate config, create a handle, and release resources deterministically. |
+| `health_check()` | Perform a lightweight source probe and return `HealthStatus`. |
+| `fetch()` | Return `FetchResult` with row count, schema refs, `DataVersion`, UTC `fetched_at`, completeness, and provenance-friendly content identifiers. |
+| `validate_config()` | Fail early for missing URL/auth headers, unsafe path/query settings, unsupported formats, or unbounded profile settings. |
 
-```
-src/polisyos/fabric/connectors/sources/my_data_source.py   <- connector class
-tests/fabric/connectors/sources/test_my_data_source.py     <- harness tests
-```
+For source families that support discovery or streaming, implement the matching
+protocol methods such as `list_datasets()`, `get_dataset_schema()`,
+`fetch_stream()`, or async fetch lease helpers.
 
----
+## Safety Rules
 
-## Step 2 - Implement the Connector
+- Do not interpolate untrusted identifiers or literals into SQL, SPARQL, SoQL,
+  ODSQL, REST paths, GraphQL data paths, or file/object paths.
+- Use Fabric safety helpers such as `safe_path_segment()`,
+  `validate_data_path()`, `extract_bounded_data_path()`, and connector-family
+  identifier validators.
+- Use timezone-aware UTC datetimes only.
+- Reject or quarantine non-finite numeric values at public boundaries.
+- Keep per-source caches, resolver maps, audit logs, and prefetch queues bounded.
+- Never import `polisyos.scientist.*` or `polisyos.foundry.*` from connector
+  runtime code.
 
-Open your generated source file and fill in every `TODO` section.
-The minimum you must implement:
-
-### 2a. `connect()` and `disconnect()`
-
-Establish and tear down the connection to your data source. For REST APIs this typically means
-creating an `httpx.AsyncClient` session. For databases, acquire a connection from a pool.
-
-### 2b. `health_check()`
-
-Perform a lightweight probe (e.g., a `HEAD` request or a `SELECT 1`).
-Return `HealthStatus(healthy=True)` on success.
-
-### 2c. `fetch()`
-
-This is the core method. It must:
-
-1. Translate the `FetchRequest` fields (`dataset_id`, `filters`, `date_start`, `date_end`) into
-   the upstream API's query format.
-2. Execute the query.
-3. Return a `FetchResult` with:
-   - `data` - the raw payload (`list[dict]`, `pandas.DataFrame`, or `pyarrow.Table`).
-   - `row_count` - accurate count of returned rows.
-   - `schema_id` / `schema_version` - referencing your connector's schema.
-   - `version` - a `DataVersion` that uniquely identifies this snapshot of data.
-   - `completeness` - a float in `[0.0, 1.0]` indicating data coverage.
-
-### 2d. `validate_config()`
-
-Check that the `ConnectionConfig` contains everything your connector needs (URL, API key, etc.)
-at registration time. Return `ValidationResult.success()` or a result with issues.
-
----
-
-## Step 3 - Run the Linter
-
-Before committing, verify your connector respects the architectural Laws:
+Run the connector lint checks:
 
 ```bash
 python tools/lint/lint_connectors.py
+python tools/lint/lint_connector_hardening.py
 ```
 
-This checks that your code does **not** import from:
+## Register The Connector
 
-| Forbidden prefix | Law | Why |
-|---|---|---|
-| `polisyos.scientist.*` | **Law A - Import Gate** | Connectors live in Fabric. Importing the orchestration layer creates a reverse dependency that breaks the directed acyclic dependency graph. |
-| `polisyos.foundry.*` | **Law B - Foundry Purity** | Foundry is a pure JAX kernel with no I/O. Pulling it into a connector would violate that isolation. |
+Add the class export in `src/polisyos/fabric/connectors/sources/__init__.py`.
+If the connector should be discoverable through Python package entry points,
+also add a component under `src/polisyos/fabric/connectors/components.py` and
+wire it in `pyproject.toml` under `polisyos.fabric_connectors`.
 
-**If you need a type for type hints only**, guard the import:
+For a direct registry-only connector, ensure `ConnectorRegistry.get_instance()`
+can discover or register it in tests and local runtime setup.
 
-```python
-from __future__ import annotations
-from typing import TYPE_CHECKING
+## Add A Source Profile
 
-if TYPE_CHECKING:
-    from polisyos.scientist.orchestrator import SomeType  # OK - warning only
-```
+Profiles live in `src/polisyos/fabric/connectors/profiles/builtin_profiles.py`.
+At minimum provide:
 
----
+- `profile_id`
+- `display_name`
+- `connector_family`
+- `base_url`
 
-## Step 4 - Run the Test Harness
+For production connectors, also set concurrency, auth policy, transport
+preference, cache TTLs, source organization, tags, and row/cell envelopes where
+the source has meaningful limits.
 
-Your generated test class inherits from `ConnectorTestHarness`, which automatically runs:
+## Add A Schema Contract
 
-- **Protocol compliance** - verifies all required class attributes and async methods exist.
-- **Lifecycle** - `connect()` -> `health_check()` -> `fetch()` -> `disconnect()`.
-- **FetchResult validation** - ensures the result conforms to the contract.
-- **Capability consistency** - checks that methods required by your declared capabilities are implemented.
+Stable payload shapes should have a contract under
+`src/polisyos/fabric/connectors/sources/_contracts/` and should be included in
+`ALL_SOURCE_CONTRACTS`. Return matching `schema_id` and `schema_version` from
+`fetch()` and `get_dataset_schema()`.
+
+Run the schema gates when a connector contract changes:
 
 ```bash
-pytest tests/fabric/connectors/sources/test_my_data_source.py -v
+uv run python tools/connectors/check_contracts.py --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ```
 
-Add source-specific tests (e.g., pagination, error handling, rate limiting) in the
-`TestMyDataSourceSpecific` class.
+Breaking schema changes require approval metadata: owner, reviewer, risk level,
+migration status, downstream impact summary, migration note, and an approved
+major version bump.
 
----
+## Test Requirements
 
-## Step 5 - Register the Connector
+At minimum:
 
-Add your connector to the registry. The canonical location is
-`src/polisyos/fabric/connectors/sources/__init__.py`:
-
-```python
-from polisyos.fabric.connectors.sources.my_data_source import MyDataSourceConnector
-
-from polisyos.fabric.connectors.registry import ConnectorRegistry
-
-ConnectorRegistry.get_instance().register(
-    connector_id="myorg.my_data_source",
-    factory=MyDataSourceConnector,
-    default_config=ConnectionConfig(
-        url="https://api.example.com/v1/data",
-    ),
-)
+```bash
+uv run pytest tests/fabric/connectors/test_registry.py -q
+uv run pytest tests/fabric/connectors/test_protocol_compliance.py -q
+uv run pytest tests/fabric/connectors/test_contract_system.py -q
+uv run pytest tests/fabric/connectors/sources/test_connector_family_expansion.py -q
 ```
 
----
+Add source-specific tests under `tests/fabric/connectors/sources/`. Live
+upstream tests must be marked as integration and should have recorded fixtures
+or replay coverage so CI does not depend on external availability.
 
-## Step 6 - CI Validation
+For streaming or poison-row behavior, also cover:
 
-CI runs two checks automatically on every PR that touches
-`src/polisyos/fabric/connectors/`:
+```bash
+uv run pytest tests/fabric/data_plane/test_quarantine.py tests/fabric/data_plane/test_streaming_runtime.py -q
+```
 
-1. **`lint_connectors.py`** - fails the build if any Law A/B violations are found.
-2. **`pytest tests/fabric/connectors/`** - runs the full harness suite.
+## Rollback
 
-Both must pass before merge.
+- Remove unfinished exports from `sources/__init__.py` and any built-in profile wiring.
+- Revert accidental schema-contract or snapshot changes before regenerating anything else.
+- Re-run `check-contracts --check` and the Fabric schema-governance evidence pass to confirm the tree is back on the committed baseline.
 
----
+## Troubleshooting
 
-## Architectural Laws Quick Reference
+- If the connector compiles but is undiscoverable, check export + profile registration first.
+- If schema evolution fails review, add the required governance metadata or treat the change as accidental drift and revert it.
+- If external availability makes tests flaky, switch to recorded fixtures or replay coverage before asking CI to trust the new family.
 
-| Law | Name | Connector Impact |
-|---|---|---|
-| **A** | Import Gate | You must not import `scientist.*` or `foundry.*` at runtime. |
-| **B** | Foundry Purity | You must not import `foundry.*` at all (even for types, unless guarded). |
-| **C** | Contracts as Truth | Use `FetchRequest` and `FetchResult` - do not invent ad-hoc wire types. |
-| **D** | Auditability | Your `FetchResult` must include a `DataVersion`. The registry handles provenance graph construction. |
-| **E** | Evidence Mandatory | The ingestion pipeline wraps your result in an `EvidenceBundle`. You do not need to do this yourself. |
+## Review Checklist
 
----
-
-## FAQ
-
-**Q: Can my connector import `pandas`?**
-A: Yes. `pandas` is a Fabric-layer dependency. The restriction is on `scientist` and
-`foundry`, not on data-processing libraries.
-
-**Q: My connector needs to call another connector for enrichment.**
-A: Use the Federation layer (`fabric.connectors.federation`). Do *not* import a sibling
-connector directly - route through the `ConnectorRegistry`.
-
-**Q: How do I handle rate limits?**
-A: Declare `ConnectorCapability.RATE_LIMIT_AWARE` and set `rate_limit_rps` on your
-`ConnectionConfig`. The Resilience layer handles throttling automatically.
-
-**Q: What if my data source is offline during CI?**
-A: Use the `APISimulator` from the testing infrastructure in `REPLAY` mode. Record a
-fixture once, replay it in CI. See `tests/fabric/connectors/test_harness.py` for examples.
+- Connector class exported from `sources/__init__.py`.
+- Optional entry-point component added only when package discovery needs it.
+- Built-in profile added with bounded execution policy.
+- Schema contract added or the absence of one is intentional and documented.
+- Registry, protocol, contract, and source-specific tests pass.
+- Schema compatibility gates pass when schema contracts or generated snapshots
+  change.
+- Quality/lineage metadata points to current artifacts or tests.

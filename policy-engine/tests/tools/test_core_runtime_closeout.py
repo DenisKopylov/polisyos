@@ -26,10 +26,7 @@ def test_core_runtime_closeout_ledger_loads_and_matches_expected_blockers() -> N
         "WS-3B",
         "WS-3C",
     ]
-    assert {entry.workstream_id for entry in report.blocking_workstreams} == {
-        "WS-1B",
-        "WS-2C",
-    }
+    assert report.blocking_workstreams == ()
 
 
 def test_core_runtime_closeout_supports_complete_manual_evidence(tmp_path) -> None:
@@ -75,4 +72,4 @@ def test_core_runtime_closeout_summary_and_exit_codes(tmp_path) -> None:
     assert "WS-2A" in rendered
     assert "Reopen / Residual Gaps" in rendered
 
-    assert core_runtime_closeout.main(["--require-full-closeout"]) == 1
+    assert core_runtime_closeout.main(["--require-full-closeout"]) == 0

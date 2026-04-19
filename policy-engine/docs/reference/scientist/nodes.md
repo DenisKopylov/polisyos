@@ -1,59 +1,81 @@
 # Scientist Builtin Nodes
 Related explanation: [Governance Model](../../explanation/governance-model.md).
 
-Builtin nodes expose a `spec` property with `state_reads`, `state_writes`, and `produces`, then implement `execute(ctx, state) -> NodeOutcome`. Workflow specs compose these nodes into larger DAGs.
+Owner: `@scientist-owners`
+Backup owner: `@platform-owners`
+Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/scientist/nodes/**`, and `tests/scientist/test_causal_evaluation_node.py`
 
-## Causal Builtins
+> Owner lane: `L6 Scientist`  
+> Type: Manual reference (not generated).  
+> Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/scientist/nodes/**`, and `tests/scientist/test_causal_evaluation_node.py`.
 
-| Node | `node_id` | Reads | Writes |
-|------|-----------|-------|--------|
-| `BuildLiteraturePriorNode` | `scientist.node_build_literature_prior@1.0.0` | causal variables, SKG paths, literature thresholds, discovery audit inputs, `inputs.knowledge_bundle_ref` | literature prior refs, projected graph ref, environment audit summary |
-| `ReconcileCausalGraphNode` | `scientist.node_reconcile_causal_graph@1.0.0` | literature prior ref, discovered data graph, fragment refs, LLM hints, alignment config, query-preservation settings | reconciled graph ref, alignment + interface artifacts, composition diagnostics, `params.needs_expert_review` |
-| `RunCausalReadinessNode` | `scientist.node_run_causal_readiness@1.0.0` | proxy / transport / strategic / counterfactual / interference bundles, calendars, reconciled graph, causal report | readiness bundle ref, primary transportability ref, primary strategic-response ref |
-| `ResolveParametersNode` | `scientist.node_resolve_parameters@1.0.0` | target context, required parameters, SKG paths, reconciled graph, cross-graph profile | context-adaptive parameter bundle ref, literature priors, runtime parameter intervals |
-| `RunCausalQueriesNode` | `scientist.node_run_causal_queries@1.0.0` | random seed, `params.causal_query`, SCM ref | query result ref, query envelope ref, method evidence refs |
-| `RunCausalEnsembleNode` | `scientist.node_run_causal_ensemble@1.0.0` | causal query, ensemble member payloads, SCM spec, prior query result | ensemble ref, ensemble envelope ref, aggregate causal envelope |
-| `RunABMConsistencyCheckNode` | `scientist.node_run_abm_consistency@1.0.0` | ABM mappings, run stats, SCM effects, finite-state abstraction payloads, causal report | ABM alignment report, abstraction map, abstraction certificate, consistency flags |
-| `RunTransportabilityNode` | `scientist.node_run_transportability@1.0.0` | source / target context, treatment + outcome, dataset / legal / SKG paths, causal report, capability contract, reconciled graph | transportability status fields, updated causal report, capability contract, transport result ref |
-| `RunCausalContractExecutionNode` | `scientist.node_run_causal_contract_execution@1.0.0` | `params.bounds_estimation_tasks`, `params.temporal_dtr_tasks` | causal execution bundle ref, bounds bundle ref, DTR ref, effect-trajectory ref |
-| `CounterfactualIdentificationGateNode` | `scientist.node_counterfactual_identification_gate@1.0.0` | causal readiness bundle ref, required query ids | `params.counterfactual_gate_blocked`, `params.counterfactual_gate_summary` |
+`polisyos.scientist.nodes` exposes a single stable root export:
+`builtin_nodes()`. Every concrete builtin node lives under
+`polisyos.scientist.nodes.builtins.*` and is referenced from workflows by the
+node component id declared in its `NodeSpec`.
 
-## Planning Builtins
+## Node Contract
 
-| Node | `node_id` | Reads | Writes |
-|------|-----------|-------|--------|
-| `PlanPolicyRequestNode` | `scientist.node_plan_policy_request@1.0.0` | policy question / jurisdiction params, optional research intent | persisted `policy_request_ref`, request-frame artifact ref, verified execution profile |
-| `AssembleLegalCandidatePackNode` | `scientist.node_assemble_legal_candidate_pack@1.0.0` | request frame, optional cross-graph evidence profile, candidate-query limits | `legal_candidate_pack_ref`, legal candidate pack artifact |
-| `ExpandLegalSourcePackNode` | `scientist.node_expand_legal_source_pack@1.0.0` | legal candidate pack, source-depth limits | `legal_source_pack_ref`, legal source pack artifact |
-| `RunSourceVerificationNode` | `scientist.node_run_source_verification@1.0.0` | request frame, legal candidate pack, legal source pack, verifier-call budget | source verification report ref, verification-cycle counters |
-| `RunSourceGapReviewNode` | `scientist.node_run_source_gap_review@1.0.0` | request frame, candidate/source packs, prior verification report, gap-review limits | refreshed candidate/source/report refs, `needs_expert_review`, updated verification cycles |
-| `DraftPolicyOptionsNode` | `scientist.node_draft_policy_options@1.0.0` | request frame, source verification report, hypothesis toggle | `policy_option_set_ref`, policy option set artifact |
-| `BuildExecutionPlanNode` | `scientist.node_build_execution_plan@1.0.0` | execution-plan params, stop criteria, governance constraints, expected outputs | execution plan ref in params and inputs, execution-plan artifact |
-| `BuildMethodCatalogSnapshotNode` | `scientist.node_build_method_catalog_snapshot@1.0.0` | `run_id` | method-catalog snapshot ref, causal capability contract ref |
-| `RunPreflightNode` | `scientist.node_run_preflight@1.0.0` | execution-plan ref, method-catalog snapshot ref | preflight report ref, `params.preflight_ready`, diagnostics payload |
-| `ReadyToRunNode` | `scientist.node_ready_to_run@1.0.0` | preflight readiness + diagnostics params | gate decision only; fails workflow if preflight blocked execution |
-| `RunHierarchicalPolicySearchNode` | `scientist.node_run_hierarchical_policy_search@1.0.0` | existing policy candidate, Lex bundle, loop config, Trinity input, artifacts and reports indexes | champion `policy_candidate_schema`, `policy_search_result`, updated Trinity input, frontier report ref |
-| `RunEvaluatorNode` | `scientist.node_run_evaluator@1.0.0` | governance report, budget params, retrieval-quality signals | evaluator report ref, iteration-state ref, replanning / approval verdict |
+| Type | Source | Contract |
+|---|---|---|
+| `NodeSpec` | `engine/protocol.py` | Declares component metadata, `state_reads`, `state_writes`, and logical `produces` keys. |
+| `NodeOutcome` | `engine/protocol.py` | Returns `status`, updated `ExperimentState`, emitted artifact refs/events, and an error only when `status="fail"`. |
+| `NodeError` | `engine/protocol.py` | Typed machine-readable failure payload. |
+| `NodeEvent` | `engine/protocol.py` | Structured event stream for tracing and diagnostics. |
+| `state_keys.py` | `nodes/builtins/state_keys.py` | Canonical input/artifact/report aliases used by builtin nodes and downstream decision surfaces. |
 
-## Compile and Runtime Builtins
+## Registry Snapshot
 
-| Node | `node_id` | Reads | Writes |
-|------|-----------|-------|--------|
-| `LinkTrinityNode` | `scientist.node_link_trinity@1.0.0` | Trinity bundle ref, registry bundle ref | link report ref |
-| `FormalizeVerifiedPolicyNode` | `scientist.node_formalize_verified_policy@1.0.0` | policy request frame, policy option set, existing Trinity input | generated Trinity bundle ref when policy options can be formalized |
-| `BindFoundryInputsNode` | `scientist.node_bind_foundry_inputs@1.0.0` | data snapshot ref, registry bundle, Trinity input, binding rules | input-bindings ref, bound state snapshot ref, input-binding report ref |
-| `CompileFoundryNode` | `scientist.node_compile_foundry@1.0.0` | Trinity bundle ref, registry bundle ref | compile/link reports, exec-plan ref, lowered-IR / program-graph / slot-layout refs |
-| `RunSimulationNode` | `scientist.node_run_simulation@1.0.0` | exec-plan ref, input-bindings ref, registry bundle, optional parameter overrides | simulation result, metrics, state delta, snapshots, constraint report, environment manifest |
+`builtin_nodes()` currently instantiates 44 builtin nodes across seven families.
 
-## Helper Exports
+| Family | Current members | What they publish |
+|---|---|---|
+| `data` | `BuildDataSnapshotNode`, `BindFoundryInputsNode`, `EnrichKnowledgeNode` | Data snapshot, bound inputs, knowledge enrichment artifacts. |
+| `planning` | `PlanPolicyRequestNode`, `BuildExecutionPlanNode`, `BuildMethodCatalogSnapshotNode`, `AssembleLegalCandidatePackNode`, `ExpandLegalSourcePackNode`, `RunSourceVerificationNode`, `RunSourceGapReviewNode`, `DraftPolicyOptionsNode`, `RunPreflightNode`, `ReadyToRunNode`, `CompileCrossGraphEvidenceNode`, `RunHierarchicalPolicySearchNode`, `RunEvaluatorNode`, `RunDiscoveryBlueprintRuntimeNode` | Execution-plan, verified-source, search, evaluator, and discovery artifacts. |
+| `compile` | `LinkTrinityNode`, `FormalizeVerifiedPolicyNode`, `CompileFoundryNode` | Trinity link report, formalized policy input, compile/link/program-graph artifacts. |
+| `causal` | `BuildLiteraturePriorNode`, `ReconcileCausalGraphNode`, `RunCausalReadinessNode`, `ResolveParametersNode`, `RunCausalQueriesNode`, `RunCausalEnsembleNode`, `RunABMConsistencyCheckNode`, `RunTransportabilityNode`, `RunCausalContractExecutionNode`, `CounterfactualIdentificationGateNode` | Literature prior, reconciled graph, readiness, causal query/ensemble/ABM/transportability, and counterfactual-gate state. |
+| `simulate` | `RunSimulationNode`, `RunCausalEvaluationNode`, `RunDistributionalAnalysisNode`, `PropagateUncertaintyNode` | Simulation, causal-effect, distributional, and uncertainty artifacts. |
+| `governance` | `DataPlaneGateNode`, `LegalCheckNode`, `RunNormativeArbitrationNode`, `RunGovernanceNode` | Data-plane, legal, arbitration, and governance report artifacts. |
+| `decide` | `BuildVerifiedPolicyReportNode`, `RunPolicyBlueprintRuntimeNode`, `RunPolicyTranslationNode`, `RunTranslatorComplianceNode`, `BuildPolicyOutputBundleNode`, `BuildDecisionPacketNode` | Verified-policy report, blueprint/translation outputs, policy output bundle, and final decision packet. |
 
-| API | Role |
-|-----|------|
-| `CounterfactualGateDecision` | Normalized decision object returned by gate helpers |
-| `evaluate_counterfactual_gate()` | Evaluate the current workflow state against readiness artifacts |
-| `evaluate_counterfactual_readiness_bundle()` | Pure readiness-bundle check for required counterfactual queries |
-| `ResolutionState` | Immutable transportability-loop iteration state |
-| `TransportabilityResolutionLoop` | Dataset / SKG / legal closure loop used by `RunTransportabilityNode` |
+## Current High-Signal Node IDs
+
+The workflow specs currently depend on these node ids for the key L6 surfaces:
+
+| Capability | `node_id` |
+|---|---|
+| Baseline simulation | `scientist.node_run_simulation@1.0.1` |
+| Causal evaluation | `scientist.node_run_causal_evaluation@1.2.0` |
+| Causal readiness | `scientist.node_run_causal_readiness@1.0.0` |
+| Counterfactual gate | `scientist.node_counterfactual_identification_gate@1.0.0` |
+| Hierarchical policy search | `scientist.node_run_hierarchical_policy_search@1.0.0` |
+| Governance runtime | `scientist.node_run_governance@1.2.0` |
+| Decision packet | `scientist.node_build_decision_packet@1.5.0` |
+
+## What This Page Does Not Duplicate
+
+This page does not restate every `state_reads`/`state_writes` list inline,
+because the authoritative contract already lives in each node's `NodeSpec`.
+When a node contract changes, update the node class first and then confirm the
+workflow/reference impact with the tests below.
+
+## Phase Evidence
+
+| D1 phase | Node-facing evidence |
+|---|---|
+| Phase 0 | Retry, idempotency, budget, masking, and containment regressions documented through the Phase 0 gate. |
+| Phase 1 | Branch-local state mutation, builder pinning, workflow reliability scenarios, and decision-packet publication rules. |
+| Phase 2 | Runtime-path benchmarks and the Phase 2 maintainability ratchet on selected hot paths. |
+| Phase 3 | `RunCausalEvaluationNode`, governance nodes, policy-output nodes, and decision packet surfacing of causal/accountability artifacts. |
+| Phase 4 | Frontier/distributed behavior remains separately gated and is not implied by builtin node presence alone. |
+
+## Validation
+
+```bash
+uv run pytest tests/scientist/nodes -q
+uv run pytest tests/scientist/nodes/builtins -q
+uv run pytest tests/scientist/test_causal_evaluation_node.py tests/scientist/test_decision_packet_node_v3.py -q
+```
 
 ## API Reference
 
@@ -61,10 +83,4 @@ Builtin nodes expose a `spec` property with `state_reads`, `state_writes`, and `
 
 ::: polisyos.scientist.nodes.builtins
 
-::: polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate
-
-::: polisyos.scientist.nodes.builtins.causal.run_causal_readiness
-
-::: polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution
-
-::: polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search
+::: polisyos.scientist.engine.protocol

@@ -34,6 +34,10 @@ if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class GCSArtifactStore:
     """CAS backed by a Google Cloud Storage bucket.
 
@@ -58,7 +62,7 @@ class GCSArtifactStore:
         self._local_cache_dir = local_cache_dir
         self._bucket: Any = None
         self._lock = threading.Lock()
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     # -- lazy client ---------------------------------------------------
 
@@ -130,7 +134,7 @@ class GCSArtifactStore:
         if self._cache_read(artifact_id, ".blob") is not None:
             return True
         blob = self._gcs_bucket().blob(self._blob_key(artifact_id))
-        return blob.exists()
+        return bool(blob.exists())
 
     def get_bytes(self, artifact_id: ArtifactID) -> bytes:
         cached = self._cache_read(artifact_id, ".blob")
@@ -175,18 +179,20 @@ class GCSArtifactStore:
 
         manifest_obj = self._gcs_bucket().blob(self._manifest_key(aid))
         if not manifest_obj.exists():
-            manifest = ArtifactManifest(
-                artifact_id=aid,
-                kind=opts.kind,
-                media_type=opts.media_type,
-                byte_size=len(data),
-                schema=opts.schema,
-                canon=opts.canon,
-                inputs=list(opts.inputs or []),
-                producer=opts.producer,
-                env=opts.env,
-                governance=getattr(opts, "governance", None),
-                integrity=IntegrityInfo(sha256=sha),
+            manifest = ArtifactManifest.model_validate(
+                {
+                    "artifact_id": aid,
+                    "kind": opts.kind,
+                    "media_type": opts.media_type,
+                    "byte_size": len(data),
+                    "schema": opts.schema,
+                    "canon": opts.canon,
+                    "inputs": list(opts.inputs or []),
+                    "producer": opts.producer,
+                    "env": opts.env,
+                    "governance": getattr(opts, "governance", None),
+                    "integrity": IntegrityInfo(sha256=sha),
+                }
             )
             man_bytes = fast_json_dumps_bytes(
                 manifest.model_dump(mode="json", by_alias=True, exclude_none=True),

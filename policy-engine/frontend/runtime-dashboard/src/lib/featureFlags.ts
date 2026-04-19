@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const FEATURE_FLAG_KEYS = [
+  "enableAtlasV2",
   "enableCausalGraph",
   "enableClerkMode",
   "enableCollaboration",
@@ -68,6 +69,7 @@ function readBooleanFlag(rawValue: string | undefined, fallback: boolean) {
 }
 
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
+  enableAtlasV2: readBooleanFlag(import.meta.env.VITE_FF_ATLAS_V2, true),
   enableCausalGraph: readBooleanFlag(
     import.meta.env.VITE_FF_CAUSAL_GRAPH,
     true,

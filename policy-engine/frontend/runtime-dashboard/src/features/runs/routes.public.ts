@@ -1,4 +1,6 @@
 export {
+  runDeckLoader,
+  runDeckRouteHandle,
   runDetailLoader,
   runDetailRouteHandle,
   runReportLoader,

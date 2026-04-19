@@ -4,7 +4,25 @@ Related how-to: [Write Governance Pass](../how-to/write-governance-pass.md). Rel
 
 > Этот tutorial рассчитан на инженера, который добавляет новый governance check в Scientist и хочет дойти до состояния "pass существует, зарегистрирован, запускается и тестируется".
 
+!!! info "Verified with"
+    Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
+    Python 3.14 и `uv`.
+    Реально проверены импорт базовых типов
+    `PassContext` / `ValidatorPass`
+    и dry-run scaffold:
+    `uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`.
+
 Мы пройдём минимальный, но реальный путь: создадим pass, зарегистрируем factory, подключим его к canonical governance surface и проверим blocker/warning semantics тестом.
+
+Перед ручным редактированием можно взять canonical dry-run scaffold:
+
+```bash
+uv run polisyos-tools architecture scaffold governance-pass \
+  --name my_pass \
+  --output src/polisyos/scientist/governance/passes/my_pass.py \
+  --test-output tests/scientist/governance/test_my_pass.py \
+  --dry-run
+```
 
 ## Шаг 1. Создайте класс pass
 
@@ -125,6 +143,24 @@ uv run --extra docs python tools/validation/check_docstring_quality.py --repo-ro
 ```
 
 Если pass стал частью canonical governance surface, дополнительно проверьте reference page и observation-family mapping.
+
+## Шаг 7. Добавьте evidence mapping
+
+Для D1-L6 новый pass считается документированным только после того, как его
+claim связан с артефактом или тестом:
+
+1. добавьте pass в [Governance Passes reference](../reference/scientist/governance-passes.md), если он builtin или canonical;
+2. укажите, какой artifact/report получает оператор: `ComplianceIssue`,
+   `GovernanceReport`, `CalibrationValidationBundle`,
+   `scientist.governance_accountability_artifact` или другой persisted output;
+3. если pass поддерживает SOTA/default-readiness claim, добавьте benchmark or
+   eval reference до такого claim.
+
+Минимальный traceability format:
+
+```text
+pass_id -> emitted issue/artifact -> regression test -> phase gate or benchmark
+```
 
 ## Как читать blocker и warning semantics
 

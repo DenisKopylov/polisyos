@@ -42,3 +42,8 @@ AST‑чекер `tools/lint/lint_imports.py` выполняет проверк�
   - обязательна полная матрица `internal.allow.*` для всех `roots.known`;
   - дубликаты `exception.id` считаются конфигурационной ошибкой.
 - Нормативная спецификация: `p1_import_policy_v2_spec.md`.
+
+## Related Decisions
+
+- Extended by: ADR-0115 (layered architecture enforcement), ADR-0127
+  (repository hygiene gates).

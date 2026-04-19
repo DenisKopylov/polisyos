@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import threading
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.serialization import fast_json_dumps_bytes
 from polisyos.core.canon import content_hash
@@ -35,6 +35,10 @@ if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class S3ArtifactStore:
     """CAS backed by an S3 bucket.
 
@@ -62,7 +66,7 @@ class S3ArtifactStore:
         self._local_cache_dir = local_cache_dir
         self._client: Any = None
         self._lock = threading.Lock()
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     # -- lazy client ---------------------------------------------------
 
@@ -150,7 +154,7 @@ class S3ArtifactStore:
         cached = self._cache_read(artifact_id, ".blob")
         if cached is None:
             resp = self._s3().get_object(Bucket=self._bucket, Key=self._blob_key(artifact_id))
-            data = resp["Body"].read()
+            data = cast(bytes, resp["Body"].read())
             self._cache_write(artifact_id, ".blob", data)
         else:
             data = cached
@@ -207,18 +211,20 @@ class S3ArtifactStore:
         except self._s3().exceptions.ClientError as exc:
             if not self._is_missing_error(exc):
                 raise
-            manifest = ArtifactManifest(
-                artifact_id=aid,
-                kind=opts.kind,
-                media_type=opts.media_type,
-                byte_size=len(data),
-                schema=opts.schema,
-                canon=opts.canon,
-                inputs=list(opts.inputs or []),
-                producer=opts.producer,
-                env=opts.env,
-                governance=getattr(opts, "governance", None),
-                integrity=IntegrityInfo(sha256=sha),
+            manifest = ArtifactManifest.model_validate(
+                {
+                    "artifact_id": aid,
+                    "kind": opts.kind,
+                    "media_type": opts.media_type,
+                    "byte_size": len(data),
+                    "schema": opts.schema,
+                    "canon": opts.canon,
+                    "inputs": list(opts.inputs or []),
+                    "producer": opts.producer,
+                    "env": opts.env,
+                    "governance": getattr(opts, "governance", None),
+                    "integrity": IntegrityInfo(sha256=sha),
+                }
             )
             man_bytes = fast_json_dumps_bytes(
                 manifest.model_dump(mode="json", by_alias=True, exclude_none=True),

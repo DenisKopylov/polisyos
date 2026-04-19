@@ -1,17 +1,13 @@
 import { useLocation } from "react-router-dom";
-import {
-  BarChart3,
-  FileText,
-  Home,
-  Layers,
-  MessageSquare,
-} from "lucide-react";
+import { BarChart3, FileText, Home, Layers, MessageSquare } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { PrefetchNavLink } from "@/app/routes/PrefetchNavLink";
+import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
+import { AtlasBrand } from "@/shared/brand/AtlasBrand";
 
 type NavItem = {
   Icon: LucideIcon;
@@ -43,8 +39,10 @@ function isActive(itemPath: string, currentPath: string): boolean {
 export function MobileNav() {
   const { t } = useI18n();
   const location = useLocation();
+  const { flags } = useFeatureFlags();
   const { isClerk } = useInterfaceMode();
   const items = isClerk ? CLERK_NAV : ANALYST_NAV;
+  const atlasEnabled = flags.enableAtlasV2;
 
   return (
     <nav
@@ -58,6 +56,15 @@ export function MobileNav() {
       }}
       aria-label={t("mobile.nav.ariaLabel")}
     >
+      {atlasEnabled ? (
+        <div
+          className="border-line/70 bg-surface/70 mx-2 my-2 flex min-w-[72px] shrink-0 items-center justify-center gap-2 rounded-[20px] border px-3 text-[10px] font-semibold tracking-[0.14em] text-[var(--slate)] uppercase"
+          data-testid="mobile-nav-brand-point"
+        >
+          <AtlasBrand alt={t("shell.title")} size={24} variant="mark" />
+          <span aria-hidden="true">Atlas</span>
+        </div>
+      ) : null}
       {items.map((item) => {
         const active = isActive(item.path, location.pathname);
         return (

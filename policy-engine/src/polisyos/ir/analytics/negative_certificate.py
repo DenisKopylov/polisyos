@@ -43,6 +43,24 @@ class BlockingType(str, Enum):
     MISSING_DISTRIBUTION = "missing_distribution"
     """A required conditional distribution is not available in any dataset."""
 
+    MISSINGNESS_NOT_RECOVERABLE = "missingness_not_recoverable"
+    """The requested functional is blocked by the missingness graph."""
+
+    SEMANTICS_NOT_WELL_DEFINED = "semantics_not_well_defined"
+    """The cyclic or dynamic SCM does not yet have a certified intervention semantics."""
+
+    COUPLING_NOT_IDENTIFIED = "coupling_not_identified"
+    """Marginal counterfactual laws are available, but the joint/coupling object is not causally identified."""
+
+    INTERVENTION_TYPECHECK = "intervention_typecheck"
+    """The requested intervention expression or composition is ill-typed."""
+
+    PROXIMAL_CONDITION_FAILED = "proximal_condition_failed"
+    """A machine-checkable proximal identification condition failed."""
+
+    OUT_OF_SCOPE_FOR_PROXIMAL_V1 = "out_of_scope_for_proximal_v1"
+    """The query or graph is outside the conservative proximal v1 coverage."""
+
 
 class SuggestedExperiment(BaseModel):
     """Structured description of an experiment or data collection strategy.
@@ -316,8 +334,23 @@ class NegativeCertificate(BaseModel):
                     ),
                 ),
             )
-        if blocking_type == BlockingType.MISSING_DISTRIBUTION:
+        if blocking_type in {
+            BlockingType.MISSING_DISTRIBUTION,
+            BlockingType.MISSINGNESS_NOT_RECOVERABLE,
+        }:
             refs_str = ", ".join(missing_dataset_refs) if missing_dataset_refs else "unknown"
+            if blocking_type is BlockingType.MISSINGNESS_NOT_RECOVERABLE:
+                return (
+                    SuggestedExperiment(
+                        required_variables=missing_vars,
+                        design_type="observational",
+                        description=(
+                            "Collect complete-case or auxiliary administrative data for "
+                            f"variables {list(missing_vars)} to break the blocking "
+                            "missingness path."
+                        ),
+                    ),
+                )
             return (
                 SuggestedExperiment(
                     required_variables=missing_vars,
@@ -325,6 +358,30 @@ class NegativeCertificate(BaseModel):
                     description=(
                         f"Collect observational data containing variables {list(missing_vars)} "
                         f"from dataset(s): {refs_str}."
+                    ),
+                ),
+            )
+        if blocking_type == BlockingType.SEMANTICS_NOT_WELL_DEFINED:
+            return (
+                SuggestedExperiment(
+                    required_variables=missing_vars,
+                    design_type="observational",
+                    description=(
+                        "Provide a well-posedness witness for the cyclic fragment, such as a "
+                        "linear unique-solution matrix, a contraction bound, or an explicitly "
+                        "admissible loop mechanism."
+                    ),
+                ),
+            )
+        if blocking_type == BlockingType.COUPLING_NOT_IDENTIFIED:
+            return (
+                SuggestedExperiment(
+                    required_variables=missing_vars,
+                    design_type="observational",
+                    description=(
+                        "To identify the coupling or joint counterfactual law, collect panel-linked "
+                        "outcomes across worlds if available, or add explicit cross-world assumptions "
+                        "such as rank invariance, monotone response, or a justified transport model."
                     ),
                 ),
             )
@@ -349,6 +406,30 @@ class NegativeCertificate(BaseModel):
                         "An unresolved S-node indicates a context/selection shift. "
                         "Collect data in the target domain or use a natural experiment "
                         "that spans source and target contexts."
+                    ),
+                ),
+            )
+        if blocking_type == BlockingType.PROXIMAL_CONDITION_FAILED:
+            return (
+                SuggestedExperiment(
+                    required_variables=missing_vars,
+                    design_type="observational",
+                    description=(
+                        "Provide valid treatment-inducing and outcome-inducing proxy "
+                        "measurements that satisfy the proximal exclusion and latent "
+                        "district relevance conditions."
+                    ),
+                ),
+            )
+        if blocking_type == BlockingType.OUT_OF_SCOPE_FOR_PROXIMAL_V1:
+            return (
+                SuggestedExperiment(
+                    required_variables=missing_vars,
+                    design_type="observational",
+                    description=(
+                        "Reformulate the query as a single-treatment, single-outcome "
+                        "proximal query on a DAG/ADMG, or use a more general "
+                        "identification backend."
                     ),
                 ),
             )

@@ -4,6 +4,9 @@ Related runbooks: [Replay or Restore Workflow](../../runbooks/replay-or-restore.
 [Retained Artifact Recovery](../../runbooks/retained-artifact-recovery.md).
 Related reference: [Operations Reference](index.md).
 
+Owner: `@platform-owners`
+Source of truth: `src/polisyos/core/artifacts/**`, `docs/reference/generated-artifacts.md`, and the linked replay/retention/corruption runbooks
+
 > Эта страница задаёт lifecycle rules для operational artifacts, чтобы storage
 > growth и restore expectations были intentional, а не accidental.
 

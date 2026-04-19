@@ -12,6 +12,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.fabric.world.providers import resolve_world_observability
 from polisyos.fabric.world.store import (
     WorldFactError,
     WorldSegmentError,
@@ -241,6 +242,30 @@ def test_append_world_segment_index_uses_injected_observability_providers(
     manifests = load_world_fact_manifests(tmp_path)
     assert [item.segment_id for item in manifests] == [manifest.segment_id]
     assert resolved_calls == [(tracer, metrics)]
+
+
+def test_resolve_world_observability_uses_factory_overrides(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tracer = object()
+    metrics = object()
+
+    monkeypatch.setattr(
+        "polisyos.fabric.world.providers._default_tracer",
+        lambda: (_ for _ in ()).throw(AssertionError("global tracer should not be used")),
+    )
+    monkeypatch.setattr(
+        "polisyos.fabric.world.providers._default_metrics",
+        lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
+    )
+
+    resolved = resolve_world_observability(
+        tracer_factory=lambda: tracer,  # type: ignore[arg-type]
+        metrics_factory=lambda: metrics,  # type: ignore[arg-type]
+    )
+
+    assert resolved.tracer is tracer
+    assert resolved.metrics is metrics
 
 
 def test_invalid_world_segment_index_fails_closed(tmp_path: Path) -> None:

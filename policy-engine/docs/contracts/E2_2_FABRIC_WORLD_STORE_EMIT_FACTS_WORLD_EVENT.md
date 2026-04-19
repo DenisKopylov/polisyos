@@ -754,3 +754,12 @@ Minimum tests:
    - fact ABI validation (world.* + world.rel.* strict)
 4) Minimal tests in §8 pass.  
 5) Dependency guard stays green (no `fabric -> scientist` leaks).
+
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 0 world ID/CAS determinism and Phase 2 lineage graph inputs |
+| Contract tests | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_world_store.py`, `tests/fabric/connectors/test_ingestion_fetch_activity_contract.py` |
+| Schema snapshots | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/fact.schema.json`, `schemas/snapshots/ir/fact_segment_manifest.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

@@ -62,6 +62,28 @@ def test_doc_assignment_is_unique_across_shards(tmp_path) -> None:
         assert len(owners) == 1
 
 
+def test_pre_sharded_manifest_bypasses_hash_assignment(tmp_path) -> None:
+    configs = [
+        BatchConfig(
+            cards_path=tmp_path / "cards.xml",
+            texts_path=tmp_path / "texts.xml",
+            output_dir=tmp_path / f"out-{i}",
+            shard_count=6,
+            shard_index=i,
+            stages=frozenset({"parse", "structure", "spo"}),
+            manifest_is_pre_sharded=True,
+        )
+        for i in range(6)
+    ]
+    for doc_id in (
+        "d50ecd49c7651689",
+        "ec234c69f92fd5ff",
+        "c859d7c276595bed",
+    ):
+        owners = [cfg.shard_index for cfg in configs if cfg.is_doc_in_shard(doc_id)]
+        assert owners == [0, 1, 2, 3, 4, 5]
+
+
 def test_invalid_shard_index_raises(tmp_path) -> None:
     with pytest.raises(ValueError):
         _cfg(

@@ -1,0 +1,16 @@
+service: fabric
+version: 1
+owner: team-fabric
+objectives:
+  - name: fabric_connector_error_rate
+    sli: rate(polisyos_connector_requests_total{status="error"}[5m]) / rate(polisyos_connector_requests_total[5m])
+    threshold: "< 0.01"
+    window: 28d
+    owner: team-fabric
+    runbook: docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md
+  - name: fabric_schema_drift_rate
+    sli: rate(polisyos_fabric_schema_drift_total[1h])
+    threshold: "= 0"
+    window: 7d
+    owner: team-fabric
+    runbook: docs/runbooks/broken-contract-generation.md

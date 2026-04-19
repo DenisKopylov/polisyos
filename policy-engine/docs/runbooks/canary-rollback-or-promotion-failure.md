@@ -9,6 +9,11 @@ Related how-to: [Deploy Runtime](../how-to/deploy-runtime.md).
 > также покрывает manual environment approval / rollback after the automated
 > checkpoint.
 
+Owner: `@platform-owners`
+Last tested: `2026-04-17` against current canary and acceptance-rehearsal evidence.
+Evidence path: `docs/archive/reports/platform-release-canary.md`; `docs/archive/reports/platform-acceptance-manual.md`; `docs/reference/operations/platform-acceptance-audit.md`
+Rollback path: return traffic and config to the last known-good candidate before further investigation, then freeze further promotion until the root cause is understood.
+
 ## Symptom
 
 - release candidate не проходит promotion checkpoint;

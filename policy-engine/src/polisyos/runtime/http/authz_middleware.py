@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import os
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitBreaker,
@@ -25,30 +25,40 @@ from polisyos.runtime.http.security import clear_request_auth_context
 logger = get_logger("polisyos.security.authz")
 
 
-try:  # pragma: no cover - optional runtime dependency
-    BaseHTTPMiddleware: Any
-    Request: Any
-    Response: Any
-    JSONResponse: Any | None
-    from starlette.middleware.base import BaseHTTPMiddleware
-    from starlette.requests import Request
-    from starlette.responses import JSONResponse, Response
-except ModuleNotFoundError:  # pragma: no cover
-    BaseHTTPMiddleware = object
-    Request = Any
-    Response = Any
-    JSONResponse = None
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from starlette.requests import Request as _Request
+    from starlette.responses import JSONResponse as _JSONResponse
+    from starlette.responses import Response as _Response
+    from starlette.types import ASGIApp as _ASGIApp
+
+    class _BaseHTTPMiddleware:
+        def __init__(self, app: _ASGIApp) -> None: ...
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
+        from starlette.requests import Request as _Request
+        from starlette.responses import JSONResponse as _JSONResponse
+        from starlette.responses import Response as _Response
+        from starlette.types import ASGIApp as _ASGIApp
+    except ModuleNotFoundError:  # pragma: no cover
+        _BaseHTTPMiddleware = object
+        _Request = Any
+        _Response = Any
+        _JSONResponse = None
+        _ASGIApp = Any
 
 
 _PUBLIC_PATHS = frozenset({"/health", "/ready", "/metrics", "/auth/callback"})
 
 
-class AuthzMiddleware(BaseHTTPMiddleware):
+class AuthzMiddleware(_BaseHTTPMiddleware):
     """Run per-request authorization checks against OPA sidecar."""
 
     def __init__(
         self,
-        app: Any,
+        app: _ASGIApp,
         *,
         opa_client: OPAClient,
         enforce: bool = True,
@@ -60,7 +70,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):
         trusted_delegators: frozenset[str] = frozenset(),
         service_spiffe_id: str | None = None,
     ) -> None:
-        if JSONResponse is None:
+        if _JSONResponse is None:
             raise RuntimeError("AuthzMiddleware requires starlette/fastapi dependencies")
         super().__init__(app)
         self._opa = opa_client
@@ -97,7 +107,11 @@ class AuthzMiddleware(BaseHTTPMiddleware):
             ),
         )
 
-    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
+    async def dispatch(
+        self,
+        request: _Request,
+        call_next: Callable[[_Request], Awaitable[_Response]],
+    ) -> _Response:
         path = str(getattr(request.url, "path", ""))
         if path in self._public_paths:
             return await call_next(request)
@@ -107,7 +121,8 @@ class AuthzMiddleware(BaseHTTPMiddleware):
         scope = getattr(request.state, "access_scope", None)
         delegation_token = request.headers.get(self._delegation_header, "")
         if delegation_token:
-            if self._delegation_manager is None:
+            delegation_manager = self._delegation_manager
+            if delegation_manager is None:
                 deny = self._deny_or_shadow(
                     request,
                     reason="delegation_not_configured",
@@ -139,24 +154,24 @@ class AuthzMiddleware(BaseHTTPMiddleware):
                 )
                 if deny is not None:
                     return deny
-
-            try:
-                claims = self._delegation_manager.verify_token(
-                    delegation_token,
-                    expected_audience=self._service_spiffe_id,
-                    trusted_issuers=self._trusted_delegators or frozenset({peer_spiffe_id}),
-                )
-            except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as exc:
-                deny = self._deny_or_shadow(
-                    request,
-                    reason="invalid_delegation",
-                    detail=str(exc),
-                )
-                if deny is not None:
-                    return deny
-
-            scope = claims.to_access_scope()
-            request.state.access_scope = scope
+            elif delegation_manager is not None:
+                try:
+                    claims = delegation_manager.verify_token(
+                        delegation_token,
+                        expected_audience=self._service_spiffe_id,
+                        trusted_issuers=self._trusted_delegators or frozenset({peer_spiffe_id}),
+                    )
+                except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as exc:
+                    deny = self._deny_or_shadow(
+                        request,
+                        reason="invalid_delegation",
+                        detail=str(exc),
+                    )
+                    if deny is not None:
+                        return deny
+                else:
+                    scope = claims.to_access_scope()
+                    request.state.access_scope = scope
 
         if scope is None:
             scope = get_current_access_scope_or_none()
@@ -284,7 +299,13 @@ class AuthzMiddleware(BaseHTTPMiddleware):
             response.headers["X-PolicyOS-Authz-Shadow-Deny"] = "true"
         return response
 
-    def _deny_or_shadow(self, request: Request, *, reason: str, detail: str) -> Response | None:
+    def _deny_or_shadow(
+        self,
+        request: _Request,
+        *,
+        reason: str,
+        detail: str,
+    ) -> _Response | None:
         payload = {"error": reason, "detail": detail}
         if self._enforce and not self._shadow_mode:
             request_id = getattr(getattr(request, "state", object()), "request_id", None)

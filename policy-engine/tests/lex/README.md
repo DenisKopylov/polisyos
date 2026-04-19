@@ -1,37 +1,76 @@
 # Lex Tests
 
-`tests/lex` покрывает `polisyos.lex` в двух контурах: batch pipeline (структурирование/нормализация/качество) и simulator (diff/mutator/impact).
+`tests/lex` covers the legal-corpus layer: intervention handling, knowledge
+filters, batch normalization/sharding, legal evaluation, and the simulator diff
+/ mutation path. The slice currently contains `45` `test_*.py` files.
 
-Актуально на **17 февраля 2026**.
+## Purpose
 
-## Состав
+- Keep legal corpus normalization, structuring, and quality behavior stable.
+- Protect NormPack and intervention-facing outputs that downstream systems use.
+- Preserve simulator determinism for diff, mutation, and impact analysis flows.
 
-- `9` файлов `test_*.py`
+## Where To Start
 
-## Структура
+- [`../../src/polisyos/lex/README.md`](../../src/polisyos/lex/README.md)
+- [`../../src/polisyos/lex/batch/README.md`](../../src/polisyos/lex/batch/README.md)
+- `batch/` for extraction, sharding, and normalization issues.
 
-| Подкаталог | `test_*.py` | Что покрывает |
-|---|---:|---|
-| `lex/batch/` | 6 | canonicalizers, structurer, SPO normalization, quality report, sharding |
-| `lex/simulator/` | 3 | norm pack diff, mutation semantics, impact analyzer |
+## Public Entrypoints
 
-## Ключевые инварианты
+- `tests/lex/` root: `4` tests for API transport constraints, interventions,
+  and knowledge-store filters.
+- `tests/lex/batch/`: `37` tests for canonicalizers, structuring, SPO
+  normalization, quality reports, manifests, and sharding.
+- `tests/lex/legal_evaluation/`: `1` test for legal-evaluation integration.
+- `tests/lex/simulator/`: `3` tests for norm-pack diff, mutator semantics, and
+  impact analysis.
 
-- Стабильная нормализация action/norm-type и извлечение thresholds.
-- Корректная shard-изоляция (`progress.jsonl`, shard DB paths, doc assignment uniqueness).
-- Детерминизм mutator/diff в simulator-контуре.
+## Depends On / Depended On By
 
-## Связи с кодом
+**Depends on**
 
-- `policy-engine/src/polisyos/lex/batch`
-- `policy-engine/src/polisyos/lex/simulator`
-- `policy-engine/src/polisyos/lex/knowledge`
-- `policy-engine/src/polisyos/ir/norm_pack`
+- [`../../src/polisyos/lex/README.md`](../../src/polisyos/lex/README.md)
+- [`../../src/polisyos/lex/batch/README.md`](../../src/polisyos/lex/batch/README.md)
+- [`../../src/polisyos/lex/simulator/README.md`](../../src/polisyos/lex/simulator/README.md)
+- `src/polisyos/ir/norm_pack`
 
-## Запуск
+**Depended on by**
+
+- [`../fabric/README.md`](../fabric/README.md) for fabric-driven legal/document
+  pipelines
+- [`../scientist/README.md`](../scientist/README.md) for policy/governance flows
+  that consume lex artifacts
+
+## Common Commands
+
+Run commands from `policy-engine/`.
 
 ```bash
-pytest tests/lex -q
-pytest tests/lex/batch -q
-pytest tests/lex/simulator -q
+# conceptual: full lex slice
+uv run pytest tests/lex -q
+
+# conceptual: focused slices
+uv run pytest tests/lex/batch -q
+uv run pytest tests/lex/simulator -q
 ```
+
+## Test And Verification Commands
+
+The collect-only command below was smoke-checked on `2026-04-17`.
+
+```bash
+cd policy-engine
+uv run pytest --collect-only tests/lex -q
+```
+
+## Reference Docs
+
+- [`../../src/polisyos/lex/README.md`](../../src/polisyos/lex/README.md)
+- [`../../src/polisyos/lex/batch/README.md`](../../src/polisyos/lex/batch/README.md)
+- [`../../src/polisyos/lex/simulator/README.md`](../../src/polisyos/lex/simulator/README.md)
+- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+
+## Last Updated
+
+2026-04-17

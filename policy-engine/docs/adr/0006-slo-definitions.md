@@ -55,3 +55,8 @@
 ### Митигации
 
 - В правила добавлен guard через `clamp_min(...)` и volume checks (`...:rate30m > 0`).
+
+## Related Decisions
+
+- Extended by: ADR-0116 (OTel-first observability).
+- Related: ADR-0127 (repository hygiene gates).

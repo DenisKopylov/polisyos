@@ -2,6 +2,9 @@
 
 Related reference: [Agent Search And Reasoning](agent-search-reasoning.md).
 
+Owner: `@scientist-owners`
+Source of truth: `src/polisyos/scientist/frontier_runtime.py`, `src/polisyos/scientist/search/{benchmark_registry.py,registry_contracts.py}`, and `tests/scientist/{test_frontier_runtime.py,search/test_benchmark_registry.py}`
+
 > Phase 4 runtime contract for frontier capabilities. The default path stays
 > conservative: frontier methods remain feature-flagged until offline validation
 > and benchmark packs show they are safe to evaluate outside the baseline path.
@@ -39,6 +42,28 @@ Every frontier capability must publish:
 - an explicit baseline-replacement posture
 - a rationale explaining why the capability is still gated
 
+## D1 Frontier Evidence Map
+
+Phase 4 frontier work is documentation-visible but non-default by design. A
+capability can move from `offline_gated` to `available_offline` only when both
+validation and benchmark refs are present; baseline replacement still needs an
+explicit approval flag.
+
+| Capability family | Runtime field | Evidence required before claim |
+|-------------------|---------------|--------------------------------|
+| Proximal causal inference | `enable_proximal_causal` | `offline_validation_ref`, `benchmark_pack_ref`, and causal eval tests that keep proxy assumptions visible. |
+| Bayesian or neural causal discovery | `enable_bayesian_causal_discovery`, `enable_neural_dag_learners` | Dedicated eval pack, calibrated posterior or structural-recovery diagnostics, and benchmark registry entry. |
+| Causal representation learning | `enable_causal_representation_learning` | Latent-factor validation pack and benchmark evidence before it can affect default causal reports. |
+| Adversarial scenario discovery | `enable_adversarial_scenario_discovery` | Challenge bundle and governance outcome comparison against the baseline stress set. |
+| Continuous governance loop | `enable_continuous_governance_loop` | Drift, calibration, fairness, reissue, and benchmark evidence tied to the governance accountability artifact. |
+
+## Benchmark Requirement
+
+Frontier claims must cite `polisyos.scientist.search.benchmark_registry` or a
+stored benchmark pack reference before they cite SOTA readiness. If
+`benchmark_pack_ref` is missing, `FrontierRuntimeReport.default_enable_eligible`
+must remain false even when a feature flag is enabled.
+
 ## Default-On Rule
 
 Frontier methods are not allowed to become default-on merely because they are
@@ -51,5 +76,7 @@ implemented. They must remain behind a feature flag until:
 ## Source Of Truth
 
 - Runtime report builder: `polisyos.scientist.frontier_runtime`
+- Frontier benchmark registry: `polisyos.scientist.search.benchmark_registry`
+- Runtime promotion gate: `polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime`
 - Tests: `tests/scientist/test_frontier_runtime.py`
-- Related acceptance surface: [remediation-status.md](remediation-status.md)
+- Related acceptance surfaces: [phase4-acceptance.md](phase4-acceptance.md), [remediation-status.md](remediation-status.md)

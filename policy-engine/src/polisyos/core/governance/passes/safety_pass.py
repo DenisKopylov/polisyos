@@ -1,12 +1,14 @@
 """Public passes safety pass module API."""
 from __future__ import annotations
 
-from typing import List
+from typing import Any, List
 
-from .base import ComplianceIssue, IssueSeverity, PassContext, ValidatorPass
+from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
+
+from .base import PassContext, ValidatorPass
 
 
-def _extract_mechanisms(registry_bundle: object | None) -> dict:
+def _extract_mechanisms(registry_bundle: object | None) -> dict[str, Any]:
     if registry_bundle is None:
         return {}
 
@@ -16,8 +18,9 @@ def _extract_mechanisms(registry_bundle: object | None) -> dict:
             mechanisms = mechanism_registry.get("mechanisms")
             if isinstance(mechanisms, dict):
                 return mechanisms
-        if isinstance(registry_bundle.get("mechanisms"), dict):
-            return registry_bundle.get("mechanisms", {})
+        mechanisms = registry_bundle.get("mechanisms")
+        if isinstance(mechanisms, dict):
+            return mechanisms
         return {}
 
     mechanism_registry = getattr(registry_bundle, "mechanism_registry", None)

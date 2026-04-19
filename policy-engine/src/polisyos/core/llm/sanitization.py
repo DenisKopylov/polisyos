@@ -118,7 +118,15 @@ class PromptSanitizer:
         messages: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Sanitize OpenAI-style chat messages while preserving structure."""
-        return self.sanitize_payload(copy.deepcopy(messages))
+        sanitized = self.sanitize_payload(copy.deepcopy(messages))
+        if not isinstance(sanitized, list):
+            raise TypeError("sanitized messages must remain a list")
+        result: list[dict[str, Any]] = []
+        for item in sanitized:
+            if not isinstance(item, dict) or not all(isinstance(key, str) for key in item):
+                raise TypeError("sanitized messages must contain string-keyed dictionaries")
+            result.append(dict(item))
+        return result
 
     def restore_response(self, response: Any) -> Any:
         """Restore placeholders in normalized gateway responses or generic payloads."""

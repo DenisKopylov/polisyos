@@ -16,6 +16,10 @@ _FAIRNESS_TOKENS = ("fair", "equity", "gini", "vulnerable", "disparity")
 _CALIBRATION_TOKENS = ("calibration", "coverage", "ece", "brier", "rmse", "mae")
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 @dataclass(frozen=True, slots=True)
 class OperationalAlertRecord:
     """One retained operational alert emitted by Scientist runtime hooks."""
@@ -41,7 +45,7 @@ class ScientistOperationalMonitor:
             maxlen=max(1, int(max_recent_alerts)),
         )
         self._lock = RLock()
-        self._metrics = metrics if metrics is not None else get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     def record_alert(
         self,

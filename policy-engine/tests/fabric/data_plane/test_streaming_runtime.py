@@ -240,7 +240,7 @@ async def test_process_stream_dataset_uses_async_adapters_and_injected_registry(
         timeout_seconds=2.0,
     )
     monkeypatch.setattr(
-        "polisyos.fabric.connectors.registry.ConnectorRegistry.get_instance",
+        "polisyos.fabric.data_plane.streaming._default_connector_registry",
         lambda: (_ for _ in ()).throw(AssertionError("global registry should not be used")),
     )
 
@@ -281,7 +281,7 @@ async def test_streaming_source_session_create_uses_registry_provider(
     )
 
     monkeypatch.setattr(
-        "polisyos.fabric.connectors.registry.ConnectorRegistry.get_instance",
+        "polisyos.fabric.data_plane.streaming._default_connector_registry",
         lambda: (_ for _ in ()).throw(AssertionError("global registry should not be used")),
     )
 

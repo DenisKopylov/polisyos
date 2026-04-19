@@ -5,19 +5,17 @@ import asyncio
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
 
 logger = get_logger(__name__)
 
-try:  # pragma: no cover - optional runtime dependency
-    WebSocket: Any
-    from fastapi import WebSocket
-
-except ModuleNotFoundError:  # pragma: no cover
-    WebSocket = Any
+if TYPE_CHECKING:
+    from starlette.websockets import WebSocket as WebSocketType
+else:
+    WebSocketType = Any
 
 
 ReviewChannel = Literal["review.cursor", "review.lock", "review.presence"]
@@ -96,7 +94,7 @@ class OutboundReviewMessage:
 class OutboundReviewRecipient:
     """A specific websocket recipient plus its registered collaboration session ID."""
     session_id: str
-    websocket: WebSocket
+    websocket: WebSocketType
 
 
 class ReviewCollaborationHub:
@@ -104,14 +102,16 @@ class ReviewCollaborationHub:
     def __init__(self, *, lease_ttl_seconds: int = 25) -> None:
         self._lease_ttl_seconds = lease_ttl_seconds
         self._guard = asyncio.Lock()
-        self._subscribers: dict[tuple[ReviewChannel, str], dict[str, WebSocket]] = defaultdict(dict)
+        self._subscribers: dict[
+            tuple[ReviewChannel, str], dict[str, WebSocketType]
+        ] = defaultdict(dict)
         self._presence_sessions: dict[str, dict[str, ReviewCollaborationSession]] = defaultdict(dict)
         self._cursor_states: dict[str, dict[str, ReviewCursorState]] = defaultdict(dict)
         self._locks: dict[str, ReviewLockState] = {}
 
     async def register(
         self,
-        websocket: WebSocket,
+        websocket: WebSocketType,
         session: ReviewCollaborationSession,
     ) -> list[OutboundReviewMessage]:
         async with self._guard:
@@ -218,7 +218,7 @@ class ReviewCollaborationHub:
         session: ReviewCollaborationSession,
         payload: dict[str, Any],
         *,
-        websocket: WebSocket,
+        websocket: WebSocketType,
     ) -> list[OutboundReviewMessage]:
         message_type = str(payload.get("type") or "").strip().lower()
         now = _utcnow()
@@ -452,7 +452,7 @@ class ReviewCollaborationHub:
             for cursor in self._cursor_states.get(review_id, {}).values()
             if not cursor.hidden
         ]
-        cursors.sort(key=lambda item: (item["display_name"].lower(), item["participant_id"]))
+        cursors.sort(key=lambda item: (str(item["display_name"]).lower(), item["participant_id"]))
         return {
             "channel": "review.cursor",
             "cursors": cursors,

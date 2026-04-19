@@ -3,8 +3,13 @@ from __future__ import annotations
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicCalibrationMode,
     AlgebraicConstraintFamily,
     AlgebraicConstraintReport,
+    AlgebraicFalsificationScope,
+    AlgebraicNullDistribution,
+    AlgebraicRegularityStatus,
+    AlgebraicReproducibilityTier,
     CausalDiscoveryReport,
     ConstraintEvaluationResult,
     ImpliedConstraintSpec,
@@ -55,6 +60,8 @@ def _report_with_algebraic_constraints() -> CausalDiscoveryReport:
                 n_violated_constraints=1,
                 tested_by_family={"ci": 1, "tetrad": 1},
                 violated_by_family={"ci": 0, "tetrad": 1},
+                blocker_conditions_met_by_family={"ci": False, "tetrad": False},
+                graph_ranking_penalty=0.35,
                 implied_constraints_preview=[
                     ImpliedConstraintSpec(
                         constraint_id="ci:X|Y|_",
@@ -79,6 +86,12 @@ def _report_with_algebraic_constraints() -> CausalDiscoveryReport:
                         p_value=0.01,
                         adjusted_p_value=0.02,
                         severity="warning",
+                        regularity_status=AlgebraicRegularityStatus.POTENTIALLY_SINGULAR,
+                        null_distribution=AlgebraicNullDistribution.BOOTSTRAP,
+                        calibration_mode=AlgebraicCalibrationMode.BOOTSTRAP,
+                        scope_of_falsification=AlgebraicFalsificationScope.MEASUREMENT_BLOCK,
+                        ranking_weight=0.35,
+                        reproducibility_tier=AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP,
                         metadata={"route": "bootstrap_tetrad"},
                     )
                 ],
@@ -87,6 +100,8 @@ def _report_with_algebraic_constraints() -> CausalDiscoveryReport:
                 "algebraic_constraints_summary": {
                     "n_implied_constraints": 2,
                     "n_violated_constraints": 1,
+                    "blocker_conditions_met_by_family": {"ci": False, "tetrad": False},
+                    "graph_ranking_penalty": 0.35,
                 },
                 "algebraic_constraint_severity": "warning",
                 "algebraic_constraint_families_run": ["ci", "tetrad"],
@@ -139,6 +154,11 @@ def test_causal_discovery_report_contract_supports_algebraic_constraints() -> No
     assert report.algebraic_constraints.severity == "warning"
     assert report.algebraic_constraints.n_implied_constraints == 2
     assert report.algebraic_constraints.n_violated_constraints == 1
+    assert report.algebraic_constraints.graph_ranking_penalty == 0.35
+    assert report.algebraic_constraints.blocker_conditions_met_by_family == {
+        "ci": False,
+        "tetrad": False,
+    }
 
 
 def test_causal_discovery_report_contract_supports_latent_governance_bundle() -> None:

@@ -67,10 +67,10 @@ class FetchExecutor:
         self._metrics = resolved.metrics
 
     def preview(self, plan: FetchPlan, *, allow_fallback: bool = True) -> ExecutePlanResult:
-        return cast(
-            "ExecutePlanResult",
-            run_coro_sync(self._preview_async(plan, allow_fallback=allow_fallback)),
+        result: ExecutePlanResult = run_coro_sync(
+            self._preview_async(plan, allow_fallback=allow_fallback)
         )
+        return result
 
     def execute(
         self,
@@ -79,16 +79,14 @@ class FetchExecutor:
         persist_payload: bool = False,
         allow_fallback: bool = True,
     ) -> ExecutePlanResult:
-        return cast(
-            "ExecutePlanResult",
-            run_coro_sync(
-                self._execute_async(
-                    plan,
-                    persist_payload=persist_payload,
-                    allow_fallback=allow_fallback,
-                )
-            ),
+        result: ExecutePlanResult = run_coro_sync(
+            self._execute_async(
+                plan,
+                persist_payload=persist_payload,
+                allow_fallback=allow_fallback,
+            )
         )
+        return result
 
     async def _preview_async(self, plan: FetchPlan, *, allow_fallback: bool) -> ExecutePlanResult:
         preview = await self._fetch_preview(plan)

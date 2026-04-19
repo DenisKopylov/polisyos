@@ -61,6 +61,7 @@ from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionRef,
     EstimandAST,
+    ModifiedTreatmentPolicyNode,
     NestedCounterfactualNode,
     ProductNode,
     ProxyAdjustmentNode,
@@ -2846,6 +2847,12 @@ def sid_algorithm(
                 cond_result,
                 proof_steps=_steps + list(cond_result.proof_steps),
                 algorithm_version="sid_conditional_v1",
+                metadata={
+                    **dict(getattr(cond_result, "metadata", {}) or {}),
+                    "policy_type": policy.policy_type,
+                    "policy_conditioning_vars": list(policy.conditioning_vars),
+                    "policy_expr": policy.policy_expr,
+                },
             )
 
     # Standard path: run base ID algorithm to get P(Y|do(X=x))
@@ -2868,19 +2875,18 @@ def sid_algorithm(
             base_result,
             trace=_trace,
             algorithm_version="sid_v1",
+            metadata={
+                **dict(getattr(base_result, "metadata", {}) or {}),
+                "policy_type": policy.policy_type,
+                "policy_conditioning_vars": list(policy.conditioning_vars),
+                "policy_expr": policy.policy_expr,
+                "shift_delta": policy.shift_delta,
+            },
         )
 
     # Base ID succeeded — wrap the inner estimand in a stochastic node
     inner_do_node = base_result.estimand_ast.root  # type: ignore[union-attr]
     integration_var = t_str if len(treatment) == 1 else sorted(treatment)[0]
-
-    stochastic_node = StochasticInterventionNode(
-        treatment_var=t_str,
-        policy=policy,
-        inner_do_node=inner_do_node,
-        integration_var=integration_var,
-        domain=domain,
-    )
 
     rule = _SID_SHIFT if policy.policy_type == "shift" else _SID_POLICY_WRAP
     _steps.append(ProofStep(
@@ -2893,18 +2899,51 @@ def sid_algorithm(
         ),
         depth=0,
     ))
+    wrapper_kind = (
+        "ModifiedTreatmentPolicyNode"
+        if policy.policy_type == "shift"
+        else "StochasticInterventionNode"
+    )
     _trace.append(
-        f"[SID] IDENTIFIED — wrapped base estimand in StochasticInterventionNode "
+        f"[SID] IDENTIFIED — wrapped base estimand in {wrapper_kind} "
         f"(policy_type={policy.policy_type})"
     )
 
+    if policy.policy_type == "shift":
+        policy_expr = policy.policy_expr or (
+            f"{t_str}+{policy.shift_delta}"
+            if policy.shift_delta is not None
+            else f"shift({t_str})"
+        )
+        root_node = ModifiedTreatmentPolicyNode(
+            treatment_var=t_str,
+            policy_expr=policy_expr,
+            natural_treatment_var=t_str,
+            covariates=tuple(policy.conditioning_vars),
+            inner_node=inner_do_node,
+            domain=domain,
+            dataset_ref=dataset_ref,
+        )
+        query_str = f"E_d[{y_str}|mtp({t_str})]"
+        identification_method = "mtp_shift"
+    else:
+        root_node = StochasticInterventionNode(
+            treatment_var=t_str,
+            policy=policy,
+            inner_do_node=inner_do_node,
+            integration_var=integration_var,
+            domain=domain,
+        )
+        query_str = f"E_π[{y_str}|do({t_str})]"
+        identification_method = f"sid_{policy.policy_type}"
+
     ast = EstimandAST(
-        query_str=f"E_π[{y_str}|do({t_str})]",
-        root=stochastic_node,
+        query_str=query_str,
+        root=root_node,
         treatment=t_str,
         outcome=y_str,
         all_variables=tuple(sorted(treatment | outcome)),
-        identification_method=f"sid_{policy.policy_type}",
+        identification_method=identification_method,
     )
     return IdentificationResult(
         status=IdentificationStatus.IDENTIFIED,
@@ -2914,6 +2953,13 @@ def sid_algorithm(
         required_distributions=base_result.required_distributions,
         algorithm_version="sid_v1",
         proof_steps=_steps + list(base_result.proof_steps),
+        metadata={
+            **dict(getattr(base_result, "metadata", {}) or {}),
+            "policy_type": policy.policy_type,
+            "policy_conditioning_vars": list(policy.conditioning_vars),
+            "policy_expr": policy.policy_expr,
+            "shift_delta": policy.shift_delta,
+        },
     )
 
 

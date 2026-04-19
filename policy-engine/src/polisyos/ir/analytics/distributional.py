@@ -31,6 +31,24 @@ _SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME = "ir.subgroup_distribution_compar
 _SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_VERSION = "1.0"
 
 
+def _justification_rank(justification: "DistributionalJustification") -> int:
+    order = {
+        DistributionalJustification.SCENARIO: 0,
+        DistributionalJustification.BOUNDED: 1,
+        DistributionalJustification.IDENTIFIED: 2,
+    }
+    return order[justification]
+
+
+def _weakest_justification(
+    *justifications: "DistributionalJustification | None",
+) -> "DistributionalJustification":
+    present = [justification for justification in justifications if justification is not None]
+    if not present:
+        return DistributionalJustification.SCENARIO
+    return min(present, key=_justification_rank)
+
+
 def _ensure_finite(value: float | None, *, field_name: str) -> float | None:
     if value is None:
         return None
@@ -363,7 +381,11 @@ class DistributionalEffectBundle(BaseModel):
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     outcome_name: str = Field(min_length=1)
+    distributional_query_kind: str = Field(default="interventional_law", min_length=1)
     justification: DistributionalJustification
+    marginal_justification: DistributionalJustification | None = None
+    marginal_law_justification: DistributionalJustification | None = None
+    coupling_justification: DistributionalJustification | None = None
     baseline_distribution_ref: ArtifactRefModel
     counterfactual_distribution_ref: ArtifactRefModel
     coupling_ref: ArtifactRefModel | None = None
@@ -372,6 +394,10 @@ class DistributionalEffectBundle(BaseModel):
     quantile_shift_ref: ArtifactRefModel | None = None
     tail_risk_delta_ref: ArtifactRefModel | None = None
     subgroup_distribution_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    marginal_law_proof_ref: ArtifactRefModel | None = None
+    distributional_proof_ref: ArtifactRefModel | None = None
+    coupling_proof_ref: ArtifactRefModel | None = None
+    causal_assumption_refs: list[ArtifactRefModel] = Field(default_factory=list)
     causal_assumptions: list[str] = Field(default_factory=list)
     readiness_cap: str = Field(default="simulation_ready", min_length=1)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -379,11 +405,40 @@ class DistributionalEffectBundle(BaseModel):
     @model_validator(mode="after")
     def _validate_bundle(self) -> "DistributionalEffectBundle":
         _ensure_non_empty(self.outcome_name, field_name="outcome_name")
+        _ensure_non_empty(self.distributional_query_kind, field_name="distributional_query_kind")
         _ensure_non_empty(self.readiness_cap, field_name="readiness_cap")
         _ensure_finite(self.wasserstein_distance, field_name="wasserstein_distance")
+        marginal_law_justification = (
+            self.marginal_law_justification
+            or self.marginal_justification
+            or self.justification
+        )
+        marginal_justification = self.marginal_justification or marginal_law_justification
+        coupling_justification = self.coupling_justification
+        if coupling_justification is None and self.coupling_ref is not None:
+            coupling_justification = DistributionalJustification.SCENARIO
+        if self.coupling_ref is None:
+            legacy_justification = marginal_justification
+        else:
+            legacy_justification = _weakest_justification(
+                marginal_justification,
+                coupling_justification,
+            )
+        marginal_law_proof_ref = self.marginal_law_proof_ref or self.distributional_proof_ref
+        object.__setattr__(self, "marginal_justification", marginal_justification)
+        object.__setattr__(self, "marginal_law_justification", marginal_law_justification)
+        object.__setattr__(self, "coupling_justification", coupling_justification)
+        object.__setattr__(self, "marginal_law_proof_ref", marginal_law_proof_ref)
+        if self.distributional_proof_ref is None and marginal_law_proof_ref is not None:
+            object.__setattr__(self, "distributional_proof_ref", marginal_law_proof_ref)
+        object.__setattr__(self, "justification", legacy_justification)
         _validate_unique_artifact_refs(
             self.subgroup_distribution_refs,
             field_name="subgroup_distribution_refs",
+        )
+        _validate_unique_artifact_refs(
+            self.causal_assumption_refs,
+            field_name="causal_assumption_refs",
         )
         return self
 

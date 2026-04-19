@@ -41,6 +41,7 @@ _SPEC = NodeSpec(
         "policy_request_ref",
         "source_verification_report_ref",
         "params.allow_hypotheses",
+        "artifacts_index",
     ],
     state_writes=[
         "policy_option_set_ref",

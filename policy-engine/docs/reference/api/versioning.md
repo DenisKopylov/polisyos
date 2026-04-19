@@ -2,7 +2,13 @@
 
 Related reference: [REST API Reference](index.md), [Runtime API Migration Guide](migration-guide.md).
 
+Freshness: 2026-04-17
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/runtime/http/routes/{runs.py,artifacts.py}`, and [ADR-0100](../../adr/0100-runtime-api-versioning-and-deprecation-policy.md)
+Validation: `uv run pytest -q tests/runtime/http/test_api_maturity.py tests/runtime/http/test_runtime_api_contract_hardening.py`
+
 `/api/v1/*` is the current stable runtime HTTP surface.
+ADR reference: [ADR-0100](../../adr/0100-runtime-api-versioning-and-deprecation-policy.md).
 
 ## Compatibility window
 
@@ -21,3 +27,21 @@ Related reference: [REST API Reference](index.md), [Runtime API Migration Guide]
 - Treat `ETag` and `Last-Modified` on immutable artifact resources as canonical cache validators.
 - Prefer bulk endpoints such as `POST /api/v1/runs/batch` and `POST /api/v1/artifacts/batch` for dashboard and operator workflows.
 - For artifact payloads, request JSON preview by default and ask for raw bytes explicitly with `Accept: application/octet-stream` or the concrete artifact media type.
+- Do not generate SDK assumptions from schema-hidden routes such as
+  `/api/v1/runs/live`; use them only as operator streaming endpoints.
+
+## Validation
+
+The versioning contract is checked together with OpenAPI drift and generated
+clients:
+
+```bash
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+```
+
+Relevant test and workflow anchors:
+
+- `tests/runtime/http/test_api_maturity.py`
+- `tests/runtime/http/test_runtime_api_contract_hardening.py`
+- Architecture Import Gate workflow
+- `.github/workflows/arch.yml`

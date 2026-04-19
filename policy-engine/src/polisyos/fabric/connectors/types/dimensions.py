@@ -37,6 +37,10 @@ __all__ = [
 ]
 
 
+def _default_dimension_registry() -> "DimensionRegistry":
+    return DimensionRegistry.get_instance()
+
+
 # =============================================================================
 # Exceptions
 # =============================================================================
@@ -557,4 +561,4 @@ class DimensionRegistry:
 
 def get_dimension_registry() -> DimensionRegistry:
     """Get the global dimension registry instance."""
-    return DimensionRegistry.get_instance()
+    return _default_dimension_registry()

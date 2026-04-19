@@ -20,6 +20,10 @@ logger = get_logger(__name__)
 _JITTER = SystemRandom()
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 @dataclass(order=True, frozen=True, slots=True)
 class PrefetchJob:
     """Prefetch job public type."""
@@ -90,7 +94,7 @@ class PrefetchScheduler:
         self._max_retries = max_retries
         self._backoff_seconds = backoff_seconds
         self._max_queued_jobs = bounded_queue_size
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     async def start(self) -> None:
         if self._running:

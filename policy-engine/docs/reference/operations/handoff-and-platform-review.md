@@ -3,6 +3,9 @@
 Related reference: [Operations Reference](index.md). Related runbooks:
 [Runbooks](../../runbooks/index.md).
 
+Owner: `@platform-owners`
+Source of truth: `docs/reference/{ownership.md,quality-gates.md}`, `docs/reference/operations/platform-acceptance-audit.md`, and the linked runbooks
+
 > Ownership in Phase 6 must survive vacations, refactors, and team changes.
 > This page defines the minimum handoff format, retirement checklist, quarterly
 > review ritual, and platform scorecard.

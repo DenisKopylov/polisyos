@@ -5,10 +5,21 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.norm_pack import NormPack
+
+_NORM_PACK_LOAD_ERRORS = (
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 
 @runtime_checkable
@@ -92,7 +103,7 @@ class CASNormPackLoader:
             aid = ArtifactID.model_validate(artifact_id)
             payload = from_canonical_bytes(self._cas.get_bytes(aid))
             return NormPack.model_validate(payload)
-        except Exception:
+        except _NORM_PACK_LOAD_ERRORS:
             return None
 
 

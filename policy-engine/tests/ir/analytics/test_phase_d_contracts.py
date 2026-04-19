@@ -133,6 +133,40 @@ def test_distributional_effect_bundle_round_trip_via_store(tmp_path) -> None:
 
     assert loaded == bundle
     assert loaded.justification is DistributionalJustification.SCENARIO
+    assert loaded.marginal_justification is DistributionalJustification.SCENARIO
+    assert loaded.marginal_law_justification is DistributionalJustification.SCENARIO
+    assert loaded.coupling_justification is None
+    assert loaded.distributional_query_kind == "interventional_law"
+    assert loaded.marginal_law_proof_ref is None
+
+
+def test_distributional_effect_bundle_uses_weakest_link_semantics(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    counterfactual_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+
+    bundle = DistributionalEffectBundle(
+        outcome_name="income",
+        distributional_query_kind="interventional_law",
+        justification=DistributionalJustification.IDENTIFIED,
+        marginal_justification=DistributionalJustification.IDENTIFIED,
+        marginal_law_justification=DistributionalJustification.IDENTIFIED,
+        coupling_justification=DistributionalJustification.SCENARIO,
+        baseline_distribution_ref=baseline_ref,
+        counterfactual_distribution_ref=counterfactual_ref,
+        coupling_ref=baseline_ref,
+        coupling_diagnostics=CouplingDiagnostics(
+            mass_conservation_error=0.0,
+            weighting_mode="uniform",
+            identifiability_assumptions=["scenario_level_ot_coupling"],
+        ),
+        causal_assumptions=["scenario_level_ot_coupling"],
+    )
+
+    assert bundle.justification is DistributionalJustification.SCENARIO
+    assert bundle.marginal_justification is DistributionalJustification.IDENTIFIED
+    assert bundle.marginal_law_justification is DistributionalJustification.IDENTIFIED
+    assert bundle.coupling_justification is DistributionalJustification.SCENARIO
 
 
 def test_distributional_validation_rejects_non_finite_metrics() -> None:

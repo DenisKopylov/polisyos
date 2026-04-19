@@ -8,6 +8,11 @@ It turns heterogeneous evidence into typed records and panels, routes that
 evidence through governance and measurement-aware rules, and materializes the
 bundle manifests that Scientist and Foundry exchange.
 
+Freshness: 2026-04-17
+Owner: `@ir-owners`
+Source of truth: `src/polisyos/ir/observation/**`, `src/polisyos/ir/refs.py`, `schemas/snapshots/ir/*.schema.json`, `tests/ir/observation/**`
+Source plan phases: D1-L4 Phase 2 lineage/analysis contracts and Phase 4 transport/interoperability.
+
 ## Contract Layers
 
 - Raw observations: `ObservationRecord` and `ObservationPanel` hold normalized
@@ -77,3 +82,13 @@ still documented primarily in source.
 ::: polisyos.ir.observation.causal_readiness
 
 ::: polisyos.ir.observation.causal_execution
+
+## Validation Hooks
+
+| Claim | Source of truth | Evidence |
+|-------|-----------------|----------|
+| Observation records, panels, and family policies are ABI-visible contracts | `src/polisyos/ir/observation/contracts.py`, `governance.py` | `schemas/snapshots/ir/observation_record.schema.json`, `schemas/snapshots/ir/observation_panel.schema.json`, `tests/ir/observation/test_contracts.py` |
+| Measurement routing selects trust tiers and identification modes explicitly | `src/polisyos/ir/observation/measurement.py` | `tests/ir/observation/test_measurement.py`, `tests/ir/observation/test_causal_readiness.py` |
+| Bundle manifests preserve downstream contract targets and lineage | `src/polisyos/ir/observation/bundles.py` | `tests/ir/observation/test_bundle_schemas.py`, [JSON Schema Catalog](../schemas.md) |
+| Observation bridge contracts remain dependency-light | `src/polisyos/ir/observation/bridges.py` | `tests/ir/test_interoperability_bridges.py` |
+| Execution bundles feed compiler-pipeline lineage analysis | `src/polisyos/ir/observation/causal_execution.py` | `tests/ir/test_phase2_passes.py` |

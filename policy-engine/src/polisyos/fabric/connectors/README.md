@@ -1,45 +1,90 @@
 # Connectors (`polisyos.fabric.connectors`)
 
-`connectors` - protocol foundation and runtime registry for fetching external data
-sources with reliability, validation, cache and profile-driven execution policy.
+`polisyos.fabric.connectors` is the protocol, registry, profile, cache,
+contract, and resilience layer for fetching external data sources safely and
+deterministically.
 
-## Role in System
+Last updated: 2026-04-17.
 
-- **Depends on:** `polisyos.ir.connectors`, `polisyos.core.components`
-- **Used by:** `fabric.ingestion`, `fabric._connector_bridge`, `fabric.retrieval`
-- Owns the fetch surface for external APIs and the policy layer that chooses how sources should run.
+## Purpose
 
-## Key Concepts
+Use this package when you need to define a connector family, register it,
+attach schema contracts and source profiles, or debug runtime fetch behavior.
+It owns the fetch surface that the rest of Fabric uses for ingestion,
+retrieval, and streaming.
 
-- **Protocol core** - `SourceConnector`, `BaseConnector`, request/result and health types.
-- **Registry and discovery** - runtime registration, entry-point discovery and connection pooling.
-- **Reliability layers** - cache, resilience, validation and capability checks.
-- **Profiles** - `SourceProfile` and `SourceExecutionPolicy` normalize source behavior.
-- **Production sources** - `sources/__init__.py` exports 14 production connectors plus HTTP helpers.
-- **Built-in profiles** - `profiles/builtin_profiles.py` currently contains 32 profile definitions.
-- **Async-aware fetch** - recent source updates expand async fetch and SDMX-style paths.
+## Where to Start
 
-## Public API
+- Read [__init__.py](./__init__.py) to see the exported connector facade.
+- Read [base.py](./base.py), [registry.py](./registry.py), and
+  [profiles/registry.py](./profiles/registry.py) for protocol, registry, and
+  profile boundaries.
+- Read [contracts/schema.py](./contracts/schema.py) and
+  [transform/pipeline.py](./transform/pipeline.py) for schema evolution and
+  transform correctness rules.
+- Read [testing/harness.py](./testing/harness.py) and
+  [tests/fabric/connectors](../../../../tests/fabric/connectors) before adding
+  a new family or changing shared behavior.
+- Read [Connector CONTRIBUTING](../../../../docs/connectors/CONTRIBUTING.md)
+  and [Add data source](../../../../docs/how-to/add-data-source.md) for the
+  current contributor workflow.
 
-| Type/Function | Description |
+## Public Entrypoints
+
+| Entrypoint | Description |
 |---|---|
-| `SourceConnector` | Base fetch protocol for data sources. |
-| `BaseConnector` | Common implementation base. |
-| `FetchRequest` | Fetch request model. |
-| `FetchResult` | Fetch result model. |
-| `ConnectorRegistry` | Registry for connector implementations. |
-| `discover_connectors()` | Discovers built-in and explicit connectors. |
-| `SourceProfile` | Reusable source endpoint configuration. |
-| `SourceExecutionPolicy` | Normalized runtime policy derived from a profile. |
-| `resolve_connection_config()` | Converts a profile into connector connection config. |
-| `resolve_execution_policy()` | Converts a `SourceProfile` into runtime policy. |
+| `SourceConnector` / `BaseConnector` | Core fetch protocol and shared implementation base. |
+| `FetchRequest` / `FetchResult` | Public request and result models. |
+| `ConnectorRegistry` | Runtime registration, lookup, and lifecycle management. |
+| `discover_connectors()` | Built-in and entry-point discovery helper. |
+| `SourceProfile` / `SourceExecutionPolicy` | Planner/runtime configuration boundary for source behavior. |
+| `resolve_connection_config()` / `resolve_execution_policy()` | Turn profiles into runtime-safe connector settings. |
+| `validate_protocol_compliance()` | Executable capability and method-contract validation. |
+| `ConnectorCacheStore`, resilience helpers, contract registries | Shared runtime layers for cache, retry, fallback, schema, and governance behavior. |
 
-→ Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
+## Depends On / Depended On By
 
-## Current State
+- Depends on: `polisyos.ir.connectors`, `polisyos.core.components`, and the
+  connector subpackages for contracts, profiles, cache, resilience, and
+  testing.
+- Depended on by: `polisyos.fabric.ingestion`, `polisyos.fabric.retrieval`,
+  `polisyos.fabric.data_plane.streaming`, `polisyos.runtime.http.services.control`,
+  and `polisyos.datasets.batch.core_sources_ingest`.
 
-- Last updated: 2026-04-03
-- Files: 125 Python files
-- Exports: 110
-- Production connectors: 14
-- Built-in profiles: 32
+## Common Commands
+
+Run from the repository root (`policy-engine/`).
+
+- `rg -n "SourceConnector|BaseConnector|ConnectorRegistry|SourceProfile" src/polisyos/fabric/connectors`
+  Jump to the protocol, registry, and profile surfaces. Smoke-tested on
+  2026-04-17.
+- `rg --files src/polisyos/fabric/connectors/sources | sort`
+  Inspect the concrete connector implementations shipped in this workspace.
+  Smoke-tested on 2026-04-17.
+- `rg -n "polisyos\\.fabric_connectors" pyproject.toml`
+  Check the current connector entry-point registrations. Smoke-tested on
+  2026-04-17.
+
+## Test / Verification Commands
+
+Run from the repository root (`policy-engine/`).
+
+- `uv run pytest tests/fabric/connectors/test_registry.py tests/fabric/connectors/test_protocol_compliance.py -q`
+  Registry and protocol smoke suite. Smoke-tested on 2026-04-17.
+- `uv run pytest tests/fabric/connectors/test_contract_system.py tests/fabric/connectors/test_schema_system.py -q`
+  Contract and schema-governance smoke suite. Smoke-tested on 2026-04-17.
+- `uv run python tools/connectors/check_contracts.py --check`
+  Legacy connector contract snapshot gate. Conceptual in this README refresh:
+  the current workspace reports stale snapshot drift and suggests `--update`.
+- `uv run pytest tests/fabric/connectors -q`
+  Full connector suite. Conceptual in this README refresh; not run in this
+  pass.
+
+## Reference Docs
+
+- [Fabric connectors reference](../../../../docs/reference/fabric/connectors.md)
+- [Fabric profiles reference](../../../../docs/reference/fabric/profiles.md)
+- [Connector CONTRIBUTING guide](../../../../docs/connectors/CONTRIBUTING.md)
+- [Add data source](../../../../docs/how-to/add-data-source.md)
+- [Manage generated artifacts](../../../../docs/how-to/manage-generated-artifacts.md)
+- [Fabric tests map](../../../../tests/fabric/README.md)

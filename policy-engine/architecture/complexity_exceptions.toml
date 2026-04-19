@@ -1,0 +1,166 @@
+[complexity_exceptions]
+version = 2
+status = "draft"
+default_max_module_lines = 1000
+default_max_complexity = 12
+description = """
+Registry of modules that exceed the default complexity or length caps. Every
+entry must point to a specific migration phase that removes or splits the
+module. CI reads this file via tools/quality/lint/check_module_caps.py.
+"""
+
+# ---------------------------------------------------------------------------
+# Data Forge academic legacy (Phase 1).
+# ---------------------------------------------------------------------------
+
+[[exception]]
+path = "src/polisyos/academic/batch/resolve_extract.py"
+reason = "Legacy academic resolve/extract orchestration; split during Data Forge academic migration."
+lines = 4246
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+[[exception]]
+path = "src/polisyos/academic/batch/article_extractor.py"
+reason = "Legacy academic extractor god-module; split during Data Forge academic migration."
+lines = 1979
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+[[exception]]
+path = "src/polisyos/academic/batch/best_snapshot.py"
+reason = "Legacy best-snapshot selection; fold into data_forge.kernel.snapshot."
+lines = 1880
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+[[exception]]
+path = "src/polisyos/academic/batch/graph_builder.py"
+reason = "Legacy academic SKG builder; split into extractor + linker + writer."
+lines = 1831
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+[[exception]]
+path = "src/polisyos/academic/batch/fulltext_resolver.py"
+reason = "Legacy fulltext resolver; split by source and policy layer."
+lines = 1726
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+[[exception]]
+path = "src/polisyos/academic/knowledge/runtime_canonical_registry.py"
+reason = "Legacy canonicalization registry; fold into data_forge.domains.academic.canonical."
+lines = 1610
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+[[exception]]
+path = "src/polisyos/academic/knowledge/skg_query.py"
+reason = "Legacy SKG query surface; move behind data_forge.read_api.academic."
+lines = 1540
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+[[exception]]
+path = "src/polisyos/academic/batch/doc_normalize.py"
+reason = "Legacy document normalization pipeline; split by content type."
+lines = 1350
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+[[exception]]
+path = "src/polisyos/academic/batch/qc.py"
+reason = "Legacy academic QC; migrate into data_forge quality expectations."
+lines = 1287
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+[[exception]]
+path = "src/polisyos/academic/batch/benchmark.py"
+reason = "Legacy academic benchmark; migrate into benchmarks/ with shared harness."
+lines = 1134
+owner = "team-data-forge"
+sunset_phase = "Phase 1"
+
+# ---------------------------------------------------------------------------
+# Data Forge catalog legacy (Phase 2).
+# ---------------------------------------------------------------------------
+
+[[exception]]
+path = "src/polisyos/datasets/batch/core_sources_ingest.py"
+reason = "Legacy god file; split during Data Forge catalog migration."
+owner = "team-data-forge"
+sunset_phase = "Phase 2"
+
+# ---------------------------------------------------------------------------
+# Data Forge Ukraine legacy (Phase 3).
+# ---------------------------------------------------------------------------
+
+[[exception]]
+path = "src/polisyos/ukraine_data/builders.py"
+reason = "Legacy Ukraine build orchestration; split during Data Forge Ukraine migration."
+owner = "team-data-forge"
+sunset_phase = "Phase 3"
+
+# ---------------------------------------------------------------------------
+# Data Forge legal legacy (Phase 4).
+# ---------------------------------------------------------------------------
+
+[[exception]]
+path = "src/polisyos/lex/batch/pipeline.py"
+reason = "Legacy legal pipeline god-module; migrate into data_forge.domains.legal.assets."
+lines = 1509
+owner = "team-data-forge"
+sunset_phase = "Phase 4"
+
+[[exception]]
+path = "src/polisyos/lex/batch/structurer.py"
+reason = "Legacy legal structurer; split by act/section/annex structuring stage."
+lines = 1442
+owner = "team-data-forge"
+sunset_phase = "Phase 4"
+
+[[exception]]
+path = "src/polisyos/lex/batch/spo_extractor.py"
+reason = "Legacy SPO extractor; split by predicate family and provider."
+lines = 1556
+owner = "team-data-forge"
+sunset_phase = "Phase 4"
+
+[[exception]]
+path = "src/polisyos/lex/batch/graph_builder.py"
+reason = "Legacy legal graph builder; split during Data Forge legal migration."
+owner = "team-data-forge"
+sunset_phase = "Phase 4"
+
+# ---------------------------------------------------------------------------
+# Lex internal re-shaping.
+# ---------------------------------------------------------------------------
+
+[[exception]]
+path = "src/polisyos/lex/interventions.py"
+reason = "Lex interventions god-module; split into interventions/ subpackage."
+lines = 1276
+owner = "team-lex"
+sunset_phase = "Phase 5"
+
+# ---------------------------------------------------------------------------
+# Runtime service boundary cleanup.
+# ---------------------------------------------------------------------------
+
+[[exception]]
+path = "src/polisyos/runtime/http/services/control.py"
+reason = "Legacy control surface; split by bounded service area."
+owner = "team-runtime"
+sunset_phase = "Phase 5"
+
+# ---------------------------------------------------------------------------
+# Scientist node audit placeholder.
+# ---------------------------------------------------------------------------
+
+[[exception]]
+path = "src/polisyos/scientist/nodes/builtins/**/*.py"
+reason = "Temporary wildcard for Scientist built-in node audit; replace with per-file entries before Phase 5 enforcement."
+owner = "team-scientist"
+sunset_phase = "Phase 5"

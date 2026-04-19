@@ -42,7 +42,7 @@ def apply_state_delta(
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
 ) -> Any:
-    """Apply state delta helper."""
+    """Apply a CAS-backed StateDelta to a base state using slot merge rules."""
     state_delta = load_model(store, state_delta_ref, StateDelta)
     ops_by_slot: dict[str, list[PatchOp]] = {}
     for op in state_delta.ops:
@@ -123,7 +123,7 @@ def apply_patch_map(
     default_node_id: str = "mechanism",
     priority: int | None = None,
 ) -> Any:
-    """Apply patch map helper."""
+    """Normalize a slot patch map into merge records and apply it to state."""
     patch_records: dict[str, list[dict[str, Any]]] = {}
     for slot_id, patches in patch_map.items():
         patch_list = patches if isinstance(patches, list) else [patches]
@@ -151,7 +151,7 @@ def apply_state_delta_and_snapshot(
     step: int | None = None,
     base_ref: ArtifactRef | None = None,
 ) -> tuple[Any, ApplyArtifacts]:
-    """Apply state delta and snapshot helper."""
+    """Apply a StateDelta and persist the resulting state snapshot artifact."""
     state = apply_state_delta(
         store,
         base_state=base_state,

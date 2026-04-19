@@ -26,6 +26,10 @@ __all__ = [
 ]
 
 
+def _default_metrics():
+    return get_metrics()
+
+
 FABRIC_TRACE_NAMES = {
     "connector_fetch": "fabric.connector.fetch",
     "retry": "fabric.connector.retry",
@@ -151,6 +155,7 @@ def build_fabric_health_snapshot(
     cursor_store: Any | None = None,
     retrieval_service: Any | None = None,
     alert_sink: AlertSink | None = None,
+    metrics: Any | None = None,
 ) -> FabricHealthSnapshot:
     """Aggregate connector/cache/world/data-plane/retrieval health into one snapshot."""
     sink = alert_sink or NoOpAlertSink()
@@ -196,7 +201,7 @@ def build_fabric_health_snapshot(
         components=tuple(components),
         reasons=reasons,
     )
-    _record_health_metrics(snapshot)
+    _record_health_metrics(snapshot, metrics=metrics)
     return snapshot
 
 
@@ -321,15 +326,21 @@ def _retrieval_health_component(retrieval_service: Any | None) -> HealthComponen
     )
 
 
-def _record_health_metrics(snapshot: FabricHealthSnapshot) -> None:
-    metrics = get_metrics()
-    if metrics is None:
+def _record_health_metrics(
+    snapshot: FabricHealthSnapshot,
+    *,
+    metrics: Any | None = None,
+) -> None:
+    resolved_metrics = metrics if metrics is not None else _default_metrics()
+    if resolved_metrics is None:
         return
-    if getattr(metrics, "set_fabric_segment_count", None):
+    if getattr(resolved_metrics, "set_fabric_segment_count", None):
         for component in snapshot.components:
             if component.name == "world":
-                metrics.set_fabric_segment_count(
+                resolved_metrics.set_fabric_segment_count(
                     float(component.details.get("segment_count", 0))
                 )  # type: ignore[misc]
-            if component.name == "retrieval" and getattr(metrics, "set_fabric_dlq_count", None):
-                metrics.set_fabric_dlq_count(0.0)  # type: ignore[misc]
+            if component.name == "retrieval" and getattr(
+                resolved_metrics, "set_fabric_dlq_count", None
+            ):
+                resolved_metrics.set_fabric_dlq_count(0.0)  # type: ignore[misc]

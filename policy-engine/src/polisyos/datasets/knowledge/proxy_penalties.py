@@ -6,7 +6,10 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
-import yaml
+try:
+    import yaml
+except ModuleNotFoundError:  # pragma: no cover - optional dependency guard
+    yaml = None
 
 
 @dataclass(frozen=True)
@@ -38,7 +41,7 @@ def default_proxy_metric_alignments_path() -> Path:
 def load_proxy_metric_alignments(path: Path | None = None) -> dict[str, tuple[ProxyMetricAlignmentSpec, ...]]:
     """Load proxy metric alignments."""
     resolved = (path or default_proxy_metric_alignments_path()).resolve()
-    if not resolved.exists():
+    if not resolved.exists() or yaml is None:
         return {}
     with open(resolved, "r", encoding="utf-8") as fh:
         payload = yaml.safe_load(fh) or {}

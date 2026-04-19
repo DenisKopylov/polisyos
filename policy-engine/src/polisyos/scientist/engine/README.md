@@ -1,39 +1,56 @@
 # Engine (`polisyos.scientist.engine`)
 
-`engine` — workflow runtime Scientist: state model, DAG execution, checkpoint/resume,
-idempotency, runner backends, fan-out/subworkflow utilities и trace metadata.
+## Purpose
 
-## Роль в системе
+`polisyos.scientist.engine` defines the Scientist workflow runtime: state
+model, DAG execution, checkpoint/resume, idempotency, retry and fan-out
+semantics, runner backends, and trace metadata shared across the orchestration
+stack.
 
-- **Зависит от:** `core.artifacts`, `core.observability`, builtin node protocols
-- **Используется в:** `scientist.api`, `scientist.workflows`, replay/resume flows
-- Пакет задает execution semantics для всего Scientist orchestration stack.
+## Where to Start
 
-## Ключевые концепции
+- Stable facade and export map: [`__init__.py`](__init__.py)
+- State and workflow contracts: [`state.py`](state.py) and [`workflow_spec.py`](workflow_spec.py)
+- Core execution path: [`executor.py`](executor.py) and [`async_executor.py`](async_executor.py)
+- Checkpointing and idempotency: [`checkpoint.py`](checkpoint.py) and [`idempotency.py`](idempotency.py)
+- Remote/distributed runners: [`runner/`](runner/)
 
-- **ExperimentState** — строгая модель run-state.
-- **WorkflowSpec / NodeInvocation** — декларативное описание DAG.
-- **WorkflowExecutor** — основной runtime executor, plus async and remote variants.
-- **Checkpoint + run lock** — safe resume и workflow fingerprint validation.
-- **Idempotency** — state-slice based cache contract для node outcomes.
-- **Runner backends** — local, fallback, temporal, ray and related orchestration helpers.
+## Public Entrypoints
 
-## Public API
+- State and spec contracts in [`state.py`](state.py) and [`workflow_spec.py`](workflow_spec.py): `ExperimentState`, `WorkflowSpec`, and `NodeInvocation`
+- Node contracts in [`protocol.py`](protocol.py): `Node`, `NodeSpec`, `NodeOutcome`, `NodeError`, and `NodeStatus`
+- Executors in [`executor.py`](executor.py) and [`async_executor.py`](async_executor.py): `WorkflowExecutor` and `AsyncWorkflowExecutor`
+- Checkpoint helpers in [`checkpoint.py`](checkpoint.py): `resume_from_checkpoint(...)`, `acquire_run_lock(...)`, and workflow fingerprint utilities
+- Idempotency/cache helpers in [`idempotency.py`](idempotency.py)
+- Runner backends and configuration in [`runner/`](runner/): `WorkflowRunnerConfig`, `WorkflowRunnerBackend`, and `build_workflow_runner(...)`
 
-- `ExperimentState`, `WorkflowSpec`, `NodeInvocation`
-- `Node`, `NodeSpec`, `NodeOutcome`, `NodeError`, `NodeStatus`
-- `WorkflowExecutor`, `AsyncWorkflowExecutor`
-- `resume_from_checkpoint(...)`, `acquire_run_lock(...)`,
-  `compute_idempotency_key(...)`, `discover_nodes(...)`
-- Runner/config surfaces: `WorkflowRunnerBackend`, `WorkflowRunnerConfig`,
-  `build_workflow_runner(...)`
+## Depends On / Depended On By
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+- Depends on: core artifacts, observability, tenant/security helpers, and node contracts consumed by workflow execution
+- Depended on by: [`../api.py`](../api.py), [`../workflows/README.md`](../workflows/README.md), [`../nodes/README.md`](../nodes/README.md), and the Scientist engine test surface in [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
 
-## Текущее состояние
+## Common Commands
 
-- Последнее обновление: 2026-04-03
-- Python modules: 52
-- Exports: 89
-- README расширен, чтобы отражать checkpoint/idempotency/runner surface,
-  а не только базовый executor
+Run from the repository root (`policy-engine/`).
+
+- Smoke-tested import check: `uv run python -c "from polisyos.scientist.engine import ExperimentState, WorkflowExecutor, WorkflowSpec; print(ExperimentState.__name__, WorkflowExecutor.__name__, WorkflowSpec.__name__)"`
+- Conceptual full-slice test run: `uv run pytest tests/scientist/engine -q`
+
+## Test / Verification Commands
+
+Smoke-tested:
+
+```bash
+uv run pytest tests/scientist/engine/test_condition.py tests/scientist/engine/test_retry.py tests/scientist/engine/test_state_merge.py -q
+```
+
+## Reference Docs
+
+- Scientist workflow reference: [`../../../../docs/reference/scientist/workflows.md`](../../../../docs/reference/scientist/workflows.md)
+- Builtin node reference: [`../../../../docs/reference/scientist/nodes.md`](../../../../docs/reference/scientist/nodes.md)
+- Scientist reference index: [`../../../../docs/reference/scientist/index.md`](../../../../docs/reference/scientist/index.md)
+- Cross-package navigation: [`../workflows/README.md`](../workflows/README.md), [`../nodes/README.md`](../nodes/README.md), and [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+
+## Last Updated
+
+- Last updated: 2026-04-17

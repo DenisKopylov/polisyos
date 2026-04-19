@@ -175,21 +175,9 @@ class FeedbackService:
         if plan is None:
             raise ValueError("reissue_plan_load_failed")
 
-        inputs = (
-            dict(original_state.get("inputs"))
-            if isinstance(original_state, Mapping) and isinstance(original_state.get("inputs"), Mapping)
-            else {}
-        )
-        params = (
-            dict(original_state.get("params"))
-            if isinstance(original_state, Mapping) and isinstance(original_state.get("params"), Mapping)
-            else {}
-        )
-        budgets = (
-            dict(original_state.get("budgets"))
-            if isinstance(original_state, Mapping) and isinstance(original_state.get("budgets"), Mapping)
-            else {}
-        )
+        inputs = _mapping_dict(original_state.get("inputs")) if isinstance(original_state, Mapping) else {}
+        params = _mapping_dict(original_state.get("params")) if isinstance(original_state, Mapping) else {}
+        budgets = _mapping_dict(original_state.get("budgets")) if isinstance(original_state, Mapping) else {}
         new_run = new_run_id()
         if plan.parameter_override_bundle_ref is not None:
             inputs[INPUT_PARAMETER_OVERRIDE_BUNDLE_REF] = {
@@ -248,6 +236,12 @@ class FeedbackService:
         if isinstance(value, str):
             return value
         return None
+
+
+def _mapping_dict(value: Any) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        return {}
+    return {str(key): item for key, item in value.items()}
 
 
 __all__ = ["FeedbackService", "PreparedReissue"]

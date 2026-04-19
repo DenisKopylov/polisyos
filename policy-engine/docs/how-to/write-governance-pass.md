@@ -2,10 +2,37 @@
 
 > Реализуйте, зарегистрируйте, протестируйте и подключите новый Scientist governance pass, используя текущий pass API.
 
+Freshness: 2026-04-17.
+
+## Вход
+
+- инвариант, который должен проверять pass
+- понимание, должен ли pass быть builtin-only или canonical для observation family
+- минимальный artifact/state key, по которому pass может выдать детерминированный verdict
+
+## Выход
+
+- pass class и factory registration
+- unit tests для blocker/warning semantics
+- alias/policy wiring, если pass входит в canonical governance surface
+- обновлённая reference page, если pass создаёт новый auditable claim
+
+## Команды
+
+```bash
+uv run polisyos-tools architecture scaffold governance-pass \
+  --name my_pass \
+  --output src/polisyos/scientist/governance/passes/my_pass.py \
+  --test-output tests/scientist/governance/test_my_pass.py \
+  --dry-run
+uv run pytest tests/scientist/governance -x --tb=short
+uv run --extra docs python -m mkdocs build --strict
+```
+
 Быстрый старт для skeleton:
 
 ```bash
-python3 tools/architecture/scaffold.py governance-pass \
+uv run polisyos-tools architecture scaffold governance-pass \
   --name my_pass \
   --output src/polisyos/scientist/governance/passes/my_pass.py \
   --test-output tests/scientist/governance/test_my_pass.py \
@@ -175,6 +202,27 @@ def test_my_pass_blocks_missing_artifact() -> None:
 - `tests/scientist/governance/test_strategic_response_pass.py`
 - `tests/scientist/governance/test_pass_registry.py`
 
+## 5a. Зафиксируйте evidence contract
+
+Любой новый governance pass, который поддерживает causal, fairness,
+calibration, accountability или SOTA-facing claim, должен иметь явную
+привязку к артефакту или тесту:
+
+- blocker/warning semantics покрыты unit test;
+- новый `pass_id` описан в [Scientist Governance Passes](../reference/scientist/governance-passes.md), если pass становится builtin или canonical;
+- claim-level output пишет `ComplianceIssue`, `GovernanceReport`,
+  `CalibrationValidationBundle`, `scientist.governance_accountability_artifact`
+  или другой persisted artifact;
+- benchmark or eval evidence существует до того, как pass используется как
+  аргумент для SOTA/default-readiness claim.
+
+Минимальные проверки:
+
+```bash
+uv run pytest tests/scientist/governance/test_my_pass.py -q
+uv run pytest tests/scientist/governance/test_pass_registry.py -q
+```
+
 ## 6. Интеграция в workflow
 
 В `polisyos.ir.observation.governance` сейчас есть два связанных registry:
@@ -218,6 +266,20 @@ GovernancePassAlias(
 - escalation в strict profile через `ctx.state["human_review_request"]`
 - понятные `ComplianceIssue.code`
 
+## Откат
+
+Если pass не должен попадать в дерево или canonical policy пока не готовы:
+
+1. удалите factory registration и export из package facade;
+2. откатите alias/policy wiring в `polisyos.ir.observation.governance`;
+3. удалите reference updates, если pass не создаёт auditable surface в этом PR.
+
+## Troubleshooting
+
+- Если pass не запускается, сначала проверьте `pass_entrypoints.py` и `__all__`, а не workflow code.
+- Если pass есть в runtime registry, но не входит в canonical family policy, проверьте `GovernancePassAliasRegistry` и `ObservationFamilyPolicyRegistry`.
+- Если severity ведёт себя неожиданно, перепроверьте `ValidationProfile` и точный state key, который читает pass.
+
 ## Чеклист
 
 - класс pass создан
@@ -226,6 +288,8 @@ GovernancePassAlias(
 - тесты добавлены
 - alias registry обновлён, если pass должен быть частью canonical observation policy
 - observation-family policy обновлена, если pass должен запускаться по умолчанию для family
+- reference docs обновлены, если pass добавляет новый auditable governance claim
+- benchmark/eval requirement зафиксирован до SOTA/default-readiness claim
 
 ## Связанные файлы
 
@@ -235,3 +299,6 @@ GovernancePassAlias(
 - `src/polisyos/scientist/governance/passes/__init__.py`
 - `src/polisyos/scientist/governance/passes/strategic_response_pass.py`
 - `src/polisyos/ir/observation/governance.py`
+- `docs/reference/scientist/governance-passes.md`
+- `docs/reference/scientist/calibration-governance.md`
+- `docs/reference/scientist/reliability-scorecard.md`

@@ -25,6 +25,10 @@ __all__ = [
 ]
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 @dataclass(frozen=True, slots=True)
 class MetricsExporterHealth:
     """Normalized metrics exporter readiness snapshot."""
@@ -61,7 +65,7 @@ def get_metrics_exporter_health(
     metrics: MetricsRegistry | None = None,
 ) -> MetricsExporterHealth:
     """Return normalized exporter health for Prometheus/OTel metrics."""
-    registry = metrics if metrics is not None else get_metrics()
+    registry = metrics if metrics is not None else _default_metrics()
     ensure_initialized = getattr(registry, "ensure_initialized", None)
     if callable(ensure_initialized):
         ensure_initialized()

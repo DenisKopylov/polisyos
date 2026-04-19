@@ -121,3 +121,44 @@ def test_transform_pipeline_emits_fabric_stage_span_and_lineage_metrics(
     assert metrics.fabric_lineage_graph_edges is not None
     assert any(value >= 4.0 for value in metrics.fabric_lineage_graph_nodes._values.values())
     assert any(value >= 3.0 for value in metrics.fabric_lineage_graph_edges._values.values())
+
+
+def test_build_fabric_health_snapshot_accepts_injected_metrics(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    class _Metrics:
+        def __init__(self) -> None:
+            self.segment_counts: list[float] = []
+            self.dlq_counts: list[float] = []
+
+        def set_fabric_segment_count(self, value: float) -> None:
+            self.segment_counts.append(value)
+
+        def set_fabric_dlq_count(self, value: float) -> None:
+            self.dlq_counts.append(value)
+
+    metrics = _Metrics()
+    monkeypatch.setattr(
+        "polisyos.fabric.observability.get_metrics",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global metrics lookup should not run when metrics are injected")
+        ),
+    )
+
+    snapshot = build_fabric_health_snapshot(
+        registry=SimpleNamespace(_connectors={}),
+        fact_log_root=tmp_path,
+        retrieval_service=SimpleNamespace(
+            get_index_stats=lambda: SimpleNamespace(
+                index_docs_total=1,
+                index_size_bytes=2,
+                indexed_sources=3,
+            )
+        ),
+        metrics=metrics,
+    )
+
+    assert snapshot.healthy
+    assert metrics.segment_counts == [0.0]
+    assert metrics.dlq_counts == [0.0]

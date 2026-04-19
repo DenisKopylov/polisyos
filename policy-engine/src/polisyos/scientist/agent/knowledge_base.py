@@ -22,6 +22,10 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 @dataclass(frozen=True, slots=True)
 class KnowledgePattern:
     """Prompt-friendly projection of recurring failure patterns."""
@@ -51,7 +55,7 @@ class CriticKnowledgeBase:
     ) -> None:
         self._cas = cas
         self._index = index or FailurePatternIndex()
-        self._metrics = metrics if metrics is not None else get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
         self._max_patterns = max(10, max_patterns)
         self._gc_max_age_days = max(1, gc_max_age_days)
         self._persist_threshold = max(1, persist_threshold)

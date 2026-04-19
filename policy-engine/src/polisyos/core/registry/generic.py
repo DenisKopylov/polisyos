@@ -33,10 +33,10 @@ class GenericRegistry(Generic[K, T]):
         self,
         *,
         key_fn: Callable[[T], K],
-        indexers: Mapping[str, Indexer] | None = None,
+        indexers: Mapping[str, Indexer[T, Hashable]] | None = None,
     ) -> None:
         self._key_fn = key_fn
-        self._indexers: dict[str, Indexer] = dict(indexers or {})
+        self._indexers: dict[str, Indexer[T, Hashable]] = dict(indexers or {})
         self._items: dict[K, T] = {}
         self._indices: dict[str, dict[Hashable, set[K]]] = {
             index_name: defaultdict(set) for index_name in self._indexers

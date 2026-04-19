@@ -1,73 +1,85 @@
-# ops — эксплуатационный слой PolicyOS
+# Ops (`ops/`)
 
-`ops/` описывает инфраструктурный периметр PolicyOS: как обеспечиваются isolation/identity/policy enforcement, как собирается observability, и как накатываются инфраструктурные и SQL-изменения.
+## Purpose
 
-## Роль в системе
+`ops/` описывает эксплуатационный периметр PolicyOS: identity и policy
+enforcement, observability, tenant/RLS migrations и infrastructure artifacts
+для runtime deployment и recovery.
 
-- задает Kubernetes baseline для cell isolation и Zero Trust;
-- хранит policy-as-code (OPA) для runtime authz и deploy gate;
-- определяет контур observability (Prometheus rules + Grafana dashboards);
-- фиксирует SQL-цепочку tenant/RLS миграций и IaC-модуль confidential node pool.
+## Where to Start
 
-## Карта директории
+- Kubernetes packaging: `ops/helm/README.md`.
+- Policy-as-code: `ops/opa/README.md`.
+- Metrics/alerts: `ops/prometheus/README.md`.
+- SQL tenant isolation chain: `ops/migrations/README.md`.
+- Confidential node-pool module: `ops/terraform/README.md`.
+- Локальная observability sandbox: `ops/docker-compose.observability.yml`.
 
-| Путь | Роль | Связь с кодом |
-|---|---|---|
-| `helm/` | инфраструктурные chart'ы (`polisyos-cell`, `spire`, `keycloak`) | `src/polisyos/core/security/identity.py`, `src/polisyos/runtime/http/authz_middleware.py` |
-| `opa/` | Rego-политики + unit tests | `src/polisyos/core/security/authz.py` |
-| `prometheus/` | scrape config, recording rules, alerts, SLO | `src/polisyos/core/observability/*`, `src/polisyos/core/security/*` |
-| `grafana/` | prebuilt dashboards + provisioning | использует метрики из `ops/prometheus` |
-| `migrations/` | tenant/RLS SQL-миграции | `src/polisyos/core/security/db_backend.py` |
-| `terraform/` | AKS confidential node pool модуль | `ops/helm/polisyos-cell/templates/runtimeclass-confidential.yaml` |
-| `scripts/` | вспомогательные ops-скрипты (Linkerd install) | используется с `helm/polisyos-cell` strict mTLS |
-| `docker-compose.observability.yml` | локальный Prometheus + Grafana | для быстрой валидации rules/dashboards |
+## Public Entrypoints
 
-## Архитектурные связи
+| Surface | Purpose |
+| --- | --- |
+| `helm/` | Chart-ы `polisyos-cell`, `spire`, `keycloak` для platform baseline. |
+| `opa/policies/*.rego` | Runtime authz и deploy gate decisions. |
+| `prometheus/` + `grafana/` | Scrape config, alerts, SLO rules и dashboards. |
+| `migrations/*.sql` | Forward/rollback SQL chain для tenant/RLS hardening. |
+| `terraform/modules/confidential_nodepool` | AKS confidential workload scheduling baseline. |
+| `scripts/install-linkerd.sh` | Вспомогательный install helper для strict mTLS path. |
 
-```text
-runtime /metrics endpoint (port 9464)
-  -> ops/prometheus/prometheus.yml (scrape + rule_files)
-  -> ops/grafana/dashboards/*.json
+## Depends On / Depended On By
 
-runtime authz middleware
-  -> OPA /v1/data/polisyos/authz/decision
-  <- ops/opa/policies/*.rego
+- **Depends on:** runtime metrics under `src/polisyos/core/observability/*`,
+  security/authz code under `src/polisyos/core/security/*`,
+  `src/polisyos/runtime/http/authz_middleware.py`, deployment tooling и target
+  cluster/database environment.
+- **Depended on by:** platform/ops engineers, release and compliance workflows,
+  runtime deployment/recovery runbooks, observability rehearsals и tenant
+  isolation reviews.
 
-deploy SBOM gate
-  -> OPA /v1/data/polisyos/deploy/decision
-  <- ops/opa/policies/vulnerability.rego + deploy.rego
+## Common Commands
 
-db tenant context (SET LOCAL app.current_tenant)
-  -> PostgreSQL RLS
-  <- ops/migrations/001..004
+Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
+`conceptual`.
 
-confidential workload scheduling
-  <- ops/terraform/modules/confidential_nodepool
-  <- ops/helm/polisyos-cell RuntimeClass (условный рендер)
-```
+| Command | Purpose | Status |
+| --- | --- | --- |
+| `docker compose -f docker-compose.observability.yml config` | Проверить, что локальный observability compose file парсится корректно. | `smoke-tested` |
+| `docker compose -f docker-compose.observability.yml up -d` | Поднять локальный Prometheus/Grafana sandbox. | `conceptual` (поднимает сервисы) |
+| `opa test ./opa/policies -v` | Прогнать policy unit tests для authz/deploy gate. | `conceptual` (требует установленный `opa`) |
+| `helm template cell-a ./helm/polisyos-cell --set cell.id=cell-00112233` | Проверить render tenant/cell baseline chart. | `conceptual` (требует установленный `helm`) |
 
-## Важные операционные инварианты
+## Test And Verification
 
-- `helm/polisyos-cell` требует `cell.id`; namespace и имена ресурсов строятся из первых 8 символов.
-- `prometheus/prometheus.yml` подключает `rules/audit_chain_alerts.yml`, но в `docker-compose.observability.yml` нет mount для `./prometheus/rules`.
-- `migrations/003_rls_disable_rollback.sql` — emergency rollback только для шага `003_rls_enable.sql`, не часть forward-цепочки.
-- `ops/opa/policies/*.rego` и `helm/polisyos-cell/policies/*.rego` должны оставаться синхронными (chart пакует копию политик).
+| Command | What it verifies | Status |
+| --- | --- | --- |
+| `docker compose -f docker-compose.observability.yml config` | Compose syntax для локального observability sandbox. | `smoke-tested` |
+| `opa test ./opa/policies -v` | Runtime authz и deploy gate Rego behavior. | `conceptual` |
+| `helm template spire ./helm/spire` | Chart render для identity plane baseline. | `conceptual` |
+| `helm template keycloak ./helm/keycloak` | Chart render для OIDC baseline. | `conceptual` |
 
-## Базовый локальный smoke-check
+## Reference Docs
 
-```bash
-cd policy-engine/ops
+- [Helm README](./helm/README.md)
+- [OPA README](./opa/README.md)
+- [Prometheus README](./prometheus/README.md)
+- [Grafana README](./grafana/README.md)
+- [Migrations README](./migrations/README.md)
+- [Terraform README](./terraform/README.md)
+- [Deploy Runtime How-To](../docs/how-to/deploy-runtime.md)
+- [CI/CD Platform How-To](../docs/how-to/operate-ci-cd-platform.md)
+- [Release Policy How-To](../docs/how-to/release-policy.md)
+- [Operations Reference Index](../docs/reference/operations/index.md)
+- [Security And Compliance Reference](../docs/reference/security-compliance.md)
+- [Runtime API Outage Runbook](../docs/runbooks/runtime-api-outage.md)
+- [Canary Rollback Runbook](../docs/runbooks/canary-rollback-or-promotion-failure.md)
+- [Replay Or Restore Runbook](../docs/runbooks/replay-or-restore.md)
 
-docker compose -f docker-compose.observability.yml up -d
-opa test ./opa/policies -v
-helm template cell-a ./helm/polisyos-cell --set cell.id=cell-00112233
-```
+## Current State
 
-## Документация по модулям
-
-- [helm/README.md](helm/README.md)
-- [opa/README.md](opa/README.md)
-- [prometheus/README.md](prometheus/README.md)
-- [grafana/README.md](grafana/README.md)
-- [migrations/README.md](migrations/README.md)
-- [terraform/README.md](terraform/README.md)
+- `ops/opa/policies/*.rego` и `ops/helm/polisyos-cell/policies/*.rego` должны
+  оставаться синхронными: chart пакует копию runtime/deploy policies.
+- `migrations/003_rls_disable_rollback.sql` — только emergency rollback после
+  `003_rls_enable.sql`, не часть forward chain.
+- `docker-compose.observability.yml` полезен для локального smoke-check, но не
+  покрывает весь production-like deployment path.
+- Last updated: 2026-04-17

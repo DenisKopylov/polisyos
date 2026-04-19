@@ -65,10 +65,10 @@ class ExploreLaneDiscovery:
         limits: ExploreLaneLimits | None = None,
     ) -> ExploreLaneDiscoverResult:
         active_limits = limits or ExploreLaneLimits()
-        return cast(
-            "ExploreLaneDiscoverResult",
-            run_coro_sync(self._discover_async(data_needs, limits=active_limits)),
+        result: ExploreLaneDiscoverResult = run_coro_sync(
+            self._discover_async(data_needs, limits=active_limits)
         )
+        return result
 
     async def _discover_async(
         self,

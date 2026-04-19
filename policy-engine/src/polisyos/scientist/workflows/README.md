@@ -1,41 +1,54 @@
 # Workflows (`polisyos.scientist.workflows`)
 
-`workflows` описывает и запускает канонические Scientist DAG-спеки, строит
-execution context, собирает registry нод и вызывает `WorkflowExecutor`.
+## Purpose
 
-## Роль в системе
+`polisyos.scientist.workflows` defines and launches the canonical Scientist DAG
+specs, builds execution context, assembles node registries, and hands the final
+`WorkflowSpec` to the engine runtime.
 
-- **Зависит от:** `engine`, `nodes`, `adapters`, `governance`, `core`
-- **Используется в:** `run_experiment()`, runtime control flows, policy-design/discovery launchers
-- Пакет соединяет декларативные `WorkflowSpec` с реальным execution context и builtin registry.
+## Where to Start
 
-## Ключевые концепции
+- Root facade and lazy export map: [`__init__.py`](__init__.py)
+- Workflow builder and launchers: [`builder.py`](builder.py)
+- Route selection: [`selection.py`](selection.py)
+- Builtin workflow specs: [`default.py`](default.py), [`discovery.py`](discovery.py), [`causal_full.py`](causal_full.py), [`policy_verified.py`](policy_verified.py), and [`policy_design.py`](policy_design.py)
+- Engine adapters: [`engine_base.py`](engine_base.py), [`engine_simple.py`](engine_simple.py), and [`engine_langgraph.py`](engine_langgraph.py)
 
-- **Canonical specs** — `scientist_default`, `scientist_causal_full`,
-  `scientist_discovery`, `scientist_policy_design`.
-- **Builder layer** — сбор `ExecutionContext`, registry и workflow selection logic.
-- **Engine adapters** — `SimpleLoopEngine` и legacy-compatible `LangGraphEngine`.
-- **Causal readiness integration** — `scientist_causal_full` теперь запускает
-  `run_causal_readiness` перед governance/decision surfaces.
-- **C6c policy design** — `policy_design.py` добавил literature prior, reconciliation,
-  hierarchical policy search, readiness и counterfactual gate.
+## Public Entrypoints
 
-## Public API
+- Workflow routing in [`selection.py`](selection.py): `resolve_workflow_id(...)`
+- Runtime assembly in [`builder.py`](builder.py): `build_execution_context(...)`, `build_default_registry(...)`, and `build_registry_with_builtin_nodes(...)`
+- Launchers in [`builder.py`](builder.py): `run_default_workflow(...)`, `run_causal_full_workflow(...)`, `run_policy_verified_workflow(...)`, `run_policy_design_workflow(...)`, `run_discovery_workflow(...)`, and `run_selected_workflow(...)`
+- Builtin DAG specs in [`default.py`](default.py), [`discovery.py`](discovery.py), [`causal_full.py`](causal_full.py), [`policy_verified.py`](policy_verified.py), and [`policy_design.py`](policy_design.py)
+- Engine adapters in [`engine_simple.py`](engine_simple.py) and [`engine_langgraph.py`](engine_langgraph.py): choose between the simple loop and legacy LangGraph bridge
 
-- `run_default_workflow(...)`, `run_causal_full_workflow(...)`,
-  `run_discovery_workflow(...)`, `run_policy_design_workflow(...)`,
-  `run_selected_workflow(...)`
-- `build_execution_context(...)`, `build_default_registry(...)`,
-  `build_registry_with_builtin_nodes(...)`, `resolve_workflow_id(...)`
-- `default_workflow_spec()`, `causal_full_workflow_spec()`,
-  `discovery_workflow_spec()`, `policy_design_workflow_spec()`
+## Depends On / Depended On By
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+- Depends on: [`../engine/README.md`](../engine/README.md), [`../nodes/README.md`](../nodes/README.md), governance helpers, adapters, and shared core runtime services
+- Depended on by: [`../api.py`](../api.py), routed `run_experiment(...)` calls, policy-design/discovery launchers, and workflow integration tests
 
-## Текущее состояние
+## Common Commands
 
-- Последнее обновление: 2026-04-03
-- Python modules: 11
-- Exports: 18
-- Недавний delta: `policy_design.py` и `causal_full.py` расширены новым causal-readiness
-  и hierarchical-search path
+Run from the repository root (`policy-engine/`).
+
+- Smoke-tested import check: `uv run python -c "from polisyos.scientist.workflows import default_workflow_spec, resolve_workflow_id; print(default_workflow_spec().workflow_id, callable(resolve_workflow_id))"`
+- Conceptual full-slice test run: `uv run pytest tests/scientist/workflows -q`
+
+## Test / Verification Commands
+
+Smoke-tested:
+
+```bash
+uv run pytest tests/scientist/workflows/test_workflow_specs.py tests/scientist/workflows/test_builder_pinning.py tests/scientist/test_workflow_selection.py -q
+```
+
+## Reference Docs
+
+- Workflow reference: [`../../../../docs/reference/scientist/workflows.md`](../../../../docs/reference/scientist/workflows.md)
+- Scientist reference index: [`../../../../docs/reference/scientist/index.md`](../../../../docs/reference/scientist/index.md)
+- Reliability scorecard: [`../../../../docs/reference/scientist/reliability-scorecard.md`](../../../../docs/reference/scientist/reliability-scorecard.md)
+- Cross-package navigation: [`../engine/README.md`](../engine/README.md), [`../nodes/README.md`](../nodes/README.md), and [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+
+## Last Updated
+
+- Last updated: 2026-04-17

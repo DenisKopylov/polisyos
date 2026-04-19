@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
@@ -19,6 +21,7 @@ from polisyos.scientist.discovery.priors import (
     PriorEdge,
     persist_graph_prior_bundle,
 )
+from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
     CompileCrossGraphEvidenceNode,
 )
@@ -340,3 +343,39 @@ def test_compilation_target_context_assertion_not_swallowed(
 
     with pytest.raises(AssertionError, match="target-context-broken"):
         CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+
+def test_compilation_uses_branch_state_for_declared_outputs(
+    execution_context, minimal_state
+):
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "cross_graph_evidence_config": {"enabled": True},
+            }
+        }
+    )
+    state.params["nested"] = {"baseline": True}
+    observed: dict[str, tuple[str, ...]] = {}
+
+    def _spy_branch(base_state, *, write_paths=()):
+        observed["write_paths"] = tuple(write_paths)
+        return real_branch_state(base_state, write_paths=write_paths)
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence.branch_state",
+        _spy_branch,
+    ):
+        outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert observed["write_paths"] == (
+        "artifacts_index.cross_graph_evidence_profile_ref",
+        "params.cross_graph_evidence_expected",
+        "params.cross_graph_evidence_summary",
+        "params.cross_graph_benchmark_summary",
+    )
+    assert state.params["nested"] == {"baseline": True}
+    assert ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF not in state.artifacts_index
+    assert outcome.state.params["cross_graph_evidence_expected"] is True
+    assert ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF in outcome.state.artifacts_index

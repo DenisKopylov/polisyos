@@ -1,8 +1,32 @@
 # Настройка Lex pipeline
 
 Related explanation: [Lex Pipeline](../explanation/lex-pipeline.md). Related reference: [Lex](../reference/lex/index.md).
+Evidence: `tests/lex/**`, [Lex contracts](../contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md), [Lex legal evaluation contract](../contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md).
 
 > Эта страница для инженеров и операторов, которым нужно собрать устойчивый Lex ingestion path, а не просто разово вызвать один helper.
+
+## Вход
+
+- сырой корпус legal documents или batch input directories;
+- решение, нужен ли вам stage-level API path или control-plane batch path;
+- настроенные artifact roots для CAS и provenance/fact logs.
+
+## Выход
+
+- reproducible Lex pipeline path для ingest, structure, versioning и NormPack;
+- понимание, какие job ids, artifact ids и world events ожидать на каждом шаге;
+- минимальный набор operational checks для локального triage.
+
+## Команды
+
+```bash
+cd policy-engine
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"cards_path":"data/lex/cards","texts_path":"data/lex/texts","output_dir":".polisyos/lex-out","resume":true,"execution_profile":"research"}'
+```
 
 В PolicyOS есть два нормальных способа работать с Lex:
 
@@ -183,6 +207,25 @@ curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
 - provenance artifacts: world events и fact segments.
 
 Это важнее, чем один финальный JSON: downstream governance и intervention layers читают именно этот bundle of evidence.
+
+## Откат
+
+- если batch path был запущен с неверным `output_dir` или `execution_profile`,
+  остановите дальнейшее переиспользование этих артефактов и перезапустите
+  pipeline с корректными параметрами;
+- если структура или version index собраны из неверного source payload,
+  пересоберите их из корректного ingest input, а не поверх спорного результата;
+- если ошибка касается only-docs/operator guidance, откатите workflow к
+  последнему verified stage sequence.
+
+## Troubleshooting
+
+- Если stage-level pipeline даёт "правдоподобный, но непонятный" результат,
+  проверьте сначала `doc_source_id`, `fact_log_root` и active-version strategy.
+- Если control-plane batch не даёт ожидаемых output artifacts, смотрите `job_id`
+  и status endpoint отдельно от content-level артефактов.
+- Если нужен быстрый structural smoke run, выключите `embed`, чтобы не путать
+  Lex structure/debugging с vector-stage задержками.
 
 ## Что дальше
 

@@ -1,4 +1,4 @@
-"""Public governance pipeline module API."""
+"""Run ordered governance passes with telemetry, short-circuiting, and degraded paths."""
 from __future__ import annotations
 
 import json
@@ -65,6 +65,14 @@ def _load_runtime_trace_types() -> tuple[Any, Any]:
 Status, StatusCode = _load_runtime_trace_types()
 
 
+def _default_tracer() -> PolicyOSTracer | Any:
+    return get_tracer()
+
+
+def _default_metrics() -> MetricsRegistry | Any:
+    return get_metrics()
+
+
 @dataclass
 class _ValidationRunState:
     all_issues: list[ComplianceIssue]
@@ -91,8 +99,8 @@ class ValidationPipeline:
         metrics: MetricsRegistry | Any | None = None,
     ) -> None:
         self._pipeline = LinearPipeline(passes, stage_id=lambda p: p.pass_id)
-        self._tracer = tracer if tracer is not None else get_tracer()
-        self._metrics = metrics if metrics is not None else get_metrics()
+        self._tracer = tracer if tracer is not None else _default_tracer()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     def validate(
         self,

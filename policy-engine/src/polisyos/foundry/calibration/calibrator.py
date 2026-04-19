@@ -71,9 +71,6 @@ from polisyos.ir.kernel import (
     SelectorFieldRegistry,
     SlotRegistry,
 )
-from polisyos.scientist.autotune.calibration import apply_calibration_meta_overrides
-
-
 @dataclass
 class CalibratorInputs:
     """Bundle the runtime contracts and callbacks required by `Calibrator.run()`.
@@ -552,6 +549,8 @@ class Calibrator:
             ).run()
             ```
         """
+        from polisyos.scientist.autotune.calibration import apply_calibration_meta_overrides
+
         cfg = apply_calibration_meta_overrides(
             self.inputs.config,
             context={"calibrator_inputs": self.inputs},

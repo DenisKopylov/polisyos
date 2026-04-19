@@ -39,6 +39,10 @@ DEFAULT_TRACER = trace.get_tracer(__name__)
 T = TypeVar("T")
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 def _monotonic() -> float:
     return time.monotonic()
 
@@ -117,7 +121,7 @@ class RateLimiter:
         self._total_wait_time = 0.0
         self._total_acquire_duration = 0.0
 
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
         self._tracer = tracer or DEFAULT_TRACER
 
         logger.debug(

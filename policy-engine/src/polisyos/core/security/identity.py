@@ -34,6 +34,10 @@ else:
     from pydantic import BaseModel as _PydanticBaseModel
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class PolicyOSRole(str, Enum):
     """PolicyOS roles mapped from external identity providers."""
 
@@ -268,7 +272,7 @@ class SPIFFEIdentityProvider:
         self._allowed_jwt_kids = allowed_jwt_kids or frozenset()
         self._revoked_jwt_kids = revoked_jwt_kids or frozenset()
         self._jwks_cache_ttl_seconds = max(1, int(jwks_cache_ttl_seconds))
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
         self._workload_client: Any | None = None
         self._jwks_cache: dict[str, Any] = {}

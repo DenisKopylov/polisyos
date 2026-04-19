@@ -2,20 +2,27 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.runtime.http.container import get_runtime_container, resolve_runtime_metrics
 
-try:  # pragma: no cover - optional runtime dependency
-    APIRouter: Any | None
-    Request: Any
+if TYPE_CHECKING:
     from fastapi import APIRouter, Request
-except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None
-    Request = Any
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from fastapi import APIRouter, Request
+    except ModuleNotFoundError:  # pragma: no cover
+        APIRouter = cast("Any", None)
+        Request = cast("Any", Any)
 
 
-router = APIRouter(tags=["runtime-health"]) if APIRouter else None
+def _build_router() -> APIRouter:
+    if APIRouter is None:  # pragma: no cover - runtime dependency guard
+        raise RuntimeError("runtime HTTP routes require FastAPI to be installed")
+    return APIRouter(tags=["runtime-health"])
+
+
+router = _build_router()
 
 
 if router is not None:

@@ -6,7 +6,7 @@ import json
 import time
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.cache import TTLCache
@@ -20,6 +20,10 @@ if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
 
 logger = get_logger("polisyos.security.authz")
+
+
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
 
 
 class AuthzDecision(StrEnum):
@@ -200,7 +204,7 @@ class AuthzInput:
     def cache_key(self) -> str:
         """Return a deterministic short hash for TTL caching identical OPA checks."""
         raw = json.dumps(self.to_opa_input(), sort_keys=True, separators=(",", ":"))
-        return cast("str", truncated_hash(raw, length=16))
+        return truncated_hash(raw, length=16)
 
 
 class OPAClient:
@@ -221,7 +225,7 @@ class OPAClient:
         self._cache_max_size = max(cache_max_size, 1)
         self._cache_ttl = max(cache_ttl_seconds, 0.0)
         self._timeout = max(timeout_seconds, 0.1)
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
         self._cache = TTLCache[str, AuthzResult](
             ttl_seconds=self._cache_ttl,

@@ -1,7 +1,8 @@
 """Explicit development-only fixture identity middleware."""
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.tenant_context import (
@@ -10,23 +11,25 @@ from polisyos.core.security.tenant_context import (
 )
 from polisyos.runtime.http.security import build_fixture_identity_claims
 
-try:  # pragma: no cover - optional runtime dependency
-    BaseHTTPMiddleware: Any
-    Request: Any
-    Response: Any
-    from starlette.middleware.base import BaseHTTPMiddleware
+if TYPE_CHECKING:
+    from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
     from starlette.requests import Request
     from starlette.responses import Response
-except ModuleNotFoundError:  # pragma: no cover
-    BaseHTTPMiddleware = object
-    Request = Any
-    Response = Any
+else:  # pragma: no cover - optional runtime dependency
+    try:
+        from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
+        from starlette.requests import Request
+        from starlette.responses import Response
+    except ModuleNotFoundError:  # pragma: no cover
+        _BaseHTTPMiddleware = cast("type[Any]", object)
+        Request = cast("Any", None)
+        Response = cast("Any", None)
 
 
 _PUBLIC_PATHS = frozenset({"/health", "/ready", "/metrics", "/auth/callback"})
 
 
-class DevelopmentFixtureIdentityMiddleware(BaseHTTPMiddleware):
+class DevelopmentFixtureIdentityMiddleware(_BaseHTTPMiddleware):
     """Project a fixed identity only when explicitly enabled for dev/test workflows."""
 
     def __init__(
@@ -38,7 +41,11 @@ class DevelopmentFixtureIdentityMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self._public_paths = public_paths
 
-    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         path = str(getattr(request.url, "path", ""))
         if path in self._public_paths:
             return await call_next(request)

@@ -140,3 +140,58 @@ reason = "scientist search dtr.py imports foundry causal _common private module 
 expires = "2026-07-01"
 source_glob = "src/polisyos/scientist/search/dtr.py"
 import_module_prefix = "polisyos.foundry.methods.catalog.causal._common"
+
+# ---------------------------------------------------------------------------
+# Documentation SOTA closeout import debt ledger (added 2026-04-17)
+# These exceptions convert previously hidden ci-parity import failures into
+# owner-bound debt while facade extraction and package-boundary cleanup are
+# handled after the documentation closeout.
+# ---------------------------------------------------------------------------
+
+[[exception]]
+id = "E-2026-04-CORE-CLI-SCIENTIST-001"
+owner = "team-polisyos"
+reason = "core CLI scientist subcommands lazily import Scientist provider and agent evaluation entrypoints"
+expires = "2026-07-01"
+source_glob = "src/polisyos/core/components/_cli_scientist.py"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-04-FABRIC-WORLD-DEEP-001"
+owner = "team-polisyos"
+reason = "Fabric benchmarks and observability still call world materialization/segment helpers before facade extraction"
+expires = "2026-07-01"
+source_glob = "src/polisyos/fabric/**"
+import_module_prefix = "polisyos.fabric.world."
+
+[[exception]]
+id = "E-2026-04-FOUNDRY-UKRAINE-DATA-001"
+owner = "team-polisyos"
+reason = "Foundry release acceptance verifies Ukraine release manifests until release-manifest facade extraction lands"
+expires = "2026-07-01"
+source_glob = "src/polisyos/foundry/release_acceptance.py"
+import_root = "ukraine_data"
+
+[[exception]]
+id = "E-2026-04-IR-SCHEMAS-REFLECTION-001"
+owner = "team-polisyos"
+reason = "IR schema catalog reflects the repo-local ABI registry package used by schema generation"
+expires = "2026-07-01"
+source_glob = "src/polisyos/ir/schema_catalog.py"
+external_module = "schemas"
+
+[[exception]]
+id = "E-2026-04-RUNTIME-FOUNDRY-PRIVATE-001"
+owner = "team-polisyos"
+reason = "runtime replay resolves Foundry execution posture before that helper is exposed through a public Foundry facade"
+expires = "2026-07-01"
+source_glob = "src/polisyos/runtime/replay.py"
+import_module_prefix = "polisyos.foundry._execution_posture"
+
+[[exception]]
+id = "E-2026-04-SCIENTIST-FABRIC-PRIVATE-001"
+owner = "team-polisyos"
+reason = "Scientist Fabric adapter depends on the connector bridge while a public Fabric execution port is extracted"
+expires = "2026-07-01"
+source_glob = "src/polisyos/scientist/adapters/fabric_bridge.py"
+import_module_prefix = "polisyos.fabric._connector_bridge"

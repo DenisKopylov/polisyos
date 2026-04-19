@@ -2,6 +2,7 @@
 """Public audit standalone verifier template module API."""
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import sys
@@ -9,9 +10,10 @@ import tarfile
 import tempfile
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, Protocol
 
 from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, load_pem_public_key
 
 from polisyos.common.logger import get_logger
@@ -19,24 +21,51 @@ from polisyos.common.logger import get_logger
 logger = get_logger(__name__)
 
 
+class _HashLike(Protocol):
+    def update(self, data: bytes, /) -> object: ...
+
+    def hexdigest(self) -> str: ...
+
+
 try:
     from polisyos.core.canon import content_hash, streaming_hash
 except ImportError:  # pragma: no cover - template fallback for standalone runs
-    def content_hash(payload: bytes | str, *, prefix: bool = False) -> str:
-        raw = payload if isinstance(payload, bytes) else payload.encode("utf-8")
-        digest = __import__("hashlib").sha256(raw).hexdigest()
+    def content_hash(
+        payload: bytes | bytearray | memoryview[int] | str,
+        *,
+        algorithm: Literal["sha256", "blake2b", "sha1"] = "sha256",
+        prefix: bool = False,
+        digest_size: int | None = None,
+    ) -> str:
+        raw = payload if isinstance(payload, (bytes, bytearray, memoryview)) else payload.encode("utf-8")
+        hasher: _HashLike
+        if algorithm == "blake2b":
+            hasher = hashlib.blake2b(digest_size=digest_size or hashlib.blake2b().digest_size)
+            hasher.update(bytes(raw))
+        else:
+            hasher = hashlib.new(algorithm)
+            hasher.update(bytes(raw))
         if prefix:
-            return f"sha256:{digest}"
-        return digest
+            return f"{algorithm}:{hasher.hexdigest()}"
+        return hasher.hexdigest()
 
-    def streaming_hash(chunks: Iterable[bytes], *, prefix: bool = False) -> str:
-        hasher = __import__("hashlib").sha256()
+    def streaming_hash(
+        chunks: Iterable[bytes | bytearray | memoryview[int]],
+        *,
+        algorithm: Literal["sha256", "blake2b", "sha1"] = "sha256",
+        prefix: bool = False,
+        digest_size: int | None = None,
+    ) -> str:
+        hasher: _HashLike
+        if algorithm == "blake2b":
+            hasher = hashlib.blake2b(digest_size=digest_size or hashlib.blake2b().digest_size)
+        else:
+            hasher = hashlib.new(algorithm)
         for chunk in chunks:
-            hasher.update(chunk)
-        digest = hasher.hexdigest()
+            hasher.update(bytes(chunk))
         if prefix:
-            return f"sha256:{digest}"
-        return digest
+            return f"{algorithm}:{hasher.hexdigest()}"
+        return hasher.hexdigest()
 
 
 def _sha256(path: Path) -> str:
@@ -185,6 +214,8 @@ def _verify_checksum_signature(pkg_dir: Path) -> tuple[list[str], list[str]]:
     for key_file in sorted(keys_dir.glob("*.pem")):
         try:
             public_key = load_pem_public_key(key_file.read_bytes())
+            if not isinstance(public_key, Ed25519PublicKey):
+                continue
             public_key.verify(bytes.fromhex(signature_hex), statement)
             matched = True
             break
@@ -197,18 +228,20 @@ def _verify_checksum_signature(pkg_dir: Path) -> tuple[list[str], list[str]]:
     return failures, warnings
 
 
-def _key_id(public_key: Any) -> str:
+def _key_id(public_key: Ed25519PublicKey) -> str:
     raw = public_key.public_bytes(Encoding.Raw, PublicFormat.Raw)
     return content_hash(raw, prefix=True)
 
 
-def _load_package_keys(pkg_dir: Path) -> dict[str, Any]:
-    keys: dict[str, Any] = {}
+def _load_package_keys(pkg_dir: Path) -> dict[str, Ed25519PublicKey]:
+    keys: dict[str, Ed25519PublicKey] = {}
     key_dir = pkg_dir / "signatures" / "public_keys"
     for key_file in sorted(key_dir.glob("*.pem")):
         try:
             key = load_pem_public_key(key_file.read_bytes())
         except (OSError, TypeError, ValueError):
+            continue
+        if not isinstance(key, Ed25519PublicKey):
             continue
         try:
             keys[_key_id(key)] = key

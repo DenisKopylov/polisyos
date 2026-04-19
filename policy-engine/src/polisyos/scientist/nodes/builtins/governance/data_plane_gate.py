@@ -59,6 +59,8 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
+        "run_id",
+        "artifacts_index",
         f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
         f"inputs.{INPUT_INPUT_BINDINGS_REF}",
         "params.governance_profile",

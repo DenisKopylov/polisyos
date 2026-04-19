@@ -1,37 +1,86 @@
 # Scientist Workflows
 Related explanation: [Governance Model](../../explanation/governance-model.md).
 
-Workflow specs are pure DAG declarations built from `WorkflowSpec` and `NodeInvocation`. They define required binds, execution order, and orchestration notes without embedding business logic directly in the spec.
+Owner: `@scientist-owners`
+Backup owner: `@platform-owners`
+Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/builder.py`, `src/polisyos/scientist/workflows/selection.py`, `src/polisyos/scientist/workflows/default.py`, `src/polisyos/scientist/workflows/discovery.py`, `src/polisyos/scientist/workflows/causal_full.py`, `src/polisyos/scientist/workflows/policy_verified.py`, `src/polisyos/scientist/workflows/policy_design.py`, `src/polisyos/scientist/engine/workflow_spec.py`, `tests/scientist/workflows/**`, and `tests/scientist/test_workflow_selection.py`
 
-## Workflow Catalog
+> Owner lane: `L6 Scientist`  
+> Type: Manual reference (not generated).  
+> Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/builder.py`, `src/polisyos/scientist/workflows/selection.py`, `src/polisyos/scientist/workflows/default.py`, `src/polisyos/scientist/workflows/discovery.py`, `src/polisyos/scientist/workflows/causal_full.py`, `src/polisyos/scientist/workflows/policy_verified.py`, `src/polisyos/scientist/workflows/policy_design.py`, `src/polisyos/scientist/engine/workflow_spec.py`, `tests/scientist/workflows/**`, and `tests/scientist/test_workflow_selection.py`.
 
-| Spec | `workflow_id` | Required binds | Purpose |
-|------|---------------|----------------|---------|
-| `causal_full_workflow_spec()` | `scientist_causal_full` | `run_id`, `inputs.trinity_bundle_ref`, `inputs.registry_bundle_ref` | Full causal evaluation DAG from prior building through governance and decision packet |
-| `policy_design_workflow_spec()` | `scientist_policy_design` | `run_id`, `inputs.registry_bundle_ref` | Verified policy-design DAG with legal-source verification, hierarchical search, readiness, and translation |
+Workflow execution has two layers:
 
-## `scientist_causal_full`
+1. `run_experiment()` normalizes `ExperimentState`, resolves observability, and
+   chooses a builtin `workflow_id`.
+2. The workflow builder pins CAS refs, builds `ExecutionContext`, registers
+   builtin/discovered nodes, and executes a `WorkflowSpec`.
 
-Key phases:
+## Engine Contract
 
-| Phase | Representative nodes | Outcome |
-|-------|----------------------|---------|
-| Prior and graph assembly | `build_literature_prior`, `reconcile_causal_graph`, `compile_cross_graph_evidence` | Reconciled graph plus evidence profile |
-| Foundry preparation | `build_execution_plan`, `bind_foundry_inputs`, `compile_foundry`, `resolve_parameters` | Executable simulation plan and runtime parameters |
-| Causal evaluation | `run_causal_evaluation`, `run_causal_queries`, `run_causal_ensemble`, `run_transportability` | Causal estimates, ensemble uncertainty, transportability decision |
-| Governance and output | `run_normative_arbitration`, `run_governance`, `run_evaluator`, `build_decision_packet` | Governance verdict and final packet |
+| Surface | Source | Contract |
+|---|---|---|
+| `WorkflowSpec` | `engine/workflow_spec.py` | Declarative DAG with `workflow_id`, ordered `NodeInvocation`s, `required_binds`, and global `error_policy`. |
+| `NodeInvocation` | `engine/workflow_spec.py` | Per-node alias, registered `node_id`, dependency aliases, and optional params/retry/timeout/condition overrides. |
+| `build_execution_context(...)` | `workflows/builder.py` | Creates the shared CAS/run context used by nodes and checkpoints. |
+| `build_registry_with_builtin_nodes(...)` | `workflows/builder.py` | Registers engine builtins, Scientist builtin nodes, and optional discovered node providers. |
+| `resolve_workflow_id(...)` | `workflows/selection.py` | Routes an `ExperimentState` to a builtin workflow id. |
+| `SimpleLoopEngine` | `workflows/engine_simple.py` | Minimal sequential adapter used by tests and cheap loop prototypes. |
+| `LangGraphEngine` | `workflows/engine_langgraph.py` | Legacy adapter kept for compatibility; new production runs should go through the builder/runtime DAG path. |
 
-## `scientist_policy_design`
+## Builtin Workflow Catalog
 
-Key phases:
+Current builtin specs are:
 
-| Phase | Representative nodes | Outcome |
-|-------|----------------------|---------|
-| Policy sourcing | `plan_policy_request`, `assemble_legal_candidate_pack`, `expand_legal_source_pack`, `run_source_verification`, `run_source_gap_review` | Policy request frame plus verified legal/source packs and a source-verification report |
-| Search and gating | `draft_policy_options`, `run_hierarchical_policy_search`, `run_causal_readiness`, `counterfactual_identification_gate` | Champion policy candidate, frontier artifacts, and readiness gates |
-| Runtime preparation | `build_execution_plan`, `build_method_catalog_snapshot`, `run_preflight`, `ready_to_run`, `bind_foundry_inputs`, `compile_foundry` | Executable Foundry plan, method-catalog snapshot, and ready-to-run gate verdict |
-| Simulation and review | `run_simulation`, `legal_check`, `run_governance`, `run_evaluator`, `build_verified_policy_report` | Verified policy report plus evaluator verdict and governance packet |
-| Translation | `run_policy_blueprint_runtime`, `run_policy_translation`, `run_translator_compliance` | Policy output bundle, translator compliance result, and replayable delivery artifacts |
+| `workflow_id` | Required binds | Node count | Current use |
+|---|---|---:|---|
+| `scientist_default` | `run_id`, `inputs.trinity_bundle_ref`, `inputs.registry_bundle_ref` | 21 | Baseline governed simulation/governance path. |
+| `scientist_discovery` | `run_id`, `inputs.registry_bundle_ref` | 2 | Discovery-only blueprint runtime. |
+| `scientist_causal_full` | `run_id`, `inputs.trinity_bundle_ref`, `inputs.registry_bundle_ref` | 27 | Escalated causal path with literature prior, graph reconciliation, readiness, queries, ensemble, ABM consistency, and transportability. |
+| `scientist_policy_verified` | `run_id`, `inputs.registry_bundle_ref` | 26 | Verified-policy path without hierarchical search or translation bundle stages. |
+| `scientist_policy_design` | `run_id`, `inputs.registry_bundle_ref` | 35 | Policy-design path with verified sourcing, hierarchical search, readiness, counterfactual gate, blueprint runtime, translation, and output bundle assembly. |
+
+## Routing Rules
+
+`resolve_workflow_id()` currently applies these rules, in order:
+
+| Trigger | Result |
+|---|---|
+| Explicit `params.workflow_id` equal to `scientist_discovery`, `scientist_policy_design`, or `scientist_policy_verified` | Honor the explicit id. |
+| Discovery profile or payload: `execution_profile=discovery`, `discovery_mode`, or both `discovery_data` and `discovery_variable_names` present | Route to `scientist_discovery`. |
+| Policy-design profile: `execution_profile=policy_design` or truthy `params.policy_mode` | Route to `scientist_policy_design`. |
+| Verified-policy signals: `policy_answer_mode=verified_async`, `execution_profile=policy_verified_async`, or policy question/research intent without Trinity input | Route to `scientist_policy_verified`. |
+| Serious execution profiles: `research`, `governed`, `production` | Route to `scientist_causal_full`. |
+| Auto-escalation signals: `transport_required`, mismatched source/target contexts, external evidence markers, knowledge bundle input, cross-graph evidence enabled, or nested evidence-source paths | Route to `scientist_causal_full`. |
+| Otherwise | Fall back to `scientist_default`. |
+
+## DAG Shape By Workflow
+
+| Workflow | Distinguishing stages |
+|---|---|
+| `scientist_default` | `build_execution_plan -> run_preflight -> ready_to_run`, Foundry compile/simulation, legal check, normative arbitration, governance, evaluator, decision packet. |
+| `scientist_discovery` | `run_discovery_blueprint_runtime` only. |
+| `scientist_causal_full` | Adds `build_literature_prior`, `reconcile_causal_graph`, `run_causal_readiness`, `run_causal_queries`, `run_causal_ensemble`, `run_abm_consistency`, and `run_transportability`. |
+| `scientist_policy_verified` | Adds verified-source planning/drafting path before compile/simulation, but does not run hierarchical search or translation/output-bundle stages. |
+| `scientist_policy_design` | Extends verified-policy flow with `run_hierarchical_policy_search`, `counterfactual_identification_gate`, `run_policy_blueprint_runtime`, `run_policy_translation`, `run_translator_compliance`, and `build_policy_output_bundle`. |
+
+## Phase Evidence
+
+| D1 phase | Workflow-facing evidence |
+|---|---|
+| Phase 0 | `tools/ci/check_scientist_phase0_gate.py`, retry/locking/budget/idempotency regressions. |
+| Phase 1 | `tools/ci/check_scientist_phase1_gate.py`, workflow reliability scenarios, branch-local mutation tests, and benchmark coverage. |
+| Phase 2 | `tools/ci/check_scientist_phase2_ratchet.py` plus `tests/performance/test_scientist_runtime_paths.py`. |
+| Phase 3 | Causal-validity, governance, and search/agent artifacts documented on the linked Scientist reference pages. |
+| Phase 4 | Frontier paths remain behind explicit rollout evidence and are not part of default workflow routing. |
+
+## Validation
+
+```bash
+uv run pytest tests/scientist/workflows/test_workflow_specs.py tests/scientist/workflows/test_builder_pinning.py -q
+uv run pytest tests/scientist/test_workflow_selection.py tests/scientist/integration/test_workflow_reliability_scenarios.py -q
+uv run pytest tests/performance/test_scientist_runtime_paths.py --benchmark-only --benchmark-warmup=on --benchmark-min-rounds=5 -q
+```
 
 ## API Reference
 
@@ -41,12 +90,12 @@ Key phases:
 
 ::: polisyos.scientist.workflows.selection
 
-::: polisyos.scientist.workflows.causal_full
-
-::: polisyos.scientist.workflows.policy_design
-
-::: polisyos.scientist.workflows.policy_verified
+::: polisyos.scientist.workflows.default
 
 ::: polisyos.scientist.workflows.discovery
 
-::: polisyos.scientist.workflows.default
+::: polisyos.scientist.workflows.causal_full
+
+::: polisyos.scientist.workflows.policy_verified
+
+::: polisyos.scientist.workflows.policy_design

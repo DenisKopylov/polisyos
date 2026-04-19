@@ -70,6 +70,7 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
+        "run_id",
         "params.proxy_identification_bundle",
         "params.transportability_check_bundle",
         "params.strategic_response_specs_bundle",

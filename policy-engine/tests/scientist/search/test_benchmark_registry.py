@@ -209,6 +209,80 @@ def test_benchmark_registry_resolve_family_bundle_dedupes_phase_d4_suites(tmp_pa
     assert bundle.rotating_challenge_evaluation_refs == [strategic_new, multiplicity]
 
 
+def test_benchmark_registry_closes_frontier_promotion_bundle_when_phase_d4_matrix_exists(
+    tmp_path,
+) -> None:
+    registry = BenchmarkRegistry(tmp_path / "benchmarks")
+    selection = _ref("j")
+    hidden = _ref("k")
+    strategic = _ref("l")
+    multiplicity = _ref("m")
+    abstraction = _ref("n")
+
+    registry.record(
+        "selection",
+        selection,
+        run_id="run-frontier",
+        loop_id="loop-frontier",
+        family="frontier_family",
+    )
+    registry.record(
+        "hidden_holdout",
+        hidden,
+        run_id="run-frontier",
+        loop_id="loop-frontier",
+        family="frontier_family",
+    )
+    registry.record(
+        "rotating_challenge",
+        strategic,
+        run_id="run-frontier",
+        loop_id="loop-frontier",
+        family="frontier_family",
+        suite_id="strategic_gaming_v1",
+        rotation_group="phase_d4_v1",
+    )
+    registry.record(
+        "rotating_challenge",
+        multiplicity,
+        run_id="run-frontier",
+        loop_id="loop-frontier",
+        family="frontier_family",
+        suite_id="multiplicity_disclosure_v1",
+        rotation_group="phase_d4_v1",
+    )
+    registry.record(
+        "rotating_challenge",
+        abstraction,
+        run_id="run-frontier",
+        loop_id="loop-frontier",
+        family="frontier_family",
+        suite_id="abstraction_leakage_v1",
+        rotation_group="phase_d4_v1",
+    )
+
+    bundle = registry.resolve_family_bundle(
+        family="frontier_family",
+        claim_mode="estimation",
+        run_id="run-frontier",
+        loop_id="loop-frontier",
+    )
+
+    assert bundle.selection_evaluation_ref == selection
+    assert bundle.hidden_holdout_evaluation_ref == hidden
+    assert bundle.rotating_challenge_evaluation_refs == [
+        abstraction,
+        multiplicity,
+        strategic,
+    ]
+    assert registry.require_promotion_evidence(
+        family="frontier_family",
+        claim_mode="estimation",
+        run_id="run-frontier",
+        loop_id="loop-frontier",
+    ) == []
+
+
 def test_benchmark_registry_records_extended_contour_metadata(tmp_path) -> None:
     registry = BenchmarkRegistry(tmp_path / "benchmarks")
     ref = _ref("contour")

@@ -1,44 +1,73 @@
 # Observation (`polisyos.ir.observation`)
 
+## Purpose
+
 `polisyos.ir.observation` связывает сырые measurement/panel данные с causal и
-policy execution surface. Пакет вводит семейства наблюдений, entity scopes,
-measurement governance, compiler suites и bundle contracts, через которые
-`scientist` и `foundry` получают проверяемые observation-derived inputs вместо
-ad-hoc in-memory structures.
+policy execution surface. Пакет задает observation families, measurement
+governance, bundle manifests, compiler suites, readiness checks и executable
+causal tasks, через которые downstream Foundry и Scientist получают
+проверяемые inputs вместо ad-hoc in-memory structures.
 
-## Роль в системе
+## Where to Start
 
-- **Зависит от:** `polisyos.ir.analytics`, `polisyos.ir.artifacts`, `polisyos.ir.kernel`, selected `polisyos.foundry` protocol contracts
-- **Используется в:** `polisyos.scientist.causal`, `polisyos.scientist.governance`, `polisyos.foundry.calibration`, `polisyos.foundry.methods`
-- Observation layer формирует мост между measurement reality, governance policies и executable causal tasks.
+- [`contracts.py`](./contracts.py) — базовые `ObservationRecord`, `ObservationPanel`, family и entity-scope contracts.
+- [`measurement.py`](./measurement.py) — measurement trust tiers, proxy rules, schema regimes и identification routing.
+- [`governance.py`](./governance.py) — alias registries и mapping наблюдений в governance/runtime pass surface.
+- [`bundles.py`](./bundles.py) — bundle manifests и compatibility targets для downstream contracts.
+- [`contract_compilers.py`](./contract_compilers.py) — compiler inputs, artifacts и serialization helpers.
+- [`causal_readiness.py`](./causal_readiness.py) — readiness bundles и persistence helpers.
+- [`causal_execution.py`](./causal_execution.py) — executable bounds / temporal DTR tasks и persistence helpers.
+- [`bridges.py`](./bridges.py) — standards bridges для SDMX, DDI, FHIR и CDISC.
 
-## Ключевые концепции
+## Public entrypoints
 
-- **Observation families** — `ObservationFamily`, `EntityScope` и `ObservationRecord` нормализуют source data.
-- **Measurement governance** — registries для trust tiers, proxy rules, schema regimes и shock/regime calendars.
-- **Family policy mapping** — `ObservationFamilyPolicyRegistry` и governance alias registries сопоставляют family-specific readiness с runtime passes.
-- **Contract compilation** — `ObservationContractCompilerSuite` компилирует panel/network/survey/specification-curve payloads в foundry-friendly bundles.
-- **Readiness bundles** — `CausalReadinessBundle` агрегирует proxy, transportability, counterfactual и strategic readiness entries.
-- **Execution bundles** — `CausalExecutionBundle` несет bounds estimation и temporal DTR tasks для downstream execution.
+| Entrypoint | Use when | Defined in |
+|---|---|---|
+| `polisyos.ir.observation.ObservationRecord`, `ObservationPanel` | Нужны базовые record/panel contracts | [`contracts.py`](./contracts.py) |
+| `polisyos.ir.observation.MeasurementRegistry` | Нужен routing по trust tiers, proxy rules и freshness logic | [`measurement.py`](./measurement.py) |
+| `polisyos.ir.observation.SchemaRegimeRegistry`, `RegimeCalendar`, `ShockCalendar` | Нужно моделировать schema regime shifts и structural breaks | [`measurement.py`](./measurement.py) |
+| `polisyos.ir.observation.ObservationFamilyPolicyRegistry` | Нужно сопоставить observation families с governance/runtime passes | [`governance.py`](./governance.py) |
+| `polisyos.ir.observation.ObservationContractCompilerSuite` | Нужно компилировать observation payloads в foundry/scientist-compatible bundles | [`compiler.py`](./compiler.py) |
+| `polisyos.ir.observation.CausalReadinessBundle` | Нужен readiness surface для proxy, transportability, counterfactual и strategic checks | [`causal_readiness.py`](./causal_readiness.py) |
+| `polisyos.ir.observation.CausalExecutionBundle` | Нужен executable surface для bounds estimation и temporal DTR tasks | [`causal_execution.py`](./causal_execution.py) |
+| `polisyos.ir.observation.persist_causal_readiness_bundle()`, `load_causal_readiness_bundle()` | Нужно persist/load readiness bundle в CAS-backed flows | [`causal_readiness.py`](./causal_readiness.py) |
+| `polisyos.ir.observation.persist_causal_execution_bundle()`, `load_causal_execution_bundle()` | Нужно persist/load execution bundle | [`causal_execution.py`](./causal_execution.py) |
 
-## Public API
+## Depends on / depended on by
 
-| Type/Function | Description |
-|---|---|
-| `ObservationRecord`, `ObservationPanel` | Базовые observation contracts для record/panel data |
-| `MeasurementRegistry` | Registry measurement trust tiers, proxy rules и freshness logic |
-| `SchemaRegimeRegistry`, `RegimeCalendar`, `ShockCalendar` | Контракты regime changes и structural breaks |
-| `ObservationFamilyPolicyRegistry` | Family-level governance policy and pass mapping registry |
-| `ObservationContractCompilerSuite` | Основной compiler suite для observation-to-contract pipelines |
-| `CalibrationTargetBundleCompiler` | Компилятор observation panels в calibration target bundles |
-| `CausalReadinessBundle` | Bundle readiness signals для proxy/transport/strategic/counterfactual checks |
-| `CausalExecutionBundle` | Bundle executable causal tasks для bounds и temporal DTR execution |
+- Depends on: [`../analytics/README.md`](../analytics/README.md), [`../artifacts/README.md`](../artifacts/README.md), [`../kernel/README.md`](../kernel/README.md), selected `polisyos.foundry` protocol contracts.
+- Depended on by: `polisyos.foundry.agent_sim`, `polisyos.foundry.calibration`, `polisyos.foundry.methods`, `polisyos.scientist`, `polisyos.lex`, `polisyos.ir.artifacts.transport`.
 
-Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
+## Common commands
 
-## Текущее состояние
+Run from the repository root (`policy-engine/`).
 
-- Последнее обновление: 2026-04-03
-- Files: 9 Python files
-- Exports: package facade re-exports 8 implementation modules; verified implementation surface contains 159 class/function definitions
-- Detailed export groups: `bundles.py` exports 53 names, `contract_compilers.py` 51, `measurement.py` 13, `governance.py` 9
+Smoke-tested on `2026-04-17`.
+
+```bash
+uv run python -c "import polisyos.ir.observation as observation; from polisyos.ir.observation import ObservationRecord, CausalReadinessBundle; print(len(observation.__all__), ObservationRecord.__name__, CausalReadinessBundle.__name__)"
+```
+
+## Test/verification commands
+
+Run from the repository root (`policy-engine/`).
+
+Conceptual in this README refresh; run this suite before landing observation
+bundle or governance-registry changes.
+
+```bash
+uv run pytest tests/ir/observation/test_bundle_schemas.py tests/ir/observation/test_governance_registry.py tests/ir/observation/test_causal_readiness.py tests/ir/test_interoperability_bridges.py -q
+```
+
+## Reference docs
+
+- [IR observation reference](../../../../docs/reference/ir/observation.md)
+- [IR interoperability reference](../../../../docs/reference/ir/interoperability.md)
+- [IR schema catalog](../../../../docs/reference/ir/schema-catalog.md)
+- [IR root README](../README.md)
+- [Governance README](../governance/README.md)
+- [Artifacts README](../artifacts/README.md)
+
+## Last updated
+
+`2026-04-17`

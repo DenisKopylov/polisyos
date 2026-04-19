@@ -11,7 +11,26 @@ Only names listed in `__all__` are considered stable package-level API.
 from __future__ import annotations
 
 import importlib
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from . import (
+        artifacts,
+        backends,
+        cache,
+        canon,
+        components,
+        contracts,
+        discovery,
+        errors,
+        evaluation,
+        llm,
+        observability,
+        pipeline,
+        registry,
+        resilience,
+        run,
+    )
 
 __all__ = [
     "artifacts",

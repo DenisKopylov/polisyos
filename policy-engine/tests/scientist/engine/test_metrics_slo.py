@@ -150,7 +150,7 @@ class TestOTelBridge:
             status="ok", duration_ms=100, cache_hit=True, retry_count=0,
         )
 
-    def test_accepts_injected_metrics_registry(self) -> None:
+    def test_accepts_injected_metrics_registry(self, monkeypatch: pytest.MonkeyPatch) -> None:
         class _FakeMetrics:
             scientist_node_starts_total = None
             scientist_node_duration_seconds = None
@@ -204,6 +204,13 @@ class TestOTelBridge:
                 )
 
         from polisyos.scientist.engine.metrics_otel import OTelEngineMetrics
+
+        monkeypatch.setattr(
+            "polisyos.scientist.engine.metrics_otel._default_metrics",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("global metrics lookup should not run when metrics are injected")
+            ),
+        )
 
         metrics = _FakeMetrics()
         otel = OTelEngineMetrics(metrics=metrics, max_trace_correlations=2)

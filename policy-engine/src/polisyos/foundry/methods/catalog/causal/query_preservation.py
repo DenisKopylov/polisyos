@@ -5,6 +5,7 @@ import hashlib
 import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from functools import lru_cache
 from itertools import combinations
 from typing import Literal
 
@@ -16,9 +17,26 @@ from polisyos.foundry.methods.catalog.causal.admg_ops import (
     m_separation,
     remove_outgoing_edges,
 )
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    IdentificationStatus,
+    id_algorithm,
+    idc_algorithm,
+)
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    EdgeSource,
+    GraphType,
+)
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
-from polisyos.ir.analytics.cross_graph import CompositionCertificate, InterfaceMapping, SCMFragment
+from polisyos.ir.analytics.cross_graph import (
+    CompositionCertificate,
+    InterfaceMapping,
+    QueryPreservationCertificate,
+    SCMFragment,
+)
+from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
 
 QueryPreservationStatus = Literal["preserved", "broken", "unknown"]
 
@@ -60,6 +78,23 @@ class QueryPreservationTrace:
     witness_fragment_ids: tuple[str, ...] = ()
     source_witness_kind: str = ""
     assumption_boundary: str | None = None
+    theorem_family: str | None = None
+    identification_status: str | None = None
+    identification_method: str | None = None
+    identification_trace: tuple[str, ...] = ()
+    latent_projection_graph: CausalGraphModel | None = None
+    latent_projection_signature: dict[str, object] | None = None
+    identifying_estimand: dict[str, object] | None = None
+    required_distributions: tuple[dict[str, object], ...] = ()
+    positive_witness: dict[str, object] | None = None
+    hedge_witness: dict[str, object] | None = None
+
+
+@dataclass(frozen=True)
+class _LatentProjectionContext:
+    graph: CausalGraphModel
+    hidden_nodes: frozenset[str]
+    binding_to_node: Mapping[tuple[str, str], str]
 
 
 def check_query_preservation(
@@ -148,10 +183,7 @@ def evaluate_query_preservation_batch(
         )
         for query in queries
     ]
-    return {
-        evaluation.fingerprint: evaluation
-        for evaluation in sorted(evaluations, key=lambda item: item.fingerprint)
-    }
+    return {evaluation.fingerprint: evaluation for evaluation in evaluations}
 
 
 def update_query_preservation_cache(
@@ -165,6 +197,7 @@ def update_query_preservation_cache(
 ) -> tuple[CompositionCertificate, dict[str, QueryPreservationStatus]]:
     """Persist fresh preservation statuses back onto a composition certificate cache."""
     checked = dict(composition_certificate.checked_queries)
+    certificates = dict(composition_certificate.query_certificates)
     evaluations = list(
         evaluate_query_preservation_batch(
             queries,
@@ -177,9 +210,23 @@ def update_query_preservation_cache(
     )
     for evaluation in evaluations:
         checked[evaluation.fingerprint] = evaluation.status
+        existing_negative_ref = None
+        existing_projection_ref = None
+        existing_record = certificates.get(evaluation.fingerprint)
+        if existing_record is not None:
+            existing_negative_ref = existing_record.negative_certificate_ref
+            existing_projection_ref = existing_record.latent_projection_ref
+        certificates[evaluation.fingerprint] = _trace_to_query_certificate(
+            evaluation,
+            negative_certificate_ref=existing_negative_ref,
+            latent_projection_ref=existing_projection_ref,
+        )
 
     updated_certificate = composition_certificate.model_copy(
-        update={"checked_queries": dict(sorted(checked.items()))}
+        update={
+            "checked_queries": dict(sorted(checked.items())),
+            "query_certificates": dict(sorted(certificates.items())),
+        }
     )
     return (
         updated_certificate,
@@ -188,6 +235,38 @@ def update_query_preservation_cache(
             for evaluation in sorted(evaluations, key=lambda item: item.fingerprint)
         },
     )
+
+
+def update_query_preservation_artifact_refs(
+    composition_certificate: CompositionCertificate,
+    *,
+    latent_projection_refs: Mapping[str, str] | None = None,
+    negative_certificate_refs: Mapping[str, str] | None = None,
+) -> CompositionCertificate:
+    """Attach persisted artifact refs to cached per-query preservation certificates."""
+    if not composition_certificate.query_certificates:
+        return composition_certificate
+
+    projection_refs = dict(latent_projection_refs or {})
+    negative_refs = dict(negative_certificate_refs or {})
+    updated_records: dict[str, QueryPreservationCertificate] = {}
+    changed = False
+    for fingerprint, record in sorted(composition_certificate.query_certificates.items()):
+        update_payload: dict[str, object] = {}
+        projection_ref = projection_refs.get(fingerprint)
+        negative_ref = negative_refs.get(fingerprint)
+        if projection_ref is not None and record.latent_projection_ref != projection_ref:
+            update_payload["latent_projection_ref"] = projection_ref
+        if negative_ref is not None and record.negative_certificate_ref != negative_ref:
+            update_payload["negative_certificate_ref"] = negative_ref
+        updated_records[fingerprint] = (
+            record.model_copy(update=update_payload) if update_payload else record
+        )
+        changed = changed or bool(update_payload)
+
+    if not changed:
+        return composition_certificate
+    return composition_certificate.model_copy(update={"query_certificates": updated_records})
 
 
 def _evaluate_query_preservation(
@@ -209,6 +288,12 @@ def _evaluate_query_preservation(
     )
     cached = composition_certificate.checked_queries.get(fingerprint)
     if cached is not None:
+        cached_record = composition_certificate.query_certificates.get(fingerprint)
+        if cached_record is not None:
+            return _trace_from_query_certificate(
+                fingerprint=fingerprint,
+                certificate=cached_record,
+            )
         return QueryPreservationTrace(
             fingerprint=fingerprint,
             status=cached,
@@ -240,6 +325,17 @@ def _evaluate_query_preservation(
             for variable in obligation.conditioning
         }
     )
+
+    if _has_latent_bridge_entries(interface_mapping):
+        return _evaluate_latent_projection_preservation(
+            query,
+            fingerprint=fingerprint,
+            query_semantics=_query_semantics(query),
+            query_variables=query_variables,
+            fragment_graphs=fragment_graphs,
+            interface_mapping=interface_mapping,
+        )
+
     resolutions = _build_variable_resolutions(
         query_variables=query_variables,
         composed_graph=composed_graph,
@@ -410,6 +506,229 @@ def _evaluate_query_preservation(
     )
 
 
+def _evaluate_latent_projection_preservation(
+    query: CausalQuery,
+    *,
+    fingerprint: str,
+    query_semantics: str,
+    query_variables: Sequence[str],
+    fragment_graphs: Mapping[str, CausalGraphModel],
+    interface_mapping: InterfaceMapping,
+) -> QueryPreservationTrace:
+    if query.query_type is QueryType.SOFT_INTERVENTION:
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="unknown",
+            reason_code="latent_projection_soft_intervention_out_of_scope",
+            query_semantics=query_semantics,
+            assumption_boundary="latent_bridge",
+        )
+    if query.query_type is not QueryType.INTERVENTIONAL:
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="unknown",
+            reason_code="unsupported_query_type",
+            query_semantics=query_semantics,
+            assumption_boundary="latent_bridge",
+        )
+    if query.intervention_spec is not None:
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="unknown",
+            reason_code="latent_projection_non_atomic_intervention_out_of_scope",
+            query_semantics=query_semantics,
+            assumption_boundary="latent_bridge",
+        )
+
+    projection = _build_composed_latent_projection(
+        fragment_graphs=fragment_graphs,
+        interface_mapping=interface_mapping,
+    )
+    if projection is None:
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="unknown",
+            reason_code="latent_projection_out_of_scope",
+            query_semantics=query_semantics,
+            assumption_boundary="latent_bridge",
+        )
+    if isinstance(projection, str):
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="unknown",
+            reason_code=projection,
+            query_semantics=query_semantics,
+            assumption_boundary="latent_bridge",
+        )
+
+    resolutions = _build_latent_projection_resolutions(
+        query_variables=query_variables,
+        projection=projection,
+        fragment_graphs=fragment_graphs,
+        interface_mapping=interface_mapping,
+    )
+    if set(query_variables) - set(resolutions):
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="unknown",
+            reason_code="latent_projection_unresolved_query_variable",
+            query_semantics=query_semantics,
+            assumption_boundary="latent_bridge",
+            latent_projection_graph=projection.graph,
+            latent_projection_signature=_graph_signature(projection.graph),
+        )
+
+    treatment = resolutions[query.treatment_variable].composed_node
+    outcome = resolutions[query.outcome_variable].composed_node
+    condition_nodes = {
+        resolutions[variable].composed_node
+        for variable in query.condition
+    }
+    if treatment is None or outcome is None or None in condition_nodes:
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="unknown",
+            reason_code="latent_projection_unresolved_query_variable",
+            query_semantics=query_semantics,
+            assumption_boundary="latent_bridge",
+            latent_projection_graph=projection.graph,
+            latent_projection_signature=_graph_signature(projection.graph),
+        )
+
+    involved_fragments = tuple(
+        sorted(
+            {
+                fragment_id
+                for resolution in resolutions.values()
+                for fragment_id in resolution.local_nodes
+            }
+        )
+    )
+    witness_kind = _witness_kind(involved_fragments) if involved_fragments else ""
+    latent_projection_signature = _graph_signature(projection.graph)
+    try:
+        if condition_nodes:
+            result = idc_algorithm(
+                treatment=frozenset({treatment}),
+                outcome=frozenset({outcome}),
+                conditions=frozenset(str(node) for node in condition_nodes if node),
+                graph=projection.graph,
+            )
+        else:
+            result = id_algorithm(
+                treatment=frozenset({treatment}),
+                outcome=frozenset({outcome}),
+                graph=projection.graph,
+            )
+    except Exception:
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="unknown",
+            reason_code="latent_projection_execution_failed",
+            query_semantics=query_semantics,
+            witness_fragment_ids=involved_fragments,
+            source_witness_kind=witness_kind,
+            assumption_boundary="latent_bridge",
+            latent_projection_graph=projection.graph,
+            latent_projection_signature=latent_projection_signature,
+        )
+
+    identification_method = (
+        result.estimand_ast.identification_method
+        if result.estimand_ast is not None
+        else None
+    )
+    source_fragment_id = involved_fragments[0] if len(involved_fragments) == 1 else None
+    identifying_estimand = (
+        result.estimand_ast.model_dump(mode="json")
+        if result.estimand_ast is not None and hasattr(result.estimand_ast, "model_dump")
+        else None
+    )
+    required_distributions = _serialize_required_distributions(result)
+    positive_witness = _positive_witness_for_identified_result(result)
+    adjustment_witness = _find_adjustment_witness(
+        projection.graph,
+        treatment=treatment,
+        outcome=outcome,
+        required_conditioning=frozenset(str(node) for node in condition_nodes if node),
+    )
+    if (
+        result.status is IdentificationStatus.IDENTIFIED
+        and adjustment_witness is not None
+        and not str(identification_method or "").strip().lower().startswith("frontdoor")
+    ):
+        positive_witness = {"adjustment_set": [_pretty_query_node(item) for item in adjustment_witness]}
+        if str(identification_method or "").strip().lower() not in {"backdoor", "idc"}:
+            identification_method = "backdoor"
+    theorem_family = _theorem_family_for_identification_method(identification_method)
+
+    if result.status is IdentificationStatus.IDENTIFIED:
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="preserved",
+            reason_code="latent_projection_exact_identified",
+            source_fragment_id=source_fragment_id,
+            query_semantics=query_semantics,
+            witness_fragment_ids=involved_fragments,
+            source_witness_kind=witness_kind,
+            theorem_family=theorem_family,
+            identification_status=result.status.value,
+            identification_method=identification_method,
+            identification_trace=tuple(result.trace),
+            latent_projection_graph=projection.graph,
+            latent_projection_signature=latent_projection_signature,
+            identifying_estimand=identifying_estimand,
+            required_distributions=required_distributions,
+            positive_witness=positive_witness,
+        )
+
+    if result.status is IdentificationStatus.HEDGE_FOUND and result.hedge_certificate is not None:
+        cert = result.hedge_certificate
+        return QueryPreservationTrace(
+            fingerprint=fingerprint,
+            status="broken",
+            reason_code="latent_projection_hedge_found",
+            source_fragment_id=source_fragment_id,
+            query_semantics=query_semantics,
+            witness_fragment_ids=involved_fragments,
+            source_witness_kind=witness_kind,
+            theorem_family=theorem_family,
+            identification_status=result.status.value,
+            identification_method=identification_method,
+            identification_trace=tuple(result.trace),
+            latent_projection_graph=projection.graph,
+            latent_projection_signature=latent_projection_signature,
+            identifying_estimand=identifying_estimand,
+            required_distributions=required_distributions,
+            hedge_witness={
+                "treatment": tuple(sorted(cert.treatment)),
+                "outcome": tuple(sorted(cert.outcome)),
+                "hedge_forest": tuple(sorted(cert.hedge_forest)),
+                "hedge_root": tuple(sorted(cert.hedge_root)),
+                "c_component_witness": tuple(sorted(cert.c_component_witness)),
+            },
+        )
+
+    return QueryPreservationTrace(
+        fingerprint=fingerprint,
+        status="unknown",
+        reason_code=f"latent_projection_{result.status.value}",
+        source_fragment_id=source_fragment_id,
+        query_semantics=query_semantics,
+        witness_fragment_ids=involved_fragments,
+        source_witness_kind=witness_kind,
+        assumption_boundary="latent_bridge",
+        theorem_family=theorem_family,
+        identification_status=result.status.value,
+        identification_method=identification_method,
+        identification_trace=tuple(result.trace),
+        latent_projection_graph=projection.graph,
+        latent_projection_signature=latent_projection_signature,
+        identifying_estimand=identifying_estimand,
+        required_distributions=required_distributions,
+    )
+
+
 def _graphical_obligations_for_query(query: CausalQuery) -> tuple[_GraphicalObligation, ...]:
     if query.query_type not in {QueryType.INTERVENTIONAL, QueryType.SOFT_INTERVENTION}:
         return ()
@@ -436,6 +755,316 @@ def _query_semantics(query: CausalQuery) -> str:
     if query.intervention_spec is not None:
         return f"{query.query_type.value}:{query.intervention_spec.type.value}"
     return query.query_type.value
+
+
+def negative_certificate_from_query_preservation_trace(
+    query: CausalQuery,
+    trace: QueryPreservationTrace,
+) -> NegativeCertificate | None:
+    """Convert an exact latent-interface failure into a typed impossibility artifact."""
+    if trace.status != "broken":
+        return None
+    if trace.reason_code != "latent_projection_hedge_found":
+        return None
+
+    treatment = str(query.treatment_variable).strip()
+    outcome = str(query.outcome_variable).strip()
+    expression = _query_expression(query)
+    witness = trace.hedge_witness or {}
+    hedge_forest = tuple(str(item) for item in witness.get("hedge_forest", ()))
+    hedge_root = tuple(str(item) for item in witness.get("hedge_root", ()))
+    c_component = tuple(str(item) for item in witness.get("c_component_witness", ()))
+    technical_detail = ""
+    if hedge_forest or hedge_root:
+        technical_detail = f"Hedge: F={list(hedge_forest)}, F'={list(hedge_root)}"
+
+    suggested = NegativeCertificate.auto_suggest_experiments(
+        BlockingType.HEDGE_STRUCTURE,
+        missing_vars=tuple(sorted({treatment} - {""})),
+    )
+    return NegativeCertificate(
+        blocking_type=BlockingType.HEDGE_STRUCTURE,
+        blocking_description=(
+            "Latent-interface composition breaks exact identifiability for "
+            f"{expression}. The composed latent projection contains a hedge witness."
+        ),
+        technical_detail=technical_detail,
+        required_distributions=tuple(trace.required_distributions),
+        suggested_experiments=suggested,
+        quantitative_diagnostics={
+            "identification_status": trace.identification_status,
+            "algorithm_version": trace.theorem_family or "latent_projection_exact",
+            "proof_trace": list(trace.identification_trace),
+            "query_preservation_reason": trace.reason_code,
+            "hedge_forest_size": len(hedge_forest),
+            "hedge_root_size": len(hedge_root),
+            "c_component_size": len(c_component),
+            "witness_fragment_count": len(trace.witness_fragment_ids),
+        },
+        constructive_message=(
+            "Re-identify the query on the composed latent projection, or break the latent "
+            "confounding path with a valid experiment, instrument, front-door mediator, "
+            "or stronger proxy/proximal assumptions."
+        ),
+    )
+
+
+def _query_expression(query: CausalQuery) -> str:
+    treatment = str(query.treatment_variable).strip()
+    outcome = str(query.outcome_variable).strip()
+    if query.condition:
+        conditions = ", ".join(sorted(str(item).strip() for item in query.condition))
+        return f"P({outcome} | do({treatment}), {conditions})"
+    return f"P({outcome} | do({treatment}))"
+
+
+def _trace_to_query_certificate(
+    trace: QueryPreservationTrace,
+    *,
+    negative_certificate_ref: str | None = None,
+    latent_projection_ref: str | None = None,
+) -> QueryPreservationCertificate:
+    return QueryPreservationCertificate(
+        status=trace.status,
+        reason_code=trace.reason_code,
+        query_semantics=trace.query_semantics,
+        source_fragment_id=trace.source_fragment_id,
+        witness_fragment_ids=list(trace.witness_fragment_ids),
+        source_witness_kind=trace.source_witness_kind,
+        assumption_boundary=trace.assumption_boundary,
+        theorem_family=trace.theorem_family,
+        identification_status=trace.identification_status,
+        identification_method=trace.identification_method,
+        identification_trace=list(trace.identification_trace),
+        obligations_checked=[
+            {
+                "kind": obligation.kind,
+                "treatment": obligation.treatment,
+                "outcome": obligation.outcome,
+                "conditioning": list(obligation.conditioning),
+                "holds_in_source": obligation.holds_in_source,
+                "holds_in_composed": obligation.holds_in_composed,
+            }
+            for obligation in trace.obligations_checked
+        ],
+        latent_projection_signature=(
+            trace.latent_projection_signature
+            if trace.latent_projection_signature is not None
+            else _graph_signature(trace.latent_projection_graph)
+            if trace.latent_projection_graph is not None
+            else None
+        ),
+        latent_projection_ref=latent_projection_ref,
+        identifying_estimand=trace.identifying_estimand,
+        required_distributions=[dict(item) for item in trace.required_distributions],
+        positive_witness=trace.positive_witness,
+        hedge_witness=trace.hedge_witness,
+        negative_certificate_ref=negative_certificate_ref,
+        metadata={"fingerprint": trace.fingerprint},
+    )
+
+
+def _trace_from_query_certificate(
+    *,
+    fingerprint: str,
+    certificate: QueryPreservationCertificate,
+) -> QueryPreservationTrace:
+    return QueryPreservationTrace(
+        fingerprint=fingerprint,
+        status=certificate.status,
+        reason_code=certificate.reason_code,
+        source_fragment_id=certificate.source_fragment_id,
+        query_semantics=certificate.query_semantics,
+        obligations_checked=tuple(
+            GraphicalObligationTrace(
+                kind=str(item.get("kind", "")),
+                treatment=str(item.get("treatment", "")),
+                outcome=str(item.get("outcome", "")),
+                conditioning=tuple(str(token) for token in item.get("conditioning", [])),
+                holds_in_source=(
+                    bool(item["holds_in_source"])
+                    if item.get("holds_in_source") is not None
+                    else None
+                ),
+                holds_in_composed=(
+                    bool(item["holds_in_composed"])
+                    if item.get("holds_in_composed") is not None
+                    else None
+                ),
+            )
+            for item in certificate.obligations_checked
+        ),
+        witness_fragment_ids=tuple(certificate.witness_fragment_ids),
+        source_witness_kind=certificate.source_witness_kind,
+        assumption_boundary=certificate.assumption_boundary,
+        theorem_family=certificate.theorem_family,
+        identification_status=certificate.identification_status,
+        identification_method=certificate.identification_method,
+        identification_trace=tuple(certificate.identification_trace),
+        latent_projection_signature=(
+            dict(certificate.latent_projection_signature)
+            if certificate.latent_projection_signature is not None
+            else None
+        ),
+        identifying_estimand=(
+            dict(certificate.identifying_estimand)
+            if certificate.identifying_estimand is not None
+            else None
+        ),
+        required_distributions=tuple(dict(item) for item in certificate.required_distributions),
+        positive_witness=(
+            dict(certificate.positive_witness)
+            if certificate.positive_witness is not None
+            else None
+        ),
+        hedge_witness=(
+            dict(certificate.hedge_witness)
+            if certificate.hedge_witness is not None
+            else None
+        ),
+    )
+
+
+def _serialize_required_distributions(result: object) -> tuple[dict[str, object], ...]:
+    raw_items = getattr(result, "required_distributions", []) or []
+    serialized: list[dict[str, object]] = []
+    for item in raw_items:
+        if hasattr(item, "model_dump"):
+            serialized.append(item.model_dump(mode="json"))
+        elif isinstance(item, dict):
+            serialized.append(dict(item))
+    return tuple(serialized)
+
+
+def _positive_witness_for_identified_result(result: object) -> dict[str, object] | None:
+    estimand_ast = getattr(result, "estimand_ast", None)
+    identification_method = (
+        str(getattr(estimand_ast, "identification_method", "") or "").strip().lower()
+    )
+    treatment = str(getattr(estimand_ast, "treatment", "") or "").strip()
+    outcome = str(getattr(estimand_ast, "outcome", "") or "").strip()
+    all_variables = tuple(str(item) for item in (getattr(estimand_ast, "all_variables", ()) or ()))
+
+    if identification_method == "frontdoor":
+        mediators = sorted(
+            {
+                _pretty_query_node(item)
+                for item in all_variables
+                if item not in {treatment, outcome}
+            }
+        )
+        return {"mediators": mediators}
+    if identification_method == "backdoor":
+        adjustment_set = sorted(
+            {
+                _pretty_query_node(item)
+                for item in all_variables
+                if item not in {treatment, outcome}
+            }
+        )
+        return {"adjustment_set": adjustment_set}
+    if identification_method == "proxy_adjustment":
+        proxy_variables = sorted(
+            {
+                _pretty_query_node(item)
+                for item in all_variables
+                if item not in {treatment, outcome}
+            }
+        )
+        return {"proxy_variables": proxy_variables}
+    if identification_method == "idc":
+        return {"conditional_query": True}
+    return None
+
+
+def _pretty_query_node(node: str) -> str:
+    token = str(node).strip()
+    if token.startswith("stitched::"):
+        parts = token.split("::")
+        if len(parts) >= 2 and parts[1]:
+            return parts[1]
+    if "::" in token:
+        _, local_name = token.split("::", 1)
+        if local_name:
+            return local_name
+    return token
+
+
+def _find_adjustment_witness(
+    graph: CausalGraphModel,
+    *,
+    treatment: str,
+    outcome: str,
+    required_conditioning: frozenset[str] = frozenset(),
+) -> tuple[str, ...] | None:
+    if graph.graph_type not in {GraphType.DAG, GraphType.ADMG}:
+        return None
+    graph_nodes = set(graph.nodes)
+    if not {treatment, outcome}.issubset(graph_nodes):
+        return None
+    if not required_conditioning.issubset(graph_nodes):
+        return None
+
+    forbidden = descendants(graph, frozenset({treatment}), include_self=False)
+    candidate_pool = sorted(graph_nodes - {treatment, outcome} - forbidden)
+    required = tuple(sorted(required_conditioning))
+    optional = [node for node in candidate_pool if node not in required_conditioning]
+    if len(optional) > 12:
+        return None
+
+    common_ancestors = tuple(
+        sorted(
+            (
+                ancestors(graph, frozenset({treatment}), include_self=False)
+                & ancestors(graph, frozenset({outcome}), include_self=False)
+                & set(candidate_pool)
+            )
+        )
+    )
+    if common_ancestors:
+        preferred_conditioning = frozenset({*required, *common_ancestors})
+        if _obligation_holds(
+            graph,
+            _GraphicalObligation(
+                kind="backdoor_adjustment",
+                treatment=treatment,
+                outcome=outcome,
+                conditioning=preferred_conditioning,
+            ),
+        ):
+            return tuple(sorted(preferred_conditioning))
+
+    for size in range(len(optional) + 1):
+        for subset in combinations(optional, size):
+            conditioning = frozenset({*required, *subset})
+            if _obligation_holds(
+                graph,
+                _GraphicalObligation(
+                    kind="backdoor_adjustment",
+                    treatment=treatment,
+                    outcome=outcome,
+                    conditioning=conditioning,
+                ),
+            ):
+                return tuple(sorted(conditioning))
+    return None
+
+
+def _theorem_family_for_identification_method(identification_method: str | None) -> str | None:
+    token = str(identification_method or "").strip().lower()
+    if not token:
+        return "id_exact"
+    if token == "backdoor":
+        return "adjustment_exact"
+    if token.startswith("frontdoor"):
+        return "frontdoor_exact"
+    if token.startswith("proxy"):
+        return "proxy_exact"
+    if token.startswith("proximal"):
+        return "proximal_exact"
+    if token == "idc":
+        return "idc_exact"
+    return "id_exact"
 
 
 def _resolve_composed_obligations(
@@ -540,6 +1169,252 @@ def _build_variable_resolutions(
             )
 
     return resolutions
+
+
+def _build_latent_projection_resolutions(
+    *,
+    query_variables: Sequence[str],
+    projection: _LatentProjectionContext,
+    fragment_graphs: Mapping[str, CausalGraphModel],
+    interface_mapping: InterfaceMapping,
+) -> dict[str, _ResolvedVariable]:
+    interface_by_canonical = {
+        entry.canonical_node_id: entry
+        for entry in interface_mapping.entries
+        if entry.alignment_type != "latent_bridge"
+    }
+    interface_by_variable_name: dict[str, list[tuple[str, str, str]]] = {}
+    binding_keys = {
+        (binding.fragment_id, binding.variable_name)
+        for entry in interface_mapping.entries
+        for binding in entry.bindings
+    }
+    for entry in interface_mapping.entries:
+        if entry.alignment_type == "latent_bridge":
+            continue
+        for binding in entry.bindings:
+            interface_by_variable_name.setdefault(binding.variable_name, []).append(
+                (entry.canonical_node_id, binding.fragment_id, binding.variable_name)
+            )
+
+    non_interface_nodes: dict[str, list[tuple[str, str, str]]] = {}
+    for fragment_id, graph in fragment_graphs.items():
+        for node in graph.nodes:
+            if (fragment_id, node) in binding_keys:
+                continue
+            token = f"{fragment_id}::{node}"
+            if token not in set(projection.graph.nodes):
+                continue
+            non_interface_nodes.setdefault(node, []).append((token, fragment_id, node))
+
+    projected_nodes = set(projection.graph.nodes)
+    resolutions: dict[str, _ResolvedVariable] = {}
+    for variable in query_variables:
+        token = str(variable).strip()
+        if not token:
+            continue
+        entry = interface_by_canonical.get(token)
+        if entry is not None and token in projected_nodes:
+            resolutions[token] = _ResolvedVariable(
+                composed_node=entry.canonical_node_id,
+                local_nodes={binding.fragment_id: binding.variable_name for binding in entry.bindings},
+            )
+            continue
+
+        if token in projected_nodes and "::" in token:
+            fragment_id, local_name = token.split("::", 1)
+            if fragment_id in fragment_graphs and local_name in fragment_graphs[fragment_id].nodes:
+                resolutions[token] = _ResolvedVariable(
+                    composed_node=token,
+                    local_nodes={fragment_id: local_name},
+                )
+                continue
+
+        interface_candidates = interface_by_variable_name.get(token, [])
+        unique_interface_nodes = {item[0] for item in interface_candidates if item[0] in projected_nodes}
+        if len(unique_interface_nodes) == 1:
+            canonical_node = next(iter(unique_interface_nodes))
+            local_nodes = {
+                fragment_id: variable_name
+                for _, fragment_id, variable_name in interface_candidates
+            }
+            resolutions[token] = _ResolvedVariable(
+                composed_node=canonical_node,
+                local_nodes=local_nodes,
+            )
+            continue
+
+        non_interface_candidates = non_interface_nodes.get(token, [])
+        if len(non_interface_candidates) == 1:
+            composed_node, fragment_id, local_name = non_interface_candidates[0]
+            resolutions[token] = _ResolvedVariable(
+                composed_node=composed_node,
+                local_nodes={fragment_id: local_name},
+            )
+
+    return resolutions
+
+
+def _has_latent_bridge_entries(interface_mapping: InterfaceMapping) -> bool:
+    return any(entry.alignment_type == "latent_bridge" for entry in interface_mapping.entries)
+
+
+def _build_composed_latent_projection(
+    *,
+    fragment_graphs: Mapping[str, CausalGraphModel],
+    interface_mapping: InterfaceMapping,
+) -> _LatentProjectionContext | str | None:
+    if not fragment_graphs:
+        return None
+    if any(graph.graph_type is not GraphType.DAG for graph in fragment_graphs.values()):
+        return "latent_projection_requires_dag_fragments"
+
+    binding_to_node: dict[tuple[str, str], str] = {}
+    hidden_nodes: set[str] = set()
+    node_set: set[str] = set()
+    merged_edges: dict[tuple[str, str], CausalEdge] = {}
+
+    for entry in interface_mapping.entries:
+        node_id = entry.canonical_node_id
+        if entry.alignment_type == "latent_bridge":
+            hidden_nodes.add(node_id)
+        node_set.add(node_id)
+        for binding in entry.bindings:
+            binding_to_node[(binding.fragment_id, binding.variable_name)] = node_id
+
+    for fragment_id, graph in sorted(fragment_graphs.items()):
+        for edge in graph.edges:
+            if edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW:
+                return "latent_projection_requires_unmixed_dag_fragments"
+            if edge.lag not in (None, 0):
+                return "latent_projection_requires_unlagged_dag_fragments"
+            src = binding_to_node.get((fragment_id, edge.src), f"{fragment_id}::{edge.src}")
+            dst = binding_to_node.get((fragment_id, edge.dst), f"{fragment_id}::{edge.dst}")
+            node_set.add(src)
+            node_set.add(dst)
+            if src == dst:
+                continue
+            merged_edges[(src, dst)] = _merge_witness_edge(
+                merged_edges.get((src, dst)),
+                edge.model_copy(update={"src": src, "dst": dst}),
+            )
+
+    base_edges = [merged_edges[key] for key in sorted(merged_edges)]
+    if _directed_cycle_edges(base_edges):
+        return "latent_projection_directed_cycle"
+
+    adjacency: dict[str, set[str]] = {node: set() for node in node_set}
+    for edge in base_edges:
+        adjacency.setdefault(edge.src, set()).add(edge.dst)
+        adjacency.setdefault(edge.dst, set())
+
+    observed_nodes = set(node_set) - hidden_nodes
+
+    @lru_cache(maxsize=None)
+    def observed_descendants_from_hidden(node: str) -> frozenset[str]:
+        descendants_set: set[str] = set()
+        for child in sorted(adjacency.get(node, set())):
+            if child in hidden_nodes:
+                descendants_set.update(observed_descendants_from_hidden(child))
+            elif child in observed_nodes:
+                descendants_set.add(child)
+        return frozenset(descendants_set)
+
+    projected_edges: dict[tuple[str, str, str, str, int], CausalEdge] = {}
+    for src in sorted(observed_nodes):
+        reachable: set[str] = set()
+        for child in sorted(adjacency.get(src, set())):
+            if child in hidden_nodes:
+                reachable.update(observed_descendants_from_hidden(child))
+            elif child in observed_nodes:
+                reachable.add(child)
+        for dst in sorted(reachable):
+            if src == dst:
+                continue
+            edge = CausalEdge(
+                src=src,
+                dst=dst,
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+                sources=[EdgeSource.EXPERT],
+                combined_confidence=1.0,
+                metadata={"latent_projection": "directed_closure"},
+            )
+            key = _witness_edge_key(edge)
+            projected_edges[key] = _merge_witness_edge(projected_edges.get(key), edge)
+
+    for hidden in sorted(hidden_nodes):
+        descendants_set = sorted(observed_descendants_from_hidden(hidden))
+        for left, right in combinations(descendants_set, 2):
+            edge = CausalEdge(
+                src=left,
+                dst=right,
+                mark_src=EdgeMark.ARROW,
+                mark_dst=EdgeMark.ARROW,
+                sources=[EdgeSource.EXPERT],
+                combined_confidence=1.0,
+                metadata={
+                    "latent_projection": "bidirected_common_hidden_ancestor",
+                    "hidden_node": hidden,
+                },
+            )
+            key = _witness_edge_key(edge)
+            projected_edges[key] = _merge_witness_edge(projected_edges.get(key), edge)
+
+    projected_edge_list = [projected_edges[key] for key in sorted(projected_edges)]
+    if _directed_cycle_edges(projected_edge_list):
+        return "latent_projection_directed_cycle"
+    graph_type = (
+        GraphType.ADMG
+        if any(edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW for edge in projected_edge_list)
+        else GraphType.DAG
+    )
+    return _LatentProjectionContext(
+        graph=CausalGraphModel(
+            graph_type=graph_type,
+            nodes=sorted(observed_nodes),
+            edges=projected_edge_list,
+            discovery_method="latent_projection_query_preservation",
+            metadata={
+                "hidden_interface_nodes": sorted(hidden_nodes),
+                "interface_mapping_entry_ids": [
+                    entry.interface_id for entry in interface_mapping.entries if entry.alignment_type == "latent_bridge"
+                ],
+            },
+        ),
+        hidden_nodes=frozenset(hidden_nodes),
+        binding_to_node=binding_to_node,
+    )
+
+
+def _directed_cycle_edges(edges: Sequence[CausalEdge]) -> bool:
+    adjacency: dict[str, set[str]] = {}
+    for edge in edges:
+        if edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW:
+            continue
+        adjacency.setdefault(edge.src, set()).add(edge.dst)
+        adjacency.setdefault(edge.dst, set())
+
+    visited: set[str] = set()
+    active: set[str] = set()
+
+    def visit(node: str) -> bool:
+        if node in active:
+            return True
+        if node in visited:
+            return False
+        visited.add(node)
+        active.add(node)
+        for nxt in sorted(adjacency.get(node, set())):
+            if visit(nxt):
+                return True
+        active.remove(node)
+        return False
+
+    for node in sorted(adjacency):
+        if visit(node):
+            return True
+    return False
 
 
 def _fragment_topology(
@@ -909,5 +1784,7 @@ __all__ = [
     "evaluate_query_preservation_batch",
     "check_query_preservation",
     "check_query_preservation_batch",
+    "negative_certificate_from_query_preservation_trace",
     "update_query_preservation_cache",
+    "update_query_preservation_artifact_refs",
 ]

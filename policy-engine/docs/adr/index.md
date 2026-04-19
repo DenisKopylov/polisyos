@@ -1,11 +1,11 @@
 # ADR Index
 
-> Index of 107 ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
+> Index of 125 ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
 
 ## Status Summary
 
 - Accepted: 38
-- Proposed: 68
+- Proposed: 86
 - Deprecated: 0
 - Superseded: 1
 
@@ -22,6 +22,29 @@
 - [Fabric](#fabric)
 - [Foundry](#foundry)
 - [Operations](#operations)
+
+## Repository SOTA Contract ADRs
+
+| ADR | Status | Title | Summary | Related |
+|-----|--------|-------|---------|---------|
+| [0111](0111-workspace-root-boundary-sota-contract.md) | proposed | Workspace Root Boundary SOTA Contract | Fortifies the repository root/product-root split. | 0096 |
+| [0112](0112-data-forge-consolidation.md) | proposed | Data Forge Consolidation | Consolidates build-time data pipelines under Data Forge. | 0113, 0122 |
+| [0113](0113-asset-centric-pipeline-model.md) | proposed | Asset-Centric Pipeline Model | Makes assets primary and stages materializers. | 0122, 0125 |
+| [0114](0114-schema-registry-and-evolution.md) | proposed | Schema Registry and Evolution Rules | Adds versioned schema registry and compatibility policy. | 0005 |
+| [0115](0115-layered-architecture-enforcement.md) | proposed | Layered Architecture Enforcement | Moves architecture boundaries to import-linter contracts. | 0004 |
+| [0116](0116-observability-otel-first.md) | proposed | OTel-First Observability | Makes OpenTelemetry canonical for traces, metrics, and logs. | 0006 |
+| [0117](0117-secret-backend-protocol.md) | proposed | Secret Backend Protocol | Standardizes secret resolution and redaction. | 0127 |
+| [0118](0118-release-train-and-semver-contracts.md) | proposed | Release Train and SemVer Contracts | Connects public surface, schema, and artifact versioning. | 0010 |
+| [0119](0119-frontend-monorepo-workspace.md) | proposed | Frontend Monorepo Workspace | Defines frontend workspace structure. | 0118 |
+| [0120](0120-test-topology-mirror.md) | proposed | Test Topology Mirror | Aligns tests with source topology. | 0115 |
+| [0121](0121-python-monorepo-uv-workspaces.md) | proposed | Python Monorepo via uv Workspaces | Defines Python workspace strategy. | 0096, 0115 |
+| [0122](0122-lakehouse-snapshot-semantics.md) | proposed | Lakehouse Snapshot Semantics | Defines Merkle-root snapshots and atomic commits. | 0010, 0123 |
+| [0123](0123-artifact-ref-governance.md) | proposed | ArtifactRef Governance Metadata | Makes artifact refs self-describing for governance. | 0114, 0116, 0122 |
+| [0124](0124-llm-idempotency-and-prompt-versioning.md) | proposed | LLM Idempotency and Prompt Versioning | Defines cache keys, DLQ, and prompt versions. | 0114, 0123 |
+| [0125](0125-quality-regime-golden-differential-drift-consumer-contracts.md) | proposed | Quality Regime for Data Forge Assets | Combines golden, differential, drift, and consumer contracts. | 0113, 0114 |
+| [0126](0126-docs-lifecycle-diataxis-plans-archive.md) | proposed | Docs Lifecycle via Diataxis and Plan Buckets | Defines active/accepted/archive plan lifecycle. | 0096 |
+| [0127](0127-repo-hygiene-gates.md) | proposed | Repository Hygiene Gates | Defines topology, shims, generated, secret, SBOM, and commit gates. | 0004, 0115 |
+| [0128](0128-hermetic-reproducibility.md) | proposed | Hermetic Reproducibility | Pins lockfiles, models, tokenizers, Docker digests, and producer metadata. | 0118, 0123 |
 
 ## Architecture
 

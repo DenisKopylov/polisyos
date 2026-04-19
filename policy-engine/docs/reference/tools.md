@@ -2,6 +2,38 @@
 
 Generated from `tools.registry` command metadata.
 
+## D1-L5 Source Phase Map
+
+| Source phase | Focus | Current evidence |
+|---|---|---|
+| Phase 0 | SQL/shell injection, shell safety, destructive operation guardrails | `tools._lib.runner`, `tools._lib.sql`, `tools._lib.fs` |
+| Phase 1 | atomicity, rollback, resource/I/O validation, degraded mode, legacy quarantine | `tools._lib.fs`, `tools._lib.http`, `tools._lib.preflight`, lifecycle status metadata |
+| Phase 2 | unified CLI, shared runtime, packaging/import normalization, dependency graph, docs metadata | `polisyos-tools`, `tools.registry`, `tools.cli`, compatibility package shims |
+| Phase 3 | critical tool test program, structured CI output, timing telemetry | `tests/tools/**`, `tools._lib.output`, `tools._lib.timing`, workspace gates |
+| Phase 4 | cloud/scripts/benchmarks consolidation and deprecated cleanup | `tools/ops/**`, `tools/research/**`, compatibility wrappers and deprecation metadata |
+| Phase 5 | incremental execution, cache, autofix/rule registry, hot-path maintainability | `tools._lib.cache`, `tools/quality/lint/**`, targeted `--fix` and changed-file modes |
+
+## Validation Contract
+
+- Regenerate this page with `uv run polisyos-tools docs --output docs/reference/tools.md`.
+- `polisyos-tools workspace ci-parity` includes docs accuracy, strict MkDocs build, and semantic docstring checks unless `--skip-docs` is set.
+- Deprecated and quarantined commands must keep `status`, `replacement`, and `reason` metadata in `tools.registry`.
+
+## Documentation Impact
+
+| Output cluster | Exact files | Source of truth | Validation |
+|---|---|---|---|
+| Generated command reference | `docs/reference/tools.md` | `tools.registry` command metadata, dependency graph edges, lifecycle status metadata | `uv run polisyos-tools docs --output docs/reference/tools.md` |
+| Tooling READMEs | `tools/README.md`, `tools/validation/README.md`, `tools/devx/workspace/README.md`, `tools/devx/architecture/README.md` | canonical CLI behavior, workspace gates, validation helpers, architecture guardrails | `uv run polisyos-tools workspace ci-parity --skip-browser` |
+| Shared D1-L5 how-to/reference pages | `docs/how-to/operate-ci-cd-platform.md`, `docs/how-to/manage-generated-artifacts.md`, `docs/how-to/release-policy.md`, `docs/reference/quality-gates.md`, `docs/reference/dependency-platform.md`, `docs/reference/merge-governance.md`, `docs/reference/ratchet-policy.md` | repo workflows, generated-artifact guardrails, release tooling, ratchet policy docs | `uv run polisyos-tools architecture guardrails check` |
+
+## Backlog
+
+| Gap | Priority | Tracking note |
+|---|---|---|
+| No missing required D1-L5 output pages | - | All required D1-L5 files listed in `docs/DOCUMENTATION_SOTA_PLAN.md` are present. |
+| Additional per-category README expansion outside the D1 scope | P3 | Further category-local docs can land in D2 without blocking the D1 closure criteria. |
+
 ## Zones
 
 | Zone | Categories |
@@ -20,7 +52,10 @@ Generated from `tools.registry` command metadata.
 | `workspace` | `acceptance-audit` | `active` | `polisyos-tools workspace acceptance-audit` | Run the Phase 7 platform acceptance audit for the policy-engine workspace. | - | `./scripts/acceptance-audit` | - |
 | `workspace` | `bootstrap` | `active` | `polisyos-tools workspace bootstrap` | Bootstrap a contributor machine for the policy-engine workspace. | - | `./scripts/bootstrap` | `workspace.doctor` |
 | `workspace` | `ci-parity` | `active` | `polisyos-tools workspace ci-parity` | Run a local validation pass that approximates the main CI surfaces. | - | `./scripts/ci-parity` | - |
+| `workspace` | `core-runtime-basedpyright` | `active` | `polisyos-tools workspace core-runtime-basedpyright` | Run basedpyright across the full core-runtime surface plus curated extras. | - | - | - |
 | `workspace` | `core-runtime-closeout` | `active` | `polisyos-tools workspace core-runtime-closeout` | Validate and render the CORE common/runtime closeout ledger. | - | `./scripts/core-runtime-closeout` | - |
+| `workspace` | `core-runtime-long-soak` | `active` | `polisyos-tools workspace core-runtime-long-soak` | Run the core-runtime long-soak evidence suite and emit machine-readable reports. | - | - | - |
+| `workspace` | `core-runtime-mypy` | `active` | `polisyos-tools workspace core-runtime-mypy` | Run strict mypy over every Python file in the core runtime surface. | - | - | - |
 | `workspace` | `doctor` | `active` | `polisyos-tools workspace doctor` | Preflight validation for contributor machines and local quality gates. | - | `./scripts/doctor` | - |
 | `workspace` | `remote-acceptance` | `active` | `polisyos-tools workspace remote-acceptance` | Provision and drive a remote Linux runner for acceptance closeout. | - | `./scripts/remote-acceptance` | - |
 | `workspace` | `verify` | `active` | `polisyos-tools workspace verify` | Run the standard fast local gate for policy-engine contributors. | - | `./scripts/verify` | `workspace.doctor` |
@@ -60,6 +95,7 @@ Generated from `tools.registry` command metadata.
 | `diagnostics` | `visualize-provenance` | `active` | `polisyos-tools diagnostics visualize-provenance` | Provenance visualization / validation utility. | - | - | - |
 | `validation` | `check-ci-ratchets` | `active` | `polisyos-tools validation check-ci-ratchets` | Ratchet targeted CI escapes across common/core/runtime HTTP packages. | - | - | - |
 | `validation` | `check-docs-accuracy` | `active` | `polisyos-tools validation check-docs-accuracy` | Validate published docs against current repository reality. | - | - | - |
+| `validation` | `check-docs-gate` | `active` | `polisyos-tools validation check-docs-gate` | Run the Phase D6 path-aware documentation drift gate. | - | - | - |
 | `validation` | `check-docstring-quality` | `active` | `polisyos-tools validation check-docstring-quality` | Fail CI when public API docstrings regress to generic placeholders. | - | - | - |
 | `validation` | `fabric-schema-governance` | `active` | `polisyos-tools validation fabric-schema-governance` | Validate Fabric connector contract evolution against governance policy. | - | - | - |
 | `testing` | `check-playwright-quarantines` | `active` | `polisyos-tools testing check-playwright-quarantines` | Validate Playwright flaky/quarantine tags against the shared quarantine registry. | - | - | - |
@@ -162,6 +198,17 @@ Generated from `tools.registry` command metadata.
 | `scripts/remote-acceptance` | `polisyos-tools workspace remote-acceptance` |
 | `scripts/update_signature_baseline.py` | `polisyos-tools foundry update-signature-baseline` |
 | `scripts/verify` | `polisyos-tools workspace verify` |
+
+## Deprecated And Quarantined Commands
+
+| Category | Command | Status | Replacement | Reason |
+|---|---|---|---|---|
+| `diagnostics` | `check-udf-perf` | `quarantined` | diagnostics check-setup | legacy UDF stack depends on modules that are not present in the current package |
+| `cloud` | `run-remaining-stages` | `deprecated` | cloud run-pipeline --resume --snapshot-root ... | remaining-stage execution is now a compatibility bridge to the reviewed resume workflow |
+| `demos` | `run-export-demo` | `deprecated` | runtime export-runtime-openapi | demo uses historical Foundry import paths and is retained only as reference material |
+| `demos` | `run-mechanism-design` | `deprecated` | benchmarks bench-domain | manual research demo predates the current Foundry method registry |
+| `demos` | `run-udf-hybrid-demo` | `quarantined` | diagnostics check-setup | legacy hybrid UDF demo depends on removed UDF/graph-store APIs |
+| `demos` | `run-udf-query-demo` | `quarantined` | diagnostics check-setup | legacy UDF demo depends on the removed fabric.udf module family |
 
 ## Policy
 

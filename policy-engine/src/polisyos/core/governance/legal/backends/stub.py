@@ -1,9 +1,9 @@
 """Public backends stub module API."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any
 
-from polisyos.core.governance.passes.base import ComplianceIssue, IssueSeverity
+from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 
 if TYPE_CHECKING:
     from polisyos.ir.norm_pack import NormPack
@@ -24,8 +24,8 @@ class StubBackend:
     def evaluate(
         self,
         norm_pack: "NormPack | None",
-        context: dict,
-    ) -> List[ComplianceIssue]:
+        context: dict[str, Any],
+    ) -> list[ComplianceIssue]:
         """Always returns INFO-level 'not implemented' issues."""
         if norm_pack is None:
             return []

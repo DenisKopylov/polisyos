@@ -53,6 +53,14 @@ logger = get_logger(__name__)
 __all__ = ["MultiPassLLMDrafter"]
 
 
+def _default_tracer():
+    return get_tracer()
+
+
+def _default_metrics():
+    return get_metrics()
+
+
 class MultiPassLLMDrafter(
     _DrafterPassesMixin,
     _DrafterLLMMixin,
@@ -84,6 +92,8 @@ class MultiPassLLMDrafter(
         knowledge_base: CriticKnowledgeBase | None = None,
         constitution_norm_pack: NormPack | None = None,
         constitution_model_spec: ModelSpec | None = None,
+        tracer: Any | None = None,
+        metrics: Any | None = None,
     ) -> None:
         self._inner = inner
         self._config = config or MultiPassConfig()
@@ -117,6 +127,8 @@ class MultiPassLLMDrafter(
         self._constitution_norm_pack = constitution_norm_pack
         self._constitution_model_spec = constitution_model_spec
         self._last_constitution_hash: str | None = None
+        self._tracer = tracer
+        self._metrics = metrics
 
     # ------------------------------------------------------------------
     # Public API
@@ -169,8 +181,8 @@ class MultiPassLLMDrafter(
         hints: list[str] | None = None,
         prior_drafts: list[DraftResult] | None = None,
     ) -> DraftResult:
-        tracer = get_tracer()
-        metrics = get_metrics()
+        tracer = self._tracer if self._tracer is not None else _default_tracer()
+        metrics = self._metrics if self._metrics is not None else _default_metrics()
         pass_results: list[PassExecution] = []
         cumulative_cost_usd = 0.0
         extra_llm_calls = 0
@@ -470,7 +482,7 @@ class MultiPassLLMDrafter(
         hints: list[str] | None,
         prior_drafts: list[DraftResult] | None,
     ) -> PassExecution:
-        tracer = get_tracer()
+        tracer = self._tracer if self._tracer is not None else _default_tracer()
         started = time.perf_counter()
         with tracer.start_as_current_span(
             "drafter.pass.naive_draft",
@@ -503,8 +515,10 @@ class MultiPassLLMDrafter(
                         "polisyos.constitution.rules_count",
                         constitution.total_rules,
                     )
-                    metrics = get_metrics()
-                    metrics.record_constitution_generated(
+                    constitution_metrics = (
+                        self._metrics if self._metrics is not None else _default_metrics()
+                    )
+                    constitution_metrics.record_constitution_generated(
                         domain=constitution.domain,
                         duration_seconds=constitution_duration,
                         section_counts={
@@ -573,7 +587,7 @@ class MultiPassLLMDrafter(
         if self._llm is None:
             return self._skipped_pass(pass_name, pass_number, "missing_llm_client")
 
-        tracer = get_tracer()
+        tracer = self._tracer if self._tracer is not None else _default_tracer()
         started = time.perf_counter()
         prompt = get_self_critique_prompt(
             pass_type=pass_type,
@@ -666,7 +680,7 @@ class MultiPassLLMDrafter(
         if self._llm is None:
             return self._skipped_pass("consolidation", 4, "missing_llm_client")
 
-        tracer = get_tracer()
+        tracer = self._tracer if self._tracer is not None else _default_tracer()
         started = time.perf_counter()
         prompt = get_self_critique_prompt(
             pass_type="consolidation",

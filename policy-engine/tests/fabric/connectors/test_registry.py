@@ -371,6 +371,21 @@ class TestRegistrySingleton:
         assert len(instances) == 10
         assert all(inst is instances[0] for inst in instances)
 
+    def test_public_get_registry_uses_default_helper(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from polisyos.fabric import connectors as connectors_module
+
+        sentinel = object()
+        monkeypatch.setattr(
+            connectors_module,
+            "_default_connector_registry",
+            lambda: sentinel,
+        )
+
+        assert connectors_module.get_registry() is sentinel
+
 
 # =============================================================================
 # ConnectorRegistry: Registration Tests
@@ -1129,6 +1144,80 @@ class TestRegistryIntegration:
             assert stats.active_pools == 1
 
         asyncio.run(_run())
+
+    def test_bootstrap_default_configs_uses_default_profile_registry_helper(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Profile bootstrap resolves through helper-isolated singleton boundary."""
+
+        class _Profile:
+            profile_id = "test.mock.profile"
+            connector_family = "test.mock"
+
+        class _ProfileRegistry:
+            def list_all(self) -> list[_Profile]:
+                return [_Profile()]
+
+        registry.register(MockConnectorA)
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors._registry_lifecycle._default_source_profile_registry",
+            lambda: _ProfileRegistry(),
+        )
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors.profiles.registry.SourceProfileRegistry.get_instance",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("default profile registry helper should isolate singleton lookup")
+            ),
+        )
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors.profiles.resolver.resolve_connection_config",
+            lambda profile: sample_config,
+        )
+
+        registry._bootstrap_default_configs()
+
+        entry = registry.get_entry("mock_a")
+        assert entry.default_config == sample_config
+
+    def test_slo_wrapper_uses_default_metrics_helper(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """SLO wrapper resolves metrics through helper-isolated bootstrap hook."""
+
+        class _Metrics:
+            def __init__(self) -> None:
+                self.calls: list[tuple[str, str]] = []
+
+            def record_slo_connector_request(self, status: str, *, connector_id: str) -> None:
+                self.calls.append((status, connector_id))
+
+        metrics = _Metrics()
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors._registry_lifecycle._default_metrics",
+            lambda: metrics,
+        )
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors._registry_lifecycle.get_metrics",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("default metrics helper should isolate direct observability lookup")
+            ),
+        )
+        registry.register(MockConnectorA, config=sample_config)
+
+        async def _run() -> None:
+            connector = registry.get("mock_a", enable_cache=False)
+            handle = await connector.connect(sample_config)
+            await connector.fetch(handle, FetchRequest(dataset_id="dataset.test"))
+
+        asyncio.run(_run())
+
+        assert metrics.calls == [("ok", "test.mock.mock_a@1.0.0")]
 
     def test_unregister_async_drains_owned_pool(
         self, registry: ConnectorRegistry, sample_config: ConnectionConfig

@@ -38,6 +38,7 @@ _SPEC = NodeSpec(
     state_reads=[
         "policy_request_ref",
         "policy_option_set_ref",
+        "artifacts_index",
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
     ],
     state_writes=[f"inputs.{INPUT_TRINITY_BUNDLE_REF}", "params.policy_trinity_generated"],

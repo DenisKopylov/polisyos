@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable, Mapping
 from dataclasses import asdict, dataclass, field
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 from polisyos.common.logger import get_logger
 
@@ -28,7 +28,7 @@ class SupportsRecordDegradedPath(Protocol):
 class SupportsWarningLog(Protocol):
     """Minimal logger contract for degraded-path reporting."""
 
-    def warning(self, *__args: object, **__kwargs: object) -> None: ...
+    def warning(self, message: object, *args: object, **kwargs: object) -> Any: ...
 
 
 MetricsProvider = Callable[[], SupportsRecordDegradedPath]
@@ -52,6 +52,12 @@ class ErrorEnvelope:
         if not payload["details"]:
             payload.pop("details")
         return payload
+
+
+def _default_metrics() -> SupportsRecordDegradedPath:
+    from polisyos.core.observability import get_metrics
+
+    return cast("SupportsRecordDegradedPath", get_metrics())
 
 
 def build_error_envelope(
@@ -135,9 +141,7 @@ def _record_degraded_metric(
             if metrics_provider is not None:
                 resolved_metrics = metrics_provider()
             else:
-                from polisyos.core.observability import get_metrics
-
-                resolved_metrics = get_metrics()
+                resolved_metrics = _default_metrics()
         resolved_metrics.record_degraded_path(
             component=envelope.component,
             operation=envelope.operation,

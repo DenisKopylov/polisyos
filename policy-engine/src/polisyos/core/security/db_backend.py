@@ -1,11 +1,10 @@
 """Database backend abstraction for tenant-aware execution."""
 from __future__ import annotations
 
+import importlib
 import uuid
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
-
-import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.security.exceptions import TenantIsolationError
@@ -14,6 +13,12 @@ logger = get_logger("polisyos.security.db_backend")
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+
+DataFrameLike = Any
+
+
+def _pandas_module() -> Any:
+    return importlib.import_module("pandas")
 
 
 def validate_tenant_id(tenant_id: str) -> None:
@@ -39,7 +44,7 @@ class DatabaseBackend(Protocol):
     def fetchall(self, sql: str, params: Sequence[Any] | None = None) -> list[tuple[Any, ...]]:
         ...
 
-    def fetchdf(self, sql: str, params: Sequence[Any] | None = None) -> pd.DataFrame:
+    def fetchdf(self, sql: str, params: Sequence[Any] | None = None) -> DataFrameLike:
         ...
 
     @contextmanager
@@ -69,10 +74,10 @@ class PostgresBackend:
 
     def connect(self) -> None:
         try:
-            import psycopg
+            psycopg_module = importlib.import_module("psycopg")
         except ModuleNotFoundError as exc:  # pragma: no cover
             raise RuntimeError("psycopg is required for PostgresBackend") from exc
-        self._conn = psycopg.connect(self._dsn, autocommit=False)
+        self._conn = psycopg_module.connect(self._dsn, autocommit=False)
 
     def _ensure_conn(self) -> Any:
         if self._conn is None:
@@ -96,13 +101,13 @@ class PostgresBackend:
             rows = cur.fetchall()
         return [tuple(row) for row in rows]
 
-    def fetchdf(self, sql: str, params: Sequence[Any] | None = None) -> pd.DataFrame:
+    def fetchdf(self, sql: str, params: Sequence[Any] | None = None) -> DataFrameLike:
         conn = self._ensure_conn()
         with conn.cursor() as cur:
             cur.execute(sql, tuple(params or ()))
             rows = cur.fetchall()
             columns = [desc[0] for desc in (cur.description or [])]
-        return pd.DataFrame(rows, columns=columns)
+        return _pandas_module().DataFrame(rows, columns=list(columns))
 
     @contextmanager
     def transaction(self) -> Iterator[None]:
@@ -170,7 +175,7 @@ class DuckDBLegacyBackend:
         rows = cursor.fetchall()
         return [tuple(row) for row in rows]
 
-    def fetchdf(self, sql: str, params: Sequence[Any] | None = None) -> pd.DataFrame:
+    def fetchdf(self, sql: str, params: Sequence[Any] | None = None) -> DataFrameLike:
         cursor = self.execute(sql, params)
         return cursor.fetchdf()
 

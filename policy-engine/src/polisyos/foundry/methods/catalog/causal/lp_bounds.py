@@ -8,6 +8,9 @@ from typing import Any, Mapping
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ir.analytics.dual_certificate import (
+    build_response_function_dual_certificate_bundle,
+)
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
     PartialIdentificationResult,
@@ -37,6 +40,7 @@ class _LPResult:
     lower: float
     upper: float
     status: str
+    dual_certificate_payload: dict[str, Any] | None = None
 
 
 def _finite_values(values: np.ndarray) -> np.ndarray:
@@ -219,12 +223,14 @@ def _solve_response_lp(
 ) -> _LPResult:
     from scipy.optimize import linprog
 
+    y_lower_arr = np.asarray(y_levels if y_lower is None else y_lower, dtype=float)
+    y_upper_arr = np.asarray(y_levels if y_upper is None else y_upper, dtype=float)
     A_eq, b_eq, response_types, lower_effects, upper_effects = build_response_function_constraints(
         joint,
         t_levels,
         y_levels,
-        y_lower=y_lower,
-        y_upper=y_upper,
+        y_lower=y_lower_arr,
+        y_upper=y_upper_arr,
         monotone=monotone,
         target_index=target_index,
         reference_index=reference_index,
@@ -245,7 +251,24 @@ def _solve_response_lp(
         method="highs",
     )
     if res_lo.status == 0 and res_hi.status == 0:
-        return _LPResult(lower=float(res_lo.fun), upper=float(-res_hi.fun), status="optimal")
+        certificate_bundle = build_response_function_dual_certificate_bundle(
+            joint=np.asarray(joint, dtype=float),
+            treatment_levels=np.asarray(t_levels, dtype=float),
+            outcome_levels=np.asarray(y_levels, dtype=float),
+            outcome_lower=y_lower_arr,
+            outcome_upper=y_upper_arr,
+            monotone=bool(monotone),
+            target_index=int(target_index),
+            reference_index=int(reference_index),
+            lower_result=res_lo,
+            upper_result=res_hi,
+        )
+        return _LPResult(
+            lower=float(res_lo.fun),
+            upper=float(-res_hi.fun),
+            status="optimal",
+            dual_certificate_payload=certificate_bundle.model_dump(mode="json"),
+        )
     if res_lo.status == 0:
         lo = float(res_lo.fun)
     else:
@@ -428,6 +451,7 @@ def _exact_no_assumption_bounds(
         "t_levels": tuple(float(v) for v in t_levels),
         "y_levels": tuple(float(v) for v in y_levels),
         "response_space_size": _response_space_size(int(len(t_levels)), int(len(y_levels))),
+        "dual_certificate_payload": lp.dual_certificate_payload,
     }
 
 
@@ -601,7 +625,7 @@ def _delegate_to_iv_bounds(
     instrument: np.ndarray,
     target_treatment: float,
     reference_treatment: float,
-) -> PartialIdentificationResult | None:
+) -> tuple[PartialIdentificationResult | None, dict[str, Any]]:
     from polisyos.foundry.methods.catalog.causal.bounds import (  # noqa: PLC0415
         BalkePearlBoundsEstimator,
         GeneralBalkePearlBoundsEstimator,
@@ -611,7 +635,7 @@ def _delegate_to_iv_bounds(
     t_levels = _ordered_levels(treatment)
     y_levels = _ordered_levels(outcome)
     if t_levels.size < 2 or y_levels.size < 2:
-        return None
+        return None, {}
     is_binary = t_levels.size <= 2 and y_levels.size <= 2 and _looks_discrete(instrument, max_levels=2)
     if is_binary:
         out = BalkePearlBoundsEstimator.pure_step(state, {"clip_probs": True})
@@ -626,21 +650,28 @@ def _delegate_to_iv_bounds(
         )
     pid = out.get("result", {}).get("partial_id_result")
     if pid is None:
-        return None
+        return None, {}
     result = PartialIdentificationResult.model_validate(pid)
-    return result.model_copy(
-        update={
-            "bounds_type": "sharp_lp",
-            "relaxation_gap": 0.0,
-            "discretization_method": "instrument_exact",
-            "n_bins_final": int(max(t_levels.size, y_levels.size)),
-            "discretization_converged": True,
-            "n_refinement_steps": 0,
-        }
+    metadata: dict[str, Any] = {}
+    certificate_payload = out.get("result", {}).get("dual_certificate_payload")
+    if isinstance(certificate_payload, dict):
+        metadata["dual_certificate_payload"] = certificate_payload
+    return (
+        result.model_copy(
+            update={
+                "bounds_type": "sharp_lp",
+                "relaxation_gap": 0.0,
+                "discretization_method": "instrument_exact",
+                "n_bins_final": int(max(t_levels.size, y_levels.size)),
+                "discretization_converged": True,
+                "n_refinement_steps": 0,
+            }
+        ),
+        metadata,
     )
 
 
-def auto_bounds(
+def auto_bounds_with_metadata(
     outcome: np.ndarray,
     treatment: np.ndarray,
     *,
@@ -652,7 +683,7 @@ def auto_bounds(
     initial_bins: int = 10,
     max_bins: int = 100,
     convergence_tol: float = 0.01,
-) -> PartialIdentificationResult:
+) -> tuple[PartialIdentificationResult, dict[str, Any]]:
     """Compute partial-identification bounds with exact and conservative relaxed paths.
 
     The exact path solves a response-function LP whenever the observed support is
@@ -673,7 +704,7 @@ def auto_bounds(
     monotone = bool((constraints or {}).get("monotone") or (constraints or {}).get("mtr"))
 
     if z is not None:
-        delegated = _delegate_to_iv_bounds(
+        delegated, delegated_metadata = _delegate_to_iv_bounds(
             treatment=t,
             outcome=y,
             instrument=z,
@@ -681,7 +712,7 @@ def auto_bounds(
             reference_treatment=reference_treatment,
         )
         if delegated is not None:
-            return delegated
+            return delegated, delegated_metadata
 
     exact = _exact_no_assumption_bounds(
         treatment=t,
@@ -692,9 +723,9 @@ def auto_bounds(
         reference_treatment=reference_treatment,
     )
     if exact is not None:
-        return exact[0]
+        return exact
 
-    relaxed, _ = _adaptive_grid_refinement(
+    relaxed, diagnostics = _adaptive_grid_refinement(
         treatment=t,
         outcome=y,
         max_cardinality=max_cardinality,
@@ -705,12 +736,43 @@ def auto_bounds(
         max_bins=max_bins,
         convergence_tol=convergence_tol,
     )
-    return relaxed
+    return relaxed, diagnostics
+
+
+def auto_bounds(
+    outcome: np.ndarray,
+    treatment: np.ndarray,
+    *,
+    instrument: np.ndarray | None = None,
+    target_treatment: float = 1.0,
+    reference_treatment: float = 0.0,
+    constraints: Mapping[str, Any] | None = None,
+    max_cardinality: int = 8,
+    initial_bins: int = 10,
+    max_bins: int = 100,
+    convergence_tol: float = 0.01,
+) -> PartialIdentificationResult:
+    """Compute partial-identification bounds with exact and conservative relaxed paths."""
+
+    result, _ = auto_bounds_with_metadata(
+        outcome=outcome,
+        treatment=treatment,
+        instrument=instrument,
+        target_treatment=target_treatment,
+        reference_treatment=reference_treatment,
+        constraints=constraints,
+        max_cardinality=max_cardinality,
+        initial_bins=initial_bins,
+        max_bins=max_bins,
+        convergence_tol=convergence_tol,
+    )
+    return result
 
 
 __all__ = [
     "DiscretizedVariable",
     "auto_bounds",
+    "auto_bounds_with_metadata",
     "build_query_objective",
     "build_response_function_constraints",
 ]

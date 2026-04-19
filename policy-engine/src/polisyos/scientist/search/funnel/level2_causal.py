@@ -12,6 +12,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Dict, List
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir.analytics.causal import (
@@ -19,6 +21,7 @@ from polisyos.ir.analytics.causal import (
     persist_data_readiness_report,
     persist_proof_bundle,
 )
+from polisyos.ir.analytics.dual_certificate import hydrate_bounds_bundle_with_dual_certificate
 from polisyos.ir.analytics.negative_certificate import (
     NegativeCertificate,
     persist_negative_certificate,
@@ -40,6 +43,16 @@ if TYPE_CHECKING:
     )
 
 logger = get_logger(__name__)
+
+_LEVEL2_CAUSAL_RUNTIME_ERRORS = (
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
 
 
 class Level2CausalPlausibility(FunnelStage):
@@ -204,10 +217,12 @@ class Level2CausalPlausibility(FunnelStage):
             and context.get("treatment_col") is not None
             and context.get("outcome_col") is not None
         )
+        recoverability_summary = causal_feedback.get("recoverability")
         data_readiness = build_data_readiness_report(
             sample_size=sample_size,
             measurement_quality="unknown",
             fallback_data_available=fallback_data_available,
+            recoverability_certificate=recoverability_summary,
         )
         causal_feedback["data_readiness_decision"] = data_readiness.decision
         causal_feedback["data_readiness_can_run_estimation"] = data_readiness.can_run_estimation
@@ -263,7 +278,7 @@ class Level2CausalPlausibility(FunnelStage):
                 outcome=outcome,
                 graph=graph,
             )
-            _, proof_bundle, negative_certificate, bounds_bundle = (
+            _, proof_bundle, negative_certificate, bounds_bundle, dual_certificate_payload, _, _ = (
                 engine._materialize_identification_artifacts(
                     raw_result,
                     graph=graph,
@@ -275,13 +290,19 @@ class Level2CausalPlausibility(FunnelStage):
             if negative_certificate is not None:
                 proof_ref = self._persist_proof_bundle(proof_bundle)
                 negative_ref = self._persist_negative_certificate(negative_certificate)
-                bounds_ref = self._persist_bounds_bundle(bounds_bundle)
+                bounds_ref = self._persist_bounds_bundle(bounds_bundle, dual_certificate_payload)
+                recoverability = self._extract_recoverability_summary(
+                    negative_certificate,
+                    proof_bundle,
+                )
                 self._last_identification_artifacts = {
                     "proof_status": proof_bundle.proof_status,
                     "proof_stratum": proof_bundle.proof_stratum,
                     "negative_certificate_blocking_type": negative_certificate.blocking_type.value,
                     "negative_certificate_summary": negative_certificate.to_summary(),
                 }
+                if recoverability is not None:
+                    self._last_identification_artifacts["recoverability"] = recoverability
                 audit_refs: list[ArtifactRef] = []
                 if proof_ref is not None:
                     self._last_identification_artifacts["proof_bundle_ref"] = proof_ref.model_dump(
@@ -308,11 +329,14 @@ class Level2CausalPlausibility(FunnelStage):
                 if getattr(raw_result, "estimand_ast", None) is not None
                 else None
             )
+            recoverability = self._extract_recoverability_summary(proof_bundle, raw_result)
             self._last_identification_artifacts = {
                 "proof_status": proof_bundle.proof_status,
                 "proof_stratum": proof_bundle.proof_stratum,
                 "estimand_ast": estimand_ast,
             }
+            if recoverability is not None:
+                self._last_identification_artifacts["recoverability"] = recoverability
             if proof_ref is not None:
                 self._last_identification_artifacts["proof_bundle_ref"] = proof_ref.model_dump(
                     mode="json"
@@ -343,7 +367,7 @@ class Level2CausalPlausibility(FunnelStage):
         except ImportError:
             logger.debug("id_engine not available; skipping identifiability check.")
             return 0.5, []
-        except Exception:
+        except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
             logger.warning("Identifiability check failed.", exc_info=True)
             cards.append(
                 TypedFailureCard(
@@ -376,10 +400,19 @@ class Level2CausalPlausibility(FunnelStage):
         ref = persist_data_readiness_report(self._artifact_store, report)
         return _to_artifact_ref(ref)
 
-    def _persist_bounds_bundle(self, payload: Any) -> ArtifactRef | None:
+    def _persist_bounds_bundle(
+        self,
+        payload: Any,
+        certificate_payload: Any | None = None,
+    ) -> ArtifactRef | None:
         if self._artifact_store is None or payload is None:
             return None
-        ref = persist_bounds_bundle(self._artifact_store, payload)
+        bundle, bundle_inputs = hydrate_bounds_bundle_with_dual_certificate(
+            self._artifact_store,
+            payload,
+            certificate_payload,
+        )
+        ref = persist_bounds_bundle(self._artifact_store, bundle, inputs=bundle_inputs)
         return _to_artifact_ref(ref)
 
     @staticmethod
@@ -393,7 +426,7 @@ class Level2CausalPlausibility(FunnelStage):
                 payload = model_dump(mode="json")
                 if isinstance(payload, dict):
                     return payload
-            except Exception:
+            except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
                 return None
         return None
 
@@ -417,6 +450,37 @@ class Level2CausalPlausibility(FunnelStage):
         )
 
     @staticmethod
+    def _extract_recoverability_summary(*payloads: Any) -> dict[str, Any] | None:
+        """Pull the compact Stage 12.1 recoverability summary from causal artifacts."""
+        for payload in payloads:
+            if payload is None:
+                continue
+            candidates: list[Any] = [payload]
+            if isinstance(payload, dict):
+                metadata = payload.get("metadata")
+                if metadata is not None:
+                    candidates.append(metadata)
+                diagnostics = payload.get("quantitative_diagnostics")
+                if diagnostics is not None:
+                    candidates.append(diagnostics)
+            else:
+                metadata = getattr(payload, "metadata", None)
+                if metadata is not None:
+                    candidates.append(metadata)
+                diagnostics = getattr(payload, "quantitative_diagnostics", None)
+                if diagnostics is not None:
+                    candidates.append(diagnostics)
+
+            for candidate in candidates:
+                if not isinstance(candidate, dict):
+                    continue
+                if isinstance(candidate.get("recoverability_certificate"), dict):
+                    return dict(candidate["recoverability_certificate"])
+                if isinstance(candidate.get("recoverability"), dict):
+                    return dict(candidate["recoverability"])
+        return None
+
+    @staticmethod
     def _infer_sample_size(context: Dict[str, Any]) -> int | None:
         """Infer sample size from context data or explicit metadata."""
         explicit = context.get("sample_size")
@@ -435,11 +499,11 @@ class Level2CausalPlausibility(FunnelStage):
                 continue
             try:
                 return int(len(data[key]))
-            except Exception:
+            except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
                 continue
         try:
             return int(len(data))
-        except Exception:
+        except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
             return None
 
     def _check_adjustment_sets(
@@ -458,8 +522,6 @@ class Level2CausalPlausibility(FunnelStage):
 
             # Simple backdoor criterion check: does conditioning on
             # non-descendants of treatment block all backdoor paths?
-            all_nodes = frozenset(graph.nodes)
-            treatment_ancestors = ancestors(graph, treatment, include_self=False)
             # Candidate adjustment set: ancestors of outcome minus treatment.
             potential_adjustments = (
                 ancestors(graph, outcome, include_self=False) - treatment
@@ -498,7 +560,7 @@ class Level2CausalPlausibility(FunnelStage):
 
         except ImportError:
             logger.debug("admg_ops not available; skipping adjustment set check.")
-        except Exception:
+        except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
             logger.warning("Adjustment set check failed.", exc_info=True)
 
         return cards
@@ -523,7 +585,7 @@ class Level2CausalPlausibility(FunnelStage):
                     and getattr(e, "target_mark", None) == "ARROW")
             )
             structural_risk = min(1.0, bidirected_count * 0.15)
-        except Exception:
+        except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
             structural_risk = 0.5
 
         # Data-based check (if data available).
@@ -532,7 +594,7 @@ class Level2CausalPlausibility(FunnelStage):
         if data is not None and treatment_col is not None:
             try:
                 return self._fast_propensity_check(data, treatment_col)
-            except Exception:
+            except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
                 logger.debug("Fast propensity check failed; using structural estimate.")
 
         return structural_risk
@@ -563,7 +625,7 @@ class Level2CausalPlausibility(FunnelStage):
                 return 0.4
             return 0.1
 
-        except Exception:
+        except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
             return 0.5
 
     @staticmethod
@@ -611,7 +673,7 @@ class Level2CausalPlausibility(FunnelStage):
             # Map to [0, 1]: d=0 → 0, d≥1 → 1.
             return float(min(1.0, cohens_d))
 
-        except Exception:
+        except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
             return 0.5
 
     def _check_transport_compatibility(
@@ -663,7 +725,7 @@ class Level2CausalPlausibility(FunnelStage):
                     )
                 )
 
-        except Exception:
+        except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
             logger.debug("Query validation failed.", exc_info=True)
 
         return risk, cards
@@ -702,7 +764,7 @@ class Level2CausalPlausibility(FunnelStage):
                     )
                 )
 
-        except Exception:
+        except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
             pass
 
         return cards

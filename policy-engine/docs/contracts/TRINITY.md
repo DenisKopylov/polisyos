@@ -147,3 +147,12 @@ Example schema fragment (ProblemFrame):
   "required": ["problem_id", "domain"]
 }
 ```
+
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 0 canon/CAS and registry/linker, Phase 1 schema compatibility |
+| Contract tests | `tests/contract/test_trinity_contracts.py`, `tests/contract/test_trinity_migration.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/ir/test_trinity_loaders.py` |
+| Schema snapshots | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/problem_frame.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/model_spec.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

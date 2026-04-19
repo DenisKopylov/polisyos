@@ -13,7 +13,7 @@ from decimal import Decimal
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.components import ComponentId
@@ -33,6 +33,22 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 _WORKER_DAG_NODE_ID = ComponentId.parse("scientist.worker@1.0.0")
+_SUPERVISOR_MODEL_ERRORS = (TypeError, ValueError, ValidationError)
+_SUPERVISOR_RUNTIME_ERRORS = (
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+_SUPERVISOR_PROVENANCE_ERRORS = (
+    AttributeError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
 
 __all__ = [
     "ScientistSupervisorAgent",
@@ -132,7 +148,7 @@ class ScientistSupervisorAgent:
         try:
             dag.finalize()
             result.provenance = dag.to_prov_json()
-        except Exception as exc:
+        except _SUPERVISOR_PROVENANCE_ERRORS as exc:
             logger.debug("Supervisor provenance export failed: %s", exc)
             result.warnings.append("provenance_export_failed")
         return result
@@ -318,7 +334,7 @@ class ScientistSupervisorAgent:
                 else:
                     try:
                         result = WorkerTaskResult.model_validate(tool_call.result)
-                    except Exception as exc:
+                    except _SUPERVISOR_MODEL_ERRORS as exc:
                         result = WorkerTaskResult(
                             task_id=envelope.task_id,
                             worker_name=envelope.worker_name,
@@ -353,7 +369,7 @@ class ScientistSupervisorAgent:
                 _record_worker_failure(provenance_dag, envelope, result, started_at)
                 if self._config.fail_fast:
                     cancel_event.set()
-            except Exception as exc:
+            except _SUPERVISOR_RUNTIME_ERRORS as exc:
                 result = WorkerTaskResult(
                     task_id=envelope.task_id,
                     worker_name=envelope.worker_name,
@@ -729,7 +745,7 @@ def _record_worker_success(
                 "cost_usd": str(result.cost_usd),
             },
         )
-    except Exception as exc:
+    except _SUPERVISOR_PROVENANCE_ERRORS as exc:
         logger.debug("Supervisor provenance success recording failed: %s", exc)
 
 
@@ -749,7 +765,7 @@ def _record_worker_failure(
             started_at=started_at,
             ended_at=datetime.now(UTC),
         )
-    except Exception as exc:
+    except _SUPERVISOR_PROVENANCE_ERRORS as exc:
         logger.debug("Supervisor provenance failure recording failed: %s", exc)
 
 

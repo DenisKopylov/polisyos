@@ -366,7 +366,7 @@ def _ensure_method_module_loaded(
                 elif registry_provider is not None:
                     resolved_registry = registry_provider()
                 else:
-                    resolved_registry = MethodRegistry.get_instance()
+                    resolved_registry = _default_method_registry()
                 for attr_name in dir(module):
                     candidate = getattr(module, attr_name)
                     if (
@@ -385,6 +385,10 @@ def _ensure_method_module_loaded(
                             )
                             continue
             return
+
+
+def _default_method_registry() -> MethodRegistry:
+    return MethodRegistry.get_instance()
 
 
 class FactorModelEmbeddingBuilder(_AdvancedMethodBase):

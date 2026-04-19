@@ -108,6 +108,34 @@ class TestQualityIndicatorsCalculation:
         indicators = compute_quality_indicators(df, metric_id="test_metric")
         assert indicators.outlier_ratio > 0.1
 
+    def test_compute_quality_indicators_accepts_injected_metrics(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        class _MetricsStub:
+            def __init__(self) -> None:
+                self.calls: list[tuple[str, float]] = []
+
+            def record_fabric_quality_score(self, *, metric_id: str, score: float) -> None:
+                self.calls.append((metric_id, score))
+
+        metrics = _MetricsStub()
+        monkeypatch.setattr(
+            "polisyos.fabric.quality._default_metrics",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("global metrics lookup should not run when metrics are injected")
+            ),
+        )
+
+        indicators = compute_quality_indicators(
+            pd.DataFrame({"a": [1, 2, 3]}),
+            metric_id="metric.injected",
+            metrics=metrics,
+        )
+
+        assert indicators.metric_id == "metric.injected"
+        assert metrics.calls
+
 
 class TestQualityLevelScoring:
     """Test quality level determination logic."""
@@ -241,6 +269,43 @@ class TestDuckDBQualityComputation:
                 'safe_table; DROP TABLE safe_table; --',
                 "metric",
             )
+
+    def test_compute_quality_from_duckdb_accepts_injected_metrics(
+        self,
+        tmp_path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        duckdb = pytest.importorskip("duckdb")
+
+        class _MetricsStub:
+            def __init__(self) -> None:
+                self.calls: list[tuple[str, float]] = []
+
+            def record_fabric_quality_score(self, *, metric_id: str, score: float) -> None:
+                self.calls.append((metric_id, score))
+
+        db_path = tmp_path / "quality.duckdb"
+        with duckdb.connect(str(db_path)) as conn:
+            conn.execute("CREATE TABLE safe_table (value INTEGER)")
+            conn.execute("INSERT INTO safe_table VALUES (1), (NULL)")
+
+        metrics = _MetricsStub()
+        monkeypatch.setattr(
+            "polisyos.fabric.quality._default_metrics",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("global metrics lookup should not run when metrics are injected")
+            ),
+        )
+
+        indicators = compute_quality_from_duckdb(
+            str(db_path),
+            "safe_table",
+            "metric.duckdb",
+            metrics=metrics,
+        )
+
+        assert indicators.metric_id == "metric.duckdb"
+        assert metrics.calls
 
 
 class TestQualityGatePassIntegration:

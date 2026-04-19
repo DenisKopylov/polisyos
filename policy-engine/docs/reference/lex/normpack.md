@@ -1,6 +1,9 @@
 # Lex NormPack
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
+Owner: `@lex-owners`
+Source of truth: `src/polisyos/lex/api.py`, `src/polisyos/lex/types.py`, `src/polisyos/lex/errors.py`, `src/polisyos/lex/simulator/**`, and `tests/lex/**`
+
 This page covers the public Lex API for the stage flow `ingest -> structure -> version index ->
 normpack -> legal evaluation`: ingest legal documents, structure provision anchors, resolve active
 versions, assemble `NormPack` snapshots, and evaluate or simulate legal changes against those

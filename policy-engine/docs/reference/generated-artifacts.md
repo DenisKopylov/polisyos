@@ -2,11 +2,15 @@
 
 > Generated from `architecture/generated_artifacts.toml`.
 
+> Regenerate this page with `uv run polisyos-tools architecture guardrails sync`.
+> Validate drift with `uv run polisyos-tools architecture guardrails check`.
+
 Every committed generated artifact family must have a source of truth, a regeneration command, a freshness rule, and an approval owner.
 
 | Family | Commit policy | Drift gate | Owner | Outputs |
 | --- | --- | --- | --- | --- |
-| `ABI schema snapshots` | `committed` | `automated` | `team-polisyos` | `schemas/snapshots/ir`<br/>`schemas/snapshots/fabric` |
+| `ABI schema snapshots` | `committed` | `automated` | `team-polisyos` | `schemas/snapshots/ir`<br/>`schemas/snapshots/fabric/edge_kind.schema.json`<br/>`schemas/snapshots/fabric/node_kind.schema.json`<br/>`schemas/snapshots/fabric/_manifest.json` |
+| `Fabric connector contract registry` | `committed` | `automated` | `team-polisyos` | `schemas/snapshots/fabric/connector_contract_registry.json` |
 | `Runtime OpenAPI snapshot` | `committed` | `automated` | `team-polisyos` | `schemas/runtime_api_v1.openapi.json` |
 | `Generated runtime API client` | `committed` | `automated` | `team-polisyos` | `frontend/runtime-api-client/runtimeApiClient.ts`<br/>`frontend/runtime-api-client/runtimeApiClient.js` |
 | `Runtime dashboard generated API types` | `committed` | `automated` | `team-polisyos` | `frontend/runtime-dashboard/src/api/types.ts` |
@@ -27,11 +31,31 @@ Every committed generated artifact family must have a source of truth, a regener
 - Related workflow/config: `.github/workflows/abi.yml`
 - Outputs:
   - `schemas/snapshots/ir`
-  - `schemas/snapshots/fabric`
+  - `schemas/snapshots/fabric/edge_kind.schema.json`
+  - `schemas/snapshots/fabric/node_kind.schema.json`
+  - `schemas/snapshots/fabric/_manifest.json`
 
 Canonical regeneration commands:
 ```bash
 PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
+```
+
+## `Fabric connector contract registry`
+
+- Family id: `fabric-connector-contract-registry`
+- Source of truth: polisyos.fabric.connectors.sources._contracts.ALL_SOURCE_CONTRACTS and tools/quality/validation/fabric_schema_governance.py
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever source connector contracts or their governance metadata change.
+- Drift gate: `automated`
+- Owner: `team-polisyos`
+- Approval owner: `team-polisyos`
+- Related workflow/config: `tools/ci/check_fabric_schema_registry.py`
+- Outputs:
+  - `schemas/snapshots/fabric/connector_contract_registry.json`
+
+Canonical regeneration commands:
+```bash
+uv run python tools/ci/check_fabric_schema_registry.py --update
 ```
 
 ## `Runtime OpenAPI snapshot`
@@ -43,7 +67,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 - Drift gate: `automated`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
-- Related workflow/config: `.github/workflows/ci.yml`
+- Related workflow/config: `.github/workflows/arch.yml`
 - Outputs:
   - `schemas/runtime_api_v1.openapi.json`
 
@@ -61,7 +85,7 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_r
 - Drift gate: `automated`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
-- Related workflow/config: `.github/workflows/ci.yml`
+- Related workflow/config: `.github/workflows/arch.yml`
 - Outputs:
   - `frontend/runtime-api-client/runtimeApiClient.ts`
   - `frontend/runtime-api-client/runtimeApiClient.js`
@@ -80,7 +104,7 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate
 - Drift gate: `automated`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
-- Related workflow/config: `.github/workflows/ci.yml`
+- Related workflow/config: `.github/workflows/arch.yml`
 - Outputs:
   - `frontend/runtime-dashboard/src/api/types.ts`
 
@@ -92,21 +116,21 @@ cd frontend/runtime-dashboard && npm run generate:api
 ## `Recorded connector fixtures`
 
 - Family id: `connector-recorded-fixtures`
-- Source of truth: Live upstream connector responses captured through `polisyos-tools data record-fixtures`
+- Source of truth: Live upstream connector responses captured through scripts/record_fixtures.py
 - Commit policy: `committed`
 - Freshness rule: Refresh intentionally when connector contracts, source profiles, or upstream response shapes change.
 - Drift gate: `manual_review`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
-- Related workflow/config: `polisyos-tools data record-fixtures`
+- Related workflow/config: `scripts/record_fixtures.py`
 - Outputs:
   - `tests/fabric/connectors/sources/fixtures`
 
 Canonical regeneration commands:
 ```bash
-uv run polisyos-tools data record-fixtures --wave 1
-uv run polisyos-tools data record-fixtures --wave 2
-uv run polisyos-tools data record-fixtures --wave 3
+PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 1
+PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 2
+PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 3
 ```
 
 ## `Runtime dashboard contract fixtures`
@@ -136,7 +160,7 @@ cd frontend/runtime-dashboard && npm run contracts:record
 - Drift gate: `manual_review`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
-- Related workflow/config: `.github/workflows/frontend-nightly.yml`
+- Related workflow/config: `.github/workflows/perf.yml`
 - Outputs:
   - `benchmarks/_reports`
   - `frontend/runtime-dashboard/dist/bundle-stats.json`

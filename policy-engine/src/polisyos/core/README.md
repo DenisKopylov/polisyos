@@ -1,57 +1,90 @@
 # Core (`polisyos.core`)
 
-`polisyos.core` is the shared infrastructure layer for the rest of PolicyOS. It hosts the
-cross-module ABI, content-addressable storage, component discovery/bootstrap, telemetry,
-security, registry building, and a few small runtime utilities that many domains reuse.
+## Purpose
 
-`polisyos.ir` remains the canonical schema/ref layer. `core` depends on `ir`, but not the other
-way around.
+`polisyos.core` is the shared infrastructure layer for the rest of PolicyOS.
+It owns the cross-module ABI, content-addressable storage, component
+discovery/bootstrap, registry assembly, observability, and security primitives
+that higher-level subsystems reuse.
 
-## Role in System
-
-- **Depends on:** `polisyos.ir` for canonical refs and schema-shaped payloads.
-- **Used by:** `fabric`, `foundry`, `scientist`, `lex`, `runtime`, `scholar`, and bootstrap tooling.
-- **Boundary function:** keeps shared infrastructure out of domain packages so the ABI stays stable.
-
-## Key Concepts
-
-- **Contracts first** - `core.contracts` defines the typed ABI surface for runtime, control, and artifact refs.
-- **CAS and provenance** - `core.artifacts`, `core.trace`, and `core.audit` keep runs reproducible and inspectable.
-- **Plugin bootstrap** - `core.components`, `core.discovery`, and `core.registry` wire component discovery into runtime registries.
-- **NFR primitives** - `core.observability`, `core.security`, `core.resilience`, and `core.pipeline` provide common runtime guarantees.
-- **LLM wrapper** - `core.llm` gives a traced, metered, retry-aware client facade for higher-level modules.
-- **Validation profiles** - `core.governance` centralizes shared pass selection and policy strictness.
-
-## Public API
-
-`polisyos.core` exports 15 lazy submodules:
-`artifacts`, `backends`, `cache`, `canon`, `components`, `contracts`, `discovery`,
-`evaluation`, `errors`, `llm`, `observability`, `pipeline`, `registry`, `resilience`, `run`.
-
-Direct subpackages remain part of the package surface:
-`audit`, `compiler`, `governance`, `security`, `trace`.
-
-Reference docs:
-- [artifacts/README.md](artifacts/README.md)
-- [audit/README.md](audit/README.md)
-- [cache/README.md](cache/README.md)
-- [components/README.md](components/README.md)
-- [contracts/README.md](contracts/README.md)
-- [governance/README.md](governance/README.md)
-- [llm/README.md](llm/README.md)
-- [observability/README.md](observability/README.md)
-- [registry/README.md](registry/README.md)
-- [security/README.md](security/README.md)
+`polisyos.ir` remains the canonical schema/reference layer. `polisyos.core`
+depends on `polisyos.ir`, but not the other way around.
 
 ## Where to Start
 
-- Public facade / compatibility: `src/polisyos/core/__init__.py` and `docs/reference/public-surface.md`
-- Contracts / typed ABI: `src/polisyos/core/contracts/`
-- Registry/bootstrap wiring: `src/polisyos/core/registry/` and `src/polisyos/core/components/`
-- Generated / contract-adjacent artifacts: `docs/reference/generated-artifacts.md`
+- `src/polisyos/core/__init__.py` for the curated lazy facade.
+- `src/polisyos/core/contracts/README.md` for the typed ABI shared across
+  runtime and domain subsystems.
+- `src/polisyos/core/artifacts/README.md` for CAS, manifest, signing, and
+  provenance storage.
+- `src/polisyos/core/components/README.md` and
+  `src/polisyos/core/registry/README.md` for discovery/bootstrap wiring.
+- `src/polisyos/core/security/README.md` for tenant isolation, authz, quotas,
+  and audit surfaces.
+- `src/polisyos/core/observability/README.md` for metrics, tracing, and
+  propagation hooks.
+- `src/polisyos/core/audit/README.md` for audit report assembly and verifier
+  tooling.
 
-## Current State
+## Public entrypoints
 
-- Last updated: 2026-04-03
-- Lazy exports: 15 submodules
-- Recent ABI drift: `core.contracts.scientist` gained `CalibrationValidationBundleRef`, and `core.governance.ValidationProfile` now includes `strategic_response` in `mvp` and `strict`.
+- Supported package entrypoint: `polisyos.core`
+- Lazy facade exports from `src/polisyos/core/__init__.py`: `artifacts`,
+  `backends`, `cache`, `canon`, `components`, `contracts`, `discovery`,
+  `evaluation`, `errors`, `llm`, `observability`, `pipeline`, `registry`,
+  `resilience`, `run`
+- Operationally important subpackages for local navigation: `audit`,
+  `governance`, `security`, and `trace`. Treat them as implementation surfaces
+  unless you also update the generated
+  [Public Surface](../../../docs/reference/public-surface.md).
+
+## Depends on / depended on by
+
+Depends on: `polisyos.ir` for canonical refs and schema-shaped payloads,
+`polisyos.common` for shared helpers, and optional backend/runtime dependencies
+pulled in by specific subpackages.
+
+Depended on by: `polisyos.runtime`, `polisyos.fabric`, `polisyos.foundry`,
+`polisyos.scientist`, `polisyos.lex`, `polisyos.scholar`, plus bootstrap and
+release tooling.
+
+## Common commands
+
+Run commands from the repository root `policy-engine/`.
+
+- Smoke-tested:
+  `PYTHONPATH=src:. uv run python -c "import polisyos.core as core; print(sorted(core.__all__))"`
+- Smoke-tested:
+  `PYTHONPATH=src:. uv run python -c "import polisyos.core.contracts.runtime as runtime_contracts; import polisyos.core.registry as registry; print(runtime_contracts.__name__, registry.__name__)"`
+
+## Test/verification commands
+
+Run commands from the repository root `policy-engine/`.
+
+- Smoke-tested: `uv run pytest -q tests/test_public_api_facades.py`
+- Smoke-tested:
+  `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/core/security/test_tenant_context.py`
+- Smoke-tested:
+  `uv run pytest -q tests/core/artifacts/test_async_store.py tests/core/artifacts/test_storage_protocol_boundaries.py`
+- Conceptual release gate: `uv run python tools/workspace/core_runtime_mypy.py`
+- Conceptual release gate:
+  `uv run python tools/workspace/core_runtime_basedpyright.py`
+
+## Reference docs
+
+- [Public Surface](../../../docs/reference/public-surface.md)
+- [Security Model](../../../docs/explanation/security-model.md)
+- [Security and Compliance](../../../docs/reference/security-compliance.md)
+- [Generated Artifacts](../../../docs/reference/generated-artifacts.md)
+- [Artifacts](artifacts/README.md)
+- [Audit](audit/README.md)
+- [Cache](cache/README.md)
+- [Components](components/README.md)
+- [Contracts](contracts/README.md)
+- [Governance](governance/README.md)
+- [LLM](llm/README.md)
+- [Observability](observability/README.md)
+- [Registry](registry/README.md)
+- [Security](security/README.md)
+
+- Last updated: 2026-04-17

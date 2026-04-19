@@ -273,7 +273,7 @@ def compare_current_environment(
         original_payload = from_canonical_bytes(store.get_bytes(env_ref))
         original_env = EnvironmentManifest.model_validate(original_payload)
         current_env = capture_environment(include_git=False, include_dependencies=True)
-        return cast("list[EnvironmentDiff]", compare_environments(original_env, current_env))
+        return compare_environments(original_env, current_env)
     except (OSError, TypeError, ValueError, RuntimeError) as exc:
         logger.debug("Failed to compare environments: %s", exc)
         return []

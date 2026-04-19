@@ -31,6 +31,10 @@ logger = get_logger(__name__)
 DataT = TypeVar("DataT")
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 async def _resolve_async_iterator[T](
     candidate: AsyncIterator[T] | Awaitable[AsyncIterator[T]],
 ) -> AsyncIterator[T]:
@@ -56,7 +60,7 @@ class CachingConnectorProxy[DataT]:
         self._schema_hash_provider = schema_hash_provider
         self._hits = 0
         self._misses = 0
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     # Delegate all non-fetch methods
     @property

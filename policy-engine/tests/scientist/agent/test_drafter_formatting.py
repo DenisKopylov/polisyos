@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from unittest.mock import MagicMock
 
 import pytest
@@ -15,7 +14,6 @@ from polisyos.scientist.agent.drafter_models import (
     PassFinding,
 )
 from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
-
 
 # ---------------------------------------------------------------------------
 # Test harness
@@ -197,6 +195,13 @@ class TestBuildConstitution:
         result = h._build_constitution(_make_frame())
         assert result is None
 
+    def test_assertion_is_not_swallowed(self):
+        gen = MagicMock()
+        gen.generate.side_effect = AssertionError("constitution invariant failed")
+        h = _FormattingHarness(constitution_gen=gen)
+        with pytest.raises(AssertionError, match="constitution invariant failed"):
+            h._build_constitution(_make_frame())
+
     def test_pitfalls_from_knowledge_base(self):
         kb = MagicMock()
         kb.get_top_patterns.return_value = ["p1", "p2"]
@@ -228,7 +233,6 @@ class TestInjectConstitutionContext:
 
     def test_non_dict_context_returns_original(self):
         h = _FormattingHarness()
-        frame = _make_frame(context={})
         # context is empty dict — technically still a dict, but let's test with non-dict
         frame_no_ctx = ProblemFrame(
             frame_id="f1", domain="d", problem_statement="p",

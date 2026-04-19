@@ -7,6 +7,11 @@ Related how-to: [Installation](../how-to/install.md). Related reference:
 > Node, `uv.lock`, `package-lock.json`, npm package, PyPI dependency или
 > optional extra.
 
+Owner: `@platform-owners`
+Last tested: `2026-04-17` against current dependency-platform and acceptance-audit references.
+Evidence path: `docs/reference/dependency-platform.md`; `docs/archive/reports/platform-acceptance.md`; `.github/workflows/arch.yml`
+Rollback path: revert the offending dependency or lockfile delta, restore the previous supported toolchain baseline, and freeze further bumps in that family until triage is complete.
+
 ## Symptom
 
 - `polisyos-tools workspace doctor` или `polisyos-tools workspace verify` внезапно падают после dependency

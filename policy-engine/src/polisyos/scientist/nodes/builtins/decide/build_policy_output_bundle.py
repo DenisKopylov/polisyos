@@ -18,6 +18,7 @@ from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.governance.calibration_validation import (
     load_calibration_validation_bundle,
@@ -114,6 +115,7 @@ _SPEC = NodeSpec(
         "params.actionable_side_information_refs",
         "inputs",
         "artifacts_index",
+        "reports_index",
         "policy_output_bundle_ref",
     ],
     state_writes=[
@@ -121,6 +123,18 @@ _SPEC = NodeSpec(
         "policy_brief_ref",
         "champion_policy_dossier_ref",
         f"artifacts_index.{ARTIFACT_POLICY_OUTPUT_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_POLICY_FRONTIER_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_CHAMPION_POLICY_DOSSIER_REF}",
+        f"artifacts_index.{ARTIFACT_POLICY_BRIEF_REF}",
+        f"artifacts_index.{ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_SUBGROUP_IMPACT_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_POLICY_UNCERTAINTY_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_POLICY_TRANSPORTABILITY_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_GOVERNANCE_GATE_PACKET_REF}",
+        f"artifacts_index.{ARTIFACT_IMPLEMENTATION_PLAN_REF}",
+        f"artifacts_index.{ARTIFACT_REJECTED_ALTERNATIVES_SUMMARY_REF}",
+        f"artifacts_index.{ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_DECISION_READINESS_CONTRACT_REF}",
     ],
     produces=[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
 )
@@ -295,7 +309,7 @@ class BuildPolicyOutputBundleNode:
             )
         bundle = load_policy_artifact_bundle(ctx.store, bundle_ref)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.policy_output_bundle_ref = bundle_ref
         new_state.policy_brief_ref = bundle.policy_brief_ref
         new_state.champion_policy_dossier_ref = bundle.champion_policy_dossier_ref

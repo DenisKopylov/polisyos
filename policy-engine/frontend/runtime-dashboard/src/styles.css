@@ -101,20 +101,36 @@
 }
 
 @keyframes accordion-down {
-  from { height: 0; }
-  to { height: var(--radix-accordion-content-height); }
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
 }
 @keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); }
-  to { height: 0; }
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 @keyframes collapsible-down {
-  from { height: 0; }
-  to { height: var(--radix-collapsible-content-height); }
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
 }
 @keyframes collapsible-up {
-  from { height: var(--radix-collapsible-content-height); }
-  to { height: 0; }
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 
 @layer base {
@@ -171,7 +187,12 @@
     --chart-alert: var(--ember-vibrant);
     --chart-warning: #7f9f2f;
     --shadow-panel: 0 24px 70px rgba(24, 28, 31, 0.16);
-    --focus-ring: rgba(28, 139, 130, 0.9); /* uses vibrant teal for visibility */
+    --focus-ring: rgba(
+      28,
+      139,
+      130,
+      0.9
+    ); /* uses vibrant teal for visibility */
     --shell-border: rgba(255, 255, 255, 0.6);
     --shell-glass-base: rgba(255, 255, 255, 0.4);
     --shell-glass-end: rgba(247, 242, 234, 0.72);
@@ -210,7 +231,6 @@
     --color-waterfall-positive: var(--teal-vibrant);
     --color-waterfall-negative: var(--ember-vibrant);
     --color-waterfall-total: var(--chart-secondary);
-
   }
 
   :root[data-theme="dark"] {
@@ -275,7 +295,6 @@
     --color-waterfall-positive: #5fd3ca;
     --color-waterfall-negative: #ff936b;
     --color-waterfall-total: #8cb4ff;
-
   }
 
   * {
@@ -377,6 +396,25 @@
       linear-gradient(180deg, rgba(38, 49, 58, 0.97), rgba(20, 22, 26, 0.96)),
       var(--graphite);
     color: #f5f0e6;
+  }
+
+  .atlas-sidebar-brand {
+    display: grid;
+    gap: 14px;
+  }
+
+  .atlas-sidebar-note {
+    margin: 0;
+    max-inline-size: 22rem;
+    color: rgba(245, 240, 230, 0.74);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .atlas-brand__mark,
+  .atlas-brand__lockup-image {
+    display: block;
+    block-size: auto;
   }
 
   .side-rail h1 {
@@ -519,6 +557,23 @@
     display: grid;
     gap: 8px;
     max-width: 680px;
+  }
+
+  .topbar-brand-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    inline-size: fit-content;
+    padding: 6px 10px 6px 6px;
+    border: 1px solid rgba(23, 25, 29, 0.08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.62);
+    color: color-mix(in srgb, var(--text) 72%, transparent);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .topbar-subtitle {
@@ -689,6 +744,150 @@
     font-family: var(--font-mono);
     font-size: 12px;
   }
+
+  .atlas-deck {
+    display: grid;
+    gap: 18px;
+  }
+
+  .atlas-deck-slide {
+    display: grid;
+    gap: 18px;
+    min-block-size: min(74vh, 820px);
+    padding: 26px;
+    border: 1px solid rgba(23, 25, 29, 0.08);
+    border-radius: 30px;
+    background:
+      radial-gradient(
+        circle at 0% 0%,
+        rgba(28, 139, 130, 0.1),
+        transparent 32%
+      ),
+      radial-gradient(
+        circle at 100% 0%,
+        rgba(181, 139, 43, 0.08),
+        transparent 28%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.96),
+        rgba(247, 243, 235, 0.94)
+      );
+    box-shadow: var(--shadow-panel);
+  }
+
+  .atlas-deck-slide__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .atlas-deck-cover,
+  .atlas-deck-closing,
+  .atlas-deck-stack {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+  }
+
+  .atlas-deck-cover {
+    max-inline-size: 860px;
+  }
+
+  .atlas-deck-cover__subtitle {
+    margin: 0;
+    color: color-mix(in srgb, var(--text) 68%, transparent);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .atlas-deck-cover__headline {
+    margin: 0;
+    max-inline-size: 18ch;
+    font-size: clamp(32px, 5vw, 58px);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+  }
+
+  .atlas-deck-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .atlas-deck-grid {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+  }
+
+  .atlas-deck-grid--two,
+  .atlas-deck-grid--evidence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .atlas-deck-grid--metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .atlas-deck-spotlight,
+  .atlas-deck-stat,
+  .atlas-deck-lane,
+  .atlas-deck-quote {
+    padding: 20px;
+    border: 1px solid rgba(23, 25, 29, 0.08);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.58);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+
+  .atlas-deck-spotlight span,
+  .atlas-deck-stat span {
+    display: block;
+    color: rgba(23, 25, 29, 0.62);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .atlas-deck-spotlight strong,
+  .atlas-deck-stat strong {
+    display: block;
+    margin-block-start: 12px;
+    font-size: clamp(28px, 4vw, 46px);
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+  }
+
+  .atlas-deck-spotlight p,
+  .atlas-deck-lane p,
+  .atlas-deck-closing p {
+    margin: 0;
+    color: color-mix(in srgb, var(--text) 78%, transparent);
+    line-height: 1.65;
+  }
+
+  .atlas-deck-lane--warn {
+    background: rgba(248, 240, 231, 0.88);
+  }
+
+  .atlas-deck-stat {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+
+  .atlas-deck-quote {
+    margin: 0;
+    font-size: clamp(24px, 3vw, 38px);
+    font-weight: 700;
+    line-height: 1.14;
+    letter-spacing: -0.03em;
+  }
 }
 
 /* ── Responsive: 5-tier layout system (USWDS mobile-first) ── */
@@ -716,6 +915,10 @@
   .side-rail {
     padding-block: 20px;
     padding-inline: 20px;
+  }
+
+  .atlas-sidebar-brand {
+    gap: 12px;
   }
 
   .side-rail h1 {
@@ -755,6 +958,23 @@
 
   .side-rail {
     padding: 16px;
+  }
+
+  .topbar-brand-chip {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .atlas-deck-slide {
+    min-block-size: auto;
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .atlas-deck-grid--two,
+  .atlas-deck-grid--metrics,
+  .atlas-deck-grid--evidence {
+    grid-template-columns: 1fr;
   }
 
   .side-rail nav {
@@ -804,12 +1024,10 @@
 
   .app-shell {
     min-block-size: calc(
-      100vh - var(--mobile-nav-height, 64px) -
-        var(--safe-area-inset-bottom)
+      100vh - var(--mobile-nav-height, 64px) - var(--safe-area-inset-bottom)
     );
     min-block-size: calc(
-      100dvh - var(--mobile-nav-height, 64px) -
-        var(--safe-area-inset-bottom)
+      100dvh - var(--mobile-nav-height, 64px) - var(--safe-area-inset-bottom)
     );
   }
 
@@ -900,6 +1118,15 @@
   .mobile-nav,
   .skip-to-content {
     display: none !important;
+  }
+
+  .atlas-deck-slide {
+    min-block-size: auto;
+    break-after: page;
+    border: none;
+    border-radius: 0;
+    background: white;
+    box-shadow: none;
   }
 
   .surface {

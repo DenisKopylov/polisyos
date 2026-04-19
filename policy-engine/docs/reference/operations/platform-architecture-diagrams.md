@@ -3,6 +3,9 @@
 Related reference: [Operations Reference](index.md), [Runtime API Versioning and
 Deprecation Policy](../api/versioning.md), [Logging and Trace Context](../logging.md).
 
+Owner: `@platform-owners`
+Source of truth: `src/polisyos/runtime/http/**`, `src/polisyos/core/artifacts/**`, `src/polisyos/core/observability/**`, and the linked API/operations reference pages
+
 > These diagrams are the operator-facing shorthand for the runtime platform
 > contract after WS-0 through WS-2 hardening.
 
@@ -27,7 +30,7 @@ flowchart TB
     Policy --> Telemetry
 ```
 
-## Runtime Request Path
+## Runtime HTTP Request Flow
 
 ```mermaid
 flowchart LR
@@ -53,6 +56,26 @@ flowchart LR
   outcomes.
 - Read paths attach data-access audit entries with `request_id`, actor, tenant,
   and resource metadata.
+
+## Auth And Tenant Isolation Flow
+
+```mermaid
+flowchart TB
+    Token["JWT bearer token"] --> Validate["OIDC / JWT validation"]
+    Validate --> Bind["tenant_id and cell_id binding"]
+    Bind --> Scope["request.state and AccessScope"]
+    Scope --> OPA["OPA authz input"]
+    OPA --> Namespace["namespaced run and artifact access"]
+    Namespace --> Audit["audit trail with request_id, tenant, actor"]
+```
+
+### Operator Notes
+
+- tenant or cell mismatch is a deny path, not a warning path;
+- auth, routing, authorization, namespace checks, and audit should agree on the
+  same tenant/cell identity;
+- see [Security Model](../../explanation/security-model.md) and
+  [Auth and tenant model](../api/auth-tenant-model.md) for the contract details.
 
 ## Control-Plane Lifecycle
 

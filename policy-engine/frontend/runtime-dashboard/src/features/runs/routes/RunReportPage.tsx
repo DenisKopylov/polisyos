@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useRunErrors } from "@/api/hooks/useRunErrors";
 import { useRunTimeline } from "@/api/hooks/useRunTimeline";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
+import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import {
   RunInspectorProvider,
   useRunInspector,
@@ -14,6 +15,7 @@ import {
   buildAuditTrail,
   buildRunReportSnapshot,
 } from "@/features/runs/domain/compare";
+import { buildRunDeckHref } from "@/features/runs/domain/searchParams";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { formatNumber } from "@/lib/utils";
 import {
@@ -105,6 +107,13 @@ function RunReportContent({ runId }: { runId: string }) {
             >
               {t("pages.runs.report.printPdf")}
             </Button>
+            <PrefetchButton
+              prefetch="intent"
+              to={buildRunDeckHref(runId)}
+              variant="ghost"
+            >
+              {t("pages.runs.openDeck")}
+            </PrefetchButton>
           </div>
         </div>
         <div className="grid gap-3 md:grid-cols-4">

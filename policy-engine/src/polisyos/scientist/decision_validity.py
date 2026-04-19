@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.timestamps import to_iso_utc, utc_now
 from polisyos.core.artifacts.ids import ArtifactID
@@ -31,6 +31,16 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
 
 _StateModel = TypeVar("_StateModel", bound=BaseModel)
+
+_DECISION_VALIDITY_JSON_LOAD_ERRORS = (OSError, ValueError, json.JSONDecodeError)
+_DECISION_VALIDITY_MODEL_ERRORS = (TypeError, ValueError, ValidationError)
+_DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
 
 
 def _serialize_datetime(value: datetime | None) -> str | None:
@@ -161,11 +171,11 @@ class DecisionValidityStateStore:
             return None
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError, json.JSONDecodeError):
+        except _DECISION_VALIDITY_JSON_LOAD_ERRORS:
             return None
         try:
             return cast("_StateModel", model_type.model_validate(payload))
-        except Exception:
+        except _DECISION_VALIDITY_MODEL_ERRORS:
             return None
 
     @staticmethod
@@ -932,13 +942,13 @@ class DecisionValidityService:
         try:
             artifact_id = ArtifactID.model_validate(evaluation_ref)
             payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
-        except Exception:
+        except _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS:
             return None
         if not isinstance(payload, dict):
             return None
         try:
             return DecisionValidityEvaluation.model_validate(payload)
-        except Exception:
+        except _DECISION_VALIDITY_MODEL_ERRORS:
             return None
 
     def _load_monitoring_contract(
@@ -948,13 +958,13 @@ class DecisionValidityService:
         try:
             artifact_id = ArtifactID.model_validate(monitoring_contract_ref)
             payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
-        except Exception:
+        except _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS:
             return None
         if not isinstance(payload, dict):
             return None
         try:
             return DecisionMonitoringContract.model_validate(payload)
-        except Exception:
+        except _DECISION_VALIDITY_MODEL_ERRORS:
             return None
 
 
@@ -964,7 +974,7 @@ def _load_envelope(packet_payload: dict[str, Any]) -> DecisionValidityEnvelope |
         return None
     try:
         return DecisionValidityEnvelope.model_validate(value)
-    except Exception:
+    except _DECISION_VALIDITY_MODEL_ERRORS:
         return None
 
 
@@ -974,7 +984,7 @@ def _load_baseline(packet_payload: dict[str, Any]) -> DecisionValidityEvaluation
         return None
     try:
         return DecisionValidityEvaluation.model_validate(value)
-    except Exception:
+    except _DECISION_VALIDITY_MODEL_ERRORS:
         return None
 
 

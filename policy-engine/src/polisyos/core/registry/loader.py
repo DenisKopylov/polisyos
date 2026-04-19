@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -48,7 +48,7 @@ def _load_model[ModelT: BaseModel](
 ) -> ModelT:
     data = store.get_bytes(_artifact_id(ref))
     payload = from_canonical_bytes(data)
-    return cast("ModelT", model_cls.model_validate(payload))
+    return model_cls.model_validate(payload)
 
 
 @dataclass(frozen=True)

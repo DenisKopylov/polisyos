@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+import builtins
+
+import pytest
+
 from polisyos.scientist.agent.code_verifier import (
     CodeVerificationSandbox,
     DraftVariableExtractor,
     SandboxConfig,
     VerificationCodeExtractor,
     VerificationStatus,
+    _apply_resource_limits,
+    _load_allowed_modules,
+    _verification_worker,
 )
 from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
 
@@ -78,3 +85,68 @@ def test_code_verifier_timeout_kills_process() -> None:
     assert result.status == VerificationStatus.ERROR
     assert not result.passed
     assert "timeout" in result.errors[0].lower()
+
+
+def test_load_allowed_modules_assertion_is_not_swallowed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_import = builtins.__import__
+
+    def _import(name: str, *args, **kwargs):
+        if name == "math":
+            raise AssertionError("module import invariant failed")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", _import)
+
+    with pytest.raises(AssertionError, match="module import invariant failed"):
+        _load_allowed_modules(("math",))
+
+
+def test_apply_resource_limits_import_assertion_is_not_swallowed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_import = builtins.__import__
+
+    def _import(name: str, *args, **kwargs):
+        if name == "resource":
+            raise AssertionError("resource import invariant failed")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", _import)
+
+    with pytest.raises(AssertionError, match="resource import invariant failed"):
+        _apply_resource_limits(SandboxConfig())
+
+
+def test_verification_worker_restrictedpython_import_assertion_is_not_swallowed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _Queue:
+        def put(self, _payload) -> None:
+            raise AssertionError("queue should not be used on helper assertion")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.code_verifier._apply_resource_limits",
+        lambda _config: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.code_verifier._load_allowed_modules",
+        lambda _modules: {},
+    )
+    original_import = builtins.__import__
+
+    def _import(name: str, *args, **kwargs):
+        if name == "RestrictedPython":
+            raise AssertionError("restrictedpython import invariant failed")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", _import)
+
+    with pytest.raises(AssertionError, match="restrictedpython import invariant failed"):
+        _verification_worker(
+            "pass",
+            {},
+            SandboxConfig().model_dump(mode="python"),
+            _Queue(),
+        )

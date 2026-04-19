@@ -30,6 +30,10 @@ if TYPE_CHECKING:
     from polisyos.core.trace.record import TraceRecord
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class AuditStorageBackend(Protocol):
     """Remote/secondary storage backend for chained audit entries."""
 
@@ -225,7 +229,7 @@ class ChainedAuditSink:
         self._sequence = 0
         self._prev_hash = ChainedLogEntry.genesis_prev_hash()
         self._enqueue_timeout = enqueue_timeout_seconds
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
         self._replica_backends = backends or []
         self._queue: queue.Queue[ChainedLogEntry | None] = queue.Queue(maxsize=queue_size)

@@ -6,6 +6,21 @@ Related reference: [Security and Compliance Operations](../reference/security-co
 > Use this runbook for planned signer rotation, emergency signer compromise, or
 > any trust-store transition affecting CAS artifact verification.
 
+Owner: `@platform-owners`
+Last tested: `2026-04-17` against current rotation and signing evidence.
+Evidence path: `docs/reference/security-compliance.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/core/phase0/test_store_signing.py`
+Rollback path: keep the previous trusted key through the grace window when possible, or revoke and replace compromised keys with an explicit incident record.
+
+## Operational Metadata
+
+| Field | Value |
+|---|---|
+| Primary owner | `@platform-owners` |
+| Security owner | security/compliance owner for emergency rotations |
+| Last tested | 2026-04-17, D1-L1 documentation validation pass |
+| Evidence anchors | `tests/core/security/test_identity.py`, `tests/core/security/test_sbom.py`, `tests/core/phase0/test_store_signing.py`, `docs/reference/security-compliance.md` |
+| Rollback posture | keep previous trusted keys through the grace window; emergency revocation records the affected key/window explicitly |
+
 ## Symptom
 
 - a scheduled quarterly or release-bound signer/JWT rotation is due;

@@ -34,7 +34,7 @@ class BaseRegistry(Generic[K, V]):
         self,
         *,
         key_fn: Callable[[V], K],
-        indexers: Mapping[str, Indexer[V]] | None = None,
+        indexers: Mapping[str, Indexer[V, Hashable]] | None = None,
     ) -> None:
         self._key_fn = key_fn
         self._entries = GenericRegistry[K, V](key_fn=key_fn, indexers=indexers)

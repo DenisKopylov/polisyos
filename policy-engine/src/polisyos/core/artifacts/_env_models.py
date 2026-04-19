@@ -56,7 +56,6 @@ class CPUInfo(BaseModel):
     has_amx: bool = Field(default=False, description="AMX (Advanced Matrix Extensions)")
     has_neon: bool = Field(default=False, description="ARM NEON support")
 
-    @computed_field
     @property
     def fingerprint(self) -> str:
         """Generate fingerprint for CPU capabilities."""
@@ -65,6 +64,11 @@ class CPUInfo(BaseModel):
             f"{self.has_avx512}:{self.has_amx}:{self.has_neon}"
         )
         return truncated_hash(flags, length=16)
+
+    @computed_field(alias="fingerprint", return_type=str)
+    def fingerprint_field(self) -> str:
+        """Expose the fingerprint through Pydantic serialization."""
+        return self.fingerprint
 
 
 class GPUInfo(BaseModel):
@@ -253,17 +257,16 @@ class EnvironmentManifest(BaseModel):
         description="Additional custom metadata",
     )
 
-    @computed_field
     @property
     def fingerprint(self) -> str:
         """
         Generate a compact fingerprint for quick equality checks.
         Includes only fields that affect reproducibility.
         """
-        from ._env_utils import _fingerprint_system_libraries, _format_xla_flags
+        from ._env_utils import fingerprint_system_libraries, format_xla_flags
 
-        lib_fingerprint = _fingerprint_system_libraries(self.system_libraries)
-        xla_flags = _format_xla_flags(self.jax.xla_flags)
+        lib_fingerprint = fingerprint_system_libraries(self.system_libraries)
+        xla_flags = format_xla_flags(self.jax.xla_flags)
         critical_fields = [
             self.cpu.fingerprint,
             self.gpu.cuda_version or "no-cuda",
@@ -283,6 +286,11 @@ class EnvironmentManifest(BaseModel):
         combined = "|".join(critical_fields)
         return truncated_hash(combined, length=32)
 
+    @computed_field(alias="fingerprint", return_type=str)
+    def fingerprint_field(self) -> str:
+        """Expose the manifest fingerprint through Pydantic serialization."""
+        return self.fingerprint
+
     def compatibility_score(self, other: "EnvironmentManifest") -> float:
         """
         Calculate compatibility score between two environments.
@@ -291,7 +299,7 @@ class EnvironmentManifest(BaseModel):
             float: 1.0 = identical, 0.0 = completely incompatible
         """
         from ._env_comparison import compare_environments
-        from ._env_utils import _risk_order
+        from ._env_utils import risk_order
 
         if self.fingerprint == other.fingerprint:
             return 1.0
@@ -307,12 +315,12 @@ class EnvironmentManifest(BaseModel):
             RiskLevel.LOW: 0.9,
             RiskLevel.INFO: 1.0,
         }
-        worst_risk = min(diffs, key=lambda diff: _risk_order(diff.risk_level)).risk_level
+        worst_risk = min(diffs, key=lambda diff: risk_order(diff.risk_level)).risk_level
         return risk_weights[worst_risk]
 
 
 class EnvironmentManifestRef(ArtifactRef):
     """Typed reference to EnvironmentManifest artifact."""
 
-    kind: Literal["foundry.environment_manifest"] = "foundry.environment_manifest"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.environment_manifest"
+    media_type: str = "application/json"

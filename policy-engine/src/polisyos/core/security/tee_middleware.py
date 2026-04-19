@@ -23,6 +23,10 @@ if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class AttestationDeniedError(RuntimeError):
     """Raised when TEE attestation policy denies execution."""
 
@@ -45,7 +49,7 @@ class TEEGatekeeper:
         self._enforce_tiers = frozenset(item.strip().lower() for item in enforce_tiers)
         self._verifier = verifier
         self._cache_ttl_seconds = max(0, cache_ttl_seconds)
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
         self._cache = TTLCache[str, AttestationResult](
             ttl_seconds=float(self._cache_ttl_seconds),
             time_fn=time.monotonic,

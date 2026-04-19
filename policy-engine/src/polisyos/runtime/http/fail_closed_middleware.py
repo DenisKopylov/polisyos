@@ -1,27 +1,30 @@
 """Fail-closed perimeter guard for deployments without the full security chain."""
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.runtime.http.errors import problem_response
 
-try:  # pragma: no cover - optional runtime dependency
-    BaseHTTPMiddleware: Any
-    Request: Any
-    Response: Any
-    from starlette.middleware.base import BaseHTTPMiddleware
+if TYPE_CHECKING:
+    from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
     from starlette.requests import Request
     from starlette.responses import Response
-except ModuleNotFoundError:  # pragma: no cover
-    BaseHTTPMiddleware = object
-    Request = Any
-    Response = Any
+else:  # pragma: no cover - optional runtime dependency
+    try:
+        from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
+        from starlette.requests import Request
+        from starlette.responses import Response
+    except ModuleNotFoundError:  # pragma: no cover
+        _BaseHTTPMiddleware = cast("type[Any]", object)
+        Request = cast("Any", None)
+        Response = cast("Any", None)
 
 
 _PUBLIC_PATHS = frozenset({"/health", "/ready", "/metrics", "/auth/callback"})
 
 
-class FailClosedAccessScopeMiddleware(BaseHTTPMiddleware):
+class FailClosedAccessScopeMiddleware(_BaseHTTPMiddleware):
     """Reject non-public requests unless an authenticated access scope is present."""
 
     def __init__(
@@ -33,7 +36,11 @@ class FailClosedAccessScopeMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self._public_paths = public_paths
 
-    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         path = str(getattr(request.url, "path", ""))
         if path in self._public_paths:
             return await call_next(request)

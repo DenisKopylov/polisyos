@@ -1,0 +1,11 @@
+version: 1
+owner: team-security
+mode: optional-deep-scan
+exclude_paths:
+  - docs/
+  - policy-engine/docs/
+  - policy-engine/.polisyos/
+  - policy-engine/production_data/
+allow_placeholder_patterns:
+  - PLACEHOLDER_
+  - example-secret

@@ -621,6 +621,18 @@ tests и trace correlation уже работают в production-like режим
 
 ---
 
+## D1 Docs Impact Table
+
+| D1 doc cluster | Exact files | Source of truth | Validation command or evidence | Backlog / priority |
+|---|---|---|---|---|
+| Scientist reference set | `docs/reference/scientist/index.md`, `docs/reference/scientist/workflows.md`, `docs/reference/scientist/governance-passes.md`, `docs/reference/scientist/nodes.md`, `docs/reference/scientist/causal.md`, `docs/reference/scientist/calibration-governance.md`, `docs/reference/scientist/reliability-scorecard.md`, `docs/reference/scientist/frontier-runtime.md`, `docs/reference/scientist/remediation-status.md` | `src/polisyos/scientist/remediation_status.py`, `src/polisyos/scientist/frontier_runtime.py`, workflow/governance/node/search modules, persisted acceptance artifacts | `uv run pytest -q tests/tools/test_scientist_phase0_gate.py tests/tools/test_scientist_phase1_gate.py tests/tools/test_scientist_phase2_ratchet.py tests/scientist/test_frontier_runtime.py tests/scientist/search/test_benchmark_registry.py` | none |
+| Authoring guidance | `docs/how-to/write-governance-pass.md`, `docs/tutorials/creating-governance-pass.md` | governance registry, pass authoring workflow, evidence discipline | `uv run pytest -q tests/scientist/governance/test_accountability.py tests/scientist/governance/test_calibration_validation.py` | none |
+| Package boundary READMEs | `src/polisyos/scientist/README.md`, `src/polisyos/scientist/agent/README.md`, `src/polisyos/scientist/search/README.md`, `src/polisyos/scientist/governance/README.md`, `src/polisyos/scientist/nodes/README.md`, `src/polisyos/scientist/workflows/README.md` | package facades, workflow assembly, search/agent subsystems, governance/nodes boundaries | README-linked gates plus `uv run pytest -q tests/scientist/integration/test_workflow_reliability_scenarios.py tests/performance/test_scientist_runtime_paths.py` | none |
+
+D1 closure note: all required D1-L6 pages are present. Optional dedicated
+`phase2-acceptance.md` and distributed-runtime reference pages remain P2 D2
+enhancements, not D1 blockers.
+
 ## Рекомендуемый порядок исполнения по спринтам
 
 ### Sprint 1

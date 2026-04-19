@@ -13,7 +13,7 @@ from ..observability.config import is_hpc_observability_enabled
 from ._atomic_write import AtomicFileWriter as _AtomicFileWriter
 from ._integrity_ops import (
     ArtifactIntegrityError,
-    VerificationReport,
+    VerificationReport as VerificationReport,
 )
 from ._integrity_ops import (
     read_verified_blob as _read_verified_blob,
@@ -96,6 +96,14 @@ if TYPE_CHECKING:
 PutOptions = ArtifactWriteOptions
 
 
+def _default_tracer() -> PolicyOSTracer:
+    return get_tracer()
+
+
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class FileSystemCAS:
     """Store immutable artifacts in a sharded filesystem content-addressed store.
 
@@ -128,10 +136,10 @@ class FileSystemCAS:
         self._manifests = _ManifestLifecycle(self._files)
         observability_enabled = is_hpc_observability_enabled()
         self._tracer = tracer if tracer is not None else (
-            get_tracer() if observability_enabled else None
+            _default_tracer() if observability_enabled else None
         )
         self._metrics = metrics if metrics is not None else (
-            get_metrics() if observability_enabled else None
+            _default_metrics() if observability_enabled else None
         )
         self._hpc_enabled = self._tracer is not None or self._metrics is not None
         self._signing_config = signing_config or SigningConfig.from_env()

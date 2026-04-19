@@ -54,6 +54,14 @@ _AMOUNT_PARAM_HINTS = (
 )
 
 
+def _default_tracer() -> PolicyOSTracer:
+    return get_tracer()
+
+
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class InformedCriticConfig(BaseModel):
     """Feature flags and thresholds for informed critic rollout control."""
 
@@ -125,8 +133,8 @@ class InformedCriticAgent:
         self._feasibility_min_match_ratio = max(0.0, resolved_config.feasibility_min_match_ratio)
         self._failure_pattern_threshold = max(1, resolved_config.failure_pattern_threshold)
         self._constraint_assembler = ConstraintContextAssembler()
-        self._tracer = tracer if tracer is not None else get_tracer()
-        self._metrics = metrics if metrics is not None else get_metrics()
+        self._tracer = tracer if tracer is not None else _default_tracer()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     async def critique(
         self,

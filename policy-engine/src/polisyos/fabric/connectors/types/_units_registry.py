@@ -17,6 +17,10 @@ __all__ = [
 ]
 
 
+def _default_unit_registry() -> "UnitRegistry":
+    return UnitRegistry.get_instance()
+
+
 # =============================================================================
 # Unit Registry (Singleton)
 # =============================================================================
@@ -198,7 +202,7 @@ class UnitRegistry:
 
 def get_unit_registry() -> UnitRegistry:
     """Get the global unit registry instance."""
-    return UnitRegistry.get_instance()
+    return _default_unit_registry()
 
 
 def parse_unit(unit_str: str) -> Unit:

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.ir.analytics.cross_graph import (
     CanonicalConcept,
     CrossGraphDiagnostic,
@@ -13,6 +15,8 @@ from polisyos.ir.analytics.cross_graph import (
 )
 
 from ..protocols import GathererResult
+
+_ACADEMIC_SERIALIZATION_ERRORS = (AttributeError, TypeError, ValueError, ValidationError)
 
 
 class AcademicGatherer:
@@ -428,6 +432,6 @@ def _serialize_value(value: Any) -> Any:
     if hasattr(value, "model_dump_json"):
         try:
             return value.model_dump(mode="json")
-        except Exception:  # noqa: BLE001
+        except _ACADEMIC_SERIALIZATION_ERRORS:
             return str(value)
     return value

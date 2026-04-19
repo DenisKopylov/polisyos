@@ -6,10 +6,11 @@ import hashlib
 import json
 import os
 from collections import Counter
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from time import monotonic
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.contracts.runtime import (
     AgentPipelineResponse,
@@ -20,6 +21,7 @@ from polisyos.core.contracts.runtime import (
     RunsBatchRequest,
     RunsBatchResponse,
     RunsListResponse,
+    SourceKind,
     RunTimelineResponse,
     RunWorkflowResponse,
 )
@@ -38,25 +40,28 @@ from polisyos.runtime.http.response_policies import add_run_link_relations
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-try:  # pragma: no cover - optional runtime dependency
-    APIRouter: Any | None
-    Depends: Any | None
-    Query: Any | None
-    Request: Any
-    Response: Any
-    StreamingResponse: Any | None
     from fastapi import APIRouter, Depends, Query, Request, Response
     from fastapi.responses import StreamingResponse
-except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None
-    Depends = None
-    Query = None
-    Request = Any
-    Response = Any
-    StreamingResponse = None
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from fastapi import APIRouter, Depends, Query, Request, Response
+        from fastapi.responses import StreamingResponse
+    except ModuleNotFoundError:  # pragma: no cover
+        APIRouter = cast("Any", None)
+        Depends = cast("Any", None)
+        Query = cast("Any", None)
+        Request = cast("Any", Any)
+        Response = cast("Any", Any)
+        StreamingResponse = cast("Any", Any)
 
 
-router = APIRouter(prefix="/api/v1/runs", tags=["runtime-runs"]) if APIRouter else None
+def _build_router() -> APIRouter:
+    if APIRouter is None:  # pragma: no cover - runtime dependency guard
+        raise RuntimeError("runtime HTTP routes require FastAPI to be installed")
+    return APIRouter(prefix="/api/v1/runs", tags=["runtime-runs"])
+
+
+router = _build_router()
 
 
 @dataclass(frozen=True)
@@ -114,6 +119,10 @@ def _encode_sse(
 def _payload_signature(payload: dict[str, Any]) -> str:
     encoded = json.dumps(payload, default=_json_default, sort_keys=True)
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _as_source_kind(value: str) -> SourceKind:
+    return cast("SourceKind", value)
 
 
 def _is_terminal_status(status: str | None) -> bool:
@@ -213,7 +222,7 @@ async def _stream_payloads(
     request: Request,
     *,
     policy: LiveStreamPolicy,
-) -> Any:
+) -> AsyncIterator[str]:
     previous_signature = None
     started_at = monotonic()
     last_emit_at = monotonic()
@@ -280,7 +289,7 @@ if router is not None:
             to_ts=to_ts,
             tenant_id=scope.tenant_id if scope else None,
         )
-        source_kinds = [run.source_kind for run in runs]
+        source_kinds: list[SourceKind] = [_as_source_kind(run.source_kind) for run in runs]
         record_data_access_audit(
             request,
             resource_id=scope.tenant_id,
@@ -310,12 +319,12 @@ if router is not None:
             kind="runtime.run_batch",
         )
         runs = []
-        source_kinds = []
+        source_kinds: list[SourceKind] = []
         for run_id in body.run_ids:
             run = ctx.run_index.get_run(run_id)
             enforce_run_tenant_access(request, ctx=ctx, run=run)
             runs.append(run.details)
-            source_kinds.append(run.source_kind)
+            source_kinds.append(_as_source_kind(run.source_kind))
         record_data_access_audit(
             request,
             resource_id="run.batch",

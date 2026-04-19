@@ -1,0 +1,364 @@
+[migration_shims]
+version = 2
+status = "draft"
+description = """
+Registry of temporary compatibility shims used during repository migrations.
+Every shim must carry an owner, sunset_date, and migration target.
+CI enforces sunset: expired shims fail the build.
+"""
+
+# ---------------------------------------------------------------------------
+# Data Forge consolidation — Python re-export shims.
+# ---------------------------------------------------------------------------
+
+[[shim]]
+id = "polisyos-academic-to-data-forge"
+source_path = "src/polisyos/academic"
+target_path = "src/polisyos/data_forge/domains/academic"
+type = "reexport"
+reason = "Phase 1 Data Forge academic migration"
+owner = "team-data-forge"
+created = "2026-04-18"
+sunset_date = "2026-10-01"
+issue = "TBD"
+
+[[shim]]
+id = "polisyos-datasets-to-data-forge"
+source_path = "src/polisyos/datasets"
+target_path = "src/polisyos/data_forge/domains/catalog"
+type = "reexport"
+reason = "Phase 2 Data Forge catalog migration"
+owner = "team-data-forge"
+created = "2026-04-18"
+sunset_date = "2026-10-01"
+issue = "TBD"
+
+[[shim]]
+id = "polisyos-ukraine-data-to-data-forge"
+source_path = "src/polisyos/ukraine_data"
+target_path = "src/polisyos/data_forge/domains/ukraine"
+type = "reexport"
+reason = "Phase 3 Data Forge Ukraine migration"
+owner = "team-data-forge"
+created = "2026-04-18"
+sunset_date = "2026-10-01"
+issue = "TBD"
+
+[[shim]]
+id = "polisyos-lex-batch-to-data-forge-legal"
+source_path = "src/polisyos/lex/batch"
+target_path = "src/polisyos/data_forge/domains/legal"
+type = "reexport"
+reason = "Phase 4 Data Forge legal migration"
+owner = "team-data-forge"
+created = "2026-04-18"
+sunset_date = "2026-10-01"
+issue = "TBD"
+
+[[shim]]
+id = "polisyos-batch-common-to-data-forge-kernel"
+source_path = "src/polisyos/batch_common"
+target_path = "src/polisyos/data_forge/kernel"
+type = "reexport"
+reason = "Phase 1 Data Forge shared-kernel consolidation"
+owner = "team-data-forge"
+created = "2026-04-18"
+sunset_date = "2026-09-01"
+issue = "TBD"
+
+[[shim]]
+id = "polisyos-batch-snapshot-to-data-forge-kernel-snapshot"
+source_path = "src/polisyos/batch_snapshot"
+target_path = "src/polisyos/data_forge/kernel/snapshot"
+type = "reexport"
+reason = "Phase 1 Data Forge snapshot-kernel consolidation"
+owner = "team-data-forge"
+created = "2026-04-18"
+sunset_date = "2026-09-01"
+issue = "TBD"
+
+# ---------------------------------------------------------------------------
+# Lex internal re-shaping (split-and-relocate).
+# ---------------------------------------------------------------------------
+
+[[shim]]
+id = "polisyos-lex-simulator-to-lex-impact"
+source_path = "src/polisyos/lex/simulator"
+target_path = "src/polisyos/lex/impact"
+type = "reexport"
+reason = "Rename Lex simulator semantics to the legal impact-analysis surface while keeping compatibility imports."
+owner = "team-lex"
+created = "2026-04-18"
+sunset_date = "2026-08-15"
+issue = "TBD"
+
+[[shim]]
+id = "polisyos-lex-interventions-split"
+source_path = "src/polisyos/lex/interventions.py"
+target_path = "src/polisyos/lex/interventions/"
+type = "reexport"
+reason = "Split Lex interventions god-module into a subpackage"
+owner = "team-lex"
+created = "2026-04-18"
+sunset_date = "2026-08-15"
+issue = "TBD"
+split_targets = [
+  "src/polisyos/lex/interventions/models.py",
+  "src/polisyos/lex/interventions/effects.py",
+  "src/polisyos/lex/interventions/apply.py",
+]
+
+# ---------------------------------------------------------------------------
+# Foundry release-acceptance extraction.
+# ---------------------------------------------------------------------------
+
+[[shim]]
+id = "polisyos-foundry-release-acceptance-to-release"
+source_path = "src/polisyos/foundry/release_acceptance.py"
+target_path = "tools/ops/release/release_acceptance.py"
+type = "procedure_relocation"
+reason = "Phase 3 release-acceptance ownership move"
+owner = "team-release"
+created = "2026-04-18"
+sunset_date = "2026-09-01"
+issue = "TBD"
+
+# ---------------------------------------------------------------------------
+# Runtime / scientist private CLIs.
+# ---------------------------------------------------------------------------
+
+[[shim]]
+id = "polisyos-core-cli-scientist-to-scientist-cli"
+source_path = "src/polisyos/core/components/_cli_scientist.py"
+target_path = "src/polisyos/scientist/cli.py"
+type = "reexport"
+reason = "Return scientist private CLI to scientist package"
+owner = "team-scientist"
+created = "2026-04-18"
+sunset_date = "2026-07-01"
+issue = "TBD"
+
+[[shim]]
+id = "product-install-sh-to-workspace-bootstrap"
+source_path = "install.sh"
+target_path = "tools/workspace/bootstrap.py"
+type = "wrapper_only"
+reason = "Consolidate bootstrap entrypoints under polisyos-tools workspace bootstrap"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "product-migrate-py-to-tools-migrations"
+source_path = "migrate.py"
+target_path = "tools/migrations/run.py"
+type = "wrapper_only"
+reason = "Move migration command into the canonical tools tree"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "product-jax-bootstrap-to-workspace-vendor"
+source_path = "jax_bootstrap.py"
+target_path = "tools/workspace/vendor.py"
+type = "wrapper_only"
+reason = "Move JAX/toolchain bootstrap into workspace tooling"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+# ---------------------------------------------------------------------------
+# tools/ consolidation.
+# ---------------------------------------------------------------------------
+
+[[shim]]
+id = "tools-cloud-to-tools-ops-cloud"
+source_path = "tools/cloud"
+target_path = "tools/ops/cloud"
+type = "wrapper_only"
+reason = "Phase 5 tools consolidation"
+owner = "team-ops"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "tools-lint-to-tools-quality-lint"
+source_path = "tools/lint"
+target_path = "tools/quality/lint"
+type = "wrapper_only"
+reason = "Phase 5 tools/quality/* umbrella for lint/diagnostics/validation/testing"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "tools-diagnostics-to-tools-quality-diagnostics"
+source_path = "tools/diagnostics"
+target_path = "tools/quality/diagnostics"
+type = "wrapper_only"
+reason = "Phase 5 tools/quality/* umbrella"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "tools-validation-to-tools-quality-validation"
+source_path = "tools/validation"
+target_path = "tools/quality/validation"
+type = "wrapper_only"
+reason = "Phase 5 tools/quality/* umbrella"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "tools-testing-to-tools-quality-testing"
+source_path = "tools/testing"
+target_path = "tools/quality/testing"
+type = "wrapper_only"
+reason = "Phase 5 tools/quality/* umbrella"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "tools-data-to-tools-data-forge"
+source_path = "tools/data"
+target_path = "tools/data_forge"
+type = "wrapper_only"
+reason = "Align tooling namespace with canonical data_forge package"
+owner = "team-data-forge"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "tools-release-to-tools-ops-release"
+source_path = "tools/release"
+target_path = "tools/ops/release"
+type = "wrapper_only"
+reason = "Phase 5 tools consolidation"
+owner = "team-ops"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "tools-ukraine-data-to-tools-data-forge-ukraine"
+source_path = "tools/ukraine_data"
+target_path = "tools/data_forge/ukraine"
+type = "wrapper_only"
+reason = "Align Ukraine tooling with Data Forge namespace"
+owner = "team-data-forge"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+[[shim]]
+id = "repo-filter-topics-to-tools-research"
+source_path = "../filter_topics.py"
+target_path = "tools/research/filter_topics.py"
+type = "wrapper_only"
+reason = "Move root research scripts into product-root tools/research"
+owner = "team-research"
+created = "2026-04-18"
+sunset_date = "2026-07-01"
+issue = "TBD"
+
+[[shim]]
+id = "repo-organize-relevant-topics-to-tools-research"
+source_path = "../organize_relevant_topics.py"
+target_path = "tools/research/organize_relevant_topics.py"
+type = "wrapper_only"
+reason = "Move root research scripts into product-root tools/research"
+owner = "team-research"
+created = "2026-04-18"
+sunset_date = "2026-07-01"
+issue = "TBD"
+
+# ---------------------------------------------------------------------------
+# Ops / deploy / docker / gcp legacy wrappers.
+# ---------------------------------------------------------------------------
+
+[[shim]]
+id = "root-cloud-deploy-to-ops-cloud"
+source_path = "cloud_deploy"
+target_path = "ops/cloud"
+type = "wrapper_only"
+reason = "Phase 5 ops topology consolidation"
+owner = "team-ops"
+created = "2026-04-18"
+sunset_date = "2026-09-01"
+issue = "TBD"
+
+[[shim]]
+id = "root-deploy-to-ops-deploy"
+source_path = "deploy"
+target_path = "ops/deploy"
+type = "wrapper_only"
+reason = "Phase 5 ops topology consolidation"
+owner = "team-ops"
+created = "2026-04-18"
+sunset_date = "2026-09-01"
+issue = "TBD"
+
+[[shim]]
+id = "root-docker-to-ops-docker"
+source_path = "docker"
+target_path = "ops/docker"
+type = "wrapper_only"
+reason = "Phase 5 ops topology consolidation"
+owner = "team-ops"
+created = "2026-04-18"
+sunset_date = "2026-09-01"
+issue = "TBD"
+
+[[shim]]
+id = "root-gcp-to-ops-cloud-gcp"
+source_path = "gcp"
+target_path = "ops/cloud/gcp"
+type = "wrapper_only"
+reason = "Phase 5 ops topology consolidation"
+owner = "team-ops"
+created = "2026-04-18"
+sunset_date = "2026-09-01"
+issue = "TBD"
+
+# ---------------------------------------------------------------------------
+# Nested .github template alignment.
+# ---------------------------------------------------------------------------
+
+[[shim]]
+id = "nested-github-to-root-github"
+source_path = ".github"
+target_path = "../.github"
+type = "template_or_remove"
+reason = "Root .github is the only active workflow source"
+owner = "team-platform"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"
+
+# ---------------------------------------------------------------------------
+# Architecture baseline relocation.
+# ---------------------------------------------------------------------------
+
+[[shim]]
+id = "architecture-deep-import-baseline-to-baselines"
+source_path = "architecture/deep_import_baseline.json"
+target_path = "architecture/baselines/deep_import_baseline.json"
+type = "file_relocation"
+reason = "Move architecture freeze baselines into architecture/baselines without disrupting existing guardrails."
+owner = "team-architecture"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "TBD"

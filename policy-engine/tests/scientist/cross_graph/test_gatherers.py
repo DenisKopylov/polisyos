@@ -7,8 +7,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from polisyos.ir.analytics.literature import EnvironmentAuditReport, LiteratureCausalPrior
-from polisyos.scientist.cross_graph.protocols import GathererResult
-from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer
+from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer, _serialize_value
 from polisyos.scientist.cross_graph.gatherers.dataset import DatasetGatherer
 from polisyos.scientist.cross_graph.gatherers.legal import LegalGatherer
 from polisyos.scientist.cross_graph.gatherers.transport import TransportGatherer
@@ -95,6 +94,18 @@ class TestAcademicGatherer:
             result.diagnostics[0].code
             == "cross_graph.academic.environment_audit_advisory"
         )
+
+    def test_serialize_value_assertion_is_not_swallowed(self):
+        class _BrokenPayload:
+            def model_dump_json(self):
+                return "{}"
+
+            def model_dump(self, *, mode):
+                del mode
+                raise AssertionError("serialization invariant failed")
+
+        with pytest.raises(AssertionError, match="serialization invariant failed"):
+            _serialize_value(_BrokenPayload())
 
 
 class TestDatasetGatherer:

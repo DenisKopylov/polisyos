@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "status": "planned",
+  "module": "polisyos.data_forge",
+  "owner": "team-data-forge",
+  "public_entrypoints": [
+    "polisyos.data_forge",
+    "polisyos.data_forge.read_api"
+  ],
+  "internal_prefixes": [
+    "polisyos.data_forge.kernel",
+    "polisyos.data_forge.domains"
+  ],
+  "exports": []
+}

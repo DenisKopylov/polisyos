@@ -86,8 +86,8 @@ class TestIdentifyWithMissingData:
 
         from polisyos.ir.analytics.negative_certificate import NegativeCertificate, BlockingType
         assert isinstance(result, NegativeCertificate)
-        # Uses MISSING_DISTRIBUTION (NOT_RECOVERABLE is not an enum member of BlockingType)
-        assert result.blocking_type == BlockingType.MISSING_DISTRIBUTION
+        assert result.blocking_type == BlockingType.MISSINGNESS_NOT_RECOVERABLE
+        assert result.quantitative_diagnostics["recoverability"]["status"] == "not_recoverable"
 
     def test_no_base_graph_returns_missing_distribution_cert(self) -> None:
         """MGraph without base_graph returns NegativeCertificate."""

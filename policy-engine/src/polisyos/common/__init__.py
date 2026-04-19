@@ -11,7 +11,10 @@ The subpackages listed in `__all__` form the supported facade surface.
 from __future__ import annotations
 
 import importlib
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from . import async_tools, config, jax_env, logger, migrations, serialization, timestamps
 
 __all__ = [
     "async_tools",

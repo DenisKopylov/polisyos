@@ -52,7 +52,7 @@ class ComplianceIssue(BaseModel):
     suggestion: str | None = None
     input_value: str | None = None
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary format compatible with GovernorFeedback."""
         return {
             "loc": self.path,
@@ -84,7 +84,7 @@ class RuleBackend(Protocol):
     def evaluate(
         self,
         norm_pack: NormPack,
-        context: dict,
+        context: dict[str, Any],
     ) -> list[ComplianceIssue]:  # pragma: no cover - Protocol signature
         """
         Evaluate norms against context.
@@ -134,27 +134,27 @@ class LegalContext(BaseModel):
 class LegalReportRef(ArtifactRef):
     """Artifact reference for a persisted Lex legality report."""
 
-    kind: Literal["lex.legal_report"] = "lex.legal_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "lex.legal_report"
+    media_type: str = "application/json"
 
 
 class ChangeProposalRef(ArtifactRef):
     """Artifact reference for a persisted Lex change-proposal bundle."""
 
-    kind: Literal["lex.change_proposal"] = "lex.change_proposal"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "lex.change_proposal"
+    media_type: str = "application/json"
 
 
 class NormDiffRef(ArtifactRef):
     """Artifact reference for a diff between two norm-pack revisions."""
-    kind: Literal["lex.norm_diff"] = "lex.norm_diff"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "lex.norm_diff"
+    media_type: str = "application/json"
 
 
 class NormImpactReportRef(ArtifactRef):
     """Artifact reference for a report estimating policy impact from legal changes."""
-    kind: Literal["lex.norm_impact_report"] = "lex.norm_impact_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "lex.norm_impact_report"
+    media_type: str = "application/json"
 
 
 class LegalEvaluationRequest(BaseModel):

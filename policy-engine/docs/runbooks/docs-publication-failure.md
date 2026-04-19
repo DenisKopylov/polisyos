@@ -4,12 +4,17 @@ Related docs: [Home](../index.md), [Reference](../reference/index.md),
 the repository documentation program plan.
 
 > Используйте этот runbook, когда docs pipeline не может собрать, проверить или
-> опубликовать site через `docs-pages`.
+> провести publication-ready validation через repo-tracked documentation gate.
+
+Owner: `@docs-owners`
+Last tested: `2026-04-17` against the strict MkDocs build, docs-accuracy check, and published QA ledger.
+Evidence path: `docs/reference/documentation-inventory.md`; `docs/reference/quality-gates.md`; `.github/workflows/docs.yml`
+Rollback path: revert or minimally fix the docs/nav/config change that broke publish, restore a strict green build, and only then republish.
 
 ## Symptom
 
 - `uv run --extra docs python -m mkdocs build --strict` падает локально или в CI;
-- workflow `Docs Pages` не деплоит `github-pages`;
+- workflow `Documentation` (`.github/workflows/docs.yml`) не проходит;
 - docs accuracy / broken-link / nav issue ломает publish path;
 - опубликованный docs site stale относительно `main`, хотя code CI green.
 
@@ -26,7 +31,7 @@ the repository documentation program plan.
 Зафиксируйте:
 
 - failing local command или workflow step;
-- `Docs Pages` run URL / run ID и related upstream `CI` run;
+- `Documentation` run URL / run ID и related upstream `CI` run;
 - commit SHA и список changed docs/nav files;
 - затронутый раздел: tutorials, how-to, reference, explanation, runbooks;
 - impact: publish blocked полностью или site stale частично.
@@ -37,21 +42,30 @@ the repository documentation program plan.
 
    ```bash
    cd policy-engine
-   uv sync --frozen --extra dev
-   uv run --extra docs python -m mkdocs build --strict
+   uv sync --frozen --extra docs --extra runtime --extra ml
+   uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
    ```
 
-2. Если проблема про factual drift, прогоните docs accuracy checker:
+2. Если проблема выглядит как чистый content/nav failure, сузьте reproduction до
+   strict MkDocs build:
 
    ```bash
    cd policy-engine
-   uv run --extra docs python tools/validation/check_docs_accuracy.py --repo-root .
+   uv run --extra docs python -m mkdocs build --strict
    ```
 
-3. Проверьте `mkdocs.yml` nav и наличие всех referenced files.
-4. Если publish path запускался через `workflow_run`, убедитесь, что upstream
-   `CI` действительно был `success` на `main`.
-5. Если stale site already published, определите: это build failure,
+3. Если проблема про factual drift, прогоните docs accuracy checker:
+
+   ```bash
+   cd policy-engine
+   uv run polisyos-tools validation check-docs-accuracy --repo-root .
+   ```
+
+4. Проверьте `mkdocs.yml` nav и наличие всех referenced files.
+5. Если documentation gate запускался как PR check, сравните failing diff с
+   ожидаемым docs-sensitive scope и убедитесь, что changed-file rules не
+   пропустили нужный evidence update.
+6. Если stale site already published, определите: это build failure,
    upload-pages-artifact failure или deploy-pages failure.
 
 ## Rollback / Mitigation
@@ -59,7 +73,7 @@ the repository documentation program plan.
 - если broken docs change очевиден, откатите его или подготовьте minimal fix PR;
 - если build ломает nav drift, временно снимите broken entry только вместе с
   replacement page или redirect note;
-- если publish blocked, но source docs критичны для incident response,
+- если publication gate blocked, но source docs критичны для incident response,
   распространите temporary internal link to rendered artifact or PR preview;
 - не публикуйте site с `--strict` выключенным как permanent workaround.
 

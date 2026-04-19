@@ -40,7 +40,7 @@ def _noop_span():
     yield None
 
 
-def _safe_get_tracer():
+def _default_tracer():
     try:
         from polisyos.core.observability import get_tracer
 
@@ -153,15 +153,22 @@ class DataComposer:
     - Deterministic tie-breaking
     """
 
-    def __init__(self, conflict_resolver: ConflictResolver):
+    def __init__(
+        self,
+        conflict_resolver: ConflictResolver,
+        *,
+        tracer: Any | None = None,
+    ):
         """
         Initialize composer with a conflict resolver.
 
         Args:
             conflict_resolver: Resolver for handling conflicts
+            tracer: Optional injected tracer for composition spans
         """
         self.resolver = conflict_resolver
         self._last_merge_summary: MergeLogSummary | None = None
+        self._tracer = tracer
 
     def compose(
         self,
@@ -198,7 +205,7 @@ class DataComposer:
             seed=request.audit_seed,
         )
 
-        tracer = _safe_get_tracer()
+        tracer = self._tracer if self._tracer is not None else _default_tracer()
         span_ctx = (
             tracer.start_as_current_span(
                 FABRIC_TRACE_NAMES["federation_compose"],

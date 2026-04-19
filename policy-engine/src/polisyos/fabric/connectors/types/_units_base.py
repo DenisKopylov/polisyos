@@ -6,7 +6,7 @@ from typing import NamedTuple
 
 from polisyos.fabric.connectors.types.dimensions import (
     Dimension,
-    DimensionRegistry,
+    get_dimension_registry,
 )
 
 __all__ = [
@@ -67,7 +67,7 @@ def _register_units() -> None:
     """Register all standard units."""
     global STANDARD_UNITS
 
-    registry = DimensionRegistry.get_instance()
+    registry = get_dimension_registry()
 
     # Length units
     STANDARD_UNITS.update({

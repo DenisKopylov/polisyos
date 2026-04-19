@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from typing import Any
 
 from pydantic import ValidationError
@@ -25,7 +26,9 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
 )
 from polisyos.foundry.methods.catalog.causal.query_preservation import (
     evaluate_query_preservation_batch,
+    negative_certificate_from_query_preservation_trace,
     update_query_preservation_cache,
+    update_query_preservation_artifact_refs,
 )
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentVerificationConfig,
@@ -48,6 +51,7 @@ from polisyos.ir.analytics.cross_graph import (
     persist_interface_mapping,
     persist_scm_fragment,
 )
+from polisyos.ir.analytics.negative_certificate import persist_negative_certificate
 from polisyos.ir.analytics.literature import load_literature_causal_prior
 from polisyos.ir.refs import (
     AlignmentReportRef,
@@ -59,6 +63,7 @@ from polisyos.ir.refs import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ALIGNMENT_REPORT_REF,
@@ -320,6 +325,77 @@ def _parse_direct_stitch_pairs(raw: Any) -> list[tuple[str, str]]:
     return pairs
 
 
+def _graph_signature_payload(graph: CausalGraphModel) -> dict[str, Any]:
+    return {
+        "graph_type": graph.graph_type.value,
+        "nodes": list(graph.nodes),
+        "edges": [
+            {
+                "src": edge.src,
+                "dst": edge.dst,
+                "mark_src": edge.mark_src.value,
+                "mark_dst": edge.mark_dst.value,
+                "lag": int(edge.lag or 0),
+            }
+            for edge in sorted(
+                graph.edges,
+                key=lambda item: (
+                    item.src,
+                    item.dst,
+                    item.mark_src.value,
+                    item.mark_dst.value,
+                    int(item.lag or 0),
+                ),
+            )
+        ],
+    }
+
+
+def _persist_query_preservation_artifacts(
+    ctx: ExecutionContext,
+    *,
+    queries: list[CausalQuery],
+    traces: dict[str, Any],
+) -> tuple[dict[str, str], dict[str, str], list[object]]:
+    """Persist latent-projection and impossibility artifacts for query-preservation traces."""
+    artifacts: list[object] = []
+    projection_refs: dict[str, str] = {}
+    negative_refs: dict[str, str] = {}
+    query_by_fingerprint = {
+        trace.fingerprint: query
+        for query, trace in zip(queries, traces.values(), strict=False)
+    }
+    projection_ref_by_signature: dict[str, str] = {}
+
+    for fingerprint, trace in sorted(traces.items()):
+        projection_graph = getattr(trace, "latent_projection_graph", None)
+        if projection_graph is not None:
+            signature = json.dumps(
+                _graph_signature_payload(projection_graph),
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            projection_ref = projection_ref_by_signature.get(signature)
+            if projection_ref is None:
+                persisted_projection = persist_causal_graph_model(ctx.store, projection_graph)
+                projection_ref = str(persisted_projection.artifact_id)
+                projection_ref_by_signature[signature] = projection_ref
+                artifacts.append(persisted_projection)
+            projection_refs[fingerprint] = projection_ref
+
+        query = query_by_fingerprint.get(fingerprint)
+        if query is None:
+            continue
+        negative_certificate = negative_certificate_from_query_preservation_trace(query, trace)
+        if negative_certificate is None:
+            continue
+        persisted_negative = persist_negative_certificate(ctx.store, negative_certificate)
+        negative_refs[fingerprint] = str(persisted_negative.artifact_id)
+        artifacts.append(persisted_negative)
+
+    return projection_refs, negative_refs, artifacts
+
+
 def _apply_query_preservation_hook(
     ctx: ExecutionContext,
     state: ExperimentState,
@@ -407,9 +483,19 @@ def _apply_query_preservation_hook(
         fragment_graphs=fragment_graphs,
         interface_mapping=interface_mapping,
     )
+    projection_refs, negative_refs, extra_artifacts = _persist_query_preservation_artifacts(
+        ctx,
+        queries=queries,
+        traces=traces,
+    )
+    updated_certificate = update_query_preservation_artifact_refs(
+        updated_certificate,
+        latent_projection_refs=projection_refs,
+        negative_certificate_refs=negative_refs,
+    )
     certificate_ref = persist_composition_certificate(ctx.store, updated_certificate)
 
-    new_state = state.model_copy(deep=True)
+    new_state = branch_state(state, write_paths=_SPEC.state_writes).state
     new_state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF] = certificate_ref
     diagnostics = dict(new_state.params.get("reconciliation_diagnostics", {}))
     diagnostics["query_preservation_statuses"] = dict(query_statuses)
@@ -417,12 +503,28 @@ def _apply_query_preservation_hook(
         fingerprint: trace.reason_code
         for fingerprint, trace in sorted(traces.items())
     }
+    diagnostics["query_preservation_traces"] = {
+        fingerprint: {
+            "status": trace.status,
+            "reason_code": trace.reason_code,
+            "source_fragment_id": trace.source_fragment_id,
+            "witness_fragment_ids": list(trace.witness_fragment_ids),
+            "source_witness_kind": trace.source_witness_kind,
+            "assumption_boundary": trace.assumption_boundary,
+            "theorem_family": trace.theorem_family,
+            "identification_status": trace.identification_status,
+            "identification_method": trace.identification_method,
+            "latent_projection_ref": projection_refs.get(fingerprint),
+            "negative_certificate_ref": negative_refs.get(fingerprint),
+        }
+        for fingerprint, trace in sorted(traces.items())
+    }
     new_state.params["reconciliation_diagnostics"] = diagnostics
 
     return NodeOutcome(
         status="ok",
         state=new_state,
-        artifacts=[certificate_ref],
+        artifacts=[certificate_ref, *extra_artifacts],
         events=[
             NodeEvent(
                 level="info",
@@ -575,6 +677,8 @@ class ReconcileCausalGraphNode:
             query_statuses: dict[str, str] = {}
             query_reasons: dict[str, str] = {}
             query_traces: dict[str, dict[str, object]] = {}
+            query_projection_refs: dict[str, str] = {}
+            query_negative_refs: dict[str, str] = {}
             if composed_graph is not None and query_preservation_queries:
                 traces = evaluate_query_preservation_batch(
                     query_preservation_queries,
@@ -592,6 +696,13 @@ class ReconcileCausalGraphNode:
                     fragment_graphs=fragment_graphs,
                     interface_mapping=interface_mapping,
                 )
+                query_projection_refs, query_negative_refs, query_artifacts = (
+                    _persist_query_preservation_artifacts(
+                        ctx,
+                        queries=query_preservation_queries,
+                        traces=traces,
+                    )
+                )
                 query_reasons = {
                     fingerprint: trace.reason_code
                     for fingerprint, trace in sorted(traces.items())
@@ -604,9 +715,20 @@ class ReconcileCausalGraphNode:
                         "witness_fragment_ids": list(trace.witness_fragment_ids),
                         "source_witness_kind": trace.source_witness_kind,
                         "assumption_boundary": trace.assumption_boundary,
+                        "theorem_family": trace.theorem_family,
+                        "identification_status": trace.identification_status,
+                        "identification_method": trace.identification_method,
+                        "latent_projection_ref": query_projection_refs.get(fingerprint),
+                        "negative_certificate_ref": query_negative_refs.get(fingerprint),
                     }
                     for fingerprint, trace in sorted(traces.items())
                 }
+                certificate = update_query_preservation_artifact_refs(
+                    certificate,
+                    latent_projection_refs=query_projection_refs,
+                    negative_certificate_refs=query_negative_refs,
+                )
+                artifacts.extend(query_artifacts)
             failure_card_bundle_ref = None
             failure_cards = result.get("failure_cards", [])
             if failure_cards:
@@ -631,7 +753,7 @@ class ReconcileCausalGraphNode:
             if failure_card_bundle_ref is not None:
                 artifacts.append(failure_card_bundle_ref)
 
-            new_state = state.model_copy(deep=True)
+            new_state = branch_state(state, write_paths=_SPEC.state_writes).state
             if graph_ref is not None:
                 new_state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
             new_state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF] = alignment_report_ref
@@ -746,7 +868,7 @@ class ReconcileCausalGraphNode:
             )
         graph_ref = persist_causal_graph_model(ctx.store, reconciled_graph, inputs=inputs)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
         new_state.params["needs_expert_review"] = bool(result.get("needs_expert_review", False))
         new_state.params["reconciliation_diagnostics"] = diagnostics.model_dump(mode="json")

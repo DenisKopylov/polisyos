@@ -7,11 +7,7 @@ from datetime import UTC, datetime
 from email.utils import format_datetime, parsedate_to_datetime
 from typing import Any
 
-try:  # pragma: no cover - optional runtime dependency
-    Response: Any
-    from fastapi import Response
-except ModuleNotFoundError:  # pragma: no cover
-    Response = Any
+from fastapi import Response
 
 _IMMUTABLE_PRIVATE_CACHE_CONTROL = "private, max-age=31536000, immutable"
 
@@ -121,8 +117,6 @@ def build_not_modified_response(
     last_modified: datetime,
 ) -> Response | None:
     """Return a 304 response when conditional request headers already match."""
-    if Response is Any:  # pragma: no cover
-        return None
     if_none_match = getattr(request_headers, "get", lambda *_args, **_kwargs: None)(
         "if-none-match"
     )

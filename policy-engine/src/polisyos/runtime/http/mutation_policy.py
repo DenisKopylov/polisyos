@@ -8,26 +8,28 @@ import os
 import tempfile
 import threading
 import time
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.serialization import fast_json_dumps
 from polisyos.runtime.http.errors import problem_response
 
-try:  # pragma: no cover - optional runtime dependency
-    BaseHTTPMiddleware: Any
-    Request: Any
-    Response: Any
-    JSONResponse: Any | None
-    from starlette.middleware.base import BaseHTTPMiddleware
+if TYPE_CHECKING:
+    from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
     from starlette.requests import Request
     from starlette.responses import JSONResponse, Response
-except ModuleNotFoundError:  # pragma: no cover
-    BaseHTTPMiddleware = object
-    Request = Any
-    Response = Any
-    JSONResponse = None
+else:  # pragma: no cover - optional runtime dependency
+    try:
+        from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
+        from starlette.requests import Request
+        from starlette.responses import JSONResponse, Response
+    except ModuleNotFoundError:  # pragma: no cover
+        _BaseHTTPMiddleware = cast("type[Any]", object)
+        Request = cast("Any", None)
+        Response = cast("Any", None)
+        JSONResponse = cast("Any", None)
 
 
 def _as_bool(raw: str | None, *, default: bool) -> bool:
@@ -340,7 +342,7 @@ class RuntimeMutationAuditTrail:
                 os.fsync(handle.fileno())
 
 
-class MutationProtectionMiddleware(BaseHTTPMiddleware):
+class MutationProtectionMiddleware(_BaseHTTPMiddleware):
     """Apply rate limiting, idempotency replay, and mutation audit logging."""
 
     def __init__(
@@ -357,6 +359,7 @@ class MutationProtectionMiddleware(BaseHTTPMiddleware):
         self._rate_limiter = rate_limiter
         self._idempotency_store = idempotency_store
         self._audit_trail = audit_trail
+        self._json_response_cls = cast("Any", JSONResponse)
 
     async def dispatch(self, request: Request, call_next: Any) -> Any:
         method = request.method.upper()
@@ -380,7 +383,7 @@ class MutationProtectionMiddleware(BaseHTTPMiddleware):
                 request_hash=request_hash_value,
             )
             if state == "replay" and replay is not None:
-                response = JSONResponse(
+                response = self._json_response_cls(
                     status_code=replay.status_code,
                     content=replay.body,
                     media_type=replay.media_type,
@@ -538,7 +541,8 @@ class MutationProtectionMiddleware(BaseHTTPMiddleware):
         return response
 
     async def _capture_response_body(self, response: Response) -> bytes:
-        body_iterator = getattr(response, "body_iterator", None)
+        response_any = cast("Any", response)
+        body_iterator = getattr(response_any, "body_iterator", None)
         if body_iterator is not None:
             chunks: list[bytes] = []
             async for chunk in body_iterator:
@@ -548,11 +552,11 @@ class MutationProtectionMiddleware(BaseHTTPMiddleware):
                     chunks.append(str(chunk).encode("utf-8"))
             body = b"".join(chunks)
 
-            async def _replay_body():
+            async def _replay_body() -> AsyncIterator[bytes]:
                 if body:
                     yield body
 
-            response.body_iterator = _replay_body()
+            response_any.body_iterator = _replay_body()
             if body:
                 response.headers["content-length"] = str(len(body))
             return body
@@ -568,19 +572,20 @@ class MutationProtectionMiddleware(BaseHTTPMiddleware):
         tenant_id: str,
         path: str,
     ) -> Response:
-        original_iterator = getattr(response, "body_iterator", None)
+        response_any = cast("Any", response)
+        original_iterator = getattr(response_any, "body_iterator", None)
         if original_iterator is None:
             self._rate_limiter.release_live_stream(tenant_id=tenant_id, path=path)
             return response
 
-        async def _managed_iterator():
+        async def _managed_iterator() -> AsyncIterator[Any]:
             try:
                 async for chunk in original_iterator:
                     yield chunk
             finally:
                 self._rate_limiter.release_live_stream(tenant_id=tenant_id, path=path)
 
-        response.body_iterator = _managed_iterator()
+        response_any.body_iterator = _managed_iterator()
         self._append_audit_entry(
             request=request,
             tenant_id=tenant_id,

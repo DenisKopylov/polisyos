@@ -1,6 +1,9 @@
 # Lex
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
+Owner: `@lex-owners`
+Source of truth: `src/polisyos/lex/**`, `src/polisyos/lex/__init__.py`, `src/polisyos/lex/README.md`, and `tests/lex/**`
+
 `polisyos.lex` is the legal-text layer for the stage flow `ingest -> structure -> version index
 -> normpack -> legal evaluation`. It ingests source acts, structures provision anchors, resolves
 active document versions, assembles `NormPack` snapshots, builds a searchable legal knowledge

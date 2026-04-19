@@ -7,7 +7,7 @@ import importlib
 import json
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -488,7 +488,10 @@ def _cmd_scientist_calibration_report(args: Any) -> int:
 def _cmd_scientist_backtest(args: Any) -> int:
     try:
         backtesting_cli = importlib.import_module("polisyos.scientist.backtesting.cli")
-        code, rendered = backtesting_cli.run_backtest_command(args)
+        code, rendered = cast(
+            "tuple[int, str | None]",
+            backtesting_cli.run_backtest_command(args),
+        )
     except Exception as exc:
         print(f"ERROR: backtest failed: {exc}", file=sys.stderr)
         return 1

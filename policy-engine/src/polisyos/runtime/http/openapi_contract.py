@@ -1427,10 +1427,14 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
         for status_code, descriptor in _DEFAULT_PROBLEM_RESPONSES.items():
             response = responses.get(status_code)
             if not isinstance(response, dict):
-                response = {"description": descriptor["description"]}
-                responses[status_code] = response
-            response.setdefault("description", descriptor["description"])
-            content = response.setdefault("content", {})
+                response_payload: dict[str, Any] = {"description": descriptor["description"]}
+                responses[status_code] = response_payload
+            else:
+                response_payload = response
+            response_payload.setdefault("description", descriptor["description"])
+            if "content" not in response_payload:
+                response_payload["content"] = {}
+            content = response_payload.get("content")
             if not isinstance(content, dict):
                 continue
             payload = content.setdefault("application/problem+json", {})
@@ -1511,8 +1515,8 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
                         ("example" in json_content) or json_content.get("examples")
                     )
                     if not success_example_found:
-                        schema = json_content.get("schema")
-                        if isinstance(schema, dict) and not schema and len(content) > 1:
+                        schema_obj = json_content.get("schema")
+                        if isinstance(schema_obj, dict) and not schema_obj and len(content) > 1:
                             success_example_found = True
                 elif content:
                     success_example_found = True

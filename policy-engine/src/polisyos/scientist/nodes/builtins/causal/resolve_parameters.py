@@ -26,6 +26,7 @@ from polisyos.ir.refs import CausalGraphModelRef, CrossGraphEvidenceProfileRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
@@ -188,7 +189,7 @@ class ResolveParametersNode:
             },
         )
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = bundle_ref
         new_state.params["literature_priors"] = bridge_payload.get("literature_priors", {})
         new_state.params["parameter_uncertainty_multipliers"] = bridge_payload.get(

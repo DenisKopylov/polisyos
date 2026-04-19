@@ -134,6 +134,34 @@ class TestFreshnessChecker:
                 multiplier=float("inf"),
             )
 
+    def test_accepts_injected_metrics(self, monkeypatch: pytest.MonkeyPatch):
+        class _Metrics:
+            def __init__(self) -> None:
+                self.calls: list[tuple[str, float]] = []
+
+            def record_fabric_freshness_age(self, *, dataset_id: str, age_seconds: float) -> None:
+                self.calls.append((dataset_id, age_seconds))
+
+        metrics = _Metrics()
+        checker = FreshnessChecker()
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors.quality.freshness.get_metrics",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("global metrics lookup should not run when metrics are injected")
+            ),
+        )
+
+        status = checker.check_freshness(
+            dataset_id="stock_prices",
+            metadata=SimpleNamespace(schedule="real-time", capabilities=0),
+            fetched_at=datetime.now(timezone.utc) - timedelta(minutes=2),
+            last_updated=datetime.now(timezone.utc) - timedelta(minutes=1),
+            metrics=metrics,
+        )
+
+        assert status.level == FreshnessLevel.FRESH
+        assert metrics.calls == [("stock_prices", 60.0)]
+
 
 class TestCompletenessAnalyzer:
     def test_missing_required_field_hard_fail(self):

@@ -13,16 +13,25 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import FoundryInputBindings, SimulationResult, StateSnapshotRef
+from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.analysis.distributional import (
     build_distributional_report,
     build_geography_breakdown,
     build_income_quintile_breakdown,
 )
 from polisyos.foundry.executor import load_state_snapshot
+from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult, IdentificationStatus
 from polisyos.foundry.methods.catalog.causal.density_ratio import (
     ScalarOTDistributionalResult,
     compute_scalar_distributional_effect,
 )
+from polisyos.ir.analytics.causal import (
+    ProofBundle,
+    persist_proof_bundle,
+    proof_bundle_from_identification_result,
+    proof_bundle_from_negative_certificate,
+)
+from polisyos.ir.analytics.causal_graph import load_causal_graph_model
 from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CouplingDiagnostics,
@@ -44,6 +53,13 @@ from polisyos.ir.analytics.distributional import (
     persist_subgroup_distribution_comparison,
     persist_tail_risk_delta_summary,
 )
+from polisyos.ir.analytics.estimand import DistributionLawQuery
+from polisyos.ir.analytics.negative_certificate import (
+    BlockingType,
+    NegativeCertificate,
+    persist_negative_certificate,
+)
+from polisyos.ir.refs import CausalGraphModelRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
@@ -51,6 +67,7 @@ from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+    ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
@@ -80,10 +97,15 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
+        "run_id",
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
+        f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
         f"inputs.{INPUT_STATE_SNAPSHOT_REF}",
         f"inputs.{INPUT_INPUT_BINDINGS_REF}",
         f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
+        "params.distributional_treatment_variable",
+        "params.query_treatment",
+        "params.treatment_variable",
     ],
     state_writes=[
         f"artifacts_index.{ARTIFACT_DISTRIBUTIONAL_REPORT_REF}",
@@ -112,6 +134,17 @@ class _PersistedScalarArtifacts:
     quantile_shift_ref: Any
     tail_risk_delta_ref: Any
     coupling_diagnostics: CouplingDiagnostics
+
+
+@dataclass(frozen=True)
+class _DistributionalJustificationResolution:
+    marginal_justification: DistributionalJustification
+    coupling_justification: DistributionalJustification | None
+    causal_assumptions: list[str]
+    coupling_assumptions: list[str]
+    metadata: dict[str, Any]
+    proof_bundle: ProofBundle | None = None
+    coupling_negative_certificate: NegativeCertificate | None = None
 
 
 @dataclass(frozen=True)
@@ -213,7 +246,13 @@ class RunDistributionalAnalysisNode:
                 incomes_after,
                 n_bins=_recommended_n_bins(min(incomes_before.size, incomes_after.size)),
             )
-            causal_assumptions = _causal_assumptions(weighting_mode=overall_result.weighting_mode)
+            justification_resolution = _resolve_distributional_justification(
+                ctx,
+                state,
+                outcome_name="income",
+                weighting_mode=overall_result.weighting_mode,
+            )
+            causal_assumptions = justification_resolution.causal_assumptions
             overall_refs = _persist_scalar_artifacts(
                 ctx,
                 outcome_name="income",
@@ -221,6 +260,7 @@ class RunDistributionalAnalysisNode:
                 counterfactual_values=incomes_after,
                 result=overall_result,
                 inputs=artifact_inputs,
+                coupling_assumptions=justification_resolution.coupling_assumptions,
                 metadata={"scope": "overall", "run_id": state.run_id},
             )
             subgroup_refs, subgroup_events = _persist_subgroup_artifacts(
@@ -229,12 +269,35 @@ class RunDistributionalAnalysisNode:
                 incomes_after=incomes_after,
                 inputs=artifact_inputs,
                 base_assumptions=causal_assumptions,
+                coupling_assumptions=justification_resolution.coupling_assumptions,
                 geography_groups=geography_groups,
                 geography_skip_reasons=geography_skipped_reasons,
             )
+            distributional_proof_ref = (
+                persist_proof_bundle(
+                    ctx.store,
+                    justification_resolution.proof_bundle,
+                    inputs=artifact_inputs,
+                )
+                if justification_resolution.proof_bundle is not None
+                else None
+            )
+            coupling_proof_ref = (
+                persist_negative_certificate(
+                    ctx.store,
+                    justification_resolution.coupling_negative_certificate,
+                    inputs=artifact_inputs,
+                )
+                if justification_resolution.coupling_negative_certificate is not None
+                else None
+            )
             bundle = DistributionalEffectBundle(
                 outcome_name="income",
-                justification=DistributionalJustification.SCENARIO,
+                distributional_query_kind="interventional_law",
+                justification=justification_resolution.marginal_justification,
+                marginal_justification=justification_resolution.marginal_justification,
+                marginal_law_justification=justification_resolution.marginal_justification,
+                coupling_justification=justification_resolution.coupling_justification,
                 baseline_distribution_ref=overall_refs.baseline_distribution_ref,
                 counterfactual_distribution_ref=overall_refs.counterfactual_distribution_ref,
                 coupling_ref=overall_refs.coupling_ref,
@@ -243,12 +306,17 @@ class RunDistributionalAnalysisNode:
                 quantile_shift_ref=overall_refs.quantile_shift_ref,
                 tail_risk_delta_ref=overall_refs.tail_risk_delta_ref,
                 subgroup_distribution_refs=subgroup_refs,
+                marginal_law_proof_ref=distributional_proof_ref,
+                distributional_proof_ref=distributional_proof_ref,
+                coupling_proof_ref=coupling_proof_ref,
                 causal_assumptions=causal_assumptions,
                 readiness_cap="simulation_ready",
                 metadata={
                     "run_id": state.run_id,
                     "source_simulation_ref": str(sim_result_ref.artifact_id),
                     "weighting_mode": overall_result.weighting_mode,
+                    "distributional_query_kind": "interventional_law",
+                    **justification_resolution.metadata,
                 },
             )
             bundle_ref = persist_distributional_effect_bundle(ctx.store, bundle, inputs=artifact_inputs)
@@ -298,11 +366,297 @@ def _distributional_inputs(
     ]
 
 
-def _causal_assumptions(*, weighting_mode: str) -> list[str]:
-    assumptions = list(_BASE_CAUSAL_ASSUMPTIONS)
+def _causal_assumptions(
+    *,
+    weighting_mode: str,
+    proof_kernel_identified: bool = False,
+) -> list[str]:
+    assumptions = [
+        assumption
+        for assumption in _BASE_CAUSAL_ASSUMPTIONS
+        if (
+            not proof_kernel_identified
+            or assumption != "distributional_estimand_not_proof_kernel_identified"
+        )
+    ]
     if weighting_mode != "density_ratio":
         assumptions.append("uniform_weighting_used")
     return assumptions
+
+
+def _resolve_distributional_treatment_variable(state: ExperimentState) -> str | None:
+    for key in ("distributional_treatment_variable", "query_treatment", "treatment_variable"):
+        raw = state.params.get(key)
+        if raw is None:
+            continue
+        candidate = str(raw).strip()
+        if candidate:
+            return candidate
+    return None
+
+
+def _resolve_distributional_graph(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> tuple[CausalGraphModelRef | None, Any | None]:
+    raw = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
+    if raw is None:
+        raw = state.params.get("causal_graph_ref")
+    if raw is None:
+        return None, None
+    try:
+        payload = raw.model_dump(mode="json") if hasattr(raw, "model_dump") else raw
+        graph_ref = CausalGraphModelRef.model_validate(payload)
+        return graph_ref, load_causal_graph_model(ctx.store, graph_ref)
+    except _DISTRIBUTIONAL_LOAD_ERRORS:
+        return None, None
+
+
+def _resolve_distributional_justification(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    outcome_name: str,
+    weighting_mode: str,
+) -> _DistributionalJustificationResolution:
+    base_metadata = {
+        "distributional_query_kind": "interventional_law",
+        "coupling_justification": DistributionalJustification.SCENARIO.value,
+        "marginal_law_justification": DistributionalJustification.SCENARIO.value,
+    }
+    treatment = _resolve_distributional_treatment_variable(state)
+    if treatment is None:
+        return _DistributionalJustificationResolution(
+            marginal_justification=DistributionalJustification.SCENARIO,
+            coupling_justification=DistributionalJustification.SCENARIO,
+            causal_assumptions=_causal_assumptions(weighting_mode=weighting_mode),
+            coupling_assumptions=_coupling_assumptions(weighting_mode=weighting_mode),
+            metadata={
+                **base_metadata,
+                "proof_kernel": {
+                    "status": "unavailable",
+                    "reason": "missing_treatment_variable",
+                },
+            },
+        )
+
+    graph_ref, graph = _resolve_distributional_graph(ctx, state)
+    if graph_ref is None or graph is None:
+        return _DistributionalJustificationResolution(
+            marginal_justification=DistributionalJustification.SCENARIO,
+            coupling_justification=DistributionalJustification.SCENARIO,
+            causal_assumptions=_causal_assumptions(weighting_mode=weighting_mode),
+            coupling_assumptions=_coupling_assumptions(weighting_mode=weighting_mode),
+            metadata={
+                **base_metadata,
+                "proof_kernel": {
+                    "status": "unavailable",
+                    "reason": "missing_reconciled_causal_graph",
+                    "treatment_variable": treatment,
+                },
+            },
+        )
+
+    query = DistributionLawQuery(
+        outcome_variables=(outcome_name,),
+        intervention_set=(treatment,),
+        support_space="real",
+        representation="cdf",
+    )
+    engine = CausalEngine(registry=None, knowledge_base=None)
+    result = engine.identify(
+        treatment,
+        outcome_name,
+        graph,
+        distribution_query=query,
+    )
+    coupling_assumptions = _coupling_assumptions(weighting_mode=weighting_mode)
+
+    if isinstance(result, IdentificationResult):
+        proof_bundle = proof_bundle_from_identification_result(
+            result,
+            graph_ref=str(graph_ref.artifact_id),
+        )
+        proof_metadata = {
+            "status": proof_bundle.proof_status,
+            "theorem_family": proof_bundle.theorem_family,
+            "proof_stratum": proof_bundle.proof_stratum,
+            "query_kind": proof_bundle.metadata.get("query_kind"),
+            "distributional_query_kind": "interventional_law",
+            "distribution_family": proof_bundle.metadata.get("distribution_family"),
+            "generator_type": proof_bundle.metadata.get("generator_type"),
+            "parameter_domain": proof_bundle.metadata.get("parameter_domain"),
+            "support_space": proof_bundle.metadata.get("support_space"),
+            "representation": proof_bundle.metadata.get("representation"),
+            "derived_functionals_allowed": proof_bundle.metadata.get("derived_functionals_allowed"),
+            "not_identified_objects": proof_bundle.metadata.get("not_identified_objects"),
+            "query_ref": proof_bundle.query_ref,
+            "graph_ref": str(graph_ref.artifact_id),
+            "treatment_variable": treatment,
+            "outcome_name": outcome_name,
+        }
+        if result.status is IdentificationStatus.IDENTIFIED:
+            assumptions = _causal_assumptions(
+                weighting_mode=weighting_mode,
+                proof_kernel_identified=True,
+            )
+            for assumption in proof_bundle.assumptions:
+                if assumption not in assumptions:
+                    assumptions.append(assumption)
+            return _DistributionalJustificationResolution(
+                marginal_justification=DistributionalJustification.IDENTIFIED,
+                coupling_justification=DistributionalJustification.SCENARIO,
+                causal_assumptions=assumptions,
+                coupling_assumptions=coupling_assumptions,
+                metadata={
+                    **base_metadata,
+                    "marginal_law_justification": DistributionalJustification.IDENTIFIED.value,
+                    "proof_kernel": proof_metadata,
+                },
+                proof_bundle=proof_bundle,
+                coupling_negative_certificate=_coupling_negative_certificate(
+                    treatment=treatment,
+                    outcome_name=outcome_name,
+                    graph_ref=str(graph_ref.artifact_id),
+                    marginal_proof=proof_bundle,
+                ),
+            )
+        return _DistributionalJustificationResolution(
+            marginal_justification=DistributionalJustification.SCENARIO,
+            coupling_justification=DistributionalJustification.SCENARIO,
+            causal_assumptions=_causal_assumptions(weighting_mode=weighting_mode),
+            coupling_assumptions=coupling_assumptions,
+            metadata={
+                **base_metadata,
+                "proof_kernel": proof_metadata,
+            },
+            proof_bundle=proof_bundle,
+        )
+
+    if isinstance(result, NegativeCertificate):
+        proof_bundle = proof_bundle_from_negative_certificate(
+            result,
+            graph_ref=str(graph_ref.artifact_id),
+            query_ref=f"P({outcome_name} in · | do({treatment}))",
+            theorem_family="negative_distribution_law",
+            status_raw="hedge_found",
+        ).model_copy(
+            update={
+                "metadata": {
+                    "query_kind": "distribution_law",
+                    "distribution_family": "cdf",
+                    "generator_type": query.generator_type,
+                    "parameter_domain": query.resolved_parameter_domain,
+                    "measure_determination_regime": "countable_generator_reduction",
+                    "regularity_assumptions": [
+                        "cdf_monotone",
+                        "cdf_right_continuous",
+                        "cdf_limits_0_1",
+                    ],
+                    "derived_functionals_allowed": [
+                        "survival",
+                        "tail_probability",
+                        "quantile",
+                        "expected_shortfall",
+                        "quantile_shift",
+                        "tail_risk_delta",
+                        "histogram",
+                    ],
+                    "not_identified_objects": [
+                        "ot_coupling",
+                        "joint_potential_outcome_law",
+                        "individual_treatment_effect_distribution",
+                        "cross_world_transport_map",
+                    ],
+                    "status": "non_identified",
+                    "required_distributions_count": len(result.required_distributions),
+                },
+            }
+        )
+        return _DistributionalJustificationResolution(
+            marginal_justification=DistributionalJustification.SCENARIO,
+            coupling_justification=DistributionalJustification.SCENARIO,
+            causal_assumptions=_causal_assumptions(weighting_mode=weighting_mode),
+            coupling_assumptions=coupling_assumptions,
+            metadata={
+                **base_metadata,
+                    "proof_kernel": {
+                        "status": "non_identified",
+                        "reason": result.to_summary(),
+                        "blocking_type": result.blocking_type.value,
+                        "query_kind": "distribution_law",
+                        "distributional_query_kind": "interventional_law",
+                        "treatment_variable": treatment,
+                        "outcome_name": outcome_name,
+                        "graph_ref": str(graph_ref.artifact_id),
+                    },
+                },
+            proof_bundle=proof_bundle,
+        )
+
+    return _DistributionalJustificationResolution(
+        marginal_justification=DistributionalJustification.SCENARIO,
+        coupling_justification=DistributionalJustification.SCENARIO,
+        causal_assumptions=_causal_assumptions(weighting_mode=weighting_mode),
+        coupling_assumptions=_coupling_assumptions(weighting_mode=weighting_mode),
+        metadata={
+            **base_metadata,
+            "proof_kernel": {
+                "status": "unavailable",
+                "reason": "unexpected_distribution_proof_result",
+                "distributional_query_kind": "interventional_law",
+                "treatment_variable": treatment,
+                "outcome_name": outcome_name,
+            },
+        },
+    )
+
+
+def _coupling_assumptions(*, weighting_mode: str) -> list[str]:
+    assumptions = [
+        assumption
+        for assumption in _causal_assumptions(
+            weighting_mode=weighting_mode,
+            proof_kernel_identified=True,
+        )
+        if assumption != "distributional_estimand_not_proof_kernel_identified"
+    ]
+    return assumptions
+
+
+def _coupling_negative_certificate(
+    *,
+    treatment: str,
+    outcome_name: str,
+    graph_ref: str,
+    marginal_proof: ProofBundle,
+) -> NegativeCertificate:
+    return NegativeCertificate(
+        blocking_type=BlockingType.COUPLING_NOT_IDENTIFIED,
+        blocking_description=(
+            f"Marginal counterfactual law P({outcome_name} in · | do({treatment})) is certified, "
+            "but the OT coupling / joint counterfactual law is not identified from current assumptions."
+        ),
+        technical_detail=(
+            "Identified marginals do not determine the cross-world or transport coupling without "
+            "additional assumptions such as rank invariance, monotone response, or panel linkage."
+        ),
+        quantitative_diagnostics={
+            "graph_ref": graph_ref,
+            "marginal_theorem_family": marginal_proof.theorem_family,
+            "marginal_proof_status": marginal_proof.proof_status,
+            "marginal_proof_stratum": marginal_proof.proof_stratum,
+            "distribution_family": marginal_proof.metadata.get("distribution_family"),
+            "not_identified_objects": list(
+                marginal_proof.metadata.get("not_identified_objects") or []
+            ),
+        },
+        constructive_message=(
+            "Keep marginal distribution claims on the proof-carrying path, but treat coupling, "
+            "transport heatmaps, and individual-level movement claims as scenario-only unless a "
+            "separate coupling identification theorem is supplied."
+        ),
+    )
 
 
 def _recommended_n_bins(sample_size: int) -> int:
@@ -457,10 +811,15 @@ def _persist_scalar_artifacts(
     counterfactual_values: np.ndarray,
     result: ScalarOTDistributionalResult,
     inputs: list[InputRef],
+    coupling_assumptions: list[str] | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> _PersistedScalarArtifacts:
     artifact_metadata = dict(metadata or {})
-    assumptions = _causal_assumptions(weighting_mode=result.weighting_mode)
+    assumptions = list(
+        coupling_assumptions
+        if coupling_assumptions is not None
+        else _coupling_assumptions(weighting_mode=result.weighting_mode)
+    )
     baseline_ref = persist_discrete_distribution_summary(
         ctx.store,
         _distribution_summary(
@@ -518,6 +877,7 @@ def _persist_subgroup_artifacts(
     incomes_after: np.ndarray,
     inputs: list[InputRef],
     base_assumptions: list[str],
+    coupling_assumptions: list[str],
     geography_groups: list[_SubgroupSpec],
     geography_skip_reasons: list[str],
 ) -> tuple[list[Any], list[NodeEvent]]:
@@ -533,6 +893,7 @@ def _persist_subgroup_artifacts(
                 counterfactual_values=incomes_after[subgroup.mask],
                 inputs=inputs,
                 causal_assumptions=base_assumptions,
+                coupling_assumptions=coupling_assumptions,
             )
         )
 
@@ -547,6 +908,7 @@ def _persist_subgroup_artifacts(
                 counterfactual_values=incomes_after[subgroup.mask],
                 inputs=inputs,
                 causal_assumptions=base_assumptions,
+                coupling_assumptions=coupling_assumptions,
             )
         )
     return refs, events
@@ -560,6 +922,7 @@ def _persist_subgroup_comparison(
     counterfactual_values: np.ndarray,
     inputs: list[InputRef],
     causal_assumptions: list[str],
+    coupling_assumptions: list[str],
 ) -> Any:
     result = compute_scalar_distributional_effect(
         baseline_values,
@@ -578,6 +941,7 @@ def _persist_subgroup_comparison(
         counterfactual_values=counterfactual_values,
         result=result,
         inputs=inputs,
+        coupling_assumptions=coupling_assumptions,
         metadata=artifact_metadata,
     )
     comparison = SubgroupDistributionComparison(

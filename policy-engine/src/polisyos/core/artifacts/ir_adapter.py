@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, cast, overload
 
 from .backends.config import ArtifactStoreConfig, build_artifact_store
 from .ids import ArtifactID
@@ -130,14 +130,24 @@ class CoreToIRArtifactStoreAdapter:
         return list(self.store.iter_artifact_ids())
 
 
+@overload
+def ensure_ir_artifact_store(store: IRArtifactStore) -> IRArtifactStore: ...
+
+
+@overload
+def ensure_ir_artifact_store(store: CoreArtifactStore) -> IRArtifactStore: ...
+
+
 def ensure_ir_artifact_store(store: IRArtifactStore | CoreArtifactStore) -> IRArtifactStore:
     """Return an IR-compatible store, wrapping core stores when needed."""
 
     if isinstance(store, CoreToIRArtifactStoreAdapter):
         return store
-    if hasattr(store, "has") and hasattr(store, "verify"):
-        return CoreToIRArtifactStoreAdapter(cast("CoreArtifactStore", store))
-    return cast("IRArtifactStore", store)
+    from polisyos.core.artifacts.protocol import ArtifactStore as RuntimeCoreArtifactStore
+
+    if isinstance(store, RuntimeCoreArtifactStore):
+        return CoreToIRArtifactStoreAdapter(store)
+    return store
 
 
 def build_ir_artifact_store(

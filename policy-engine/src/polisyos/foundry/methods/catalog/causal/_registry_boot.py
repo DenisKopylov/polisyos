@@ -64,6 +64,7 @@ from polisyos.foundry.methods.catalog.causal.independence_tests import (
 )
 from polisyos.foundry.methods.catalog.causal.invariance_tests import (
     ICPInvarianceTest,
+    InvariantDiscoveryFromRegimes,
     KSInvarianceTest,
 )
 from polisyos.foundry.methods.catalog.causal.did import (
@@ -195,6 +196,7 @@ def register_causal_methods() -> Sequence[type]:
         # Invariance tests (D2)
         KSInvarianceTest,
         ICPInvarianceTest,
+        InvariantDiscoveryFromRegimes,
         StandardDifferenceInDifferences,
         StaggeredDifferenceInDifferences,
         RegressionDiscontinuity,

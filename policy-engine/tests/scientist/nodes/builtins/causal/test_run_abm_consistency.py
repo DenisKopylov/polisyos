@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import pytest
 
+from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.run_abm_consistency import (
     RunABMConsistencyCheckNode,
@@ -65,3 +68,49 @@ def test_abm_mapping_assertion_is_not_swallowed(
 
     with pytest.raises(AssertionError, match="abm-mapping-broken"):
         RunABMConsistencyCheckNode().execute(execution_context, state)
+
+
+def test_run_abm_consistency_uses_branch_state_for_declared_outputs(
+    execution_context, minimal_state
+):
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "abm_macro_micro_mappings": [
+                {
+                    "macro_variable": "gdp",
+                    "abm_aggregation": "gdp",
+                    "aggregation_function": "mean",
+                    "agent_property": "firm_output",
+                    "tolerance_method": "adaptive",
+                }
+            ],
+            "abm_run_stats": {"gdp": {"effects": [1.0, 1.1, 0.9]}},
+            "scm_effects": {"gdp": 1.0},
+            "nested": {"baseline": True},
+        }
+    )
+    observed: dict[str, tuple[str, ...]] = {}
+
+    def _spy_branch(base_state, *, write_paths=()):
+        observed["write_paths"] = tuple(write_paths)
+        return real_branch_state(base_state, write_paths=write_paths)
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.causal.run_abm_consistency.branch_state",
+        _spy_branch,
+    ):
+        outcome = RunABMConsistencyCheckNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert observed["write_paths"] == (
+        "artifacts_index.abm_alignment_report_ref",
+        "artifacts_index.finite_state_abstraction_map_ref",
+        "artifacts_index.abstraction_certificate_ref",
+        "params.abm_alignment_overall_consistent",
+        "params.abm_alignment_warnings",
+        "params.abstraction_preservation_type",
+    )
+    assert state.params["nested"] == {"baseline": True}
+    assert ARTIFACT_ABM_ALIGNMENT_REPORT_REF not in state.artifacts_index
+    assert ARTIFACT_ABM_ALIGNMENT_REPORT_REF in outcome.state.artifacts_index

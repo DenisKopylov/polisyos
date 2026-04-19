@@ -1,4 +1,4 @@
-"""Public runtime fingerprint module API."""
+"""Capture compact execution-environment fingerprints for reproducible Foundry runs."""
 from __future__ import annotations
 
 import os

@@ -278,3 +278,41 @@ def test_environment_audit_helper_skips_or_degrades_invalid_inputs() -> None:
     )
     assert invalid_target.status == "warning"
     assert "icp_invalid_target_col" in invalid_target.warnings
+
+
+def test_invariant_discovery_from_regimes_emits_certificate_and_orientations() -> None:
+    rng = np.random.default_rng(2026)
+    n = 220
+    x0_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    x1_a = rng.normal(size=n)
+    y_a = 2.0 * x0_a + 0.08 * rng.normal(size=n)
+    x0_b = rng.normal(loc=3.0, scale=1.0, size=n)
+    x1_b = rng.normal(size=n)
+    y_b = 2.0 * x0_b + 0.08 * rng.normal(size=n)
+    data = np.column_stack(
+        [
+            np.concatenate([x0_a, x0_b]),
+            np.concatenate([x1_a, x1_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+
+    out = _dispatch(
+        "causal.discovery.invariant_discovery_from_regimes@1.0.0",
+        state={"data": data, "domain_labels": labels},
+        params={
+            "alpha": 0.01,
+            "max_set_size": 1,
+            "target_cols": ["Y"],
+            "variable_names": ["X0", "X1", "Y"],
+        },
+    )
+
+    certificate = out["regime_shift_identification_certificate"]
+    assert certificate["kind"] == "ir.regime_shift_identification_certificate"
+    assert certificate["data_signature"]["sample_sizes_by_env"] == {"post": n, "pre": n}
+    assert certificate["targets"][0]["target"] == "Y"
+    assert certificate["targets"][0]["estimated_parents"] == ["X0"]
+    assert certificate["targets"][0]["informativeness"]["empty_set_stable"] is False
+    assert ["X0", "Y"] in out["forced_orientations"]

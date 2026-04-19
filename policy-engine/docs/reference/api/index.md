@@ -1,16 +1,69 @@
 # REST API Reference
 Related explanation: [Architecture](../../explanation/architecture.md).
 
-This reference is based on the committed Runtime API OpenAPI snapshot in `schemas/runtime_api_v1.openapi.json`, with light manual enrichment from `src/polisyos/runtime/http/routes/` and `src/polisyos/runtime/http/services/`.
+Freshness: 2026-04-17
+Owner: `@runtime-owners`
+Source of truth: `schemas/runtime_api_v1.openapi.json`, `src/polisyos/runtime/http/app.py`, and `src/polisyos/runtime/http/routes/*.py`
+Validation: `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+
+This reference is based on the committed Runtime API OpenAPI snapshot in
+`schemas/runtime_api_v1.openapi.json`, with manual notes only for
+schema-hidden operational routes in `src/polisyos/runtime/http/routes/`.
+
+Companion L1 reference pages:
+
+- [Runs API](runs.md)
+- [Control Plane API](control.md)
+- [Artifact Inspection API](artifacts.md)
+- [Runtime Auth and Tenant Model](auth-tenant-model.md)
+- [Runtime API Error Semantics](error-semantics.md)
+- [Runtime API Versioning and Deprecation Policy](versioning.md)
+- [Runtime API Migration Guide](migration-guide.md)
+- [CAS and Storage Reference](../operations/cas-storage.md)
+- [Configuration Reference](../configuration.md)
 
 ## Contract Surface
 
-- Committed OpenAPI snapshot: 53 documented `GET`/`POST` operations.
-- Current route surface: 56 `GET`/`POST` handlers across runtime routes.
-- Route-only operations not present in the committed snapshot:
-  - `GET /api/v1/artifacts/{artifact_id}/download`
+- Committed OpenAPI snapshot: 53 public `GET`/`POST` operations (`38 GET`,
+  `15 POST`).
+- Current FastAPI runtime surface: the same 53 schema-public operations, plus
+  two schema-hidden server-sent event routes for live run snapshots.
+- Route-only operations intentionally excluded from the committed OpenAPI
+  snapshot and generated clients:
   - `GET /api/v1/runs/live`
   - `GET /api/v1/runs/{run_id}/live`
+- Runtime contract check:
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+- Contract hardening tests:
+  `tests/runtime/http/test_runtime_api_contract_hardening.py`
+
+## D1-L1 Source-Of-Truth Map
+
+This lane maps `docs/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md` into the
+runtime API, operations, security, runbook, and package-boundary surfaces
+listed below.
+
+| Source phase | Source of truth | Primary docs | Validation anchor |
+|---|---|---|---|
+| Phase 0: fail-closed auth, runtime write path, crypto/integrity/redaction, race/cache/lifecycle hotfixes | `src/polisyos/core/security/**`, `src/polisyos/core/artifacts/**`, `src/polisyos/runtime/http/{fail_closed_middleware.py,security.py,dependencies.py,mutation_policy.py}` | This page, [Control](control.md), [Artifacts](artifacts.md), [Security Model](../../explanation/security-model.md), [Security and Compliance](../security-compliance.md) | `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/core/security/test_tenant_context.py tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_runtime_api_write_path_hardening.py` |
+| Phase 1: error semantics, static analysis, property/mutation/fuzz/integration, observability and auditability | `src/polisyos/runtime/http/{errors.py,services/**}`, `src/polisyos/core/observability/**`, `release/core-runtime-closeout.ledger.toml` | [Runs](runs.md), [Control](control.md), [Artifacts](artifacts.md), [Error Semantics](error-semantics.md), [SLO Error Budget](../operations/slo-error-budget.md), [Observability Topology](../operations/observability-topology.md) | `uv run pytest -q tests/runtime/http/test_runtime_api_contract_hardening.py tests/runtime/http/test_runtime_api_observability.py tests/runtime/http/test_access_invariants_properties.py` |
+| Phase 2: storage/serialization/immutability, runtime scalability, DI/config, API maturity | `schemas/runtime_api_v1.openapi.json`, `src/polisyos/common/{serialization.py,timestamps.py}`, `src/polisyos/runtime/http/openapi_contract.py`, generated client surfaces | [Versioning Policy](versioning.md), [Migration Guide](migration-guide.md), package READMEs listed below | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py` |
+| Phase 3: ADRs, diagrams, runbooks, security/compliance, CI ratchets | `docs/reference/operations/**`, `docs/runbooks/**`, `docs/explanation/security-model.md`, `release/core-runtime-closeout.ledger.toml`, `tools/devx/workspace/acceptance_audit.py` | ops/security references, runtime runbooks, package READMEs | `uv run polisyos-tools workspace acceptance-audit --summary docs/archive/reports/platform-acceptance.md --json-output docs/archive/reports/platform-acceptance.json` |
+
+## Documentation Impact
+
+| Output cluster | Exact files | Source of truth | Validation |
+|---|---|---|---|
+| API contract reference | `docs/reference/api/index.md`, `docs/reference/api/runs.md`, `docs/reference/api/control.md`, `docs/reference/api/artifacts.md`, `docs/reference/api/auth-tenant-model.md`, `docs/reference/api/error-semantics.md`, `docs/reference/api/versioning.md`, `docs/reference/api/migration-guide.md` | committed OpenAPI snapshot, route handlers, response models, generated client inputs | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py` |
+| Operations and security reference | `docs/reference/operations/slo-error-budget.md`, `docs/reference/operations/observability-topology.md`, `docs/reference/security-compliance.md`, `docs/explanation/security-model.md` | runtime observability emitters, Prometheus alert/rule config, security middleware, artifact-signing and audit code | `uv run pytest -q tests/runtime/http/test_runtime_api_observability.py tests/core/security/test_auth_middlewares.py tests/runtime/http/test_runtime_api_authz.py` |
+| Incident runbooks | `docs/runbooks/runtime-api-outage.md`, `docs/runbooks/idempotency-incident.md`, `docs/runbooks/key-rotation.md`, `docs/runbooks/cas-opa-outage.md`, `docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md` | alert-to-runbook routing, runtime mutation/idempotency controls, key rotation flows, OPA fail-closed posture, worker lifecycle paths | `uv run polisyos-tools workspace acceptance-audit --summary docs/archive/reports/platform-acceptance.md --json-output docs/archive/reports/platform-acceptance.json` |
+| Package boundary READMEs | `src/polisyos/common/README.md`, `src/polisyos/core/README.md`, `src/polisyos/runtime/README.md`, `src/polisyos/runtime/http/README.md` | package facades, module boundaries, release-gate expectations, code ownership | `uv run pytest -q tests/common/test_serialization_properties.py tests/core/artifacts/test_storage_protocol_boundaries.py tests/runtime/http/test_runtime_api_contract_hardening.py` |
+
+## Backlog
+
+| Gap | Priority | Tracking note |
+|---|---|---|
+| No missing required D1-L1 output pages | - | All required D1-L1 files listed in `docs/DOCUMENTATION_SOTA_PLAN.md` are present and mapped above. Future consolidation into a single operator landing page is a D2 cleanup, not a D1 blocker. |
 
 ## Base URL
 
@@ -26,6 +79,14 @@ The runtime HTTP layer is tenancy-aware, but the committed OpenAPI snapshot does
 - `GET /api/v1/auth/me` reflects the resolved identity and fails closed when claims are absent or invalid. Fixture identity is allowed only behind an explicit development flag.
 - Service-to-service authorization uses SPIFFE peer identity plus JWT-derived user scope when available.
 - When OPA authorization is enabled in enforce mode and the sidecar is unreachable or returns an invalid shape, the authz client fails closed and returns deny-by-default.
+
+Validation anchors:
+
+- `tests/core/security/test_auth_middlewares.py`
+- `tests/core/security/test_router.py`
+- `tests/core/security/test_tenant_context.py`
+- `tests/runtime/http/test_runtime_api_authz.py`
+- `tests/runtime/http/test_access_invariants_properties.py`
 
 ## Common Headers
 
@@ -132,8 +193,8 @@ Detailed reference: [Runs](runs.md)
 | `GET` | `/api/v1/runs/{run_id}/agents` | Return agent pipeline attempts and steps | OpenAPI |
 | `GET` | `/api/v1/runs/{run_id}/evidence-context` | Return evidence context used by the run | OpenAPI |
 | `GET` | `/api/v1/runs/{run_id}/workflow` | Return workflow view and DAG metadata | OpenAPI |
-| `GET` | `/api/v1/runs/live` | Server-sent event stream for global run activity | Route-only |
-| `GET` | `/api/v1/runs/{run_id}/live` | Server-sent event stream for a single run | Route-only |
+| `GET` | `/api/v1/runs/live` | Server-sent event stream for global run activity | Route-only, schema-hidden |
+| `GET` | `/api/v1/runs/{run_id}/live` | Server-sent event stream for a single run | Route-only, schema-hidden |
 
 ### Control Plane
 
@@ -180,7 +241,7 @@ Detailed reference: [Artifacts](artifacts.md)
 | `GET` | `/api/v1/artifacts/{artifact_id}` | Return manifest metadata for an artifact | OpenAPI |
 | `GET` | `/api/v1/artifacts/{artifact_id}/content` | Return content preview or decoded payload | OpenAPI |
 | `POST` | `/api/v1/artifacts/batch` | Return multiple artifact manifests in one request | OpenAPI |
-| `GET` | `/api/v1/artifacts/{artifact_id}/download` | Download raw artifact bytes | Route-only |
+| `GET` | `/api/v1/artifacts/{artifact_id}/download` | Download raw artifact bytes | OpenAPI |
 | `GET` | `/api/v1/artifacts/{artifact_id}/lineage` | Build lineage graph rooted at an artifact | OpenAPI |
 | `GET` | `/api/v1/artifacts/{artifact_id}/schema` | Return schema metadata for an artifact | OpenAPI |
 

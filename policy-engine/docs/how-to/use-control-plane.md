@@ -4,6 +4,29 @@ Related reference: [Control Plane API](../reference/api/control.md). Related how
 
 > Эта страница для операторов и интеграторов, которым нужно запускать runs, ingestion и Lex jobs через runtime HTTP surface и понимать, как читать control-plane state.
 
+Freshness: 2026-04-17.
+
+## Вход
+
+- запущенный Runtime API
+- bearer token, если auth path включён
+- `data_snapshot_ref`, `input_bindings_ref` или `data_view_request_ref`
+- при полном workflow launch: при необходимости `trinity_bundle_ref` и связанные refs
+
+## Выход
+
+- `job_id` для durable polling
+- `run_id` для run-facing debug APIs
+- доступ к workers/outbox/data/Lex control surface
+
+## Команды
+
+```bash
+uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
+curl -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/control/jobs/$JOB_ID"
+curl -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/control/workers"
+```
+
 Control plane в PolicyOS отвечает за write-capable операции:
 
 - запуск workflow run;
@@ -158,6 +181,23 @@ Control plane не заменяет собой весь runtime debug surface.
 3. при проблеме: `GET /api/v1/control/workers`
 4. затем: `GET /api/v1/control/outbox`
 5. если run уже создан: переход к `/api/v1/runs/{run_id}/timeline`, `/nodes`, `/lineage`
+
+## Откат
+
+Для локального control-plane workflow безопасный rollback обычно означает:
+
+1. остановить runtime;
+2. удалить scratch SQLite state store, если вы запускали control plane на локальном файле;
+3. очистить временные CAS/data outputs только в экспериментальном каталоге.
+
+Если проблема уже дошла до release/canary уровня, переходите к operator
+runbooks, а не удаляйте состояние вручную.
+
+## Troubleshooting
+
+- Если launch отвечает `400 missing_data_source`, передайте один из трёх полей в `data_source`.
+- Если `job_id` есть, но прогресса нет, идите в `/workers` и `/outbox`, а не сразу в исходники.
+- Если вы уже получили `run_id`, дальнейшая triage почти всегда эффективнее через [Debug Failed Run](debug-failed-run.md).
 
 ## Что дальше
 

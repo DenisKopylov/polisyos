@@ -1,135 +1,76 @@
-# Trinity: ProblemFrame / PolicySpec / ModelSpec
+# Trinity
 
-## Зачем три сущности
+Related reference: [IR problem framing](../reference/ir/problem-framing.md), [Foundry compile and execute](../reference/foundry/compile-execute.md), [Scientist workflows](../reference/scientist/workflows.md).
+Related contracts: [TRINITY](../contracts/TRINITY.md), [merge semantics](../contracts/MERGE_SEMANTICS.md).
+Related ADRs: [ADR-0105](../adr/0105-trinity-linking-validation-policy.md), [ADR-0106](../adr/0106-ir-shared-validation-and-id-policy.md).
+Evidence: `tests/contract/test_trinity_contracts.py`, `tests/contract/test_trinity_migration.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/ir/test_trinity_loaders.py`.
 
-Trinity разделяет policy payload на три независимых вопроса: **что исследуем**, **какое
-вмешательство применяем** и **какую модель мира используем**. Это убирает старую связку, где
-problem framing, policy knobs и simulation assumptions были слиты в один объект и мешали
-сравнивать альтернативы.
+Trinity separates one policy payload into three durable questions:
 
-Практический эффект простой: один `ProblemFrame` можно прогонять через несколько `PolicySpec`,
-а один `ModelSpec` переиспользовать для разных policy portfolios и sensitivity runs. Именно поэтому
-Foundry компилирует не произвольный JSON, а `ir.trinity_bundle`, а Scientist строит workflow
-вокруг ссылок на эти три сущности.
+- `ProblemFrame`: what problem is being investigated and under which goals and
+  constraints.
+- `PolicySpec`: which interventions are being proposed.
+- `ModelSpec`: which world model, data snapshot, and runtime assumptions are
+  allowed to execute the policy.
 
-Исторически рядом существовал `PolicySurfaceIR`; он по-прежнему поддерживается в части migration
-flows, но канонический контракт для compile/execute пути сегодня — именно Trinity.
-
-## ProblemFrame
-
-`ProblemFrame` отвечает за **why** и формализует границы исследования. Ключевые поля из
-`ir.governance.problem_frame`:
-
-- `problem_id`, `domain`
-- `objectives`, `kpis`, `success_criteria`
-- `hard_constraints`, `soft_constraints`
-- `stakeholders`, `normative_frame`
-- `narrative`, `labels`, `notes`
-
-Типичный пример: _«Как изменение образовательных расходов влияет на GDP growth в Украине в
-2020-2025 при ограничении бюджета и региональном неравенстве?»_ В Trinity это живёт именно в
-`ProblemFrame`, а не в `PolicySpec`, потому что сам вопрос остаётся стабильным при переборе
-альтернативных intervention sets.
-
-Отдельно важно поле `normative_frame`: через него ProblemFrame может нести normative arbitration
-policy, stakeholder bindings, utility terms и rights catalog, а не только KPI-список.
-
-## PolicySpec
-
-`PolicySpec` отвечает за **what**: какие интервенции будут применены и как они параметризуются.
-Ключевые поля из `ir.governance.policy_spec`:
-
-- `policy_id`, `problem_frame_ref`
-- `interventions`
-- `mechanism_bindings`
-- `parameters`
-- `global_schedule`
-- `name`, `description`, `labels`, `version_tag`, `notes`
-
-Governance в текущем коде не зашивается в `PolicySpec` отдельным списком pass-идентификаторов.
-Вместо этого Scientist и observation/governance bundles привязывают policy execution к
-каноническим governance alias через `GovernancePassAliasRegistry`. Это даёт важное свойство:
-один и тот же `PolicySpec` можно прогонять под разными governance profiles без изменения payload.
-
-## ModelSpec
-
-`ModelSpec` отвечает за **how** и описывает, какую мировую модель компилирует Foundry. Ключевые
-поля из `ir.model_spec`:
-
-- `model_id`
-- `data_snapshot_ref`, `registry_bundle_ref`
-- `time_semantics`
-- `agent_config`
-- `assumptions`
-- `environment_config`
-- `fidelity_level`
-- `calibrated`, `calibration_ref`
-- `name`, `description`, `labels`, `version_tag`, `notes`
-
-Foundry `compile()` не читает эти поля как метаданные для отчёта, а реально понижает их в
-`LoweredIR`, `ProgramGraph` и `ExecPlan`. Иными словами, `ModelSpec` — это не просто annotation,
-а вход для execution plan generation. Именно здесь живёт время модели через `time_semantics`, а не
-в `ProblemFrame`.
-
-## TrinityBundle
-
-В `polisyos.ir.trinity` bundle намеренно тонкий:
-
-- `schema_version`
-- `problem_frame`
-- `policy_spec`
-- `model_spec`
-
-Операционные metadata, ссылки на отдельные артефакты и compatibility notes живут рядом, но не
-внутри canonical IR bundle. Для этого существуют typed refs и manifest-модели из
-`polisyos.core.contracts.trinity`, где `TrinityBundle` уже связывает
-`ProblemFrameRef` / `PolicySpecRef` / `ModelSpecRef`.
-
-Scientist обычно работает либо с каноническим `ir.trinity.TrinityBundle`, либо с CAS-refs на его
-части, а Foundry принимает bundle как единственный supported `policy_ref.kind`.
-
-## Merge Semantics
-
-`docs/contracts/MERGE_SEMANTICS.md` описывает CRDT-inspired правила с четырьмя принципами:
-explicit over implicit, determinism, traceability и JAX-compatibility. На execution surface это
-означает, что конфликтующие обновления не «теряются» молча, а обрабатываются через явный merge
-rule конкретного slot.
-
-Ключевые режимы:
-
-- `SUM` — для накопительных величин.
-- `OVERRIDE` — last-write-wins с timestamp/tiebreak.
-- `PRIORITY` — winner-takes-all по приоритету.
-- `ERROR` — hard conflict при нескольких writers.
-
-Важно: raw Trinity bundle обычно версионируется и заменяется целиком, а не редактируется как
-field-level CRDT. Merge semantics вступает в силу на уровне execution-state и derived artifacts.
-Если два downstream механизма конфликтуют по KPI-related slot, outcome зависит от merge rule этого
-slot: `ERROR` заблокирует run, `OVERRIDE` выберет один writer, `SUM` сложит дельты.
-
-## Жизненный цикл
+## Contract Architecture
 
 ```mermaid
-sequenceDiagram
-  participant User
-  participant PF as ProblemFrame
-  participant PS as PolicySpec
-  participant MS as ModelSpec
-  participant TB as TrinityBundle
-  participant Sci as Scientist Workflow
-
-  User->>PF: define goals, KPIs, constraints
-  User->>PS: add interventions and parameters
-  User->>MS: select data snapshot and model assumptions
-  PF->>TB: bundle
-  PS->>TB: bundle
-  MS->>TB: bundle
-  TB->>Sci: compile / simulate / govern
+flowchart LR
+    PF["ProblemFrame"] --> TB["TrinityBundle"]
+    PS["PolicySpec"] --> TB
+    MS["ModelSpec"] --> TB
+    TB --> Link["IR linker and validators"]
+    Link --> Foundry["Foundry compile"]
+    Link --> Scientist["Scientist workflows"]
+    Link --> Lex["Lex policy/legal bridges"]
 ```
 
-See also:
+## Why Split It
 
-- [Architecture](architecture.md)
-- [IR Reference](../reference/ir/index.md)
-- [Foundry Reference](../reference/foundry/index.md)
-- [Scientist Reference](../reference/scientist/index.md)
+The split prevents three kinds of accidental coupling:
+
+- changing the policy question should not force a new model implementation;
+- exploring multiple intervention sets should not require duplicating the same
+  world model;
+- simulation/runtime assumptions should not be hidden inside narrative problem
+  text.
+
+That is why Foundry compiles Trinity-backed payloads and why Scientist routes
+workflows around Trinity refs rather than one monolithic document.
+
+## Responsibilities
+
+| Contract | Current job | Typical downstream consumer |
+|---|---|---|
+| `ProblemFrame` | goals, constraints, stakeholders, normative framing, KPI intent | Scientist planning and governance |
+| `PolicySpec` | interventions, schedules, mechanism bindings, parameters | Scientist policy-design and Foundry compile |
+| `ModelSpec` | registry bundle, snapshot refs, time semantics, calibration refs, execution assumptions | Foundry compile/execute |
+
+## Linking and Validation
+
+The linker does not only join three objects together. It enforces that:
+
+- IDs and refs are valid before compile-time lowering;
+- required refs such as registry or snapshot inputs are present when the
+  workflow needs them;
+- legacy migration paths remain explicit instead of implicit compatibility
+  shims.
+
+See [TRINITY](../contracts/TRINITY.md) for the canonical contract and
+[IR design](ir-design.md) for the schema-evolution side of the same boundary.
+
+## Merge and Lifecycle Semantics
+
+Trinity bundles are versioned artifacts, not mutable shared state. Fine-grained
+merge behavior matters later in execution state and derived artifacts, where the
+[merge semantics contract](../contracts/MERGE_SEMANTICS.md) defines conflict
+resolution rules.
+
+The practical lifecycle is:
+
+1. author or derive the three contracts;
+2. link and validate them;
+3. compile them into execution artifacts;
+4. bind runtime inputs;
+5. execute and govern the result through Scientist.

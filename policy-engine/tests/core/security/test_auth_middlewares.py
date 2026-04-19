@@ -215,3 +215,20 @@ def test_authz_middleware_exposes_allowed_columns_on_request_state() -> None:
     )
     assert response.status_code == 200
     assert response.json()["allowed_columns"] == ["claim_id", "confidence"]
+
+
+def test_jwt_middleware_accepts_injected_metrics(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "polisyos.runtime.http.jwt_auth_middleware._default_metrics",
+        lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
+    )
+
+    middleware = JWTAuthMiddleware(
+        FastAPI(),
+        identity_provider=_FakeIdentityProvider(_claims()),
+        metrics=object(),  # type: ignore[arg-type]
+    )
+
+    assert middleware._metrics is not None

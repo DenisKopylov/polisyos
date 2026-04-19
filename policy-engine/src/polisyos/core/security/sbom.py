@@ -26,6 +26,10 @@ else:
     from pydantic import BaseModel as _PydanticBaseModel
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class SBOMFormat(str, Enum):
     """SBOM format public type."""
     CYCLONEDX_JSON = "cyclonedx-json"
@@ -102,7 +106,7 @@ class SBOMGenerator:
         self._cyclonedx_bin = cyclonedx_bin
         self._syft_bin = syft_bin
         self._grype_bin = grype_bin
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     def generate_from_lockfile(self, *, lockfile_path: Path, output_path: Path) -> SBOMMetadata:
         source = "lockfile"
@@ -250,7 +254,7 @@ class SBOMVerifier:
     ) -> None:
         self._threshold = cvss_threshold
         self._allowed_cves = frozenset(item.upper() for item in (allowed_cves or frozenset()))
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     def verify(
         self,

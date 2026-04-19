@@ -1,45 +1,89 @@
 # Core Tests
 
-`tests/core` покрывает фундамент `polisyos.core`: базовые сервисы, security, contracts/components integration и phase0 primitives.
+`tests/core` covers the shared `polisyos.core` substrate: artifacts, security,
+components, contracts, trace/audit helpers, and the phase0 execution
+primitives. The slice currently contains `69` `test_*.py` files.
 
-Актуально на **17 февраля 2026**.
+## Purpose
 
-## Состав
+- Keep the platform substrate stable for `ir`, `fabric`, `foundry`,
+  `scientist`, and `runtime`.
+- Catch regressions in security boundaries, component discovery, and registry
+  contracts before they leak into higher layers.
+- Preserve the phase0 CAS, canon, signing, run-context, and observability
+  guarantees that many other slices reuse.
 
-- `52` файла `test_*.py`
-- `1` `conftest.py` (в `phase0/`)
+## Where To Start
 
-## Структура
+- [`../../src/polisyos/core/README.md`](../../src/polisyos/core/README.md) for
+  the code-side subsystem boundary.
+- [`phase0/README.md`](phase0/README.md) for the deepest artifact/run/canon
+  coverage.
+- `security/`, `components/`, and `contracts/` when the change touches auth,
+  package facades, or typed execution contracts.
 
-| Подкаталог | `test_*.py` | Что покрывает |
-|---|---:|---|
-| `core/` (корень) | 10 | cache/pipeline/registry/hashing/llm/discovery/error base |
-| `core/phase0/` | 21 | CAS, canon, signing, run context, observability |
-| `core/security/` | 16 | identity/authz/router/cell/tenant/RLS/TEE/SBOM/delegation |
-| `core/components/` | 3 | bootstrap idempotency, connector-kind compliance, legacy entry-point gates |
-| `core/contracts/` | 2 | execution-plan contracts, IR facade refs |
+## Public Entrypoints
 
-Детали phase0: `policy-engine/tests/core/phase0/README.md`.
+- `tests/core/` root: `10` direct tests for cache, pipeline, registry, hashing,
+  scoring, and discovery primitives.
+- `tests/core/phase0/`: `23` tests for artifacts, canon, signing,
+  observability, and run lifecycle.
+- `tests/core/security/`: `20` tests for identity, authz, tenant, router, and
+  related runtime guards.
+- `tests/core/components/`: `4` tests for component discovery and legacy entry
+  point compatibility.
+- `tests/core/contracts/`: `2` tests for execution-plan and facade-level
+  contract checks.
 
-## Роль в системе
+## Depends On / Depended On By
 
-- Ядро тестовой надежности для остальных слоев (`ir`, `fabric`, `foundry`, `scientist`, `runtime`).
-- Проверка security-инвариантов на уровне middleware и storage backends.
-- Контроль стабильности registry/contracts surfaces, на которые завязаны остальные подсистемы.
+**Depends on**
 
-## Связи с кодом
+- [`../../src/polisyos/core/README.md`](../../src/polisyos/core/README.md)
+- `src/polisyos/core/security`, `src/polisyos/core/components`,
+  `src/polisyos/core/contracts`
+- `tests/conftest.py` and `tests/core/phase0/conftest.py`
 
-- `policy-engine/src/polisyos/core`
-- `policy-engine/src/polisyos/core/security`
-- `policy-engine/src/polisyos/core/components`
-- `policy-engine/src/polisyos/core/contracts`
+**Depended on by**
 
-## Запуск
+- [`../contract/README.md`](../contract/README.md),
+  [`../runtime/README.md`](../runtime/README.md),
+  [`../foundry/README.md`](../foundry/README.md), and
+  [`../scientist/README.md`](../scientist/README.md)
+- The fast local loop described in [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+
+## Common Commands
+
+Run commands from `policy-engine/`.
 
 ```bash
-pytest tests/core -q
-pytest tests/core/security -q
-pytest tests/core/components -q
-pytest tests/core/contracts -q
-pytest tests/core/phase0 -q
+# conceptual: full core slice
+uv run pytest tests/core -q
+
+# conceptual: focused slices
+uv run pytest tests/core/security -q
+uv run pytest tests/core/components -q
+uv run pytest tests/core/contracts -q
+uv run pytest tests/core/phase0 -q
 ```
+
+## Test And Verification Commands
+
+The collect-only commands below were smoke-checked on `2026-04-17`.
+
+```bash
+cd policy-engine
+uv run pytest --collect-only tests/core -q
+uv run pytest --collect-only tests/core/phase0 -q
+```
+
+## Reference Docs
+
+- [`phase0/README.md`](phase0/README.md)
+- [`../../src/polisyos/core/README.md`](../../src/polisyos/core/README.md)
+- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- [`../README.md`](../README.md)
+
+## Last Updated
+
+2026-04-17

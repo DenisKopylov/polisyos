@@ -162,7 +162,13 @@ def test_search_controller_portfolio_falls_back_to_sampling_on_cap() -> None:
     assert len(results) <= 25
 
 
-def test_search_controller_portfolio_search_accepts_injected_metrics() -> None:
+def test_search_controller_portfolio_search_accepts_injected_metrics(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        "polisyos.scientist.search.controller._default_metrics",
+        lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
+    )
     metrics = _FakePortfolioMetrics()
     controller = SearchController(
         config=SearchConfig(

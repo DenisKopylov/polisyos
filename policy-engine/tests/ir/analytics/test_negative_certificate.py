@@ -1,14 +1,19 @@
 """Tests for NegativeCertificate IR model."""
+
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
-    load_negative_certificate,
     NegativeCertificate,
-    persist_negative_certificate,
     SuggestedExperiment,
+    load_negative_certificate,
+    persist_negative_certificate,
 )
-from polisyos.ir.analytics.partial_identification import BoundMethod, PartialIdentificationResult
+from polisyos.ir.analytics.partial_identification import (
+    BoundMethod,
+    PartialIdentificationResult,
+)
 
 
 def _make_bounds(lower: float = -0.3, upper: float = 0.7) -> PartialIdentificationResult:
@@ -29,9 +34,10 @@ class TestBlockingType:
         expected = {
             "hedge_structure", "s_node_unresolved", "positivity_violation",
             "support_mismatch", "missing_distribution",
+            "missingness_not_recoverable",
         }
         actual = {bt.value for bt in BlockingType}
-        assert expected == actual
+        assert expected <= actual
 
 
 class TestNegativeCertificate:

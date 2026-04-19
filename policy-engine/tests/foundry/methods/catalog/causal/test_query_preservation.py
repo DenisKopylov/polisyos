@@ -5,12 +5,14 @@ from polisyos.foundry.methods.catalog.causal.query_preservation import (
     check_query_preservation_batch,
     evaluate_query_preservation,
     evaluate_query_preservation_batch,
+    negative_certificate_from_query_preservation_trace,
     update_query_preservation_cache,
 )
 from polisyos.ir.analytics.alignment_certification import AlignmentVerificationConfig, verify_fragment_bundle_alignment
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, EdgeSource, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.analytics.cross_graph import CompositionCertificate, SCMFragment
+from polisyos.ir.analytics.negative_certificate import BlockingType
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ComposeSCMFragments
 from polisyos.foundry.methods.catalog.causal.protocols import FragmentCompositionData
 
@@ -52,6 +54,8 @@ def _fragment(
     interface_variables: list[str],
     inputs: list[str] | None = None,
     outputs: list[str] | None = None,
+    definitions: dict[str, str] | None = None,
+    units: dict[str, str] | None = None,
 ) -> SCMFragment:
     return SCMFragment(
         fragment_id=fragment_id,
@@ -60,7 +64,11 @@ def _fragment(
         interface_variables=interface_variables,
         exposed_inputs=list(inputs or []),
         exposed_outputs=list(outputs or []),
-        variable_definitions={name: name.replace("_", " ").title() for name in interface_variables},
+        variable_definitions=dict(
+            definitions
+            or {name: name.replace("_", " ").title() for name in interface_variables}
+        ),
+        variable_units=dict(units or {}),
     )
 
 
@@ -467,7 +475,289 @@ def test_evaluate_query_preservation_uses_witness_subgraph_for_chain() -> None:
     assert trace.assumption_boundary is None
 
 
-def test_evaluate_query_preservation_marks_verified_latent_bridge_as_research_boundary() -> None:
+def test_evaluate_query_preservation_identifies_frontdoor_after_latent_projection() -> None:
+    fragments = [
+        _fragment(
+            "a",
+            interface_variables=["shared_pressure", "mediator"],
+            outputs=["shared_pressure", "mediator"],
+            units={"shared_pressure": "index", "mediator": "points"},
+        ),
+        _fragment(
+            "b",
+            interface_variables=["shared_pressure", "mediator"],
+            inputs=["shared_pressure", "mediator"],
+            units={"shared_pressure": "index", "mediator": "points"},
+        ),
+    ]
+    fragment_graphs = {
+        "a": _graph(
+            ["policy", "shared_pressure", "mediator"],
+            [
+                _edge("shared_pressure", "policy"),
+                _edge("policy", "mediator"),
+            ],
+        ),
+        "b": _graph(
+            ["shared_pressure", "mediator", "outcome"],
+            [
+                _edge("shared_pressure", "outcome"),
+                _edge("mediator", "outcome"),
+            ],
+        ),
+    }
+    composed_graph, certificate, mapping = _compose(
+        fragments,
+        fragment_graphs,
+        config=AlignmentVerificationConfig(
+            explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+            human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
+        ),
+    )
+    query = CausalQuery(
+        query_type=QueryType.INTERVENTIONAL,
+        treatment_variable="policy",
+        treatment_value=1.0,
+        outcome_variable="outcome",
+    )
+
+    trace = evaluate_query_preservation(
+        query,
+        composed_graph=composed_graph,
+        fragments=fragments,
+        fragment_graphs=fragment_graphs,
+        interface_mapping=mapping,
+        composition_certificate=certificate,
+    )
+
+    assert certificate.status == "preserved"
+    assert trace.status == "preserved"
+    assert trace.reason_code == "latent_projection_exact_identified"
+    assert trace.theorem_family == "frontdoor_exact"
+    assert trace.identification_status == "identified"
+    assert trace.identification_method == "frontdoor"
+    assert trace.witness_fragment_ids == ("a", "b")
+    assert trace.source_witness_kind == "stitched_subgraph"
+    assert trace.assumption_boundary is None
+    assert trace.positive_witness == {"mediators": ["mediator"]}
+    assert trace.identifying_estimand is not None
+    assert trace.latent_projection_graph is not None
+
+
+def test_evaluate_query_preservation_identifies_adjustment_family_after_latent_projection() -> None:
+    fragments = [
+        _fragment(
+            "a",
+            interface_variables=["shared_pressure", "schooling", "policy"],
+            outputs=["shared_pressure", "schooling", "policy"],
+            units={
+                "shared_pressure": "index",
+                "schooling": "years",
+                "policy": "binary",
+            },
+        ),
+        _fragment(
+            "b",
+            interface_variables=["shared_pressure", "schooling", "policy"],
+            inputs=["shared_pressure", "schooling", "policy"],
+            units={
+                "shared_pressure": "index",
+                "schooling": "years",
+                "policy": "binary",
+            },
+        ),
+    ]
+    fragment_graphs = {
+        "a": _graph(
+            ["shared_pressure", "noise_a", "schooling", "policy"],
+            [
+                _edge("shared_pressure", "noise_a"),
+                _edge("schooling", "policy"),
+            ],
+        ),
+        "b": _graph(
+            ["shared_pressure", "noise_b", "schooling", "policy", "outcome"],
+            [
+                _edge("shared_pressure", "noise_b"),
+                _edge("schooling", "outcome"),
+                _edge("policy", "outcome"),
+            ],
+        ),
+    }
+    composed_graph, certificate, mapping = _compose(
+        fragments,
+        fragment_graphs,
+        config=AlignmentVerificationConfig(
+            explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+            human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
+        ),
+    )
+    query = CausalQuery(
+        query_type=QueryType.INTERVENTIONAL,
+        treatment_variable="policy",
+        treatment_value=1.0,
+        outcome_variable="outcome",
+    )
+
+    trace = evaluate_query_preservation(
+        query,
+        composed_graph=composed_graph,
+        fragments=fragments,
+        fragment_graphs=fragment_graphs,
+        interface_mapping=mapping,
+        composition_certificate=certificate,
+    )
+
+    assert trace.status == "preserved"
+    assert trace.reason_code == "latent_projection_exact_identified"
+    assert trace.theorem_family == "adjustment_exact"
+    assert trace.identification_method == "backdoor"
+    assert trace.positive_witness == {"adjustment_set": ["schooling"]}
+    assert trace.required_distributions
+
+
+def test_evaluate_query_preservation_emits_hedge_for_latent_projection_bow() -> None:
+    fragments = [
+        _fragment(
+            "a",
+            interface_variables=["shared_pressure", "policy"],
+            outputs=["shared_pressure", "policy"],
+            units={"shared_pressure": "index", "policy": "binary"},
+        ),
+        _fragment(
+            "b",
+            interface_variables=["shared_pressure", "policy"],
+            inputs=["shared_pressure", "policy"],
+            units={"shared_pressure": "index", "policy": "binary"},
+        ),
+    ]
+    fragment_graphs = {
+        "a": _graph(
+            ["shared_pressure", "policy"],
+            [_edge("shared_pressure", "policy")],
+        ),
+        "b": _graph(
+            ["shared_pressure", "policy", "outcome"],
+            [
+                _edge("shared_pressure", "outcome"),
+                _edge("policy", "outcome"),
+            ],
+        ),
+    }
+    composed_graph, certificate, mapping = _compose(
+        fragments,
+        fragment_graphs,
+        config=AlignmentVerificationConfig(
+            explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+            human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
+        ),
+    )
+    query = CausalQuery(
+        query_type=QueryType.INTERVENTIONAL,
+        treatment_variable="policy",
+        treatment_value=1.0,
+        outcome_variable="outcome",
+    )
+
+    trace = evaluate_query_preservation(
+        query,
+        composed_graph=composed_graph,
+        fragments=fragments,
+        fragment_graphs=fragment_graphs,
+        interface_mapping=mapping,
+        composition_certificate=certificate,
+    )
+
+    assert certificate.status == "preserved"
+    assert trace.status == "broken"
+    assert trace.reason_code == "latent_projection_hedge_found"
+    assert trace.identification_status == "hedge_found"
+    assert trace.theorem_family == "id_exact"
+    assert trace.hedge_witness is not None
+    assert trace.witness_fragment_ids == ("a", "b")
+    assert trace.source_witness_kind == "stitched_subgraph"
+
+    negative_certificate = negative_certificate_from_query_preservation_trace(query, trace)
+    assert negative_certificate is not None
+    assert negative_certificate.blocking_type is BlockingType.HEDGE_STRUCTURE
+    assert negative_certificate.quantitative_diagnostics["query_preservation_reason"] == "latent_projection_hedge_found"
+
+
+def test_update_query_preservation_cache_persists_query_certificates_for_latent_projection() -> None:
+    fragments = [
+        _fragment(
+            "a",
+            interface_variables=["shared_pressure", "mediator"],
+            outputs=["shared_pressure", "mediator"],
+            units={"shared_pressure": "index", "mediator": "points"},
+        ),
+        _fragment(
+            "b",
+            interface_variables=["shared_pressure", "mediator"],
+            inputs=["shared_pressure", "mediator"],
+            units={"shared_pressure": "index", "mediator": "points"},
+        ),
+    ]
+    fragment_graphs = {
+        "a": _graph(
+            ["policy", "shared_pressure", "mediator"],
+            [
+                _edge("shared_pressure", "policy"),
+                _edge("policy", "mediator"),
+            ],
+        ),
+        "b": _graph(
+            ["shared_pressure", "mediator", "outcome"],
+            [
+                _edge("shared_pressure", "outcome"),
+                _edge("mediator", "outcome"),
+            ],
+        ),
+    }
+    composed_graph, certificate, mapping = _compose(
+        fragments,
+        fragment_graphs,
+        config=AlignmentVerificationConfig(
+            explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+            human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
+        ),
+    )
+    query = CausalQuery(
+        query_type=QueryType.INTERVENTIONAL,
+        treatment_variable="policy",
+        treatment_value=1.0,
+        outcome_variable="outcome",
+    )
+
+    updated_certificate, statuses = update_query_preservation_cache(
+        certificate,
+        queries=[query],
+        composed_graph=composed_graph,
+        fragments=fragments,
+        fragment_graphs=fragment_graphs,
+        interface_mapping=mapping,
+    )
+
+    assert set(statuses.values()) == {"preserved"}
+    assert len(updated_certificate.query_certificates) == 1
+    stored = next(iter(updated_certificate.query_certificates.values()))
+    assert stored.theorem_family == "frontdoor_exact"
+    assert stored.latent_projection_signature is not None
+    assert stored.positive_witness == {"mediators": ["mediator"]}
+
+    replay_trace = evaluate_query_preservation(
+        query,
+        composed_graph=composed_graph,
+        fragments=fragments,
+        fragment_graphs=fragment_graphs,
+        interface_mapping=mapping,
+        composition_certificate=updated_certificate,
+    )
+    assert replay_trace.reason_code == "latent_projection_exact_identified"
+    assert replay_trace.theorem_family == "frontdoor_exact"
+
+
+def test_evaluate_query_preservation_marks_direct_latent_query_as_unknown_after_projection() -> None:
     fragments = [
         _fragment("a", interface_variables=["x", "y"], outputs=["x", "y"]),
         _fragment("b", interface_variables=["x", "y"], inputs=["x", "y"]),
@@ -513,5 +803,5 @@ def test_evaluate_query_preservation_marks_verified_latent_bridge_as_research_bo
 
     assert certificate.status == "preserved"
     assert trace.status == "unknown"
-    assert trace.reason_code == "latent_bridge_research_boundary"
+    assert trace.reason_code == "latent_projection_unresolved_query_variable"
     assert trace.assumption_boundary == "latent_bridge"

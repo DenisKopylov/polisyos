@@ -482,14 +482,12 @@ class RetrievalService:
         geography: str | None = None,
         limit: int = 25,
     ) -> list[MetricCandidate]:
-        return cast(
-            "list[MetricCandidate]",
-            self._fastlane.search_catalog(
-                metric_query=metric_query,
-                geography=geography,
-                limit=limit,
-            ),
+        result: list[MetricCandidate] = self._fastlane.search_catalog(
+            metric_query=metric_query,
+            geography=geography,
+            limit=limit,
         )
+        return result
 
     def get_index_stats(self) -> IndexStats:
         with self._state_lock:

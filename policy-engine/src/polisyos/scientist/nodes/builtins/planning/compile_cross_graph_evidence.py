@@ -46,6 +46,7 @@ from polisyos.scientist.cross_graph.feedback import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.evidence_sources import (
     build_path_source_status,
     merge_evidence_sources_payload,
@@ -122,7 +123,7 @@ class CompileCrossGraphEvidenceNode:
         if ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF in state.artifacts_index:
             return NodeOutcome(status="ok", state=state)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         config_payload = state.params.get("cross_graph_evidence_config")
         evidence_sources = normalize_evidence_sources_config(state.params, config_payload)
         governance_profile = str(state.params.get("governance_profile", "")).strip().lower()

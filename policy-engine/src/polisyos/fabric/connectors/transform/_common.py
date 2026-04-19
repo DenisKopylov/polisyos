@@ -21,6 +21,10 @@ __all__ = [
 ]
 
 
+def _default_metrics():
+    return get_metrics()
+
+
 def resolve_copy_policy(context: TransformContext) -> CopyPolicy:
     """Resolve copy policy from transform context."""
     return context.effective_copy_policy()
@@ -49,6 +53,7 @@ def build_lineage(
     output_data: pd.DataFrame,
     parameters: dict[str, Any],
     context: TransformContext | None = None,
+    metrics: Any | None = None,
 ) -> TransformLineage:
     """Construct standard TransformLineage object for a stage."""
     lineage = TransformLineage(
@@ -72,9 +77,13 @@ def build_lineage(
                 evidence_refs=context.evidence_refs,
             )
             graph = getattr(tracker, "graph", None)
-            metrics = get_metrics()
-            if graph is not None and getattr(metrics, "record_fabric_lineage_graph", None):
-                metrics.record_fabric_lineage_graph(
+            resolved_metrics = metrics
+            if resolved_metrics is None and context is not None:
+                resolved_metrics = context.metadata.get("metrics")
+            if resolved_metrics is None:
+                resolved_metrics = _default_metrics()
+            if graph is not None and getattr(resolved_metrics, "record_fabric_lineage_graph", None):
+                resolved_metrics.record_fabric_lineage_graph(
                     graph_id=graph.graph_id,
                     node_count=len(graph.entities) + len(graph.activities) + len(graph.agents),
                     edge_count=len(graph.edges),

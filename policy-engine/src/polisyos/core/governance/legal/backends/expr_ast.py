@@ -16,14 +16,11 @@ from collections import OrderedDict
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from polisyos.common.logger import get_logger
+from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.legal.ast_policy import (
     ASTLimits,
     ASTPolicy,
     SecurityError,
-)
-from polisyos.core.governance.passes.base import (
-    ComplianceIssue,
-    IssueSeverity,
 )
 
 if TYPE_CHECKING:
@@ -75,6 +72,10 @@ class SafeExpressionEvaluator:
         """Names available in the evaluation context."""
         return frozenset(self._context.keys())
 
+    def get_context_value(self, name: str, default: Any = None) -> Any:
+        """Return one raw context value for diagnostics/explanations."""
+        return self._context.get(name, default)
+
     def evaluate(self, expr: str) -> Any:
         """
         Safely evaluate an expression.
@@ -91,7 +92,7 @@ class SafeExpressionEvaluator:
         """
         is_valid, error = ASTPolicy.validate(expr, limits=self._limits)
         if not is_valid:
-            raise SecurityError(error, expression=expr)
+            raise SecurityError(error or "Expression violates policy", expression=expr)
 
         tree = self._get_cached_ast(expr)
         return self._eval_node(tree.body)
@@ -198,17 +199,17 @@ class SafeExpressionEvaluator:
     @staticmethod
     def _evaluate_comparison(left: Any, op: ast.cmpop, right: Any) -> bool:
         if isinstance(op, ast.Eq):
-            return left == right
+            return bool(left == right)
         if isinstance(op, ast.NotEq):
-            return left != right
+            return bool(left != right)
         if isinstance(op, ast.Lt):
-            return left < right
+            return bool(left < right)
         if isinstance(op, ast.LtE):
-            return left <= right
+            return bool(left <= right)
         if isinstance(op, ast.Gt):
-            return left > right
+            return bool(left > right)
         if isinstance(op, ast.GtE):
-            return left >= right
+            return bool(left >= right)
         raise SecurityError(f"Unknown comparison operator: {type(op).__name__}")
 
 
@@ -255,7 +256,7 @@ class ExpressionASTBackend:
     def evaluate(
         self,
         norm_pack: "NormPack | None",
-        context: dict,
+        context: dict[str, Any],
     ) -> List[ComplianceIssue]:
         """
         Evaluate all applicable rules in the norm pack.
@@ -421,9 +422,10 @@ class ExpressionASTBackend:
         try:
             names = ASTPolicy.extract_names(expr)
             values = []
+            missing = object()
             for name in sorted(names):
-                if name in evaluator._context:
-                    value = evaluator._context[name]
+                value = evaluator.get_context_value(name, missing)
+                if value is not missing:
                     if isinstance(value, float):
                         values.append(f"{name}={value:.4f}")
                     else:

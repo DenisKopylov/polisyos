@@ -28,7 +28,21 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (
     id_algorithm,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    DynamicReductionStatus,
+    DynamicScopeStatement,
+    DynamicSemanticsAttachment,
+    DynamicSemanticsFamily,
+    GraphicalMarkovCertificate,
+    GraphicalOracleKind,
+    InterventionKind,
+    InterventionScope,
+    SeparationClaim,
+    WellPosednessStatus,
+    WellPosednessWitness,
+)
 from polisyos.ir.analytics.estimand import DistributionDomain, EstimandAST, ExpectationNode
+from polisyos.ir.analytics.frontier import materialize_phase1_frontier_sketch
 
 
 class WellPosednessResult(BaseModel):
@@ -41,6 +55,122 @@ class WellPosednessResult(BaseModel):
     confidence: Literal["exact", "approximate"]
     lipschitz_constant: float | None = None
     warning: str | None = None
+
+
+def _well_posedness_witness(result: WellPosednessResult) -> WellPosednessWitness:
+    if result.method == "exact_linear":
+        status = WellPosednessStatus.PROVED if result.well_posed else WellPosednessStatus.REFUTED
+        family = "linear_unique"
+    else:
+        status = WellPosednessStatus.HEURISTIC_BLOCKED
+        family = "contraction" if result.method == "lipschitz_heuristic" else "numerical_fixed_point"
+    evidence: dict[str, Any] = {
+        "well_posed": result.well_posed,
+        "method": result.method,
+        "confidence": result.confidence,
+    }
+    if result.lipschitz_constant is not None:
+        evidence["lipschitz_constant"] = float(result.lipschitz_constant)
+    if result.warning:
+        evidence["warning"] = result.warning
+    return WellPosednessWitness(
+        status=status,
+        family=family,
+        method=result.method,
+        confidence=result.confidence,
+        lipschitz_constant=result.lipschitz_constant,
+        warning=result.warning,
+        evidence=evidence,
+    )
+
+
+def _dynamic_scope_statement(
+    result: WellPosednessResult,
+    *,
+    sigma_ok: bool,
+) -> DynamicScopeStatement:
+    covered: tuple[str, ...]
+    if result.method == "exact_linear" and result.well_posed and sigma_ok:
+        covered = ("linear_unique_cycle",)
+    else:
+        covered = ()
+    return DynamicScopeStatement(
+        covered_families=covered,
+        excluded_families=(
+            "sigma_separation_failed_cycle",
+            "heuristic_fixed_point_only",
+            "multi_equilibrium",
+            "unsupported_soft_dynamic_interventions",
+            "continuous_time_local_independence_unreduced",
+        ),
+        notes=(
+            "Phase 1 only certifies exact linear-unique cycles with a successful sigma-separation witness.",
+        ),
+    )
+
+
+def _dynamic_semantics_attachment(
+    *,
+    graph: CausalGraphModel,
+    treatment: frozenset[str],
+    outcome: frozenset[str],
+    sigma_ok: bool,
+    well_posed: WellPosednessResult,
+) -> DynamicSemanticsAttachment:
+    validated_reduction = (
+        sigma_ok
+        and well_posed.well_posed
+        and well_posed.method == "exact_linear"
+        and well_posed.confidence == "exact"
+    )
+    intervention_scope = InterventionScope(
+        kind=InterventionKind.NODE_DO,
+        targets=tuple(sorted(treatment)),
+        admissible=True,
+        admissibility_theorem="snapshot_node_intervention_only",
+    )
+    witness = _well_posedness_witness(well_posed)
+    certificate = GraphicalMarkovCertificate(
+        certificate_type="sigma_separation",
+        semantics_family=DynamicSemanticsFamily.IOSCM,
+        graphical_oracle=GraphicalOracleKind.SIGMA,
+        theorem_family="Forre-Mooij-2018",
+        source_graph_ref=_source_graph_hash(graph),
+        intervention_spec=intervention_scope,
+        separation_claim=SeparationClaim(
+            x_set=tuple(sorted(treatment)),
+            y_set=tuple(sorted(outcome)),
+            z_set=(),
+            holds=sigma_ok,
+            criterion=GraphicalOracleKind.SIGMA,
+        ),
+        transformation_trace=(
+            "scc_condensation",
+            "sigma_connection_graph",
+            *(
+                ("validated_linear_fixed_point_witness",)
+                if validated_reduction
+                else ("frontier_scope_boundary",)
+            ),
+        ),
+        notes=(
+            "Phase 1 validated slice: exact linear-unique cycle plus sigma success."
+            if validated_reduction
+            else "Unsupported cyclic regimes stay at the frontier boundary until promotion conditions are met.",
+        ),
+    )
+    return DynamicSemanticsAttachment(
+        semantics_family=DynamicSemanticsFamily.IOSCM,
+        reduction_status=(
+            DynamicReductionStatus.VALIDATED_REDUCTION
+            if validated_reduction
+            else DynamicReductionStatus.BLOCKED
+        ),
+        markov_criterion_certificate=certificate,
+        well_posedness_witness=witness,
+        intervention_scope=intervention_scope,
+        scope_statement=_dynamic_scope_statement(well_posed, sigma_ok=sigma_ok),
+    )
 
 
 def _source_graph_hash(graph: CausalGraphModel) -> str:
@@ -321,13 +451,12 @@ def cyclic_id_algorithm(
         )
         return dataclasses.replace(
             inner,
-            algorithm_version="cyclic_id_experimental_v1",
+            algorithm_version="cyclic_id_scoped_v1",
             trace=list(inner.trace),
             proof_steps=proof_steps + list(inner.proof_steps),
         )
 
     sccs = tarjan_scc(graph)
-    sigma_graph = build_sigma_connection_graph(graph)
     cycle_component = _component_for_nodes(sccs, treatment | outcome)
     if cycle_component is None:
         cycle_component = next((comp for comp in sccs if len(comp) > 1), frozenset(graph.nodes))
@@ -357,7 +486,14 @@ def cyclic_id_algorithm(
         )
     )
 
-    sigma_ok = sigma_separation(sigma_graph, treatment, outcome, frozenset())
+    sigma_ok = sigma_separation(graph, treatment, outcome, frozenset())
+    dynamic_semantics = _dynamic_semantics_attachment(
+        graph=graph,
+        treatment=treatment,
+        outcome=outcome,
+        sigma_ok=sigma_ok,
+        well_posed=well_posed,
+    )
     if not sigma_ok:
         trace.append(
             f"[depth={_depth}] sigma-separation failed; continuing with fixed-point heuristic"
@@ -401,13 +537,60 @@ def cyclic_id_algorithm(
             hedge_certificate=cert,
             trace=trace,
             required_distributions=[],
-            algorithm_version="cyclic_id_experimental_v1",
+            algorithm_version="cyclic_id_scoped_v1",
             proof_steps=proof_steps,
+            metadata={"dynamic_semantics": dynamic_semantics.model_dump(mode="json")},
         )
 
-    if not sigma_ok:
+    validated_reduction = dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+    if not validated_reduction:
+        known_limitations = []
+        if not sigma_ok:
+            known_limitations.append("sigma_separation_failed")
+        if well_posed.method != "exact_linear" or well_posed.confidence != "exact":
+            known_limitations.append("well_posedness_witness_not_exact_linear")
+        frontier_sketch = materialize_phase1_frontier_sketch(
+            stage_id="4.4",
+            family="cyclic_sigma_certificate",
+            sketch_type="scope_split",
+            hypothesis=(
+                "Validated cyclic proofs currently require exact linear-unique well-posedness and sigma success."
+            ),
+            known_limitations=known_limitations or ["validated_reduction_unavailable"],
+            metadata={
+                "cycle_component": sorted(cycle_component),
+                "sigma_ok": sigma_ok,
+                "well_posed_method": well_posed.method,
+                "well_posed_confidence": well_posed.confidence,
+            },
+        )
         trace.append(
-            f"[depth={_depth}] accepting heuristic identification despite σ-separation warning"
+            f"[depth={_depth}] cyclic query left at frontier boundary; validated reduction unavailable"
+        )
+        proof_steps.append(
+            ProofStep(
+                rule_name="CYCLIC_FRONTIER_BOUNDARY",
+                antecedent_vars=tuple(sorted(cycle_component)),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state=(
+                    "Validated cyclic reduction unavailable; escalate to oracle/research path."
+                ),
+                depth=_depth,
+            )
+        )
+        return IdentificationResult(
+            status=IdentificationStatus.ORACLE_NEEDED,
+            estimand_ast=None,
+            hedge_certificate=None,
+            trace=trace,
+            required_distributions=[],
+            algorithm_version="cyclic_id_scoped_v1",
+            proof_steps=proof_steps,
+            metadata={
+                "dynamic_semantics": dynamic_semantics.model_dump(mode="json"),
+                "frontier_sketch": frontier_sketch.model_dump(mode="json"),
+                "frontier_reason": "validated_reduction_unavailable",
+            },
         )
 
     representative_outcome = next(iter(sorted(outcome)))
@@ -435,19 +618,20 @@ def cyclic_id_algorithm(
             rule_name="CYCLIC_SOLVER",
             antecedent_vars=tuple(sorted(cycle_component)),
             consequent_vars=tuple(sorted(outcome)),
-            applied_to_graph_state="heuristic fixed-point route accepted",
+            applied_to_graph_state="validated linear fixed-point route accepted",
             depth=_depth,
         )
     )
-    trace.append(f"[depth={_depth}] cyclic_id identified experimentally")
+    trace.append(f"[depth={_depth}] cyclic_id identified on validated Phase 1 slice")
     return IdentificationResult(
         status=IdentificationStatus.IDENTIFIED,
         estimand_ast=ast,
         hedge_certificate=None,
         trace=trace,
         required_distributions=[],
-        algorithm_version="cyclic_id_experimental_v1",
+        algorithm_version="cyclic_id_scoped_v1",
         proof_steps=proof_steps,
+        metadata={"dynamic_semantics": dynamic_semantics.model_dump(mode="json")},
     )
 
 

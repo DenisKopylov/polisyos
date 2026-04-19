@@ -1,48 +1,69 @@
 # Onboarding: Frontend Engineer
 
-Related how-to: [Deploy Runtime](../deploy-runtime.md). Related reference:
-[REST API](../../reference/api/index.md).
+Related reference: [REST API](../../reference/api/index.md),
+[Generated Artifacts](../../reference/generated-artifacts.md), `frontend/runtime-dashboard/README.md`, and `frontend/runtime-api-client/README.md`.
 
-## Understand First
+## Goal
 
-- the runtime dashboard lives in `frontend/runtime-dashboard`;
-- frontend work is contract-coupled to runtime API and fixture verification;
-- the `/platform` surface is an operational view, not just a visual page;
-- route telemetry and Sentry are part of the operator experience, not optional
-  decoration.
+Быстро войти в runtime-consumer surface: dashboard, generated API types,
+contract fixtures и operator-facing UX.
 
-## Safely Ignore at First
+## Inputs
 
-- deep Foundry or Scientist implementation details behind already-stable API
-  responses;
-- heavy optional Python extras unrelated to dashboard work;
-- benchmark internals unless your task changes UX for benchmark consumers.
+- `workspace bootstrap --profile runtime` уже выполнен;
+- `frontend/runtime-dashboard` dependencies установлены;
+- вы понимаете, меняете ли вы dashboard UI, generated API types или сам runtime
+  contract.
 
-## Commands and Docs to Use
+## Output
 
-Canonical setup:
+После этого onboarding вы должны уметь:
+
+- локально поднять dashboard;
+- обновить dashboard API types без drift;
+- отличать frontend bug от backend contract change.
+
+## Canonical Commands
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace bootstrap
-python3 -m tools.cli workspace verify --frontend-only
+python3 -m tools.cli workspace bootstrap --profile runtime
+python3 -m tools.cli workspace verify --frontend-only --skip-doctor
 cd frontend/runtime-dashboard
-npm run dev
+npm run generate:api
+npm run contracts:verify
+npm run typecheck
 ```
 
-Useful docs:
+## Start Here By Task
 
-- [Deploy Runtime](../deploy-runtime.md)
-- [Manage Schemas](../manage-schemas.md)
-- [Operations Runbooks](../../runbooks/index.md)
-- [Observability Topology](../../reference/operations/observability-topology.md)
+| Task | Primary doc | Why it matters |
+|---|---|---|
+| Contract-first overview of frontend surfaces | [REST API](../../reference/api/index.md) plus `frontend/runtime-dashboard/README.md` | dashboard, generated API client, and validation chain |
+| Обновить generated dashboard types после runtime change | [REST API](../../reference/api/index.md) plus `frontend/runtime-api-client/README.md` | OpenAPI -> generated client -> dashboard type sync |
+| Понять operator UX и runtime boundaries | [Deploy Runtime](../deploy-runtime.md) and [Use Control Plane](../use-control-plane.md) | UI reflects control-plane reality, not mock-only state |
 
-## First Productive Task
+## First Productive Slice
 
-Make one safe improvement to the operator surface:
+Хороший первый change:
 
-- fix a failing `npm run contracts:verify` expectation;
-- improve the `/platform` page for a real runtime health state;
-- add or repair one route-level error or telemetry affordance backed by tests.
+- исправить `npm run contracts:verify` после intentional backend contract change;
+- обновить один dashboard workspace/query path после новой runtime возможности;
+- улучшить operator-facing error/loading state, не ломая contract fixtures.
 
-Do not start with visual polish detached from runtime reality.
+## Rollback / Handoff
+
+- если change требует новый endpoint или DTO, передайте или синхронизируйтесь с
+  [Backend Engineer](backend-engineer.md);
+- если `npm run generate:api` ничего не должен менять, а diff появился,
+  проверьте, не дрейфует ли committed OpenAPI snapshot;
+- не исправляйте backend drift локальными frontend hacks.
+
+## Troubleshooting
+
+- `generate:api` обновляет только `src/api/types.ts`; JS/TS client лежит в
+  `frontend/runtime-api-client/`;
+- `contracts:verify` падает: сначала сверяйте runtime snapshot и fixtures, а не
+  переписывайте ожидания вслепую;
+- UI issue на `/platform` почти всегда требует чтения runtime/control docs, а
+  не только React tree.

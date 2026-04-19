@@ -16,17 +16,29 @@ from polisyos.fabric.connectors._registry_errors import (
 from polisyos.fabric.connectors._registry_models import ConnectorEntry
 
 if TYPE_CHECKING:
+    from polisyos.core.observability import MetricsRegistry
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,
         SourceConnector,
     )
     from polisyos.fabric.connectors.contracts import ContractRegistry
     from polisyos.fabric.connectors.pool import ConnectionPool
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.ir.connectors import ConnectorMetadataSpec
 
 logger = get_logger(__name__)
 
 __all__ = ["RegistryLifecycleMixin"]
+
+
+def _default_source_profile_registry() -> SourceProfileRegistry:
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    return SourceProfileRegistry.get_instance()
+
+
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
 
 
 class RegistryLifecycleMixin:
@@ -210,10 +222,9 @@ class RegistryLifecycleMixin:
         a connector that already has a default is not overwritten).
         """
         try:
-            from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
             from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 
-            profile_registry = SourceProfileRegistry.get_instance()
+            profile_registry = _default_source_profile_registry()
             wired = 0
             for profile in profile_registry.list_all():
                 namespace_entries = list(
@@ -497,7 +508,7 @@ class RegistryLifecycleMixin:
         *,
         connector_id: str,
     ) -> "SourceConnector":
-        metrics = get_metrics()
+        metrics = _default_metrics()
         try:
             with self._instance_lock:
                 if getattr(connector, "_slo_request_wrapped", False):

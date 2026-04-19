@@ -1,251 +1,204 @@
 # Установка
 
-> Варианты source-установки, extras и troubleshooting для текущего дерева.
+> Канонические contributor paths для текущего дерева после refactor: выберите
+> профиль, выполните bootstrap, затем `doctor` и `verify`.
 
-!!! info "Проверенная поверхность установки"
-    Канонический contributor path для текущего дерева:
-    `python3 -m tools.cli workspace bootstrap` ->
-    `python3 -m tools.cli workspace doctor` ->
-    `python3 -m tools.cli workspace verify`.
-    По состоянию на 2026-04-03 этот путь был проверен на macOS с Python 3.14
-    и Node 22.
+!!! info "Validated against current command surface"
+    2026-04-17 на локальном macOS workstation были проверены
+    `uv run polisyos-tools workspace bootstrap --help`,
+    `uv run polisyos-tools workspace doctor --help`,
+    `uv run polisyos-tools workspace verify --help`,
+    `uv run polisyos-tools workspace ci-parity --help`,
+    а также `uv run polisyos-tools workspace doctor --list-surfaces`.
+    Сами install-команды ниже mutating и остаются manual/conceptual steps.
 
-## Canonical Contributor Path
+## Inputs
+
+- checkout `policy-engine/`;
+- Python `3.14.x`;
+- Node `22.x`;
+- `uv`;
+- решение, нужен ли вам frontend и Playwright на этой машине.
+
+## Outputs
+
+- локальное Python-окружение, соответствующее выбранному профилю;
+- при необходимости установленный dashboard toolchain;
+- понятный путь к `doctor`, `verify` и `ci-parity`.
+
+## Commands
+
+```bash
+cd policy-engine
+uv run polisyos-tools workspace bootstrap --profile runtime
+uv run polisyos-tools workspace doctor
+uv run polisyos-tools workspace verify
+```
+
+## Канонический выбор профиля
+
+| Профиль | Когда брать | Команда |
+|---|---|---|
+| `minimal` | core Python, lint, быстрые unit/property tests | `uv run polisyos-tools workspace bootstrap --profile minimal --skip-frontend` |
+| `docs` | MkDocs, docs accuracy, docstring quality | `uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright` |
+| `runtime` | backend/runtime/API work, default path | `uv run polisyos-tools workspace bootstrap --profile runtime` |
+| `research` | causal, Foundry, Scientist heavy workflows | `uv run polisyos-tools workspace bootstrap --profile research --skip-frontend` |
+
+Если вы не уверены, начинайте с `runtime`.
+
+## Рекомендуемый install path
 
 Из корня `policy-engine/`:
 
 ```bash
-python3 -m tools.cli workspace bootstrap
-python3 -m tools.cli workspace doctor
-python3 -m tools.cli workspace verify
-python3 -m tools.cli workspace ci-parity --skip-browser
+uv run polisyos-tools workspace bootstrap --profile runtime
+uv run polisyos-tools workspace doctor
+uv run polisyos-tools workspace verify
 ```
 
 Что делает этот путь:
 
-- фиксирует Python baseline на `3.14.x`;
-- фиксирует Node baseline на `22.x`;
-- использует `uv 0.9.21` как канонический Python environment manager;
-- проверяет Playwright, lockfiles и generated contract artifacts;
-- подготавливает backend и frontend contributor toolchains.
+- фиксирует поддерживаемый baseline из
+  [Environment Matrix](../reference/environment-matrix.md);
+- использует `uv` как canonical Python environment manager;
+- проверяет lockfiles, generated-contract surfaces и optional env surfaces;
+- подготавливает backend и, если вы не отключили frontend, dashboard toolchain.
 
-## Contributor Tiers
+## Быстрые варианты
 
-| Tier | Команда | Когда выбирать |
-|---|---|---|
-| Minimal contributor | `python3 -m tools.cli workspace bootstrap --profile minimal --skip-frontend` | Core Python, lint, unit/property tests |
-| Docs contributor | `python3 -m tools.cli workspace bootstrap --profile docs --skip-frontend` | MkDocs, docstring quality, docs accuracy |
-| Runtime contributor | `python3 -m tools.cli workspace bootstrap --profile runtime --skip-frontend` | Runtime API, contracts, backend workflows |
-| Full research / causal contributor | `python3 -m tools.cli workspace bootstrap --profile research --skip-frontend` | Causal / Foundry / Scientist heavy workflows |
-| Frontend contributor | `python3 -m tools.cli workspace bootstrap --profile runtime` | Runtime contributor Python surface плюс `npm ci --ignore-scripts` для dashboard |
-
-## Версия Python
-
-В текущем `pyproject.toml` Python 3.14 зафиксирован как единственный поддерживаемый
-minor baseline:
+### Backend-only onboarding
 
 ```bash
-python3.14 --version
+uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --skip-playwright
+uv run polisyos-tools workspace doctor --skip-playwright
+uv run polisyos-tools workspace verify --backend-only --skip-doctor
 ```
 
-Ожидаемый вывод:
-
-```text
-Python 3.14.x
-```
-
-## Editable Package Install
-
-Для самого маленького source-install можно использовать любую из этих эквивалентных команд:
+### Docs-only onboarding
 
 ```bash
+uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright
+uv run polisyos-tools workspace doctor --skip-playwright --skip-contract-checks
+uv run polisyos-tools workspace ci-parity --skip-browser
+```
+
+### Frontend onboarding
+
+```bash
+uv run polisyos-tools workspace bootstrap --profile runtime
+uv run polisyos-tools workspace verify --frontend-only --skip-doctor
+cd frontend/runtime-dashboard
+npm run generate:api
+npm run contracts:verify
+```
+
+## Manual editable install
+
+Если вам нужен ручной path вместо workspace bootstrap:
+
+```bash
+python3.14 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
 pip install -e "."
 ```
 
-```bash
-pip install -e ".[core]"
-```
+Частые варианты extras:
 
-Что это даёт:
+| Extra | Когда нужен |
+|---|---|
+| `.[core]` | самый узкий source-install |
+| `.[docs]` | MkDocs и docs quality |
+| `.[runtime]` / `.[runtime-http]` | Runtime API и dashboard contract surface |
+| `.[test]` | pytest stack |
+| `.[research]` | causal / Scientist / Foundry heavy workflows |
+| `.[all]` | curated umbrella для широкого локального feature surface |
 
-- пакет из `src/polisyos`
-- IR types и core contracts
-- базовый runtime, connector и CLI код из основного набора зависимостей
-
-## Полная capability-установка
-
-Для широкого capability-окружения используйте curated umbrella extra:
-
-```bash
-pip install -e ".[all]"
-```
-
-Текущий `all` включает такие проверенные семейства:
-
-- `research`
-- `hotreload`
-- `rag`
-- `runtime`
-- `security`
-- `shapesafe`
-
-Почему `all` — именно curated umbrella, а не буквально “всё подряд”:
-
-- часть optional-путей всё ещё тяжёлая или platform-specific
-- часть extras требует внешних prerequisites, а не только `pip`-резолвера
-- curated `all` избавляет новых разработчиков от долгого resolver backtracking
-- contributor tooling (`lint`, `docs`, `test`, notebooks, mutation) вынесен отдельно и не смешивается с product-capability umbrella
-
-## Конкретные extras
-
-Авторитетный список находится в `[project.optional-dependencies]` в `pyproject.toml`.
-
-| Extra | Что добавляет | Для чего использовать |
-|-------|---------------|-----------------------|
-| `core` | Пустой compatibility extra для минимального source-install | Базовый smoke и core contracts |
-| `lint` | `mypy`, `pre-commit`, `ruff`, `types-requests` | Contributor lint/type surface |
-| `docs` | `mkdocs`, `mkdocs-material`, `mkdocstrings[python]` | Docs site и docs quality |
-| `notebooks` | `jupyterlab`, `matplotlib`, `seaborn` | Notebook/research authoring |
-| `mutation` | `mutmut` | Mutation testing |
-| `runtime` | `runtime-http` + observability + structured logging | Backend contributor umbrella |
-| `research` | Method stacks + causal discovery/full + academic helpers | Full research / causal umbrella |
-| `analytics` | `scipy`, `statsmodels`, `linearmodels`, `pandas`, `ruptures`, `arch` | Econometrics и structural analytics |
-| `ml` | `scikit-learn`, `lifelines`, `mapie` | ML-методы |
-| `deep-learning` | Compatibility alias | JAX already lives in base install |
-| `apple-metal` | `jax-metal` на macOS | Opt-in Apple Metal acceleration |
-| `bayesian` | `numpyro`, `arviz` | Bayesian workflows |
-| `sensitivity` | `SALib`, `scipy` | Sensitivity analysis |
-| `causal` | `causal-core` плюс `causal-dowhy` | Удобный high-level causal shortcut |
-| `causal-core` | `econml` только на Python `<3.14` | EconML-based causal estimation |
-| `causal-dowhy` | `dowhy`, `cvxpy<1.5` только на Python `<3.13` | Совместимость с DoWhy |
-| `causal-bcf` | `stochtree` | Bayesian Causal Forest и BCF-like workflows |
-| `causal-discovery` | `tigramite`, `causal-learn` | PC, FCI и другие discovery-алгоритмы |
-| `causal-discovery-scale` | `dagma` | DAGMA-based discovery |
-| `causal-symbolic` | `y0` | Symbolic identification |
-| `causal-symbolic-r` | `rpy2` | R-backed symbolic workflows |
-| `causal-full` | `econml`, `dowhy`, `lightgbm`, `zepid`, `y0` с version gates | Широкий causal stack |
-| `optimization-advanced` | `cvxpy>=1.8.1` | Advanced optimization |
-| `solvers` | `ortools`, `pulp` | Planning и optimization backends |
-| `runtime-http` | `fastapi`, `uvicorn[standard]`, `httpx`, `PyJWT` | Runtime API и dashboard |
-| `observability` | `prometheus-client` поверх base OTel stack | Tracing и metrics |
-| `multi-tenant` | `runtime-http` + PostgreSQL drivers | Tenant-aware runtime paths |
-| `security` | `boto3`, `sigstore`, `presidio-*`, `spacy` | Auth, privacy и security workflows |
-| `rag` | `faiss-cpu` | Local retrieval index |
-| `rag-local` | `sentence-transformers`, `onnxruntime` | Local embeddings и search |
-| `table-extraction` | `marker-pdf` | Heavyweight extraction / PDF research flows |
-| `agent-sim` | `plotly`, `streamlit` | Optional visualization/dashboard helpers |
-| `sandbox` | `RestrictedPython` | Эксперименты с sandbox execution |
-| `shapesafe` | `beartype` | Runtime type и shape guards |
-| `hotreload` | `watchfiles` | Локальный auto-reload |
-| `structured-logging` | `structlog` | Structured runtime logging |
-| `dev` | `lint` + `docs` + notebooks + mutation + structured logging | Broad local authoring tooling |
-| `test` | pytest stack плюс `runtime-http` | Тестовые зависимости |
-| `all` | Curated product-capability umbrella | Широкая feature-поверхность без local-only tooling |
-
-Примечания:
-
-- Frontend contributor path всегда требует ещё и `cd frontend/runtime-dashboard && npm ci --ignore-scripts`.
-- `causal-core` специально ограничен Python `<3.14`, потому что `econml` пока не даёт чистого 3.14-пути в проверенном docs-окружении.
-- `causal-bcf` остаётся opt-in, потому что `stochtree` обычно требует OpenMP на хосте.
-- `apple-metal` остаётся opt-in: CPU baseline считается support path даже на Apple Silicon.
-
-## Manual Contributor Setup
-
-Для полного contributor-окружения:
+Для frontend после manual path все равно нужен npm install:
 
 ```bash
-uv sync --frozen --extra lint --extra test --extra runtime
-uv run pre-commit install
-cd frontend/runtime-dashboard && npm ci --ignore-scripts && npm run playwright:install
+cd frontend/runtime-dashboard
+npm ci --ignore-scripts
+npm run playwright:install
 ```
 
-Если хотите более узкий набор, используйте один из tiered profiles:
+## Проверка результата
+
+Минимальные проверки:
 
 ```bash
-python3 -m tools.cli workspace bootstrap --profile minimal --skip-frontend
-python3 -m tools.cli workspace bootstrap --profile docs --skip-frontend
-python3 -m tools.cli workspace bootstrap --profile research --skip-frontend
+uv run polisyos --version
+uv run polisyos-tools workspace doctor --list-surfaces
+uv run polisyos-tools workspace verify --backend-only --skip-doctor
 ```
 
-## Devcontainer And Cache Strategy
-
-Hermetic local path:
+Если вы меняете runtime contract surface:
 
 ```bash
-code policy-engine
-# Dev Containers: Reopen in Container
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
 ```
 
-Конфигурация живёт в `policy-engine/.devcontainer/devcontainer.json`.
-
-Cache policy:
-
-- `uv`: volume-backed cache at `/home/vscode/.cache/uv` in the devcontainer;
-- npm: volume-backed cache at `/home/vscode/.npm`;
-- Playwright browsers: volume-backed cache at `/home/vscode/.cache/ms-playwright`;
-- benchmark artifacts: dedicated volume mounted to `.benchmarks/`.
-
-Локальная CI-подобная проверка:
+Если вы меняете docs surface:
 
 ```bash
-python3 -m tools.cli workspace ci-parity --skip-browser
+uv run --extra docs python -m mkdocs build --strict
 ```
 
-Для browser-backed parity-поверхности:
+## Rollback / cleanup
 
-```bash
-python3 -m tools.cli workspace ci-parity --include-e2e-smoke --include-visual
-```
+Если профиль оказался слишком тяжелым или не тем:
+
+1. удалите локальное окружение `.venv` или другой venv, который вы создали;
+2. если bootstrap тянул frontend зря, удалите `frontend/runtime-dashboard/node_modules`;
+3. повторите bootstrap с более узким профилем и нужными `--skip-*` флагами.
+
+Если вы сознательно не хотите держать browser stack локально, используйте
+`--skip-playwright` и оставьте Playwright suites на CI или отдельную машину.
 
 ## Troubleshooting
 
-### JAX на CPU, GPU и Metal
+### Python или Node вне поддерживаемой матрицы
 
-- На macOS Metal backend теперь opt-in через `.[apple-metal]`.
-- В upstream setup guides этот путь также может называться `jax[metal]`.
-- Если workload падает с ошибкой Metal runtime, например `default_memory_space is not supported`, принудительно переключите JAX на CPU:
+- сверяйтесь с [Environment Matrix](../reference/environment-matrix.md);
+- неподдерживаемые minor versions сначала считаются unsupported, пока не
+  воспроизведут баг на Python `3.14.x` и Node `22.x`.
 
-```bash
-export JAX_PLATFORM_NAME=cpu
-export JAX_PLATFORMS=cpu
-```
-
-- Для smoke-прогонов документации и onboarding CPU-режим на Apple Silicon сейчас самый надёжный.
-
-### Особенности Apple Silicon
-
-- Если нужен именно GPU backend от Apple, рассчитывайте на дополнительную Metal-specific настройку.
-- Для `causal-bcf` может потребоваться предварительно поставить OpenMP:
+### Нужен список optional surfaces для `doctor`
 
 ```bash
-brew install libomp
+uv run polisyos-tools workspace doctor --list-surfaces
 ```
 
-- Некоторые native packages, например `grpcio`, могут требовать актуальные Xcode command line tools.
+На 2026-04-17 доступны:
 
-### Отсутствующие системные зависимости
+- `datasets-unpd`
+- `frontend-sentry-build`
+- `frontend-sentry-runtime`
+- `llm-anthropic`
+- `llm-openai`
+- `runtime-oidc`
+- `runtime-research-postgres`
+- `runtime-signing`
 
-Держите packaging toolchain в актуальном состоянии:
+### Apple Silicon и JAX
+
+- CPU-first path считается поддерживаемым baseline;
+- Metal остается opt-in через `apple-metal` extra;
+- для первых smoke/tutorial runs используйте CPU, если нет явной причины
+  отлаживать Metal.
+
+### Конфликтующие или тяжелые зависимости
+
+- если не уверены, начните с профиля `runtime`, а не со случайной смеси extras;
+- causal/research extras добавляйте только когда задача их действительно требует;
+- если нужна просто docs или backend surface, не тяните frontend/browser stack без нужды.
+
+### Lockfile, contract или generated-artifact checks мешают локальному triage
+
+Для первого preflight можно временно сузить `doctor`:
 
 ```bash
-python -m pip install --upgrade pip setuptools wheel
+uv run polisyos-tools workspace doctor --skip-playwright --skip-lockfile-checks --skip-contract-checks
 ```
 
-На macOS:
-
-```bash
-xcode-select --install
-```
-
-### Конфликты resolver’а
-
-- Если не знаете, с чего начать, используйте `.[all]`.
-- Тяжёлые extras вроде `security`, `rag-local`, `table-extraction`, `agent-quality` или `causal-bcf` ставьте явно по мере необходимости.
-- Если causal stack конфликтует на Python 3.14, сначала проверьте, не тянет ли выбранный extra `econml` или старые compatibility pins для `dowhy`.
-
-### Только source-установка
-
-- Для этого репозитория сейчас не описан PyPI package path.
-- Поддерживаемый contributor path начинается с
-  `python3 -m tools.cli workspace bootstrap`; `pip install -e ...`
-  остаётся допустимым только как ручной editable package install.
+Но перед PR вернитесь к полному `doctor` или `ci-parity`.

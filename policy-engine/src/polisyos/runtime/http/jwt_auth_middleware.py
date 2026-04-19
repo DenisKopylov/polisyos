@@ -54,6 +54,10 @@ _current_user: contextvars.ContextVar[UserIdentityClaims | None] = contextvars.C
 _PUBLIC_PATHS = frozenset({"/health", "/ready", "/metrics", "/auth/callback"})
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 def get_current_user() -> UserIdentityClaims | None:
     """Return current user."""
     return _current_user.get()
@@ -78,7 +82,7 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
         self._identity_provider = identity_provider
         self._tenant_header = tenant_header
         self._public_paths = public_paths
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
         configured_cell_id = os.getenv("POLISYOS_CELL_ID", "").strip()
         self._expected_cell_id = expected_cell_id or configured_cell_id or None
 

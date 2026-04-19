@@ -177,10 +177,6 @@ sync_resume_cache_to_local() {
   sync_gcs_file_to_local \
     "${RESUME_CACHE_PREFIX}/manifests/doc_metadata.json" \
     "/mnt/work/output/manifests/doc_metadata.json"
-
-  for dir_name in "${SYNCABLE_CACHE_DIRS[@]}"; do
-    sync_gcs_dir_to_local "${RESUME_CACHE_PREFIX}/${dir_name}" "/mnt/work/output/${dir_name}"
-  done
 }
 
 sync_local_resume_cache() {
@@ -297,6 +293,7 @@ RUN_ARGS=(
   --output-dir /mnt/work/output
   --shard-count "${SHARD_COUNT}"
   --shard-index "${SHARD_INDEX}"
+  --manifest-is-pre-sharded
   --resume
   --stages parse,structure,spo,ground_quotes,resolve_refs
   --parallel-llm "${PARALLEL_LLM}"

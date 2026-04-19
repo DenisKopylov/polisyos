@@ -1,48 +1,87 @@
 # Fabric (`polisyos.fabric`)
 
-`polisyos.fabric` - data-fabric layer PolicyOS: ingestion, document/claim pipelines,
-world materialization, retrieval and connector orchestration.
+`polisyos.fabric` is the repository's data-fabric layer: connector-backed
+acquisition, document and claim pipelines, data-plane orchestration,
+provenance, retrieval, and world materialization.
 
-## Role in System
+- Last updated: 2026-04-17
 
-- **Depends on:** `polisyos.ir`, `polisyos.core`, `polisyos.common`
-- **Used by:** `polisyos.scientist`, `polisyos.scholar`, `polisyos.lex`
-- Bridges external data sources into CAS artifacts, claims, provenance and queryable world state.
+## Purpose
 
-## Key Concepts
-
-- **Connectors** - external source integration with registry, cache, resilience and profile-driven execution.
-- **Docs and claims** - document ingestion, normalization, extraction and conflict resolution.
-- **World** - append-only facts/materialization layer over DuckDB with optional export paths.
-- **Retrieval** - resolve+execute flow from metric intent to fetch plan and promotion.
-- **Data plane** - record/replay, streaming and snapshot orchestration for ingestion runs.
-- **Provenance** - evidence, trust and fact writer helpers keep lineage explicit.
-
-## Public API
-
-| Type/Function | Description |
-|---|---|
-| `run_connectors_ingestion()` | Main ingestion entrypoint for connector runs. |
-| `fabric_get_data()` | Sync bridge for upper layers. |
-| `execute_world_query()` | Query API for materialized world state. |
-| `query_world_table()` | Convenience world table query helper. |
-| `query_claims()` | Query claims from the world layer. |
-| `query_events()` | Query world events from the world layer. |
-| `WorldQueryRequest` | Request model for world queries. |
-| `WorldQueryError` | Error raised by query helpers. |
-| `world` | Lazy module entrypoint for `polisyos.fabric.world`. |
-
-→ Full reference: [docs/reference/fabric/index.md](../../../docs/reference/fabric/index.md)
+Use `polisyos.fabric` when you need to move from external data or documents to
+deterministic CAS artifacts, lineage, claims, and queryable world state. The
+root package exposes the stable facade used by higher layers, while the
+subpackage READMEs below explain the implementation boundaries in more detail.
 
 ## Where to Start
 
-- Public facade / supported imports: `src/polisyos/fabric/__init__.py` and `docs/reference/public-surface.md`
-- New connector: `python3 tools/architecture/scaffold.py connector --name MySource --type REST --dry-run`
-- Connector implementation details: `src/polisyos/fabric/connectors/README.md`
-- Recorded fixtures and generated artifacts: `tests/fabric/connectors/sources/fixtures/` and `docs/reference/generated-artifacts.md`
+- Start with [connectors/README.md](./connectors/README.md) when adding,
+  registering, validating, or debugging a data source.
+- Start with [data_plane/README.md](./data_plane/README.md) for batch, record,
+  replay, streaming, CDC, quarantine, and semantic-diff flows.
+- Start with [docs/README.md](./docs/README.md),
+  [claims/README.md](./claims/README.md), and [world/README.md](./world/README.md)
+  for the document-to-world pipeline.
+- Start with [retrieval/README.md](./retrieval/README.md) and
+  [catalog/README.md](./catalog/README.md) for metric discovery, fetch planning,
+  and semantic catalog behavior.
+- Use [tests/fabric/README.md](../../../tests/fabric/README.md) to find the
+  focused validation suite for the area you are changing.
 
-## Current State
+## Public Entrypoints
 
-- Last updated: 2026-04-03
-- Files: 228 Python files
-- Exports: 9
+| Entrypoint | Description |
+|---|---|
+| `run_connectors_ingestion()` | Main ingestion entrypoint for connector-backed runs. |
+| `fabric_get_data()` | Compatibility bridge used by upper layers that need synchronous fetch access. |
+| `execute_world_query()` | Read-only world-query entrypoint over Fabric materializations. |
+| `query_world_table()` | Convenience helper for direct world-table reads. |
+| `query_claims()` / `query_events()` | Helpers for claim and world-event query paths. |
+| `WorldQueryRequest` / `WorldQueryError` | Request and error surface for governed world queries. |
+| `world` | Lazy-loaded `polisyos.fabric.world` subpackage for lower-level write and materialization helpers. |
+
+`polisyos.fabric.__all__` is the stable public facade. Catalog and semantic
+discovery surfaces live under `polisyos.fabric.catalog` and are linked from the
+retrieval README rather than being part of the root facade contract.
+
+## Depends On / Depended On By
+
+- Depends on: `polisyos.common`, `polisyos.core`, `polisyos.ir`,
+  `polisyos.datasets`, and the Fabric subpackages documented here.
+- Depended on by: `polisyos.runtime.http.services.control`,
+  `polisyos.scientist`, `polisyos.scholar`, `polisyos.lex`, and any code that
+  reads materialized world state or connector-backed data contexts.
+
+## Common Commands
+
+Run from the repository root (`policy-engine/`).
+
+- `rg --files src/polisyos/fabric | sort`
+  Survey the package map before following imports. Smoke-tested on 2026-04-17.
+- `rg -n "run_connectors_ingestion\|fabric_get_data\|execute_world_query" src/polisyos/fabric`
+  Jump to the root facade and bridging entrypoints. Smoke-tested on 2026-04-17.
+- `uv run python -m polisyos.fabric.data_plane.cli --help`
+  Inspect the package-local quarantine/report CLI exposed inside Fabric.
+  Smoke-tested on 2026-04-17.
+
+## Test / Verification Commands
+
+Run from the repository root (`policy-engine/`).
+
+- `uv run pytest tests/fabric/test_docs_pipeline.py tests/fabric/test_claims_pipeline.py tests/fabric/test_retrieval_service_catalog.py tests/fabric/test_world_store.py -q`
+  Cross-package Fabric smoke suite. Smoke-tested on 2026-04-17.
+- `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json`
+  Connector contract compatibility gate. Smoke-tested on 2026-04-17.
+- `uv run pytest tests/fabric -q`
+  Full Fabric suite. Conceptual in this README refresh; not run in this pass.
+
+## Reference Docs
+
+- [Fabric reference index](../../../docs/reference/fabric/index.md)
+- [Fabric connectors reference](../../../docs/reference/fabric/connectors.md)
+- [Fabric data-plane reference](../../../docs/reference/fabric/data-plane.md)
+- [Fabric lineage reference](../../../docs/reference/fabric/lineage.md)
+- [Connector CONTRIBUTING guide](../../../docs/connectors/CONTRIBUTING.md)
+- [Add data source](../../../docs/how-to/add-data-source.md)
+- [Manage generated artifacts](../../../docs/how-to/manage-generated-artifacts.md)
+- [Fabric tests map](../../../tests/fabric/README.md)

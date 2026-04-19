@@ -12,6 +12,8 @@ from .graph import (
     NodeStatus,
     resolve_dependency_graph,
 )
+from ._integrity_ops import VerificationReport
+from ._transfer_ops import ExportReport, ImportReport
 from .async_store import (
     AsyncArtifactStoreAdapter,
     AsyncFileSystemArtifactStore,
@@ -49,13 +51,7 @@ from .signing import (
     compute_key_id,
     ensure_private_key_permissions,
 )
-from .store import (
-    ExportReport,
-    FileSystemCAS,
-    ImportReport,
-    PutOptions,
-    VerificationReport,
-)
+from .store import FileSystemCAS, PutOptions
 
 __all__ = [
     "DependencyEdge",

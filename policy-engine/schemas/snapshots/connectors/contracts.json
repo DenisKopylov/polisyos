@@ -4,6 +4,16 @@
       "connector_id": "eurostat.data",
       "content_hash": "sha256:0f6687e89da74186170d15a2b2aab4e6a14d2e845fb883adc09591e592ae78fa",
       "contract": {
+        "approval": {
+          "adr_refs": [],
+          "approved_major_bump": false,
+          "downstream_impact_summary": "",
+          "migration_note": "",
+          "migration_status": "not_needed",
+          "owner": "",
+          "reviewer": "",
+          "risk_level": "low"
+        },
         "completeness_scope": "full_dataset",
         "completeness_window_rows": null,
         "connector_id": "eurostat.data",
@@ -217,6 +227,16 @@
       "connector_id": "sdmx.source",
       "content_hash": "sha256:ad65e77fd766109b86841005c0c07335d1a0bc6885cc17660bd96b019da39b0d",
       "contract": {
+        "approval": {
+          "adr_refs": [],
+          "approved_major_bump": false,
+          "downstream_impact_summary": "",
+          "migration_note": "",
+          "migration_status": "not_needed",
+          "owner": "",
+          "reviewer": "",
+          "risk_level": "low"
+        },
         "completeness_scope": "latest_window",
         "completeness_window_rows": 500,
         "connector_id": "sdmx.source",
@@ -357,6 +377,16 @@
       "connector_id": "ukons.datasets",
       "content_hash": "sha256:24762f7d20e2a4761cce5e53eecbb2af20e58e26f111fd6e57e1878a08aa78d2",
       "contract": {
+        "approval": {
+          "adr_refs": [],
+          "approved_major_bump": false,
+          "downstream_impact_summary": "",
+          "migration_note": "",
+          "migration_status": "not_needed",
+          "owner": "",
+          "reviewer": "",
+          "risk_level": "low"
+        },
         "completeness_scope": "full_dataset",
         "completeness_window_rows": null,
         "connector_id": "ukons.datasets",
@@ -546,6 +576,16 @@
       "connector_id": "worldbank.wdi",
       "content_hash": "sha256:dc177a655ce7626034d56ec6aa2dced7f88a2e9f73ea30c2651eaef37b08d2d1",
       "contract": {
+        "approval": {
+          "adr_refs": [],
+          "approved_major_bump": false,
+          "downstream_impact_summary": "",
+          "migration_note": "",
+          "migration_status": "not_needed",
+          "owner": "",
+          "reviewer": "",
+          "risk_level": "low"
+        },
         "completeness_scope": "latest_window",
         "completeness_window_rows": 2000,
         "connector_id": "worldbank.wdi",
@@ -839,6 +879,16 @@
       "connector_id": "wvs.wave7",
       "content_hash": "sha256:388a6114e2f173307d35ab37d0026e297f78f903b95d8f39102599c05c89ce8a",
       "contract": {
+        "approval": {
+          "adr_refs": [],
+          "approved_major_bump": false,
+          "downstream_impact_summary": "",
+          "migration_note": "",
+          "migration_status": "not_needed",
+          "owner": "",
+          "reviewer": "",
+          "risk_level": "low"
+        },
         "completeness_scope": "full_dataset",
         "completeness_window_rows": null,
         "connector_id": "wvs.wave7",

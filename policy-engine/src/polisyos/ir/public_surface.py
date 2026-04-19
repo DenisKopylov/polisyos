@@ -134,12 +134,32 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "InvarianceMethod": ("polisyos.ir.analytics.invariance", "InvarianceMethod"),
     "InvarianceResult": ("polisyos.ir.analytics.invariance", "InvarianceResult"),
     "InvarianceVerdict": ("polisyos.ir.analytics.invariance", "InvarianceVerdict"),
+    "RegimeShiftIdentificationCertificate": (
+        "polisyos.ir.analytics.invariance",
+        "RegimeShiftIdentificationCertificate",
+    ),
+    "RegimeShiftIdentificationCertificateRef": (
+        "polisyos.ir.refs",
+        "RegimeShiftIdentificationCertificateRef",
+    ),
     "MultiEnvironmentCausalContract": (
         "polisyos.ir.analytics.invariance",
         "MultiEnvironmentCausalContract",
     ),
     "InterventionSpec": ("polisyos.ir.analytics.causal_queries", "InterventionSpec"),
     "InterventionType": ("polisyos.ir.analytics.causal_queries", "InterventionType"),
+    "InterventionCertificate": (
+        "polisyos.ir.analytics.interventions",
+        "InterventionCertificate",
+    ),
+    "InterventionQuery": (
+        "polisyos.ir.analytics.interventions",
+        "InterventionQuery",
+    ),
+    "ProofKernelInterventionType": (
+        "polisyos.ir.analytics.interventions",
+        "ProofKernelInterventionType",
+    ),
     "IntervalSemantics": ("polisyos.ir.analytics.uncertainty", "IntervalSemantics"),
     "CausalDecisionProcessType": (
         "polisyos.ir.analytics.causal_rl",
@@ -179,6 +199,22 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "QueryType": ("polisyos.ir.analytics.causal_queries", "QueryType"),
     "RefutationResult": ("polisyos.ir.analytics.causal", "RefutationResult"),
     "RefutationTestType": ("polisyos.ir.analytics.causal", "RefutationTestType"),
+    "JointDecisionCertificate": (
+        "polisyos.ir.analytics.recoverability",
+        "JointDecisionCertificate",
+    ),
+    "JointDecisionStatus": (
+        "polisyos.ir.analytics.recoverability",
+        "JointDecisionStatus",
+    ),
+    "RecoverabilityCertificate": (
+        "polisyos.ir.analytics.recoverability",
+        "RecoverabilityCertificate",
+    ),
+    "RecoverabilityCertificateStatus": (
+        "polisyos.ir.analytics.recoverability",
+        "RecoverabilityCertificateStatus",
+    ),
     "RecourseAction": ("polisyos.ir.analytics.recourse", "RecourseAction"),
     "RecourseActionType": ("polisyos.ir.analytics.recourse", "RecourseActionType"),
     "RecourseFeasibility": ("polisyos.ir.analytics.recourse", "RecourseFeasibility"),

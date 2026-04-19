@@ -77,6 +77,43 @@ class TestBuildArtifactStore:
         assert store._metrics is metrics
         assert store._tracer is tracer
 
+    def test_filesystem_backend_uses_default_observability_helpers(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        tracer = _TracerStub()
+        metrics = _MetricsStub()
+        monkeypatch.setattr(
+            "polisyos.core.artifacts.store.is_hpc_observability_enabled",
+            lambda: True,
+        )
+        monkeypatch.setattr(
+            "polisyos.core.artifacts.store._default_tracer",
+            lambda: tracer,
+        )
+        monkeypatch.setattr(
+            "polisyos.core.artifacts.store._default_metrics",
+            lambda: metrics,
+        )
+        monkeypatch.setattr(
+            "polisyos.core.artifacts.store.get_tracer",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("default tracer helper should isolate direct tracer lookup")
+            ),
+        )
+        monkeypatch.setattr(
+            "polisyos.core.artifacts.store.get_metrics",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("default metrics helper should isolate direct metrics lookup")
+            ),
+        )
+
+        store = FileSystemCAS(tmp_path / "cas")
+
+        assert store._tracer is tracer
+        assert store._metrics is metrics
+
     def test_s3_backend_requires_bucket(self):
         cfg = ArtifactStoreConfig(backend="s3")
         with pytest.raises(ValueError, match="bucket"):

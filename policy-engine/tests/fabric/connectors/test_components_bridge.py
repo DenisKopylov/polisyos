@@ -138,3 +138,33 @@ def test_connector_components_bridge_reports_duplicates_on_second_bootstrap(
     assert second.errors == []
     assert second.registered == []
     assert second.duplicates == ["test.bridge@1.0.0"]
+
+
+def test_connector_components_bridge_uses_injected_registry_without_default_singleton(
+    _clean_registry,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    component = connector_component_from_class(_TestConnector, tags=["test"])
+    index = ComponentRegistry()
+    index.register(
+        ComponentEntry(
+            metadata=component.metadata,
+            component=component,
+            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+        )
+    )
+    monkeypatch.setattr(
+        "polisyos.fabric.connectors.components_bridge._default_connector_registry",
+        lambda: (_ for _ in ()).throw(
+            AssertionError(
+                "default connector registry lookup should not run when registry is injected"
+            )
+        ),
+    )
+
+    report = bootstrap_connector_registry_from_components(index, registry)
+
+    assert report.errors == []
+    assert report.registered == ["test.bridge@1.0.0"]
+    assert registry.get("test.bridge@1.0.0") is not None

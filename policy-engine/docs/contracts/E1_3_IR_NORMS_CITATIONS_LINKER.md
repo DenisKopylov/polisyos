@@ -834,3 +834,12 @@ E1.3 is complete when all are true:
    - trinity linker issue reporting (at least: `unknown_unit`, `missing_slot`, `incompatible_constraint`)
    - concept id validation for `NormApplicability`/norm packs (at least: `unknown_concept`)
 7. IR has **no dependency** on `polisyos.scientist` / `polisyos.foundry` / `polisyos.fabric`.
+
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 0 registry/linker containment and Phase 1 schema compatibility |
+| Contract tests | `tests/contract/test_citations_contract.py`, `tests/contract/test_applicability_contract.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/contract/test_world_abi_contract.py` |
+| Schema snapshots | `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/norm_ref.schema.json`, `schemas/snapshots/ir/norm_rule.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

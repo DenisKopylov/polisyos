@@ -6,6 +6,22 @@ Related reference: [Platform Architecture Diagrams](../reference/operations/plat
 > Use this runbook when runtime starts returning storage/integrity failures or
 > fail-closed authorization errors caused by degraded CAS or OPA dependencies.
 
+Owner: `@runtime-owners`
+Last tested: `2026-04-17` against runtime authz and resilience checks referenced below.
+Evidence path: `docs/archive/reports/core-runtime-closeout.md`; `tests/runtime/http/test_runtime_api_authz.py`; `tests/runtime/http/test_resilience_guards.py`
+Rollback path: keep authz fail-closed, move to read-only or reduced-write mode, and restore the last known-good CAS or OPA dependency state without bypassing integrity checks.
+
+## Operational Metadata
+
+| Field | Value |
+|---|---|
+| Primary owner | `@runtime-owners` |
+| Coordination owner | `@platform-owners` |
+| Security owner | security/compliance owner when OPA, trust stores, or identity are involved |
+| Last tested | 2026-04-17, D1-L1 documentation validation pass |
+| Evidence anchors | `tests/runtime/http/test_runtime_api_authz.py`, `tests/runtime/http/test_control_hardening.py`, `tests/runtime/http/test_resilience_guards.py` |
+| Rollback posture | keep authz fail-closed, move to read-only or reduced-write mode, never bypass integrity verification to restore traffic |
+
 ## Symptom
 
 - read paths return `503`, `504`, or typed integrity errors;

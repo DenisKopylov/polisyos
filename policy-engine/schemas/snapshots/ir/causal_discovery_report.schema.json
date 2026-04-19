@@ -1,11 +1,38 @@
 {
   "$defs": {
+    "AlgebraicAssumptionStatus": {
+      "description": "Describe whether a constraint's declared assumptions matched the observed regime.",
+      "enum": [
+        "declared",
+        "validated",
+        "mismatch",
+        "unknown"
+      ],
+      "title": "AlgebraicAssumptionStatus",
+      "type": "string"
+    },
+    "AlgebraicCalibrationMode": {
+      "description": "Capture the calibration route attached to one evaluated constraint.",
+      "enum": [
+        "analytic",
+        "bootstrap",
+        "parametric_bootstrap",
+        "holdout",
+        "research_preview",
+        "unknown"
+      ],
+      "title": "AlgebraicCalibrationMode",
+      "type": "string"
+    },
     "AlgebraicConstraintFamily": {
       "description": "Select the family of algebraic test implied by a graph or latent-factor block.",
       "enum": [
         "ci",
         "tetrad",
-        "overcomplete"
+        "overcomplete",
+        "trek_rank",
+        "nested_verma",
+        "algebraic_geometry_invariant"
       ],
       "title": "AlgebraicConstraintFamily",
       "type": "string"
@@ -14,12 +41,25 @@
       "additionalProperties": false,
       "description": "Summarize implied/violated algebraic constraints and suggested graph repairs.",
       "properties": {
+        "blocker_conditions_met_by_family": {
+          "additionalProperties": {
+            "type": "boolean"
+          },
+          "title": "Blocker Conditions Met By Family",
+          "type": "object"
+        },
         "families_run": {
           "items": {
             "$ref": "#/$defs/AlgebraicConstraintFamily"
           },
           "title": "Families Run",
           "type": "array"
+        },
+        "graph_ranking_penalty": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Graph Ranking Penalty",
+          "type": "number"
         },
         "implied_constraints_preview": {
           "items": {
@@ -110,6 +150,52 @@
       },
       "title": "AlgebraicConstraintReport",
       "type": "object"
+    },
+    "AlgebraicFalsificationScope": {
+      "description": "Clarify which claim a failed algebraic test actually falsifies.",
+      "enum": [
+        "graph_class",
+        "edge_local",
+        "ranking_only",
+        "measurement_block",
+        "unknown"
+      ],
+      "title": "AlgebraicFalsificationScope",
+      "type": "string"
+    },
+    "AlgebraicNullDistribution": {
+      "description": "Record the null distribution family used to calibrate an algebraic test.",
+      "enum": [
+        "analytic",
+        "asymptotic",
+        "bootstrap",
+        "research_preview",
+        "unknown"
+      ],
+      "title": "AlgebraicNullDistribution",
+      "type": "string"
+    },
+    "AlgebraicRegularityStatus": {
+      "description": "Summarize whether the test operated in a regular or potentially singular regime.",
+      "enum": [
+        "regular",
+        "potentially_singular",
+        "irregular",
+        "unknown"
+      ],
+      "title": "AlgebraicRegularityStatus",
+      "type": "string"
+    },
+    "AlgebraicReproducibilityTier": {
+      "description": "Describe whether the evaluation was deterministic, resampled, or preview-only.",
+      "enum": [
+        "deterministic",
+        "stochastic_bootstrap",
+        "research_preview",
+        "unknown"
+      ],
+      "title": "AlgebraicReproducibilityTier",
+      "type": "string"
     },
     "ArtifactID": {
       "description": "IR-local artifact ID model compatible with CAS interfaces.",
@@ -382,6 +468,14 @@
           "default": null,
           "title": "Adjusted P Value"
         },
+        "assumption_status": {
+          "$ref": "#/$defs/AlgebraicAssumptionStatus",
+          "default": "unknown"
+        },
+        "calibration_mode": {
+          "$ref": "#/$defs/AlgebraicCalibrationMode",
+          "default": "unknown"
+        },
         "constraint_id": {
           "minLength": 1,
           "title": "Constraint Id",
@@ -394,6 +488,10 @@
           "additionalProperties": true,
           "title": "Metadata",
           "type": "object"
+        },
+        "null_distribution": {
+          "$ref": "#/$defs/AlgebraicNullDistribution",
+          "default": "unknown"
         },
         "p_value": {
           "anyOf": [
@@ -408,6 +506,24 @@
           ],
           "default": null,
           "title": "P Value"
+        },
+        "ranking_weight": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Ranking Weight",
+          "type": "number"
+        },
+        "regularity_status": {
+          "$ref": "#/$defs/AlgebraicRegularityStatus",
+          "default": "unknown"
+        },
+        "reproducibility_tier": {
+          "$ref": "#/$defs/AlgebraicReproducibilityTier",
+          "default": "unknown"
+        },
+        "scope_of_falsification": {
+          "$ref": "#/$defs/AlgebraicFalsificationScope",
+          "default": "unknown"
         },
         "severity": {
           "default": "info",

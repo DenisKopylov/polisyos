@@ -1,5 +1,9 @@
 # Ratchet Policy
 
+Owner: `@platform-owners`  
+Backup owner: `@tools-owners`  
+Source of truth: `.github/PULL_REQUEST_TEMPLATE.md`, `tools/quality/ci/check_phase7_ratchet.py`, `docs/reference/ownership.md`, `tools/devx/architecture/scaffold.py`
+
 Related reference: [Quality Gates](quality-gates.md), [Merge Governance](merge-governance.md), [Contributor Start Here](contributor-start-here.md), [Generated Artifacts](generated-artifacts.md), [Configuration Profiles](configuration-profiles.md), [Platform Acceptance Audit](operations/platform-acceptance-audit.md).
 
 > After Phase 7 closeout, no new subsystem or major surface should merge as an
@@ -26,12 +30,13 @@ the same change set:
 
 | Requirement | Where to record it |
 |---|---|
-| Owner and fallback owner | `docs/reference/ownership.md`, `.github/CODEOWNERS`, nearest package `README.md` |
+| Owner and fallback owner | `docs/reference/ownership.md` and the nearest package `README.md` |
 | Docs entry point | nearest package `README.md`, reference/how-to/tutorial page, or runbook |
 | Test strategy | tests path plus the validation command in PR summary and package README |
 | Compatibility classification | PR labels, release fragment, and `docs/how-to/release-policy.md` language |
 | Review / merge-governance impact | PR template, `docs/reference/quality-gates.md`, `docs/reference/merge-governance.md` |
 | Bootstrap / doctor impact | `tools/workspace/**`, `polisyos-tools workspace ...`, install/onboarding docs, or explicit “none” note |
+| Tools surface impact | `tools.registry`, generated `docs/reference/tools.md`, nearest `tools/**/README.md`, or explicit “none” note |
 | Config / secrets impact | `docs/reference/configuration-profiles.md`, `.env.example`, deployment notes, or explicit “none” note |
 | Generated-artifact impact | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, or explicit “none” note |
 | Observability / rollout impact | `docs/reference/operations/observability-topology.md`, `docs/how-to/review-rollouts.md`, or explicit “none” note |
@@ -50,7 +55,9 @@ For a new package or durable surface, the default authoring path is:
 3. Update the relevant entry point in docs, not only a leaf page.
 4. Add or update the release fragment when the change is operator-visible,
    compatibility-sensitive, or part of the shipped platform story.
-5. Run `polisyos-tools workspace acceptance-audit` when the change spans repo policy, release,
+5. For a new or changed tool command, update `tools.registry`, the nearest
+   tools README, and regenerate `docs/reference/tools.md`.
+6. Run `polisyos-tools workspace acceptance-audit` when the change spans repo policy, release,
    onboarding, governance, or other cross-phase surfaces.
 
 ## Merge-Time Expectations

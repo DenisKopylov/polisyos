@@ -3,7 +3,10 @@ from __future__ import annotations
 import numpy as np
 
 from polisyos.foundry.methods.catalog.causal import discovery_pipeline as pipeline_module
-from polisyos.foundry.methods.catalog.causal.protocols import TabularCausalDiscoveryData
+from polisyos.foundry.methods.catalog.causal.protocols import (
+    TabularCausalDiscoveryData,
+    UnifiedDiscoveryData,
+)
 from polisyos.ir.analytics.causal_discovery import (
     AlgebraicConstraintFamily,
     AlgebraicConstraintReport,
@@ -143,3 +146,102 @@ def test_unified_discovery_surfaces_disputed_edges_and_algebraic_summary(
         "ci": 2
     }
     assert report.metadata["families_with_blockers"] == ["ci"]
+
+
+def test_unified_discovery_applies_regime_shift_orientations(
+    monkeypatch,
+) -> None:
+    individual_results = [
+        _report(
+            method="pc",
+            src="X",
+            dst="Y",
+            algebraic_severity="info",
+            violated_by_family={},
+        ),
+    ]
+    ambiguous_pag = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Z", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.CIRCLE,
+            )
+        ],
+        discovery_method="unified_consensus_pag",
+    )
+
+    monkeypatch.setattr(
+        pipeline_module,
+        "_run_algorithms_parallel",
+        lambda **kwargs: (individual_results, {"pc": 1.0}),
+    )
+    monkeypatch.setattr(
+        pipeline_module,
+        "_build_consensus_pag",
+        lambda *args, **kwargs: (
+            ambiguous_pag,
+            [
+                EdgeAgreement(
+                    edge_key="X|circle>circle|Y",
+                    presence_score=1.0,
+                    orientation_confidence=0.5,
+                    mark_src="circle",
+                    mark_dst="circle",
+                    contributing_algorithms=["pc"],
+                )
+            ],
+            {"X|Y": 1.0},
+            [],
+            [],
+            [],
+        ),
+    )
+    monkeypatch.setattr(
+        pipeline_module,
+        "_maybe_reconcile",
+        lambda pag, state, params: pag,
+    )
+
+    rng = np.random.default_rng(2026)
+    n = 220
+    x_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    z_a = rng.normal(size=n)
+    y_a = 2.0 * x_a + 0.08 * rng.normal(size=n)
+    x_b = rng.normal(loc=3.0, scale=1.0, size=n)
+    z_b = rng.normal(size=n)
+    y_b = 2.0 * x_b + 0.08 * rng.normal(size=n)
+    state = UnifiedDiscoveryData(
+        data=np.column_stack(
+            [
+                np.concatenate([x_a, x_b]),
+                np.concatenate([z_a, z_b]),
+                np.concatenate([y_a, y_b]),
+            ]
+        ),
+        variable_names=["X", "Z", "Y"],
+        domain_labels=np.array(["pre"] * n + ["post"] * n),
+    )
+
+    result = pipeline_module._run_unified_discovery(
+        state,
+        params={"regime_target_cols": ["Y"], "regime_max_set_size": 1},
+    )
+    report = result["report"]
+
+    assert report.regime_shift_certificate is not None
+    assert report.regime_shift_certificate.targets[0].estimated_parents == ("X",)
+    assert report.metadata["regime_shift_discovery"]["applied"] is True
+    assert report.metadata["regime_shift_discovery"]["forced_orientation_count"] == 1
+
+    edge = next(edge for edge in report.unified_pag.edges if {edge.src, edge.dst} == {"X", "Y"})
+    if edge.src == "X":
+        assert edge.mark_src is EdgeMark.TAIL
+        assert edge.mark_dst is EdgeMark.ARROW
+    else:
+        assert edge.mark_src is EdgeMark.ARROW
+        assert edge.mark_dst is EdgeMark.TAIL
+    assert edge.metadata["regime_shift_forced"] is True

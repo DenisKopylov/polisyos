@@ -1,4 +1,4 @@
-"""Public foundry quickstart module API."""
+"""Build and run the minimal CAS-backed Foundry compile/execute quickstart."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -39,7 +39,7 @@ from polisyos.ir.types import SelectorOperator
 
 @dataclass(frozen=True, slots=True)
 class QuickstartRunResult:
-    """Compact result returned by the README quickstart helper."""
+    """Outcome summary for the documented trivial compile/execute run."""
 
     compile_ok: bool
     execute_ok: bool

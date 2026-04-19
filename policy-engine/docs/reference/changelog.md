@@ -2,6 +2,9 @@
 
 Related how-to: [Release, Versioning, and Deprecation Policy](../how-to/release-policy.md).
 
+Owner: `@platform-owners`
+Source of truth: operator-facing contract changes captured in `docs/reference/**`, `docs/how-to/release-policy.md`, and the repo-tracked artifacts or workflows cited in each dated entry
+
 > Operator-facing summary of notable platform-contract changes. This page is not
 > a substitute for release notes; it is the durable "what changed in the
 > platform model" view.

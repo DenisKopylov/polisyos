@@ -16,7 +16,7 @@ from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterable, Iterable
+    from collections.abc import AsyncIterable, Callable, Iterable
 
     from polisyos.ir.connectors import FetchRequest, FetchResult
 
@@ -67,13 +67,24 @@ class ConnectorRegistryLike(Protocol):
     async def release_connection(self, connector_id: str, handle: object) -> None: ...
 
 
+if TYPE_CHECKING:
+    ConnectorRegistryFactory = Callable[[], ConnectorRegistryLike]
+
+
 def resolve_connector_registry(
     registry: ConnectorRegistryLike | None = None,
+    registry_factory: ConnectorRegistryFactory | None = None,
 ) -> ConnectorRegistryLike:
     """Resolve the connector registry, defaulting only at the public bridge boundary."""
 
     if registry is not None:
         return registry
+    if registry_factory is not None:
+        return registry_factory()
+    return _default_connector_registry()
+
+
+def _default_connector_registry() -> ConnectorRegistryLike:
     from polisyos.fabric.connectors.registry import ConnectorRegistry
 
     return cast("ConnectorRegistryLike", ConnectorRegistry.get_instance())

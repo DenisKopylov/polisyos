@@ -17,6 +17,15 @@ from .protocols import AgentRole, RoutingState
 
 logger = get_logger(__name__)
 
+_ROUTER_EXECUTION_ERRORS = (
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+
 __all__ = [
     "AdaptiveRouter",
     "AgentFallbackChain",
@@ -160,7 +169,7 @@ class AgentFallbackChain:
                 if asyncio.iscoroutine(result):
                     result = await result
                 return result
-            except Exception as exc:
+            except _ROUTER_EXECUTION_ERRORS as exc:
                 logger.warning("Fallback %s.%s failed: %s", label, method, exc)
                 last_exc = exc
                 continue
@@ -191,7 +200,7 @@ class ParallelAgentRunner:
                 if asyncio.iscoroutine(result):
                     result = await result
                 return result
-            except Exception as exc:
+            except _ROUTER_EXECUTION_ERRORS as exc:
                 logger.warning("Parallel agent %s failed: %s", label, exc)
                 return exc
 
@@ -201,6 +210,8 @@ class ParallelAgentRunner:
         )
         for idx, outcome in enumerate(results):
             if isinstance(outcome, BaseException):
+                if not isinstance(outcome, _ROUTER_EXECUTION_ERRORS):
+                    raise outcome
                 label = calls[idx][0] if idx < len(calls) else f"call_{idx}"
                 logger.warning("Parallel agent %s failed outside wrapper: %s", label, outcome)
         return list(results)

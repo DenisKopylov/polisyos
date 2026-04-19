@@ -1,88 +1,121 @@
 # Scientist Agent Search And Reasoning
-Related reference: [Workflows](workflows.md), [Reliability scorecard](reliability-scorecard.md).
+Related references: [Workflows](workflows.md), [Reliability scorecard](reliability-scorecard.md).
 
-WS-3C adds an offline-gated search-and-reasoning framework around the existing
-Scientist DAG executor and Reflexion baseline. The intent is to make advanced
-reasoning available for evaluation without silently turning expensive or
-experimental policies on by default.
+Owner: `@scientist-owners`
+Backup owner: `@platform-owners`
+Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/search/strategies/advanced_policy.py`, `tests/scientist/agent/test_reasoning.py`, `tests/scientist/agent/test_eval_harness.py`, and `tests/scientist/search/strategies/test_advanced_policy.py`
 
-## Agent Reasoning
+> Owner lane: `L6 Scientist`  
+> Type: Manual reference (not generated).  
+> Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/search/strategies/advanced_policy.py`, `tests/scientist/agent/test_reasoning.py`, `tests/scientist/agent/test_eval_harness.py`, and `tests/scientist/search/strategies/test_advanced_policy.py`.
 
-The supervisor/worker contour now executes planned worker envelopes as a
-dependency DAG. `WorkerTaskEnvelope.depends_on_task_ids` is converted into
-topological tiers through the shared Scientist DAG sorter, then each tier runs
-under the existing bounded semaphore. Downstream workers are blocked with typed
-dependency errors when an upstream worker fails or is missing.
+This page documents the optional L6 reasoning/search rollout surface. These
+capabilities do not become part of the default Scientist runtime just because
+the classes exist; rollout posture is encoded directly in their report models.
 
-`polisyos.scientist.agent.reasoning` exposes two deterministic trajectory
-surfaces:
+## Tree Reasoning Surface
 
-- `TreeOfThoughtPlanner` runs bounded beam search over structured
-  `ReasoningAction` expansions.
-- `LATSAgentSearch` runs a lightweight LATS / MCTS loop over agent actions.
+`polisyos.scientist.agent.reasoning` currently exposes:
 
-Both return `ReasoningSearchReport` with:
+| Symbol | Current role |
+|---|---|
+| `ReasoningPolicyGate` | Feature gate for tree reasoning. |
+| `TreeOfThoughtPlanner` | Deterministic beam-search planner over `ReasoningAction`s. |
+| `LATSAgentSearch` | Deterministic lightweight LATS/MCTS search over structured actions. |
+| `ReasoningSearchReport` | Persistable trajectory report with gate state, selected path, node stats, and bounded metrics. |
 
-- gate status;
-- selected action path;
-- node-level scores, visits, and value means;
-- bounded node counts and depth metrics.
+## Default Reasoning Posture
 
-By default both policies return `offline_gated`. They require
-`ReasoningPolicyGate(enabled=True, offline_validation_ref=...)` before they run.
+`ReasoningPolicyGate()` defaults to:
 
-## Optimization Policies
+- `enabled=False`
+- `offline_validation_ref=None`
+- `allowed_modes={"tree_of_thought", "lats_mcts"}`
 
-`polisyos.scientist.search.strategies.advanced_policy` provides the WS-3C policy
-toolkit:
+That means both `TreeOfThoughtPlanner` and `LATSAgentSearch` return
+`ReasoningStatus.OFFLINE_GATED` unless the gate is both enabled and backed by
+an `offline_validation_ref`.
 
-- `ASHAScheduler` for asynchronous successive halving;
-- `BOHBSampler` for BOHB-style elite resampling;
-- `CMAESExplorer` for bounded evolutionary exploration;
-- `GaussianProcessCheapStageSurrogate` as a dependency-light RBF surrogate;
-- `LearnedVOIPolicy` and `LearnedRoutingPolicy` for offline-trained routing;
-- `ExplicitConstraintPropagator` for blocker/warning constraints before
-  expensive stages;
-- `PopulationBasedTrainingScheduler` for exploit/explore search updates.
+## Advanced Search Policy Surface
 
-`AdvancedSearchPolicyConfig` and `build_advanced_search_policy_report(...)`
-make offline gating explicit. Experimental policies require an
-`offline_validation_ref` before they are eligible for default enablement.
+`polisyos.scientist.search.strategies.advanced_policy` currently exposes the
+WS-3C policy toolkit:
 
-## Evaluation Harness
+- `ASHAScheduler`
+- `BOHBSampler`
+- `CMAESExplorer`
+- `GaussianProcessCheapStageSurrogate`
+- `LearnedVOIPolicy`
+- `LearnedRoutingPolicy`
+- `ExplicitConstraintPropagator`
+- `PopulationBasedTrainingScheduler`
 
-`polisyos.scientist.agent.eval_harness` now includes
-`compare_agent_eval_reports(...)`, which compares a candidate policy against the
-current Reflexion-only baseline. Default enablement requires:
+These are summarized through `AdvancedSearchPolicyConfig` and
+`build_advanced_search_policy_report(...)`.
 
-- candidate release gates pass;
-- candidate lift is non-negative or above configured threshold;
-- a persisted offline validation artifact is referenced.
+## Current Rollout Semantics
 
-This produces `AgentPolicyComparisonReport`, the handoff artifact expected by
-runtime config reviews. The report now carries an explicit `rollout_status`
-(`offline_gated`, `release_gated`, or `default_enable_eligible`) so rollout
-posture stays machine-readable instead of being inferred from booleans alone.
+### `AgentPolicyComparisonReport`
 
-`build_advanced_search_policy_report(...)` also exposes an explicit
-`rollout_status` (`baseline_only`, `offline_gated`, or
-`default_enable_eligible`) for the BOHB/ASHA/CMA-ES/learned-routing bundle.
+`compare_agent_eval_reports(...)` produces:
 
-## Current Default Policy
+| Rollout status | Current meaning |
+|---|---|
+| `offline_gated` | Missing `offline_validation_ref`, regardless of candidate quality. |
+| `release_gated` | Offline validation ref exists, but release-gate thresholds or candidate lift fail. |
+| `default_enable_eligible` | Offline validation ref exists and the candidate passes the release-gate thresholds. |
 
-The default runtime policy remains conservative:
+Release-gate thresholds currently come from `AgentReleaseGateConfig` defaults:
 
-- Reflexion and existing DAG-backed supervisor/worker orchestration are allowed;
-- Tree-of-Thought and LATS/MCTS are offline-gated;
-- BOHB, ASHA, CMA-ES, learned VOI/routing, GP surrogates, and PBT are
-  available as configurable policies but not default-on.
+| Metric | Default threshold |
+|---|---:|
+| `task_success_rate` | `>= 1.0` |
+| `citation_coverage` | `>= 0.85` |
+| `search_precision_proxy` | `>= 0.60` |
+| `invalid_tool_call_rate` | `<= 0.0` |
+| `reflexion_recovery_rate` | `>= 0.50` |
+| candidate lift over baseline | `>= 0.0` |
 
-## Regression Evidence
+### `AdvancedSearchPolicyReport`
 
-Primary regression coverage lives in:
+`build_advanced_search_policy_report(...)` currently distinguishes:
 
-- `tests/scientist/agent/test_reasoning.py`
-- `tests/scientist/agent/test_eval_harness.py`
-- `tests/scientist/agent/test_supervisor.py`
-- `tests/scientist/search/strategies/test_advanced_policy.py`
-- `tests/scientist/search/strategies/test_controller_batch.py`
+| Rollout status | Current meaning |
+|---|---|
+| `baseline_only` | No experimental search policy is requested; only baseline-safe `constraint_propagation` may be enabled. |
+| `offline_gated` | At least one experimental policy is requested without the required offline validation gate. |
+| `default_enable_eligible` | Experimental policy requested and the offline gate is satisfied. |
+
+Important nuance: `constraint_propagation` is enabled by default in
+`AdvancedSearchPolicyConfig`, but it does not by itself promote the rollout
+status beyond `baseline_only`.
+
+## Starter Eval Harness
+
+`run_starter_eval_harness(...)` currently builds a local proxy suite over four
+case families:
+
+- `tool_calling`
+- `search`
+- `swarm`
+- `reflexion`
+
+An optional `provider_contract` case is added only when live-provider smoke
+verification is requested.
+
+## What Is Default Today
+
+| Surface | Current default |
+|---|---|
+| Reflexion / existing agent orchestration | Available. |
+| Tree-of-Thought | Offline-gated. |
+| LATS/MCTS | Offline-gated. |
+| BOHB / ASHA / CMA-ES / learned VOI / learned routing / GP surrogate / PBT | Available as configurable policies, but not default-on. |
+| Explicit constraint propagation | Enabled in the advanced-policy config, but treated as baseline-safe rather than a default-on experimental promotion. |
+
+## Validation
+
+```bash
+uv run pytest tests/scientist/agent/test_reasoning.py tests/scientist/agent/test_eval_harness.py -q
+uv run pytest tests/scientist/agent/test_supervisor.py tests/scientist/search/strategies/test_advanced_policy.py tests/scientist/search/strategies/test_controller_batch.py -q
+```

@@ -1,42 +1,71 @@
 # Trinity (`polisyos.ir.trinity`)
 
-`polisyos.ir.trinity` определяет канонический policy payload `TrinityBundle`.
-Именно эта структура является официальной точкой входа для policy ingestion:
-`ProblemFrame` описывает why, `PolicySpec` задает what, а `ModelSpec` описывает
-how. Все downstream compile, governance и migration flows стартуют отсюда.
+## Purpose
 
-## Роль в системе
+`polisyos.ir.trinity` определяет канонический policy payload
+`ProblemFrame + PolicySpec + ModelSpec`. Это авторинговая и ingestion boundary,
+с которой стартуют loader, linker, migration и downstream compile flows.
 
-- **Зависит от:** `polisyos.ir.governance`, `polisyos.ir.model_spec`
-- **Используется в:** `polisyos.ir.loaders`, `polisyos.ir.migrations`, `polisyos.ir.linker`, `polisyos.foundry`, `polisyos.scientist`
-- Trinity служит canonical boundary между authoring/import и runtime validation.
+## Where to Start
 
-## Ключевые концепции
+- [`__init__.py`](./__init__.py) — `TrinityBundle` и текущая bundle schema version.
+- [`loaders.py`](./loaders.py) — strict loaders для `ProblemFrame`, `PolicySpec`, `ModelSpec` и полного bundle.
+- [`../governance/problem_frame.py`](../governance/problem_frame.py) — `Why`-контракт постановки задачи.
+- [`../governance/policy_spec.py`](../governance/policy_spec.py) — `What`-контракт интервенций и execution semantics.
+- [`../model_spec.py`](../model_spec.py) — `How`-контракт модели и assumptions.
+- После authoring откройте [`../linker/README.md`](../linker/README.md), для compatibility-path'ов — [`../migrations/README.md`](../migrations/README.md).
 
-- **Three-part payload** — `ProblemFrame`, `PolicySpec`, `ModelSpec`.
-- **Versioned bundle** — `TRINITY_BUNDLE_SCHEMA_VERSION` фиксирует текущий schema contract.
-- **Strict loaders** — submodule loaders принимают `dict`, `str`, `bytes` и валидируют schema version.
-- **No legacy auto-upgrade** — non-Trinity payloads не мигрируются автоматически.
-- **Link-before-execute** — Trinity bundle должен пройти через registry linker перед compile/runtime.
+## Public entrypoints
 
-## Public API
+| Entrypoint | Use when | Defined in |
+|---|---|---|
+| `polisyos.ir.trinity.TrinityBundle` | Нужен канонический контейнер для policy payload | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.ProblemFrame` | Нужен `Why`-слой Trinity | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.PolicySpec` | Нужен `What`-слой Trinity | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.ModelSpec` | Нужен `How`-слой Trinity | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.TRINITY_BUNDLE_SCHEMA_VERSION` | Нужно зафиксировать supported bundle version | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.loaders.load_problem_frame()` | Нужен strict loader для `ProblemFrame` | [`loaders.py`](./loaders.py) |
+| `polisyos.ir.trinity.loaders.load_policy_spec()` | Нужен strict loader для `PolicySpec` | [`loaders.py`](./loaders.py) |
+| `polisyos.ir.trinity.loaders.load_model_spec()` | Нужен strict loader для `ModelSpec` | [`loaders.py`](./loaders.py) |
+| `polisyos.ir.trinity.loaders.load_trinity_bundle()` | Нужно загрузить и валидировать полный Trinity payload | [`loaders.py`](./loaders.py) |
 
-| Type/Function | Description |
-|---|---|
-| `TrinityBundle` | Канонический контейнер policy IR |
-| `ProblemFrame` | Why-layer governance contract |
-| `PolicySpec` | What-layer intervention contract |
-| `ModelSpec` | How-layer execution/model contract |
-| `TRINITY_BUNDLE_SCHEMA_VERSION` | Текущая версия bundle schema |
-| `load_trinity_bundle()` | Strict loader для Trinity payloads |
+## Depends on / depended on by
 
-Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
+- Depends on: [`../governance/README.md`](../governance/README.md), [`../model_spec.py`](../model_spec.py), `polisyos.ir.kernel.base`.
+- Depended on by: `polisyos.ir.loaders`, `polisyos.ir.migrations`, `polisyos.ir.linker`, `polisyos.foundry.compile`, `polisyos.scientist.agent`, `polisyos.lex`.
 
-See also: [docs/explanation/trinity.md](../../../../docs/explanation/trinity.md)
+## Common commands
 
-## Текущее состояние
+Run from the repository root (`policy-engine/`).
 
-- Последнее обновление: 2026-04-03
-- Files: 3 Python files
-- Exports: 5 public names in `__init__.py`
-- Current version: `TrinityBundle` schema остается `1.0`; новые temporal and observation-aware policy fields живут внутри составляющих contracts, а не в отдельной bundle версии
+Smoke-tested on `2026-04-17`.
+
+```bash
+uv run python -c "import polisyos.ir.trinity as trinity; print(trinity.TRINITY_BUNDLE_SCHEMA_VERSION, trinity.TrinityBundle.__name__)"
+```
+
+## Test/verification commands
+
+Run from the repository root (`policy-engine/`).
+
+Conceptual in this README refresh; run this targeted suite before landing
+Trinity contract changes.
+
+```bash
+uv run pytest tests/ir/test_trinity_loaders.py tests/contract/test_trinity_contracts.py tests/contract/test_trinity_linker_contract.py tests/contract/test_trinity_migration.py -q
+```
+
+## Reference docs
+
+- [IR reference index](../../../../docs/reference/ir/index.md)
+- [IR problem framing](../../../../docs/reference/ir/problem-framing.md)
+- [IR governance reference](../../../../docs/reference/ir/governance.md)
+- [TRINITY contract](../../../../docs/contracts/TRINITY.md)
+- [Trinity explanation](../../../../docs/explanation/trinity.md)
+- [IR root README](../README.md)
+- [Linker README](../linker/README.md)
+- [Migrations README](../migrations/README.md)
+
+## Last updated
+
+`2026-04-17`

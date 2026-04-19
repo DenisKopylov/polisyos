@@ -130,11 +130,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
 
       - name: Setup Policy Engine Python
         uses: ./.github/actions/setup-policy-engine-python
         with:
           profile: docs
+
+      - name: Run path-aware docs drift gate
+        if: github.event_name == 'pull_request'
+        run: uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref ${{ github.event.pull_request.base.sha }}
+
+      - name: Run path-aware docs drift gate for push
+        if: github.event_name == 'push'
+        run: uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref ${{ github.event.before }}
 
       - name: Check docs accuracy against repo reality
         run: uv run python tools/validation/check_docs_accuracy.py --repo-root .

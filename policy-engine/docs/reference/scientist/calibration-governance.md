@@ -1,6 +1,9 @@
 # Calibration Governance
 Related explanation: [Governance Model](../../explanation/governance-model.md).
 
+Owner: `@scientist-owners`
+Source of truth: `src/polisyos/scientist/governance/{accountability,backtest_matrix,calibration,calibration_leaderboard,calibration_validation,stress_scenarios}.py` and `tests/scientist/governance/**`
+
 Calibration governance extends the base validation pipeline with observation-family policy mapping, adversarial challenge suites, backtest matrices, stress scenarios, and leaderboard rollups.
 
 ## Module Map
@@ -48,6 +51,26 @@ Reference: [governance-accountability.md](governance-accountability.md)
 | `FX` | Tests exchange-rate movement against imported-cost channels |
 | `TRADE_DISRUPTION` | Tests supply and demand dislocation from trade breaks |
 | `REIMBURSEMENT_TARIFF` | Tests tariff / reimbursement rule changes against fiscal exposure |
+
+## D1 Governance Evidence Map
+
+Phase 3 governance claims require an artifact, a decision-surface projection,
+and regression evidence. Missing evidence is represented as explicit gaps,
+never as inferred calibration quality.
+
+| Claim | Artifact surface | Regression evidence |
+|-------|------------------|---------------------|
+| Calibration quality is measured with scoring rules and reliability bins. | `CalibrationValidationBundle.readout_summary()`, `GovernanceAccountabilityArtifact.calibration` | `tests/scientist/governance/test_calibration_validation.py` |
+| Fairness and group calibration are auditable. | `GovernanceAccountabilityArtifact.fairness`, threshold registry entries, missing-evidence gaps | `tests/scientist/governance/test_accountability.py` |
+| Risk-weighted verdicts and escalation policy are explainable. | `risk_weighted_verdict`, `requires_human_review`, `escalation_policy` | `tests/scientist/governance/test_accountability.py`, `tests/scientist/test_decision_packet_node_v3.py` |
+| Policy output bundles carry calibration governance evidence forward. | `calibration_validation_summary`, `governance_accountability_artifact_ref` | `tests/scientist/nodes/test_build_policy_output_bundle.py` |
+
+## Validation Commands
+
+```bash
+uv run pytest tests/scientist/governance/test_accountability.py tests/scientist/governance/test_calibration_validation.py -q
+uv run pytest tests/scientist/test_decision_packet_node_v3.py tests/scientist/nodes/test_build_policy_output_bundle.py -q
+```
 
 ## API Reference
 

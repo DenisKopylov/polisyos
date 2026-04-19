@@ -163,10 +163,13 @@ def resolve_cas_store(
 ) -> ArtifactStore | TenantScopedCAS:
     """Resolve either the shared CAS or an isolated tenant-specific namespace."""
     if tenant_id is None:
-        return build_artifact_store(
-            ArtifactStoreConfig(backend="filesystem", root=str(Path(root))),
-            metrics=metrics,
-            tracer=tracer,
+        return cast(
+            "ArtifactStore",
+            build_artifact_store(
+                ArtifactStoreConfig(backend="filesystem", root=str(Path(root))),
+                metrics=metrics,
+                tracer=tracer,
+            ),
         )
     return TenantScopedCAS(
         root,

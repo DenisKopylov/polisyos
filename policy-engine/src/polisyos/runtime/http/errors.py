@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.contracts.runtime import RuntimeApiProblem
 from polisyos.core.errors import ErrorCategory, PolicyOSError
@@ -31,6 +31,11 @@ else:  # pragma: no cover - import wiring only
     _HTTPException = _ImportedHTTPException
     _RequestValidationError = _ImportedRequestValidationError
     _JSONResponse = _ImportedJSONResponse
+
+if TYPE_CHECKING:
+    from starlette.responses import Response as _Response
+else:
+    _Response = Any
 
 
 _DEFAULT_TYPE_BY_STATUS: dict[int, str] = {
@@ -229,7 +234,7 @@ def problem_response(
     type_uri: str | None = None,
     error: str | None = None,
     extensions: dict[str, Any] | None = None,
-) -> Any:
+) -> _Response:
     """Render a `RuntimeApiProblem` as `application/problem+json`.
 
     Raises:
@@ -251,10 +256,13 @@ def problem_response(
     content = payload.model_dump(mode="json")
     if extensions:
         content.update(extensions)
-    return json_response(
-        status_code=status_code,
-        content=content,
-        media_type="application/problem+json",
+    return cast(
+        _Response,
+        json_response(
+            status_code=status_code,
+            content=content,
+            media_type="application/problem+json",
+        ),
     )
 
 

@@ -7,6 +7,7 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
@@ -137,7 +138,7 @@ class RunPolicyTranslationNode:
         )
         brief, brief_ref = PolicyTranslatorWorker().translate_and_persist(ctx.store, translator_bundle)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.params["policy_brief"] = brief.model_dump(mode="json")
         new_state.policy_brief_ref = brief_ref
         new_state.artifacts_index[ARTIFACT_POLICY_BRIEF_REF] = brief_ref

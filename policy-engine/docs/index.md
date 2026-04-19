@@ -1,87 +1,70 @@
 # PolicyOS Documentation
 
-> AI-driven Policy Simulation System using JAX and Unified Data Fabric
+PolicyOS is a policy-analysis platform that keeps data ingestion, legal
+reasoning, simulation, governance, and runtime delivery behind explicit
+contracts.
 
----
-
-## Overview
-
-PolicyOS — система каузального анализа и симуляции государственных политик.
-Объединяет данные из международных статистических порталов, правовые корпуса,
-каузальный inference и механизмы governance в единый pipeline.
-
-## Architecture
+## System Context
 
 ```mermaid
-graph LR
-    IR[IR — Schemas & Contracts] --> Foundry[Foundry — Compute]
-    IR --> Lex[Lex — Legal]
-    Fabric[Fabric — Data] --> Foundry
-    Fabric --> Lex
-    Foundry --> Scientist[Scientist — Orchestration]
-    Lex --> Scientist
-    Scientist --> Runtime[Runtime — HTTP API]
+flowchart TB
+    Analyst["Analysts, operators, and API clients"]
+    IdP["OIDC / JWT issuer"]
+    Policy["OPA policy service"]
+    Runtime["Runtime API and control plane"]
+    Scientist["Scientist workflows and governance"]
+    Foundry["Foundry compile/execute"]
+    Fabric["Fabric connectors and world/data plane"]
+    Lex["Lex corpus, NormPack, interventions"]
+    IR["IR contracts, schema catalog, transport"]
+    CAS["CAS, audit, signing, retention"]
+
+    Analyst --> Runtime
+    IdP --> Runtime
+    Policy --> Runtime
+    Runtime --> Scientist
+    Runtime --> Fabric
+    Runtime --> CAS
+    Scientist --> Foundry
+    Scientist --> Lex
+    Scientist --> Fabric
+    Scientist --> CAS
+    Foundry --> IR
+    Fabric --> IR
+    Lex --> IR
+    Foundry --> CAS
+    Fabric --> CAS
+    Lex --> CAS
 ```
 
-**Пять подсистем:**
+## Start Here
 
-| Module | Role |
-|--------|------|
-| **[IR](reference/ir/index.md)** | Canonical contract layer for policies, analytics, observations, and ABI snapshots |
-| **[Foundry](reference/foundry/index.md)** | Computation engine — JAX-based compilation and execution of mechanism graphs |
-| **[Scientist](reference/scientist/index.md)** | Orchestration — workflow DAGs, governance passes, and experiment lifecycle |
-| **[Lex](reference/lex/index.md)** | Legal text processing — normative corpus, SPO extraction, knowledge graph |
-| **[Fabric](reference/fabric/index.md)** | Data fabric — connector families, source profiles, and evidence ingestion paths |
+- [Tutorials](tutorials/index.md) for the first working flows.
+- [How-to guides](how-to/index.md) for operational tasks.
+- [Reference](reference/index.md) for API, schema, and subsystem contracts.
+- [Explanation](explanation/index.md) for architecture, security, governance,
+  and data-flow rationale.
+- [Runbooks](runbooks/index.md) for incident response and rollback.
 
-## Quick Navigation
+## Architecture Packages
 
-<div class="grid cards" markdown>
+| Package | Main page | Default evidence |
+|---|---|---|
+| System context | [Architecture](explanation/architecture.md) | [Platform acceptance audit](reference/operations/platform-acceptance-audit.md), [platform diagrams](reference/operations/platform-architecture-diagrams.md) |
+| Contract architecture | [Trinity](explanation/trinity.md), [IR design](explanation/ir-design.md) | [TRINITY contract](contracts/TRINITY.md), [IR schema catalog](reference/ir/schema-catalog.md) |
+| Runtime and security | [Security model](explanation/security-model.md) | [Auth and tenant model](reference/api/auth-tenant-model.md), [security compliance](reference/security-compliance.md) |
+| Data architecture | [Data fabric](explanation/data-fabric.md) | [Fabric reference](reference/fabric/index.md), [lineage](reference/fabric/lineage.md) |
+| Scientific architecture | [Causal engine](explanation/causal-engine.md), [Governance model](explanation/governance-model.md) | [Foundry reference](reference/foundry/index.md), [Scientist reference](reference/scientist/index.md) |
+| Legal architecture | [Lex pipeline](explanation/lex-pipeline.md) | [Lex reference](reference/lex/index.md), [NormPack contract](contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md) |
+| Observation contracts | [Observation contracts](explanation/observation-contracts.md) | [IR observation reference](reference/ir/observation.md) |
+| Freeze and ratchets | [Freeze policy](explanation/freeze-policy.md) | [Quality gates](reference/quality-gates.md), [ratchet policy](reference/ratchet-policy.md) |
 
--   :material-school: **[Tutorials](tutorials/index.md)**
+## Operational Anchors
 
-    Step-by-step guides for learning PolicyOS from scratch.
-
--   :material-tools: **[How-to Guides](how-to/index.md)**
-
-    Practical recipes for specific tasks.
-
--   :material-book-open-variant: **[Reference](reference/index.md)**
-
-    Complete API reference for all modules.
-
--   :material-head-question: **[Explanation](explanation/index.md)**
-
-    Design rationale and architectural context.
-
--   :material-lifebuoy: **[Runbooks](runbooks/index.md)**
-
-    Incident response, rollback, restore, and benchmark triage guidance.
-
-</div>
-
-## Getting Started
-
-```bash
-git clone https://github.com/DenisKopylov/polisyos.git
-cd polisyos/policy-engine
-python3 -m tools.cli workspace bootstrap
-python3 -m tools.cli workspace doctor
-```
-
-See [Getting Started tutorial](tutorials/getting-started.md) and the [Installation guide](how-to/install.md) for the current verified install surface.
-
-## Operational Readiness
-
-Phase 6 operational docs now live in three places:
-
-- [Runbooks](runbooks/index.md) for incidents and rollback;
-- [Operations Reference](reference/operations/index.md) for SLOs, observability,
-  retention, and scorecard policy;
-- [Onboarding Tracks](how-to/onboarding/index.md) for role-based entry paths.
-
-Phase 7 closeout adds two repo-wide anchors:
-
-- [Platform Acceptance Audit](reference/operations/platform-acceptance-audit.md)
-  for the end-to-end acceptance pass and rehearsal evidence;
-- [Ratchet Policy](reference/ratchet-policy.md) for the merge-time minimum bar on
-  any new subsystem or major surface.
+- [Ownership](reference/ownership.md) routes reviews and escalations.
+- [Generated artifacts](reference/generated-artifacts.md) describes the durable
+  artifact families used by the runtime, Scientist, Foundry, and Fabric.
+- [Operations reference](reference/operations/index.md) ties diagrams, SLOs,
+  retention, and closeout evidence together.
+- [Documentation inventory](reference/documentation-inventory.md) tracks the
+  current docs QA ledger and D0-D5 status.

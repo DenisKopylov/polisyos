@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from polisyos.core.canon.canon_json import CanonSpec
 
     from .ids import ArtifactID
+    from ._integrity_ops import VerificationReport
     from .manifest import ArtifactManifest, ArtifactRef
-    from .store import VerificationReport
     from .write_contract import ArtifactWriteOptions
 
 

@@ -1,109 +1,45 @@
-# Architecture Freeze & Import Gates
+# Freeze Policy
 
-## Принцип
+Related reference: [Quality gates](../reference/quality-gates.md), [ratchet policy](../reference/ratchet-policy.md), [documentation inventory](../reference/documentation-inventory.md).
+Related ADRs: [ADR-0004](../adr/0004-architecture-boundaries-import-gate.md), [ADR-0053](../adr/0053-architecture-freeze-contracts.md), [ADR-0061](../adr/0061-import-gate-ci-contract.md), [ADR-0096](../adr/0096-canonical-product-root-and-workspace-boundary.md).
+Evidence: `import_policy.toml`, `uv run polisyos-tools architecture guardrails check`, `uv run --extra docs python -m mkdocs build --strict`, `uv run polisyos-tools validation check-docs-accuracy --repo-root .`.
 
-Architecture freeze нужен, чтобы рост функциональности не ломал направленный dependency graph.
-Он одновременно удерживает package cycles, запрещает несанкционированные cross-layer imports и
-фиксирует архитектурный долг как явный backlog, а не как незаметно расползающиеся зависимости.
-Source of truth здесь не narrative-диаграммы, а `Import Policy v2` в `import_policy.toml`.
+Freeze policy is how PolicyOS keeps architectural promises enforceable after the
+refactor: import boundaries, generated-contract freshness, docs accuracy, and
+release-time ratchets are all part of the same control loop.
 
-## Правила импорта
+## Freeze And Ratchet Model
 
-Авторитетное правило задаётся в `import_policy.toml`; ниже — сжатая карта основных слоёв.
-
-| Module | May import | Must NOT import |
-|---|---|---|
-| `common` | `common` | другие `polisyos.*` пакеты |
-| `ir` | `ir`, `datasets`, approved externals | `foundry`, `scientist`, `fabric`, `lex`, `runtime` |
-| `core` | `core`, `ir`, `common` | продуктовые верхние слои на runtime path |
-| `fabric` | `fabric`, `core`, `ir`, `common` | `scientist`, `foundry` |
-| `foundry` | `foundry`, `academic`, `core`, `ir`, `common` | `scientist`, `runtime`, `lex`, `fabric` |
-| `scientist` | `scientist`, `lex`, `scholar`, `foundry`, `fabric`, `runtime`, `core`, `ir`, `common`, `academic`, `datasets` | private/deep imports без одобренного exception |
-| `runtime` | `runtime`, `scientist`, `lex`, `foundry`, `fabric`, `core`, `ir`, `common` | несвязанные research/batch layers |
-| `lex` | `lex`, `batch_common`, `fabric`, `ir`, `core`, `common` | `scientist` / `foundry` без exception |
-| `academic` | `academic`, `batch_common`, `ir`, `core`, `common` | `fabric`, `scientist`, `runtime` |
-| `datasets` | `datasets`, `batch_common`, `fabric`, `ir`, `core`, `common` | `scientist`, `foundry`, `runtime`, `lex` |
-
-Дополнительно import gate режет:
-
-- package cycles;
-- deep imports в чужие internal/private модули;
-- legacy import paths;
-- внешние зависимости в `ir`, кроме whitelist из policy.
-
-## CI Enforcement
-
-На текущем дереве architecture freeze и import-gate проверки живут не в отдельных legacy workflow,
-а в основном CI-контуре плюс ABI gate.
-
-`ci.yml`:
-
-- запускает `lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml`;
-- проверяет Foundry purity (`lint_foundry.py`);
-- валидирует Scientist `state_reads` и node version bumps;
-- проверяет Scholar imports и connector contracts;
-- требует актуальные schema snapshots через `gen_schema.py --check`.
-
-`abi.yml`:
-
-- строит semantic diff между baseline/current ABI snapshots;
-- блокирует breaking drift без ожидаемого versioning decision;
-- повторно проверяет, что committed snapshots не отстали от кода.
-
-Типичное падение выглядит как один из кодов `ARCH00x`, например:
-
-```text
-src/polisyos/foo.py:42 [ARCH004] forbidden deep import: polisyos.bar._private
+```mermaid
+flowchart LR
+    ADR["ADRs and contracts"] --> Policy["import_policy.toml and repo rules"]
+    Policy --> Guard["Architecture guardrails and import gates"]
+    Guard --> Snapshots["Schema, OpenAPI, generated docs, artifact inventories"]
+    Snapshots --> Ratchet["CI ratchets and merge governance"]
+    Ratchet --> Release["Published docs and release evidence"]
 ```
 
-## Exceptions
+## CI And Docs Quality Gate Flow
 
-Исключения допустимы только как временная мера и только при явной ответственности:
-
-- `id`
-- `owner`
-- `reason`
-- `expires`
-
-Технический источник — `import_exceptions.toml`. Человекочитаемый реестр —
-`import_exceptions_registry.md`. На текущем срезе TOML содержит 15 активных исключений
-(`12` cross-root, `2` external-module, `1` private deep-import), а markdown registry всё ещё
-показывает `_no-active-exceptions_`; поэтому при добавлении или продлении exception обновляйте
-оба файла, но доверяйте TOML как blocking source of truth.
-
-Политика для exceptions:
-
-- срок жизни не больше 90 дней;
-- просроченные записи блокируют merge;
-- новый exception должен сопровождаться планом удаления;
-- deep-import exceptions считаются отдельным архитектурным долгом и сравниваются с baseline.
-
-## Lazy Import Pattern
-
-Freeze policy не только запрещает лишние импорты, но и поощряет lazy import для тяжёлых модулей
-и boundary-sensitive фасадов. На практике в кодовой базе встречаются два основных приёма.
-
-Type-checking-only import:
-
-```python
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from polisyos.scientist.engine.state import ExperimentState
+```mermaid
+flowchart TB
+    Change["Code or docs change"] --> Local["Local validation and generated outputs"]
+    Local --> Accuracy["Docs accuracy, schema, OpenAPI, and tools freshness"]
+    Accuracy --> Build["MkDocs strict build and architecture guardrails"]
+    Build --> CI["CI workflows and merge governance"]
+    CI --> Publish["Published docs / release evidence / runbooks"]
 ```
 
-Runtime lazy import:
+## What The Freeze Actually Enforces
 
-```python
-def run_experiment(state=None):
-    from polisyos.scientist.workflows.builder import run_selected_workflow
-    return run_selected_workflow(state)
-```
+| Control | Purpose |
+|---|---|
+| import policy and exceptions | keep subsystem boundaries explicit |
+| generated snapshot checks | stop schema/OpenAPI/docs drift from becoming normal |
+| docs accuracy checks | ensure published names, workflows, and paths still exist |
+| merge ratchets | keep new changes from lowering the acceptance bar |
 
-Пакетные фасады `polisyos.fabric` и `polisyos.runtime` дополнительно используют `__getattr__`,
-чтобы не тянуть тяжёлые зависимости на import time и не открывать лишние cross-layer edges.
+## Why It Matters
 
-See also:
-
-- [Architecture](architecture.md)
-- [Security Model](security-model.md)
+Without a freeze policy, architecture becomes prose. With it, ADRs, contracts,
+generated artifacts, and docs all point at the same enforceable boundary.

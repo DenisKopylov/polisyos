@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from unittest.mock import patch
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -18,6 +19,7 @@ from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection, SelectorOperator
+from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboardEntry,
@@ -457,6 +459,62 @@ def test_build_policy_output_bundle_degrades_invalid_uncertainty_envelope(
         and event.attrs.get("reason") == "uncertainty_envelope_load_failed"
         for event in outcome.events
     )
+
+
+def test_build_policy_output_bundle_uses_branch_state_for_declared_outputs(
+    execution_context,
+    minimal_state,
+):
+    candidate = _candidate()
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": candidate.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(candidate).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "nested": {"baseline": True},
+        }
+    )
+    observed: dict[str, tuple[str, ...]] = {}
+
+    def _spy_branch(base_state, *, write_paths=()):
+        observed["write_paths"] = tuple(write_paths)
+        return real_branch_state(base_state, write_paths=write_paths)
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle.branch_state",
+        _spy_branch,
+    ):
+        outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert observed["write_paths"] == (
+        "policy_output_bundle_ref",
+        "policy_brief_ref",
+        "champion_policy_dossier_ref",
+        "artifacts_index.policy_output_bundle_ref",
+        "artifacts_index.policy_frontier_report_ref",
+        "artifacts_index.champion_policy_dossier_ref",
+        "artifacts_index.policy_brief_ref",
+        "artifacts_index.constraint_satisfaction_report_ref",
+        "artifacts_index.subgroup_impact_report_ref",
+        "artifacts_index.policy_uncertainty_report_ref",
+        "artifacts_index.policy_transportability_report_ref",
+        "artifacts_index.governance_gate_packet_ref",
+        "artifacts_index.implementation_plan_ref",
+        "artifacts_index.rejected_alternatives_summary_ref",
+        "artifacts_index.replayable_audit_bundle_ref",
+        "artifacts_index.decision_readiness_contract_ref",
+    )
+    assert state.params["nested"] == {"baseline": True}
+    assert state.policy_output_bundle_ref is None
+    assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF not in state.artifacts_index
+    assert outcome.state.policy_output_bundle_ref is not None
+    assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in outcome.state.artifacts_index
 
 
 def test_decision_packet_not_mutated_when_policy_bundle_absent(tmp_path) -> None:

@@ -59,6 +59,11 @@ from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 logger = get_logger(__name__)
 
+
+def _default_metrics():
+    return get_metrics()
+
+
 _SIMULATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _SIMULATION_LOAD_ERRORS = (
     TypeError,
@@ -150,7 +155,12 @@ class RunSimulationNode:
         return replace(self, exec_config=config)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        metrics = get_metrics()
+        injected_metrics = ctx.metrics if ctx.metrics is not None else None
+        metrics = (
+            injected_metrics
+            if injected_metrics is not None and hasattr(injected_metrics, "record_slo_simulation_run")
+            else _default_metrics()
+        )
         method = str(state.params.get("simulation_method", "foundry.execute"))
         new_state = branch_state(
             state,

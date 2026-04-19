@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Protocol, Sequence
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
@@ -28,6 +28,16 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 
 logger = get_logger(__name__)
+
+_RAG_ARTIFACT_LOAD_ERRORS = (
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+_RAG_IMPORT_ERRORS = (ImportError, ModuleNotFoundError)
 
 RAG_ENTRIES_KIND = "scientist.rag_entries.v1"
 RAG_VECTORS_KIND = "scientist.rag_vectors.v1"
@@ -359,13 +369,13 @@ class CASRAGIndex:
                 break
             try:
                 manifest = cas.get_manifest(artifact_id)
-            except Exception:
+            except _RAG_ARTIFACT_LOAD_ERRORS:
                 continue
             if manifest.kind != "scientist.decision_packet":
                 continue
             try:
                 payload = from_canonical_bytes(cas.get_bytes(artifact_id))
-            except Exception:
+            except _RAG_ARTIFACT_LOAD_ERRORS:
                 continue
             entry = self._entry_from_decision_packet_payload(cas, payload, str(artifact_id))
             if entry is None:
@@ -403,7 +413,7 @@ class CASRAGIndex:
             trinity_aid = ArtifactID.model_validate(trinity_ref_str)
             trinity_payload = from_canonical_bytes(cas.get_bytes(trinity_aid))
             trinity = TrinityBundle.model_validate(trinity_payload)
-        except Exception:
+        except _RAG_ARTIFACT_LOAD_ERRORS:
             return None
 
         problem = trinity.problem_frame
@@ -589,7 +599,7 @@ def find_latest_rag_snapshot_ref(cas: FileSystemCAS) -> str | None:
     for artifact_id in cas.iter_artifact_ids():
         try:
             manifest = cas.get_manifest(artifact_id)
-        except Exception:
+        except _RAG_ARTIFACT_LOAD_ERRORS:
             continue
         if manifest.kind != RAG_SNAPSHOT_KIND:
             continue
@@ -611,7 +621,7 @@ def build_or_load_rag_index(
     if latest_ref:
         try:
             return CASRAGIndex.load(cas, snapshot_ref=latest_ref, embedder=embedder)
-        except Exception:
+        except _RAG_ARTIFACT_LOAD_ERRORS:
             logger.warning("Failed to load RAG snapshot %s; rebuilding", latest_ref)
 
     index = CASRAGIndex(embedder=embedder, similarity_threshold=config.similarity_threshold)

@@ -941,6 +941,10 @@ def _resolve_connector_registry(
 ) -> Any:
     if registry is not None:
         return registry
+    return _default_connector_registry()
+
+
+def _default_connector_registry() -> Any:
     from polisyos.fabric.connectors.registry import ConnectorRegistry
 
     return ConnectorRegistry.get_instance()
@@ -1029,18 +1033,16 @@ def _fetch_stream_for_dataset(
     Returns a list of chunk dicts with keys: chunk_index, row_count,
     is_first, is_last, data (list of row dicts).
     """
-    return cast(
-        "list[dict[str, Any]]",
-        run_coro_sync(
-            _fetch_stream_for_dataset_async(
-                connector_id=connector_id,
-                dataset_id=dataset_id,
-                connector_manifest=connector_manifest,
-                connection_config=connection_config,
-                registry=registry,
-            )
-        ),
+    result: list[dict[str, Any]] = run_coro_sync(
+        _fetch_stream_for_dataset_async(
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+            connector_manifest=connector_manifest,
+            connection_config=connection_config,
+            registry=registry,
+        )
     )
+    return result
 
 
 __all__ = [

@@ -9,6 +9,10 @@ _AI-driven Policy Simulation System using JAX and Unified Data Fabric_
 > Canonical product root: эта директория. Workspace root выше по дереву является
 > только gateway и repo control plane.
 
+Owner: `@docs-owners`  
+Source of truth: `docs/reference/contributor-start-here.md`, `docs/reference/public-surface.md`, `docs/reference/generated-artifacts.md`, and the command registry behind `polisyos-tools`  
+Last updated: 2026-04-17
+
 ## Motivation
 
 Policy evaluation rarely fits into a single simulator: it needs causal inference, heterogeneous data
@@ -99,6 +103,25 @@ print({"compiled": compiled.ok, "executed": executed.ok})
 | `schemas/` | JSON Schema snapshots used as ABI checkpoints |
 | `benchmarks/` | Performance and correctness benchmarks |
 | `docs/` | Documentation in Diataxis structure |
+
+## Public Entry Points
+
+| Surface | Start here | Stability |
+|---|---|---|
+| Python package facades | `polisyos.ir`, `polisyos.core`, `polisyos.fabric`, `polisyos.foundry`, `polisyos.scientist`, `polisyos.runtime`, `polisyos.lex` | Listed in [Public Surface](https://deniskopylov.github.io/polisyos/reference/public-surface/) |
+| Runtime API | `polisyos.runtime.http.app:create_runtime_api_app`, `schemas/runtime_api_v1.openapi.json` | Governed by the Runtime API contract check |
+| CLI | `polisyos-tools`, `polisyos`, `polisyos-foundry`, `polisyos-causal-capabilities` | Generated in [Tools Reference](https://deniskopylov.github.io/polisyos/reference/tools/) |
+| Frontend consumers | `frontend/runtime-api-client`, `frontend/runtime-dashboard`, `frontend/runtime-reference-shell` | Governed by runtime contract and frontend contract fixtures |
+
+## Dependency Boundaries
+
+PolicyOS treats `policy-engine/` as the product root. `src/polisyos/ir/` owns
+contract vocabulary, `src/polisyos/core/` owns shared platform primitives,
+`src/polisyos/fabric/` owns data access, `src/polisyos/foundry/` owns compile
+and execute, `src/polisyos/scientist/` owns workflow/governance orchestration,
+and `src/polisyos/runtime/` owns delivery. Boundary expectations are enforced
+through `import_policy.toml`, the public-surface inventory, and the architecture
+guardrail commands listed below.
 
 ## Development Setup
 

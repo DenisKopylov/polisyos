@@ -1,6 +1,7 @@
 """Discover causal graph structure from conditional-independence or score constraints."""
 from __future__ import annotations
 
+from collections import deque
 import math
 import multiprocessing as mp
 import time
@@ -11,6 +12,11 @@ from typing import Any, ClassVar, Mapping
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    ancestors,
+    extract_bidirected_edges,
+    extract_directed_edges,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -32,9 +38,17 @@ from polisyos.foundry.methods.catalog.causal.ci_backends import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import TabularCausalDiscoveryData
 from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicAssumptionRegime,
+    AlgebraicAssumptionStatus,
     AlgebraicBlockSpec,
+    AlgebraicCalibrationMode,
     AlgebraicConstraintFamily,
     AlgebraicConstraintReport,
+    AlgebraicFalsificationScope,
+    AlgebraicNullDistribution,
+    AlgebraicRegularityStatus,
+    AlgebraicReproducibilityTier,
+    AlgebraicTestMode,
     CausalDiscoveryReport,
     ConstraintEvaluationResult,
     ImpliedConstraintSpec,
@@ -68,7 +82,11 @@ _ENDPOINT_TO_MARK = {
 _ALGEBRAIC_MAX_CONDITIONING_SET_SIZE = 2
 _ALGEBRAIC_BOOTSTRAP_DRAWS = 200
 _ALGEBRAIC_SEVERITY_ORDER = {"info": 0, "warning": 1, "blocker": 2}
+_ALGEBRAIC_RANKING_WEIGHTS = {"info": 0.10, "warning": 0.50, "blocker": 1.0}
 _CATEGORICAL_UNIQUE_THRESHOLD = 12
+_AUTO_TREK_MAX_GRAPH_NODES = 10
+_AUTO_TREK_MAX_ANCESTOR_UNIVERSE = 7
+_AUTO_TREK_MAX_INFERRED_BLOCKS = 12
 
 
 @dataclass(frozen=True)
@@ -605,6 +623,413 @@ def _overcomplete_residual_energy(matrix: np.ndarray, expected_rank: int) -> flo
     return float(math.sqrt(max(tail, 0.0) / total))
 
 
+def _cross_covariance(left: np.ndarray, right: np.ndarray) -> np.ndarray:
+    left_arr = np.asarray(left, dtype=float)
+    right_arr = np.asarray(right, dtype=float)
+    if left_arr.ndim != 2 or right_arr.ndim != 2:
+        raise ValueError("cross covariance inputs must be 2D")
+    if left_arr.shape[0] != right_arr.shape[0]:
+        raise ValueError("cross covariance inputs must have the same number of rows")
+    if left_arr.shape[0] < 2:
+        raise ValueError("cross covariance requires at least 2 rows")
+    left_centered = left_arr - np.mean(left_arr, axis=0, keepdims=True)
+    right_centered = right_arr - np.mean(right_arr, axis=0, keepdims=True)
+    return (left_centered.T @ right_centered) / float(left_arr.shape[0] - 1)
+
+
+def _trek_rank_residual_energy(
+    left: np.ndarray,
+    right: np.ndarray,
+    *,
+    max_rank: int,
+) -> float:
+    cross_cov = _cross_covariance(left, right)
+    singular_values = np.linalg.svd(cross_cov, compute_uv=False)
+    singular_values = np.clip(np.sort(singular_values)[::-1], 0.0, None)
+    total = float(np.sum(singular_values ** 2))
+    if total <= 1e-12:
+        return 0.0
+    tail = float(np.sum(singular_values[max_rank:] ** 2))
+    return float(math.sqrt(max(tail, 0.0) / total))
+
+
+def _trek_rank_minor_statistic(
+    left: np.ndarray,
+    right: np.ndarray,
+    *,
+    max_rank: int,
+) -> float:
+    cross_cov = _cross_covariance(left, right)
+    order = int(max_rank) + 1
+    if order > min(cross_cov.shape):
+        raise ValueError("minor order exceeds cross-covariance dimensions")
+    max_abs_minor = 0.0
+    for row_idx in combinations(range(cross_cov.shape[0]), order):
+        for col_idx in combinations(range(cross_cov.shape[1]), order):
+            minor = cross_cov[np.ix_(row_idx, col_idx)]
+            max_abs_minor = max(max_abs_minor, abs(float(np.linalg.det(minor))))
+    return float(max_abs_minor)
+
+
+def _trek_rank_statement(
+    *,
+    row_variables: tuple[str, ...],
+    col_variables: tuple[str, ...],
+    max_rank: int,
+    test_mode: AlgebraicTestMode,
+    threshold: float,
+) -> str:
+    row_label = ", ".join(row_variables)
+    col_label = ", ".join(col_variables)
+    if test_mode is AlgebraicTestMode.BOOTSTRAP_MINOR:
+        order = int(max_rank) + 1
+        return (
+            f"all {order}x{order} minors of cov([{row_label}], [{col_label}]) vanish"
+        )
+    return (
+        f"residual_energy(cov([{row_label}], [{col_label}]), rank<={max_rank}) "
+        f"<= {threshold:.4f}"
+    )
+
+
+def _covariance_condition_number(matrix: np.ndarray) -> float:
+    cov = _covariance(matrix)
+    eigenvalues = np.linalg.eigvalsh(cov)
+    positive = np.sort(np.clip(eigenvalues, 0.0, None))
+    if positive.size == 0 or positive[-1] <= 1e-12:
+        return float("inf")
+    smallest = float(positive[0])
+    if smallest <= 1e-12:
+        return float("inf")
+    return float(positive[-1] / smallest)
+
+
+def _trek_rank_regularity_status(
+    *,
+    matrix: np.ndarray,
+) -> tuple[AlgebraicRegularityStatus, float]:
+    try:
+        condition_number = _covariance_condition_number(matrix)
+    except Exception:
+        return AlgebraicRegularityStatus.UNKNOWN, float("inf")
+    n_samples = int(matrix.shape[0])
+    n_variables = int(matrix.shape[1])
+    if (
+        n_samples >= max(50, 10 * n_variables)
+        and np.isfinite(condition_number)
+        and condition_number < 1e6
+    ):
+        return AlgebraicRegularityStatus.REGULAR, condition_number
+    if n_samples >= max(20, 4 * n_variables):
+        return AlgebraicRegularityStatus.POTENTIALLY_SINGULAR, condition_number
+    return AlgebraicRegularityStatus.IRREGULAR, condition_number
+
+
+def _trek_rank_assumption_status(
+    *,
+    block: AlgebraicBlockSpec,
+    continuous_only: bool,
+) -> AlgebraicAssumptionStatus:
+    if block.assumption_regime is None:
+        return AlgebraicAssumptionStatus.UNKNOWN
+    if (
+        block.assumption_regime is AlgebraicAssumptionRegime.LINEAR_GAUSSIAN_CONTINUOUS
+        and continuous_only
+    ):
+        return AlgebraicAssumptionStatus.DECLARED
+    if (
+        block.assumption_regime
+        in {
+            AlgebraicAssumptionRegime.DISCRETE_NESTED,
+            AlgebraicAssumptionRegime.GAUSSIAN_NESTED,
+        }
+        and not continuous_only
+    ):
+        return AlgebraicAssumptionStatus.DECLARED
+    return AlgebraicAssumptionStatus.MISMATCH
+
+
+def _severity_ranking_weight(severity: str) -> float:
+    return float(_ALGEBRAIC_RANKING_WEIGHTS.get(severity, 0.0))
+
+
+def _aggregate_graph_ranking_penalty(
+    violations: list[ConstraintEvaluationResult],
+) -> float:
+    return float(min(1.0, sum(float(item.ranking_weight) for item in violations)))
+
+
+def _children_by_node(graph: CausalGraphModel) -> dict[str, tuple[str, ...]]:
+    children: dict[str, set[str]] = {node: set() for node in graph.nodes}
+    for src, dst in extract_directed_edges(graph):
+        children.setdefault(src, set()).add(dst)
+    return {node: tuple(sorted(children.get(node, ()))) for node in graph.nodes}
+
+
+def _bidirected_neighbor_map(graph: CausalGraphModel) -> dict[str, frozenset[str]]:
+    neighbors: dict[str, set[str]] = {node: set() for node in graph.nodes}
+    for pair in extract_bidirected_edges(graph):
+        left, right = tuple(pair)
+        neighbors.setdefault(left, set()).add(right)
+        neighbors.setdefault(right, set()).add(left)
+    return {node: frozenset(items) for node, items in neighbors.items()}
+
+
+def _reachable_targets_without_chokes(
+    *,
+    top: str,
+    targets: frozenset[str],
+    children_by_node: Mapping[str, tuple[str, ...]],
+    blocked: frozenset[str],
+) -> frozenset[str]:
+    if top in blocked:
+        return frozenset()
+    visited = {top}
+    queue: deque[str] = deque([top])
+    hits: set[str] = set()
+    while queue:
+        node = queue.popleft()
+        if node in targets:
+            hits.add(node)
+        for child in children_by_node.get(node, ()):
+            if child in blocked or child in visited:
+                continue
+            visited.add(child)
+            queue.append(child)
+    return frozenset(hits)
+
+
+def _has_candidate_trek_tops(
+    *,
+    left_tops: frozenset[str],
+    right_tops: frozenset[str],
+    bidirected_neighbors: Mapping[str, frozenset[str]],
+) -> bool:
+    if left_tops & right_tops:
+        return True
+    return any(
+        bool(bidirected_neighbors.get(node, frozenset()) & right_tops)
+        for node in left_tops
+    )
+
+
+def _has_unblocked_trek(
+    *,
+    row_variables: tuple[str, ...],
+    col_variables: tuple[str, ...],
+    left_tops: frozenset[str],
+    right_tops: frozenset[str],
+    left_choke_set: frozenset[str],
+    right_choke_set: frozenset[str],
+    children_by_node: Mapping[str, tuple[str, ...]],
+    bidirected_neighbors: Mapping[str, frozenset[str]],
+) -> bool:
+    row_targets = frozenset(row_variables)
+    col_targets = frozenset(col_variables)
+    active_left_tops = {
+        node
+        for node in left_tops
+        if _reachable_targets_without_chokes(
+            top=node,
+            targets=row_targets,
+            children_by_node=children_by_node,
+            blocked=left_choke_set,
+        )
+    }
+    if not active_left_tops:
+        return False
+    active_right_tops = {
+        node
+        for node in right_tops
+        if _reachable_targets_without_chokes(
+            top=node,
+            targets=col_targets,
+            children_by_node=children_by_node,
+            blocked=right_choke_set,
+        )
+    }
+    if not active_right_tops:
+        return False
+    if active_left_tops & active_right_tops:
+        return True
+    return any(
+        bool(bidirected_neighbors.get(node, frozenset()) & active_right_tops)
+        for node in active_left_tops
+    )
+
+
+def _find_t_separation_chokes(
+    *,
+    graph: CausalGraphModel,
+    row_variables: tuple[str, ...],
+    col_variables: tuple[str, ...],
+    max_rank: int,
+    children_by_node: Mapping[str, tuple[str, ...]],
+    bidirected_neighbors: Mapping[str, frozenset[str]],
+) -> tuple[int, tuple[str, ...], tuple[str, ...]] | None:
+    left_universe = tuple(sorted(ancestors(graph, frozenset(row_variables))))
+    right_universe = tuple(sorted(ancestors(graph, frozenset(col_variables))))
+    if (
+        len(left_universe) > _AUTO_TREK_MAX_ANCESTOR_UNIVERSE
+        or len(right_universe) > _AUTO_TREK_MAX_ANCESTOR_UNIVERSE
+    ):
+        return None
+    left_tops = frozenset(left_universe)
+    right_tops = frozenset(right_universe)
+    if not _has_candidate_trek_tops(
+        left_tops=left_tops,
+        right_tops=right_tops,
+        bidirected_neighbors=bidirected_neighbors,
+    ):
+        return None
+    for total_rank in range(1, max_rank + 1):
+        for left_size in range(total_rank + 1):
+            right_size = total_rank - left_size
+            for left_chokes in combinations(left_universe, left_size):
+                for right_chokes in combinations(right_universe, right_size):
+                    if not _has_unblocked_trek(
+                        row_variables=row_variables,
+                        col_variables=col_variables,
+                        left_tops=left_tops,
+                        right_tops=right_tops,
+                        left_choke_set=frozenset(left_chokes),
+                        right_choke_set=frozenset(right_chokes),
+                        children_by_node=children_by_node,
+                        bidirected_neighbors=bidirected_neighbors,
+                    ):
+                        return total_rank, tuple(left_chokes), tuple(right_chokes)
+    return None
+
+
+def _trek_rank_signature(
+    *,
+    row_variables: tuple[str, ...],
+    col_variables: tuple[str, ...],
+    max_rank: int,
+) -> tuple[tuple[str, ...], tuple[str, ...], int]:
+    left = tuple(row_variables)
+    right = tuple(col_variables)
+    if right < left:
+        left, right = right, left
+    return left, right, int(max_rank)
+
+
+def _infer_graph_implied_trek_rank_blocks(
+    *,
+    graph: CausalGraphModel,
+    variable_names: list[str],
+    explicit_blocks: list[AlgebraicBlockSpec],
+) -> tuple[list[AlgebraicBlockSpec], list[str]]:
+    warnings: list[str] = []
+    if any(
+        edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE
+        for edge in graph.edges
+    ):
+        warnings.append(
+            "trek_rank_auto_skipped:graph_has_uncertain_circle_endpoints"
+        )
+        return [], warnings
+    observed_nodes = sorted(node for node in graph.nodes if node in set(variable_names))
+    if len(observed_nodes) > _AUTO_TREK_MAX_GRAPH_NODES:
+        warnings.append(
+            f"trek_rank_auto_skipped:graph_too_large>{_AUTO_TREK_MAX_GRAPH_NODES}_observed_nodes"
+        )
+        return [], warnings
+    if len(observed_nodes) < 4:
+        return [], warnings
+
+    known_signatures = {
+        _trek_rank_signature(
+            row_variables=tuple(block.row_variables),
+            col_variables=tuple(block.col_variables),
+            max_rank=int(block.max_rank or 0),
+        )
+        for block in explicit_blocks
+        if block.family is AlgebraicConstraintFamily.TREK_RANK
+    }
+    children_by_node = _children_by_node(graph)
+    bidirected_neighbors = _bidirected_neighbor_map(graph)
+    pruned_due_to_ancestor_search = False
+    inferred_blocks: list[AlgebraicBlockSpec] = []
+
+    for block_dim, max_rank in ((2, 1), (3, 2)):
+        if len(observed_nodes) < block_dim * 2:
+            continue
+        for row_variables in combinations(observed_nodes, block_dim):
+            remaining = tuple(node for node in observed_nodes if node not in row_variables)
+            for col_variables in combinations(remaining, block_dim):
+                if tuple(col_variables) < tuple(row_variables):
+                    continue
+                signature = _trek_rank_signature(
+                    row_variables=tuple(row_variables),
+                    col_variables=tuple(col_variables),
+                    max_rank=max_rank,
+                )
+                if signature in known_signatures:
+                    continue
+                left_universe = ancestors(graph, frozenset(row_variables))
+                right_universe = ancestors(graph, frozenset(col_variables))
+                if (
+                    len(left_universe) > _AUTO_TREK_MAX_ANCESTOR_UNIVERSE
+                    or len(right_universe) > _AUTO_TREK_MAX_ANCESTOR_UNIVERSE
+                ):
+                    pruned_due_to_ancestor_search = True
+                    continue
+                choke_spec = _find_t_separation_chokes(
+                    graph=graph,
+                    row_variables=tuple(row_variables),
+                    col_variables=tuple(col_variables),
+                    max_rank=max_rank,
+                    children_by_node=children_by_node,
+                    bidirected_neighbors=bidirected_neighbors,
+                )
+                if choke_spec is None:
+                    continue
+                inferred_rank, left_chokes, right_chokes = choke_spec
+                if inferred_rank != max_rank:
+                    continue
+                inferred_blocks.append(
+                    AlgebraicBlockSpec(
+                        block_id=(
+                            "auto_trek_rank:"
+                            f"rank<={inferred_rank}:"
+                            f"{','.join(row_variables)}|{','.join(col_variables)}"
+                        ),
+                        family=AlgebraicConstraintFamily.TREK_RANK,
+                        variables=tuple(dict.fromkeys((*row_variables, *col_variables))),
+                        row_variables=tuple(row_variables),
+                        col_variables=tuple(col_variables),
+                        max_rank=inferred_rank,
+                        graph_scope="auto:t_separation_search",
+                        left_choke_set=left_chokes,
+                        right_choke_set=right_chokes,
+                        assumption_regime=(
+                            AlgebraicAssumptionRegime.LINEAR_GAUSSIAN_CONTINUOUS
+                        ),
+                        test_mode=(
+                            AlgebraicTestMode.BOOTSTRAP_MINOR
+                            if inferred_rank == 1
+                            else AlgebraicTestMode.BOOTSTRAP_RANK
+                        ),
+                    )
+                )
+                known_signatures.add(signature)
+                if len(inferred_blocks) >= _AUTO_TREK_MAX_INFERRED_BLOCKS:
+                    warnings.append(
+                        f"trek_rank_auto_pruned:max_inferred_blocks={_AUTO_TREK_MAX_INFERRED_BLOCKS}"
+                    )
+                    if pruned_due_to_ancestor_search:
+                        warnings.append("trek_rank_auto_pruned:ancestor_search_too_large")
+                    warnings.append(f"trek_rank_auto_inferred:{len(inferred_blocks)}")
+                    return inferred_blocks, warnings
+
+    if pruned_due_to_ancestor_search:
+        warnings.append("trek_rank_auto_pruned:ancestor_search_too_large")
+    if inferred_blocks:
+        warnings.append(f"trek_rank_auto_inferred:{len(inferred_blocks)}")
+    return inferred_blocks, warnings
+
+
 def _evaluate_ci_family(
     *,
     graph: CausalGraphModel,
@@ -673,6 +1098,11 @@ def _evaluate_ci_family(
                     p_value=float(entry["p_value"]),
                     adjusted_p_value=adjusted_p,
                     severity=severity,
+                    null_distribution=AlgebraicNullDistribution.ASYMPTOTIC,
+                    calibration_mode=AlgebraicCalibrationMode.ANALYTIC,
+                    scope_of_falsification=AlgebraicFalsificationScope.GRAPH_CLASS,
+                    ranking_weight=_severity_ranking_weight(severity),
+                    reproducibility_tier=AlgebraicReproducibilityTier.DETERMINISTIC,
                     warnings=list(entry.get("warnings", [])),
                     metadata=dict(entry.get("metadata", {})),
                 )
@@ -799,6 +1229,11 @@ def _evaluate_tetrad_family(
                     p_value=float(entry["p_value"]),
                     adjusted_p_value=float(adjusted_p),
                     severity="warning",
+                    null_distribution=AlgebraicNullDistribution.BOOTSTRAP,
+                    calibration_mode=AlgebraicCalibrationMode.BOOTSTRAP,
+                    scope_of_falsification=AlgebraicFalsificationScope.MEASUREMENT_BLOCK,
+                    ranking_weight=_severity_ranking_weight("warning") * 0.7,
+                    reproducibility_tier=AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP,
                     metadata=dict(entry["metadata"]),
                 )
             )
@@ -911,6 +1346,11 @@ def _evaluate_overcomplete_family(
                     p_value=float(entry["p_value"]),
                     adjusted_p_value=float(adjusted_p),
                     severity="warning",
+                    null_distribution=AlgebraicNullDistribution.BOOTSTRAP,
+                    calibration_mode=AlgebraicCalibrationMode.BOOTSTRAP,
+                    scope_of_falsification=AlgebraicFalsificationScope.RANKING_ONLY,
+                    ranking_weight=_severity_ranking_weight("warning") * 0.8,
+                    reproducibility_tier=AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP,
                     metadata=dict(entry["metadata"]),
                 )
             )
@@ -921,6 +1361,416 @@ def _evaluate_overcomplete_family(
         "violations": violations,
         "tested_count": tested_count,
         "warnings": warnings,
+    }
+
+
+def _evaluate_trek_rank_family(
+    *,
+    blocks: list[AlgebraicBlockSpec],
+    data: np.ndarray,
+    variable_names: list[str],
+    alpha: float,
+    seed: int,
+) -> dict[str, Any]:
+    index_by_name = {name: idx for idx, name in enumerate(variable_names)}
+    implied_constraints: list[ImpliedConstraintSpec] = []
+    raw_results: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    tested_count = 0
+    blocker_conditions_met = False
+
+    rng = np.random.default_rng(seed + 41)
+    for block in blocks:
+        ordered_variables = tuple(dict.fromkeys((*block.row_variables, *block.col_variables)))
+        missing = [name for name in ordered_variables if name not in index_by_name]
+        if missing:
+            warnings.append(
+                f"trek_rank_block_skipped:{block.block_id}:missing_variables={sorted(missing)}"
+            )
+            continue
+        block_matrix = np.column_stack(
+            [data[:, index_by_name[name]] for name in ordered_variables]
+        )
+        continuous_only = all(
+            _classify_numeric_series(block_matrix[:, idx]) == "continuous"
+            for idx in range(block_matrix.shape[1])
+        )
+        if not continuous_only:
+            warnings.append(
+                f"trek_rank_block_skipped:{block.block_id}:noncontinuous_variables"
+            )
+            continue
+        mask = _complete_case_mask([block_matrix[:, idx] for idx in range(block_matrix.shape[1])])
+        complete = block_matrix[mask]
+        min_complete_cases = max(
+            12,
+            len(ordered_variables) * 4,
+            (int(block.max_rank or 0) + 1) * 8,
+        )
+        if complete.shape[0] < min_complete_cases:
+            warnings.append(
+                f"trek_rank_block_skipped:{block.block_id}:insufficient_complete_cases"
+            )
+            continue
+
+        row_idx = [ordered_variables.index(name) for name in block.row_variables]
+        col_idx = [ordered_variables.index(name) for name in block.col_variables]
+        row_matrix = complete[:, row_idx]
+        col_matrix = complete[:, col_idx]
+        threshold = (
+            float(block.max_residual_energy)
+            if block.max_residual_energy is not None
+            else 0.05
+        )
+        requested_mode = block.test_mode
+        effective_mode = requested_mode or AlgebraicTestMode.BOOTSTRAP_RANK
+        if effective_mode in {
+            AlgebraicTestMode.LR,
+            AlgebraicTestMode.WALD,
+            AlgebraicTestMode.SCORE,
+        }:
+            warnings.append(
+                f"trek_rank_mode_fallback:{block.block_id}:{effective_mode.value}->bootstrap_rank"
+            )
+            effective_mode = AlgebraicTestMode.BOOTSTRAP_RANK
+        if (
+            effective_mode is AlgebraicTestMode.BOOTSTRAP_MINOR
+            and int(block.max_rank or 0) + 1 > min(row_matrix.shape[1], col_matrix.shape[1])
+        ):
+            warnings.append(
+                f"trek_rank_mode_fallback:{block.block_id}:bootstrap_minor->bootstrap_rank"
+            )
+            effective_mode = AlgebraicTestMode.BOOTSTRAP_RANK
+
+        spec = ImpliedConstraintSpec(
+            constraint_id=f"trek_rank:{block.block_id}:rank<={block.max_rank}",
+            family=AlgebraicConstraintFamily.TREK_RANK,
+            statement=_trek_rank_statement(
+                row_variables=tuple(block.row_variables),
+                col_variables=tuple(block.col_variables),
+                max_rank=int(block.max_rank or 0),
+                test_mode=effective_mode,
+                threshold=threshold,
+            ),
+            variables=ordered_variables,
+            source_block_id=block.block_id,
+            metadata={
+                "row_variables": list(block.row_variables),
+                "col_variables": list(block.col_variables),
+                "max_rank": int(block.max_rank or 0),
+                "graph_scope": block.graph_scope,
+                "left_choke_set": list(block.left_choke_set),
+                "right_choke_set": list(block.right_choke_set),
+                "assumption_regime": (
+                    block.assumption_regime.value
+                    if block.assumption_regime is not None
+                    else None
+                ),
+                "test_mode_requested": (
+                    requested_mode.value if requested_mode is not None else None
+                ),
+                "test_mode_used": effective_mode.value,
+                "max_residual_energy": threshold,
+            },
+        )
+        implied_constraints.append(spec)
+
+        if effective_mode is AlgebraicTestMode.BOOTSTRAP_MINOR:
+            observed = _trek_rank_minor_statistic(
+                row_matrix,
+                col_matrix,
+                max_rank=int(block.max_rank or 0),
+            )
+            bootstrap_values = np.zeros(_ALGEBRAIC_BOOTSTRAP_DRAWS, dtype=float)
+            for draw in range(_ALGEBRAIC_BOOTSTRAP_DRAWS):
+                sampled = _bootstrap_resample(data=complete, rng=rng)
+                bootstrap_values[draw] = _trek_rank_minor_statistic(
+                    sampled[:, row_idx],
+                    sampled[:, col_idx],
+                    max_rank=int(block.max_rank or 0),
+                )
+            ci_lower, ci_upper = np.quantile(
+                bootstrap_values,
+                [alpha / 2.0, 1.0 - alpha / 2.0],
+            )
+            std = float(np.std(bootstrap_values, ddof=1))
+            if std <= 1e-12:
+                p_value = 1.0 if abs(observed) <= 1e-12 else 0.0
+            else:
+                z_score = abs(float(observed)) / std
+                p_value = float(math.erfc(z_score / math.sqrt(2.0)))
+            route = "bootstrap_trek_minor"
+            raw_reject = bool(ci_lower > 0.0)
+            metadata = {
+                "route": route,
+                "bootstrap_draws": _ALGEBRAIC_BOOTSTRAP_DRAWS,
+                "ci_lower": float(ci_lower),
+                "ci_upper": float(ci_upper),
+                "bootstrap_std": std,
+                "max_rank": int(block.max_rank or 0),
+            }
+        else:
+            observed = _trek_rank_residual_energy(
+                row_matrix,
+                col_matrix,
+                max_rank=int(block.max_rank or 0),
+            )
+            bootstrap_values = np.zeros(_ALGEBRAIC_BOOTSTRAP_DRAWS, dtype=float)
+            for draw in range(_ALGEBRAIC_BOOTSTRAP_DRAWS):
+                sampled = _bootstrap_resample(data=complete, rng=rng)
+                bootstrap_values[draw] = _trek_rank_residual_energy(
+                    sampled[:, row_idx],
+                    sampled[:, col_idx],
+                    max_rank=int(block.max_rank or 0),
+                )
+            lower_bound, upper_bound = np.quantile(
+                bootstrap_values,
+                [alpha / 2.0, 1.0 - alpha / 2.0],
+            )
+            p_value = float(np.mean(bootstrap_values <= threshold))
+            route = "bootstrap_trek_rank"
+            raw_reject = bool(lower_bound > threshold)
+            metadata = {
+                "route": route,
+                "bootstrap_draws": _ALGEBRAIC_BOOTSTRAP_DRAWS,
+                "max_rank": int(block.max_rank or 0),
+                "max_residual_energy": threshold,
+                "bootstrap_lower_bound": float(lower_bound),
+                "bootstrap_upper_bound": float(upper_bound),
+            }
+
+        regularity_status, condition_number = _trek_rank_regularity_status(matrix=complete)
+        assumption_status = _trek_rank_assumption_status(
+            block=block,
+            continuous_only=continuous_only,
+        )
+        blocker_eligible = (
+            block.assumption_regime is AlgebraicAssumptionRegime.LINEAR_GAUSSIAN_CONTINUOUS
+            and regularity_status is AlgebraicRegularityStatus.REGULAR
+            and effective_mode in {
+                AlgebraicTestMode.BOOTSTRAP_MINOR,
+                AlgebraicTestMode.BOOTSTRAP_RANK,
+            }
+        )
+        blocker_conditions_met = blocker_conditions_met or blocker_eligible
+        severity = "blocker" if blocker_eligible else "warning"
+        raw_results.append(
+            {
+                "constraint": spec,
+                "statistic": float(observed),
+                "p_value": max(0.0, min(1.0, float(p_value))),
+                "raw_reject": raw_reject,
+                "severity": severity,
+                "assumption_status": assumption_status,
+                "regularity_status": regularity_status,
+                "blocker_eligible": blocker_eligible,
+                "metadata": {
+                    **metadata,
+                    "condition_number": condition_number,
+                    "complete_cases": int(complete.shape[0]),
+                    "graph_scope": block.graph_scope,
+                    "left_choke_set": list(block.left_choke_set),
+                    "right_choke_set": list(block.right_choke_set),
+                    "assumption_regime": (
+                        block.assumption_regime.value
+                        if block.assumption_regime is not None
+                        else None
+                    ),
+                    "test_mode_requested": (
+                        requested_mode.value if requested_mode is not None else None
+                    ),
+                    "test_mode_used": effective_mode.value,
+                    "blocker_conditions_met": blocker_eligible,
+                },
+            }
+        )
+        tested_count += 1
+
+    adjusted_values = _bh_adjust([float(entry["p_value"]) for entry in raw_results])
+    violations: list[ConstraintEvaluationResult] = []
+    for entry, adjusted_p in zip(raw_results, adjusted_values, strict=False):
+        if entry["raw_reject"] and adjusted_p < alpha:
+            severity = str(entry["severity"])
+            scope = (
+                AlgebraicFalsificationScope.GRAPH_CLASS
+                if severity == "blocker"
+                else AlgebraicFalsificationScope.RANKING_ONLY
+            )
+            violations.append(
+                ConstraintEvaluationResult(
+                    constraint_id=entry["constraint"].constraint_id,
+                    family=AlgebraicConstraintFamily.TREK_RANK,
+                    status="violated",
+                    statistic=float(entry["statistic"]),
+                    p_value=float(entry["p_value"]),
+                    adjusted_p_value=float(adjusted_p),
+                    severity=severity,
+                    assumption_status=entry["assumption_status"],
+                    regularity_status=entry["regularity_status"],
+                    null_distribution=AlgebraicNullDistribution.BOOTSTRAP,
+                    calibration_mode=AlgebraicCalibrationMode.BOOTSTRAP,
+                    scope_of_falsification=scope,
+                    ranking_weight=_severity_ranking_weight(severity),
+                    reproducibility_tier=(
+                        AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP
+                    ),
+                    metadata=dict(entry["metadata"]),
+                )
+            )
+
+    return {
+        "family": AlgebraicConstraintFamily.TREK_RANK,
+        "implied_constraints": implied_constraints,
+        "violations": violations,
+        "tested_count": tested_count,
+        "warnings": warnings,
+        "blocker_conditions_met": blocker_conditions_met,
+    }
+
+
+def _evaluate_nested_verma_family(
+    *,
+    blocks: list[AlgebraicBlockSpec],
+) -> dict[str, Any]:
+    implied_constraints: list[ImpliedConstraintSpec] = []
+    warnings: list[str] = []
+    for block in blocks:
+        implied_constraints.append(
+            ImpliedConstraintSpec(
+                constraint_id=f"nested_verma:{block.block_id}",
+                family=AlgebraicConstraintFamily.NESTED_VERMA,
+                statement=str(block.kernel_statement),
+                variables=tuple(block.variables),
+                source_block_id=block.block_id,
+                metadata={
+                    "cadmg_scope": block.cadmg_scope,
+                    "fixing_sequence": list(block.fixing_sequence),
+                    "model_family": (
+                        block.model_family.value
+                        if block.model_family is not None
+                        else None
+                    ),
+                    "positivity_required": block.positivity_required,
+                    "identified_kernel_ref": (
+                        block.identified_kernel_ref.model_dump(mode="json")
+                        if block.identified_kernel_ref is not None
+                        else None
+                    ),
+                    "test_mode": (
+                        block.test_mode.value
+                        if block.test_mode is not None
+                        else AlgebraicTestMode.RESEARCH_PREVIEW.value
+                    ),
+                },
+            )
+        )
+        warnings.append(
+            f"nested_verma_research_preview:{block.block_id}:ranking_only_until_calibrated"
+        )
+    return {
+        "family": AlgebraicConstraintFamily.NESTED_VERMA,
+        "implied_constraints": implied_constraints,
+        "violations": [],
+        "tested_count": 0,
+        "warnings": warnings,
+        "blocker_conditions_met": False,
+    }
+
+
+def _evaluate_algebraic_geometry_invariant_family(
+    *,
+    blocks: list[AlgebraicBlockSpec],
+) -> dict[str, Any]:
+    implied_constraints: list[ImpliedConstraintSpec] = []
+    violations: list[ConstraintEvaluationResult] = []
+    warnings: list[str] = []
+
+    for block in blocks:
+        statement_specs = [
+            ("polynomial_equality", f"{statement} = 0")
+            for statement in block.invariant_polynomials
+        ]
+        statement_specs.extend(
+            ("semi_algebraic_inequality", statement)
+            for statement in block.semi_algebraic_inequalities
+        )
+        if not statement_specs and block.certificate_ref is not None:
+            statement_specs.append(
+                ("offline_certificate", "offline algebraic-geometry certificate supplied")
+            )
+
+        for index, (statement_kind, statement) in enumerate(statement_specs, start=1):
+            implied_constraints.append(
+                ImpliedConstraintSpec(
+                    constraint_id=(
+                        "algebraic_geometry_invariant:"
+                        f"{block.block_id}:{index}"
+                    ),
+                    family=AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT,
+                    statement=str(statement),
+                    variables=tuple(block.variables),
+                    source_block_id=block.block_id,
+                    metadata={
+                        "statement_kind": statement_kind,
+                        "derivation_method": block.derivation_method,
+                        "certificate_ref": (
+                            block.certificate_ref.model_dump(mode="json")
+                            if block.certificate_ref is not None
+                            else None
+                        ),
+                        "test_mode": (
+                            block.test_mode.value
+                            if block.test_mode is not None
+                            else AlgebraicTestMode.OFFLINE_CATALOG.value
+                        ),
+                    },
+                )
+            )
+
+        warnings.append(
+            f"algebraic_geometry_invariant_research_preview:{block.block_id}:offline_ranking_only"
+        )
+        score = float(block.precomputed_violation_score or 0.0)
+        if score <= 0.0:
+            continue
+        violations.append(
+            ConstraintEvaluationResult(
+                constraint_id=f"algebraic_geometry_invariant:{block.block_id}:catalog_signal",
+                family=AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT,
+                status="violated",
+                severity="info",
+                null_distribution=AlgebraicNullDistribution.RESEARCH_PREVIEW,
+                calibration_mode=AlgebraicCalibrationMode.RESEARCH_PREVIEW,
+                scope_of_falsification=AlgebraicFalsificationScope.RANKING_ONLY,
+                ranking_weight=max(
+                    0.02,
+                    score * _severity_ranking_weight("info"),
+                ),
+                reproducibility_tier=AlgebraicReproducibilityTier.RESEARCH_PREVIEW,
+                metadata={
+                    "route": "offline_algebraic_geometry_catalog",
+                    "derivation_method": block.derivation_method,
+                    "precomputed_violation_score": score,
+                    "certificate_ref": (
+                        block.certificate_ref.model_dump(mode="json")
+                        if block.certificate_ref is not None
+                        else None
+                    ),
+                },
+            )
+        )
+        if block.certificate_ref is not None:
+            warnings.append(
+                f"algebraic_geometry_negative_certificate_candidate:{block.block_id}:proof_kernel_research_artifact"
+            )
+
+    return {
+        "family": AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT,
+        "implied_constraints": implied_constraints,
+        "violations": violations,
+        "tested_count": 0,
+        "warnings": warnings,
+        "blocker_conditions_met": False,
     }
 
 
@@ -941,6 +1791,18 @@ def _suggested_repairs(
         suggestions.append(
             "Revisit the declared expected rank or overcomplete block definition."
         )
+    if AlgebraicConstraintFamily.TREK_RANK in families:
+        suggestions.append(
+            "Revisit the declared trek-separation rank bound or low-rank block scope."
+        )
+    if AlgebraicConstraintFamily.NESTED_VERMA in families:
+        suggestions.append(
+            "Revisit the fixing sequence, kernel statement, or nested Markov supermodel assumptions."
+        )
+    if AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT in families:
+        suggestions.append(
+            "Treat algebraic-geometry catalog hits as ranking-only evidence and revisit model-class membership assumptions."
+        )
     return suggestions
 
 
@@ -952,6 +1814,8 @@ def _build_algebraic_metadata_summary(
         "n_violated_constraints": report.n_violated_constraints,
         "tested_by_family": dict(report.tested_by_family),
         "violated_by_family": dict(report.violated_by_family),
+        "blocker_conditions_met_by_family": dict(report.blocker_conditions_met_by_family),
+        "graph_ranking_penalty": float(report.graph_ranking_penalty),
         "warnings": list(report.warnings),
     }
 
@@ -1031,6 +1895,7 @@ def _run_algebraic_constraint_audit(
     families_run: list[AlgebraicConstraintFamily] = []
     tested_by_family: dict[str, int] = {}
     violated_by_family: dict[str, int] = {}
+    blocker_conditions_met_by_family: dict[str, bool] = {}
 
     ci_result = _evaluate_ci_family(
         graph=graph,
@@ -1044,9 +1909,18 @@ def _run_algebraic_constraint_audit(
     warnings.extend(ci_result["warnings"])
     tested_by_family[AlgebraicConstraintFamily.CI.value] = int(ci_result["tested_count"])
     violated_by_family[AlgebraicConstraintFamily.CI.value] = len(ci_result["violations"])
+    blocker_conditions_met_by_family[AlgebraicConstraintFamily.CI.value] = any(
+        violation.severity == "blocker" for violation in ci_result["violations"]
+    )
 
     raw_blocks = graph.metadata.get("algebraic_blocks")
     algebraic_blocks = _validate_algebraic_blocks(raw_blocks)
+    auto_trek_rank_blocks, auto_trek_warnings = _infer_graph_implied_trek_rank_blocks(
+        graph=graph,
+        variable_names=variable_names,
+        explicit_blocks=algebraic_blocks,
+    )
+    warnings.extend(auto_trek_warnings)
     tetrad_blocks = [
         block for block in algebraic_blocks if block.family is AlgebraicConstraintFamily.TETRAD
     ]
@@ -1068,6 +1942,7 @@ def _run_algebraic_constraint_audit(
         violated_by_family[AlgebraicConstraintFamily.TETRAD.value] = len(
             tetrad_result["violations"]
         )
+        blocker_conditions_met_by_family[AlgebraicConstraintFamily.TETRAD.value] = False
 
     overcomplete_blocks = [
         block
@@ -1092,6 +1967,75 @@ def _run_algebraic_constraint_audit(
         violated_by_family[AlgebraicConstraintFamily.OVERCOMPLETE.value] = len(
             overcomplete_result["violations"]
         )
+        blocker_conditions_met_by_family[AlgebraicConstraintFamily.OVERCOMPLETE.value] = False
+
+    trek_rank_blocks = [
+        block for block in algebraic_blocks if block.family is AlgebraicConstraintFamily.TREK_RANK
+    ]
+    trek_rank_blocks.extend(auto_trek_rank_blocks)
+    if trek_rank_blocks:
+        trek_rank_result = _evaluate_trek_rank_family(
+            blocks=trek_rank_blocks,
+            data=data,
+            variable_names=variable_names,
+            alpha=significance_level,
+            seed=seed,
+        )
+        families_run.append(AlgebraicConstraintFamily.TREK_RANK)
+        implied_constraints.extend(trek_rank_result["implied_constraints"])
+        violations.extend(trek_rank_result["violations"])
+        warnings.extend(trek_rank_result["warnings"])
+        tested_by_family[AlgebraicConstraintFamily.TREK_RANK.value] = int(
+            trek_rank_result["tested_count"]
+        )
+        violated_by_family[AlgebraicConstraintFamily.TREK_RANK.value] = len(
+            trek_rank_result["violations"]
+        )
+        blocker_conditions_met_by_family[AlgebraicConstraintFamily.TREK_RANK.value] = bool(
+            trek_rank_result.get("blocker_conditions_met", False)
+        )
+
+    nested_verma_blocks = [
+        block
+        for block in algebraic_blocks
+        if block.family is AlgebraicConstraintFamily.NESTED_VERMA
+    ]
+    if nested_verma_blocks:
+        nested_verma_result = _evaluate_nested_verma_family(blocks=nested_verma_blocks)
+        families_run.append(AlgebraicConstraintFamily.NESTED_VERMA)
+        implied_constraints.extend(nested_verma_result["implied_constraints"])
+        violations.extend(nested_verma_result["violations"])
+        warnings.extend(nested_verma_result["warnings"])
+        tested_by_family[AlgebraicConstraintFamily.NESTED_VERMA.value] = int(
+            nested_verma_result["tested_count"]
+        )
+        violated_by_family[AlgebraicConstraintFamily.NESTED_VERMA.value] = len(
+            nested_verma_result["violations"]
+        )
+        blocker_conditions_met_by_family[AlgebraicConstraintFamily.NESTED_VERMA.value] = False
+
+    algebraic_geometry_blocks = [
+        block
+        for block in algebraic_blocks
+        if block.family is AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT
+    ]
+    if algebraic_geometry_blocks:
+        algebraic_geometry_result = _evaluate_algebraic_geometry_invariant_family(
+            blocks=algebraic_geometry_blocks
+        )
+        families_run.append(AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT)
+        implied_constraints.extend(algebraic_geometry_result["implied_constraints"])
+        violations.extend(algebraic_geometry_result["violations"])
+        warnings.extend(algebraic_geometry_result["warnings"])
+        tested_by_family[AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT.value] = int(
+            algebraic_geometry_result["tested_count"]
+        )
+        violated_by_family[
+            AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT.value
+        ] = len(algebraic_geometry_result["violations"])
+        blocker_conditions_met_by_family[
+            AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT.value
+        ] = False
 
     return AlgebraicConstraintReport(
         severity=_max_severity([violation.severity for violation in violations]),
@@ -1101,6 +2045,8 @@ def _run_algebraic_constraint_audit(
         n_violated_constraints=len(violations),
         tested_by_family=tested_by_family,
         violated_by_family=violated_by_family,
+        blocker_conditions_met_by_family=blocker_conditions_met_by_family,
+        graph_ranking_penalty=_aggregate_graph_ranking_penalty(violations),
         warnings=_dedupe_preserve_order(warnings),
         implied_constraints_preview=implied_constraints,
         violated_constraints_preview=violations,

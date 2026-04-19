@@ -3743,6 +3743,22 @@
             "title": "Filters",
             "type": "object"
           },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "metric_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Id"
+          },
           "profile_id": {
             "anyOf": [
               {

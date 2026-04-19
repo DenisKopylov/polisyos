@@ -180,6 +180,39 @@ class TestExecuteDeterministicChecks:
         result = harness._execute_deterministic_checks(draft)
         assert len(result.findings) >= 2  # 1 range + 1 overlap
 
+    def test_uses_injected_tracer(self, monkeypatch):
+        class _Span:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                del exc_type, exc, tb
+                return None
+
+        class _Tracer:
+            def __init__(self) -> None:
+                self.names: list[str] = []
+
+            def start_as_current_span(self, name: str, attributes=None):
+                del attributes
+                self.names.append(name)
+                return _Span()
+
+        tracer = _Tracer()
+        h = _PassesHarness()
+        h._tracer = tracer
+        monkeypatch.setattr(
+            "polisyos.scientist.agent._drafter_passes._default_tracer",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("global tracer lookup should not run when tracer is injected")
+            ),
+        )
+
+        result = h._execute_deterministic_checks(_make_draft(interventions=[]))
+
+        assert result.executed is True
+        assert tracer.names == ["drafter.pass.deterministic_checks"]
+
 
 # ---------------------------------------------------------------------------
 # _augment_pass3_with_code_verification

@@ -2,6 +2,9 @@
 
 Related references: [Causal validity bundle](causal-validity.md), [Governance accountability](governance-accountability.md), [Agent search and reasoning](agent-search-reasoning.md).
 
+Owner: `@scientist-owners`
+Source of truth: `docs/reference/scientist/{causal-validity-acceptance.md,governance-accountability.md,frontier-runtime.md}`, `src/polisyos/scientist/{causal,governance,agent,search}/**`, and the cited Phase 3 regression tests
+
 This page is the repo-tracked acceptance surface for Task 4 of
 `SCIENTIST_AUDIT_REMEDIATION_PLAN.md`. The closure claim is intentionally
 scoped: the default Scientist path is claim-closed, while non-default frontier

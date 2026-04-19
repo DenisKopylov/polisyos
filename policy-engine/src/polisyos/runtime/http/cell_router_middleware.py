@@ -51,6 +51,10 @@ else:
 logger = get_logger("polisyos.security")
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class CellRouterMiddleware(_BaseHTTPMiddleware):
     """Route requests into tenant contexts and emit routing telemetry."""
 
@@ -67,7 +71,7 @@ class CellRouterMiddleware(_BaseHTTPMiddleware):
         super().__init__(app)
         self._registry = registry
         self._tenant_header = tenant_header
-        self._metrics = metrics or get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     async def dispatch(
         self,

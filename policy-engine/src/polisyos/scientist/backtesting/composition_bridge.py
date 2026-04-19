@@ -352,6 +352,14 @@ def normalize_composition_certificate(certificate: Any) -> dict[str, Any]:
         "structure_status": certificate.structure_status,
         "review_status": certificate.review_status,
         "checked_queries": dict(sorted(certificate.checked_queries.items())),
+        "query_certificates": {
+            str(key): (
+                value.model_dump(mode="json")
+                if hasattr(value, "model_dump")
+                else dict(value)
+            )
+            for key, value in sorted(getattr(certificate, "query_certificates", {}).items())
+        },
         "newly_required_assumptions": list(certificate.newly_required_assumptions),
         "structural_assumptions": list(certificate.structural_assumptions),
         "alignment_assumptions": list(certificate.alignment_assumptions),

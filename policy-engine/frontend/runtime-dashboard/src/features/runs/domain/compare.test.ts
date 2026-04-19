@@ -1,4 +1,9 @@
-import { buildAuditTrail, buildRunComparison } from "./compare";
+import {
+  buildAuditTrail,
+  buildRunComparison,
+  buildRunDeckSnapshot,
+  buildRunReportSnapshot,
+} from "./compare";
 
 describe("run comparison helpers", () => {
   it("builds comparison rows from two summaries", () => {
@@ -69,5 +74,69 @@ describe("run comparison helpers", () => {
     expect(entries[2]).toEqual(
       expect.objectContaining({ source: "governance", severity: "fail" }),
     );
+  });
+
+  it("builds typed report and deck snapshots from a run summary", () => {
+    const summary = {
+      artifactRefs: [{ artifact_id: "artifact-1", kind: "decision_card" }],
+      blockerCount: 1,
+      decisionHeadline: "Approve with conditions",
+      decisionScore: 0.81,
+      decisionView: {
+        confidence: "HIGH",
+        verdict: "APPROVE",
+      },
+      evidenceContext: {
+        fetchPlans: [{ planId: "plan-1" }],
+        promotionCandidates: [{ promotionId: "promotion-1" }],
+      },
+      governanceIssues: [],
+      impactRows: [{ display: "+2.4", label: "Coverage", value: 2.4 }],
+      pipeline: {
+        evaluator: { verdict: "APPROVE" },
+      },
+      primaryIssue: { message: "Pending legal confirmation" },
+      run: {
+        run_id: "run-1",
+        source_kind: "core_run",
+        status: "completed",
+      },
+      selectedNeed: {
+        granularity: "monthly",
+        metric: "Inflation",
+        needId: "need-1",
+        timeEnd: "2025",
+        timeStart: "2022",
+      },
+      selectedPlan: {
+        connectorId: "world-bank",
+        datasetId: "inflation",
+        matchedNeedIds: ["need-1"],
+        planId: "plan-1",
+        sourceLane: "core",
+      },
+      selectedPromotion: {
+        confidence: 0.82,
+        connectorId: "world-bank",
+        datasetId: "inflation",
+        promotionId: "promotion-1",
+        sourceLane: "promotion",
+        status: "pending",
+      },
+      transportStatus: "live",
+    } as never;
+
+    const report = buildRunReportSnapshot(summary, []);
+    const deck = buildRunDeckSnapshot(summary, report);
+
+    expect(report).toMatchObject({
+      decisionConfidence: "HIGH",
+      mainUncertainty: "Pending legal confirmation",
+      primaryVerdict: "APPROVE",
+      runId: "run-1",
+    });
+    expect(deck.cover.title).toContain("run-1");
+    expect(deck.metrics.cards).toHaveLength(4);
+    expect(deck.evidence.provenance).toContain("world-bank");
   });
 });

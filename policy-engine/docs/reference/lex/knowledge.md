@@ -1,6 +1,9 @@
 # Lex Knowledge
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
+Owner: `@lex-owners`
+Source of truth: `src/polisyos/lex/knowledge/**`, `src/polisyos/lex/__init__.py`, and the current package facade documented on `docs/reference/lex/index.md`
+
 The knowledge layer exposes read-only legal search over DuckDB tables and HNSW
 vector indexes. It is the runtime search surface used by legal evaluation,
 retrieval, and grounding workflows.

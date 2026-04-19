@@ -46,6 +46,7 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
+        "run_id",
         f"reports_index.{REPORT_GOVERNANCE_REPORT_REF}",
         "params.run_budget_usd",
         "params.run_cost_usd",

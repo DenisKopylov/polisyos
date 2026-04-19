@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import mimetypes
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import (
@@ -30,22 +30,26 @@ from polisyos.runtime.http.response_policies import (
     set_immutable_resource_headers,
 )
 
-try:  # pragma: no cover - optional runtime dependency
-    APIRouter: Any | None
-    Depends: Any | None
-    Query: Any | None
-    Request: Any
-    Response: Any
+if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
-except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None
-    Depends = None
-    Query = None
-    Request = Any
-    Response = Any
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from fastapi import APIRouter, Depends, Query, Request, Response
+    except ModuleNotFoundError:  # pragma: no cover
+        APIRouter = cast("Any", None)
+        Depends = cast("Any", None)
+        Query = cast("Any", None)
+        Request = cast("Any", Any)
+        Response = cast("Any", Any)
 
 
-router = APIRouter(prefix="/api/v1/artifacts", tags=["runtime-artifacts"]) if APIRouter else None
+def _build_router() -> APIRouter:
+    if APIRouter is None:  # pragma: no cover - runtime dependency guard
+        raise RuntimeError("runtime HTTP routes require FastAPI to be installed")
+    return APIRouter(prefix="/api/v1/artifacts", tags=["runtime-artifacts"])
+
+
+router = _build_router()
 
 
 if router is not None:
@@ -277,7 +281,12 @@ if router is not None:
             resource_id=str(parsed_id),
             tenant_id=tenant_id,
         )
-        return ArtifactSchemaResponse(meta=build_meta(request), schema_view=schema_view)
+        return ArtifactSchemaResponse.model_validate(
+            {
+                "meta": build_meta(request),
+                "schema": schema_view.model_dump(mode="json"),
+            }
+        )
 
     @router.get(
         "/{artifact_id}/download",

@@ -61,3 +61,17 @@ def test_gcs_store_get_bytes_rehashes_blob_on_read() -> None:
         store.get_bytes(ref.artifact_id)
 
     assert metrics.events == [("gcs", "ArtifactIntegrityError")]
+
+
+def test_gcs_store_accepts_injected_metrics(monkeypatch: pytest.MonkeyPatch) -> None:
+    metrics = _MetricsStub()
+    monkeypatch.setattr(
+        "polisyos.core.artifacts.backends.gcs_store._default_metrics",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global metrics lookup should not run when metrics are injected")
+        ),
+    )
+
+    store = GCSArtifactStore(bucket="test-bucket", metrics=metrics)
+
+    assert store._metrics is metrics

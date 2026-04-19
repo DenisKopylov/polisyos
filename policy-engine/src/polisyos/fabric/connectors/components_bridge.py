@@ -15,6 +15,10 @@ from .capabilities import validate_protocol_compliance
 from .registry import ConnectorAlreadyRegisteredError, ConnectorRegistry
 
 
+def _default_connector_registry() -> ConnectorRegistry:
+    return ConnectorRegistry.get_instance(bootstrap=False)
+
+
 @dataclass(slots=True)
 class ComponentsBridgeError:
     """Components bridge error exception."""
@@ -37,7 +41,7 @@ def bootstrap_connector_registry_from_components(
     allow_dev_overrides: bool = True,
 ) -> ComponentsBridgeReport:
     """Bootstrap connector registry from components helper."""
-    connector_registry = ConnectorRegistry.get_instance(bootstrap=False) if registry is None else registry
+    connector_registry = registry if registry is not None else _default_connector_registry()
     report = ComponentsBridgeReport()
 
     host = HostAbi(

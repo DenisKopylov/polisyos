@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from decimal import Decimal
+from types import SimpleNamespace
 
 import pytest
 
@@ -314,3 +315,116 @@ async def test_supervisor_executes_worker_dependency_dag_by_tiers() -> None:
     assert result.status == "ok"
     assert [item.task_id for item in result.worker_results] == ["root-a", "root-b", "child"]
     assert completed == {"root-a", "root-b", "child"}
+
+
+@pytest.mark.asyncio
+async def test_supervisor_provenance_export_assertion_is_not_swallowed() -> None:
+    async def worker(task: WorkerTaskEnvelope) -> WorkerTaskResult:
+        return WorkerTaskResult(
+            task_id=task.task_id,
+            worker_name=task.worker_name,
+            output_text="ok",
+            confidence=0.8,
+        )
+
+    class _Dag:
+        def set_experiment_metadata(self, **_kwargs) -> None:
+            return None
+
+        def record_node_execution(self, **_kwargs) -> None:
+            return None
+
+        def finalize(self) -> None:
+            return None
+
+        def to_prov_json(self):
+            raise AssertionError("provenance export invariant failed")
+
+    registry = build_worker_tool_registry({"worker": worker})
+    supervisor = ScientistSupervisorAgent(
+        registry,
+        config=ScientistSupervisorConfig(
+            max_parallel_workers=1,
+            max_total_workers=2,
+            max_total_budget_usd=Decimal("0"),
+        ),
+    )
+
+    with pytest.raises(AssertionError, match="provenance export invariant failed"):
+        await supervisor.run(
+            [
+                WorkerTaskEnvelope(
+                    task_id="task-1",
+                    worker_name="worker",
+                    objective="do thing",
+                )
+            ],
+            objective="do thing",
+            provenance_dag=_Dag(),
+        )
+
+
+@pytest.mark.asyncio
+async def test_supervisor_worker_execution_assertion_is_not_swallowed() -> None:
+    class _Registry:
+        async def aexecute(self, _worker_name: str, _payload):
+            raise AssertionError("worker execution invariant failed")
+
+    supervisor = ScientistSupervisorAgent(
+        _Registry(),
+        config=ScientistSupervisorConfig(
+            max_parallel_workers=1,
+            max_total_workers=1,
+            max_total_budget_usd=Decimal("0"),
+        ),
+    )
+
+    with pytest.raises(ExceptionGroup) as exc_info:
+        await supervisor.delegate_worker(
+            WorkerTaskEnvelope(
+                task_id="task-1",
+                worker_name="worker",
+                objective="do thing",
+            )
+        )
+
+    assert any(
+        isinstance(exc, AssertionError) and str(exc) == "worker execution invariant failed"
+        for exc in exc_info.value.exceptions
+    )
+
+
+@pytest.mark.asyncio
+async def test_supervisor_worker_result_assertion_is_not_swallowed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _Registry:
+        async def aexecute(self, _worker_name: str, _payload):
+            return SimpleNamespace(error=None, result={"task_id": "task-1"}, duration_ms=1.0)
+
+    def _boom(_payload):
+        raise AssertionError("worker result validation invariant failed")
+
+    monkeypatch.setattr(WorkerTaskResult, "model_validate", _boom)
+    supervisor = ScientistSupervisorAgent(
+        _Registry(),
+        config=ScientistSupervisorConfig(
+            max_parallel_workers=1,
+            max_total_workers=1,
+            max_total_budget_usd=Decimal("0"),
+        ),
+    )
+
+    with pytest.raises(ExceptionGroup) as exc_info:
+        await supervisor.delegate_worker(
+            WorkerTaskEnvelope(
+                task_id="task-1",
+                worker_name="worker",
+                objective="do thing",
+            )
+        )
+
+    assert any(
+        isinstance(exc, AssertionError) and str(exc) == "worker result validation invariant failed"
+        for exc in exc_info.value.exceptions
+    )

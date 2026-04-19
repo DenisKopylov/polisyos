@@ -1,4 +1,4 @@
-"""Public governance pass entrypoints module API."""
+"""Factory entrypoints for the built-in Scientist governance pass registry."""
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -28,102 +28,102 @@ from .passes.transportability_required_pass import TransportabilityRequiredPass
 
 
 def budget_pass_factory() -> ValidatorPass:
-    """Budget pass factory helper."""
+    """Create the pass that enforces workflow budget constraints."""
     return BudgetPass()
 
 
 def checkpoint_pass_factory() -> ValidatorPass:
-    """Checkpoint pass factory helper."""
+    """Create the pass that verifies checkpoint availability and consistency."""
     return CheckpointPass()
 
 
 def schema_pass_factory() -> ValidatorPass:
-    """Schema pass factory helper."""
+    """Create the pass that validates required schema-bearing artifacts."""
     return SchemaPass()
 
 
 def privacy_pass_factory() -> ValidatorPass:
-    """Privacy pass factory helper."""
+    """Create the pass that enforces privacy policy checks."""
     return PrivacyPass()
 
 
 def pii_check_pass_factory() -> ValidatorPass:
-    """Pii check pass factory helper."""
+    """Create the pass that detects personally identifiable information risk."""
     return PIICheckPass()
 
 
 def freshness_pass_factory() -> ValidatorPass:
-    """Freshness pass factory helper."""
+    """Create the pass that checks evidence freshness requirements."""
     return FreshnessPass()
 
 
 def sutva_check_pass_factory() -> ValidatorPass:
-    """Sutva check pass factory helper."""
+    """Create the pass that checks SUTVA-related causal validity assumptions."""
     return SutvaCheckPass()
 
 
 def transportability_required_pass_factory() -> ValidatorPass:
-    """Transportability required pass factory helper."""
+    """Create the pass that requires transportability evidence when needed."""
     return TransportabilityRequiredPass()
 
 
 def strategic_response_pass_factory() -> ValidatorPass:
-    """Strategic response pass factory helper."""
+    """Create the pass that reviews strategic-response risk artifacts."""
     return StrategicResponsePass()
 
 
 def safety_pass_factory() -> ValidatorPass:
-    """Safety pass factory helper."""
+    """Create the pass that runs core safety validation checks."""
     return SafetyPass()
 
 
 def equity_pass_factory() -> ValidatorPass:
-    """Equity pass factory helper."""
+    """Create the pass that evaluates equity and fairness evidence."""
     return EquityPass()
 
 
 def cross_graph_evidence_pass_factory() -> ValidatorPass:
-    """Cross graph evidence pass factory helper."""
+    """Create the pass that verifies cross-graph evidence coverage."""
     return CrossGraphEvidencePass()
 
 
 def literature_gate_pass_factory() -> ValidatorPass:
-    """Literature gate pass factory helper."""
+    """Create the pass that checks literature-grounding requirements."""
     return LiteratureGatePass()
 
 
 def normative_arbitration_pass_factory() -> ValidatorPass:
-    """Normative arbitration pass factory helper."""
+    """Create the pass that arbitrates conflicting normative signals."""
     return NormativeArbitrationPass()
 
 
 def legal_pass_factory() -> ValidatorPass:
-    """Legal pass factory helper."""
+    """Create the legal validation pass with the default stub backend."""
     return LegalPass(backend=StubBackend())
 
 
 def confidence_pass_factory() -> ValidatorPass:
-    """Confidence pass factory helper."""
+    """Create the pass that validates confidence and uncertainty posture."""
     return ConfidencePass()
 
 
 def refutation_pass_factory() -> ValidatorPass:
-    """Refutation pass factory helper."""
+    """Create the pass that requires refutation evidence for estimates."""
     return RefutationPass()
 
 
 def human_review_required_pass_factory() -> ValidatorPass:
-    """Human review required pass factory helper."""
+    """Create the pass that blocks automation until human review is recorded."""
     return HumanReviewRequiredPass()
 
 
 def quality_gate_pass_factory() -> ValidatorPass:
-    """Quality gate pass factory helper."""
+    """Create the pass that aggregates quality-gate verdicts."""
     return QualityGatePass()
 
 
 def builtin_governance_pass_factories() -> dict[str, Callable[[], ValidatorPass]]:
-    """Builtin governance pass factories helper."""
+    """Return the stable registry of built-in governance pass factories."""
     return {
         "budget": budget_pass_factory,
         "checkpoint": checkpoint_pass_factory,

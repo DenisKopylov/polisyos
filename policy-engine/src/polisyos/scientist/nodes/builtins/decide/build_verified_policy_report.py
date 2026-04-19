@@ -13,6 +13,7 @@ from polisyos.core.contracts.scientist import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_POLICY_OPTION_SET_REF,
     ARTIFACT_POLICY_REQUEST_FRAME_REF,
@@ -44,6 +45,7 @@ _SPEC = NodeSpec(
         "policy_option_set_ref",
         "source_verification_report_ref",
         "params.needs_expert_review",
+        "artifacts_index",
     ],
     state_writes=[
         "verified_policy_report_ref",
@@ -85,7 +87,7 @@ class BuildVerifiedPolicyReportNode:
                 InputRef(artifact_id=report_ref.artifact_id, role="source_verification_report"),
             ],
         )
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.verified_policy_report_ref = payload_ref
         new_state.artifacts_index[ARTIFACT_VERIFIED_POLICY_REPORT_REF] = payload_ref
         return NodeOutcome(

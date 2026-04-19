@@ -12,7 +12,13 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
-from polisyos.ir.analytics.partial_identification import BoundsBundle, persist_bounds_bundle
+from polisyos.ir.analytics.dual_certificate import (
+    hydrate_bounds_bundle_with_dual_certificate,
+)
+from polisyos.ir.analytics.partial_identification import (
+    BoundsBundle,
+    persist_bounds_bundle,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef
 from polisyos.ir.observation.causal_execution import BoundsEstimationEntry, BoundsEstimationTask
 
@@ -60,6 +66,13 @@ class BoundsEstimationRunner:
                 params = self._effective_params(resolved_task)
                 result = BoundsEngineMethod.pure_step(resolved_task.bounds_input, params)
                 bundle = BoundsBundle.model_validate(result["bounds_report"])
+                certificate_payload = result.get("dual_certificate_payload")
+                bundle, bundle_inputs = hydrate_bounds_bundle_with_dual_certificate(
+                    self.store,
+                    bundle,
+                    certificate_payload,
+                    inputs=list(base_inputs),
+                )
                 warnings.extend(bundle.warnings)
                 interval = None
                 width = None
@@ -75,7 +88,7 @@ class BoundsEstimationRunner:
                 bounds_ref = persist_bounds_bundle(
                     self.store,
                     bundle,
-                    inputs=base_inputs,
+                    inputs=bundle_inputs,
                 )
                 entry = BoundsEstimationEntry(
                     task_id=resolved_task.task_id,

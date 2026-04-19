@@ -10,12 +10,13 @@ from __future__ import annotations
 
 import logging
 import threading
-from typing import Any, Optional
+from typing import Any, Optional, Self, cast
 
 from opentelemetry import metrics
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import (
     ConsoleMetricExporter,
+    MetricReader,
     PeriodicExportingMetricReader,
 )
 from opentelemetry.sdk.resources import Resource
@@ -28,7 +29,7 @@ from ..observability.config import (
     get_resource_config,
 )
 
-__all__ = ["_MetricsRegistryBase"]
+__all__ = ["MetricsRegistryBase"]
 
 _bootstrap_logger = logging.getLogger(__name__)
 
@@ -44,6 +45,11 @@ class _MetricsRegistryBase:
     _instance: Optional["_MetricsRegistryBase"] = None
     _lock: threading.Lock = threading.Lock()
     _initialized: bool = False
+
+    @classmethod
+    def current_instance(cls) -> Self | None:
+        """Return the cached singleton instance without forcing initialization."""
+        return cast("Self | None", cls._instance)
 
     # -- Workflow metric instruments ----------------------------------------
     workflow_runs_total: Optional[metrics.Counter] = None
@@ -233,7 +239,7 @@ class _MetricsRegistryBase:
             resource = Resource.create(resource_config.to_attributes())
 
             # Configure metric readers
-            readers = []
+            readers: list[MetricReader] = []
 
             # Prometheus exporter
             if self._config.metrics_exporter == MetricsExporterType.PROMETHEUS:
@@ -1087,7 +1093,7 @@ class _MetricsRegistryBase:
     def _default_env(self) -> str:
         config = getattr(self, "_config", None)
         if config is not None:
-            return config.environment
+            return str(config.environment)
         return "unknown"
 
     def _with_env(self, attributes: Optional[dict[str, Any]]) -> dict[str, Any]:
@@ -1105,3 +1111,6 @@ class _MetricsRegistryBase:
         health = self._exporter_health.setdefault(exporter, {"status": "ok", "failures": []})
         if health.get("status") != "degraded":
             health["status"] = "ok"
+
+
+MetricsRegistryBase = _MetricsRegistryBase

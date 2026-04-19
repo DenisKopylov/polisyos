@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -238,6 +239,7 @@ class RunIndexService:
                     continue
                 next_fingerprints[run_dir] = fingerprint
                 cached = self._cache.get(run_dir.name)
+                record: IndexedRunRecord | None
                 if (
                     cached is not None
                     and self._dir_fingerprints.get(run_dir) == fingerprint
@@ -310,9 +312,9 @@ def _core_result_to_indexed(
         validity = evaluation
         if evaluation.superseded_by_ref:
             superseded_by_ref = ArtifactRef(
-                artifact_id=evaluation.superseded_by_ref,
-                kind=None,
-                media_type=None,
+                artifact_id=ArtifactID.model_validate(evaluation.superseded_by_ref),
+                kind=result.decision_packet_ref.kind,
+                media_type=result.decision_packet_ref.media_type,
             )
     details = RunDetails(
         run_id=result.run_id,
@@ -384,7 +386,7 @@ def _parse_cursor(cursor: str | None) -> int:
     return value
 
 
-def _iter_run_dirs(root: Path):
+def _iter_run_dirs(root: Path) -> Iterator[Path]:
     for item in root.iterdir():
         if item.is_dir():
             yield item

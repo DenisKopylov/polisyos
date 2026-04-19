@@ -327,6 +327,9 @@ class JudgeInputBundle(BaseModel):
                 "readiness_target": self.readiness_target,
             },
         )
+        dp_summary = _resolve_dp_consumer_summary(self, store=None)
+        if dp_summary is not None:
+            state.setdefault("dp_robustness", dp_summary)
         return state
 
     def build_pass_context(self, pass_ids: Iterable[str]) -> PassContext:
@@ -544,6 +547,62 @@ class JudgeStack:
                     )
                 )
 
+        dp_summary = _resolve_dp_consumer_summary(bundle, store=self._store)
+        if dp_summary is not None:
+            radius = _as_float(dp_summary.get("distortion_radius"))
+            if radius is not None:
+                metrics["dp_distortion_radius"] = radius
+            status = str(dp_summary.get("effective_status") or "").strip().lower()
+            if status:
+                metrics["dp_release_identified"] = 1.0 if status == "identified" else 0.0
+                claim_mode = bundle.effective_claim_mode()
+                if status == "bounded":
+                    card = TypedFailureCard(
+                        judge_name=JudgeName.STRUCTURAL.value,
+                        failure_type="dp_release_bounded",
+                        severity=(
+                            FailureSeverity.BLOCKER
+                            if claim_mode == "estimation"
+                            else FailureSeverity.WARNING
+                        ),
+                        description=(
+                            "DP distortion downgrades this release to bounds-only use."
+                            if claim_mode != "proof_only"
+                            else "DP distortion limits this release to bounds-only evaluation."
+                        ),
+                        uncertainty_type=UncertaintyType.STRUCTURAL,
+                        metadata=dp_summary,
+                    )
+                    if card.is_blocker:
+                        cards.append(card)
+                    else:
+                        warnings.append(card)
+                elif status in {"unidentifiable", "blocked"}:
+                    card = TypedFailureCard(
+                        judge_name=JudgeName.STRUCTURAL.value,
+                        failure_type=(
+                            "dp_release_blocked"
+                            if status == "blocked"
+                            else "dp_release_unidentifiable"
+                        ),
+                        severity=(
+                            FailureSeverity.WARNING
+                            if claim_mode == "proof_only"
+                            else FailureSeverity.BLOCKER
+                        ),
+                        description=(
+                            "DP distortion invalidates decision-grade estimation for this release."
+                            if claim_mode != "proof_only"
+                            else "DP distortion invalidates execution on this release; structural proof remains research-only."
+                        ),
+                        uncertainty_type=UncertaintyType.STRUCTURAL,
+                        metadata=dp_summary,
+                    )
+                    if card.is_blocker:
+                        cards.append(card)
+                    else:
+                        warnings.append(card)
+
         return _judge_result(
             judge_name=JudgeName.STRUCTURAL,
             fatal=True,
@@ -608,19 +667,47 @@ class JudgeStack:
             if report.positivity is not None:
                 metrics["ess_fraction"] = float(report.positivity.ess_fraction)
                 metrics["overlap_score"] = float(report.positivity.overlap_score)
+            dp_summary = _resolve_dp_consumer_summary(
+                bundle,
+                store=self._store,
+                report=report,
+            )
+            if dp_summary is not None:
+                radius = _as_float(dp_summary.get("distortion_radius"))
+                if radius is not None:
+                    metrics["dp_distortion_radius"] = radius
+                epsilon = _as_float(dp_summary.get("epsilon"))
+                if epsilon is not None:
+                    metrics["dp_epsilon"] = epsilon
+                status = str(dp_summary.get("effective_status") or "").strip().lower()
+                if status:
+                    metrics["dp_release_identified"] = 1.0 if status == "identified" else 0.0
             if bundle.effective_claim_mode() in {"bounds", "estimation"} and report.decision in {"block", "unknown"}:
                 cards.append(
                     TypedFailureCard(
                         judge_name=JudgeName.STATISTICAL.value,
-                        failure_type="data_readiness_blocked",
+                        failure_type=(
+                            "dp_data_readiness_blocked"
+                            if dp_summary is not None
+                            and str(dp_summary.get("effective_status") or "").strip().lower()
+                            in {"blocked", "unidentifiable"}
+                            else "data_readiness_blocked"
+                        ),
                         severity=FailureSeverity.BLOCKER,
                         description=(
-                            f"Data readiness decision '{report.decision}' is not promotion-safe."
+                            (
+                                "Data readiness is blocked by DP robustness constraints."
+                                if dp_summary is not None
+                                and str(dp_summary.get("effective_status") or "").strip().lower()
+                                in {"blocked", "unidentifiable"}
+                                else f"Data readiness decision '{report.decision}' is not promotion-safe."
+                            )
                         ),
                         uncertainty_type=UncertaintyType.STATISTICAL,
                         metadata={
                             "blocking_reasons": list(report.blocking_reasons),
                             "warnings": list(report.warnings),
+                            **({"dp_robustness": dp_summary} if dp_summary is not None else {}),
                         },
                     )
                 )
@@ -628,11 +715,26 @@ class JudgeStack:
                 warnings.append(
                     TypedFailureCard(
                         judge_name=JudgeName.STATISTICAL.value,
-                        failure_type="data_readiness_warn",
+                        failure_type=(
+                            "dp_bounds_only"
+                            if dp_summary is not None
+                            and str(dp_summary.get("effective_status") or "").strip().lower()
+                            == "bounded"
+                            else "data_readiness_warn"
+                        ),
                         severity=FailureSeverity.WARNING,
-                        description="Data readiness is warning-capped for promotion.",
+                        description=(
+                            "DP robustness caps this release at bounds-only use."
+                            if dp_summary is not None
+                            and str(dp_summary.get("effective_status") or "").strip().lower()
+                            == "bounded"
+                            else "Data readiness is warning-capped for promotion."
+                        ),
                         uncertainty_type=UncertaintyType.STATISTICAL,
-                        metadata={"warnings": list(report.warnings)},
+                        metadata={
+                            "warnings": list(report.warnings),
+                            **({"dp_robustness": dp_summary} if dp_summary is not None else {}),
+                        },
                     )
                 )
 
@@ -1409,6 +1511,10 @@ class PolicyPromotionCoordinator:
                     if judge_input.latent_governance_assessment() is None
                     else judge_input.latent_governance_assessment().model_dump(mode="json")
                 ),
+                "dp_robustness": _resolve_dp_consumer_summary(
+                    judge_input,
+                    store=self._store,
+                ),
             },
             claim_mode=judge_input.effective_claim_mode(),
         )
@@ -1880,6 +1986,143 @@ def _evidence_refs(bundle: JudgeInputBundle) -> list[ArtifactRef]:
 
 def _to_artifact_ref(ref: Any) -> ArtifactRef:
     return ArtifactRef.model_validate(ref.model_dump(mode="json"))
+
+
+def _resolve_dp_consumer_summary(
+    bundle: JudgeInputBundle,
+    *,
+    store: FileSystemCAS | None,
+    report: DataReadinessReport | None = None,
+) -> dict[str, Any] | None:
+    summary = _coerce_dp_summary(getattr(report, "dp_distortion", None))
+    if summary is not None:
+        return summary
+
+    summary = _coerce_dp_summary(
+        getattr(bundle.data_readiness_report, "dp_distortion", None)
+    )
+    if summary is not None:
+        return summary
+
+    if store is not None and bundle.data_readiness_report_ref is not None:
+        try:
+            loaded_report = load_data_readiness_report(store, bundle.data_readiness_report_ref)
+        except Exception:
+            loaded_report = None
+        summary = _coerce_dp_summary(getattr(loaded_report, "dp_distortion", None))
+        if summary is not None:
+            return summary
+
+    if store is not None and bundle.proof_bundle_ref is not None:
+        try:
+            proof_bundle = load_proof_bundle(store, bundle.proof_bundle_ref)
+        except Exception:
+            proof_bundle = None
+        summary = _coerce_dp_summary_from_metadata(
+            getattr(proof_bundle, "metadata", None),
+            source="proof_bundle",
+        )
+        if summary is not None:
+            return summary
+
+    if store is not None and bundle.bounds_bundle_ref is not None:
+        try:
+            bounds_bundle = load_bounds_bundle(store, bundle.bounds_bundle_ref)
+        except Exception:
+            bounds_bundle = None
+        summary = _coerce_dp_summary_from_metadata(
+            getattr(bounds_bundle, "metadata", None),
+            source="bounds_bundle",
+        )
+        if summary is not None:
+            return summary
+    return None
+
+
+def _coerce_dp_summary_from_metadata(
+    payload: Any,
+    *,
+    source: str,
+) -> dict[str, Any] | None:
+    if not isinstance(payload, dict):
+        return None
+    candidate: dict[str, Any] = {}
+    context = payload.get("dp_context")
+    if isinstance(context, dict):
+        candidate.update(context)
+    candidate.update(
+        {
+            "effective_status": payload.get("dp_effective_status"),
+            "block_reason": payload.get("dp_block_reason"),
+            "dp_robustness_ref": payload.get("dp_robustness_ref"),
+            "effect_interval": payload.get("effect_interval"),
+        }
+    )
+    if "dp_distortion_radius" in payload:
+        candidate["distortion_radius"] = payload.get("dp_distortion_radius")
+    if "dp_mechanism_family" in payload:
+        candidate["mechanism_family"] = payload.get("dp_mechanism_family")
+    summary = _coerce_dp_summary(candidate)
+    if summary is None:
+        return None
+    summary.setdefault("source", source)
+    return summary
+
+
+def _coerce_dp_summary(payload: Any) -> dict[str, Any] | None:
+    if not isinstance(payload, dict):
+        return None
+
+    summary: dict[str, Any] = {}
+    effective_status = payload.get("effective_status", payload.get("dp_effective_status"))
+    if effective_status is not None:
+        summary["effective_status"] = str(effective_status)
+    reason = payload.get("reason")
+    if reason is not None:
+        summary["reason"] = str(reason)
+    block_reason = payload.get("block_reason", payload.get("dp_block_reason"))
+    if block_reason is not None:
+        summary["block_reason"] = str(block_reason)
+    distortion_radius = payload.get("distortion_radius", payload.get("dp_distortion_radius"))
+    if distortion_radius is not None:
+        radius = _as_float(distortion_radius)
+        summary["distortion_radius"] = radius if radius is not None else distortion_radius
+    distortion_norm = payload.get("distortion_norm")
+    if distortion_norm is not None:
+        summary["distortion_norm"] = str(distortion_norm)
+    epsilon = payload.get("epsilon", payload.get("dp_epsilon"))
+    if epsilon is not None:
+        epsilon_value = _as_float(epsilon)
+        summary["epsilon"] = epsilon_value if epsilon_value is not None else epsilon
+    delta = payload.get("delta", payload.get("dp_delta"))
+    if delta is not None:
+        delta_value = _as_float(delta)
+        summary["delta"] = delta_value if delta_value is not None else delta
+    mechanism_family = payload.get("mechanism_family", payload.get("dp_mechanism_family"))
+    if mechanism_family is not None:
+        summary["mechanism_family"] = str(mechanism_family)
+    for key in (
+        "n_min_for_identified",
+        "epsilon_min_for_identified",
+        "sample_size_amplification_required",
+        "dp_robustness_ref",
+        "source",
+    ):
+        if key in payload and payload.get(key) is not None:
+            summary[key] = payload.get(key)
+    effect_interval = payload.get("effect_interval")
+    if isinstance(effect_interval, (list, tuple)) and len(effect_interval) == 2:
+        summary["effect_interval"] = [effect_interval[0], effect_interval[1]]
+    if "effective_status" not in summary:
+        return None
+    return summary
+
+
+def _as_float(value: Any) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _attach_policy_metadata(

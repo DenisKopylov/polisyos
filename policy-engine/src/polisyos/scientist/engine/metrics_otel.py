@@ -22,6 +22,10 @@ class TraceCorrelationRecord:
     span_id: str | None = None
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class OTelEngineMetrics:
     """Records engine metrics via the PolicyOS MetricsRegistry singleton."""
 
@@ -31,7 +35,7 @@ class OTelEngineMetrics:
         metrics: MetricsRegistry | None = None,
         max_trace_correlations: int = 256,
     ) -> None:
-        self._m = metrics if metrics is not None else get_metrics()
+        self._m = metrics if metrics is not None else _default_metrics()
         self._recent_trace_correlations: deque[TraceCorrelationRecord] = deque(
             maxlen=max(1, int(max_trace_correlations)),
         )

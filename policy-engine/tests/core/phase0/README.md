@@ -1,66 +1,84 @@
 # Core Phase0 Tests
 
-`tests/core/phase0` покрывает фундаментальные примитивы `polisyos.core`: CAS/артефакты, canonical JSON, signing, run context и observability.
+`tests/core/phase0` is the deepest platform-safety slice inside `tests/core`.
+It covers artifact storage, canonical serialization, signing, run context,
+audit export, and observability. The directory currently contains `23`
+`test_*.py` files plus a local `conftest.py`.
 
-Актуально на **17 февраля 2026**.
+## Purpose
 
-## Состав
+- Protect content-addressed storage, registry bundles, and provenance shims.
+- Keep canonical JSON and environment manifests reproducible.
+- Verify signing, audit export, tracing, logging, and run-lifecycle behavior.
 
-- `21` файл `test_*.py`
-- `1` `conftest.py`
+## Where To Start
 
-## Ключевые группы
+- [`../../../src/polisyos/core/README.md`](../../../src/polisyos/core/README.md)
+- `test_artifact_store.py`, `test_canon_json.py`, and `test_observability.py`
+  for representative artifact, canon, and telemetry coverage.
+- `conftest.py` if the change depends on local fixtures or setup.
 
-### CAS и артефакты
+## Public Entrypoints
 
-- `test_artifact_store.py`
-- `test_artifact_export_import.py`
-- `test_artifact_graph.py`
-- `test_provenance_contract_shims.py`
+- Artifact and provenance tests:
+  `test_artifact_store.py`, `test_artifact_export_import.py`,
+  `test_artifact_graph.py`, `test_provenance_contract_shims.py`
+- Signing and trust tests:
+  `test_signing.py`, `test_store_signing.py`, `test_cli_signing.py`
+- Canon, environment, and run lifecycle tests:
+  `test_canon_json.py`, `test_environment_manifest.py`,
+  `test_run_context.py`, `test_registry_bundle.py`, `test_cli.py`,
+  `test_cli_resume.py`
+- Audit and observability tests:
+  `test_audit_export_verify.py`, `test_audit_manifest_compat.py`,
+  `test_tracer.py`, `test_metrics.py`, `test_logs.py`,
+  `test_decorators.py`, `test_propagation.py`, `test_observability.py`
 
-Проверяются: content-addressing, экспорт/импорт, граф связей артефактов, совместимость provenance-контрактов.
+## Depends On / Depended On By
 
-### Подпись и доверие
+**Depends on**
 
-- `test_signing.py`
-- `test_store_signing.py`
-- `test_cli_signing.py`
+- `src/polisyos/core/artifacts`
+- `src/polisyos/core/canon`
+- `src/polisyos/core/observability`
+- `src/polisyos/core/run`
 
-Проверяются: Ed25519 signing/verify, sidecar-подписи в CAS, CLI-поток keygen/sign/verify.
+**Depended on by**
 
-### Canon / environment / run lifecycle
+- [`../README.md`](../README.md) and the wider core slice
+- Contract, runtime, scientist, and foundry tests that rely on the same
+  artifact and observability guarantees
 
-- `test_canon_json.py`
-- `test_environment_manifest.py`
-- `test_run_context.py`
-- `test_registry_bundle.py`
-- `test_cli.py`, `test_cli_resume.py`
+## Common Commands
 
-Проверяются: детерминизм канона, воспроизводимость окружения, контекст запуска, registry bundle, базовые CLI сценарии.
-
-### Audit и наблюдаемость
-
-- `test_audit_export_verify.py`
-- `test_audit_manifest_compat.py`
-- `test_tracer.py`, `test_metrics.py`, `test_logs.py`
-- `test_decorators.py`, `test_propagation.py`, `test_observability.py`
-
-Проверяются: audit export/verify контракты, OTEL-трассировка, метрики, корреляция логов и propagation trace context.
-
-## Связи с другими директориями
-
-- `policy-engine/src/polisyos/core/artifacts`
-- `policy-engine/src/polisyos/core/canon`
-- `policy-engine/src/polisyos/core/observability`
-- `policy-engine/src/polisyos/core/run`
-
-## Запуск
+Run commands from `policy-engine/`.
 
 ```bash
-pytest tests/core/phase0 -q
+# conceptual: full phase0 slice
+uv run pytest tests/core/phase0 -q
 
-# точечно
-pytest tests/core/phase0/test_artifact_store.py -q
-pytest tests/core/phase0/test_canon_json.py -q
-pytest tests/core/phase0/test_observability.py -q
+# conceptual: targeted probes
+uv run pytest tests/core/phase0/test_artifact_store.py -q
+uv run pytest tests/core/phase0/test_canon_json.py -q
+uv run pytest tests/core/phase0/test_observability.py -q
 ```
+
+## Test And Verification Commands
+
+The collect-only command below was smoke-checked on `2026-04-17`.
+
+```bash
+cd policy-engine
+uv run pytest --collect-only tests/core/phase0 -q
+```
+
+## Reference Docs
+
+- [`../README.md`](../README.md)
+- [`../../../src/polisyos/core/README.md`](../../../src/polisyos/core/README.md)
+- [`../../../docs/reference/generated-artifacts.md`](../../../docs/reference/generated-artifacts.md)
+- [`../../../docs/reference/public-surface.md`](../../../docs/reference/public-surface.md)
+
+## Last Updated
+
+2026-04-17

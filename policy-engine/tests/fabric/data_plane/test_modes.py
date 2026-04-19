@@ -301,3 +301,21 @@ def test_run_streaming_windowed_legacy_path_uses_async_fetch_helper(
 
     assert result.mode_effective == "streaming_windowed"
     assert async_calls == [("legacy.stream", "events")]
+
+
+def test_connector_is_registered_uses_explicit_registry_without_default_helper(
+    monkeypatch,
+) -> None:
+    from polisyos.fabric.data_plane import modes as modes_mod
+
+    registry = SimpleNamespace(
+        get_entry=lambda connector_id: {"connector_id": connector_id},
+    )
+
+    monkeypatch.setattr(
+        modes_mod,
+        "_default_connector_registry",
+        lambda: (_ for _ in ()).throw(AssertionError("global registry should not be used")),
+    )
+
+    assert modes_mod._connector_is_registered("stream.injected", registry=registry) is True

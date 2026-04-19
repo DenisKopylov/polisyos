@@ -876,3 +876,11 @@ Phase 10 is complete when:
 5. Idempotency is proven by tests (re-apply does not increase PK counts).
 6. Merge conflict for `world.kind` is detected and surfaced as a dedicated error.
 
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 0 world ABI determinism and Phase 4 ecosystem/materialization bridge |
+| Contract tests | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_world_store.py`, `tests/fabric/test_world_materialization.py` |
+| Schema snapshots | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/claim.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/doc_meta.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

@@ -1,5 +1,6 @@
 import {
   buildRunCompareHref,
+  buildRunDeckHref,
   buildRunDetailHref,
   buildRunReportHref,
   buildRunsListHref,
@@ -42,6 +43,7 @@ describe("runs search params", () => {
     );
     expect(buildRunDetailHref("run-1", "debug")).toBe("/runs/run-1/debug");
     expect(buildRunReportHref("run-1")).toBe("/runs/run-1/report");
+    expect(buildRunDeckHref("run-1")).toBe("/runs/run-1/deck");
   });
 
   it("keeps legacy tab search parsing explicit", () => {

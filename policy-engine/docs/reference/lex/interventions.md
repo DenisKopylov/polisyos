@@ -1,6 +1,9 @@
 # Lex Interventions
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
+Owner: `@lex-owners`
+Source of truth: `src/polisyos/lex/interventions.py`, `src/polisyos/lex/intervention_artifacts.py`, and the Scientist/Foundry integration contracts referenced from `src/polisyos/lex/__init__.py`
+
 Lex interventions translate legal provisions into executable intervention
 contracts, parameter knobs, and temporal intervention sequences that can be
 handed to Scientist policy search and Foundry causal/runtime execution.

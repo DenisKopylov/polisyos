@@ -261,6 +261,73 @@ function DashboardMetricsContent() {
   );
 }
 
+function DashboardNarrativeContent() {
+  const { t } = useI18n();
+  const runsQuery = useSuspenseRunsSample();
+  const indexStatsQuery = useSuspenseDataIndexStats();
+  const promotionCandidatesQuery = useSuspenseDataPromotionCandidates();
+  const runs = runsQuery.data?.runs ?? [];
+  const decisionQueue = getDecisionQueue(runs);
+  const activeRuns = runs.filter((run) => isRunRunning(run.status));
+  const blockedRuns = getBlockedRunCount(runs);
+  const successCount = runs.filter((run) => isRunSuccess(run.status)).length;
+  const docsAdded = indexStatsQuery.data?.stats.docs_added_last_run ?? 0;
+  const promotions = promotionCandidatesQuery.data?.candidates?.length ?? 0;
+
+  const items = [
+    {
+      body: t("pages.dashboard.narrativeAttentionBody", {
+        blocked: formatNumber(blockedRuns),
+        count: formatNumber(activeRuns.length),
+      }),
+      label: t("pages.dashboard.narrativeAttention"),
+      value: `${formatNumber(activeRuns.length)} / ${formatNumber(blockedRuns)}`,
+    },
+    {
+      body: t("pages.dashboard.narrativeThroughputBody", {
+        success: formatNumber(successCount),
+        total: formatNumber(runs.length),
+      }),
+      label: t("pages.dashboard.narrativeThroughput"),
+      value: formatPercent(runs.length > 0 ? successCount / runs.length : 0),
+    },
+    {
+      body: t("pages.dashboard.narrativeQueueBody", {
+        count: formatNumber(decisionQueue.length),
+      }),
+      label: t("pages.dashboard.narrativeQueue"),
+      value: formatNumber(decisionQueue.length),
+    },
+    {
+      body: t("pages.dashboard.narrativeEvidenceBody", {
+        docs: formatNumber(docsAdded),
+        promotions: formatNumber(promotions),
+      }),
+      label: t("pages.dashboard.narrativeEvidence"),
+      value: `${formatNumber(docsAdded)} / ${formatNumber(promotions)}`,
+    },
+  ];
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-4">
+      {items.map((item) => (
+        <article
+          key={item.label}
+          className="bg-surface/75 border-line rounded-2xl border p-4"
+        >
+          <span className="text-muted text-xs tracking-wide uppercase">
+            {item.label}
+          </span>
+          <strong className="mt-2 block text-2xl font-semibold">
+            {item.value}
+          </strong>
+          <p className="text-muted mt-2 text-sm">{item.body}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 function DashboardStatusChartContent() {
   const { t } = useI18n();
   const prefersReducedMotion = useReducedMotion();
@@ -498,6 +565,25 @@ export default function DashboardPage() {
       >
         <DashboardMetricsContent />
       </FeatureAsyncBoundary>
+
+      <Card className="space-y-4">
+        <div className="panel-header">
+          <div>
+            <p className="eyebrow">{t("pages.dashboard.narrativeTitle")}</p>
+            <h2>{t("pages.dashboard.narrativeHeading")}</h2>
+          </div>
+        </div>
+        <FeatureAsyncBoundary
+          feature="dashboard.narrative"
+          title={t("pages.dashboard.runsLoadError")}
+          body={t("common.pageErrorBody")}
+          loading={
+            <PanelSkeleton rows={4} className="border-0 bg-transparent p-0" />
+          }
+        >
+          <DashboardNarrativeContent />
+        </FeatureAsyncBoundary>
+      </Card>
 
       <section className="grid gap-5 xl:grid-cols-2">
         <Card className="space-y-4">

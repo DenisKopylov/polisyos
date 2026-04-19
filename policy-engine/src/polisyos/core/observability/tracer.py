@@ -18,13 +18,15 @@ Usage:
 from __future__ import annotations
 
 import threading
+from collections.abc import Sequence
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Iterator, Optional
+from importlib import import_module
+from typing import TYPE_CHECKING, Any, Iterator, Optional, cast
 
 from opentelemetry import trace
 from opentelemetry.context import Context
 from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import Span, TracerProvider
+from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
     ConsoleSpanExporter,
@@ -39,8 +41,9 @@ from opentelemetry.sdk.trace.sampling import (
     SamplingResult,
     TraceIdRatioBased,
 )
-from opentelemetry.trace import SpanKind, Status, StatusCode, Tracer
+from opentelemetry.trace import Link, Span, SpanKind, Status, StatusCode, Tracer
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+from opentelemetry.util.types import Attributes
 
 from .config import OTelConfig, get_default_config, get_resource_config
 
@@ -66,8 +69,8 @@ class ErrorAwareSampler(Sampler):
         trace_id: int,
         name: str,
         kind: SpanKind | None = None,
-        attributes: dict[str, Any] | None = None,
-        links: list[Any] | None = None,
+        attributes: Attributes = None,
+        links: Sequence[Link] | None = None,
         trace_state: Any | None = None,
     ) -> SamplingResult:
         error_value = attributes.get("error") if attributes else None
@@ -125,6 +128,11 @@ class PolicyOSTracer:
         # Guard against re-initialization
         if PolicyOSTracer._initialized:
             return
+
+    @classmethod
+    def current_instance(cls) -> "PolicyOSTracer | None":
+        """Return the cached singleton instance without forcing initialization."""
+        return cls._instance
 
     def _ensure_initialized(self) -> None:
         """
@@ -242,13 +250,15 @@ class PolicyOSTracer:
         protocol = (self._config.otlp_protocol or "").lower()
         if protocol.startswith("http"):
             try:
-                from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
-                    OTLPSpanExporter as HTTPOTLPSpanExporter,
-                )
+                module = import_module("opentelemetry.exporter.otlp.proto.http.trace_exporter")
+                HTTPOTLPSpanExporter = getattr(module, "OTLPSpanExporter")
 
-                return HTTPOTLPSpanExporter(
-                    endpoint=f"{self._config.otlp_endpoint}/v1/traces",
-                    headers=self._config.otlp_headers or None,
+                return cast(
+                    "SpanExporter",
+                    HTTPOTLPSpanExporter(
+                        endpoint=f"{self._config.otlp_endpoint}/v1/traces",
+                        headers=self._config.otlp_headers or None,
+                    ),
                 )
             except ImportError:
                 return None
@@ -265,13 +275,15 @@ class PolicyOSTracer:
         except ImportError:
             # Fallback to HTTP if gRPC not available
             try:
-                from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
-                    OTLPSpanExporter as HTTPOTLPSpanExporter,
-                )
+                module = import_module("opentelemetry.exporter.otlp.proto.http.trace_exporter")
+                HTTPOTLPSpanExporter = getattr(module, "OTLPSpanExporter")
 
-                return HTTPOTLPSpanExporter(
-                    endpoint=f"{self._config.otlp_endpoint}/v1/traces",
-                    headers=self._config.otlp_headers or None,
+                return cast(
+                    "SpanExporter",
+                    HTTPOTLPSpanExporter(
+                        endpoint=f"{self._config.otlp_endpoint}/v1/traces",
+                        headers=self._config.otlp_headers or None,
+                    ),
                 )
             except ImportError:
                 return None
@@ -396,20 +408,26 @@ def get_tracer() -> PolicyOSTracer:
     This is the recommended way to access the tracer.
     """
     global _tracer_instance
+    current_instance = PolicyOSTracer.current_instance()
     if (
         _tracer_instance is not None
-        and PolicyOSTracer._instance is not None
-        and _tracer_instance is PolicyOSTracer._instance
+        and current_instance is not None
+        and _tracer_instance is current_instance
     ):
         return _tracer_instance
     with _tracer_instance_lock:
+        current_instance = PolicyOSTracer.current_instance()
         if (
             _tracer_instance is None
-            or PolicyOSTracer._instance is None
-            or _tracer_instance is not PolicyOSTracer._instance
+            or current_instance is None
+            or _tracer_instance is not current_instance
         ):
             _tracer_instance = PolicyOSTracer()
     return _tracer_instance
+
+
+def _default_tracer() -> PolicyOSTracer:
+    return get_tracer()
 
 
 def get_current_trace_context() -> dict[str, Optional[str]]:
@@ -419,7 +437,7 @@ def get_current_trace_context() -> dict[str, Optional[str]]:
     Returns:
         Dictionary with trace_id and span_id (or None if no active span)
     """
-    tracer = get_tracer()
+    tracer = _default_tracer()
     return {
         "trace_id": tracer.get_current_trace_id(),
         "span_id": tracer.get_current_span_id(),

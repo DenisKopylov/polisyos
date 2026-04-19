@@ -12,10 +12,10 @@ from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.ir.analytics.calibration import CalibrationConfig
 
 from .models import (
+    BenchmarkedEvaluator,
     BenchmarkEvaluation,
     BenchmarkSplit,
     BenchmarkSuite,
-    BenchmarkedEvaluator,
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
@@ -48,7 +48,7 @@ class CalibrationMetaSearchConfig(MutationArtifact):
     prior_loss_weight: float | None = Field(default=None, ge=0.0)
 
     def apply_to_config(self, base_config: CalibrationConfig) -> CalibrationConfig:
-        updated = base_config.model_copy(deep=True)
+        updated = _clone_calibration_config(base_config)
         if self.learning_rate is not None:
             updated.learning_rate = self.learning_rate
         if self.clip_grad_norm is not None:
@@ -74,6 +74,58 @@ class CalibrationMetaSearchConfig(MutationArtifact):
         if self.prior_loss_weight is not None:
             updated.prior_loss.weight = self.prior_loss_weight
         return updated
+
+
+def _clone_calibration_value(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: _clone_calibration_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_clone_calibration_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_clone_calibration_value(item) for item in value)
+    if isinstance(value, set):
+        return {_clone_calibration_value(item) for item in value}
+    return value
+
+
+def _clone_calibration_config(base_config: CalibrationConfig) -> CalibrationConfig:
+    return base_config.model_copy(
+        update={
+            "targets": [
+                target.model_copy(
+                    update={
+                        "fabric_query": _clone_calibration_value(target.fabric_query),
+                        "align": target.align.model_copy(deep=False),
+                        "loss": target.loss.model_copy(deep=False),
+                        "trainables": [
+                            trainable.model_copy(
+                                update={"selector": _clone_calibration_value(trainable.selector)}
+                            )
+                            for trainable in target.trainables
+                        ],
+                    }
+                )
+                for target in base_config.targets
+            ],
+            "trainables": [
+                trainable.model_copy(
+                    update={"selector": _clone_calibration_value(trainable.selector)}
+                )
+                for trainable in base_config.trainables
+            ],
+            "time_axis": None if base_config.time_axis is None else list(base_config.time_axis),
+            "grad_norm": base_config.grad_norm.model_copy(deep=False),
+            "hessian": base_config.hessian.model_copy(deep=False),
+            "multi_start": (
+                None if base_config.multi_start is None else base_config.multi_start.model_copy(deep=False)
+            ),
+            "constraint_loss": base_config.constraint_loss.model_copy(deep=False),
+            "prior_loss": base_config.prior_loss.model_copy(deep=False),
+            "fidelity": base_config.fidelity.model_copy(deep=False),
+            "constraint_values": _clone_calibration_value(base_config.constraint_values),
+            "literature_priors": _clone_calibration_value(base_config.literature_priors),
+        }
+    )
 
 
 def build_baseline_calibration_meta_config(_context: dict[str, Any] | None = None) -> CalibrationMetaSearchConfig:

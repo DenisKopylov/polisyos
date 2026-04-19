@@ -241,78 +241,93 @@ export async function applyRuntimeApiScenario(
   const metadata = readFixtureMetadata();
 
   await page.route(ROUTE_PATTERN, async (route, request) => {
-    const url = new URL(request.url());
-    const override = overrides.find((candidate) =>
-      runtimeApiOverrideMatches(candidate, request, url),
-    );
-    const contractFixtureDefinition = matchRuntimeContractFixture(
-      request.method(),
-      url.pathname,
-    );
-    const contractFixture = contractFixtureDefinition
-      ? loadRuntimeContractFixture(contractFixtureDefinition)
-      : null;
-
-    if (scenario === "network-fail") {
-      await route.abort("failed");
-      return;
-    }
-
-    if (scenario === "401" || scenario === "5xx") {
-      await fulfillRuntimeProblem(
-        route,
-        scenario === "401" ? 401 : 503,
-        url,
-        override,
+    try {
+      const url = new URL(request.url());
+      const override = overrides.find((candidate) =>
+        runtimeApiOverrideMatches(candidate, request, url),
       );
-      return;
-    }
+      const contractFixtureDefinition = matchRuntimeContractFixture(
+        request.method(),
+        url.pathname,
+      );
+      const contractFixture = contractFixtureDefinition
+        ? loadRuntimeContractFixture(contractFixtureDefinition)
+        : null;
 
-    if (
-      scenario === "empty" &&
-      request.method() !== "GET" &&
-      !override &&
-      !contractFixture
-    ) {
-      await route.continue();
-      return;
-    }
+      if (scenario === "network-fail") {
+        await route.abort("failed");
+        return;
+      }
 
-    const upstreamResponse = contractFixture ? null : await route.fetch();
-    const upstreamPayload = contractFixture
-      ? contractFixture.payload
-      : await readJsonPayload(upstreamResponse);
+      if (scenario === "401" || scenario === "5xx") {
+        await fulfillRuntimeProblem(
+          route,
+          scenario === "401" ? 401 : 503,
+          url,
+          override,
+        );
+        return;
+      }
 
-    let nextPayload =
-      scenario === "empty"
-        ? buildEmptyRuntimePayload(url, upstreamPayload)
-        : upstreamPayload;
+      if (
+        scenario === "empty" &&
+        request.method() !== "GET" &&
+        !override &&
+        !contractFixture
+      ) {
+        await route.continue();
+        return;
+      }
 
-    if (override) {
-      nextPayload = await resolveOverridePayload({
-        metadata,
-        override,
-        payload: nextPayload,
-        request,
-        url,
+      const upstreamResponse = contractFixture ? null : await route.fetch();
+      const upstreamResponseBody = upstreamResponse
+        ? await upstreamResponse.text()
+        : "";
+      const upstreamPayload = contractFixture
+        ? contractFixture.payload
+        : readJsonPayload(
+            upstreamResponseBody,
+            upstreamResponse?.headers()["content-type"],
+          );
+
+      let nextPayload =
+        scenario === "empty"
+          ? buildEmptyRuntimePayload(url, upstreamPayload)
+          : upstreamPayload;
+
+      if (override) {
+        nextPayload = await resolveOverridePayload({
+          metadata,
+          override,
+          payload: nextPayload,
+          request,
+          url,
+        });
+      }
+
+      await route.fulfill({
+        body:
+          nextPayload === null || typeof nextPayload === "undefined"
+            ? upstreamResponseBody
+            : JSON.stringify(nextPayload),
+        headers: {
+          ...(upstreamResponse?.headers() ?? {}),
+          "access-control-allow-origin": "*",
+          "content-type": "application/json",
+          ...override?.headers,
+        },
+        status: override?.status ?? upstreamResponse?.status() ?? 200,
       });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (
+        message.includes("Target page, context or browser has been closed") ||
+        message.includes("Response has been disposed")
+      ) {
+        return;
+      }
+      throw error;
     }
-
-    await route.fulfill({
-      body:
-        nextPayload === null || typeof nextPayload === "undefined"
-          ? upstreamResponse
-            ? await upstreamResponse.text()
-            : ""
-          : JSON.stringify(nextPayload),
-      headers: {
-        ...(upstreamResponse?.headers() ?? {}),
-        "access-control-allow-origin": "*",
-        "content-type": "application/json",
-        ...override?.headers,
-      },
-      status: override?.status ?? upstreamResponse?.status() ?? 200,
-    });
   });
 }
 
@@ -394,17 +409,18 @@ async function fulfillRuntimeProblem(
   });
 }
 
-async function readJsonPayload(
-  response: Awaited<ReturnType<Route["fetch"]>>,
-): Promise<unknown> {
-  const contentType = response.headers()["content-type"] ?? "";
+function readJsonPayload(
+  responseBody: string,
+  contentType: string | undefined,
+): unknown {
+  const normalizedContentType = contentType ?? "";
 
-  if (!contentType.includes("application/json")) {
+  if (!normalizedContentType.includes("application/json")) {
     return null;
   }
 
   try {
-    return await response.json();
+    return JSON.parse(responseBody) as unknown;
   } catch {
     return null;
   }

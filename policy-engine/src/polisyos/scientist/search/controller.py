@@ -42,6 +42,12 @@ StageAEvaluator = Callable[[CandidatePayload, SearchContext], tuple[float, bool]
 StageBEvaluator = Callable[[CandidatePayload, SearchContext], dict[str, Any]]
 
 
+def _default_metrics() -> MetricsRegistry:
+    from polisyos.core.observability import get_metrics
+
+    return get_metrics()
+
+
 def _search_degraded(
     *,
     operation: str,
@@ -186,8 +192,6 @@ class SearchController:
         evaluators: SearchEvaluatorPorts | None = None,
         metrics: MetricsRegistry | None = None,
     ) -> None:
-        from polisyos.core.observability import get_metrics
-
         self._config = config
         self._generator = candidate_generator
         if evaluators is not None:
@@ -213,7 +217,7 @@ class SearchController:
         self._stage_a_count = 0
         self._stage_b_count = 0
         self._sentinel_evaluations = 0
-        self._metrics = metrics if metrics is not None else get_metrics()
+        self._metrics = metrics if metrics is not None else _default_metrics()
         self._diversity_enabled = _as_bool(
             os.getenv("POLISYOS_SEARCH_DIVERSITY_ENABLED"),
             default=False,

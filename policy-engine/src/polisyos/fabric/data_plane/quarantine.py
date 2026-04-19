@@ -39,6 +39,10 @@ _DEFAULT_RETRY_POLICY = {"mode": "deterministic_reprocess", "max_attempts": 1}
 _REPROCESSORS: dict[str, Callable[[Any, QuarantineRecord], Any]] = {}
 
 
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 @runtime_checkable
 class IndexedArtifactStore(Protocol):
     """Artifact store protocol that also exposes a mutable local root path."""
@@ -146,7 +150,7 @@ def _record_dlq_metric(
     *,
     metrics: MetricsRegistry | None = None,
 ) -> None:
-    resolved_metrics = metrics or get_metrics()
+    resolved_metrics = metrics if metrics is not None else _default_metrics()
     if resolved_metrics is None or getattr(resolved_metrics, "set_fabric_dlq_count", None) is None:
         return
     index_path = quarantine_index_path(store)

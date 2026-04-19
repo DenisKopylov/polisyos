@@ -1,42 +1,76 @@
 # Runtime (`polisyos.runtime`)
 
-`polisyos.runtime` provides the runtime-facing surface of PolicyOS: replay planning and verification,
-legacy filesystem helpers, and the HTTP API package under `runtime.http`.
+## Purpose
 
-## Role in System
-
-- **Depends on:** `core.contracts`, `core.artifacts`, and the HTTP/service subpackages for runtime inspection.
-- **Used by:** runtime API clients, replay tooling, and control-plane orchestration.
-- **Boundary function:** bridges CAS-backed run state with the higher-level HTTP and replay surfaces.
-
-## Key Concepts
-
-- **Replay API** - `replay.py` exposes planning, completeness, and verification helpers.
-- **Legacy helpers** - `api.py` and `manifest.py` keep old filesystem-based run handling working.
-- **HTTP surface** - `runtime.http` hosts the FastAPI app, routes, middleware, and service layer.
-
-## Public API
-
-- `ReplayStrategy`
-- `ReplayPlan`
-- `CompletenessLevel`
-- `CompletenessReport`
-- `VerificationMode`
-- `VerificationConfig`
-- `VerificationResult`
-- `build_replay_plan`
-- `completeness_check`
-- `verify_replay`
+`polisyos.runtime` is the runtime-facing boundary for replay planning,
+completeness checks, verification, and the committed runtime API package under
+`polisyos.runtime.http`. It bridges CAS-backed run state to HTTP, generated
+clients, dashboards, and operator tooling.
 
 ## Where to Start
 
-- Public facade / compatibility: `src/polisyos/runtime/__init__.py` and `docs/reference/public-surface.md`
-- HTTP app + routes: `src/polisyos/runtime/http/README.md`
-- Generated contracts: `schemas/runtime_api_v1.openapi.json`, `frontend/runtime-api-client/`, `frontend/runtime-dashboard/src/api/types.ts`
-- Regeneration / drift checks: `docs/reference/generated-artifacts.md` and `tools/runtime/check_runtime_api_contract.py`
+- `src/polisyos/runtime/__init__.py` for the stable replay facade.
+- `src/polisyos/runtime/replay.py` for replay planning and verification logic.
+- `src/polisyos/runtime/http/README.md` for the FastAPI app, route layout, and
+  service layer.
+- `docs/reference/api/index.md` for the committed runtime API surface.
+- `tools/runtime/check_runtime_api_contract.py` for OpenAPI drift checks.
 
-## Current State
+## Public entrypoints
 
-- Last updated: 2026-04-03
-- The top-level package still exports only the replay facade; HTTP helpers live under `runtime.http`.
-- The HTTP OpenAPI contract now carries additional control examples for workers, outbox, and decision-validity surfaces.
+- Supported package entrypoint: `polisyos.runtime`
+- Lazy exports from `src/polisyos/runtime/__init__.py`: `ReplayStrategy`,
+  `ReplayPlan`, `CompletenessLevel`, `CompletenessReport`, `VerificationMode`,
+  `VerificationConfig`, `VerificationResult`, `build_replay_plan`,
+  `completeness_check`, `verify_replay`
+- `polisyos.runtime.http` owns the runtime API assembly and OpenAPI snapshot
+  inputs. Use its README when working on HTTP wiring, security middleware, or
+  generated-client drift.
+
+## Depends on / depended on by
+
+Depends on: `polisyos.common`, `polisyos.core.contracts`,
+`polisyos.core.artifacts`, `polisyos.core.security`, and the
+`polisyos.runtime.http` subpackage for API assembly.
+
+Depended on by: `frontend/runtime-api-client`,
+`frontend/runtime-dashboard`, `frontend/runtime-reference-shell`, runtime
+runbooks, contract checks, and control-plane tooling.
+
+## Common commands
+
+Run commands from the repository root `policy-engine/`.
+
+- Smoke-tested:
+  `PYTHONPATH=src:. uv run python -c "import polisyos.runtime as runtime; print(sorted(runtime.__all__))"`
+- Smoke-tested:
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python -c "import polisyos.runtime.http as runtime_http; print(sorted(runtime_http.__all__))"`
+- Conceptual regeneration:
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
+- Conceptual regeneration:
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js`
+
+## Test/verification commands
+
+Run commands from the repository root `policy-engine/`.
+
+- Smoke-tested:
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+- Smoke-tested:
+  `uv run pytest -q tests/runtime/test_replay_runtime.py tests/runtime/test_replay_input_bindings_completeness.py`
+- Smoke-tested:
+  `uv run pytest -q tests/runtime/http/test_runtime_api_contract_hardening.py tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_api_maturity.py`
+
+## Reference docs
+
+- [Runtime HTTP](http/README.md)
+- [REST API Reference](../../../docs/reference/api/index.md)
+- [Runs API](../../../docs/reference/api/runs.md)
+- [Control Plane API](../../../docs/reference/api/control.md)
+- [Artifact Inspection API](../../../docs/reference/api/artifacts.md)
+- [Generated Artifacts](../../../docs/reference/generated-artifacts.md)
+- [Runtime API client](../../../frontend/runtime-api-client/README.md)
+- [Runtime dashboard](../../../frontend/runtime-dashboard/README.md)
+- [Runtime reference shell](../../../frontend/runtime-reference-shell/README.md)
+
+- Last updated: 2026-04-17

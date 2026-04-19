@@ -123,3 +123,50 @@ class TestTracedDecorator:
 
         assert traced_function() == "ok"
         assert tracer.started_spans == ["custom.trace"]
+
+    def test_traced_method_honors_tracer_factory(self, monkeypatch):
+        """Method decorator should honor injected tracer factories instead of global access."""
+
+        class _FakeSpan:
+            def set_attribute(self, _name: str, _value: object) -> None:
+                return None
+
+            def set_status(self, _status: object) -> None:
+                return None
+
+            def record_exception(self, _exc: BaseException) -> None:
+                return None
+
+        class _FakeTracer:
+            def __init__(self) -> None:
+                self.started_spans: list[str] = []
+
+            @contextmanager
+            def start_as_current_span(self, name: str, *, attributes=None):
+                _ = attributes
+                self.started_spans.append(name)
+                yield _FakeSpan()
+
+        monkeypatch.setattr(
+            decorators_module,
+            "_default_tracer",
+            lambda: (_ for _ in ()).throw(
+                AssertionError("global tracer lookup should not run when tracer_factory is provided")
+            ),
+        )
+        tracer = _FakeTracer()
+
+        class _Worker:
+            run_id = "run-123"
+
+            @decorators_module.traced_method(
+                name="worker.step",
+                tracer_factory=lambda: tracer,
+            )
+            def step(self) -> str:
+                return "ok"
+
+        worker = _Worker()
+
+        assert worker.step() == "ok"
+        assert tracer.started_spans == ["worker.step"]

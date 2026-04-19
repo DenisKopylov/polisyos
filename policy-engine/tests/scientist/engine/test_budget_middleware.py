@@ -214,3 +214,86 @@ class TestFileBudgetLedger:
         assert result.state.limits["run"] == loaded.limits["run"]
         result.state.spent["run"] = Decimal("25")
         assert loaded.spent == {"run": Decimal("0")}
+
+    def test_ledger_snapshot_exposes_canonical_multi_host_contract(
+        self, tmp_path: Path
+    ) -> None:
+        ledger = FileBudgetLedger(
+            tmp_path / "budget_ledger.json",
+            ledger_id="ledger://scientist-phase4",
+            host_id="host-a",
+            writer_id="host-a:worker-1",
+        )
+
+        ledger.load_or_bootstrap(_budget(max_usd="100"))
+        snapshot = ledger.snapshot()
+
+        assert snapshot.canonical_contract == "scientist.multi_host_budget_ledger.v1"
+        assert snapshot.coordination_mode == "shared_posix_file_lock"
+        assert snapshot.ledger_id == "ledger://scientist-phase4"
+        assert snapshot.last_writer is not None
+        assert snapshot.last_writer.host_id == "host-a"
+        assert snapshot.last_writer.writer_id == "host-a:worker-1"
+        assert [item.operation for item in snapshot.recent_mutations] == ["bootstrap"]
+
+    def test_ledger_journal_tracks_cross_host_mutation_provenance(
+        self, tmp_path: Path
+    ) -> None:
+        path = tmp_path / "budget_ledger.json"
+        ledger_a = FileBudgetLedger(
+            path,
+            ledger_id="ledger://scientist-phase4",
+            host_id="host-a",
+            writer_id="host-a:worker-1",
+        )
+        ledger_b = FileBudgetLedger(
+            path,
+            ledger_id="ledger://scientist-phase4",
+            host_id="host-b",
+            writer_id="host-b:worker-9",
+        )
+
+        ledger_a.load_or_bootstrap(_budget(max_usd="100"))
+        assert ledger_a.reserve("run", Decimal("30")).reserved is True
+        committed = ledger_b.commit_reservation("run", Decimal("10"), provider="openai")
+        snapshot = ledger_b.snapshot()
+
+        assert committed.revision == 2
+        assert committed.state.spent["run"] == Decimal("10")
+        assert committed.state.reserved["run"] == Decimal("20")
+        assert snapshot.revision == 2
+        assert snapshot.last_writer is not None
+        assert snapshot.last_writer.host_id == "host-b"
+        assert snapshot.last_writer.writer_id == "host-b:worker-9"
+        assert [item.writer.host_id for item in snapshot.recent_mutations] == [
+            "host-a",
+            "host-a",
+            "host-b",
+        ]
+        assert [item.operation for item in snapshot.recent_mutations] == [
+            "bootstrap",
+            "reserve",
+            "commit_reservation",
+        ]
+        assert snapshot.recent_mutations[-1].provider == "openai"
+
+    def test_ledger_journal_retention_stays_bounded(self, tmp_path: Path) -> None:
+        ledger = FileBudgetLedger(
+            tmp_path / "budget_ledger.json",
+            host_id="host-a",
+            writer_id="host-a:worker-1",
+            mutation_history_limit=2,
+        )
+
+        ledger.load_or_bootstrap(_budget(max_usd="100"))
+        ledger.record_spend("run", Decimal("1"))
+        ledger.record_spend("run", Decimal("2"))
+        ledger.record_spend("run", Decimal("3"))
+        snapshot = ledger.snapshot()
+
+        assert len(snapshot.recent_mutations) == 2
+        assert [item.revision for item in snapshot.recent_mutations] == [2, 3]
+        assert [item.applied_amount for item in snapshot.recent_mutations] == [
+            Decimal("2"),
+            Decimal("3"),
+        ]

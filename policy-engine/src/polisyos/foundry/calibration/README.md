@@ -1,42 +1,101 @@
 # Calibration (`polisyos.foundry.calibration`)
 
-`calibration` - subsystem for fitting Foundry model parameters to empirical targets,
-with optional measurement-aware weighting and uncertainty support.
+`polisyos.foundry.calibration` fits Foundry model parameters to observed
+targets while keeping a strict boundary between synthetic runtime dynamics and
+measurement-aware loss adaptation.
 
-## Role in System
+- Last updated: 2026-04-17
 
-- **Depends on:** `polisyos.foundry.contracts`, `polisyos.foundry.data_plane`, `polisyos.ir.observation`
-- **Used by:** calibration workflows, scientist-driven policy tuning, post-fit uncertainty analysis
-- Runs on top of compiled `ProgramGraph` / `ExecPlan` and produces calibrated parameter bundles and reports.
+## Purpose
 
-## Key Concepts
+Use this package when a Foundry workflow needs to compare simulated traces
+against empirical anchors, diagnose fit quality, and convert calibration
+diagnostics into uncertainty envelopes or post-fit evidence.
 
-- **Pure execution loop** - `pure_executor.py` runs calibration without CAS IO in the inner loop.
-- **Target alignment** - `preflight.py` prepares, fetches and aligns target series.
-- **Loss shaping** - `loss.py` handles weighted target losses and reductions.
-- **Measurement-aware extension** - `measurement.py` adds observation bundles and trust/coverage/censoring weights.
-- **Auxiliary penalties** - `auxiliary.py` adds interference-aware loss components.
-- **Uncertainty outputs** - Hessian/Laplace and envelope conversion remain part of the fit surface.
+## Where to Start
 
-## Public API
+- [measurement.py](measurement.py) for observation-quality metadata and weight
+  adaptation.
+- [pure_executor.py](pure_executor.py) for the no-CAS inner-loop execution path
+  used by calibration.
+- [calibrator.py](calibrator.py) for the optional JAX-backed fit loop.
+- [report.py](report.py) for persisted reports and fit diagnostics.
+- [identifiability.py](identifiability.py) and [hessian.py](hessian.py) for
+  identifiability and second-order diagnostics.
+- [../uncertainty/README.md](../uncertainty/README.md) for downstream
+  uncertainty propagation.
 
-| Type/Function | Description |
+## Public Entrypoints
+
+| Entrypoint | Description |
 |---|---|
-| `Calibrator` | Runs the optimization loop and collects diagnostics. |
-| `CalibratorInputs` | Bundles graph, registries, targets and optional measurement bundle inputs. |
-| `CalibrationReport` | Persisted calibration result with metrics, history and fit quality. |
-| `CalibrationTargetBundle` | Runtime-aligned bundle of observation-plane targets. |
-| `MeasurementAwareTarget` | Describes a single measurement-aware calibration target. |
-| `MeasurementAwareLossConfig` | Controls censoring, lag and regime discounts. |
-| `compute_effective_weight()` | Computes trust/coverage/censoring-aware target weights. |
-| `DefaultMeasurementAwareLossAdapter` | Default adapter over the measurement-aware loss surface. |
-| `AuxLossComponent` | Protocol for auxiliary loss components. |
-| `InterferenceLossComponent` | Interference-aware penalty component. |
+| `Calibrator` | JAX-backed optimization loop when calibration extras are importable. |
+| `CalibratorInputs` | Bundles graph, exec plan, targets, registries, and optional measurement bundle inputs. |
+| `CalibrationReport` | Persisted fit result with metrics, history, and fit quality. |
+| `MeasurementAwareTarget` | Observation-aware target contract. |
+| `MeasurementAwareLossConfig` | Controls lag, censoring, regime, and shock discounts. |
+| `compute_effective_weight()` | Combines trust, coverage, lag, censoring, and shock metadata into effective loss weights. |
+| `diagnose_identifiability()` | Produces parameter-level identifiability diagnostics. |
+| `envelopes_from_calibration()` | Converts calibration outputs into uncertainty-envelope artifacts. |
 
-→ Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
+## Depends On / Depended On By
 
-## Current State
+- Depends on: `polisyos.foundry.contracts`, compile/execute runtime state,
+  `polisyos.ir.observation` contracts and bundles, uncertainty adapters, and
+  optional JAX/optimization extras.
+- Depended on by: Scientist autotune and feedback flows, uncertainty
+  propagation nodes, and runtime helpers that reuse the pure-executor path.
 
-- Last updated: 2026-04-03
-- Files: 13 Python files
-- Exports: 37
+## Common Commands
+
+Smoke-tested on 2026-04-17:
+
+```bash
+uv run python - <<'PY'
+import jax.numpy as jnp
+
+from polisyos.foundry.calibration import (
+    MeasurementAwareLossConfig,
+    compute_effective_weight,
+)
+
+weights = compute_effective_weight(
+    base_weights=jnp.array([1.0, 1.0], dtype=jnp.float32),
+    trust_weight=jnp.array([0.8, 0.6], dtype=jnp.float32),
+    coverage_estimate=jnp.array([1.0, 0.0], dtype=jnp.float32),
+    censoring_mask=jnp.array([False, True]),
+    lag_days_estimate=jnp.array([0.0, 14.0], dtype=jnp.float32),
+    schema_regime_id=("regime_a", "regime_b"),
+    shock_mask=jnp.array([False, True]),
+    config=MeasurementAwareLossConfig(),
+)
+print(weights["effective_weight"])
+PY
+
+uv run python - <<'PY'
+from polisyos.foundry.calibration import Calibrator
+print(Calibrator is not None)
+PY
+```
+
+## Test / Verification Commands
+
+```bash
+uv run pytest tests/foundry/calibration/test_measurement.py \
+  tests/foundry/calibration/test_bijectors.py \
+  tests/foundry/calibration/test_hessian.py \
+  tests/foundry/calibration/test_pure_executor.py -q
+
+uv run pytest tests/foundry/calibration/test_identifiability.py \
+  tests/foundry/calibration/test_multi_start.py \
+  tests/foundry/calibration/test_calibrator.py -q
+```
+
+## Reference Docs
+
+- [docs/reference/foundry/calibration.md](../../../../docs/reference/foundry/calibration.md)
+- [../uncertainty/README.md](../uncertainty/README.md)
+- [docs/FOUNDRY_NUMERIC_GUARDRAILS.md](../../../../docs/FOUNDRY_NUMERIC_GUARDRAILS.md)
+- [docs/adr/0012-uncertainty-envelope-ir-contract.md](../../../../docs/adr/0012-uncertainty-envelope-ir-contract.md)
+- [docs/adr/0013-uncertainty-propagation-pipeline.md](../../../../docs/adr/0013-uncertainty-propagation-pipeline.md)
+- [docs/adr/0074-numpyro-bayesian-scm.md](../../../../docs/adr/0074-numpyro-bayesian-scm.md)

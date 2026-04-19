@@ -63,7 +63,7 @@ def build_registry_bundle_from_components(
     compose = compose_policy or ComposePolicy(mode="prefer_higher_priority")
     host = host_abi or HostAbi(versions={"ir_abi": "1.0"}, strict=True)
 
-    entries = components_index.query(
+    entries: list[ComponentEntry] = components_index.query(
         kind=ComponentKind.IR_FRAGMENT,
         domain=domain,
         jurisdiction=jurisdiction,
@@ -84,7 +84,7 @@ def build_registry_bundle_from_components(
 
         try:
             created = entry.component.create()
-            fragment = TypeAdapter(RegistryFragment).validate_python(created)
+            fragment: RegistryFragment = TypeAdapter(RegistryFragment).validate_python(created)
         except Exception as exc:
             logger.debug(
                 "Skipping component %s: create/validate failed: %s",

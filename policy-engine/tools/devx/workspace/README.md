@@ -1,81 +1,72 @@
-# tools/workspace
+# Workspace DevX (`tools/devx/workspace`)
 
-Repo-local contributor commands for deterministic setup and preflight checks.
+## Purpose
 
-The pinned local toolchain baseline is Python `3.14.x`, Node `22.x`, and
-`uv 0.9.21`.
+`tools/devx/workspace` — repo-local tooling surface для bootstrap, workstation
+preflight, fast local gates, CI parity и remote acceptance closeout.
 
-## Commands
+## Where to Start
 
-Canonical unified CLI:
+- Bootstrap/install flow: `tools/devx/workspace/bootstrap.py`.
+- Machine preflight: `tools/devx/workspace/doctor.py`.
+- Fast local gate: `tools/devx/workspace/verify.py`.
+- CI-like parity pass: `tools/devx/workspace/ci_parity.py`.
+- Shared baseline/constants: `tools/devx/workspace/_common.py`.
 
-```bash
-uv run polisyos-tools workspace --help
-```
+## Public Entrypoints
 
-Legacy `./scripts/*` paths below remain as thin compatibility wrappers.
-
-| Command | Role |
+| Entrypoint | Purpose |
 | --- | --- |
-| `./scripts/bootstrap` | Install or verify contributor prerequisites from a clean machine path |
-| `./scripts/doctor` | Validate Python, Node, `uv`, Playwright, lockfiles, generated contracts, and optional env surfaces |
-| `./scripts/verify` | Run the standard fast local gate for backend and frontend |
-| `./scripts/ci-parity` | Run a heavier local validation pass that approximates the main CI jobs |
-| `./scripts/acceptance-audit` | Run the Phase 7 cross-surface acceptance audit and optionally require manual rehearsal evidence |
-| `./scripts/remote-acceptance` | Provision and drive a remote Linux acceptance runner via `ssh`, `rsync`, and `git bundle` |
+| `uv run polisyos-tools workspace bootstrap` | Подготовить contributor machine и проверить минимальный baseline. |
+| `uv run polisyos-tools workspace doctor` | Проверить Python/Node/uv, Playwright, lockfiles, generated contracts и optional env surfaces. |
+| `uv run polisyos-tools workspace verify` | Запустить стандартный быстрый локальный gate. |
+| `uv run polisyos-tools workspace ci-parity` | Запустить более тяжёлый pass, близкий к основным CI jobs. |
+| `uv run polisyos-tools workspace acceptance-audit` | Сформировать Phase 7 acceptance evidence. |
+| `uv run polisyos-tools workspace remote-acceptance` | Вести remote Linux runner для тяжёлого closeout. |
+| `./scripts/{bootstrap,doctor,verify,ci-parity,acceptance-audit,remote-acceptance}` | Historical wrappers, retained for compatibility. |
 
-## Bootstrap Profiles
+## Depends On / Depended On By
 
-`./scripts/bootstrap` supports dependency tiers via `--profile`:
+- **Depends on:** `pyproject.toml`, `uv.lock`, `frontend/runtime-dashboard`,
+  `package-lock.json`, generated contracts, optional env surfaces и `tools`
+  validation/lint/runtime categories.
+- **Depended on by:** новые contributor-ы, локальный closeout перед PR,
+  onboarding docs, acceptance rehearsals и remote platform verification.
 
-| Profile | Extras |
-| --- | --- |
-| `minimal` | `lint`, `test` |
-| `docs` | `lint`, `docs` |
-| `runtime` | `lint`, `test`, `runtime` |
-| `research` | `lint`, `test`, `runtime`, `research` |
+## Common Commands
 
-Examples:
+Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
+`conceptual`.
 
-```bash
-./scripts/bootstrap --profile docs --skip-frontend
-./scripts/bootstrap --profile research
-./scripts/ci-parity --skip-browser
-```
+| Command | Purpose | Status |
+| --- | --- | --- |
+| `uv run polisyos-tools workspace doctor --list-surfaces` | Показать optional env surfaces, которые может проверять `doctor`. | `smoke-tested` |
+| `uv run polisyos-tools workspace doctor --skip-playwright --skip-lockfile-checks --skip-contract-checks` | Быстрый workstation preflight без тяжёлых browser/lock/contract checks. | `smoke-tested` |
+| `uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright --skip-hooks --skip-doctor` | Установить docs-oriented baseline на новой машине. | `conceptual` (изменяет локальное окружение) |
+| `uv run polisyos-tools workspace verify --backend-only --skip-doctor` | Прогнать быстрый backend-only gate после локальных правок. | `conceptual` (может занять заметное время) |
+| `uv run polisyos-tools workspace ci-parity --skip-browser` | Прогнать umbrella parity pass с docs checks по умолчанию. | `conceptual` (тяжёлый агрегирующий gate) |
 
-`./scripts/ci-parity` pulls the docs toolchain on demand via `uv run --extra docs ...`,
-so the documented parity command remains valid after a default `runtime` bootstrap.
+## Test And Verification
 
-## Remote Acceptance Runner
+| Command | What it verifies | Status |
+| --- | --- | --- |
+| `uv run pytest -q tests/tools/test_workspace_phase3.py tests/core/phase0/test_workspace_commands.py tests/tools/test_remote_acceptance.py` | Workspace command contract, compatibility wrappers и remote acceptance orchestration. | `conceptual` |
+| `uv run polisyos-tools validation check-docs-accuracy --repo-root .` | README/doc references вокруг workspace tooling остаются publishable. | `smoke-tested` |
 
-Use `./scripts/remote-acceptance` when heavyweight verification would overload a
-local laptop but the repo still needs a clean closeout run on Linux.
+## Reference Docs
 
-The helper keeps three remote locations separate:
+- [Contributor Start Here](../../../docs/reference/contributor-start-here.md)
+- [Install How-To](../../../docs/how-to/install.md)
+- [CI/CD Platform How-To](../../../docs/how-to/operate-ci-cd-platform.md)
+- [Dependency Platform Reference](../../../docs/reference/dependency-platform.md)
+- [Environment Matrix Reference](../../../docs/reference/environment-matrix.md)
+- [Quality Gates Reference](../../../docs/reference/quality-gates.md)
 
-- rsynced worktree for fast iteration;
-- committed clean checkout for the final rehearsal;
-- artifacts root for bundles and run logs.
+## Current State
 
-Typical flow:
-
-```bash
-./scripts/remote-acceptance provision
-./scripts/remote-acceptance sync
-./scripts/remote-acceptance exec --cwd /root/polisyos-work/policy-engine -- ./scripts/verify --backend-only
-./scripts/remote-acceptance clean-checkout --ref HEAD
-```
-
-The provision step installs Docker system-wide, keeps Python/Node/uv inside an
-isolated remote toolchain root, and primes Playwright OS dependencies so the
-clean checkout can run `./scripts/bootstrap -> ./scripts/doctor -> ./scripts/verify`
-without ad hoc host fixes. The generated remote `env.sh` also exports
-`POLISYOS_PYTEST_WORKERS=auto`, so non-benchmark backend pytest uses the full
-remote CPU by default while benchmark-marked tests stay on a separate serial
-slice for reliable timing thresholds.
-
-## Scope
-
-These commands are workspace tooling, not runtime product APIs. They live under
-`policy-engine/` because contributor setup is part of the canonical product root,
-while repository root stays a workspace gateway only.
+- Contributor baseline: Python `3.14.x`, Node `22.x`, `uv 0.9.21`.
+- `ci-parity` по умолчанию включает docs accuracy, strict MkDocs build и
+  semantic docstring checks, если не указан `--skip-docs`.
+- Remote acceptance path разделяет rsynced worktree, clean checkout и artifact
+  root, чтобы closeout на Linux был воспроизводимым.
+- Last updated: 2026-04-17

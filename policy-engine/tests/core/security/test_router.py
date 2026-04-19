@@ -83,3 +83,20 @@ def test_routing_rejects_authenticated_tenant_mismatch(
     response = client.get("/test", headers={"X-Tenant-ID": tenants[1]})
     assert response.status_code == 403
     assert response.json()["error"] == "tenant_binding_mismatch"
+
+
+def test_cell_router_middleware_accepts_injected_metrics(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "polisyos.runtime.http.cell_router_middleware._default_metrics",
+        lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
+    )
+
+    middleware = CellRouterMiddleware(
+        FastAPI(),
+        registry=CellRegistry(),
+        metrics=object(),  # type: ignore[arg-type]
+    )
+
+    assert middleware._metrics is not None

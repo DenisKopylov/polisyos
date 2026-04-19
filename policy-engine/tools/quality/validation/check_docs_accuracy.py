@@ -1,30 +1,67 @@
 #!/usr/bin/env python3
 """Validate published docs against current repository reality.
 
-The checker intentionally focuses on lightweight, high-signal accuracy failures:
+The checker intentionally focuses on the published MkDocs surface defined by
+``mkdocs.yml`` and enforces the D2 reference contract:
 
-* placeholder repository URLs such as ``<repo-url>``;
-* references to removed or nonexistent GitHub Actions workflows;
-* local filesystem links that would break on the published docs site;
-* relative Markdown links that no longer resolve;
-* absolute docs-site URLs that disagree with ``mkdocs.yml:site_url``.
+* published pages come from ``nav`` and must not be excluded by
+  ``exclude_docs``;
+* placeholder repository URLs such as ``<repo-url>`` are rejected;
+* workflow references must point to workflow files that actually exist under
+  ``.github/workflows`` in this repository;
+* relative Markdown links from published docs must stay inside the published
+  docs surface, or use inline-code / stable external links instead;
+* generated reference pages must advertise a canonical regeneration command;
+* published manual reference pages must declare ``Owner:`` and
+  ``Source of truth:`` metadata.
 """
 
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import re
 import subprocess
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from tools._lib.imports import repo_root_from
+from typing import Any
 from urllib.parse import urlparse
+
+try:
+    import yaml
+except ImportError:  # pragma: no cover - fallback only used in broken envs.
+    yaml = None
 
 PLACEHOLDER_RE = re.compile(r"<repo-url>")
 WORKFLOW_PATH_RE = re.compile(r"(?:\.github/workflows|actions/workflows)/([A-Za-z0-9_.-]+\.yml)\b")
 URL_RE = re.compile(r"https?://[^\s)>'\"]+")
 INLINE_LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 LOCAL_FILESYSTEM_RE = re.compile(r"^(?:file://|/Users/|/home/|/tmp/)")
+PLANNING_DOC_RE = re.compile(r"(^|/).+(?:_PLAN|_ROADMAP|_REMEDIATION_PLAN)\.md$", re.IGNORECASE)
+OWNER_RE = re.compile(r"^Owner:\s+\S+", flags=re.MULTILINE)
+SOURCE_OF_TRUTH_RE = re.compile(r"^Source of truth:\s+\S+", flags=re.MULTILINE)
+REGENERATION_RE = re.compile(
+    r"(?:Regenerate this page with|Canonical regeneration command(?:s)?)(?::|\s)",
+    flags=re.IGNORECASE,
+)
+NON_DOC_SEGMENTS = {
+    ".github",
+    "benchmarks",
+    "frontend",
+    "release",
+    "schemas",
+    "src",
+    "tests",
+    "tools",
+}
+GENERATED_REFERENCE_ALLOWLIST = {
+    Path("docs/reference/public-surface.md"),
+    Path("docs/reference/generated-artifacts.md"),
+    Path("docs/reference/tools.md"),
+    Path("docs/reference/schemas.md"),
+    Path("docs/reference/ir/schema-catalog.md"),
+}
 
 
 @dataclass(frozen=True)
@@ -36,53 +73,35 @@ class Violation:
     message: str
 
 
-def find_workspace_root(repo_root: Path) -> Path:
-    """Return the nearest parent that owns the monorepo `.github/workflows` directory."""
-    try:
-        completed = subprocess.run(
-            ["git", "-C", str(repo_root), "rev-parse", "--show-toplevel"],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except (OSError, subprocess.CalledProcessError):
-        completed = None
-    if completed is not None:
-        git_root = Path(completed.stdout.strip())
-        if (git_root / ".github" / "workflows").is_dir():
-            return git_root
+@dataclass(frozen=True)
+class PublishedDocsConfig:
+    """Resolved published-docs configuration from ``mkdocs.yml``."""
 
-    fallback: Path | None = None
-    for candidate in (repo_root, *repo_root.parents):
-        if (candidate / ".github" / "workflows").is_dir():
-            fallback = candidate
-    return fallback or repo_root
+    site_url: str | None
+    published_files: tuple[Path, ...]
+    docs_root: Path
+    mkdocs_path: Path
 
 
-def published_markdown_files(repo_root: Path) -> list[Path]:
-    """Collect README plus published docs pages, excluding archive/planning content."""
-    files: list[Path] = []
-    for name in ("README.md", "CONTRIBUTING.md"):
-        path = repo_root / name
-        if path.exists():
-            files.append(path)
-
-    docs_root = repo_root / "docs"
-    if not docs_root.exists():
-        return files
-
-    for path in sorted(docs_root.rglob("*.md")):
-        relative = path.relative_to(repo_root)
-        if "archive" in relative.parts or "site" in relative.parts:
-            continue
-        if path.name == "DOCUMENTATION_SOTA_PLAN.md":
-            continue
-        files.append(path)
-    return files
+def collect_nav_entries(value: Any) -> list[str]:
+    """Collect markdown paths from a MkDocs ``nav`` structure."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        results: list[str] = []
+        for item in value:
+            results.extend(collect_nav_entries(item))
+        return results
+    if isinstance(value, dict):
+        results = []
+        for item in value.values():
+            results.extend(collect_nav_entries(item))
+        return results
+    return []
 
 
 def parse_site_url(mkdocs_path: Path) -> str | None:
-    """Read `site_url` from `mkdocs.yml` without extra YAML dependencies."""
+    """Read ``site_url`` from ``mkdocs.yml`` without extra assumptions."""
     if not mkdocs_path.exists():
         return None
     for line in mkdocs_path.read_text(encoding="utf-8").splitlines():
@@ -91,12 +110,148 @@ def parse_site_url(mkdocs_path: Path) -> str | None:
     return None
 
 
-def actual_workflow_names(workspace_root: Path) -> set[str]:
-    """List real GitHub workflow filenames present in the monorepo root."""
-    workflows_dir = workspace_root / ".github" / "workflows"
-    if not workflows_dir.exists():
-        return set()
-    return {path.name for path in workflows_dir.glob("*.yml")}
+def split_exclude_docs(value: Any) -> list[str]:
+    """Normalize the ``exclude_docs`` setting into shell-style patterns."""
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [line.strip() for line in value.splitlines() if line.strip()]
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    return []
+
+
+def is_excluded_docs_path(relative_to_docs: Path, patterns: list[str]) -> bool:
+    """Return whether a docs path matches MkDocs ``exclude_docs`` patterns."""
+    candidate = relative_to_docs.as_posix()
+    for pattern in patterns:
+        if fnmatch.fnmatch(candidate, pattern):
+            return True
+    return False
+
+
+def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Violation]]:
+    """Resolve the published MkDocs surface from ``mkdocs.yml``."""
+    mkdocs_path = repo_root / "mkdocs.yml"
+    docs_root = repo_root / "docs"
+    violations: list[Violation] = []
+    site_url = parse_site_url(mkdocs_path)
+
+    if yaml is None:
+        files = tuple(sorted(path.resolve() for path in docs_root.rglob("*.md")))
+        return (
+            PublishedDocsConfig(
+                site_url=site_url,
+                published_files=files,
+                docs_root=docs_root,
+                mkdocs_path=mkdocs_path,
+            ),
+            violations,
+        )
+
+    class MkDocsLoader(yaml.SafeLoader):
+        pass
+
+    def _unknown_tag(loader: yaml.SafeLoader, tag_suffix: str, node: yaml.Node) -> Any:
+        if isinstance(node, yaml.ScalarNode):
+            return loader.construct_scalar(node)
+        if isinstance(node, yaml.SequenceNode):
+            return loader.construct_sequence(node)
+        if isinstance(node, yaml.MappingNode):
+            return loader.construct_mapping(node)
+        return None
+
+    MkDocsLoader.add_multi_constructor("tag:yaml.org,2002:python/name:", _unknown_tag)
+    data = yaml.load(mkdocs_path.read_text(encoding="utf-8"), Loader=MkDocsLoader) or {}
+    nav_paths = collect_nav_entries(data.get("nav", []))
+    exclude_patterns = split_exclude_docs(data.get("exclude_docs"))
+    published: set[Path] = set()
+
+    for nav_entry in nav_paths:
+        relative = Path(nav_entry)
+        if relative.parts and relative.parts[0] == "archive":
+            violations.append(
+                Violation(
+                    mkdocs_path,
+                    1,
+                    f"nav entry `{nav_entry}` points into `docs/archive/`; archived content must stay unpublished",
+                )
+            )
+            continue
+        if PLANNING_DOC_RE.search(nav_entry):
+            violations.append(
+                Violation(
+                    mkdocs_path,
+                    1,
+                    f"nav entry `{nav_entry}` is a planning/remediation document; keep planning docs out of the published nav",
+                )
+            )
+            continue
+        if is_excluded_docs_path(relative, exclude_patterns):
+            violations.append(
+                Violation(
+                    mkdocs_path,
+                    1,
+                    f"nav entry `{nav_entry}` is excluded by `exclude_docs`",
+                )
+            )
+            continue
+        file_path = (docs_root / relative).resolve()
+        if not file_path.exists():
+            violations.append(
+                Violation(
+                    mkdocs_path,
+                    1,
+                    f"nav entry `{nav_entry}` does not resolve under `docs/`",
+                )
+            )
+            continue
+        published.add(file_path)
+
+    for relative in GENERATED_REFERENCE_ALLOWLIST:
+        path = (repo_root / relative).resolve()
+        if path.exists() and path not in published:
+            violations.append(
+                Violation(
+                    mkdocs_path,
+                    1,
+                    f"generated reference `{relative.as_posix()}` is not published in `nav`",
+                )
+            )
+
+    return (
+        PublishedDocsConfig(
+            site_url=site_url,
+            published_files=tuple(sorted(published)),
+            docs_root=docs_root,
+            mkdocs_path=mkdocs_path,
+        ),
+        violations,
+    )
+
+
+def actual_workflow_names(repo_root: Path) -> set[str]:
+    """List real GitHub workflow filenames present in this repository."""
+    roots = {repo_root}
+    try:
+        completed = subprocess.run(  # noqa: S603
+            ["git", "rev-parse", "--show-toplevel"],  # noqa: S607
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        completed = None
+    if completed is not None:
+        roots.add(Path(completed.stdout.strip()))
+
+    names: set[str] = set()
+    for root in roots:
+        workflows_dir = root / ".github" / "workflows"
+        if workflows_dir.exists():
+            names.update(path.name for path in workflows_dir.glob("*.yml"))
+    return names
 
 
 def normalize_link_target(target: str) -> str:
@@ -109,31 +264,48 @@ def normalize_link_target(target: str) -> str:
     return target.split("#", 1)[0]
 
 
-def resolve_relative_link(file_path: Path, target: str) -> bool:
-    """Return whether a relative Markdown link points to an existing file/page."""
-    if not target:
-        return True
-    resolved = (file_path.parent / target).resolve()
-    candidates = [resolved]
+def looks_like_relative_repo_link(target: str) -> bool:
+    """Return whether a relative target obviously points outside published docs."""
+    parts = {part for part in PurePosixPath(target).parts if part not in {".", ".."}}
+    return bool(parts & NON_DOC_SEGMENTS)
+
+
+def resolve_relative_candidates(file_path: Path, target: str) -> list[Path]:
+    """Build candidate paths for a relative Markdown target."""
+    base = (file_path.parent / target).resolve()
+    candidates: list[Path] = [base]
     if target.endswith("/"):
-        candidates.append((file_path.parent / target / "index.md").resolve())
-    elif resolved.is_dir():
-        candidates.append((resolved / "index.md").resolve())
-    return any(candidate.exists() for candidate in candidates)
+        candidates.append((base / "index.md").resolve())
+    elif base.is_dir():
+        candidates.append((base / "index.md").resolve())
+    elif base.suffix == "":
+        candidates.append(base.with_suffix(".md").resolve())
+        candidates.append((base / "index.md").resolve())
+    return candidates
+
+
+def first_existing_candidate(file_path: Path, target: str) -> Path | None:
+    """Resolve a relative target to the first existing candidate path."""
+    for candidate in resolve_relative_candidates(file_path, target):
+        if candidate.exists():
+            return candidate
+    return None
 
 
 def scan_file(
     file_path: Path,
     *,
-    site_url: str | None,
+    config: PublishedDocsConfig,
+    published_files: set[Path],
     workflow_names: set[str],
 ) -> list[Violation]:
     """Scan one published Markdown file for accuracy violations."""
     violations: list[Violation] = []
-    site_url_value = site_url.rstrip("/") + "/" if site_url else None
+    site_url_value = config.site_url.rstrip("/") + "/" if config.site_url else None
     site_url_parts = urlparse(site_url_value) if site_url_value else None
+    text = file_path.read_text(encoding="utf-8")
 
-    for lineno, line in enumerate(file_path.read_text(encoding="utf-8").splitlines(), start=1):
+    for lineno, line in enumerate(text.splitlines(), start=1):
         if PLACEHOLDER_RE.search(line):
             violations.append(Violation(file_path, lineno, "placeholder `<repo-url>` must be replaced"))
 
@@ -171,25 +343,71 @@ def scan_file(
                 continue
             if LOCAL_FILESYSTEM_RE.match(target):
                 violations.append(
-                    Violation(
-                        file_path,
-                        lineno,
-                        f"local filesystem link `{target}` is not publishable",
-                    )
+                    Violation(file_path, lineno, f"local filesystem link `{target}` is not publishable")
                 )
                 continue
             if "://" in target or target.startswith("/"):
                 continue
-            if (target.endswith(".md") or target.endswith("/")) and not resolve_relative_link(
-                file_path, target
-            ):
+            if looks_like_relative_repo_link(target):
                 violations.append(
                     Violation(
                         file_path,
                         lineno,
-                        f"relative docs link `{target}` does not resolve",
+                        f"relative repo link `{target}` points outside the published docs surface; use inline code or a stable external URL",
                     )
                 )
+                continue
+            resolved = first_existing_candidate(file_path, target)
+            if resolved is None:
+                if target.endswith(".md") or target.endswith("/"):
+                    violations.append(
+                        Violation(
+                            file_path,
+                            lineno,
+                            f"relative docs link `{target}` does not resolve",
+                        )
+                    )
+                continue
+            if resolved.suffix.lower() == ".md":
+                if not resolved.is_relative_to(config.docs_root.resolve()):
+                    violations.append(
+                        Violation(
+                            file_path,
+                            lineno,
+                            f"relative repo link `{target}` points outside the published docs surface; use inline code or a stable external URL",
+                        )
+                    )
+                    continue
+                if resolved not in published_files:
+                    try:
+                        unpublished = resolved.relative_to(config.docs_root.resolve()).as_posix()
+                    except ValueError:
+                        unpublished = target
+                    violations.append(
+                        Violation(
+                            file_path,
+                            lineno,
+                            f"relative docs link `{target}` points to unpublished or excluded page `{unpublished}`",
+                        )
+                    )
+
+    repo_relative = file_path.relative_to(config.docs_root.parent)
+    if repo_relative in GENERATED_REFERENCE_ALLOWLIST:
+        if not REGENERATION_RE.search(text):
+            violations.append(
+                Violation(
+                    file_path,
+                    1,
+                    "generated reference is missing a canonical regeneration command",
+                )
+            )
+    elif repo_relative.parts[:2] == ("docs", "reference"):
+        if not OWNER_RE.search(text):
+            violations.append(Violation(file_path, 1, "manual reference page is missing `Owner:` metadata"))
+        if not SOURCE_OF_TRUTH_RE.search(text):
+            violations.append(
+                Violation(file_path, 1, "manual reference page is missing `Source of truth:` metadata")
+            )
 
     return violations
 
@@ -201,7 +419,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--repo-root",
         type=Path,
         default=repo_root_from(__file__),
-        help="Repository root containing README.md, CONTRIBUTING.md, docs/, and mkdocs.yml.",
+        help="Repository root containing docs/, mkdocs.yml, and .github/workflows/.",
     )
     return parser
 
@@ -212,16 +430,17 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     repo_root = args.repo_root.resolve()
-    workspace_root = find_workspace_root(repo_root)
-    site_url = parse_site_url(repo_root / "mkdocs.yml")
-    workflow_names = actual_workflow_names(workspace_root)
+    config, config_violations = published_docs_config(repo_root)
+    workflow_names = actual_workflow_names(repo_root)
+    published_files = set(config.published_files)
 
-    violations: list[Violation] = []
-    for file_path in published_markdown_files(repo_root):
+    violations: list[Violation] = list(config_violations)
+    for file_path in config.published_files:
         violations.extend(
             scan_file(
                 file_path,
-                site_url=site_url,
+                config=config,
+                published_files=published_files,
                 workflow_names=workflow_names,
             )
         )
@@ -239,8 +458,8 @@ def main(argv: list[str] | None = None) -> int:
 
     print("Docs accuracy report")
     print("- violations: 0")
-    print(f"- checked files: {len(published_markdown_files(repo_root))}")
-    print(f"- site_url: {site_url or 'missing'}")
+    print(f"- checked files: {len(config.published_files)}")
+    print(f"- site_url: {config.site_url or 'missing'}")
     print(f"- workflow inventory: {', '.join(sorted(workflow_names)) or 'none found'}")
     return 0
 

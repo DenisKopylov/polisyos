@@ -21,6 +21,7 @@ export {
 export type { RunDetailTab } from "@/features/runs/domain/runDetailTabs";
 export {
   buildRunCompareHref,
+  buildRunDeckHref,
   buildRunDetailHref,
   buildRunReportHref,
   buildRunsListHref,

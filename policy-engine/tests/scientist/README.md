@@ -1,50 +1,87 @@
 # Scientist Tests
 
-`tests/scientist` покрывает orchestration layer `polisyos.scientist`: workflow engine, node execution, governance passes, search/DOE и decision artifacts.
+`tests/scientist` covers the orchestration layer: workflow engine, nodes,
+governance, search, DOE, agent/LLM helpers, replay, provenance, and decision
+artifacts. The slice currently contains `343` `test_*.py` files across many
+specialized subdirectories.
 
-Актуально на **17 февраля 2026**.
+## Purpose
 
-## Состав
+- Keep workflow assembly, execution, checkpointing, and replay behavior stable.
+- Protect governance passes, search strategies, and node-level contracts.
+- Catch regressions in decision artifacts, agent/LLM helpers, and integration
+  flows before they reach runtime.
 
-- `60` файлов `test_*.py`
-- `3` файла `conftest.py`
+## Where To Start
 
-## Структура
+- [`../../src/polisyos/scientist/README.md`](../../src/polisyos/scientist/README.md)
+- [`../../src/polisyos/scientist/engine/README.md`](../../src/polisyos/scientist/engine/README.md)
+- [`../../src/polisyos/scientist/governance/README.md`](../../src/polisyos/scientist/governance/README.md)
+- `engine/`, `nodes/`, `search/`, and `integration/` depending on the change.
 
-| Подкаталог | `test_*.py` | Что покрывает |
-|---|---:|---|
-| `scientist/` (корень) | 37 | engine/executor, nodes, decision artifacts, replay/idempotency |
-| `scientist/governance/` | 7 | legal/equity/confidence/pii/norm passes + validation pipeline |
-| `scientist/search/` + `search/strategies/` | 11 | search loop, portfolio/diversity/adversarial, стратегии оптимизации |
-| `scientist/integration/` | 2 | checkpoint-resume и workflow tracing |
-| `scientist/doe/` | 2 | sampling/sensitivity plan |
-| `scientist/compute/` | 1 | polyglot runner |
+## Public Entrypoints
 
-## Ключевые зоны
+- `tests/scientist/` root: `73` tests for engine/executor, workflow defaults,
+  replay, decision artifacts, and top-level node behavior.
+- `tests/scientist/engine/`: `49` tests for runner, checkpoint, lock, and
+  executor details.
+- `tests/scientist/nodes/`: `42` tests for builtin planning, compile, causal,
+  simulate, data, and decision nodes.
+- `tests/scientist/search/`: `45` tests for search loops, funnels, and
+  strategies.
+- `tests/scientist/governance/`: `32` tests for passes and validation pipeline.
+- `tests/scientist/agent/`: `25` tests for agent and tool-facing helpers.
 
-- Engine/workflow: `test_engine_executor_v0.py`, `test_engine_executor_idempotency.py`, `test_engine_default_workflow_*.py`.
-- Node-level behavior: `test_bind_foundry_inputs_node.py`, `test_data_plane_gate_node.py`, `test_distributional_analysis_node.py`, `test_propagate_uncertainty_node.py`.
-- Decision artifacts: `test_decision_packet_node_v3.py`, `test_decision_card.py`, `test_failure_index.py`.
-- Agent контур: `test_agent_protocols.py`, `test_multipass_drafter.py`, `test_informed_critic.py`, `test_llm_cycle_preflight.py`.
+## Depends On / Depended On By
 
-## Integration и окружение
+**Depends on**
 
-- `scientist/integration/*` помечены `@pytest.mark.integration`.
-- `test_workflow_tracing.py` дополнительно требует `POLISYOS_RUN_INTEGRATION=1`.
-- Часть тестов условно `skip`-ится при отсутствии optional зависимостей (например, `jax`).
+- [`../../src/polisyos/scientist/README.md`](../../src/polisyos/scientist/README.md)
+- [`../../src/polisyos/scientist/engine/README.md`](../../src/polisyos/scientist/engine/README.md)
+- [`../../src/polisyos/scientist/governance/README.md`](../../src/polisyos/scientist/governance/README.md)
+- `src/polisyos/foundry`, `src/polisyos/fabric`, `src/polisyos/core`,
+  `src/polisyos/runtime`
 
-## Связи с кодом
+**Depended on by**
 
-- `policy-engine/src/polisyos/scientist`
-- `policy-engine/src/polisyos/foundry`
-- `policy-engine/src/polisyos/core`
-- `policy-engine/src/polisyos/runtime`
+- [`../runtime/README.md`](../runtime/README.md),
+  [`../integration/README.md`](../integration/README.md), and
+  [`../performance/README.md`](../performance/README.md)
+- Runtime control/debug flows and local stack smoke scenarios
 
-## Запуск
+## Common Commands
+
+Run commands from `policy-engine/`.
 
 ```bash
-pytest tests/scientist -q
-pytest tests/scientist/governance -q
-pytest tests/scientist/search -q
-POLISYOS_RUN_INTEGRATION=1 pytest tests/scientist/integration -q
+# conceptual: full scientist slice
+uv run pytest tests/scientist -q
+
+# conceptual: focused slices
+uv run pytest tests/scientist/governance -q
+uv run pytest tests/scientist/search -q
+
+# conceptual: integration slice
+POLISYOS_RUN_INTEGRATION=1 uv run pytest tests/scientist/integration -q
 ```
+
+## Test And Verification Commands
+
+The collect-only commands below were smoke-checked on `2026-04-17`.
+
+```bash
+cd policy-engine
+uv run pytest --collect-only tests/scientist -q
+uv run pytest --collect-only tests/scientist/integration -q
+```
+
+## Reference Docs
+
+- [`../../src/polisyos/scientist/README.md`](../../src/polisyos/scientist/README.md)
+- [`../../src/polisyos/scientist/engine/README.md`](../../src/polisyos/scientist/engine/README.md)
+- [`../../src/polisyos/scientist/governance/README.md`](../../src/polisyos/scientist/governance/README.md)
+- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+
+## Last Updated
+
+2026-04-17

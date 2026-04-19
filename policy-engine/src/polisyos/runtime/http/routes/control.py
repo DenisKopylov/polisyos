@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.control import (
     BindingProfilesListResponse,
     CacheStatusResponse,
@@ -55,23 +56,30 @@ from polisyos.runtime.http.dependencies import (
 from polisyos.runtime.http.errors import bad_request, not_found
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 
-try:  # pragma: no cover - optional runtime dependency
-    APIRouter: Any | None
-    Depends: Any | None
-    Query: Any | None
-    Request: Any
+if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request
-except ModuleNotFoundError:  # pragma: no cover
-    APIRouter = None
-    Depends = None
-    Query = None
-    Request = Any
+
+    from polisyos.runtime.http.services.control import ControlPlaneService
+else:
+    try:  # pragma: no cover - optional runtime dependency
+        from fastapi import APIRouter, Depends, Query, Request
+    except ModuleNotFoundError:  # pragma: no cover
+        APIRouter = cast("Any", None)
+        Depends = cast("Any", None)
+        Query = cast("Any", None)
+        Request = cast("Any", object)
 
 
-router = APIRouter(prefix="/api/v1/control", tags=["control-plane"]) if APIRouter else None
+def _build_router() -> APIRouter:
+    if APIRouter is None:  # pragma: no cover - runtime dependency guard
+        raise RuntimeError("runtime HTTP routes require FastAPI to be installed")
+    return APIRouter(prefix="/api/v1/control", tags=["control-plane"])
 
 
-def _get_control_service(request: Request) -> Any:
+router = _build_router()
+
+
+def _get_control_service(request: Request) -> ControlPlaneService:
     """Return the startup-initialized control service instance."""
     svc = resolve_control_service(request)
     if svc is None:
@@ -84,15 +92,23 @@ def _get_principal(request: Request) -> RuntimePrincipal:
     return RuntimePrincipal.from_user_claims(claims)
 
 
-if router is not None:
+def _artifact_ref(artifact_id: str | None, *, kind: str, media_type: str) -> ArtifactRef | None:
+    if artifact_id is None:
+        return None
+    return ArtifactRef(
+        artifact_id=ArtifactID.model_validate(artifact_id),
+        kind=kind,
+        media_type=media_type,
+    )
 
-    @router.post(
+
+@router.post(
         "/runs",
         response_model=RunLaunchResponse,
         operation_id="launch_run",
         summary="Launch a workflow run",
     )
-    def launch_run(
+def launch_run(
         body: WorkflowRunRequest,
         request: Request,
     ) -> RunLaunchResponse:
@@ -116,13 +132,13 @@ if router is not None:
             principal=_get_principal(request),
         )
 
-    @router.post(
+@router.post(
         "/runs/{run_id}/feedback/evaluate",
         response_model=FeedbackActionResponse,
         operation_id="evaluate_run_feedback",
         summary="Evaluate post-deployment monitoring for a run",
     )
-    def evaluate_run_feedback(
+def evaluate_run_feedback(
         run_id: str,
         request: Request,
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
@@ -140,43 +156,31 @@ if router is not None:
             run_id=run_id,
             action="evaluate_feedback",
             status="completed",
-            monitoring_report_ref=(
-                {
-                    "artifact_id": monitoring_report_ref,
-                    "kind": "scientist.decision_monitoring_report",
-                    "media_type": "application/json",
-                }
-                if monitoring_report_ref is not None
-                else None
+            monitoring_report_ref=_artifact_ref(
+                monitoring_report_ref,
+                kind="scientist.decision_monitoring_report",
+                media_type="application/json",
             ),
-            compare_report_ref=(
-                {
-                    "artifact_id": compare_report_ref,
-                    "kind": "scientist.decision_compare_report",
-                    "media_type": "application/json",
-                }
-                if compare_report_ref is not None
-                else None
+            compare_report_ref=_artifact_ref(
+                compare_report_ref,
+                kind="scientist.decision_compare_report",
+                media_type="application/json",
             ),
-            reissue_plan_ref=(
-                {
-                    "artifact_id": reissue_plan_ref,
-                    "kind": "scientist.decision_reissue_plan",
-                    "media_type": "application/json",
-                }
-                if reissue_plan_ref is not None
-                else None
+            reissue_plan_ref=_artifact_ref(
+                reissue_plan_ref,
+                kind="scientist.decision_reissue_plan",
+                media_type="application/json",
             ),
             message=f"Feedback evaluation for run {run_id} completed.",
         )
 
-    @router.post(
+@router.post(
         "/runs/nl",
         response_model=RunLaunchResponse,
         operation_id="launch_nl_run",
         summary="Launch a natural-language run via agent circuit",
     )
-    async def launch_nl_run(
+async def launch_nl_run(
         body: NaturalLanguageRunRequest,
         request: Request,
     ) -> RunLaunchResponse:
@@ -193,13 +197,13 @@ if router is not None:
             principal=_get_principal(request),
         )
 
-    @router.post(
+@router.post(
         "/runs/{run_id}/reissue",
         response_model=FeedbackActionResponse,
         operation_id="reissue_run",
         summary="Create a human-gated reissue run",
     )
-    def reissue_run(
+def reissue_run(
         run_id: str,
         request: Request,
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
@@ -222,36 +226,26 @@ if router is not None:
             run_id=run_id,
             action="reissue",
             status="accepted",
-            monitoring_report_ref=(
-                {
-                    "artifact_id": payload["monitoring_report_ref"],
-                    "kind": "scientist.decision_monitoring_report",
-                    "media_type": "application/json",
-                }
-                if payload.get("monitoring_report_ref")
-                else None
+            monitoring_report_ref=_artifact_ref(
+                payload.get("monitoring_report_ref"),
+                kind="scientist.decision_monitoring_report",
+                media_type="application/json",
             ),
-            compare_report_ref=(
-                {
-                    "artifact_id": payload["compare_report_ref"],
-                    "kind": "scientist.decision_compare_report",
-                    "media_type": "application/json",
-                }
-                if payload.get("compare_report_ref")
-                else None
+            compare_report_ref=_artifact_ref(
+                payload.get("compare_report_ref"),
+                kind="scientist.decision_compare_report",
+                media_type="application/json",
             ),
-            reissue_plan_ref=(
-                {
-                    "artifact_id": payload["reissue_plan_ref"],
-                    "kind": "scientist.decision_reissue_plan",
-                    "media_type": "application/json",
-                }
-                if payload.get("reissue_plan_ref")
-                else None
+            reissue_plan_ref=_artifact_ref(
+                payload.get("reissue_plan_ref"),
+                kind="scientist.decision_reissue_plan",
+                media_type="application/json",
             ),
             reissued_run_id=payload.get("run_id"),
             message=str(payload.get("message") or f"Reissue for run {run_id} accepted."),
         )
+
+if router is not None:
 
     @router.get(
         "/jobs/{job_id}",

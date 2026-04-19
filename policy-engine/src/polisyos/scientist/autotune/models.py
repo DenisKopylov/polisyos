@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Protocol, Self, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol, Self, TypeVar, cast
 
 from pydantic import ConfigDict, Field
 
@@ -287,11 +287,14 @@ def default_search_registry_root() -> Path:
 
 def default_store(root: Path | None = None) -> ArtifactStore:
     """Construct the default autotune artifact store from the storage factory boundary."""
-    return build_artifact_store(
-        ArtifactStoreConfig(
-            backend="filesystem",
-            root=str(root or default_cas_root()),
-        )
+    return cast(
+        "ArtifactStore",
+        build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(root or default_cas_root()),
+            )
+        ),
     )
 
 

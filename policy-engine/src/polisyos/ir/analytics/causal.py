@@ -3,11 +3,15 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir._validation import ensure_confidence_interval, ensure_finite_numeric
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    DynamicReductionStatus,
+    DynamicSemanticsAttachment,
+)
 from polisyos.ir.analytics.estimand import SideConditionKind
 from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.analytics.uncertainty import (
@@ -22,10 +26,18 @@ from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import (
     CausalEffectReportRef,
     DataReadinessReportRef,
+    DPRobustnessCertificateRef,
+    FrontierSketchRef,
+    JointDecisionCertificateRef,
     ProofBundleRef,
+    ProximalIdentificationCertificateRef,
+    RecoverabilityCertificateRef,
 )
 
 logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.proximal import ProximalIdentificationCertificate
 
 
 class CausalMethod(str, Enum):
@@ -134,13 +146,19 @@ class ProofBundle(BaseModel):
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     proof_status: Literal["identified", "non_identified", "oracle_needed"]
-    proof_stratum: Literal["A0_trusted", "A1_extended", "A2_oracle_backed"]
+    proof_stratum: Literal["A0_trusted", "A1_extended", "A1_dynamic", "A2_oracle_backed"]
     theorem_family: str
     completeness_regime: Literal["complete", "sound_incomplete", "heuristic_backed"]
     implementation_coverage: str
     graph_ref: str | None = None
     query_ref: str | None = None
+    dp_robustness_ref: DPRobustnessCertificateRef | None = None
+    frontier_sketch_ref: FrontierSketchRef | None = None
+    proximal_certificate_ref: ProximalIdentificationCertificateRef | None = None
+    recoverability_certificate_ref: RecoverabilityCertificateRef | None = None
+    joint_decision_ref: JointDecisionCertificateRef | None = None
     estimand_ast: dict[str, Any] | None = None
+    dynamic_semantics: DynamicSemanticsAttachment | None = None
     negative_certificate_summary: str | None = None
     proof_trace: list[str] = Field(default_factory=list)
     assumptions: list[str] = Field(default_factory=list)
@@ -394,6 +412,10 @@ class DataReadinessReport(BaseModel):
     fallback_data_available: bool = False
     positivity: PositivityDiagnosticReport | None = None
     support_mismatch: dict[str, Any] | None = None
+    recoverability: dict[str, Any] | None = None
+    recoverability_certificate_ref: RecoverabilityCertificateRef | None = None
+    joint_decision_ref: JointDecisionCertificateRef | None = None
+    dp_distortion: dict[str, Any] | None = None
     blocking_reasons: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     metrics: dict[str, float] = Field(default_factory=dict)
@@ -435,29 +457,56 @@ def proof_bundle_from_identification_result(
     graph_ref: str | None = None,
     query_ref: str | None = None,
     negative_certificate_summary: str | None = None,
+    recoverability_certificate: Any | None = None,
+    recoverability_certificate_ref: RecoverabilityCertificateRef | None = None,
+    joint_decision_ref: JointDecisionCertificateRef | None = None,
 ) -> ProofBundle:
     """Translate an internal identification result into the canonical proof surface."""
     status_raw = _status_value(getattr(result, "status", "oracle_needed"))
     algorithm_version = str(getattr(result, "algorithm_version", "") or "")
     theorem_family = algorithm_version or "id_unknown"
+    dynamic_semantics = _extract_dynamic_semantics(getattr(result, "metadata", None))
     proof_status: Literal["identified", "non_identified", "oracle_needed"]
-    completeness_regime: Literal["complete", "sound_incomplete", "heuristic_backed"]
     if status_raw == "identified":
         proof_status = "identified"
-        completeness_regime = "complete"
     elif status_raw in {"hedge_found", "not_recoverable"}:
         proof_status = "non_identified"
-        completeness_regime = "complete"
     elif status_raw in {"oracle_needed", "pag_ambiguous"}:
         proof_status = "oracle_needed"
-        completeness_regime = "heuristic_backed"
     else:
         proof_status = "oracle_needed"
-        completeness_regime = "sound_incomplete"
+    completeness_regime = _completeness_regime_for_result(
+        status_raw=status_raw,
+        theorem_family=theorem_family,
+        dynamic_semantics=dynamic_semantics,
+    )
 
-    proof_stratum = _proof_stratum_for_result(status_raw=status_raw, theorem_family=theorem_family)
+    proof_stratum = _proof_stratum_for_result(
+        status_raw=status_raw,
+        theorem_family=theorem_family,
+        dynamic_semantics=dynamic_semantics,
+    )
     estimand_ast = getattr(result, "estimand_ast", None)
     assumptions = _extract_assumptions_from_estimand(estimand_ast)
+    result_metadata = dict(getattr(result, "metadata", {}) or {})
+    resolved_recoverability_ref = _typed_ref_from_payload(
+        recoverability_certificate_ref or result_metadata.get("recoverability_certificate_ref"),
+        RecoverabilityCertificateRef,
+    )
+    resolved_joint_decision_ref = _typed_ref_from_payload(
+        joint_decision_ref or result_metadata.get("joint_decision_ref"),
+        JointDecisionCertificateRef,
+    )
+    resolved_frontier_sketch_ref = _typed_ref_from_payload(
+        result_metadata.get("frontier_sketch_ref"),
+        FrontierSketchRef,
+    )
+    recoverability_summary = _recoverability_summary(
+        recoverability_certificate
+        if recoverability_certificate is not None
+        else result_metadata.get("recoverability_certificate")
+    )
+    joint_decision_summary = _joint_decision_summary(result_metadata.get("joint_decision"))
     return ProofBundle(
         proof_status=proof_status,
         proof_stratum=proof_stratum,
@@ -466,20 +515,53 @@ def proof_bundle_from_identification_result(
         implementation_coverage=_implementation_coverage_for_result(
             status_raw=status_raw,
             theorem_family=theorem_family,
+            dynamic_semantics=dynamic_semantics,
         ),
         graph_ref=graph_ref,
         query_ref=query_ref or getattr(result, "query_str", None),
+        frontier_sketch_ref=resolved_frontier_sketch_ref,
+        recoverability_certificate_ref=resolved_recoverability_ref,
+        joint_decision_ref=resolved_joint_decision_ref,
         estimand_ast=(
             estimand_ast.model_dump(mode="json")
             if hasattr(estimand_ast, "model_dump")
             else estimand_ast
         ),
+        dynamic_semantics=dynamic_semantics,
         negative_certificate_summary=negative_certificate_summary,
         proof_trace=list(getattr(result, "trace", []) or []),
         assumptions=assumptions,
         metadata={
+            **result_metadata,
             "status": status_raw,
-            "required_distributions_count": len(getattr(result, "required_distributions", []) or []),
+            "required_distributions_count": len(
+                getattr(result, "required_distributions", []) or []
+            ),
+            **(
+                {"recoverability": recoverability_summary}
+                if recoverability_summary is not None
+                else {}
+            ),
+            **(
+                {"recoverability_certificate_ref": resolved_recoverability_ref.model_dump(mode="json")}
+                if resolved_recoverability_ref is not None
+                else {}
+            ),
+            **(
+                {"joint_decision": joint_decision_summary}
+                if joint_decision_summary is not None
+                else {}
+            ),
+            **(
+                {"joint_decision_ref": resolved_joint_decision_ref.model_dump(mode="json")}
+                if resolved_joint_decision_ref is not None
+                else {}
+            ),
+            **(
+                {"frontier_sketch_ref": resolved_frontier_sketch_ref.model_dump(mode="json")}
+                if resolved_frontier_sketch_ref is not None
+                else {}
+            ),
         },
     )
 
@@ -495,53 +577,212 @@ def proof_bundle_from_negative_certificate(
     """Translate a canonical impossibility artifact into the public proof surface."""
     diagnostics = dict(getattr(certificate, "quantitative_diagnostics", {}) or {})
     blocking_type = str(getattr(getattr(certificate, "blocking_type", None), "value", "") or "")
-    resolved_status = str(status_raw or diagnostics.get("identification_status") or "").strip().lower()
+    resolved_status = str(
+        status_raw or diagnostics.get("identification_status") or ""
+    ).strip().lower()
     if not resolved_status:
         resolved_status = "non_identified"
     resolved_theorem_family = (
         str(theorem_family or diagnostics.get("algorithm_version") or "").strip()
         or f"negative_{blocking_type or 'certificate'}"
     )
+    dynamic_semantics = _extract_dynamic_semantics(diagnostics)
     if resolved_status in {"oracle_needed", "pag_ambiguous"}:
         proof_status: Literal["identified", "non_identified", "oracle_needed"] = "oracle_needed"
-        completeness_regime: Literal["complete", "sound_incomplete", "heuristic_backed"] = (
-            "heuristic_backed"
-        )
     else:
         proof_status = "non_identified"
-        completeness_regime = "complete"
+    completeness_regime = _completeness_regime_for_result(
+        status_raw=resolved_status,
+        theorem_family=resolved_theorem_family,
+        dynamic_semantics=dynamic_semantics,
+    )
 
     proof_trace = diagnostics.get("proof_trace")
     if not isinstance(proof_trace, list):
         proof_trace = []
+    metadata = {
+        key: value
+        for key, value in diagnostics.items()
+        if key != "proof_trace"
+    }
+    recoverability_summary = _recoverability_summary(
+        metadata.get("recoverability")
+        or metadata.get("recoverability_certificate")
+        or metadata.get("joint_decision")
+    )
+    recoverability_certificate_ref = _typed_ref_from_payload(
+        metadata.get("recoverability_certificate_ref"),
+        RecoverabilityCertificateRef,
+    )
+    joint_decision_ref = _typed_ref_from_payload(
+        metadata.get("joint_decision_ref"),
+        JointDecisionCertificateRef,
+    )
+    frontier_sketch_ref = _typed_ref_from_payload(
+        metadata.get("frontier_sketch_ref"),
+        FrontierSketchRef,
+    )
+    joint_decision_summary = _joint_decision_summary(metadata.get("joint_decision"))
 
     return ProofBundle(
         proof_status=proof_status,
         proof_stratum=_proof_stratum_for_result(
             status_raw=resolved_status,
             theorem_family=resolved_theorem_family,
+            dynamic_semantics=dynamic_semantics,
         ),
         theorem_family=resolved_theorem_family,
         completeness_regime=completeness_regime,
         implementation_coverage=_implementation_coverage_for_result(
             status_raw=resolved_status,
             theorem_family=resolved_theorem_family,
+            dynamic_semantics=dynamic_semantics,
         ),
         graph_ref=graph_ref,
         query_ref=query_ref,
+        frontier_sketch_ref=frontier_sketch_ref,
+        recoverability_certificate_ref=recoverability_certificate_ref,
+        joint_decision_ref=joint_decision_ref,
         estimand_ast=None,
+        dynamic_semantics=dynamic_semantics,
         negative_certificate_summary=(
             certificate.to_summary() if hasattr(certificate, "to_summary") else None
         ),
         proof_trace=[str(item) for item in proof_trace],
         assumptions=[],
         metadata={
+            **metadata,
             "status": resolved_status,
             "blocking_type": blocking_type,
             "constructive_message": str(
                 getattr(certificate, "constructive_message", "") or ""
             ),
+            **(
+                {"recoverability": recoverability_summary}
+                if recoverability_summary is not None
+                else {}
+            ),
+            **(
+                {"recoverability_certificate_ref": recoverability_certificate_ref.model_dump(mode="json")}
+                if recoverability_certificate_ref is not None
+                else {}
+            ),
+            **(
+                {"joint_decision": joint_decision_summary}
+                if joint_decision_summary is not None
+                else {}
+            ),
+            **(
+                {"joint_decision_ref": joint_decision_ref.model_dump(mode="json")}
+                if joint_decision_ref is not None
+                else {}
+            ),
+            **(
+                {"frontier_sketch_ref": frontier_sketch_ref.model_dump(mode="json")}
+                if frontier_sketch_ref is not None
+                else {}
+            ),
         },
+    )
+
+
+def proof_bundle_from_proximal_certificate(
+    certificate: ProximalIdentificationCertificate,
+    *,
+    graph_ref: str | None = None,
+    query_ref: str | None = None,
+    certificate_ref: ProximalIdentificationCertificateRef | None = None,
+    frontier_sketch_ref: FrontierSketchRef | None = None,
+) -> ProofBundle:
+    """Translate a proximal bridge certificate into the public proof surface."""
+    cert_payload = certificate.model_dump(mode="json")
+    return ProofBundle(
+        proof_status="identified",
+        proof_stratum="A1_extended",
+        theorem_family="proximal_id_pci_core",
+        completeness_regime="sound_incomplete",
+        implementation_coverage="proximal_bridge_v1_pci_core",
+        graph_ref=graph_ref,
+        query_ref=query_ref,
+        frontier_sketch_ref=frontier_sketch_ref,
+        proximal_certificate_ref=certificate_ref,
+        estimand_ast=None,
+        negative_certificate_summary=None,
+        proof_trace=list(certificate.proof_trace),
+        assumptions=list(certificate.assumptions),
+        metadata={
+            "status": "identified",
+            "method": CausalMethod.PROXIMAL_BRIDGE.value,
+            "proximal_certificate": cert_payload,
+            **(
+                {"proximal_certificate_ref": certificate_ref.model_dump(mode="json")}
+                if certificate_ref is not None
+                else {}
+            ),
+            **(
+                {"frontier_sketch_ref": frontier_sketch_ref.model_dump(mode="json")}
+                if frontier_sketch_ref is not None
+                else {}
+            ),
+            "bridge_functions_count": len(certificate.bridge_functions),
+            "graph_checks_count": len(certificate.graph_checks),
+        },
+    )
+
+
+def build_dynamic_proof_bundle(
+    *,
+    dynamic_semantics: DynamicSemanticsAttachment,
+    theorem_family: str,
+    proof_status: Literal["identified", "non_identified", "oracle_needed"],
+    graph_ref: str | None = None,
+    query_ref: str | None = None,
+    estimand_ast: Any = None,
+    negative_certificate_summary: str | None = None,
+    proof_trace: list[str] | None = None,
+    assumptions: list[str] | None = None,
+    metadata: dict[str, Any] | None = None,
+    frontier_sketch_ref: FrontierSketchRef | None = None,
+) -> ProofBundle:
+    """Construct a proof bundle directly from a dynamic-semantics attachment."""
+    payload_metadata = dict(metadata or {})
+    payload_metadata.setdefault("status", proof_status)
+    if frontier_sketch_ref is not None:
+        payload_metadata.setdefault(
+            "frontier_sketch_ref",
+            frontier_sketch_ref.model_dump(mode="json"),
+        )
+    return ProofBundle(
+        proof_status=proof_status,
+        proof_stratum=_proof_stratum_for_result(
+            status_raw=proof_status,
+            theorem_family=theorem_family,
+            dynamic_semantics=dynamic_semantics,
+        ),
+        theorem_family=theorem_family,
+        completeness_regime=_completeness_regime_for_result(
+            status_raw=proof_status,
+            theorem_family=theorem_family,
+            dynamic_semantics=dynamic_semantics,
+        ),
+        implementation_coverage=_implementation_coverage_for_result(
+            status_raw=proof_status,
+            theorem_family=theorem_family,
+            dynamic_semantics=dynamic_semantics,
+        ),
+        graph_ref=graph_ref,
+        query_ref=query_ref,
+        frontier_sketch_ref=frontier_sketch_ref,
+        estimand_ast=(
+            estimand_ast.model_dump(mode="json")
+            if hasattr(estimand_ast, "model_dump")
+            else estimand_ast
+        ),
+        dynamic_semantics=dynamic_semantics,
+        negative_certificate_summary=negative_certificate_summary,
+        proof_trace=list(proof_trace or []),
+        assumptions=list(assumptions or []),
+        metadata=payload_metadata,
     )
 
 
@@ -549,6 +790,10 @@ def build_data_readiness_report(
     *,
     positivity: PositivityDiagnosticReport | dict[str, Any] | None = None,
     support_mismatch: dict[str, Any] | None = None,
+    recoverability_certificate: Any | None = None,
+    recoverability_certificate_ref: RecoverabilityCertificateRef | dict[str, Any] | None = None,
+    joint_decision: Any | None = None,
+    joint_decision_ref: JointDecisionCertificateRef | dict[str, Any] | None = None,
     sample_size: int | None = None,
     measurement_quality: Literal["known_good", "proxy_only", "unknown"] = "unknown",
     fallback_data_available: bool = False,
@@ -595,6 +840,37 @@ def build_data_readiness_report(
         if not passes_support:
             blocking_reasons.append("support_mismatch_failed")
 
+    recoverability_summary = _recoverability_summary(recoverability_certificate)
+    if recoverability_summary is None:
+        recoverability_summary = _recoverability_summary(joint_decision)
+    resolved_recoverability_ref = _typed_ref_from_payload(
+        recoverability_certificate_ref,
+        RecoverabilityCertificateRef,
+    )
+    resolved_joint_decision_ref = _typed_ref_from_payload(
+        joint_decision_ref,
+        JointDecisionCertificateRef,
+    )
+    if recoverability_summary is not None:
+        status = str(recoverability_summary.get("status", "") or "")
+        blocking_count = recoverability_summary.get("blocking_r_nodes_count")
+        repair_count = recoverability_summary.get("minimal_repair_set_count")
+        try:
+            metrics.setdefault(
+                "recoverability_blocking_r_nodes_count",
+                float(blocking_count or 0.0),
+            )
+        except (TypeError, ValueError):
+            warnings.append("recoverability_blocking_count_invalid")
+        try:
+            metrics.setdefault("recoverability_repair_set_count", float(repair_count or 0.0))
+        except (TypeError, ValueError):
+            warnings.append("recoverability_repair_count_invalid")
+        if status == "not_recoverable":
+            blocking_reasons.append("not_recoverable_missingness")
+        elif status == "recoverable_under_assumptions":
+            warnings.append("assumption_dependent_missingness_recovery")
+
     if sample_size is not None:
         metrics.setdefault("sample_size", float(sample_size))
         if sample_size < 50:
@@ -612,6 +888,7 @@ def build_data_readiness_report(
         positivity_report is None
         and positivity is None
         and support_mismatch is None
+        and recoverability_summary is None
         and sample_size is None
     ):
         decision: Literal["pass", "warn", "block", "unknown"] = "unknown"
@@ -632,6 +909,9 @@ def build_data_readiness_report(
         fallback_data_available=fallback_data_available,
         positivity=positivity_report,
         support_mismatch=dict(support_mismatch) if support_mismatch is not None else None,
+        recoverability=recoverability_summary,
+        recoverability_certificate_ref=resolved_recoverability_ref,
+        joint_decision_ref=resolved_joint_decision_ref,
         blocking_reasons=blocking_reasons,
         warnings=warnings,
         metrics=metrics,
@@ -652,19 +932,131 @@ def _normalize_positivity(
         return None, "positivity_parse_failed"
 
 
+def _recoverability_summary(payload: Any) -> dict[str, Any] | None:
+    if payload is None:
+        return None
+    if hasattr(payload, "to_summary_dict"):
+        candidate = payload.to_summary_dict()
+    elif hasattr(payload, "model_dump"):
+        candidate = payload.model_dump(mode="json")
+    elif isinstance(payload, dict):
+        candidate = dict(payload)
+    else:
+        return None
+    if "recoverability" in candidate and isinstance(candidate["recoverability"], dict):
+        candidate = dict(candidate["recoverability"])
+    return candidate
+
+
+def _joint_decision_summary(payload: Any) -> dict[str, Any] | None:
+    if payload is None:
+        return None
+    if hasattr(payload, "to_summary_dict"):
+        candidate = payload.to_summary_dict()
+    elif hasattr(payload, "model_dump"):
+        candidate = payload.model_dump(mode="json")
+    elif isinstance(payload, dict):
+        candidate = dict(payload)
+    else:
+        return None
+    if "verdict" not in candidate:
+        return None
+    return candidate
+
+
+def _typed_ref_from_payload(payload: Any, ref_cls: type[Any]) -> Any | None:
+    if payload is None:
+        return None
+    if isinstance(payload, ref_cls):
+        return payload
+    try:
+        if hasattr(payload, "model_dump") and not isinstance(payload, dict):
+            payload = payload.model_dump(mode="json")
+        return ref_cls.model_validate(payload)
+    except (TypeError, ValueError):
+        return None
+
+
 def _status_value(status: Any) -> str:
     return str(getattr(status, "value", status) or "").strip().lower()
+
+
+def _extract_dynamic_semantics(payload: Any) -> DynamicSemanticsAttachment | None:
+    if payload is None:
+        return None
+    if isinstance(payload, DynamicSemanticsAttachment):
+        return payload
+    if isinstance(payload, dict):
+        if "dynamic_semantics" not in payload:
+            return None
+        candidate = payload.get("dynamic_semantics")
+    else:
+        candidate = getattr(payload, "dynamic_semantics", None)
+        if candidate is None:
+            candidate = getattr(payload, "metadata", None)
+            if isinstance(candidate, dict):
+                candidate = candidate.get("dynamic_semantics")
+    if candidate is None:
+        return None
+    if isinstance(candidate, DynamicSemanticsAttachment):
+        return candidate
+    if hasattr(candidate, "model_dump"):
+        candidate = candidate.model_dump(mode="json")
+    if not isinstance(candidate, dict):
+        return None
+    try:
+        return DynamicSemanticsAttachment.model_validate(candidate)
+    except (TypeError, ValueError):
+        logger.warning("Failed to parse dynamic semantics attachment", exc_info=True)
+        return None
+
+
+def _completeness_regime_for_result(
+    *,
+    status_raw: str,
+    theorem_family: str,
+    dynamic_semantics: DynamicSemanticsAttachment | None,
+) -> Literal["complete", "sound_incomplete", "heuristic_backed"]:
+    if dynamic_semantics is not None:
+        if dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION:
+            return "sound_incomplete"
+        return "heuristic_backed"
+    if status_raw in {"identified", "hedge_found", "not_recoverable"}:
+        return "complete"
+    if status_raw in {"oracle_needed", "pag_ambiguous"}:
+        return "heuristic_backed"
+    family = theorem_family.lower()
+    if any(token in family for token in ("sigma", "cyclic", "local_independence", "dynamic")):
+        return "heuristic_backed"
+    return "sound_incomplete"
 
 
 def _proof_stratum_for_result(
     *,
     status_raw: str,
     theorem_family: str,
-) -> Literal["A0_trusted", "A1_extended", "A2_oracle_backed"]:
+    dynamic_semantics: DynamicSemanticsAttachment | None = None,
+) -> Literal["A0_trusted", "A1_extended", "A1_dynamic", "A2_oracle_backed"]:
     family = theorem_family.lower()
     if status_raw in {"oracle_needed", "pag_ambiguous"}:
         return "A2_oracle_backed"
-    if any(token in family for token in ("sigma", "cyclic", "recover", "id_star", "idc_star", "ctf")):
+    if dynamic_semantics is not None or any(
+        token in family for token in ("sigma", "cyclic", "local_independence", "dynamic")
+    ):
+        return "A1_dynamic"
+    if any(
+        token in family
+        for token in (
+            "sigma",
+            "cyclic",
+            "recover",
+            "id_star",
+            "idc_star",
+            "ctf",
+            "dist_",
+            "proximal",
+        )
+    ):
         return "A1_extended"
     return "A0_trusted"
 
@@ -673,7 +1065,14 @@ def _implementation_coverage_for_result(
     *,
     status_raw: str,
     theorem_family: str,
+    dynamic_semantics: DynamicSemanticsAttachment | None = None,
 ) -> str:
+    if dynamic_semantics is not None:
+        if dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION:
+            return f"declared-dynamic-scope:{theorem_family or 'dynamic'}"
+        if dynamic_semantics.reduction_status is DynamicReductionStatus.BLOCKED:
+            return f"dynamic-research-boundary:{theorem_family or 'dynamic'}"
+        return f"heuristic-dynamic-scope:{theorem_family or 'dynamic'}"
     if status_raw == "oracle_needed":
         return f"conditional-coverage:{theorem_family or 'oracle'}"
     if status_raw == "pag_ambiguous":
@@ -707,6 +1106,7 @@ __all__ = [
     "CausalEffectReport",
     "PositivityDiagnosticReport",
     "ProofBundle",
+    "build_dynamic_proof_bundle",
     "TransportabilityResult",
     "build_data_readiness_report",
     "persist_data_readiness_report",
@@ -717,4 +1117,5 @@ __all__ = [
     "load_proof_bundle",
     "proof_bundle_from_identification_result",
     "proof_bundle_from_negative_certificate",
+    "proof_bundle_from_proximal_certificate",
 ]

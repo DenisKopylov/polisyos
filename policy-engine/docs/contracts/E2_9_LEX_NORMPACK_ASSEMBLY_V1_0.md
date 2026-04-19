@@ -940,3 +940,11 @@ Phase 17 считается выполненной, если:
    - conflict resolution (Phase 14) с детерминированным winner
 3) Есть обязательные тесты Phase 17 (unit + integration), см. §8.
 
+## D1-L4 Validation Links
+
+| Link type | Current anchor |
+|-----------|----------------|
+| Source plan phase | D1-L4 Phase 0 norm/citation determinism and Phase 5 governance contract handoff |
+| Contract tests | `tests/contract/test_applicability_contract.py`, `tests/fabric/test_normpack.py`, `tests/fabric/test_conflicts.py` |
+| Schema snapshots | `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/norm_ref.schema.json`, `schemas/snapshots/ir/norm_rule.schema.json`, `schemas/snapshots/ir/claim.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |

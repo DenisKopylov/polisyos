@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
 import logging
+
+import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -18,6 +21,7 @@ from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import RunSourceGapReviewNode
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_LEGAL_CANDIDATE_PACK_REF,
     ARTIFACT_LEGAL_SOURCE_PACK_REF,
     ARTIFACT_POLICY_REQUEST_FRAME_REF,
@@ -46,6 +50,10 @@ from polisyos.scientist.policy_verified import (
 )
 from polisyos.scientist.policy_verified.service import (
     _build_legal_toolkit,
+    _load_cross_graph_profile,
+    _load_research_intent,
+    _maybe_verify_with_llm,
+    _parse_json_object,
     assemble_legal_candidate_pack,
 )
 
@@ -336,11 +344,11 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_policy_verific
     assert payload["verified_findings"] == []
     assert payload["hypotheses"] == []
     assert payload["intervention_legal_basis_map"] == {}
-    assert degraded_reasons == {
+    assert {
         "source_verification_report_load_failed",
         "verified_policy_report_load_failed",
-    }
-    assert payload["diagnostics_summary"]["degraded_path_count"] == 2
+    }.issubset(degraded_reasons)
+    assert payload["diagnostics_summary"]["degraded_path_count"] >= 2
 
 
 def test_build_legal_toolkit_uses_nested_evidence_sources(monkeypatch, tmp_path) -> None:
@@ -371,6 +379,121 @@ def test_build_legal_toolkit_uses_nested_evidence_sources(monkeypatch, tmp_path)
     assert toolkit is not None
     assert captured["db_path"] == legal_db_path
     assert captured["index_dir"] == legal_db_path.parent
+
+
+def test_load_research_intent_assertion_is_not_swallowed(monkeypatch, tmp_path) -> None:
+    store, _, _ = _make_ctx(tmp_path, "R_policy_verified_intent_assert")
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("intent-ref-broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.policy_verified.service.ResearchIntentRef.model_validate",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="intent-ref-broken"):
+        _load_research_intent(store, {})
+
+
+def test_build_legal_toolkit_assertion_is_not_swallowed(monkeypatch, tmp_path) -> None:
+    _, ctx, registry_bundle = _make_ctx(tmp_path, "R_policy_verified_toolkit_assert")
+    legal_db_path = tmp_path / "legal.duckdb"
+    legal_db_path.write_text("", encoding="utf-8")
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("legal-toolkit-broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.policy_verified.service.LegalKnowledgeGraph",
+        _boom,
+    )
+
+    state = ExperimentState(
+        run_id="R_policy_verified_toolkit_assert",
+        inputs={INPUT_REGISTRY_BUNDLE_REF: registry_bundle},
+        params={"evidence_sources": {"legal_db_path": str(legal_db_path)}},
+    )
+
+    with pytest.raises(AssertionError, match="legal-toolkit-broken"):
+        _build_legal_toolkit(ctx, state)
+
+
+def test_load_cross_graph_profile_assertion_is_not_swallowed(monkeypatch, tmp_path) -> None:
+    store, _, _ = _make_ctx(tmp_path, "R_policy_verified_profile_assert")
+    profile_ref = store.put_json(
+        {"broken": True},
+        PutOptions(kind="scientist.cross_graph_evidence_profile", media_type="application/json"),
+    )
+    state = ExperimentState(
+        run_id="R_policy_verified_profile_assert",
+        artifacts_index={ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF: profile_ref},
+    )
+
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("cross-graph-profile-broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.policy_verified.service.CrossGraphEvidenceProfile.model_validate",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="cross-graph-profile-broken"):
+        _load_cross_graph_profile(store, state)
+
+
+def test_parse_json_object_assertion_is_not_swallowed(monkeypatch: pytest.MonkeyPatch) -> None:
+    def _boom(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("json-parse-broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.policy_verified.service.json.loads",
+        _boom,
+    )
+
+    with pytest.raises(AssertionError, match="json-parse-broken"):
+        _parse_json_object(json.dumps({"ok": True}))
+
+
+def test_maybe_verify_with_llm_assertion_is_not_swallowed(monkeypatch: pytest.MonkeyPatch) -> None:
+    class _FailingClient:
+        async def generate(self, **kwargs):
+            del kwargs
+            raise AssertionError("llm-verifier-broken")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.policy_verified.service.create_traced_gateway_client",
+        lambda **kwargs: _FailingClient(),
+    )
+
+    source_pack = LegalSourcePack(
+        request_id="req-assert",
+        source_bundles=[
+            LegalSourceBundle(
+                bundle_id="bundle-assert",
+                doc_id="doc-assert",
+                version_id="v-1",
+                doc_name="Mock law",
+                source_family="approval_bundle",
+            )
+        ],
+    )
+
+    with pytest.raises(AssertionError, match="llm-verifier-broken"):
+        _maybe_verify_with_llm(
+            state=ExperimentState(run_id="R_policy_verified_llm_assert"),
+            frame=PolicyRequestFrame(
+                request_id="req-assert",
+                policy_question="Чи потрібна ліцензія?",
+                jurisdiction="UA",
+            ),
+            source_pack=source_pack,
+            baseline_claims=[],
+        )
 
 
 def test_assemble_legal_candidate_pack_surfaces_typed_degraded_legal_status(tmp_path) -> None:

@@ -1,22 +1,44 @@
-# Tools
+# Tools (`tools/`)
 
-`tools/` is the canonical executable surface for `policy-engine`.
+## Purpose
 
-Public rule:
-- use `polisyos-tools <category> <command>` for human and CI entry points;
-- keep top-level `tools/<category>` imports as compatibility packages;
-- treat `scripts/` and root `benchmarks/*` executables as deprecated wrappers during the migration window.
+`tools/` — каноническая исполняемая поверхность `policy-engine`: единый CLI
+`polisyos-tools`, зональная раскладка implementation-кода и совместимые
+wrapper-пути для migration window.
+
+## Where to Start
+
+- CLI boundary: `pyproject.toml` (`[project.scripts] polisyos-tools = "tools.cli:main"`).
+- Command router: `tools/cli.py`.
+- Tool metadata, aliases, dependency graph и docs generation: `tools/registry.py`.
+- Canonical implementation roots:
+  `tools/devx/`, `tools/quality/`, `tools/ops/`, `tools/research/`.
+
+## Public Entrypoints
+
+| Entrypoint | Contract |
+| --- | --- |
+| `uv run polisyos-tools <category> <command>` | Основной human/CI entrypoint для всех инструментов. |
+| `python -m tools.cli` | Низкоуровневый CLI boundary для debugging и embedding. |
+| `tools/<category>/...` | Compatibility packages; новые implementation-модули сюда не добавляются. |
+| `docs/reference/tools.md` | Generated reference для публичного command catalog. |
+
+## Depends On / Depended On By
+
+- **Depends on:** `tools._lib/*`, zoned category packages, `pyproject.toml`,
+  `uv`, и registry metadata в `tools/registry.py`.
+- **Depended on by:** contributor workflows, локальные quality gates,
+  `.github/workflows/*`, generated tool reference, onboarding и release/ops
+  automation.
 
 ## Zones
 
-Internal implementation code now lives under zoned packages:
-
 | Zone | Categories | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `devx` | `workspace`, `architecture`, `connectors`, `foundry` | contributor setup, scaffolding, repo structure, codegen |
 | `quality` | `lint`, `diagnostics`, `validation`, `testing`, `ci` | quality gates, diagnostics, validation, mutation/integration checks |
-| `ops` | `cloud`, `release`, `migrations`, `runtime`, `data`, `ukraine_data`, `calibration` | operational tasks, runtime/release, data prep, migration and cloud workflows |
-| `research` | `benchmarks`, `demos` | benchmark orchestration and manual research/demo surfaces |
+| `ops` | `cloud`, `release`, `migrations`, `runtime`, `data`, `ukraine_data`, `calibration` | runtime/release/data/cloud operational flows |
+| `research` | `benchmarks`, `demos` | benchmark orchestration и manual demo surfaces |
 
 Canonical implementation layout:
 
@@ -33,48 +55,43 @@ Compatibility layout retained for one deprecation window:
 tools/<category>/...
 ```
 
-Those top-level packages are thin shims and documentation anchors. New tool code
-must be added only under the zoned implementation path.
-
-## How To Add A Tool
-
-1. Choose the zone.
-2. Choose the category.
-3. Add the module under `tools/<zone>/<category>/`.
-4. Register the category in `tools.registry` if it is new.
-5. Expose the command through `main(argv: Sequence[str] | None = None) -> int`.
-
-Do not create a new top-level `tools/<category>` package unless it is part of
-the zone manifest and the compatibility layer.
-
-## Benchmark Boundary
-
-- `tools/benchmarks` is the public executable surface for benchmarks.
-- `tools/research/benchmarks` contains the canonical benchmark orchestration implementation.
-- root `benchmarks/` is the benchmark-domain package:
-  suites, fixtures, comparators, support/runtime/reporting code.
-- root `benchmarks/*.py` and `benchmarks/*.sh` executables are compatibility wrappers only.
-
-## Scripts Policy
-
-- `scripts/` is no longer a place for new tool logic.
-- surviving script paths are explicit deprecation wrappers that print a replacement command.
-- wrappers stay only while workflows, docs, or external operator muscle memory still depend on them.
-- once a wrapper has zero references in workflows/docs/tests/generated reference, it can be removed.
-
 ## Common Commands
 
-```bash
-uv run polisyos-tools --help
-uv run polisyos-tools list
-uv run polisyos-tools list --by-zone
-uv run polisyos-tools graph --format mermaid
-uv run polisyos-tools docs --output docs/reference/tools.md
-```
+Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
+`conceptual`.
 
-## Reference
+| Command | Purpose | Status |
+| --- | --- | --- |
+| `uv run polisyos-tools --help` | Показать root CLI и глобальные опции. | `smoke-tested` |
+| `uv run polisyos-tools list --by-zone` | Просмотреть публичный command catalog по zoned layout. | `smoke-tested` |
+| `uv run polisyos-tools graph --format mermaid` | Сгенерировать dependency graph инструментов в Mermaid. | `smoke-tested` |
+| `uv run polisyos-tools docs --output docs/reference/tools.md` | Пересобрать generated tool reference. | `smoke-tested` |
+| `uv run polisyos-tools workspace ci-parity --skip-browser` | Прогнать локальный CI-like pass, включая docs checks по умолчанию. | `conceptual` (тяжёлый агрегирующий gate) |
 
-- [tools/benchmarks/README.md](./benchmarks/README.md)
-- [tools/workspace/README.md](./workspace/README.md)
-- [tools/cloud/README.md](./cloud/README.md)
-- [docs/reference/tools.md](../docs/reference/tools.md)
+## Test And Verification
+
+| Command | What it verifies | Status |
+| --- | --- | --- |
+| `uv run polisyos-tools validation check-docs-accuracy --repo-root .` | Документация и generated references не расходятся с repo reality. | `smoke-tested` |
+| `uv run pytest -q tests/tools/test_unified_cli.py tests/tools/test_phase5_tooling.py tests/tools/test_tools_hardening.py` | CLI boundary, registry contract, hardening and compatibility behavior. | `conceptual` |
+
+## Reference Docs
+
+- [Validation README](./validation/README.md)
+- [Workspace DevX README](./devx/workspace/README.md)
+- [Architecture DevX README](./devx/architecture/README.md)
+- [Connectors DevX README](./devx/connectors/README.md)
+- [Foundry DevX README](./devx/foundry/README.md)
+- [Ops README](../ops/README.md)
+- [Tool Reference](../docs/reference/tools.md)
+- [CI/CD Platform How-To](../docs/how-to/operate-ci-cd-platform.md)
+
+## Current State
+
+- `tools/<category>` остаются compatibility anchors; новый код должен жить
+  только под zoned paths.
+- `tools.registry` — source of truth для aliases, lifecycle status,
+  dependency edges и docs generation.
+- `workspace ci-parity` остаётся основным локальным umbrella-check для tools
+  и docs surfaces.
+- Last updated: 2026-04-17

@@ -4,7 +4,21 @@ Related how-to: [Add Data Source](../how-to/add-data-source.md). Related referen
 
 > Этот tutorial рассчитан на инженера, который впервые добавляет источник данных в Fabric и хочет пройти весь путь от нового файла до локальной валидации.
 
+!!! info "Verified with"
+    Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
+    Python 3.14 и `uv`.
+    Реально проверены
+    `uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run`
+    и импорты `WorldBankConnector` / `HTTPConnectorBase`.
+
 В walkthrough ниже мы не покрываем все edge cases connector platform. Цель другая: собрать минимальный production-shaped connector, зарегистрировать его в публичной поверхности Fabric и убедиться, что он проходит локальные проверки.
+
+Если вам нужен skeleton до ручного редактирования, используйте canonical
+connector CLI:
+
+```bash
+uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run
+```
 
 ## Шаг 1. Выберите правильную базу
 

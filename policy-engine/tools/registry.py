@@ -57,6 +57,40 @@ _ZONE_CATEGORIES: dict[str, tuple[str, ...]] = {
     "research": ("benchmarks", "demos"),
 }
 
+SOURCE_PHASE_MAP: tuple[tuple[str, str, str], ...] = (
+    (
+        "Phase 0",
+        "SQL/shell injection, shell safety, destructive operation guardrails",
+        "`tools._lib.runner`, `tools._lib.sql`, `tools._lib.fs`",
+    ),
+    (
+        "Phase 1",
+        "atomicity, rollback, resource/I/O validation, degraded mode, legacy quarantine",
+        "`tools._lib.fs`, `tools._lib.http`, `tools._lib.preflight`, lifecycle status metadata",
+    ),
+    (
+        "Phase 2",
+        "unified CLI, shared runtime, packaging/import normalization, "
+        "dependency graph, docs metadata",
+        "`polisyos-tools`, `tools.registry`, `tools.cli`, compatibility package shims",
+    ),
+    (
+        "Phase 3",
+        "critical tool test program, structured CI output, timing telemetry",
+        "`tests/tools/**`, `tools._lib.output`, `tools._lib.timing`, workspace gates",
+    ),
+    (
+        "Phase 4",
+        "cloud/scripts/benchmarks consolidation and deprecated cleanup",
+        "`tools/ops/**`, `tools/research/**`, compatibility wrappers and deprecation metadata",
+    ),
+    (
+        "Phase 5",
+        "incremental execution, cache, autofix/rule registry, hot-path maintainability",
+        "`tools._lib.cache`, `tools/quality/lint/**`, targeted `--fix` and changed-file modes",
+    ),
+)
+
 
 def _manifest_entry(zone: str, category: str) -> CategoryManifestEntry:
     implementation_package = f"tools.{zone}.{category}"
@@ -96,7 +130,10 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
     ("cloud", "run-remaining-stages"): {
         "status": ToolStatus.DEPRECATED,
         "replacement": "cloud run-pipeline --resume --snapshot-root ...",
-        "reason": "remaining-stage execution is now a compatibility bridge to the reviewed resume workflow",
+        "reason": (
+            "remaining-stage execution is now a compatibility bridge to the reviewed "
+            "resume workflow"
+        ),
         "dependencies": ("cloud.run-pipeline",),
     },
     ("diagnostics", "check-udf-perf"): {
@@ -120,7 +157,9 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
     ("demos", "run-export-demo"): {
         "status": ToolStatus.DEPRECATED,
         "replacement": "runtime export-runtime-openapi",
-        "reason": "demo uses historical Foundry import paths and is retained only as reference material",
+        "reason": (
+            "demo uses historical Foundry import paths and is retained only as reference material"
+        ),
     },
     ("demos", "run-mechanism-design"): {
         "status": ToolStatus.DEPRECATED,
@@ -210,7 +249,9 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
 LEGACY_ENTRYPOINTS: dict[str, str] = {
     "scripts/acceptance-audit": "polisyos-tools workspace acceptance-audit",
     "scripts/bootstrap": "polisyos-tools workspace bootstrap",
-    "scripts/build_academic_gold_candidates.py": "polisyos-tools data build-academic-gold-candidates",
+    "scripts/build_academic_gold_candidates.py": (
+        "polisyos-tools data build-academic-gold-candidates"
+    ),
     "scripts/build_expert_review_bundle.py": "polisyos-tools data build-expert-review-bundle",
     "scripts/ci-parity": "polisyos-tools workspace ci-parity",
     "scripts/core-runtime-closeout": "polisyos-tools workspace core-runtime-closeout",
@@ -221,14 +262,20 @@ LEGACY_ENTRYPOINTS: dict[str, str] = {
     "scripts/remote-acceptance": "polisyos-tools workspace remote-acceptance",
     "scripts/update_signature_baseline.py": "polisyos-tools foundry update-signature-baseline",
     "scripts/verify": "polisyos-tools workspace verify",
-    "scripts/benchmark_lex_llm_steady_state.py": "polisyos-tools benchmarks benchmark-lex-llm-steady-state",
+    "scripts/benchmark_lex_llm_steady_state.py": (
+        "polisyos-tools benchmarks benchmark-lex-llm-steady-state"
+    ),
     "scripts/benchmark_lex_llm_sweep.py": "polisyos-tools benchmarks benchmark-lex-llm-sweep",
     "scripts/mutation_test.sh": "polisyos-tools testing mutation --suite foundry --target <target>",
-    "scripts/mutation_test_scientist.sh": "polisyos-tools testing mutation --suite scientist --target <target>",
+    "scripts/mutation_test_scientist.sh": (
+        "polisyos-tools testing mutation --suite scientist --target <target>"
+    ),
     "benchmarks/run_all_benchmarks.sh": "polisyos-tools benchmarks run-all",
     "benchmarks/run_local_sota_profile.sh": "polisyos-tools benchmarks run-local-sota-profile",
     "benchmarks/build_release_summary.py": "polisyos-tools benchmarks build-release-summary",
-    "benchmarks/prepare_real_benchmark_data.py": "polisyos-tools benchmarks prepare-real-benchmark-data",
+    "benchmarks/prepare_real_benchmark_data.py": (
+        "polisyos-tools benchmarks prepare-real-benchmark-data"
+    ),
     "benchmarks/run_parallel.py": "polisyos-tools benchmarks run-parallel",
 }
 
@@ -362,11 +409,47 @@ def render_reference_docs() -> str:
         "",
         "Generated from `tools.registry` command metadata.",
         "",
-        "## Zones",
+        "## D1-L5 Source Phase Map",
         "",
-        "| Zone | Categories |",
-        "|---|---|",
+        "| Source phase | Focus | Current evidence |",
+        "|---|---|---|",
     ]
+    for phase, focus, evidence in SOURCE_PHASE_MAP:
+        lines.append(f"| {phase} | {focus} | {evidence} |")
+    lines.extend(
+        [
+            "",
+            "## Validation Contract",
+            "",
+            "- Regenerate this page with "
+            "`uv run polisyos-tools docs --output docs/reference/tools.md`.",
+            "- `polisyos-tools workspace ci-parity` includes docs accuracy, "
+            "strict MkDocs build, and semantic docstring checks unless "
+            "`--skip-docs` is set.",
+            "- Deprecated and quarantined commands must keep `status`, "
+            "`replacement`, and `reason` metadata in `tools.registry`.",
+            "",
+            "## Documentation Impact",
+            "",
+            "| Output cluster | Exact files | Source of truth | Validation |",
+            "|---|---|---|---|",
+            "| Generated command reference | `docs/reference/tools.md` | `tools.registry` command metadata, dependency graph edges, lifecycle status metadata | `uv run polisyos-tools docs --output docs/reference/tools.md` |",
+            "| Tooling READMEs | `tools/README.md`, `tools/validation/README.md`, `tools/devx/workspace/README.md`, `tools/devx/architecture/README.md` | canonical CLI behavior, workspace gates, validation helpers, architecture guardrails | `uv run polisyos-tools workspace ci-parity --skip-browser` |",
+            "| Shared D1-L5 how-to/reference pages | `docs/how-to/operate-ci-cd-platform.md`, `docs/how-to/manage-generated-artifacts.md`, `docs/how-to/release-policy.md`, `docs/reference/quality-gates.md`, `docs/reference/dependency-platform.md`, `docs/reference/merge-governance.md`, `docs/reference/ratchet-policy.md` | repo workflows, generated-artifact guardrails, release tooling, ratchet policy docs | `uv run polisyos-tools architecture guardrails check` |",
+            "",
+            "## Backlog",
+            "",
+            "| Gap | Priority | Tracking note |",
+            "|---|---|---|",
+            "| No missing required D1-L5 output pages | - | All required D1-L5 files listed in `docs/DOCUMENTATION_SOTA_PLAN.md` are present. |",
+            "| Additional per-category README expansion outside the D1 scope | P3 | Further category-local docs can land in D2 without blocking the D1 closure criteria. |",
+            "",
+            "## Zones",
+            "",
+            "| Zone | Categories |",
+            "|---|---|",
+        ]
+    )
     for zone in zones():
         categories_csv = ", ".join(f"`{category}`" for category in categories_for_zone(zone))
         lines.append(f"| `{zone}` | {categories_csv} |")
@@ -375,7 +458,8 @@ def render_reference_docs() -> str:
         lines.extend([f"### `{zone}`", ""])
         lines.extend(
             [
-                "| Category | Command | Status | Canonical | Summary | Replacement | Aliases | Dependencies |",
+                "| Category | Command | Status | Canonical | Summary | Replacement | "
+                "Aliases | Dependencies |",
                 "|---|---|---|---|---|---|---|---|",
             ]
         )
@@ -386,7 +470,8 @@ def render_reference_docs() -> str:
                 replacement = spec.replacement or "-"
                 lines.append(
                     f"| `{spec.category}` | `{spec.name}` | `{spec.status.value}` | "
-                    f"`{_canonical_command(spec)}` | {spec.summary or '-'} | {replacement} | {aliases} | {deps} |"
+                    f"`{_canonical_command(spec)}` | {spec.summary or '-'} | "
+                    f"{replacement} | {aliases} | {deps} |"
                 )
         lines.append("")
     lines.extend(
@@ -399,15 +484,38 @@ def render_reference_docs() -> str:
     )
     for legacy_path, replacement in sorted(LEGACY_ENTRYPOINTS.items()):
         lines.append(f"| `{legacy_path}` | `{replacement}` |")
+    lifecycle_specs = tuple(spec for spec in TOOL_SPECS if spec.status != ToolStatus.ACTIVE)
+    lines.extend(
+        [
+            "",
+            "## Deprecated And Quarantined Commands",
+            "",
+            "| Category | Command | Status | Replacement | Reason |",
+            "|---|---|---|---|---|",
+        ]
+    )
+    if lifecycle_specs:
+        for spec in lifecycle_specs:
+            replacement = spec.replacement or "-"
+            reason = spec.reason or "-"
+            lines.append(
+                f"| `{spec.category}` | `{spec.name}` | `{spec.status.value}` | "
+                f"{replacement} | {reason} |"
+            )
+    else:
+        lines.append("| - | - | - | - | - |")
     lines.extend(
         [
             "",
             "## Policy",
             "",
             "- `tools/` is the only canonical executable surface.",
-            "- `scripts/` and root `benchmarks/*` executables are compatibility wrappers for one deprecation window.",
-            "- New tools must be added to the zone/category manifest before creating any new top-level `tools/<category>` package.",
-            "- `tools/benchmarks` is the executable surface; root `benchmarks/` is benchmark-domain support code.",
+            "- `scripts/` and root `benchmarks/*` executables are compatibility "
+            "wrappers for one deprecation window.",
+            "- New tools must be added to the zone/category manifest before "
+            "creating any new top-level `tools/<category>` package.",
+            "- `tools/benchmarks` is the executable surface; root `benchmarks/` "
+            "is benchmark-domain support code.",
             "",
             "## Dependency Graph",
             "",

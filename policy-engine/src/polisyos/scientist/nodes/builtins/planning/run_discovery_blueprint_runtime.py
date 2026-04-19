@@ -45,6 +45,7 @@ from polisyos.scientist.discovery.utility_judge import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.evidence_sources import normalize_evidence_sources_config
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -257,7 +258,7 @@ class RunDiscoveryBlueprintRuntimeNode:
         )
         bundle = load_discovery_artifact_bundle(ctx.store, bundle_ref)
 
-        new_state = state.model_copy(deep=True)
+        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF] = bundle_ref
         new_state.inputs[INPUT_GRAPH_PRIOR_BUNDLE_REF] = bundle.graph_prior_bundle_ref
         new_state.inputs[INPUT_PRIOR_KNOWLEDGE_BUNDLE_REF] = bundle.prior_knowledge_bundle_ref

@@ -1,6 +1,9 @@
 # Scientist Governance Accountability
 Related reference: [Calibration Governance](calibration-governance.md), [Governance Passes](governance-passes.md).
 
+Owner: `@scientist-owners`
+Source of truth: `src/polisyos/scientist/governance/{accountability.py,calibration_validation.py}`, `src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py`, and `tests/scientist/governance/{test_accountability.py,test_calibration_validation.py}`
+
 `polisyos.scientist.governance.accountability` is the WS-3B audit surface that
 turns calibration, fairness, threshold policy, and escalation logic into one
 persisted artifact instead of leaving those claims scattered across pass notes

@@ -3,6 +3,9 @@
 Related reference: [Configuration Environment Registry](configuration-env-registry.md),
 [Observability Topology](operations/observability-topology.md).
 
+Owner: `@platform-owners`
+Source of truth: `src/polisyos/common/config.py`, `src/polisyos/common/logger.py`, and `src/polisyos/core/observability/{logs,tracer}.py`
+
 > Logging in PolicyOS is explicitly bootstrapped. Importing a library module
 > should not mutate global process logging behavior.
 

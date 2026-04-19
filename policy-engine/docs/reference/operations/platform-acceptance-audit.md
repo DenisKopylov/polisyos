@@ -2,6 +2,9 @@
 
 Related reference: [Operations Reference](index.md), [Handoff and Platform Review](handoff-and-platform-review.md), [Ratchet Policy](../ratchet-policy.md). Related guides: [Installation](../../how-to/install.md), [Onboarding Tracks](../../how-to/onboarding/index.md), [Release Policy](../../how-to/release-policy.md).
 
+Owner: `@platform-owners`
+Source of truth: `tools/devx/workspace/acceptance_audit.py`, `docs/archive/reports/platform-acceptance.{md,json}`, `docs/reference/{quality-gates.md,ownership.md}`, and the repo-tracked workflows exercised by the audit
+
 > This is the WS-7B closeout document: one end-to-end acceptance pass that turns
 > Phases 1-6 into one coherent platform.
 
@@ -21,10 +24,18 @@ The automated pass checks these surfaces together:
 |---|---|
 | Toolchain consistency | `.python-version`, `.nvmrc`, workspace helpers, composite GitHub Actions, environment matrix |
 | Repo root coherence | root `README.md`, `policy-engine/README.md`, ADR-0096 |
-| Ownership / merge governance | `.github/CODEOWNERS`, repo ruleset, labels, PR template, ownership and quality-gate docs |
-| Required checks / release path | canonical workflows, release docs, release fragment tooling, canary helper |
+| Ownership / merge governance | labels, PR template, published workflow inventory, ownership docs, and quality-gate docs |
+| Required checks / release path | current workflow inventory, release docs, release fragment tooling, `build-and-push.yml`, and `signatures.yml` |
+| Runtime contract gates | runtime OpenAPI drift check, auth/tenant middleware tests, write-path hardening tests, and the core-runtime closeout ledger |
 | Runbooks / retention / observability | runbook index, recovery docs, observability topology, platform review scorecard |
 | Dependency / security / workflow trust | Renovate, action freshness tooling, workflow policy checks, Scorecard / provenance coverage |
+
+Runtime-specific acceptance evidence should include:
+
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+- `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/core/security/test_tenant_context.py tests/runtime/http/test_runtime_api_authz.py`
+- `uv run pytest -q tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_control_hardening.py`
+- `uv run polisyos-tools workspace core-runtime-closeout --summary docs/archive/reports/core-runtime-closeout.md --json-output docs/archive/reports/core-runtime-closeout.json`
 
 If you want the manual rehearsals to become blocking too, pass a filled evidence
 file:

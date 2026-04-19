@@ -11,6 +11,11 @@ Related explanation: [IR — Intermediate Representation](index.md).
 - `PassPipeline` runs passes in declared order and reuses cached analysis results when the dependency fingerprint set is unchanged.
 - `InvalidationSet` exists for explicit cache flushes, but the default invalidation story is content-addressed and therefore deterministic.
 
+Freshness: 2026-04-17
+Owner: `@ir-owners`
+Source of truth: `src/polisyos/ir/passes/**`, `src/polisyos/ir/analytics/estimand.py`, `src/polisyos/ir/artifacts/lineage.py`, `src/polisyos/ir/analytics/uncertainty.py`
+Source plan phase: D1-L4 Phase 2 compiler-grade IR infrastructure.
+
 ## Core Passes
 
 | Pass | Kind | Inputs | Outputs |
@@ -53,3 +58,12 @@ Uncertainty envelopes use an explicit bounded-float policy by default:
 - optional `hybrid` mode zeroes values within `absolute_tolerance`
 
 That policy is part of the IR payload and therefore part of schema evolution and reproducibility, rather than hidden consumer behavior.
+
+## Validation Hooks
+
+| Claim | Source of truth | Evidence |
+|-------|-----------------|----------|
+| Pass ordering and analysis cache are deterministic | `src/polisyos/ir/passes/**` | `tests/ir/test_phase2_passes.py` |
+| Estimand hashes ignore presentation-only ordering | `src/polisyos/ir/analytics/estimand.py` | `tests/ir/analytics/test_estimand_normalization.py` |
+| Lineage graph covers produced, consumed, derived, and invalidated artifacts | `src/polisyos/ir/artifacts/lineage.py` | `tests/ir/test_phase2_passes.py` |
+| Uncertainty algebra uses explicit numeric policy | `src/polisyos/ir/analytics/uncertainty.py` | `tests/ir/test_uncertainty.py`, `docs/adr/0012-uncertainty-envelope-ir-contract.md` |

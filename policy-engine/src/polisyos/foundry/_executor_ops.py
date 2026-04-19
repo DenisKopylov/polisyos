@@ -51,7 +51,7 @@ __all__ = [
 
 
 def coerce_selector_scalar(value: Any) -> Any:
-    """Coerce selector scalar helper."""
+    """Convert selector literal values into comparable scalar types."""
     if isinstance(value, Decimal):
         return float(value)
     if isinstance(value, bool):
@@ -98,7 +98,7 @@ def selector_field_values(
     *,
     selector_field_registry: SelectorFieldRegistry | None,
 ) -> tuple[jnp.ndarray, SlotScope]:
-    """Selector field values helper."""
+    """Resolve selector field values from state and return their slot scope."""
     if field_id in {"id", "agent_id"}:
         n_agents = getattr(state.agents, "size", None)
         if n_agents is None:
@@ -121,7 +121,7 @@ def apply_operator(
     *,
     field_id: str | None = None,
 ) -> jnp.ndarray:
-    """Apply operator helper."""
+    """Evaluate one selector operator against an array of resolved values."""
     if isinstance(value, list):
         coerced = [coerce_selector_scalar(item) for item in value]
     else:
@@ -190,7 +190,7 @@ def evaluate_selector(
     *,
     selector_field_registry: SelectorFieldRegistry | None,
 ) -> tuple[jnp.ndarray, SlotScope]:
-    """Evaluate selector helper."""
+    """Evaluate a selector expression tree into a boolean mask and scope."""
     if isinstance(node, SelectorPredicate):
         values, scope = selector_field_values(
             state, node.field, selector_field_registry=selector_field_registry
@@ -236,7 +236,7 @@ def evaluate_selector(
 
 
 def coerce_number(value: Any) -> Decimal | None:
-    """Coerce number helper."""
+    """Convert numeric IR value wrappers and literals into Decimal values."""
     if isinstance(value, Decimal):
         return value
     if isinstance(value, int) and not isinstance(value, bool):
@@ -268,7 +268,7 @@ def check_constraints(
     state: Any,
     events: list[dict[str, Any]] | None = None,
 ) -> Any:
-    """Check constraints helper."""
+    """Lower policy constraint ids and fail closed on hard constraint violations."""
     lowered_constraints: list[LoweredConstraint] = []
     for constraint_id in constraint_ids:
         if not isinstance(constraint_id, str):
@@ -329,7 +329,7 @@ def validate_ops_compatibility(
 
 
 def apply_ops_for_slot(store: FileSystemCAS, base_value: Any, ops: Iterable[PatchOp]) -> Any:
-    """Apply ops for slot helper."""
+    """Apply compatible patch operations for a single state slot."""
     ops_list = list(ops)
     if not ops_list:
         return base_value
@@ -350,7 +350,7 @@ def apply_ops_for_slot(store: FileSystemCAS, base_value: Any, ops: Iterable[Patc
 
 
 def apply_op(store: FileSystemCAS, base_value: Any, op: PatchOp) -> Any:
-    """Apply op helper."""
+    """Apply one CAS-backed patch operation to a slot value."""
     if op.value_ref is None:
         raise ValueError(f"Patch op '{op.op}' missing value_ref for slot '{op.slot_id}'")
     value = jnp.asarray(load_tensor(store, op.value_ref))
@@ -375,7 +375,7 @@ def apply_ops_to_state(
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
 ) -> Any:
-    """Apply ops to state helper."""
+    """Group patch operations by slot and apply them to a base state."""
     ops_by_slot: dict[str, list[PatchOp]] = {}
     for op in ops:
         ops_by_slot.setdefault(op.slot_id, []).append(op)

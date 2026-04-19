@@ -72,6 +72,11 @@ def render_ir_schema_catalog(catalog: IRSchemaCatalog) -> str:
         "> This page is generated from `polisyos.ir.schema_catalog` "
         "and the current package facades.",
         "",
+        "Canonical regeneration command (snapshots + reference docs):",
+        "```bash",
+        "PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py",
+        "```",
+        "",
         "## Summary",
         "",
         f"- Total IR types: `{len(catalog.types)}`.",
@@ -121,6 +126,11 @@ def render_schema_reference(catalog: IRSchemaCatalog) -> str:
         "Related reference: [IR Schema Catalog](ir/schema-catalog.md).",
         "",
         "> This page is generated from the ABI snapshot registry and the IR reflection catalog.",
+        "",
+        "Canonical regeneration command (snapshots + reference docs):",
+        "```bash",
+        "PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py",
+        "```",
         "",
     ]
 

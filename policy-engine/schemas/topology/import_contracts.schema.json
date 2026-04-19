@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/topology/import_contracts.schema.json",
+  "title": "Import Linter Contracts",
+  "type": "object",
+  "required": ["importlinter"],
+  "properties": {
+    "importlinter": {
+      "type": "object",
+      "required": ["root_package", "contracts"],
+      "properties": {
+        "root_package": {"type": "string", "minLength": 1},
+        "contracts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "type"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "type": {"enum": ["layers", "forbidden", "independence"]},
+              "layers": {"type": "array", "items": {"type": "string"}},
+              "source_modules": {"type": "array", "items": {"type": "string"}},
+              "forbidden_modules": {"type": "array", "items": {"type": "string"}},
+              "ignore_imports": {"type": "array", "items": {"type": "string"}},
+              "modules": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        }
+      }
+    }
+  }
+}

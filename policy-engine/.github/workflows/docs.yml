@@ -4,15 +4,18 @@ on:
   pull_request:
 
 jobs:
-  build:
+  docs-drift:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      - run: pip install mkdocs-material "mkdocstrings[python]"
-      - run: mkdocs build --strict
+          python-version: "3.14"
+      - run: pip install uv
+      - run: uv sync --frozen --extra docs --extra runtime --extra ml
+      - run: uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref ${{ github.event.pull_request.base.sha }}
 
   linkcheck:
     runs-on: ubuntu-latest

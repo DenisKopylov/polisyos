@@ -38,6 +38,10 @@ logger = get_logger(__name__)
 __all__ = ["_DrafterPassesMixin"]
 
 
+def _default_tracer():
+    return get_tracer()
+
+
 class _DrafterPassesMixin:
     """Deterministic checks and code-verification augmentation."""
 
@@ -51,7 +55,7 @@ class _DrafterPassesMixin:
     # ------------------------------------------------------------------
 
     def _execute_deterministic_checks(self, draft: DraftResult) -> PassExecution:
-        tracer = get_tracer()
+        tracer = getattr(self, "_tracer", None) or _default_tracer()
         started = time.perf_counter()
         with tracer.start_as_current_span(
             "drafter.pass.deterministic_checks",
@@ -170,7 +174,7 @@ class _DrafterPassesMixin:
         if not verification_code:
             return pass3
 
-        tracer = get_tracer()
+        tracer = getattr(self, "_tracer", None) or _default_tracer()
         with tracer.start_as_current_span(
             "drafter.pass.code_verification",
             attributes={

@@ -1,47 +1,85 @@
 # Foundry Tests
 
-`tests/foundry` покрывает simulation layer `polisyos.foundry`: compile/execute контур, methods ecosystem, calibrators и числовые инварианты.
+`tests/foundry` covers the compute layer: compile/execute, methods catalogs,
+calibration, uncertainty, runtime batches, plugins, and agent-simulation
+support. The slice currently contains `329` `test_*.py` files.
 
-Актуально на **17 февраля 2026**.
+## Purpose
 
-## Состав
+- Keep compile/execute contracts, determinism, and numerical invariants stable.
+- Protect the methods registry and large catalog surface from protocol drift.
+- Catch calibration, uncertainty, and agent-simulation regressions before they
+  propagate into scientist workflows.
 
-- `67` файлов `test_*.py`
-- `1` `README.md`
-- `1` `conftest.py` (в `methods/`)
+## Where To Start
 
-## Структура
+- [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
+- [`../../src/polisyos/foundry/methods/README.md`](../../src/polisyos/foundry/methods/README.md)
+- `methods/`, `calibration/`, `runtime/`, and `uncertainty/` depending on the
+  part of Foundry you touched.
 
-| Подкаталог | `test_*.py` | Что покрывает |
-|---|---:|---|
-| `foundry/` (корень) | 36 | compile/execute фасады, determinism, numerics, agent simulation steps |
-| `foundry/methods/` | 28 | registry/protocol/compiler/linker + catalog/backends |
-| `foundry/agent_sim/` | 1 | monitoring visual outputs |
-| `foundry/analysis/` | 1 | distributional analysis |
-| `foundry/plugins/` | 1 | plugin system |
+## Public Entrypoints
 
-## Ключевые зоны
+- `tests/foundry/` root: `72` tests for compile/execute, runtime semantics,
+  determinism, numerics, and high-level contracts.
+- `tests/foundry/methods/`: `203` tests for registry, protocol/compiler
+  plumbing, backends, and catalog coverage.
+- `tests/foundry/agent_sim/`: `12` tests for simulation and monitoring paths.
+- `tests/foundry/calibration/`: `11` tests for calibration behavior.
+- `tests/foundry/runtime/`: `4` tests for runtime-adjacent execution behavior.
+- `tests/foundry/uncertainty/`: `10` tests for uncertainty interfaces and
+  propagation.
 
-- Runtime контур: `test_compile_facade.py`, `test_execute_*`, `test_runtime_batch.py`.
-- Safety boundaries: `test_no_io_kernel.py`, `test_no_compat_facade_imports.py`, `test_no_foundry_domain_imports.py`.
-- Calibration/uncertainty: `test_calibrator_*.py`, `test_calibration_uncertainty_adapter.py`, `test_uncertainty_propagation.py`.
-- Determinism/numerics: `test_compile_determinism.py`, `test_merge_determinism.py`, `test_nan_guard.py`, `test_jit_*`, `test_gradients.py`.
-- Agent workflow: `test_agent_simulation_step1.py` ... `test_agent_simulation_step6.py`, `test_patch_executor.py`, `test_global_state.py`.
+## Depends On / Depended On By
 
-## Связи с кодом
+**Depends on**
 
-- `policy-engine/src/polisyos/foundry`
-- `policy-engine/src/polisyos/core`
-- `policy-engine/src/polisyos/ir`
+- [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
+- [`../../src/polisyos/foundry/methods/README.md`](../../src/polisyos/foundry/methods/README.md)
+- `src/polisyos/core`
+- `src/polisyos/ir`
 
-## Запуск
+**Depended on by**
+
+- [`../scientist/README.md`](../scientist/README.md),
+  [`../runtime/README.md`](../runtime/README.md), and
+  [`../performance/README.md`](../performance/README.md)
+- Demo and benchmark flows that rely on stable compile/execute behavior
+
+## Common Commands
+
+Run commands from `policy-engine/`.
 
 ```bash
-pytest tests/foundry -q
-pytest tests/foundry/methods -q
+# conceptual: full foundry slice
+uv run pytest tests/foundry -q
 
-# горячие проверки
-pytest tests/foundry/test_execute_input_bindings.py -q
-pytest tests/foundry/test_calibrator_mvp.py -q
-pytest tests/foundry/test_merge_determinism.py -q
+# conceptual: methods-heavy slice
+uv run pytest tests/foundry/methods -q
+
+# conceptual: targeted hot checks
+uv run pytest tests/foundry/test_execute_input_bindings.py -q
+uv run pytest tests/foundry/test_calibrator_mvp.py -q
+uv run pytest tests/foundry/test_merge_determinism.py -q
 ```
+
+## Test And Verification Commands
+
+The collect-only commands below were smoke-checked on `2026-04-17`.
+
+```bash
+cd policy-engine
+uv run pytest --collect-only tests/foundry -q
+uv run pytest --collect-only tests/foundry/methods -q
+```
+
+## Reference Docs
+
+- [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
+- [`../../src/polisyos/foundry/methods/README.md`](../../src/polisyos/foundry/methods/README.md)
+- [`../../docs/how-to/run-benchmarks.md`](../../docs/how-to/run-benchmarks.md)
+- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+
+## Last Updated
+
+2026-04-17

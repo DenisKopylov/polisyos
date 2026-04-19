@@ -1,113 +1,55 @@
-# Запуск benchmark-наборов
+# Run Benchmarks
 
-> Используйте benchmark suite registry, интерпретируйте JSON-отчёты и понимайте, чем основной benchmark workflow отличается от отдельного GitHub performance-regression workflow.
+Use the benchmark suite registry for benchmark circuits, and use targeted
+pytest benchmark tests for Foundry/JAX hot paths. Directory names under
+`benchmarks/` are not the source of truth; `benchmarks/suite_registry.py` is.
 
-## 1. Обзор
+Freshness: 2026-04-17.
 
-Публичная compatibility-точка входа для benchmark-раннера:
+## Input
 
-```text
-tools/benchmarks/run_all.py
-```
+- selected benchmark circuit, mode, or claim profile
+- optional real-data prerequisites for heavier suites
+- decision whether you need smoke evidence, local SOTA evidence, or release summary aggregation
 
-Каноническая implementation-точка входа:
+## Output
 
-```text
-tools/research/benchmarks/run_all.py
-```
+- suite JSON reports under benchmark report directories
+- release-summary inputs for performance review
+- enough evidence to compare smoke, hot-path, and broader benchmark circuits
 
-CLI-эквивалент:
-
-```text
-polisyos-tools benchmarks run-all
-```
-
-Авторитетный benchmark-domain registry:
-
-```text
-benchmarks/suite_registry.py
-```
-
-Совместимый tools-facing shim:
-
-```text
-tools/benchmarks/suite_registry.py
-```
-
-Важный текущий нюанс:
-
-- имена каталогов в `benchmarks/` не являются главным источником истины
-- главным источником истины является registry
-- многие suites оформлены как circuit-style scripts, а не как обычные `pytest` директории
-
-Сейчас в репозитории есть benchmark-области вроде:
-
-- `abstraction`
-- `advanced`
-- `adversarial`
-- `capability_wins`
-- `comparators`
-- `composition`
-- `discovery`
-- `distributional`
-- `estimation`
-- `foundry`
-- `governance`
-- `hte`
-- `interaction`
-- `interference`
-- `missing`
-- `natural_experiments`
-- `ops`
-- `proof_closure`
-- `strategic`
-- `symbolic`
-- `temporal`
-- `transport`
-
-При этом сам registry сейчас определяет suites вроде:
-
-- `symbolic`
-- `estimation_acic`
-- `estimation_lbidd`
-- `estimation_realcause`
-- `hte_interpretable`
-- `discovery_sachs`
-- `transport_core`
-- `policy_natural_experiments`
-- `temporal_gold`
-- capability demos
-
-## 2. Быстрый запуск
-
-Из корня репозитория:
+## Commands
 
 ```bash
+uv run polisyos-tools benchmarks run-all --help
+uv run polisyos-tools benchmarks run-all --mode smoke
+uv run pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
+```
+
+## Canonical Commands
+
+```bash
+uv run polisyos-tools benchmarks run-all --help
 uv run polisyos-tools benchmarks run-all
+uv run polisyos-tools benchmarks build-release-summary --help
+uv run polisyos-tools benchmarks run-parallel --help
+uv run polisyos-tools benchmarks run-local-sota-profile --help
 ```
 
-Поведение по умолчанию из текущего shell script:
+Compatibility module paths still exist, but the `polisyos-tools benchmarks ...`
+surface is the command boundary to document.
 
-- `BENCH_MODE=smoke`
-- JSON-отчёты по умолчанию пишутся в `tools/research/benchmarks/_reports/`
-  при запуске через canonical tools surface
-- `PYTHONPATH` включает `src` и корень репозитория
+## Smoke Runs
 
-Репрезентативный формат вывода в консоль:
+Start with smoke mode before running heavy profiles:
 
-```text
-========================================================================
-  Circuit: Circuit 1: Symbolic Identification (ID algorithm gold suite)
-========================================================================
-  Suite  : symbolic
-  Script : benchmarks/symbolic/run_symbolic_benchmark.py
-  Report : benchmarks/_reports/symbolic.json
-  Mode   : smoke
-  Tier   : smoke
-  Run ID : bench-20260403T...
+```bash
+uv run polisyos-tools benchmarks run-all --mode smoke
+uv run polisyos-tools benchmarks run-all --circuit symbolic --mode smoke
+uv run polisyos-tools benchmarks run-all --circuit temporal_gold --mode smoke
 ```
 
-Полезные переменные окружения, которые поддерживает раннер:
+Useful environment variables:
 
 - `BENCH_MODE`
 - `BENCH_TIER`
@@ -117,50 +59,21 @@ uv run polisyos-tools benchmarks run-all
 - `BENCH_CIRCUIT`
 - `BENCH_RUN_ID`
 - `BENCH_ESTIMATOR_PROFILE`
+- `BENCH_JSON_DIR`
 
-## 3. Выборочный запуск
+## Suite Registry
 
-Registry-driven selective run:
+The authoritative registry is:
 
-```bash
-uv run polisyos-tools benchmarks run-all --circuit symbolic
-uv run polisyos-tools benchmarks run-all --circuit temporal_gold --mode smoke
+```text
+benchmarks/suite_registry.py
 ```
 
-Прямой запуск через `pytest` тоже полезен для части локальных сценариев:
+It defines `SuiteSpec` rows with fields such as `suite_id`, `script_relpath`,
+`aliases`, `profiles`, `claim_profiles`, `proof_class`,
+`validation_contours`, `visibility`, `family`, and `primary_metrics`.
 
-```bash
-pytest benchmarks/comparators/ -v
-pytest benchmarks/strategic/ -v
-```
-
-!!! note
-    Не каждая benchmark family представлена обычной `pytest` директорией.
-    Если вам нужна полная canonical suite surface, предпочитайте registry-backed shell runner.
-
-## 4. Как устроен suite registry
-
-`benchmarks/suite_registry.py` определяет dataclass `SuiteSpec` с полями вроде:
-
-- `suite_id`
-- `label`
-- `script_relpath`
-- `aliases`
-- `profiles`
-- `claim_profiles`
-- `proof_class`
-- `default_timeout_s`
-- `headline`
-- `stress_only`
-- `validation_contours`
-- `visibility`
-- `family`
-- `gate_class`
-- `required_comparators`
-- `primary_metrics`
-- `supports_shadow`
-
-Полезные helper API:
+Useful helper APIs:
 
 - `all_suite_specs()`
 - `canonical_suite_id(...)`
@@ -169,90 +82,56 @@ pytest benchmarks/strategic/ -v
 - `suites_for_claim_profile(...)`
 - `emit_registry_tsv(...)`
 
-## 5. Как читать результаты
+## Foundry/JAX Hot-Path Benchmarks
 
-Canonical runner пишет per-suite JSON-файлы в `benchmarks/_reports/`.
+Foundry Phase 4 benchmark evidence is split between registry circuits and
+pytest benchmark tests. For JAX-sensitive hot paths:
 
-`benchmarks/reporting.py` строит более богатые report payloads, включая:
-
-- `pass_rate`
-- `aggregate_metrics`
-- `standardized_metrics`
-- `governance_metrics`
-- `leaderboard_tables`
-- `release_gate_results`
-- `comparator_matrix`
-- `comparator_runs`
-- `ablation_matrix`
-
-`polisyos-tools benchmarks build-release-summary`
-(`tools/research/benchmarks/build_release_summary.py`, root wrapper
-`benchmarks/build_release_summary.py`) агрегирует их в release-level summary с
-полями вроде:
-
-- `contour_matrix`
-- `comparator_completeness`
-- `ablation_status`
-- `leaderboard_tables`
-- `release_gate_results`
-- `comparator_execution_summary`
-- `shadow_evidence_status`
-
-## 6. Как добавить новый benchmark suite
-
-Типовой workflow:
-
-1. добавьте новый benchmark script в подходящий каталог `benchmarks/<family>/`
-2. зарегистрируйте его в `benchmarks/suite_registry.py`
-3. задайте стабильные `suite_id`, label, script path, aliases и metric focus
-4. убедитесь, что скрипт пишет JSON shape, который понимает reporting layer
-
-Минимальный паттерн `SuiteSpec`:
-
-```python
-SuiteSpec(
-    suite_id="my_suite",
-    label="Circuit X: My benchmark",
-    script_relpath="my_family/run_my_benchmark.py",
-    aliases=("my_family",),
-    profiles=("air-m2", "extended"),
-    validation_contours=("legacy",),
-    visibility="public",
-    family="my_family",
-    gate_class="legacy_floor",
-    primary_metrics=("score", "latency_ms"),
-)
+```bash
+uv run pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
+uv run pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-json=ws5-bench.json
 ```
 
-## 7. Интеграция с CI
+For local domain probes:
 
-Здесь важно не смешивать локальный benchmark registry и текущий CI reality.
+```bash
+PYTHONPATH=src:. uv run python tools/benchmarks/jax/bench_domain.py --repeat 3 --json
+PYTHONPATH=src:. uv run python tools/benchmarks/jax/bench_simulation.py --agents 20000 --steps 24 --json
+```
 
-### Benchmark registry workflow
+## Reports
 
-Registry и `tools/research/benchmarks/run_all.py` — это canonical suite system
-для benchmark circuits и release summaries. `tools/benchmarks/run_all.py`
-остается public compatibility shim.
+Canonical runner reports land in one of these locations depending on entry
+point and `BENCH_JSON_DIR`:
 
-### Что есть в CI сейчас
+- `benchmarks/_reports/`
+- `tools/benchmarks/_reports/`
+- `tools/research/benchmarks/_reports/`
 
-В текущем дереве нет отдельного legacy performance-regression workflow.
-Это означает:
+`polisyos-tools benchmarks build-release-summary` aggregates per-suite JSON into
+release-level summaries with contour, comparator, ablation, leaderboard, and
+gate-result fields.
 
-- benchmark registry остаётся главным способом локально прогонять suites и читать JSON reports;
-- performance regression policy, если она нужна для конкретного change set, должна оформляться
-  отдельным PR/workflow решением, а не предполагаться как уже существующий repo-wide gate.
+## CI Reality
 
-То есть:
+The benchmark registry and CI quality gates are related but not identical.
+Foundry release-gate behavior is asserted by
+`tests/foundry/test_release_gate.py`.
+Benchmark suites remain the canonical way to run local or release benchmark
+circuits and produce JSON evidence.
 
-- benchmark registry и CI quality gates сейчас не являются одной и той же системой;
-- `polisyos-tools benchmarks run-all` остается canonical command boundary для benchmark circuits.
-- `tools/research/benchmarks/run_all.py` остается canonical implementation entrypoint.
-- `tools/benchmarks/run_all.py` и `benchmarks/run_all_benchmarks.sh` остаются compatibility shims.
+## Confidential Computing Overhead
 
-## Советы
+For TEE/CVM overhead methodology and the current command pointers, see
+`docs/benchmarks/confidential-computing-overhead.md`.
 
-- начинайте с `--mode smoke`, прежде чем запускать тяжёлые профили
-- используйте `--circuit` или `BENCH_CIRCUIT`, чтобы сузить локальный прогон
-- если важны canonical suite ids и report locations, предпочитайте registry-driven runner
-- raw `pytest` используйте тогда, когда вам нужен именно low-level local debugging
+## Rollback
+
+- Delete local JSON reports from `benchmarks/_reports/` or `tools/research/benchmarks/_reports/` when the run was exploratory and not intended as baseline evidence.
+- Do not commit fresh benchmark outputs unless the PR intentionally advances a benchmark baseline or release-summary artifact.
+
+## Troubleshooting
+
+- If a suite id is unclear, resolve it from `benchmarks/suite_registry.py` before running wrappers ad hoc.
+- If heavy paths are unstable, start with `--mode smoke` and then move to targeted suites.
+- If JAX-sensitive probes behave differently across machines, capture the exact env/profile and keep CPU-vs-accelerator comparisons explicit in the report.

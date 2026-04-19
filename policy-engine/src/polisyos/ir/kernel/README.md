@@ -1,42 +1,71 @@
 # Kernel (`polisyos.ir.kernel`)
 
-`polisyos.ir.kernel` содержит базовые типы, registry contracts и deterministic
-semantics, на которых держатся governance, linking и runtime execution. Это
-наиболее низкоуровневый слой IR: здесь фиксируются value types, units,
-mechanism/slot registries, merge rules, trust policies и selector fields.
+## Purpose
 
-## Роль в системе
+`polisyos.ir.kernel` содержит базовые deterministic contracts и registry surface,
+на которых держатся governance, linking и runtime execution. Это самый низкий
+уровень IR: здесь фиксируются базовая model discipline, slots, selector fields,
+mechanism types, merge rules, units, metrics, constraints и time semantics.
 
-- **Зависит от:** базовый canonical/pydantic stack внутри `polisyos.ir`
-- **Используется в:** `polisyos.ir.governance`, `polisyos.ir.linker`, `polisyos.ir.registry_fragments`, `polisyos.foundry`, `polisyos.core.registry`
-- Kernel описывает domain-neutral contracts, через которые runtime и компиляторы договариваются о state layout и merge semantics.
+## Where to Start
 
-## Ключевые концепции
+- [`base.py`](./base.py) — `KernelModel` и общие validation/immutability rules.
+- [`slots.py`](./slots.py) — canonical state slots и `DEFAULT_SLOT_REGISTRY`.
+- [`selector_fields.py`](./selector_fields.py) — legal targeting fields и `DEFAULT_SELECTOR_FIELD_REGISTRY`.
+- [`mechanisms.py`](./mechanisms.py) — registry механизмов и их read/write contracts.
+- [`merge_rules.py`](./merge_rules.py) — merge algebra для конкурентных writes.
+- [`units.py`](./units.py), [`metrics.py`](./metrics.py), [`constraints.py`](./constraints.py) — базовые registries для domain semantics.
+- [`time_semantics.py`](./time_semantics.py) — step-to-date semantics.
+- Для составления registry bundle откройте [`../registry_fragments.py`](../registry_fragments.py), для downstream linking — [`../linker/README.md`](../linker/README.md).
 
-- **KernelModel** — frozen, extra-forbid base class для deterministic contracts.
-- **Slot registry** — `SlotRegistry` задает canonical state slots и merge rules.
-- **Selector fields** — `SelectorFieldRegistry` описывает legal/policy targeting surface.
-- **Mechanism registry** — `MechanismTypeRegistry` фиксирует параметры и read/write slots механизмов.
-- **Merge algebra** — `MergeRuleRegistry` устраняет order-dependent behavior при конкурентных writes.
-- **Cell-aware runtime surface** — новые `PER_CELL` slots и selector fields расширяют IR под cell/household-cell state.
+## Public entrypoints
 
-## Public API
+| Entrypoint | Use when | Defined in |
+|---|---|---|
+| `polisyos.ir.kernel.KernelModel` | Нужен базовый immutable IR contract type | [`base.py`](./base.py) |
+| `polisyos.ir.kernel.SlotRegistry`, `DEFAULT_SLOT_REGISTRY` | Нужно описать canonical state slots | [`slots.py`](./slots.py) |
+| `polisyos.ir.kernel.SelectorFieldRegistry`, `DEFAULT_SELECTOR_FIELD_REGISTRY` | Нужно описать supported policy targeting fields | [`selector_fields.py`](./selector_fields.py) |
+| `polisyos.ir.kernel.MechanismTypeRegistry` | Нужен registry механизмов и их parameter/read-write contracts | [`mechanisms.py`](./mechanisms.py) |
+| `polisyos.ir.kernel.MergeRuleRegistry` | Нужна canonical merge semantics | [`merge_rules.py`](./merge_rules.py) |
+| `polisyos.ir.kernel.UnitsRegistry`, `MetricRegistry`, `ConstraintRegistry` | Нужны registry units, metrics и constraints | [`units.py`](./units.py), [`metrics.py`](./metrics.py), [`constraints.py`](./constraints.py) |
+| `polisyos.ir.kernel.TimeSemantics` | Нужно сопоставить runtime steps с calendar semantics | [`time_semantics.py`](./time_semantics.py) |
 
-| Type/Function | Description |
-|---|---|
-| `KernelModel` | Базовый класс для immutable IR contracts |
-| `SlotRegistry`, `SlotSpec`, `DEFAULT_SLOT_REGISTRY` | Canonical state slot definitions |
-| `SelectorFieldRegistry`, `SelectorFieldSpec`, `DEFAULT_SELECTOR_FIELD_REGISTRY` | Policy targeting fields и их scope/state paths |
-| `MechanismTypeRegistry`, `MechanismTypeSpec` | Реестр механизмов и их параметров |
-| `MergeRuleRegistry`, `MergeRuleSpec` | Merge semantics для concurrent writes |
-| `UnitsRegistry`, `MetricRegistry`, `ConstraintRegistry` | Units, metrics и constraints registries |
-| `TimeSemantics` | Step-to-date semantics для monthly/quarterly/yearly timelines |
+## Depends on / depended on by
 
-Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
+- Depends on: базовый canonical/pydantic stack внутри `polisyos.ir`.
+- Depended on by: [`../governance/README.md`](../governance/README.md), [`../linker/README.md`](../linker/README.md), `polisyos.core.registry`, `polisyos.foundry`, `polisyos.fabric`, `polisyos.ir.registry_fragments`.
 
-## Текущее состояние
+## Common commands
 
-- Последнее обновление: 2026-04-03
-- Files: 14 Python files
-- Exports: 52 public names in `__init__.py`
-- Recent delta: `slots.py` теперь содержит 30 literal slot specs, а `selector_fields.py` — 12 predefined fields, включая `PER_CELL`, `household_cell_id`, `firm_cell_id`, `region_code` и `sector_id`
+Run from the repository root (`policy-engine/`).
+
+Smoke-tested on `2026-04-17`.
+
+```bash
+uv run python -c "import polisyos.ir.kernel as kernel; from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY, KernelModel; print(len(kernel.__all__), KernelModel.__name__, len(DEFAULT_SLOT_REGISTRY.slots))"
+```
+
+## Test/verification commands
+
+Run from the repository root (`policy-engine/`).
+
+Conceptual in this README refresh; run these checks before landing kernel or
+schema-generation changes.
+
+```bash
+uv run pytest tests/contract/test_trinity_linker_contract.py tests/ir/test_phase2_passes.py -q
+uv run --extra ml polisyos-tools diagnostics gen-schema --check
+```
+
+## Reference docs
+
+- [IR public surface](../../../../docs/reference/ir/public-surface.md)
+- [IR schema catalog](../../../../docs/reference/ir/schema-catalog.md)
+- [Merge semantics contract](../../../../docs/contracts/MERGE_SEMANTICS.md)
+- [Shared schemas reference](../../../../docs/reference/schemas.md)
+- [IR root README](../README.md)
+- [Linker README](../linker/README.md)
+
+## Last updated
+
+`2026-04-17`

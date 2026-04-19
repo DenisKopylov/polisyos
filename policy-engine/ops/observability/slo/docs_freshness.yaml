@@ -1,0 +1,10 @@
+service: docs_freshness
+version: 1
+owner: team-docs
+objectives:
+  - name: docs_stale_pages
+    sli: polisyos_docs_stale_pages_total
+    threshold: "= 0"
+    window: 7d
+    owner: team-docs
+    runbook: docs/runbooks/docs-publication-failure.md

@@ -165,6 +165,11 @@ export async function prefetchRouteHref(href: string) {
     return;
   }
 
+  if (resolved.entry.kind === "runDeck" && resolved.params.runId) {
+    await primeRunDetail(resolved.params.runId);
+    return;
+  }
+
   if (
     resolved.entry.kind === "runTab" &&
     resolved.params.runId &&

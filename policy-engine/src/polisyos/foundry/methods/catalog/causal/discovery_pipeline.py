@@ -48,6 +48,12 @@ from polisyos.ir.analytics.causal_graph import (
     EdgeSource,
     GraphType,
 )
+from polisyos.ir.analytics.invariance import (
+    RegimeShiftIdentificationCertificate,
+    RegimeShiftMECContraction,
+    RegimeShiftMECContractionEdgeUpdates,
+    RegimeShiftMECContractionSummary,
+)
 
 # ---------------------------------------------------------------------------
 # Internal helpers
@@ -874,6 +880,274 @@ def _pipeline_algebraic_summary(
     }
 
 
+def _extract_domain_labels(
+    state: UnifiedDiscoveryData,
+    params: Mapping[str, Any],
+) -> Any | None:
+    direct_labels = getattr(state, "domain_labels", None)
+    if direct_labels is not None:
+        return direct_labels
+
+    metadata = getattr(state, "metadata", {}) or {}
+    for key in ("domain_labels", "environment_labels", "regime_labels"):
+        if key in metadata and metadata[key] is not None:
+            return metadata[key]
+    for key in ("domain_labels", "environment_labels", "regime_labels"):
+        if key in params and params[key] is not None:
+            return params[key]
+    return None
+
+
+def _extract_regime_dataset_ref(
+    state: UnifiedDiscoveryData,
+    params: Mapping[str, Any],
+) -> str | None:
+    metadata = getattr(state, "metadata", {}) or {}
+    raw_ref = (
+        params.get("regime_dataset_ref")
+        or params.get("dataset_ref")
+        or metadata.get("dataset_ref")
+        or metadata.get("data_ref")
+    )
+    if raw_ref is None:
+        return None
+    return str(raw_ref)
+
+
+def _count_ambiguous_edges(graph: CausalGraphModel) -> int:
+    return sum(
+        1
+        for edge in graph.edges
+        if EdgeMark.CIRCLE in (edge.mark_src, edge.mark_dst)
+        or (edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.TAIL)
+    )
+
+
+def _count_oriented_edges(graph: CausalGraphModel) -> int:
+    return sum(
+        1
+        for edge in graph.edges
+        if EdgeMark.CIRCLE not in (edge.mark_src, edge.mark_dst)
+        and not (edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.TAIL)
+    )
+
+
+def _maybe_run_regime_shift_discovery(
+    state: UnifiedDiscoveryData,
+    params: Mapping[str, Any],
+) -> tuple[RegimeShiftIdentificationCertificate | None, list[str]]:
+    if not bool(params.get("enable_regime_shift_discovery", True)):
+        return None, []
+
+    raw_domain_labels = _extract_domain_labels(state, params)
+    if raw_domain_labels is None:
+        return None, []
+
+    if bool(params.get("is_time_series", False)):
+        return None, ["regime_shift_discovery_skipped_for_time_series_pipeline"]
+
+    from polisyos.foundry.methods.catalog.causal.invariance_tests import (
+        build_regime_shift_identification_certificate,
+    )
+
+    try:
+        certificate = build_regime_shift_identification_certificate(
+            data=state.data,
+            domain_labels=raw_domain_labels,
+            variable_names=list(state.variable_names),
+            target_cols=params.get("regime_target_cols"),
+            alpha=float(params.get("regime_alpha", params.get("significance_level", 0.05))),
+            correction=str(params.get("regime_correction", "bh")),
+            max_set_size=int(params.get("regime_max_set_size", 2)),
+            screening=(
+                str(params.get("regime_screening"))
+                if params.get("regime_screening") is not None
+                else None
+            ),
+            dataset_ref=_extract_regime_dataset_ref(state, params),
+        )
+    except Exception as exc:  # noqa: BLE001
+        return None, [f"regime_shift_discovery_failed:{type(exc).__name__}:{exc}"]
+
+    warnings = [f"regime_shift:{warning}" for warning in certificate.warnings]
+    return certificate, warnings
+
+
+def _apply_regime_shift_constraints(
+    pag: CausalGraphModel,
+    certificate: RegimeShiftIdentificationCertificate,
+) -> tuple[CausalGraphModel, RegimeShiftIdentificationCertificate, list[str]]:
+    from polisyos.foundry.methods.catalog.causal.pag_completion import (
+        apply_pag_orientation_rules,
+    )
+
+    forced_orientations = certificate.mec_contraction.edge_updates.forced_orientations
+    if not forced_orientations:
+        updated_certificate = certificate.model_copy(
+            update={
+                "mec_contraction": RegimeShiftMECContraction(
+                    input_graph_ref=certificate.mec_contraction.input_graph_ref,
+                    input_graph_type=pag.graph_type.value,
+                    output_graph_ref=certificate.mec_contraction.output_graph_ref,
+                    edge_updates=certificate.mec_contraction.edge_updates,
+                    summary=RegimeShiftMECContractionSummary(
+                        edges_oriented_total=0,
+                        edges_ambiguous_remaining=_count_ambiguous_edges(pag),
+                    ),
+                )
+            }
+        )
+        return pag, updated_certificate, []
+
+    updated_edges = list(pag.edges)
+    applied_force_count = 0
+    serialized_forced = [f"{src}->{dst}" for src, dst in forced_orientations]
+
+    for src, dst in forced_orientations:
+        edge_index = next(
+            (
+                idx
+                for idx, edge in enumerate(updated_edges)
+                if {edge.src, edge.dst} == {src, dst}
+            ),
+            None,
+        )
+
+        if edge_index is None:
+            updated_edges.append(
+                CausalEdge(
+                    src=src,
+                    dst=dst,
+                    mark_src=EdgeMark.TAIL,
+                    mark_dst=EdgeMark.ARROW,
+                    sources=[EdgeSource.DATA],
+                    data_confidence=1.0,
+                    combined_confidence=1.0,
+                    metadata={
+                        "regime_shift_forced": True,
+                        "regime_shift_parent": src,
+                        "regime_shift_target": dst,
+                        "regime_shift_certificate_kind": certificate.kind,
+                    },
+                )
+            )
+            applied_force_count += 1
+            continue
+
+        edge = updated_edges[edge_index]
+        if edge.src == src and edge.dst == dst:
+            mark_src, mark_dst = EdgeMark.TAIL, EdgeMark.ARROW
+        else:
+            mark_src, mark_dst = EdgeMark.ARROW, EdgeMark.TAIL
+        sources = list(edge.sources)
+        if EdgeSource.DATA not in sources:
+            sources.append(EdgeSource.DATA)
+        metadata = dict(edge.metadata)
+        metadata.update(
+            {
+                "regime_shift_forced": True,
+                "regime_shift_parent": src,
+                "regime_shift_target": dst,
+                "regime_shift_certificate_kind": certificate.kind,
+            }
+        )
+        updated_edge = edge.model_copy(
+            update={
+                "mark_src": mark_src,
+                "mark_dst": mark_dst,
+                "sources": sources,
+                "data_confidence": max(edge.data_confidence or 0.0, 1.0),
+                "combined_confidence": max(edge.combined_confidence or 0.0, 1.0),
+                "metadata": metadata,
+            }
+        )
+        if updated_edge != edge:
+            applied_force_count += 1
+        updated_edges[edge_index] = updated_edge
+
+    forced_pag = CausalGraphModel(
+        schema_version=pag.schema_version,
+        graph_type=pag.graph_type,
+        nodes=list(pag.nodes),
+        edges=updated_edges,
+        discovery_method=pag.discovery_method,
+        skg_version_id=pag.skg_version_id,
+        pag_identification_policy=pag.pag_identification_policy,
+        id_confidence_under_pag=pag.id_confidence_under_pag,
+        metadata={
+            **dict(pag.metadata),
+            "regime_shift_forced_orientations": serialized_forced,
+            "regime_shift_applied_force_count": applied_force_count,
+        },
+    )
+    oriented_before_closure = _count_oriented_edges(forced_pag)
+    closed_pag, closure_warnings = apply_pag_orientation_rules(forced_pag, max_iter=10)
+    newly_oriented_by_closure = max(
+        0,
+        _count_oriented_edges(closed_pag) - oriented_before_closure,
+    )
+    ambiguous_remaining = _count_ambiguous_edges(closed_pag)
+
+    updated_certificate = certificate.model_copy(
+        update={
+            "mec_contraction": RegimeShiftMECContraction(
+                input_graph_ref=certificate.mec_contraction.input_graph_ref,
+                input_graph_type=pag.graph_type.value,
+                output_graph_ref=certificate.mec_contraction.output_graph_ref,
+                edge_updates=RegimeShiftMECContractionEdgeUpdates(
+                    forced_orientations=forced_orientations,
+                    forbidden_orientations=certificate.mec_contraction.edge_updates.forbidden_orientations,
+                    newly_oriented_by_closure=newly_oriented_by_closure,
+                ),
+                summary=RegimeShiftMECContractionSummary(
+                    edges_oriented_total=applied_force_count + newly_oriented_by_closure,
+                    edges_ambiguous_remaining=ambiguous_remaining,
+                ),
+            ),
+            "metadata": {
+                **dict(certificate.metadata),
+                "applied_force_count": applied_force_count,
+            },
+        }
+    )
+    warnings = [f"regime_shift_closure:{warning}" for warning in closure_warnings]
+    return closed_pag, updated_certificate, warnings
+
+
+def _pipeline_regime_shift_summary(
+    certificate: RegimeShiftIdentificationCertificate | None,
+) -> dict[str, Any]:
+    if certificate is None:
+        return {"regime_shift_discovery": {"applied": False}}
+
+    empty_set_targets = sorted(
+        target.target
+        for target in certificate.targets
+        if target.informativeness.empty_set_stable
+    )
+    redundant_envs = sorted(
+        {
+            env_id
+            for target in certificate.targets
+            for env_id in target.informativeness.redundant_envs
+        }
+    )
+    return {
+        "regime_shift_discovery": {
+            "applied": True,
+            "n_environments": len(certificate.environments),
+            "n_targets": len(certificate.targets),
+            "forced_orientation_count": len(
+                certificate.mec_contraction.edge_updates.forced_orientations
+            ),
+            "closure_orientation_count": certificate.mec_contraction.edge_updates.newly_oriented_by_closure,
+            "edges_ambiguous_remaining": certificate.mec_contraction.summary.edges_ambiguous_remaining,
+            "empty_set_stable_targets": empty_set_targets,
+            "redundant_envs": redundant_envs,
+        }
+    }
+
+
 # ---------------------------------------------------------------------------
 # Orchestrator
 # ---------------------------------------------------------------------------
@@ -922,6 +1196,7 @@ def _run_unified_discovery(
             individual_results=[],
             algorithm_weights={},
             edge_agreements=[],
+            regime_shift_certificate=None,
             data_characteristics=dc,
             n_algorithms_run=0,
             warnings=warnings + ["all_algorithms_failed"],
@@ -937,6 +1212,7 @@ def _run_unified_discovery(
                     "severity_by_method": {},
                 },
                 "families_with_blockers": [],
+                "regime_shift_discovery": {"applied": False},
             },
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
@@ -957,6 +1233,17 @@ def _run_unified_discovery(
         min_presence_score=min_presence_score,
     )
     warnings.extend(orientation_warnings)
+
+    regime_shift_certificate, regime_warnings = _maybe_run_regime_shift_discovery(
+        state=state,
+        params=params,
+    )
+    warnings.extend(regime_warnings)
+    if regime_shift_certificate is not None:
+        unified_pag, regime_shift_certificate, regime_apply_warnings = (
+            _apply_regime_shift_constraints(unified_pag, regime_shift_certificate)
+        )
+        warnings.extend(regime_apply_warnings)
 
     # Build temporal_dag from PCMCI lag>0 edges (if any)
     temporal_dag: CausalGraphModel | None = None
@@ -989,6 +1276,7 @@ def _run_unified_discovery(
     pipeline_metadata = {
         **_pipeline_dispute_summary(individual_results),
         **_pipeline_algebraic_summary(individual_results),
+        **_pipeline_regime_shift_summary(regime_shift_certificate),
     }
 
     report = DiscoveryPipelineReport(
@@ -998,6 +1286,7 @@ def _run_unified_discovery(
         edge_agreements=edge_agreements,
         skeleton_agreement=skeleton_agreement,
         temporal_dag=temporal_dag,
+        regime_shift_certificate=regime_shift_certificate,
         pag_validity_violations=pag_validity_violations,
         data_characteristics=dc,
         n_algorithms_run=len(individual_results),
@@ -1063,6 +1352,13 @@ class UnifiedCausalDiscovery:
             ParameterSpec(name="timeout_seconds", default=120),
             ParameterSpec(name="is_time_series", default=False),
             ParameterSpec(name="max_lag", default=None),
+            ParameterSpec(name="enable_regime_shift_discovery", default=True),
+            ParameterSpec(name="regime_alpha", default=0.05),
+            ParameterSpec(name="regime_correction", default="bh"),
+            ParameterSpec(name="regime_max_set_size", default=2),
+            ParameterSpec(name="regime_target_cols", default=None),
+            ParameterSpec(name="regime_screening", default=None),
+            ParameterSpec(name="regime_dataset_ref", default=None),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -1077,7 +1373,9 @@ class UnifiedCausalDiscovery:
             "Unified causal discovery pipeline: auto-selects PC/FCI/GES/DAGMA/PCMCI "
             "based on data characteristics (dimensionality, sample size, suspected latents, "
             "time-series flag) and combines outputs into a PAG via weighted edge-mark voting "
-            "with bootstrap stability scores. Output suitable for id_algorithm()."
+            "with bootstrap stability scores. When environment labels are supplied, the "
+            "pipeline also runs Stage 16.1 regime-shift discovery and applies ICP-style "
+            "orientation constraints before reconciliation."
         ),
         tags=frozenset({"causal", "discovery", "pipeline", "pag", "unified"}),
         assumptions={
@@ -1088,6 +1386,7 @@ class UnifiedCausalDiscovery:
         citations=(
             "Spirtes, P., Glymour, C. & Scheines, R. (2000). Causation, Prediction, and Search. MIT Press.",
             "Chickering, D. (2002). Optimal structure identification with greedy search. JMLR, 3, 507-554.",
+            "Peters, J., Bühlmann, P., Meinshausen, N. (2016). Causal inference by using invariant prediction.",
         ),
         when_to_use=(
             "Use when you want a single PAG that pools evidence from multiple discovery "

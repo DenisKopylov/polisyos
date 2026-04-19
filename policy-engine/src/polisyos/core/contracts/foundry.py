@@ -6,7 +6,7 @@ from typing import Any, Literal, Mapping
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from ..artifacts.environment import EnvironmentManifestRef
+from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef
 from ..artifacts.manifest import ArtifactRef
 from .distributional import DistributionalReportRef
 from .uncertainty import UncertaintyEnvelopeRef
@@ -14,68 +14,68 @@ from .uncertainty import UncertaintyEnvelopeRef
 
 class ProgramGraphRef(ArtifactRef):
     """Artifact reference for the compiled program graph a Foundry run will execute."""
-    kind: Literal["foundry.program_graph"] = "foundry.program_graph"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.program_graph"
+    media_type: str = "application/json"
 
 
 class LoweredIRRef(ArtifactRef):
     """Artifact reference for the lowered IR produced before execution planning."""
-    kind: Literal["foundry.lowered_ir"] = "foundry.lowered_ir"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.lowered_ir"
+    media_type: str = "application/json"
 
 
 class ExecPlanRef(ArtifactRef):
     """Artifact reference for the resolved Foundry execution plan and runtime posture."""
-    kind: Literal["foundry.exec_plan"] = "foundry.exec_plan"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.exec_plan"
+    media_type: str = "application/json"
 
 
 class StateSnapshotRef(ArtifactRef):
     """Artifact reference for a persisted state snapshot emitted by a simulation."""
-    kind: Literal["foundry.state_snapshot"] = "foundry.state_snapshot"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.state_snapshot"
+    media_type: str = "application/json"
 
 
 class FoundryInputBindingsRef(ArtifactRef):
     """Artifact reference for the slot-binding bundle used to seed a Foundry execution."""
-    kind: Literal["foundry.input_bindings"] = "foundry.input_bindings"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.input_bindings"
+    media_type: str = "application/json"
 
 
 class FoundryInputBindingReportRef(ArtifactRef):
     """Artifact reference for the report describing how external data was bound to slots."""
-    kind: Literal["foundry.input_binding_report"] = "foundry.input_binding_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.input_binding_report"
+    media_type: str = "application/json"
 
 
 class TreasurySeedRef(ArtifactRef):
     """Artifact reference for deterministic random-stream seeds used during execution."""
-    kind: Literal["foundry.treasury_seed"] = "foundry.treasury_seed"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.treasury_seed"
+    media_type: str = "application/json"
 
 
 class ExecConfigRef(ArtifactRef):
     """Artifact reference for the executor configuration applied to a simulation run."""
-    kind: Literal["foundry.exec_config"] = "foundry.exec_config"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.exec_config"
+    media_type: str = "application/json"
 
 
 class MethodArtifactRef(ArtifactRef):
     """Method artifact ref data model."""
-    kind: Literal["foundry.method_artifact"] = "foundry.method_artifact"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.method_artifact"
+    media_type: str = "application/json"
 
 
 class ChainArtifactRef(ArtifactRef):
     """Chain artifact ref data model."""
-    kind: Literal["foundry.chain_artifact"] = "foundry.chain_artifact"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.chain_artifact"
+    media_type: str = "application/json"
 
 
 class ExecutionEvidenceRef(ArtifactRef):
     """Execution evidence ref data model."""
-    kind: Literal["foundry.execution_evidence"] = "foundry.execution_evidence"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.execution_evidence"
+    media_type: str = "application/json"
 
 
 class AgentPolicyRef(ArtifactRef):
@@ -86,8 +86,8 @@ class AgentPolicyRef(ArtifactRef):
     embedding full weights in configuration files.
     """
 
-    kind: Literal["foundry.agent_policy"] = "foundry.agent_policy"
-    media_type: Literal["application/octet-stream"] = "application/octet-stream"
+    kind: str = "foundry.agent_policy"
+    media_type: str = "application/octet-stream"
 
     policy_type: str = Field(description="ActorCritic, MLP, etc.")
     determinism_tier: str = Field(
@@ -99,44 +99,44 @@ class AgentPolicyRef(ArtifactRef):
 
 class StateDeltaRef(ArtifactRef):
     """Artifact reference for the patch set that transforms one state snapshot into the next."""
-    kind: Literal["foundry.state_delta"] = "foundry.state_delta"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.state_delta"
+    media_type: str = "application/json"
 
 
 class MetricsRef(ArtifactRef):
     """Artifact reference for the scalar metrics emitted by a Foundry execution."""
-    kind: Literal["foundry.metrics"] = "foundry.metrics"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.metrics"
+    media_type: str = "application/json"
 
 
 class ConstraintReportRef(ArtifactRef):
     """Constraint report ref data model."""
-    kind: Literal["foundry.constraint_report"] = "foundry.constraint_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.constraint_report"
+    media_type: str = "application/json"
 
 
 class CalibrationReportRef(ArtifactRef):
     """Artifact reference for calibration diagnostics emitted alongside simulation outputs."""
-    kind: Literal["foundry.calibration_report"] = "foundry.calibration_report"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.calibration_report"
+    media_type: str = "application/json"
 
 
 class ParameterOverrideBundleRef(ArtifactRef):
     """Artifact reference for parameter overrides layered onto a baseline execution config."""
-    kind: Literal["foundry.parameter_override_bundle"] = "foundry.parameter_override_bundle"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.parameter_override_bundle"
+    media_type: str = "application/json"
 
 
 class TraceSliceRef(ArtifactRef):
     """Artifact reference for the structured execution trace slice captured during a run."""
-    kind: Literal["foundry.trace_slice"] = "foundry.trace_slice"
-    media_type: Literal["application/jsonl"] = "application/jsonl"
+    kind: str = "foundry.trace_slice"
+    media_type: str = "application/jsonl"
 
 
 class SimulationResultRef(ArtifactRef):
     """Artifact reference for the top-level simulation result bundle returned by Foundry."""
-    kind: Literal["foundry.simulation_result"] = "foundry.simulation_result"
-    media_type: Literal["application/json"] = "application/json"
+    kind: str = "foundry.simulation_result"
+    media_type: str = "application/json"
 
 
 class ProgramNode(BaseModel):
@@ -357,7 +357,9 @@ class CompileRequest(BaseModel):
     policy_ref: ArtifactRef
 
     registry_bundle_ref: ArtifactRef | None = None
-    compile_config: FoundryCompileConfig = Field(default_factory=FoundryCompileConfig)
+    compile_config: FoundryCompileConfig = Field(
+        default_factory=lambda: FoundryCompileConfig(schema_version="1.0")
+    )
     validation_flags: FoundryValidationFlags = Field(default_factory=FoundryValidationFlags)
 
     notes: list[str] = Field(default_factory=list)
@@ -463,7 +465,9 @@ class ExecuteRequest(BaseModel):
 
     registry_bundle_ref: ArtifactRef | None = None
     parameter_override_bundle_ref: ParameterOverrideBundleRef | None = None
-    exec_config: FoundryExecConfig = Field(default_factory=FoundryExecConfig)
+    exec_config: FoundryExecConfig = Field(
+        default_factory=lambda: FoundryExecConfig(schema_version="1.0")
+    )
     notes: list[str] = Field(default_factory=list)
 
 

@@ -1,6 +1,10 @@
 # CLI Reference
 Related explanation: [Architecture](../explanation/architecture.md).
 
+Owner: `@tools-owners`
+Backup owner: `@platform-owners`
+Source of truth: `pyproject.toml`, `tools/cli.py`, `tools/registry.py`, `src/polisyos/core/components/cli.py`, `src/polisyos/foundry/methods/cli.py`, and `src/polisyos/foundry/plugins/cli.py`
+
 This page documents the console scripts declared in `pyproject.toml` and the repo-local workspace
 commands used for contributor setup.
 

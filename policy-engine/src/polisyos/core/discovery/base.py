@@ -12,9 +12,11 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, Callable, Generic, Iterable, Iterator, Protocol, Sequence, TypeVar
 
-from polisyos.core.canon import truncated_hash
+from polisyos.core.canon import DeprecatedHashAlgorithm, truncated_hash
+from polisyos.core.canon.hashing import HashAlgorithm
 
 T = TypeVar("T")
+T_co = TypeVar("T_co", covariant=True)
 E = TypeVar("E")
 
 
@@ -36,9 +38,9 @@ class DiscoveryError:
     details: dict[str, str] = field(default_factory=dict)
 
 
-class DiscoverySource(Protocol[T]):
+class DiscoverySource(Protocol[T_co]):
     """Discovery source public type."""
-    def discover(self) -> Iterator[T]:
+    def discover(self) -> Iterator[T_co]:
         ...
 
 
@@ -116,8 +118,8 @@ def list_entry_points(*, group: str) -> list[metadata.EntryPoint]:
         return sorted(list(direct), key=_entry_point_sort_key)
 
     all_eps = metadata.entry_points()
-    if hasattr(all_eps, "select"):
-        selected = all_eps.select(group=group)  # type: ignore[call-arg]
+    if isinstance(all_eps, metadata.EntryPoints):
+        selected = all_eps.select(group=group)
     else:
         selected = all_eps.get(group, [])
     return sorted(list(selected), key=_entry_point_sort_key)
@@ -127,7 +129,7 @@ def discovery_module_name(
     path: Path,
     *,
     prefix: str,
-    algorithm: str = "sha1",
+    algorithm: HashAlgorithm | DeprecatedHashAlgorithm = "sha1",
     digest_length: int = 12,
 ) -> str:
     """Derive a deterministic temporary module name for loading a source file exactly once."""

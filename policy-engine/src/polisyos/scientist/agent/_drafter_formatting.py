@@ -27,6 +27,15 @@ logger = get_logger(__name__)
 
 __all__ = ["_DrafterFormattingMixin"]
 
+_CONSTITUTION_BUILD_ERRORS = (
+    AttributeError,
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+
 
 class _DrafterFormattingMixin:
     """Problem-frame summarization, draft serialization, and constitution building."""
@@ -106,7 +115,7 @@ class _DrafterFormattingMixin:
                 model_spec=self._constitution_model_spec,
                 known_pitfalls=known_pitfalls,
             )
-        except Exception as exc:
+        except _CONSTITUTION_BUILD_ERRORS as exc:
             logger.warning("Constitution generation failed, continuing without it: %s", exc)
             return None
 

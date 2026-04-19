@@ -1,7 +1,16 @@
 # Первый policy-анализ
-Related reference: [Compile Execute](../reference/foundry/compile-execute.md).
+Related references: [Compile Execute](../reference/foundry/compile-execute.md), [Scientist Workflows](../reference/scientist/workflows.md), [Problem Framing](../reference/ir/problem-framing.md).
 
 > Практический первый проход по текущей analytical surface в PolicyOS: сформулировать задачу, привязать данные World Bank и проверить локальный execution toolchain.
+
+!!! info "Verified with"
+    Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
+    Python 3.14 и `uv`.
+    Были реально проверены импорты
+    `ProblemFrame` / `PolicySpec` / `ModelSpec`,
+    `WorldBankConnector`,
+    `run_trivial_compile_execute`
+    и `run_experiment`.
 
 !!! info "Важное замечание про форму модели"
     В текущей схеме `ProblemFrame` нет полей вида `outcome_kpi`, `treatment`,
@@ -11,6 +20,22 @@ Related reference: [Compile Execute](../reference/foundry/compile-execute.md).
     `PolicySpec` для интервенций и таргетинга по регионам,
     Fabric-запросами для выбора страны и периода,
     и causal-observation contracts для деталей идентификации.
+
+## Поток в текущем дереве
+
+В текущем D4 workflow первый анализ лучше читать как один и тот же поток через
+четыре слоя:
+
+1. IR / Trinity:
+   `ProblemFrame`, `PolicySpec` и `ModelSpec` собираются в `TrinityBundle`.
+2. Fabric:
+   данные приходят через connector и превращаются в `data_snapshot_ref`.
+3. Foundry:
+   `compile_program()` и `execute()` подтверждают, что bundle и bindings реально
+   проходят compile/execute путь.
+4. Scientist:
+   тот же `trinity_bundle_ref`, `registry_bundle_ref` и `data_snapshot_ref`
+   передаются в `run_experiment()`, если нужен governed или causal workflow.
 
 ## Постановка задачи
 
@@ -286,6 +311,48 @@ with TemporaryDirectory(prefix="polisyos-first-analysis-") as tmp:
 - `compile_ok` / `execute_ok` из Foundry smoke path
 - CAS artifacts, созданные execution smoke run
 
+## Шаг 6: передайте тот же bundle в Scientist
+
+`run_experiment()` — это orchestration boundary поверх того же Trinity/Fabric
+контекста. В примере выше `policy_ref` уже указывает на `ir.trinity_bundle`, а
+`data_snapshot_ref` и `registry.bundle_ref` готовы для Scientist.
+
+```python
+from polisyos.scientist import run_experiment
+
+scientist_state = run_experiment(
+    {
+        "run_id": "R_first_analysis",
+        "execution_profile": "research",
+        "inputs": {
+            "trinity_bundle_ref": policy_ref.model_dump(mode="json"),
+            "registry_bundle_ref": registry.bundle_ref.model_dump(mode="json"),
+            "data_snapshot_ref": data_snapshot_ref.model_dump(mode="json"),
+        },
+        "params": {
+            "workflow_id": "scientist_causal_full",
+            "policy_request": (
+                "Estimate whether higher public education spending is associated "
+                "with stronger GDP growth in Ukraine between 2015 and 2023."
+            ),
+        },
+    },
+    store=store,
+)
+
+print("artifact_keys:", sorted(scientist_state["artifacts_index"])[:5])
+print("report_keys:", sorted(scientist_state["reports_index"])[:5])
+```
+
+Практические правила маршрутизации:
+
+- если у вас уже есть `trinity_bundle_ref` и нужен baseline governed path, можно
+  опустить `workflow_id` и дать `run_experiment()` выбрать `scientist_default`;
+- если нужен явный causal escalation path, задайте
+  `params.workflow_id="scientist_causal_full"` или `execution_profile="research"`;
+- если у вас только policy question и ещё нет Trinity bundle, используйте
+  verified-policy path, описанный в [Scientist Workflows](../reference/scientist/workflows.md).
+
 ## Полный код
 
 Для стабильного запуска на Apple Silicon лучше явно переключить JAX на CPU:
@@ -549,3 +616,4 @@ simulation_result_artifact: sha256:bb034dfbb3680d3cdf33315964fccdb80b105eff6eeab
 - [Getting Started](getting-started.md) — самый маленький Foundry smoke
 - [Run Causal Analysis](../how-to/run-causal-analysis.md) — новые causal runner API
 - [Installation](../how-to/install.md) — extras и runtime/causal setup
+- [Scientist Workflows](../reference/scientist/workflows.md) — routing и required binds

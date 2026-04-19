@@ -1,46 +1,56 @@
 # Agent (`polisyos.scientist.agent`)
 
-`agent` — опциональный policy-authoring контур Scientist: PI, drafter, formalizer,
-critic, reflexion и supporting RAG/feasibility инструменты для генерации и ревью
-policy artifacts до их передачи в runtime.
+## Purpose
 
-## Роль в системе
+`polisyos.scientist.agent` is the optional policy-authoring layer for
+Scientist: PI, drafter, formalizer, critic, supervisor, reflexion, and
+supporting RAG/feasibility tools used to create and review policy artifacts
+before they enter the main workflow runtime.
 
-- **Зависит от:** `ir`, `llm`, `core.llm`, `lex`, `core.artifacts`
-- **Используется в:** policy authoring, critique/reflexion loops, optional search integrations
-- Пакет не является обязательной частью `run_experiment()`, но формирует upstream
-  policy/problem artifacts для policy-design workflows.
+## Where to Start
 
-## Ключевые концепции
+- Package facade and lazy export map: [`__init__.py`](__init__.py)
+- Core typed contracts: [`protocols.py`](protocols.py)
+- Drafting path: [`drafter_factory.py`](drafter_factory.py), [`drafter.py`](drafter.py), and [`drafter_multipass.py`](drafter_multipass.py)
+- Critique and supervision: [`critic.py`](critic.py), [`informed_critic.py`](informed_critic.py), and [`supervisor.py`](supervisor.py)
+- Reasoning and worker tools: [`reasoning.py`](reasoning.py) and [`tools/`](tools/)
 
-- **Role protocols** — `PIAgent`, `DrafterAgent`, `FormalizerAgent`, `CriticAgent`.
-- **Mock + LLM implementations** — тестовый и production-like execution modes.
-- **Multipass drafting** — staged drafter with optional RAG and verification hooks.
-- **Reflexion/memory** — short-term memory, failure cards, retry-aware critique loops.
-- **DAG-backed supervisor** — worker envelopes can declare `depends_on_task_ids`
-  and execute as bounded topological tiers.
-- **Tree reasoning** — offline-gated Tree-of-Thought and LATS/MCTS trajectory reports.
-- **Informed critic** — feasibility, norm loading, RAG and code verification integration.
-- **Lazy exports** — package deliberately избегает eager import chain.
+## Public Entrypoints
 
-## Public API
+- Typed contracts in [`protocols.py`](protocols.py): `ProblemFrame`, `DraftResult`, `CritiqueReport`, `DataNeedSpec`, and `DelegationResult`
+- Factories in [`drafter_factory.py`](drafter_factory.py) and [`critic.py`](critic.py): `create_drafter_agent(...)` and `create_critic_agent(...)`
+- Role implementations in [`pi.py`](pi.py), [`drafter.py`](drafter.py), [`formalizer.py`](formalizer.py), and [`critic.py`](critic.py)
+- Supervisor surface in [`supervisor.py`](supervisor.py): `ScientistSupervisorAgent` plus worker-envelope orchestration
+- Reasoning surface in [`reasoning.py`](reasoning.py): `ReasoningPolicyGate`, `TreeOfThoughtPlanner`, `LATSAgentSearch`, and trajectory reports
+- Supporting tools in [`rag.py`](rag.py), [`code_verifier.py`](code_verifier.py), [`feasibility_duckdb.py`](feasibility_duckdb.py), and [`failure_index.py`](failure_index.py)
 
-- Протоколы и typed contracts: `ProblemFrame`, `DraftResult`, `CritiqueReport`,
-  `DataNeedSpec`, `DelegationResult`
-- Factory/helpers: `create_drafter_agent(...)`, `create_critic_agent(...)`
-- Основные реализации: `LLMPIAgent`, `LLMDrafterAgent`, `LLMFormalizerAgent`,
-  `LLMCriticAgent` и mock-аналоги
-- Supporting tools: `RAGConfig`, `CASRAGIndex`, `CodeVerificationSandbox`,
-  `DuckDBFeasibilityProbe`, `FailurePatternIndex`
-- Search/reasoning: `ReasoningPolicyGate`, `TreeOfThoughtPlanner`,
-  `LATSAgentSearch`, `ReasoningSearchReport`
+## Depends On / Depended On By
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+- Depends on: [`../../ir/README.md`](../../ir/README.md), [`../../lex/README.md`](../../lex/README.md), [`../../core/llm/README.md`](../../core/llm/README.md), [`../../core/artifacts/README.md`](../../core/artifacts/README.md), and adjacent Scientist LLM/runtime helpers
+- Depended on by: policy-design authoring paths, optional critique/reflexion loops, and workflow/search integrations documented in [`../workflows/README.md`](../workflows/README.md) and [`../search/README.md`](../search/README.md)
 
-## Текущее состояние
+## Common Commands
 
-- Последнее обновление: 2026-04-03
-  - WS-3C reasoning surface обновлён: 2026-04-12
-- Python modules: 45
-- Exports: 60
-- Public surface intentionally broad; imports остаются lazy для защиты от circular dependencies
+Run from the repository root (`policy-engine/`).
+
+- Smoke-tested import check: `uv run python -c "from polisyos.scientist.agent import ProblemFrame, DraftResult; print(ProblemFrame.__name__, DraftResult.__name__)"`
+- Conceptual full-slice test run: `uv run pytest tests/scientist/agent -q`
+
+## Test / Verification Commands
+
+Smoke-tested:
+
+```bash
+uv run pytest tests/scientist/agent/test_drafter_factory.py tests/scientist/agent/test_supervisor.py tests/scientist/agent/test_reasoning.py -q
+```
+
+## Reference Docs
+
+- Scientist reference index: [`../../../../docs/reference/scientist/index.md`](../../../../docs/reference/scientist/index.md)
+- Agent/search reasoning reference: [`../../../../docs/reference/scientist/agent-search-reasoning.md`](../../../../docs/reference/scientist/agent-search-reasoning.md)
+- Phase 3 acceptance notes: [`../../../../docs/reference/scientist/phase3-acceptance.md`](../../../../docs/reference/scientist/phase3-acceptance.md)
+- Cross-package navigation: [`../README.md`](../README.md), [`../search/README.md`](../search/README.md), and [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+
+## Last Updated
+
+- Last updated: 2026-04-17

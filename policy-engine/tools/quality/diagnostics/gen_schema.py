@@ -54,6 +54,10 @@ FULL_REBUILD_SENTINELS = {
     REPO_ROOT / "tools" / "diagnostics" / "gen_schema.py",
     REPO_ROOT / "tools" / "diagnostics" / "generate_ir_reference_catalog.py",
 }
+GOVERNED_NON_ABI_SNAPSHOT_FILES: dict[str, set[str]] = {
+    # This registry is generated and drift-checked by dedicated Fabric tooling.
+    "fabric": {"connector_contract_registry.json"},
+}
 
 
 class GenerationError(RuntimeError):
@@ -434,7 +438,11 @@ def _process_module(
                 updated += 1
 
     if check and module_dir.exists():
-        tracked = seen_schema_files | {"_manifest.json"}
+        tracked = (
+            seen_schema_files
+            | {"_manifest.json"}
+            | GOVERNED_NON_ABI_SNAPSHOT_FILES.get(module, set())
+        )
         for path in sorted(module_dir.glob("*.json")):
             if path.name not in tracked:
                 errors.append(f"unexpected snapshot file (not in registry): {path}")

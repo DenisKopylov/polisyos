@@ -1,7 +1,20 @@
 # Artifact Inspection API
 Related explanation: [Architecture](../../explanation/architecture.md).
 
+Freshness: 2026-04-17
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/runtime/http/services/artifact_inspector.py`, `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/core/artifacts/**`, and `schemas/runtime_api_v1.openapi.json`
+Validation:
+- `uv run pytest -q tests/runtime/http/test_artifact_inspector_api.py tests/runtime/http/test_artifact_inspector_service.py tests/runtime/http/test_runtime_api_authz.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+
 The artifact surface provides manifest, content, schema, and lineage inspection over CAS-backed runtime artifacts.
+
+Related L1 references:
+
+- [CAS and Storage Reference](../operations/cas-storage.md)
+- [Runtime Auth and Tenant Model](auth-tenant-model.md)
+- [Runtime API Error Semantics](error-semantics.md)
 
 ## Artifact Identifier Format
 
@@ -29,8 +42,17 @@ If the artifact does not exist or is not visible to the current tenant:
 | `GET` | `/api/v1/artifacts/{artifact_id}/content` | `ArtifactContentResponse` | Content preview, text/JSON decode, or binary preview |
 | `GET` | `/api/v1/artifacts/{artifact_id}/lineage` | `ArtifactLineageResponse` | Rooted lineage graph |
 | `GET` | `/api/v1/artifacts/{artifact_id}/schema` | `ArtifactSchemaResponse` | Schema metadata and schema ref |
+| `GET` | `/api/v1/artifacts/{artifact_id}/download` | raw bytes | OpenAPI-described raw download |
 
-Committed OpenAPI status codes: `200`, `400`, `401`, `403`, `404`, `422`, `500`.
+Committed OpenAPI status codes: `200`, `400`, `401`, `403`, `404`, `406`,
+`422`, `500`.
+
+Validation anchors:
+
+- `tests/runtime/http/test_artifact_inspector_api.py`
+- `tests/runtime/http/test_artifact_inspector_service.py`
+- `tests/runtime/http/test_runtime_api_authz.py`
+- `tests/runtime/http/test_runtime_api_contract_hardening.py`
 
 ## `POST /api/v1/artifacts/batch`
 
@@ -140,9 +162,41 @@ http GET :8000/api/v1/artifacts/$ARTIFACT_ID/schema \
   "Authorization:Bearer $TOKEN"
 ```
 
+## `GET /api/v1/artifacts/{artifact_id}/download`
+
+Download immutable artifact bytes with explicit raw-content negotiation.
+
+- Request headers:
+  - `Accept: application/octet-stream` or the concrete artifact media type
+- Response body: raw artifact bytes
+- Response headers:
+  - `ETag`
+  - `Last-Modified`
+  - `Cache-Control`
+  - `Content-Disposition`
+- Special error:
+  - `406 artifact_representation_not_acceptable` when the `Accept` header does
+    not allow the raw representation
+
+```bash
+curl -L \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Accept: application/octet-stream" \
+  "http://localhost:8000/api/v1/artifacts/$ARTIFACT_ID/download" \
+  -o artifact.bin
+```
+
+```bash
+http GET :8000/api/v1/artifacts/$ARTIFACT_ID/download \
+  "Authorization:Bearer $TOKEN" \
+  Accept:application/octet-stream \
+  --download
+```
+
 ## Typical Inspection Flow
 
 1. Read `/api/v1/artifacts/{artifact_id}` to identify kind, media type, and schema hints.
 2. Read `/content` to preview the materialized payload.
 3. Read `/schema` when the artifact points to a JSON schema or ABI contract.
 4. Read `/lineage` to understand upstream sources, derived artifacts, and downstream dependents.
+5. Read `/download` only when the client needs raw immutable bytes.

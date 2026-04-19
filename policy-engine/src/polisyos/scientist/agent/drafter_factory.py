@@ -33,6 +33,14 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
+_DRAFTER_RAG_INIT_ERRORS = (
+    LookupError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+
 
 def _build_rag_filesystem_store(root: Path) -> FileSystemCAS:
     store = build_artifact_store(
@@ -93,7 +101,7 @@ def create_drafter_agent(
                 config=rag_config,
                 embedder=embedder,
             )
-        except Exception as exc:
+        except _DRAFTER_RAG_INIT_ERRORS as exc:
             logger.warning("RAG initialization failed, continuing without RAG: %s", exc)
             rag_index = None
 

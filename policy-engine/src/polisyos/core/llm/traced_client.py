@@ -55,6 +55,14 @@ def _load_runtime_trace_types() -> tuple[Any, Any, Any]:
 _RuntimeSpanKind, _RuntimeStatus, _RuntimeStatusCode = _load_runtime_trace_types()
 
 
+def _default_tracer() -> PolicyOSTracer:
+    return get_tracer()
+
+
+def _default_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
 class TracedLLMClient:
     """
     Observability wrapper for LLM clients.
@@ -88,8 +96,8 @@ class TracedLLMClient:
         self._provider_name = provider_name
         self._call_observer = call_observer
         self._prompt_sanitizer = prompt_sanitizer
-        self._tracer = tracer if tracer is not None else get_tracer()
-        self._metrics = metrics if metrics is not None else get_metrics()
+        self._tracer = tracer if tracer is not None else _default_tracer()
+        self._metrics = metrics if metrics is not None else _default_metrics()
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)

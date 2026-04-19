@@ -2,6 +2,11 @@
 
 > Generated from `architecture/public_surface.toml` and package facades under `src/polisyos/**/__init__.py`.
 
+Canonical regeneration command:
+```bash
+uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline
+```
+
 Supported entrypoints are intentionally explicit. Any `polisyos.*` path not listed on this page is **internal** and may change without compatibility guarantees.
 
 Classification policy:
@@ -14,7 +19,7 @@ Classification policy:
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 160 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 171 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 3 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/scientist/README.md` |
@@ -95,7 +100,7 @@ run
 - Notes: Primary compatibility boundary for policy, governance, analytics, and observation contracts.
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Supported exports (160)</summary>
+<details><summary>Supported exports (171)</summary>
 
 ```text
 AccessTier
@@ -111,6 +116,17 @@ NormRule
 NormRef
 RuleType
 load_policy
+IRExportInfo
+IRFieldInfo
+IRPublicStatus
+IRSchemaCatalog
+IRTypeInfo
+IRTypeKind
+enumerate_ir_exports
+get_ir_schema_catalog
+get_ir_type
+inspect_ir_schema
+list_ir_types
 CalibrationConfig
 CalibrationTarget
 ProblemFrame

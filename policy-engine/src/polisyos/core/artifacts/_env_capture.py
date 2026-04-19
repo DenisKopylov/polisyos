@@ -29,11 +29,11 @@ from ._env_models import (
 from ._env_utils import (
     MAX_LIBRARY_BYTES,
     SYSTEM_LIBRARY_NAMES,
-    _estimate_precision_loss,
-    _hash_file,
-    _parse_xla_flags,
-    _safe_package_version,
-    _safe_run,
+    estimate_precision_loss,
+    hash_file,
+    parse_xla_flags,
+    safe_package_version,
+    safe_run,
 )
 
 logger = get_logger(__name__)
@@ -98,12 +98,12 @@ def _capture_cpu_info() -> CPUInfo:
 
     elif sys.platform == "darwin":
         model_name = (
-            _safe_run(["sysctl", "-n", "machdep.cpu.brand_string"])
-            or _safe_run(["sysctl", "-n", "hw.model"])
+            safe_run(["sysctl", "-n", "machdep.cpu.brand_string"])
+            or safe_run(["sysctl", "-n", "hw.model"])
             or "Unknown"
         )
-        physical = _safe_run(["sysctl", "-n", "hw.physicalcpu"])
-        logical = _safe_run(["sysctl", "-n", "hw.logicalcpu"])
+        physical = safe_run(["sysctl", "-n", "hw.physicalcpu"])
+        logical = safe_run(["sysctl", "-n", "hw.logicalcpu"])
         if physical and physical.isdigit():
             core_count = max(1, int(physical))
         if logical and logical.isdigit():
@@ -112,12 +112,12 @@ def _capture_cpu_info() -> CPUInfo:
         if arch == "arm64":
             has_neon = True
         else:
-            features = _safe_run(["sysctl", "-n", "machdep.cpu.features"]) or ""
+            features = safe_run(["sysctl", "-n", "machdep.cpu.features"]) or ""
             features_lower = features.lower()
             has_avx = "avx" in features_lower
             has_avx2 = "avx2" in features_lower
 
-            leaf7 = _safe_run(["sysctl", "-n", "machdep.cpu.leaf7_features"]) or ""
+            leaf7 = safe_run(["sysctl", "-n", "machdep.cpu.leaf7_features"]) or ""
             has_avx512 = "avx512" in leaf7.lower()
 
     return CPUInfo(
@@ -167,7 +167,7 @@ def _capture_gpu_info() -> GPUInfo:
     """
     gpu_info = GPUInfo()
 
-    nvidia_smi = _safe_run(
+    nvidia_smi = safe_run(
         [
             "nvidia-smi",
             "--query-gpu=name,memory.total,driver_version,uuid",
@@ -200,9 +200,9 @@ def _capture_gpu_info() -> GPUInfo:
         gpu_info.device_uuids = device_uuids
 
         if gpu_info.device_count > 1:
-            gpu_info.topology = _safe_run(["nvidia-smi", "topo", "-m"])
+            gpu_info.topology = safe_run(["nvidia-smi", "topo", "-m"])
 
-        nvcc_output = _safe_run(["nvcc", "--version"])
+        nvcc_output = safe_run(["nvcc", "--version"])
         if nvcc_output:
             match = re.search(r"release (\d+\.\d+)", nvcc_output)
             if match:
@@ -213,7 +213,7 @@ def _capture_gpu_info() -> GPUInfo:
             gpu_info.cudnn_version = cudnn_version
 
     if sys.platform == "darwin":
-        sp_output = _safe_run(["system_profiler", "SPDisplaysDataType", "-json"])
+        sp_output = safe_run(["system_profiler", "SPDisplaysDataType", "-json"])
         if sp_output:
             try:
                 data = json.loads(sp_output)
@@ -246,14 +246,14 @@ def _capture_os_info() -> OSInfo:
     libc_version = None
 
     if sys.platform == "linux":
-        kernel_version = _safe_run(["uname", "-r"])
-        ldd_output = _safe_run(["ldd", "--version"])
+        kernel_version = safe_run(["uname", "-r"])
+        ldd_output = safe_run(["ldd", "--version"])
         if ldd_output:
             match = re.search(r"(\d+\.\d+)", ldd_output)
             if match:
                 libc_version = f"glibc-{match.group(1)}"
     elif sys.platform == "darwin":
-        kernel_version = _safe_run(["uname", "-r"])
+        kernel_version = safe_run(["uname", "-r"])
 
     return OSInfo(
         system=platform.system(),
@@ -267,7 +267,7 @@ def _capture_os_info() -> OSInfo:
 def _capture_python_info() -> PythonInfo:
     """Capture Python runtime information."""
     version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    exe_hash = _hash_file(Path(sys.executable))
+    exe_hash = hash_file(Path(sys.executable))
 
     return PythonInfo(
         version=version,
@@ -285,8 +285,8 @@ def _capture_jax_info() -> JAXInfo:
     """
     jax_info = JAXInfo()
 
-    jax_info.jax_version = _safe_package_version("jax")
-    jax_info.jaxlib_version = _safe_package_version("jaxlib")
+    jax_info.jax_version = safe_package_version("jax")
+    jax_info.jaxlib_version = safe_package_version("jaxlib")
 
     if jax_info.jax_version:
         try:
@@ -298,12 +298,12 @@ def _capture_jax_info() -> JAXInfo:
             jax_info.device_count = len(devices)
 
             xla_flags_env = os.environ.get("XLA_FLAGS", "")
-            jax_info.xla_flags = _parse_xla_flags(xla_flags_env)
+            jax_info.xla_flags = parse_xla_flags(xla_flags_env)
 
             jax_info.deterministic_ops_enabled = (
                 "--xla_gpu_deterministic_ops=true" in xla_flags_env
             )
-            jax_info.x64_enabled = bool(jax.config.x64_enabled)
+            jax_info.x64_enabled = bool(getattr(jax.config, "x64_enabled", False))
 
             try:
                 from jax._src import lib as jaxlib_internal
@@ -325,21 +325,21 @@ def _capture_git_info(repo_path: Path | None = None) -> GitInfo | None:
     if repo_path is None:
         repo_path = Path.cwd()
 
-    git_dir = _safe_run(["git", "-C", str(repo_path), "rev-parse", "--git-dir"])
+    git_dir = safe_run(["git", "-C", str(repo_path), "rev-parse", "--git-dir"])
     if not git_dir:
         return None
 
-    commit_sha = _safe_run(["git", "-C", str(repo_path), "rev-parse", "HEAD"])
+    commit_sha = safe_run(["git", "-C", str(repo_path), "rev-parse", "HEAD"])
     if not commit_sha:
         return None
 
     commit_short = commit_sha[:8]
-    branch = _safe_run(["git", "-C", str(repo_path), "rev-parse", "--abbrev-ref", "HEAD"])
+    branch = safe_run(["git", "-C", str(repo_path), "rev-parse", "--abbrev-ref", "HEAD"])
 
-    status = _safe_run(["git", "-C", str(repo_path), "status", "--porcelain"])
+    status = safe_run(["git", "-C", str(repo_path), "status", "--porcelain"])
     dirty = bool(status and status.strip())
 
-    tags_output = _safe_run(["git", "-C", str(repo_path), "tag", "--points-at", commit_sha])
+    tags_output = safe_run(["git", "-C", str(repo_path), "tag", "--points-at", commit_sha])
     tags = tags_output.split("\n") if tags_output else []
     tags = [tag.strip() for tag in tags if tag.strip()]
 
@@ -371,7 +371,7 @@ def _capture_dependency_info(project_root: Path | None = None) -> DependencyInfo
         else:
             return None
 
-    lockfile_hash = _hash_file(lockfile)
+    lockfile_hash = hash_file(lockfile)
     if not lockfile_hash:
         return None
 
@@ -383,7 +383,7 @@ def _capture_dependency_info(project_root: Path | None = None) -> DependencyInfo
     key_packages: dict[str, str] = {}
     critical_pkgs = ["jax", "jaxlib", "equinox", "optax", "diffrax", "pydantic", "numpy"]
     for pkg in critical_pkgs:
-        version = _safe_package_version(pkg)
+        version = safe_package_version(pkg)
         if version:
             key_packages[pkg] = version
 
@@ -445,7 +445,7 @@ def _detect_compute_backends() -> dict[str, dict[str, str]]:
         ("ortools", "ortools"),
         ("pulp", "pulp"),
     ]:
-        version = _safe_package_version(package_name)
+        version = safe_package_version(package_name)
         if version:
             backends[backend_name] = {"version": version}
     return backends
@@ -469,7 +469,7 @@ def _capture_system_libraries() -> dict[str, SystemLibraryInfo]:
 
 
 def _ldconfig_cache() -> dict[str, str]:
-    output = _safe_run(["ldconfig", "-p"])
+    output = safe_run(["ldconfig", "-p"])
     if not output:
         return {}
     cache: dict[str, str] = {}
@@ -525,7 +525,7 @@ def _system_library_info(path: Path) -> SystemLibraryInfo | None:
     except (IOError, OSError):
         return None
 
-    digest = _hash_file(path, max_bytes=MAX_LIBRARY_BYTES)
+    digest = hash_file(path, max_bytes=MAX_LIBRARY_BYTES)
     modified_at = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)
     return SystemLibraryInfo(
         filename=path.name,
@@ -581,7 +581,7 @@ def capture_environment(
     gpu_info = _capture_gpu_info()
     jax_info = _capture_jax_info()
     system_libs = _capture_system_libraries() if include_system_libraries else {}
-    expected_precision_loss = _estimate_precision_loss(cpu_info, gpu_info, jax_info)
+    expected_precision_loss = estimate_precision_loss(cpu_info, gpu_info, jax_info)
     metadata_payload = dict(custom_metadata or {})
     if include_compute_backends:
         metadata_payload["compute_backends"] = _detect_compute_backends()

@@ -1,6 +1,9 @@
 # Lex Batch Pipeline
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
+Owner: `@lex-owners`
+Source of truth: `src/polisyos/lex/batch/**`, `src/polisyos/lex/batch/config.py`, and `tests/lex/batch/**`
+
 The Lex batch pipeline converts raw legal documents into grounded facts,
 reference edges, amendment records, and temporal envelopes. Phase 2 extends
 this layer with deterministic amendment extraction, hallucination screening,

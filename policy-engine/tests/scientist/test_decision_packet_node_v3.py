@@ -62,6 +62,7 @@ from polisyos.ir.analytics.normative_arbitration import (
     TradeoffCertificate,
     persist_normative_arbitration_result,
 )
+from polisyos.ir.analytics.partial_identification import BoundsBundle, persist_bounds_bundle
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.strategic import (
     EquilibriumSelectionSummary,
@@ -114,12 +115,14 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
+    ARTIFACT_BOUNDS_BUNDLE_REF,
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+    ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_METRICS_REF,
@@ -138,6 +141,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_GOVERNANCE_REPORT_REF,
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
+)
+from polisyos.scientist.search.readiness import (
+    DecisionReadiness,
+    DecisionReadinessContract,
+    persist_decision_readiness_contract,
 )
 
 
@@ -1106,6 +1114,120 @@ def test_build_decision_packet_includes_causal_section(tmp_path) -> None:
     assert payload["causal"]["refutation_robust"] is False
     assert len(payload["causal"]["refutation_results"]) == 2
     assert payload["uncertainty_bounds"]["causal_effect_point"] == 2.5
+
+
+def test_build_decision_packet_surfaces_dp_status_from_readiness_and_bounds(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_dp_status",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.dp"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    readiness_ref = persist_decision_readiness_contract(
+        store,
+        DecisionReadinessContract(
+            readiness_level=DecisionReadiness.ANALYST_ADVISORY,
+            required_judges_passed=["structural", "statistical"],
+            required_uncertainty_bounds={},
+            mandatory_human_gate=False,
+            assumptions_must_be_surfaced=[],
+            expiry_conditions=[],
+            evidence_depth_required="single_study",
+            metadata={
+                "readiness_cap": "analyst_advisory",
+                "data_readiness_decision": "warn",
+                "dp_effective_status": "bounded",
+                "dp_block_reason": None,
+                "dp_distortion_radius": 0.021,
+                "dp_mechanism_family": "laplace",
+                "dp_effect_interval": [-0.12, -0.03],
+                "dp_robustness": {
+                    "effective_status": "bounded",
+                    "reason": "DP distortion exceeds the point-estimate tolerance.",
+                    "distortion_radius": 0.021,
+                    "mechanism_family": "laplace",
+                    "effect_interval": [-0.12, -0.03],
+                },
+            },
+        ),
+    )
+    bounds_ref = persist_bounds_bundle(
+        store,
+        BoundsBundle(
+            estimand_type="ate",
+            point_identified=False,
+            lower_bound=-0.12,
+            upper_bound=-0.03,
+            consensus_lower=-0.12,
+            consensus_upper=-0.03,
+            sharpness_status="outer_approx",
+            warnings=["dp_bounds_only"],
+            metadata={
+                "dp_effective_status": "bounded",
+                "dp_distortion_radius": 0.021,
+                "dp_mechanism_family": "laplace",
+            },
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_dp_status",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_DECISION_READINESS_CONTRACT_REF: ArtifactRef.model_validate(
+                readiness_ref.model_dump(mode="json")
+            ),
+            ARTIFACT_BOUNDS_BUNDLE_REF: ArtifactRef.model_validate(
+                bounds_ref.model_dump(mode="json")
+            ),
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["artifacts"]["decision_readiness_contract_ref"] == str(
+        readiness_ref.artifact_id
+    )
+    assert payload["artifacts"]["bounds_bundle_ref"] == str(bounds_ref.artifact_id)
+    assert payload["causal"]["decision_readiness_contract_ref"] == str(readiness_ref.artifact_id)
+    assert payload["causal"]["bounds_ref"] == str(bounds_ref.artifact_id)
+    assert payload["causal"]["dp_effective_status"] == "bounded"
+    assert payload["causal"]["dp_distortion_radius"] == 0.021
+    assert payload["causal"]["dp_mechanism_family"] == "laplace"
+    assert payload["causal"]["dp_effect_interval"] == [-0.12, -0.03]
+    assert payload["causal"]["bounds_interval"] == [-0.12, -0.03]
+    assert payload["causal"]["data_readiness_decision"] == "warn"
 
 
 def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:

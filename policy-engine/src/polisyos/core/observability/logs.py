@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Callable
 from typing import Any, Optional
 
 from opentelemetry import trace
@@ -63,18 +64,18 @@ class StructuredFormatter(logging.Formatter):
     def __init__(self) -> None:
         super().__init__()
         # Lazy import to avoid circular dependency
-        self._json: Any = None
+        self._json_dumps: Callable[..., str] | None = None
 
-    def _get_json(self) -> Any:
-        if self._json is None:
+    def _get_json_dumps(self) -> Callable[..., str]:
+        if self._json_dumps is None:
             import json
 
-            self._json = json
-        return self._json
+            self._json_dumps = json.dumps
+        return self._json_dumps
 
     def format(self, record: logging.LogRecord) -> str:
         """Format log record as JSON with trace context."""
-        json_mod = self._get_json()
+        json_dumps = self._get_json_dumps()
 
         log_dict = {
             "timestamp": self.formatTime(record),
@@ -132,7 +133,7 @@ class StructuredFormatter(logging.Formatter):
                 except (TypeError, ValueError):
                     pass
 
-        return json_mod.dumps(log_dict, default=str)
+        return json_dumps(log_dict, default=str)
 
 
 def configure_otel_logging_handler(

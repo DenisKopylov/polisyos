@@ -3,14 +3,42 @@
 > Разберитесь в текущем Runtime HTTP app factory, поверхности конфигурации, dashboard и production-аспектах.
 
 !!! info "Bootstrap проверен"
-    На 2026-04-03 импорт `from polisyos.runtime.http.app import create_runtime_api_app`
-    и вызов `create_runtime_api_app()` были успешно проверены на текущем дереве.
-    Сейчас factory собирает приложение с 57 routes, а
-    `tests/runtime/http/test_runs_api.py` проходит на исправленном runtime bootstrap path.
+    На 2026-04-17 на текущем дереве реально проверены импорт
+    `from polisyos.runtime.http.app import create_runtime_api_app`,
+    вызов `create_runtime_api_app()`,
+    а также наличие runtime paths
+    `/api/v1/control/jobs/{job_id}`
+    и `/api/v1/runs/{run_id}/live`.
+
+## Вход
+
+- Python-окружение с runtime extras
+- выбранный execution profile и control-plane state store
+- решение по auth/authz, OPA и observability path
+
+## Выход
+
+- локально стартующий Runtime API на `:8000`
+- список ключевых env vars для execution, security и telemetry
+- понятный путь к dashboard, control-plane и runtime runs surface
+
+## Команды
+
+```bash
+pip install -e ".[runtime]"
+uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
+uv run polisyos-tools runtime check-runtime-api-contract
+```
 
 ## 1. Локальная разработка
 
 Установите runtime-зависимости из исходников:
+
+```bash
+pip install -e ".[runtime]"
+```
+
+Если вам нужен минимальный HTTP-only path без observability umbrella:
 
 ```bash
 pip install -e ".[runtime-http]"
@@ -219,6 +247,23 @@ Runtime уже импортирует observability helpers:
 - подключите OTLP к collector
 - собирайте Prometheus metrics, если включён exporter
 - коррелируйте structured logs через `X-Request-ID`
+
+## Откат
+
+Для локального rollback достаточно:
+
+1. остановить `uvicorn`;
+2. удалить scratch state store, если вы использовали локальный SQLite path, например `POLISYOS_CONTROL_SQLITE_PATH`;
+3. очистить временные CAS/runtime outputs, если экспериментировали в локальном каталоге и не хотите сохранять их как baseline.
+
+Если правка затрагивала runtime contract surface, откатите ещё и OpenAPI/client
+артефакты до committed версии.
+
+## Troubleshooting
+
+- Если `create_runtime_api_app()` не импортируется, проверьте, что установлены `.[runtime]` или минимум `.[runtime-http]`.
+- Если control-plane job остаётся `pending`, проверьте state store backend, `POLISYOS_CONTROL_MAX_WORKERS` и worker/outbox endpoints из [Use Control Plane](use-control-plane.md).
+- Если auth включён и `curl` получает `401/403`, перепроверьте OIDC/JWT/OPA env vars до отладки бизнес-логики.
 
 ## 7. Связанные файлы
 

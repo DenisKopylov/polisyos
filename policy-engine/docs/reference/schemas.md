@@ -3,9 +3,14 @@ Related reference: [IR Schema Catalog](ir/schema-catalog.md).
 
 > This page is generated from the ABI snapshot registry and the IR reflection catalog.
 
+Canonical regeneration command (snapshots + reference docs):
+```bash
+PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
+```
+
 ## Snapshot Summary
 
-- IR snapshot: `82` schemas, generated `2026-04-13T16:27:22+00:00`.
+- IR snapshot: `82` schemas, generated `2026-04-18T19:26:44+00:00`.
 - Fabric world ABI snapshot: `2` schemas, generated `2026-03-28T13:16:21+00:00`.
 - Direct-read compatibility is declared in `polisyos.ir.migrations.schema_registry` and surfaced below.
 

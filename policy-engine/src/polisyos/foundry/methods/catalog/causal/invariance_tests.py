@@ -16,7 +16,9 @@ per-variable p-values.
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from itertools import combinations
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -32,6 +34,21 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
     foundry_method,
+)
+from polisyos.ir.analytics.invariance import (
+    RegimeShiftCandidateSetPlan,
+    RegimeShiftDataSignature,
+    RegimeShiftEnvironmentRecord,
+    RegimeShiftIdentificationCertificate,
+    RegimeShiftInformativeness,
+    RegimeShiftInvarianceTesting,
+    RegimeShiftMECContraction,
+    RegimeShiftMECContractionEdgeUpdates,
+    RegimeShiftMECContractionSummary,
+    RegimeShiftProducedBy,
+    RegimeShiftSetTestResult,
+    RegimeShiftStabilityMetrics,
+    RegimeShiftTargetResult,
 )
 from polisyos.ir.analytics.literature import EnvironmentAuditReport
 
@@ -605,6 +622,534 @@ class ICPInvarianceTest:
         }
 
 
+def _as_2d_float_array(data: Any, *, caller: str) -> np.ndarray:
+    data_array = np.asarray(data, dtype=float)
+    if data_array.ndim == 1:
+        data_array = data_array[:, None]
+    if data_array.ndim != 2:
+        raise ValueError(f"{caller}: data must be 2D")
+    if not np.isfinite(data_array).all():
+        raise ValueError(f"{caller}: data contains non-finite values")
+    return data_array
+
+
+def _normalize_variable_names(
+    *,
+    n_features: int,
+    state: Mapping[str, Any],
+    params: Mapping[str, Any],
+) -> list[str]:
+    raw_names = state.get("variable_names", params.get("variable_names"))
+    if raw_names is None:
+        return [f"X{i}" for i in range(n_features)]
+    names = [str(item).strip() for item in raw_names]
+    if len(names) != n_features or any(not item for item in names):
+        raise ValueError(
+            "InvariantDiscoveryFromRegimes: variable_names must match data width"
+        )
+    if len(set(names)) != len(names):
+        raise ValueError("InvariantDiscoveryFromRegimes: variable_names must be unique")
+    return names
+
+
+def _normalize_target_cols(
+    *,
+    variable_names: list[str],
+    params: Mapping[str, Any],
+    state: Mapping[str, Any],
+) -> list[int]:
+    raw_targets = params.get("target_cols", params.get("targets", state.get("target_cols")))
+    if raw_targets is None:
+        return list(range(len(variable_names)))
+    if isinstance(raw_targets, (str, int)):
+        raw_targets = [raw_targets]
+    target_cols: list[int] = []
+    name_to_idx = {name: idx for idx, name in enumerate(variable_names)}
+    for raw_target in raw_targets:
+        if isinstance(raw_target, str) and not raw_target.isdigit():
+            if raw_target not in name_to_idx:
+                raise ValueError(
+                    f"InvariantDiscoveryFromRegimes: unknown target {raw_target!r}"
+                )
+            target_cols.append(name_to_idx[raw_target])
+        else:
+            target_col = int(raw_target)
+            if not (0 <= target_col < len(variable_names)):
+                raise ValueError(
+                    f"InvariantDiscoveryFromRegimes: target_col={target_col} out of range"
+                )
+            target_cols.append(target_col)
+    if len(set(target_cols)) != len(target_cols):
+        raise ValueError("InvariantDiscoveryFromRegimes: duplicate target columns")
+    return target_cols
+
+
+def _candidate_sets_for_target(
+    *,
+    n_features: int,
+    target_col: int,
+    max_set_size: int,
+) -> list[tuple[int, ...]]:
+    feature_cols = [idx for idx in range(n_features) if idx != target_col]
+    bounded_size = min(max_set_size, len(feature_cols))
+    candidate_sets: list[tuple[int, ...]] = [()]
+    for size in range(1, bounded_size + 1):
+        candidate_sets.extend(tuple(combo) for combo in combinations(feature_cols, size))
+    return candidate_sets
+
+
+def _correct_p_values(raw_pvalues: np.ndarray, correction: str, alpha: float) -> np.ndarray:
+    if correction == "bh":
+        return _bh_correction(raw_pvalues, alpha)
+    if correction in {"bonferroni", "holm"}:
+        return _bonferroni_correction(raw_pvalues)
+    return raw_pvalues
+
+
+def _evaluate_candidate_sets(
+    *,
+    data: np.ndarray,
+    domain_labels: np.ndarray,
+    target_col: int,
+    candidate_sets: list[tuple[int, ...]],
+    variable_names: list[str],
+    alpha: float,
+    correction: str,
+) -> tuple[tuple[RegimeShiftSetTestResult, ...], tuple[RegimeShiftSetTestResult, ...]]:
+    unique_domains = np.unique(domain_labels)
+    if len(unique_domains) < 2:
+        raise ValueError(
+            "InvariantDiscoveryFromRegimes: at least two environments are required"
+        )
+    raw_pvalues = np.ones(len(candidate_sets), dtype=float)
+    diagnostics: list[dict[str, Any]] = []
+    for idx, candidate_set in enumerate(candidate_sets):
+        f_stat, p_value = _f_test_heterogeneity(
+            data=data,
+            domain_labels=domain_labels,
+            target_col=target_col,
+            feature_cols=list(candidate_set),
+        )
+        raw_pvalues[idx] = p_value
+        diagnostics.append(
+            {
+                "test": "pooled_vs_environment_fixed_effect_f_test",
+                "f_statistic": f_stat,
+                "raw_p_value": p_value,
+            }
+        )
+    adjusted_pvalues = _correct_p_values(raw_pvalues, correction, alpha)
+
+    accepted: list[RegimeShiftSetTestResult] = []
+    rejected: list[RegimeShiftSetTestResult] = []
+    for idx, candidate_set in enumerate(candidate_sets):
+        result = RegimeShiftSetTestResult(
+            S=tuple(variable_names[col] for col in candidate_set),
+            p_value=float(adjusted_pvalues[idx]),
+            diagnostics=diagnostics[idx],
+        )
+        if adjusted_pvalues[idx] >= alpha:
+            accepted.append(result)
+        else:
+            rejected.append(result)
+    return tuple(accepted), tuple(rejected)
+
+
+def _accepted_intersection(accepted_sets: tuple[RegimeShiftSetTestResult, ...]) -> tuple[str, ...]:
+    if not accepted_sets:
+        return ()
+    intersection = set(accepted_sets[0].S)
+    for result in accepted_sets[1:]:
+        intersection &= set(result.S)
+    return tuple(sorted(intersection))
+
+
+def _stability_ratio(
+    *,
+    accepted_sets: tuple[RegimeShiftSetTestResult, ...],
+    candidate_variables: tuple[str, ...],
+) -> dict[str, float]:
+    if not accepted_sets:
+        return dict.fromkeys(candidate_variables, 0.0)
+    denominator = float(len(accepted_sets))
+    return {
+        variable: sum(1 for result in accepted_sets if variable in result.S) / denominator
+        for variable in candidate_variables
+    }
+
+
+def _leave_one_out_parent_changes(
+    *,
+    data: np.ndarray,
+    domain_labels: np.ndarray,
+    target_col: int,
+    candidate_sets: list[tuple[int, ...]],
+    variable_names: list[str],
+    baseline_parents: tuple[str, ...],
+    alpha: float,
+    correction: str,
+) -> tuple[dict[str, bool], tuple[str, ...]]:
+    parent_changes: dict[str, bool] = {}
+    redundant_envs: list[str] = []
+    baseline = set(baseline_parents)
+    for env in np.unique(domain_labels):
+        env_id = str(env)
+        mask = domain_labels != env
+        if len(np.unique(domain_labels[mask])) < 2:
+            parent_changes[env_id] = True
+            continue
+        accepted, _ = _evaluate_candidate_sets(
+            data=data[mask],
+            domain_labels=domain_labels[mask],
+            target_col=target_col,
+            candidate_sets=candidate_sets,
+            variable_names=variable_names,
+            alpha=alpha,
+            correction=correction,
+        )
+        changed = set(_accepted_intersection(accepted)) != baseline
+        parent_changes[env_id] = changed
+        if not changed:
+            redundant_envs.append(env_id)
+    return parent_changes, tuple(redundant_envs)
+
+
+def _build_regime_shift_certificate(
+    *,
+    data: np.ndarray,
+    domain_labels: np.ndarray,
+    variable_names: list[str],
+    target_cols: list[int],
+    alpha: float,
+    correction: str,
+    max_set_size: int,
+    screening: str | None,
+    dataset_ref: str | None,
+) -> RegimeShiftIdentificationCertificate:
+    unique_domains, counts = np.unique(domain_labels, return_counts=True)
+    env_ids = [str(env) for env in unique_domains]
+    env_counts = {
+        str(env): int(count) for env, count in zip(unique_domains, counts, strict=True)
+    }
+    environments = tuple(
+        RegimeShiftEnvironmentRecord(env_id=env_id, regime_id=env_id) for env_id in env_ids
+    )
+
+    target_results: list[RegimeShiftTargetResult] = []
+    forced_orientations: list[tuple[str, str]] = []
+    forbidden_orientations: list[tuple[str, str]] = []
+    all_warnings: list[str] = []
+
+    for target_col in target_cols:
+        target = variable_names[target_col]
+        candidate_sets = _candidate_sets_for_target(
+            n_features=data.shape[1],
+            target_col=target_col,
+            max_set_size=max_set_size,
+        )
+        accepted, rejected = _evaluate_candidate_sets(
+            data=data,
+            domain_labels=domain_labels,
+            target_col=target_col,
+            candidate_sets=candidate_sets,
+            variable_names=variable_names,
+            alpha=alpha,
+            correction=correction,
+        )
+        parents = _accepted_intersection(accepted)
+        empty_set_stable = any(len(result.S) == 0 for result in accepted)
+        parent_changes, redundant_envs = _leave_one_out_parent_changes(
+            data=data,
+            domain_labels=domain_labels,
+            target_col=target_col,
+            candidate_sets=candidate_sets,
+            variable_names=variable_names,
+            baseline_parents=parents,
+            alpha=alpha,
+            correction=correction,
+        )
+        warnings: list[str] = []
+        if not accepted:
+            warnings.extend(
+                [
+                    "possible_intervention_on_target_detected",
+                    "no_invariant_parent_set_accepted",
+                ]
+            )
+        if empty_set_stable:
+            warnings.append("regimes_redundant_for_target")
+        if max_set_size > 2:
+            warnings.append("low_power_parent_set_size>2")
+        all_warnings.extend(warnings)
+
+        candidate_variables = tuple(
+            name for idx, name in enumerate(variable_names) if idx != target_col
+        )
+        target_results.append(
+            RegimeShiftTargetResult(
+                target=target,
+                envs_used=tuple(env_ids),
+                candidate_sets_tested=RegimeShiftCandidateSetPlan(
+                    enumeration="all_subsets_upto_k",
+                    max_set_size=max_set_size,
+                    screening=screening,
+                ),
+                accepted_sets=accepted,
+                rejected_sets=rejected,
+                estimated_parents=parents,
+                stability_metrics=RegimeShiftStabilityMetrics(
+                    accepted_set_count=len(accepted),
+                    intersection_size=len(parents),
+                    stability_ratio=_stability_ratio(
+                        accepted_sets=accepted,
+                        candidate_variables=candidate_variables,
+                    ),
+                ),
+                informativeness=RegimeShiftInformativeness(
+                    empty_set_stable=empty_set_stable,
+                    redundant_envs=redundant_envs,
+                    leave_one_out_parent_changes=parent_changes,
+                ),
+                warnings=tuple(warnings),
+            )
+        )
+
+        if accepted and not empty_set_stable:
+            for parent in parents:
+                forced_orientations.append((parent, target))
+                forbidden_orientations.append((target, parent))
+
+    return RegimeShiftIdentificationCertificate(
+        produced_by=RegimeShiftProducedBy(
+            method="causal.discovery.icp_regime_shifts",
+            implementation="linear_subset_icp_f_test",
+        ),
+        data_signature=RegimeShiftDataSignature(
+            dataset_ref=dataset_ref,
+            variables=tuple(variable_names),
+            sample_sizes_by_env=env_counts,
+        ),
+        environments=environments,
+        invariance_testing=RegimeShiftInvarianceTesting(
+            alpha=alpha,
+            multiple_testing=correction,
+            test_family="f_test_environment_fixed_effect",
+            model_class="linear_ols",
+            notes=(
+                "Phase-1 certificate contract: statistical test is a conservative "
+                "linear ICP proxy; nonlinear/general guarantees remain assumption-gated.",
+            ),
+        ),
+        targets=tuple(target_results),
+        mec_contraction=RegimeShiftMECContraction(
+            edge_updates=RegimeShiftMECContractionEdgeUpdates(
+                forced_orientations=tuple(sorted(set(forced_orientations))),
+                forbidden_orientations=tuple(sorted(set(forbidden_orientations))),
+                newly_oriented_by_closure=0,
+            ),
+            summary=RegimeShiftMECContractionSummary(
+                edges_oriented_total=len(set(forced_orientations)),
+                edges_ambiguous_remaining=0,
+            ),
+        ),
+        assumptions=(
+            "no intervention on target mechanisms",
+            "stability-faithfulness for accepted invariant sets",
+            "candidate parent search is complete up to max_set_size",
+        ),
+        warnings=tuple(sorted(set(all_warnings))),
+        metadata={"stage": "16.1", "track": "causal_discovery_regime_shifts"},
+    )
+
+
+def build_regime_shift_identification_certificate(
+    *,
+    data: Any,
+    domain_labels: Any,
+    variable_names: list[str] | None = None,
+    target_cols: list[int | str] | None = None,
+    alpha: float = 0.05,
+    correction: str = "bh",
+    max_set_size: int = 2,
+    screening: str | None = None,
+    dataset_ref: str | None = None,
+) -> RegimeShiftIdentificationCertificate:
+    """Build a typed Stage 16.1 certificate from labelled multi-environment data."""
+    data_array = _as_2d_float_array(data, caller="build_regime_shift_identification_certificate")
+    labels_array = np.asarray(domain_labels)
+    if labels_array.ndim != 1:
+        raise ValueError(
+            "build_regime_shift_identification_certificate: domain_labels must be a vector"
+        )
+    if len(labels_array) != data_array.shape[0]:
+        raise ValueError(
+            "build_regime_shift_identification_certificate: domain_labels length must equal n_obs"
+        )
+    if len(np.unique(labels_array)) < 2:
+        raise ValueError(
+            "build_regime_shift_identification_certificate: at least two environments are required"
+        )
+    if not (0.0 <= float(alpha) <= 1.0):
+        raise ValueError(
+            "build_regime_shift_identification_certificate: alpha must be in [0,1]"
+        )
+    if int(max_set_size) < 0:
+        raise ValueError(
+            "build_regime_shift_identification_certificate: max_set_size must be non-negative"
+        )
+
+    normalized_variable_names = _normalize_variable_names(
+        n_features=data_array.shape[1],
+        state={"variable_names": variable_names},
+        params={"variable_names": variable_names},
+    )
+    normalized_target_cols = _normalize_target_cols(
+        variable_names=normalized_variable_names,
+        params={"target_cols": target_cols},
+        state={},
+    )
+    return _build_regime_shift_certificate(
+        data=data_array,
+        domain_labels=labels_array,
+        variable_names=normalized_variable_names,
+        target_cols=normalized_target_cols,
+        alpha=float(alpha),
+        correction=str(correction),
+        max_set_size=int(max_set_size),
+        screening=screening,
+        dataset_ref=dataset_ref,
+    )
+
+
+@foundry_method(
+    namespace="causal.discovery",
+    version="1.0.0",
+    tags={"causal", "discovery", "icp", "regime-shift", "mec-contraction"},
+)
+class InvariantDiscoveryFromRegimes:
+    """ICP-style regime-shift discovery that emits a first-class certificate.
+
+    This is the Phase-1 integration surface for Stage 16.1: it records the
+    invariant-set audit trail and MEC contraction deltas.  It intentionally
+    exposes assumptions and warnings instead of promoting the output to an
+    unconditional graph-identification claim.
+    """
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="invariant_discovery_from_regimes",
+        namespace="",
+        version="0.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "data",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    "domain_labels",
+                    SlotType.VECTOR,
+                    Unit("domain", "label"),
+                    shape=("n_obs",),
+                ),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    "result",
+                    SlotType.SCALAR,
+                    Unit("certificate", "json"),
+                )
+            }
+        ),
+        parameters=(
+            ParameterSpec(name="alpha", default=0.05),
+            ParameterSpec(name="correction", default="bh"),
+            ParameterSpec(name="max_set_size", default=2),
+            ParameterSpec(name="target_cols", default=None),
+            ParameterSpec(name="variable_names", default=None),
+            ParameterSpec(name="screening", default=None),
+            ParameterSpec(name="dataset_ref", default=None),
+        ),
+        fidelity=FidelityLevel.MEDIUM,
+        complexity=ComplexityClass.O_EXP,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Builds a RegimeShiftIdentificationCertificate from multi-environment "
+            "ICP-style invariant parent-set tests and records MEC contraction deltas."
+        ),
+        tags=frozenset({"causal", "discovery", "icp", "regime-shift"}),
+        citations=(
+            "Peters, J., Bühlmann, P., Meinshausen, N. (2016). Causal inference by "
+            "using invariant prediction.",
+            "Gamella, J. L., Heinze-Deml, C. (2020). Active Invariant Causal Prediction.",
+        ),
+        determinism_tier=DeterminismTier.STATISTICAL,
+        required_deps=("numpy",),
+        when_to_use=(
+            "Use when observations are labelled by policy regimes or shocks and you "
+            "need auditable ICP-style orientation constraints for a discovery pipeline."
+        ),
+        when_not_to_use=(
+            "Do not treat the output as a complete DAG unless the certificate assumptions "
+            "and environment coverage conditions are externally satisfied."
+        ),
+        typical_min_obs=100,
+        output_interpretation=(
+            "Returns a certificate with accepted/rejected invariant sets, estimated "
+            "parents per target, environment redundancy diagnostics, and forced "
+            "orientation candidates."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        certificate = build_regime_shift_identification_certificate(
+            data=state["data"],
+            domain_labels=state["domain_labels"],
+            variable_names=state.get("variable_names", params.get("variable_names")),
+            target_cols=params.get("target_cols", params.get("targets", state.get("target_cols"))),
+            alpha=float(params.get("alpha", 0.05)),
+            correction=str(params.get("correction", "bh")),
+            max_set_size=int(params.get("max_set_size", 2)),
+            screening=(
+                str(params.get("screening"))
+                if params.get("screening") is not None
+                else None
+            ),
+            dataset_ref=(
+                str(params.get("dataset_ref"))
+                if params.get("dataset_ref") is not None
+                else None
+            ),
+        )
+        forced_orientations = certificate.mec_contraction.edge_updates.forced_orientations
+        return {
+            "result": {
+                "regime_shift_identification_certificate": certificate.model_dump(
+                    mode="json"
+                ),
+                "forced_orientations": [list(edge) for edge in forced_orientations],
+                "estimated_parents_by_target": {
+                    target.target: list(target.estimated_parents)
+                    for target in certificate.targets
+                },
+            },
+            "__determinism_tier__": DeterminismTier.STATISTICAL,
+        }
+
+
 def build_environment_audit_report(
     *,
     data: Any,
@@ -895,6 +1440,8 @@ def _environment_audit_report(
 
 __all__ = [
     "ICPInvarianceTest",
+    "InvariantDiscoveryFromRegimes",
     "KSInvarianceTest",
+    "build_regime_shift_identification_certificate",
     "build_environment_audit_report",
 ]

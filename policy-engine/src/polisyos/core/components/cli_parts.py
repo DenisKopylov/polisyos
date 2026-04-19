@@ -5,8 +5,10 @@ from __future__ import annotations
 import argparse
 import importlib
 import sys
+from collections.abc import Callable
 from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, version
+from typing import cast
 
 from polisyos.core.artifacts.signing import (
     DEFAULT_IDENTITIES_PATH,
@@ -15,6 +17,14 @@ from polisyos.core.artifacts.signing import (
 )
 from polisyos.core.components import ComponentKind
 from polisyos.core.security.rotation import DEFAULT_JWT_TRUST_ANCHORS_PATH
+
+CommandHandler = Callable[[argparse.Namespace], int]
+
+
+def _dispatch_private(relative_module: str, handler_name: str, args: argparse.Namespace) -> int:
+    module = importlib.import_module(relative_module, package=__package__)
+    handler = cast(CommandHandler, getattr(module, handler_name))
+    return handler(args)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -33,119 +43,67 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "components" and args.components_command == "list":
-        from ._cli_components import _cmd_components_list
-
-        return _cmd_components_list(args)
+        return _dispatch_private("._cli_components", "_cmd_components_list", args)
     if args.command == "components" and args.components_command == "bootstrap":
-        from ._cli_components import _cmd_components_bootstrap
-
-        return _cmd_components_bootstrap(args)
+        return _dispatch_private("._cli_components", "_cmd_components_bootstrap", args)
     if args.command == "registry" and args.registry_command == "build":
-        from ._cli_components import _cmd_registry_build
-
-        return _cmd_registry_build(args)
+        return _dispatch_private("._cli_components", "_cmd_registry_build", args)
     if args.command == "scholar" and args.scholar_command == "enrich":
-        from ._cli_scholar import _cmd_scholar_enrich
-
-        return _cmd_scholar_enrich(args)
+        return _dispatch_private("._cli_scholar", "_cmd_scholar_enrich", args)
     if args.command == "lex" and args.lex_command == "normpack" and args.lex_normpack_command == "build":
-        from ._cli_lex import _cmd_lex_normpack_build
-
-        return _cmd_lex_normpack_build(args)
+        return _dispatch_private("._cli_lex", "_cmd_lex_normpack_build", args)
     if args.command == "lex" and args.lex_command == "impact":
-        from ._cli_lex import _cmd_lex_impact
-
-        return _cmd_lex_impact(args)
+        return _dispatch_private("._cli_lex", "_cmd_lex_impact", args)
     if (
         args.command == "scientist"
         and args.scientist_command == "burn-in"
     ):
-        from ._cli_scientist import _cmd_scientist_burn_in
-
-        return _cmd_scientist_burn_in(args)
+        return _dispatch_private("._cli_scientist", "_cmd_scientist_burn_in", args)
     if (
         args.command == "scientist"
         and args.scientist_command == "calibration-report"
     ):
-        from ._cli_scientist import _cmd_scientist_calibration_report
-
-        return _cmd_scientist_calibration_report(args)
+        return _dispatch_private("._cli_scientist", "_cmd_scientist_calibration_report", args)
     if (
         args.command == "scientist"
         and args.scientist_command == "sensitivity"
         and args.scientist_sensitivity_command == "run"
     ):
-        from ._cli_scientist import _cmd_scientist_sensitivity_run
-
-        return _cmd_scientist_sensitivity_run(args)
+        return _dispatch_private("._cli_scientist", "_cmd_scientist_sensitivity_run", args)
     if args.command == "scientist" and args.scientist_command == "stress-test":
-        from ._cli_scientist import _cmd_scientist_stress_test
-
-        return _cmd_scientist_stress_test(args)
+        return _dispatch_private("._cli_scientist", "_cmd_scientist_stress_test", args)
     if args.command == "scientist" and args.scientist_command == "provider-verify":
-        from ._cli_scientist import _cmd_scientist_provider_verify
-
-        return _cmd_scientist_provider_verify(args)
+        return _dispatch_private("._cli_scientist", "_cmd_scientist_provider_verify", args)
     if args.command == "scientist" and args.scientist_command == "agent-smoke":
-        from ._cli_scientist import _cmd_scientist_agent_smoke
-
-        return _cmd_scientist_agent_smoke(args)
+        return _dispatch_private("._cli_scientist", "_cmd_scientist_agent_smoke", args)
     if args.command == "scientist" and args.scientist_command == "agent-eval":
-        from ._cli_scientist import _cmd_scientist_agent_eval
-
-        return _cmd_scientist_agent_eval(args)
+        return _dispatch_private("._cli_scientist", "_cmd_scientist_agent_eval", args)
     if args.command == "scientist" and args.scientist_command == "reflexion-replay-eval":
-        from ._cli_scientist import _cmd_scientist_reflexion_replay_eval
-
-        return _cmd_scientist_reflexion_replay_eval(args)
+        return _dispatch_private("._cli_scientist", "_cmd_scientist_reflexion_replay_eval", args)
     if args.command == "scientist" and args.scientist_command == "backtest":
-        from ._cli_scientist import _cmd_scientist_backtest
-
-        return _cmd_scientist_backtest(args)
+        return _dispatch_private("._cli_scientist", "_cmd_scientist_backtest", args)
     if args.command == "replay":
-        from ._cli_replay import _cmd_replay
-
-        return _cmd_replay(args)
+        return _dispatch_private("._cli_replay", "_cmd_replay", args)
     if args.command == "resume":
-        from ._cli_replay import _cmd_resume
-
-        return _cmd_resume(args)
+        return _dispatch_private("._cli_replay", "_cmd_resume", args)
     if args.command == "keygen":
-        from ._cli_crypto import _cmd_keygen
-
-        return _cmd_keygen(args)
+        return _dispatch_private("._cli_crypto", "_cmd_keygen", args)
     if args.command == "sign":
-        from ._cli_crypto import _cmd_sign
-
-        return _cmd_sign(args)
+        return _dispatch_private("._cli_crypto", "_cmd_sign", args)
     if args.command == "verify":
-        from ._cli_crypto import _cmd_verify
-
-        return _cmd_verify(args)
+        return _dispatch_private("._cli_crypto", "_cmd_verify", args)
     if args.command == "audit" and args.audit_command == "export":
-        from ._cli_audit import _cmd_audit_export
-
-        return _cmd_audit_export(args)
+        return _dispatch_private("._cli_audit", "_cmd_audit_export", args)
     if args.command == "audit" and args.audit_command == "verify":
-        from ._cli_audit import _cmd_audit_verify
-
-        return _cmd_audit_verify(args)
+        return _dispatch_private("._cli_audit", "_cmd_audit_verify", args)
     if args.command == "audit" and args.audit_command == "runtime-query":
-        from ._cli_audit import _cmd_audit_runtime_query
-
-        return _cmd_audit_runtime_query(args)
+        return _dispatch_private("._cli_audit", "_cmd_audit_runtime_query", args)
     if args.command == "audit" and args.audit_command == "runtime-retention":
-        from ._cli_audit import _cmd_audit_runtime_retention
-
-        return _cmd_audit_runtime_retention(args)
+        return _dispatch_private("._cli_audit", "_cmd_audit_runtime_retention", args)
     if args.command == "security" and args.security_command == "rotate-jwt":
-        from ._cli_security import _cmd_security_rotate_jwt
-
-        return _cmd_security_rotate_jwt(args)
+        return _dispatch_private("._cli_security", "_cmd_security_rotate_jwt", args)
     if args.command == "security" and args.security_command == "rotate-ed25519":
-        from ._cli_security import _cmd_security_rotate_ed25519
-
-        return _cmd_security_rotate_ed25519(args)
+        return _dispatch_private("._cli_security", "_cmd_security_rotate_ed25519", args)
 
     parser.print_help()
     return 2

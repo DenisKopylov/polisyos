@@ -13,6 +13,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from enum import Enum
+from queue import Empty as QueueEmpty
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -21,6 +22,26 @@ from polisyos.common.logger import get_logger
 from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
 
 logger = get_logger(__name__)
+
+_CODE_VERIFIER_IMPORT_ERRORS = (ImportError, ModuleNotFoundError)
+_CODE_VERIFIER_RESOURCE_LIMIT_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+_CODE_VERIFIER_EXECUTION_ERRORS = (
+    ArithmeticError,
+    AttributeError,
+    ImportError,
+    LookupError,
+    MemoryError,
+    NameError,
+    RuntimeError,
+    SyntaxError,
+    TypeError,
+    ValueError,
+)
 
 
 class VerificationStatus(str, Enum):
@@ -185,6 +206,19 @@ class _LimitedOutputBuffer:
         return "".join(self._parts)
 
 
+class _RestrictedPrintCollector:
+    """RestrictedPython-compatible print collector backed by the bounded buffer."""
+
+    def __init__(self, limited_print: Any) -> None:
+        self._limited_print = limited_print
+
+    def write(self, text: str) -> None:
+        self._limited_print(text, end="")
+
+    def __call__(self) -> str:
+        return ""
+
+
 class VerificationCodeExtractor:
     """Extracts verification code from LLM pass-3 response payload."""
 
@@ -313,7 +347,7 @@ class CodeVerificationSandbox:
 
         safe_vars = _sanitize_value(variables or {})
         started = time.perf_counter()
-        ctx = mp.get_context("spawn")
+        ctx = _verification_context()
         queue: mp.Queue[dict[str, Any]] = ctx.Queue(maxsize=1)
         process = ctx.Process(
             target=_verification_worker,
@@ -337,15 +371,16 @@ class CodeVerificationSandbox:
             )
 
         elapsed = (time.perf_counter() - started) * 1000.0
-        if queue.empty():
+        try:
+            payload = queue.get(timeout=min(1.0, self._config.timeout_seconds))
+        except QueueEmpty:
             return VerificationResult(
                 status=VerificationStatus.ERROR,
                 passed=False,
-                errors=["Sandbox process exited without result"],
+                errors=[f"Sandbox process exited without result (exitcode={process.exitcode})"],
                 code=code,
                 execution_time_ms=elapsed,
             )
-        payload = queue.get()
         status_raw = str(payload.get("status", VerificationStatus.ERROR.value))
         try:
             status = VerificationStatus(status_raw)
@@ -406,8 +441,8 @@ def _verification_worker(
     config = SandboxConfig(**config_payload)
     try:
         _apply_resource_limits(config)
-    except Exception as exc:
-        logger.debug("Ignored exception: %s", exc)
+    except _CODE_VERIFIER_RESOURCE_LIMIT_ERRORS as exc:
+        logger.debug("Verification resource limits degraded: %s", exc)
 
     allowed_modules = _load_allowed_modules(config.allowed_modules)
     output = _LimitedOutputBuffer(config.max_output_chars)
@@ -417,20 +452,18 @@ def _verification_worker(
         text = sep.join(chunks) + end
         output.write(text)
 
-    try:
-        use_restricted = config.use_restrictedpython_if_available
-        globals_dict = _build_globals(config, allowed_modules, limited_print, variables)
-        if use_restricted:
-            try:
-                from RestrictedPython import compile_restricted  # type: ignore
-            except Exception:
-                compile_obj = compile(code, "<verification>", "exec")
-            else:
-                compile_obj = compile_restricted(code, "<verification>", "exec")
-        else:
-            compile_obj = compile(code, "<verification>", "exec")
+    compiler, use_restricted_runtime = _resolve_compiler(config)
+    globals_dict = _build_globals(
+        config,
+        allowed_modules,
+        limited_print,
+        variables,
+        use_restricted_runtime=use_restricted_runtime,
+    )
 
-        exec(compile_obj, globals_dict, None)  # noqa: S102
+    try:
+        compile_obj = compiler(code, "<verification>", "exec")
+        exec(compile_obj, globals_dict, None)
         result_queue.put(
             {
                 "status": VerificationStatus.PASSED.value,
@@ -453,7 +486,7 @@ def _verification_worker(
             }
         )
         return
-    except Exception as exc:
+    except _CODE_VERIFIER_EXECUTION_ERRORS as exc:
         result_queue.put(
             {
                 "status": VerificationStatus.ERROR.value,
@@ -471,16 +504,33 @@ def _load_allowed_modules(modules: tuple[str, ...]) -> dict[str, Any]:
     for name in modules:
         try:
             loaded[name] = __import__(name)
-        except Exception:
+        except _CODE_VERIFIER_IMPORT_ERRORS:
             continue
     return loaded
 
 
-def _build_globals(
+def _resolve_compiler(config: SandboxConfig) -> tuple[Any, bool]:
+    if not config.use_restrictedpython_if_available:
+        return compile, False
+    try:
+        from RestrictedPython import compile_restricted  # type: ignore
+        from RestrictedPython.Guards import safe_builtins, safer_getattr  # type: ignore
+    except _CODE_VERIFIER_IMPORT_ERRORS:
+        return compile, False
+    del safe_builtins, safer_getattr
+    return compile_restricted, True
+
+
+def _verification_context() -> Any:
+    if "fork" in mp.get_all_start_methods():
+        return mp.get_context("fork")
+    return mp.get_context("spawn")
+
+
+def _build_allowed_builtins(
     config: SandboxConfig,
-    allowed_modules: dict[str, Any],
     limited_print: Any,
-    variables: Any,
+    allowed_modules: dict[str, Any],
 ) -> dict[str, Any]:
     allowed_builtins: dict[str, Any] = {}
     for name in config.allowed_builtins:
@@ -495,9 +545,40 @@ def _build_globals(
         raise ImportError(f"Import '{name}' is not allowed")
 
     allowed_builtins["__import__"] = restricted_import
+    return allowed_builtins
+
+
+def _build_globals(
+    config: SandboxConfig,
+    allowed_modules: dict[str, Any],
+    limited_print: Any,
+    variables: Any,
+    *,
+    use_restricted_runtime: bool = False,
+) -> dict[str, Any]:
+    allowed_builtins = _build_allowed_builtins(config, limited_print, allowed_modules)
     globals_dict: dict[str, Any] = {
         "__builtins__": allowed_builtins,
     }
+    if use_restricted_runtime:
+        try:
+            from RestrictedPython.Guards import safe_builtins, safer_getattr  # type: ignore
+        except _CODE_VERIFIER_IMPORT_ERRORS:
+            use_restricted_runtime = False
+        else:
+            restricted_builtins = dict(safe_builtins)
+            restricted_builtins.update(allowed_builtins)
+            globals_dict.update(
+                {
+                    "__builtins__": restricted_builtins,
+                    "_getattr_": safer_getattr,
+                    "_getitem_": lambda obj, key: obj[key],
+                    "_getiter_": iter,
+                    "_print_": lambda *_args, **_kwargs: _RestrictedPrintCollector(
+                        limited_print
+                    ),
+                }
+            )
     for mod_name, module in allowed_modules.items():
         globals_dict[mod_name] = module
     if isinstance(variables, dict):
@@ -511,7 +592,7 @@ def _apply_resource_limits(config: SandboxConfig) -> None:
     try:
         import resource
 
-    except Exception:
+    except _CODE_VERIFIER_IMPORT_ERRORS:
         return
     soft_mem = int(config.max_memory_mb) * 1024 * 1024
     hard_mem = soft_mem

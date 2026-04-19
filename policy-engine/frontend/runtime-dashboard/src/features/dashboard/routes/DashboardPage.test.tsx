@@ -190,6 +190,9 @@ describe("DashboardPage", () => {
     expect(screen.getByTestId("dashboard-page")).toBeInTheDocument();
     expect(screen.getByText("pages.dashboard.heroTitle")).toBeInTheDocument();
     expect(screen.getByText("pages.dashboard.graphReady")).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.dashboard.narrativeHeading"),
+    ).toBeInTheDocument();
     expect(screen.getByText("run-001")).toBeInTheDocument();
     expect(screen.getByText("pages.dashboard.blockedRuns")).toBeInTheDocument();
     expect(screen.getByText("world bank")).toBeInTheDocument();

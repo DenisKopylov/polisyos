@@ -33,6 +33,66 @@ ALLOWED_PROVIDER_BOOTSTRAP_FILES = {
     REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion_providers.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "retrieval" / "providers.py",
 }
+DEFAULT_HOOK_BOUNDARY_FILES = (
+    REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control_registry_providers.py",
+    REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control.py",
+    REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "cell_router_middleware.py",
+    REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "jwt_auth_middleware.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "catalog" / "providers.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion_providers.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "retrieval" / "providers.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "world" / "providers.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "_connector_bridge.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "__init__.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "federation" / "composer.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "data_plane" / "streaming.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "data_plane" / "modes.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "resilience" / "retry.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "llm" / "traced_client.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "observability" / "decorators.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "observability" / "tracer.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "security" / "identity.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "security" / "authz.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "security" / "tee_middleware.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "security" / "audit_sink.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "security" / "audit_verifier.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "security" / "sbom.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "artifacts" / "store.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "artifacts" / "backends" / "s3_store.py",
+    REPO_ROOT / "src" / "polisyos" / "core" / "artifacts" / "backends" / "gcs_store.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "observability.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "resilience" / "fallback.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "resilience" / "circuit_breaker.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "resilience" / "rate_limiter.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "cache" / "_store_core.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "cache" / "prefetch.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "cache" / "proxy.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "types" / "_units_registry.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "types" / "dimensions.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "types" / "_units_base.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "quality" / "freshness.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "informed_critic.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "knowledge_base.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "engine" / "operational_monitoring.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "engine" / "metrics_otel.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "engine" / "metrics.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "error_semantics.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "governance" / "pipeline.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "llm" / "budget_enforcer.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "compute" / "runner.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "compute" / "advanced_methods.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "quality.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "components_bridge.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "_registry_lifecycle.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "transform" / "_common.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "transform" / "pipeline.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "nodes" / "builtins" / "simulate" / "run_simulation.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "_drafter_passes.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "_drafter_orchestrator.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "search" / "controller.py",
+    REPO_ROOT / "src" / "polisyos" / "scholar" / "freshness.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "data_plane" / "quarantine.py",
+)
 
 
 def _iter_runtime_sources() -> list[Path]:
@@ -49,6 +109,44 @@ def _iter_fabric_provider_boundary_sources() -> list[Path]:
         elif source.is_file():
             paths.add(source)
     return sorted(paths)
+
+
+def _default_hook_violations(path: Path) -> list[str]:
+    relative_path = path.relative_to(REPO_ROOT).as_posix()
+
+    class _Visitor(ast.NodeVisitor):
+        def __init__(self) -> None:
+            self.function_stack: list[str] = []
+            self.violations: list[str] = []
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+            self.function_stack.append(node.name)
+            self.generic_visit(node)
+            self.function_stack.pop()
+
+        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+            self.function_stack.append(node.name)
+            self.generic_visit(node)
+            self.function_stack.pop()
+
+        def visit_Call(self, node: ast.Call) -> None:
+            hook_name: str | None = None
+            func = node.func
+            if isinstance(func, ast.Attribute) and func.attr == "get_instance":
+                hook_name = "get_instance"
+            elif isinstance(func, ast.Name) and func.id in {"get_tracer", "get_metrics"}:
+                hook_name = func.id
+            if hook_name is not None:
+                owner = self.function_stack[-1] if self.function_stack else "<module>"
+                if not owner.startswith("_default_"):
+                    self.violations.append(
+                        f"{relative_path}:{node.lineno}: {hook_name} used in {owner}"
+                    )
+            self.generic_visit(node)
+
+    visitor = _Visitor()
+    visitor.visit(ast.parse(path.read_text(encoding="utf-8"), filename=str(path)))
+    return visitor.violations
 
 
 def test_runtime_never_imports_concrete_cas_write_implementation() -> None:
@@ -189,6 +287,18 @@ def test_fabric_provider_boundaries_limit_singleton_and_observability_defaults()
         "fabric catalog/retrieval/ingestion boundaries should consume injected providers "
         "and keep singleton or observability defaults isolated to bootstrap-only provider "
         "modules:\n" + "\n".join(violations)
+    )
+
+
+def test_boundary_default_hooks_remain_isolated_to_default_helpers() -> None:
+    violations: list[str] = []
+
+    for path in DEFAULT_HOOK_BOUNDARY_FILES:
+        violations.extend(_default_hook_violations(path))
+
+    assert not violations, (
+        "singleton and observability bootstrap hooks should only appear inside "
+        "_default_* helper functions in boundary modules:\n" + "\n".join(violations)
     )
 
 

@@ -244,6 +244,67 @@ def test_full_audit_is_truncated_with_summary_metadata():
     assert summary.extra["audit_entries_dropped"] == len(years) - 5
 
 
+def test_data_composer_accepts_injected_tracer(monkeypatch: pytest.MonkeyPatch):
+    class _Span:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            del exc_type, exc, tb
+            return None
+
+    class _Tracer:
+        def __init__(self) -> None:
+            self.names: list[str] = []
+
+        def start_as_current_span(self, name: str, *, attributes=None):
+            del attributes
+            self.names.append(name)
+            return _Span()
+
+    monkeypatch.setattr(
+        "polisyos.fabric.connectors.federation.composer._default_tracer",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("global tracer lookup should not run when tracer is injected")
+        ),
+    )
+    source_a = pd.DataFrame({"country": ["UA"], "year": [2020], "gdp": [100]})
+    source_b = pd.DataFrame({"country": ["UA"], "year": [2021], "gdp": [110]})
+    meta_a = _make_source_metadata(
+        "worldbank",
+        TrustLevel.HIGH,
+        datetime(2024, 1, 1, tzinfo=timezone.utc),
+    )
+    meta_b = _make_source_metadata(
+        "minecon",
+        TrustLevel.MEDIUM,
+        datetime(2024, 6, 1, tzinfo=timezone.utc),
+    )
+    request = CompositionRequest(
+        dataset_pattern="ukraine.gdp",
+        strategy=CompositionStrategy.UNION,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        time_dimension="year",
+        key_columns=["country", "year"],
+        audit_level=AuditLevel.NONE,
+    )
+    tracer = _Tracer()
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST),
+        tracer=tracer,
+    )
+
+    result, merge_log = composer.compose(
+        sources=[(source_a, meta_a), (source_b, meta_b)],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    assert len(result) == 2
+    assert merge_log == []
+    assert tracer.names == ["fabric.federation.compose"]
+
+
 def test_first_available_handles_nan():
     resolver = ConflictResolver(policy=ConflictPolicy.FIRST_AVAILABLE)
 

@@ -1,4 +1,4 @@
-"""Public fabric fitness report module API."""
+"""Assemble human-readable data-fitness reports from Fabric quality indicators."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

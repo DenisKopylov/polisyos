@@ -9,9 +9,11 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir._validation import ensure_confidence_interval, ensure_finite_numeric
 from polisyos.ir.analytics.administrative_missingness import (
+    AdministrativeMissingnessClass,
     MissingnessAssessmentReport,
     MissingnessAssessmentStatus,
 )
+from polisyos.ir.analytics.survey_quality import SurveyQualityCertificate
 from polisyos.ir.analytics.dynamic_causal_semantics import (
     DynamicReductionStatus,
     DynamicSemanticsAttachment,
@@ -40,6 +42,7 @@ from polisyos.ir.refs import (
     ProofWitnessIndexRef,
     ProximalIdentificationCertificateRef,
     RecoverabilityCertificateRef,
+    SurveyQualityCertificateRef,
 )
 
 logger = logging.getLogger(__name__)
@@ -443,6 +446,11 @@ class DataReadinessReport(BaseModel):
     support_mismatch: dict[str, Any] | None = None
     recoverability: dict[str, Any] | None = None
     missingness_assessment: MissingnessAssessmentReport | None = None
+    survey_quality_certificate_ref: SurveyQualityCertificateRef | None = None
+    survey_quality_overall_pass: bool | None = None
+    survey_quality_regime: str | None = None
+    phase1_gate_passed: bool | None = None
+    phase1_blocking_reasons: list[str] = Field(default_factory=list)
     recoverability_certificate_ref: RecoverabilityCertificateRef | None = None
     joint_decision_ref: JointDecisionCertificateRef | None = None
     dp_distortion: dict[str, Any] | None = None
@@ -845,12 +853,74 @@ def proof_bundle_from_proximal_certificate(
 ) -> ProofBundle:
     """Translate a proximal bridge certificate into the public proof surface."""
     cert_payload = certificate.model_dump(mode="json")
+    theorem_family = str(certificate.metadata.get("theorem_family", "proximal_id_pci_core"))
+    completeness_regime = str(certificate.metadata.get("completeness_regime", "sound_incomplete"))
+    implementation_coverage = str(
+        certificate.metadata.get("implementation_coverage", "proximal_bridge_v1_pci_core")
+    )
+    method_name = str(certificate.metadata.get("method", CausalMethod.PROXIMAL_BRIDGE.value))
+    proof_stratum = str(certificate.metadata.get("proof_stratum", "A1_extended"))
+    spatial_proxy_specs = [
+        spec.model_dump(mode="json")
+        for spec in getattr(certificate.proxies, "spatial_proxy_specs", ())
+    ]
+    spatial_graph_checks = [
+        check.model_dump(mode="json")
+        for check in certificate.graph_checks
+        if check.check in {"ring_specific_rank_support", "buffered_spatial_proxy_exclusion"}
+    ]
+    spillover_claims = sorted(
+        {
+            int(spec["spillover_radius_claim"])
+            for spec in spatial_proxy_specs
+            if spec.get("spillover_radius_claim") is not None
+        }
+    )
+    metadata = {
+        "status": "identified",
+        "method": method_name,
+        "proximal_certificate": cert_payload,
+        **(
+            {"proximal_certificate_ref": certificate_ref.model_dump(mode="json")}
+            if certificate_ref is not None
+            else {}
+        ),
+        **(
+            {"frontier_sketch_ref": frontier_sketch_ref.model_dump(mode="json")}
+            if frontier_sketch_ref is not None
+            else {}
+        ),
+        "bridge_functions_count": len(certificate.bridge_functions),
+        "graph_checks_count": len(certificate.graph_checks),
+    }
+    if spatial_proxy_specs:
+        metadata.update(
+            {
+                "spatial_proxy_spec": spatial_proxy_specs,
+                "proxy_ring_diagnostics": spatial_graph_checks,
+                "spillover_radius_claim": (
+                    spillover_claims[0]
+                    if len(spillover_claims) == 1
+                    else spillover_claims
+                ),
+                "impact_functionals_declared": list(
+                    certificate.metadata.get(
+                        "impact_functionals_declared",
+                        ["tau", "ADE", "AIE", "ATE_total"],
+                    )
+                ),
+            }
+        )
+        if certificate.metadata.get("weight_matrix_hash") is not None:
+            metadata["weight_matrix_hash"] = certificate.metadata["weight_matrix_hash"]
+        if certificate.metadata.get("spatial_model_family") is not None:
+            metadata["spatial_model_family"] = certificate.metadata["spatial_model_family"]
     return ProofBundle(
         proof_status="identified",
-        proof_stratum="A1_extended",
-        theorem_family="proximal_id_pci_core",
-        completeness_regime="sound_incomplete",
-        implementation_coverage="proximal_bridge_v1_pci_core",
+        proof_stratum=proof_stratum,  # type: ignore[arg-type]
+        theorem_family=theorem_family,
+        completeness_regime=completeness_regime,  # type: ignore[arg-type]
+        implementation_coverage=implementation_coverage,
         graph_ref=graph_ref,
         query_ref=query_ref,
         frontier_sketch_ref=frontier_sketch_ref,
@@ -859,23 +929,7 @@ def proof_bundle_from_proximal_certificate(
         negative_certificate_summary=None,
         proof_trace=list(certificate.proof_trace),
         assumptions=list(certificate.assumptions),
-        metadata={
-            "status": "identified",
-            "method": CausalMethod.PROXIMAL_BRIDGE.value,
-            "proximal_certificate": cert_payload,
-            **(
-                {"proximal_certificate_ref": certificate_ref.model_dump(mode="json")}
-                if certificate_ref is not None
-                else {}
-            ),
-            **(
-                {"frontier_sketch_ref": frontier_sketch_ref.model_dump(mode="json")}
-                if frontier_sketch_ref is not None
-                else {}
-            ),
-            "bridge_functions_count": len(certificate.bridge_functions),
-            "graph_checks_count": len(certificate.graph_checks),
-        },
+        metadata=metadata,
     )
 
 
@@ -993,9 +1047,12 @@ def build_data_readiness_report(
     support_mismatch: dict[str, Any] | None = None,
     recoverability_certificate: Any | None = None,
     missingness_assessment: MissingnessAssessmentReport | dict[str, Any] | None = None,
+    survey_quality_certificate: SurveyQualityCertificate | dict[str, Any] | None = None,
+    survey_quality_certificate_ref: SurveyQualityCertificateRef | dict[str, Any] | None = None,
     recoverability_certificate_ref: RecoverabilityCertificateRef | dict[str, Any] | None = None,
     joint_decision: Any | None = None,
     joint_decision_ref: JointDecisionCertificateRef | dict[str, Any] | None = None,
+    phase1_gate_summary: Any | None = None,
     sample_size: int | None = None,
     measurement_quality: Literal["known_good", "proxy_only", "unknown"] = "unknown",
     fallback_data_available: bool = False,
@@ -1006,6 +1063,7 @@ def build_data_readiness_report(
     missingness_report, missingness_warning = _normalize_missingness_assessment(
         missingness_assessment
     )
+    survey_quality_report = _normalize_survey_quality_certificate(survey_quality_certificate)
     metrics = dict(extra_metrics or {})
     blocking_reasons: list[str] = []
     warnings: list[str] = []
@@ -1054,6 +1112,10 @@ def build_data_readiness_report(
         recoverability_certificate_ref,
         RecoverabilityCertificateRef,
     )
+    resolved_survey_quality_ref = _typed_ref_from_payload(
+        survey_quality_certificate_ref,
+        SurveyQualityCertificateRef,
+    )
     resolved_joint_decision_ref = _typed_ref_from_payload(
         joint_decision_ref,
         JointDecisionCertificateRef,
@@ -1099,12 +1161,138 @@ def build_data_readiness_report(
             )
             if not missingness_report.testability_audit.overall_valid:
                 warnings.append("missingness_implications_failed")
+        metrics.setdefault(
+            "missingness_estimands_at_risk_count",
+            float(len(missingness_report.estimands_at_risk)),
+        )
+        metrics.setdefault(
+            "missingness_identification_assumption_count",
+            float(len(missingness_report.identification_assumptions)),
+        )
+        metrics.setdefault(
+            "missingness_testable_implications_declared_count",
+            float(len(missingness_report.testable_implications_declared)),
+        )
+        metrics.setdefault(
+            "missingness_evidence_count",
+            float(len(missingness_report.evidence)),
+        )
+        metrics.setdefault(
+            "missingness_recommended_method_count",
+            float(len(missingness_report.recommended_method_stack)),
+        )
+        metrics.setdefault(
+            "missingness_sensitivity_plan_count",
+            float(len(missingness_report.sensitivity_plan)),
+        )
+        metrics.setdefault(
+            "missingness_target_population_restricted",
+            1.0 if missingness_report.target_population_after_restriction else 0.0,
+        )
+        non_identifiable_estimands = sum(
+            1 for item in missingness_report.estimands_at_risk if item.identifiable is False
+        )
+        partially_identified_estimands = sum(
+            1 for item in missingness_report.estimands_at_risk if item.identifiable is None
+        )
+        high_risk_estimands = sum(
+            1 for item in missingness_report.estimands_at_risk if item.risk_level == "high"
+        )
+        metrics.setdefault(
+            "missingness_estimands_not_identifiable_count",
+            float(non_identifiable_estimands),
+        )
+        metrics.setdefault(
+            "missingness_estimands_partially_identified_count",
+            float(partially_identified_estimands),
+        )
+        metrics.setdefault(
+            "missingness_estimands_high_risk_count",
+            float(high_risk_estimands),
+        )
+        methods_require_bounds = any(
+            any(
+                token in method
+                for token in ("bound", "sensitivity", "restricted", "partial_identification")
+            )
+            for method in missingness_report.recommended_method_stack
+        )
+        metrics.setdefault(
+            "missingness_bounds_or_sensitivity_required",
+            1.0 if methods_require_bounds else 0.0,
+        )
+        if non_identifiable_estimands > 0:
+            warnings.append("missingness_estimands_not_point_identified")
+        elif partially_identified_estimands > 0:
+            warnings.append("missingness_estimands_partially_identified")
+        if methods_require_bounds:
+            warnings.append("missingness_bounds_or_sensitivity_required")
+        if missingness_report.target_population_after_restriction:
+            warnings.append("missingness_target_population_restricted")
+            if (
+                missingness_report.scenario_class
+                is AdministrativeMissingnessClass.RETENTION_EXPIRED
+            ):
+                warnings.append("retention_window_estimand_only")
+            elif (
+                missingness_report.scenario_class
+                is AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION
+            ):
+                warnings.append("access_restricted_estimand_only")
+            elif (
+                missingness_report.scenario_class
+                is AdministrativeMissingnessClass.LINKAGE_FAILURE
+            ):
+                warnings.append("linked_population_estimand_only")
         if missingness_report.status is MissingnessAssessmentStatus.NOT_RECOVERABLE:
             blocking_reasons.append("missingness_not_recoverable")
+            if non_identifiable_estimands > 0:
+                blocking_reasons.append("missingness_estimands_not_identifiable")
         elif missingness_report.status is MissingnessAssessmentStatus.UNKNOWN:
             warnings.append("missingness_model_underspecified")
         elif missingness_report.status is MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE:
             warnings.append("missingness_partially_recoverable")
+
+    if survey_quality_report is not None:
+        metrics.setdefault(
+            "survey_quality_overall_pass",
+            1.0 if survey_quality_report.overall_pass else 0.0,
+        )
+        if survey_quality_report.overlap_score is not None:
+            metrics.setdefault("survey_overlap_score", float(survey_quality_report.overlap_score))
+        if survey_quality_report.effective_sample_size is not None:
+            metrics.setdefault(
+                "survey_effective_sample_size",
+                float(survey_quality_report.effective_sample_size),
+            )
+        regime_value = survey_quality_report.regime_validated.value
+        if not survey_quality_report.overall_pass:
+            blocking_reasons.append("survey_quality_failed")
+        elif regime_value == "both_valid":
+            pass
+        elif regime_value in {
+            "design_valid_only",
+            "imputation_valid_only",
+            "mnar_shadow_identified",
+        }:
+            warnings.append(f"survey_quality_{regime_value}")
+        else:
+            blocking_reasons.append("survey_quality_invalid_regime")
+
+    phase1_passed = None
+    phase1_blocking_reasons: list[str] = []
+    if phase1_gate_summary is not None:
+        summary_payload = (
+            phase1_gate_summary.model_dump(mode="python")
+            if hasattr(phase1_gate_summary, "model_dump")
+            else dict(phase1_gate_summary)
+        )
+        phase1_passed = bool(summary_payload.get("overall_passed", False))
+        phase1_blocking_reasons = _normalize_string_list(
+            summary_payload.get("blocking_reasons", ())
+        )
+        if not phase1_passed:
+            blocking_reasons.extend(phase1_blocking_reasons)
 
     if sample_size is not None:
         metrics.setdefault("sample_size", float(sample_size))
@@ -1147,10 +1335,19 @@ def build_data_readiness_report(
         support_mismatch=dict(support_mismatch) if support_mismatch is not None else None,
         recoverability=recoverability_summary,
         missingness_assessment=missingness_report,
+        survey_quality_certificate_ref=resolved_survey_quality_ref,
+        survey_quality_overall_pass=(
+            None if survey_quality_report is None else bool(survey_quality_report.overall_pass)
+        ),
+        survey_quality_regime=(
+            None if survey_quality_report is None else survey_quality_report.regime_validated.value
+        ),
+        phase1_gate_passed=phase1_passed,
+        phase1_blocking_reasons=phase1_blocking_reasons,
         recoverability_certificate_ref=resolved_recoverability_ref,
         joint_decision_ref=resolved_joint_decision_ref,
-        blocking_reasons=blocking_reasons,
-        warnings=warnings,
+        blocking_reasons=_normalize_string_list(blocking_reasons),
+        warnings=_normalize_string_list(warnings),
         metrics=metrics,
     )
 
@@ -1197,6 +1394,16 @@ def _normalize_missingness_assessment(
     except (TypeError, ValueError) as exc:
         logger.warning("Failed to parse missingness assessment for readiness report: %s", exc)
         return None, "missingness_assessment_parse_failed"
+
+
+def _normalize_survey_quality_certificate(
+    payload: SurveyQualityCertificate | dict[str, Any] | None,
+) -> SurveyQualityCertificate | None:
+    if payload is None:
+        return None
+    if isinstance(payload, SurveyQualityCertificate):
+        return payload
+    return SurveyQualityCertificate.model_validate(payload)
 
 
 def _joint_decision_summary(payload: Any) -> dict[str, Any] | None:

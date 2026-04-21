@@ -4,6 +4,8 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.catalog.econometrics.protocols import (
+    CrossSectionalDependenceDiagnostic,
+    EconometricDiagnosticResult,
     EconometricResult,
     PanelData,
     TimeSeriesData,
@@ -50,3 +52,35 @@ def test_econometric_result_to_uncertainty_envelope() -> None:
     assert envelope is not None
     assert envelope.point_estimate == 1.2
     assert envelope.confidence_interval == (1.0, 1.4)
+
+
+def test_econometric_result_v2_accepts_cross_sectional_dependence_diagnostic() -> None:
+    dependence = CrossSectionalDependenceDiagnostic(
+        detected=True,
+        class_label="factor",
+        strength="strong",
+        estimator_status="unsafe_for_default_inference",
+        recommended_covariance="cce_reroute",
+        tests=[
+            EconometricDiagnosticResult(
+                test_name="latent_factor_screen",
+                statistic=0.61,
+                passed=False,
+            )
+        ],
+        factor_count=1,
+        used_time_dummies=False,
+        dependence_removed_by_time_effects=False,
+        evidence={"router_version": "phase1"},
+    )
+
+    result = EconometricResult(
+        method_name="test",
+        params={"beta": 0.8},
+        std_errors={"beta": 0.2},
+        cross_sectional_dependence_diagnostic=dependence,
+    )
+
+    assert EconometricResult.contract_id == "foundry.econometrics.result.v2"
+    assert result.cross_sectional_dependence_diagnostic is not None
+    assert result.cross_sectional_dependence_diagnostic.class_label == "factor"

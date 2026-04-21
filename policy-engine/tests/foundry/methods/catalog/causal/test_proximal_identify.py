@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from polisyos.foundry.methods.catalog.causal.proximal_identify import proximal_identify_v1
+from polisyos.foundry.methods.catalog.causal.proximal_identify import (
+    proximal_identify_v1,
+    proximal_spatial_identify_v1,
+)
 from polisyos.ir.analytics.causal import proof_bundle_from_proximal_certificate
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -13,6 +16,7 @@ from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCer
 from polisyos.ir.analytics.proximal import (
     ProximalIdentificationCertificate,
     ProxyAnnotation,
+    SpatialProxySpec,
 )
 
 
@@ -175,3 +179,83 @@ def test_proximal_identify_v1_rejects_non_interventional_query() -> None:
     assert isinstance(result, NegativeCertificate)
     assert result.blocking_type is BlockingType.OUT_OF_SCOPE_FOR_PROXIMAL_V1
     assert result.quantitative_diagnostics["failed_check"] == "query_type_supported"
+
+
+def test_proximal_spatial_identify_v1_emits_spatial_certificate() -> None:
+    result = proximal_spatial_identify_v1(
+        _pci_core_graph(),
+        _query(),
+        ProxyAnnotation(
+            treatment_inducing=("Z",),
+            outcome_inducing=("W",),
+            covariates=("X",),
+            spatial_proxy_specs=(
+                SpatialProxySpec(
+                    proxy_variables=("Z",),
+                    weight_matrix_ref="artifact://weights/W",
+                    proxy_construction="buffered_ring_lag",
+                    lag_orders=(2,),
+                    buffer_radius=2,
+                    allowed_roles=("treatment_inducing",),
+                    spillover_radius_claim=1,
+                ),
+                SpatialProxySpec(
+                    proxy_variables=("W",),
+                    weight_matrix_ref="artifact://weights/W",
+                    proxy_construction="buffered_ring_lag",
+                    lag_orders=(3,),
+                    buffer_radius=3,
+                    allowed_roles=("outcome_inducing",),
+                    spillover_radius_claim=1,
+                ),
+            ),
+        ),
+    )
+
+    assert isinstance(result, ProximalIdentificationCertificate)
+    assert result.graph_class.name == "PCI-Core-Spatial"
+    assert result.metadata["theorem_family"] == "proximal_spatial_id_v1"
+    assert result.metadata["method"] == "spatial_proximal_bridge"
+    assert any(check.check == "buffered_spatial_proxy_exclusion" for check in result.graph_checks)
+
+    bundle = proof_bundle_from_proximal_certificate(result)
+    assert bundle.theorem_family == "proximal_spatial_id_v1"
+    assert bundle.metadata["method"] == "spatial_proximal_bridge"
+
+
+def test_proximal_spatial_identify_v1_rejects_unbuffered_contemporaneous_outcome_proxy() -> None:
+    result = proximal_spatial_identify_v1(
+        _pci_core_graph(),
+        _query(),
+        ProxyAnnotation(
+            treatment_inducing=("Z",),
+            outcome_inducing=("W",),
+            covariates=("X",),
+            spatial_proxy_specs=(
+                SpatialProxySpec(
+                    proxy_variables=("Z",),
+                    weight_matrix_ref="artifact://weights/W",
+                    proxy_construction="buffered_ring_lag",
+                    lag_orders=(2,),
+                    buffer_radius=2,
+                    allowed_roles=("treatment_inducing",),
+                    spillover_radius_claim=1,
+                ),
+                SpatialProxySpec(
+                    proxy_variables=("W",),
+                    weight_matrix_ref="artifact://weights/W",
+                    proxy_construction="ring_lag",
+                    lag_orders=(1,),
+                    buffer_radius=0,
+                    allowed_roles=("outcome_inducing",),
+                    spillover_radius_claim=1,
+                    time_mode="contemporaneous",
+                ),
+            ),
+        ),
+    )
+
+    assert isinstance(result, NegativeCertificate)
+    assert result.blocking_type is BlockingType.PROXIMAL_CONDITION_FAILED
+    assert result.quantitative_diagnostics["failed_check"] == "buffered_spatial_proxy_exclusion"
+    assert result.quantitative_diagnostics["algorithm_version"] == "proximal_spatial_id_v1"

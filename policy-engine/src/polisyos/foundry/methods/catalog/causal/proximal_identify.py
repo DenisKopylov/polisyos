@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_queries import CausalQuery
 
 PROXIMAL_V1_ALGORITHM = "proximal_id_v1_pci_core"
+PROXIMAL_SPATIAL_V1_ALGORITHM = "proximal_spatial_id_v1"
 
 
 def proximal_identify_v1(
@@ -280,6 +281,247 @@ def proximal_identify_v1(
     return cert
 
 
+def proximal_spatial_identify_v1(
+    graph: CausalGraphModel,
+    query: CausalQuery,
+    proxies: ProxyAnnotation | dict[str, Any],
+) -> ProximalIdentificationCertificate | NegativeCertificate:
+    """Certify a conservative spatial-proximal extension of PCI-Core.
+
+    The spatial v1 surface layers buffered ring-lag checks on top of the
+    existing PCI-Core certificate. It remains intentionally incomplete:
+    point identification is only certified when the proxy metadata declares
+    two spatial proxy families and excludes contemporaneous unbuffered
+    outcome proxies that would violate proximal exclusion under spillovers.
+    """
+
+    proxy_annotation = (
+        proxies if isinstance(proxies, ProxyAnnotation) else ProxyAnnotation.model_validate(proxies)
+    )
+    base_result = proximal_identify_v1(graph, query, proxy_annotation)
+    if isinstance(base_result, NegativeCertificate):
+        return base_result
+
+    trace = [
+        *base_result.proof_trace,
+        "Started spatial proximal v1 extension checks.",
+    ]
+    spatial_specs = tuple(proxy_annotation.spatial_proxy_specs)
+    if not spatial_specs:
+        return _negative(
+            check="spatial_proxy_specs_present",
+            blocking_type=BlockingType.PROXIMAL_CONDITION_FAILED,
+            description="Spatial proximal v1 requires declared spatial proxy construction metadata.",
+            detail=(
+                "Provide spatial_proxy_specs with ring-lag, buffer, time-mode, and "
+                "spillover-radius claims for the declared proxies."
+            ),
+            trace=trace,
+            witness={"required_fields": ["lag_orders", "buffer_radius", "time_mode"]},
+            missing_vars=(
+                *proxy_annotation.treatment_inducing,
+                *proxy_annotation.outcome_inducing,
+            ),
+            algorithm_version=PROXIMAL_SPATIAL_V1_ALGORITHM,
+        )
+
+    graph_checks = list(base_result.graph_checks)
+    graph_checks.append(
+        ProximalGraphCheck(
+            check="spatial_proxy_specs_present",
+            status="pass",
+            source_set=proxy_annotation.treatment_inducing,
+            target_set=proxy_annotation.outcome_inducing,
+            requirements=("Spatial proxy construction metadata declared for proximal proxies",),
+            detail="Spatial proxy specifications were provided for the declared proxy sets.",
+        )
+    )
+
+    roles_covered = {role for spec in spatial_specs for role in spec.allowed_roles}
+    if not {"treatment_inducing", "outcome_inducing"} <= roles_covered:
+        return _negative(
+            check="spatial_proxy_roles_covered",
+            blocking_type=BlockingType.PROXIMAL_CONDITION_FAILED,
+            description="Spatial proximal v1 requires both treatment- and outcome-inducing proxy families.",
+            detail=(
+                "The declared spatial_proxy_specs must cover both treatment_inducing "
+                "and outcome_inducing roles."
+            ),
+            trace=trace,
+            witness={"roles_covered": sorted(roles_covered)},
+            missing_vars=(
+                *proxy_annotation.treatment_inducing,
+                *proxy_annotation.outcome_inducing,
+            ),
+            algorithm_version=PROXIMAL_SPATIAL_V1_ALGORITHM,
+        )
+    graph_checks.append(
+        ProximalGraphCheck(
+            check="spatial_proxy_roles_covered",
+            status="pass",
+            requirements=(
+                "At least one spatial proxy family covers treatment-inducing proxies",
+                "At least one spatial proxy family covers outcome-inducing proxies",
+            ),
+            witness={"roles_covered": sorted(roles_covered)},
+            detail="Spatial proxy role coverage is sufficient for proximal spatial v1.",
+        )
+    )
+
+    z_ring_orders = sorted(
+        {
+            lag
+            for spec in spatial_specs
+            if "treatment_inducing" in spec.allowed_roles
+            for lag in spec.lag_orders
+        }
+    )
+    w_ring_orders = sorted(
+        {
+            lag
+            for spec in spatial_specs
+            if "outcome_inducing" in spec.allowed_roles
+            for lag in spec.lag_orders
+        }
+    )
+    if not z_ring_orders or not w_ring_orders or len(set(z_ring_orders + w_ring_orders)) < 2:
+        return _negative(
+            check="ring_specific_rank_support",
+            blocking_type=BlockingType.PROXIMAL_CONDITION_FAILED,
+            description=(
+                "Spatial proximal v1 requires distinct ring-lag support across the two proxy families."
+            ),
+            detail=(
+                "Declare at least one treatment-inducing ring and one outcome-inducing "
+                "ring, with non-degenerate lag support across the two families."
+            ),
+            trace=trace,
+            witness={
+                "treatment_ring_orders": z_ring_orders,
+                "outcome_ring_orders": w_ring_orders,
+            },
+            missing_vars=(
+                *proxy_annotation.treatment_inducing,
+                *proxy_annotation.outcome_inducing,
+            ),
+            algorithm_version=PROXIMAL_SPATIAL_V1_ALGORITHM,
+        )
+    graph_checks.append(
+        ProximalGraphCheck(
+            check="ring_specific_rank_support",
+            status="pass",
+            requirements=(
+                "Treatment- and outcome-proxy families expose non-degenerate ring-lag support",
+            ),
+            witness={
+                "treatment_ring_orders": z_ring_orders,
+                "outcome_ring_orders": w_ring_orders,
+            },
+            detail="Distinct ring-lag families were declared for the spatial proxy sets.",
+        )
+    )
+
+    for spec in spatial_specs:
+        if "outcome_inducing" not in spec.allowed_roles or spec.time_mode != "contemporaneous":
+            continue
+        spillover_radius = (
+            int(spec.spillover_radius_claim) if spec.spillover_radius_claim is not None else 1
+        )
+        buffer_radius = int(spec.buffer_radius or 0)
+        min_lag = min(spec.lag_orders)
+        has_safe_buffer = max(buffer_radius, min_lag) > spillover_radius
+        if spec.proxy_construction in {
+            "ring_lag",
+            "buffered_ring_lag",
+        } and not has_safe_buffer:
+            return _negative(
+                check="buffered_spatial_proxy_exclusion",
+                blocking_type=BlockingType.PROXIMAL_CONDITION_FAILED,
+                description=(
+                    "An outcome-inducing spatial proxy is too close to satisfy buffered exclusion."
+                ),
+                detail=(
+                    "Contemporaneous outcome proxies require either a pre-treatment / negative-control "
+                    "construction or a ring/buffer that exceeds the declared spillover radius."
+                ),
+                trace=trace,
+                witness={
+                    "proxy_variables": list(spec.proxy_variables),
+                    "proxy_construction": spec.proxy_construction,
+                    "time_mode": spec.time_mode,
+                    "lag_orders": list(spec.lag_orders),
+                    "buffer_radius": buffer_radius,
+                    "spillover_radius_claim": spillover_radius,
+                },
+                missing_vars=tuple(spec.proxy_variables),
+                algorithm_version=PROXIMAL_SPATIAL_V1_ALGORITHM,
+            )
+    graph_checks.append(
+        ProximalGraphCheck(
+            check="buffered_spatial_proxy_exclusion",
+            status="pass",
+            requirements=(
+                "Outcome-inducing spatial proxies avoid contemporaneous unbuffered spillover paths",
+            ),
+            witness={
+                "spatial_proxy_specs": [spec.model_dump(mode="json") for spec in spatial_specs],
+            },
+            detail="Declared spatial proxy specifications satisfy buffered-exclusion claims.",
+        )
+    )
+
+    graph_class = base_result.graph_class.model_copy(
+        update={
+            "name": "PCI-Core-Spatial",
+            "notes": (
+                "v1 spatial proximal extension: PCI-Core plus machine-checkable "
+                "buffered ring-lag proxy declarations and conservative spillover exclusions."
+            ),
+        }
+    )
+    metadata = {
+        **base_result.metadata,
+        "algorithm": PROXIMAL_SPATIAL_V1_ALGORITHM,
+        "method": "spatial_proximal_bridge",
+        "theorem_family": "proximal_spatial_id_v1",
+        "implementation_coverage": "spatial_proximal_bridge_v1",
+        "completeness_regime": "sound_incomplete",
+        "proof_stratum": "A1_extended",
+        "spatial_proxy_specs": [spec.model_dump(mode="json") for spec in spatial_specs],
+        "spatial_proxy_spec": [spec.model_dump(mode="json") for spec in spatial_specs],
+        "proxy_ring_diagnostics": [
+            check.model_dump(mode="json")
+            for check in graph_checks
+            if check.check in {"ring_specific_rank_support", "buffered_spatial_proxy_exclusion"}
+        ],
+        "spillover_radius_claim": sorted(
+            {
+                int(spec.spillover_radius_claim)
+                for spec in spatial_specs
+                if spec.spillover_radius_claim is not None
+            }
+        ),
+        "impact_functionals_declared": ["tau", "ADE", "AIE", "ATE_total"],
+        "weight_matrix_refs": [
+            spec.weight_matrix_ref
+            for spec in spatial_specs
+            if spec.weight_matrix_ref is not None
+        ],
+    }
+    return base_result.model_copy(
+        update={
+            "graph_class": graph_class,
+            "graph_checks": tuple(graph_checks),
+            "proof_trace": (
+                *trace,
+                "Validated spatial proxy family coverage and ring-lag support.",
+                "Validated buffered exclusion for contemporaneous outcome proxies.",
+            ),
+            "metadata": metadata,
+        }
+    )
+
+
 def _first_overlap(groups: dict[str, set[str]]) -> tuple[str, str, set[str]] | None:
     for left, right in combinations(groups, 2):
         overlap = groups[left] & groups[right]
@@ -523,9 +765,10 @@ def _negative(
     trace: list[str],
     witness: dict[str, Any] | None = None,
     missing_vars: tuple[str, ...] = (),
+    algorithm_version: str = PROXIMAL_V1_ALGORITHM,
 ) -> NegativeCertificate:
     diagnostics = {
-        "algorithm_version": PROXIMAL_V1_ALGORITHM,
+        "algorithm_version": algorithm_version,
         "identification_status": "non_identified",
         "failed_check": check,
         "witness": witness or {},
@@ -550,5 +793,7 @@ def _negative(
 
 __all__ = [
     "PROXIMAL_V1_ALGORITHM",
+    "PROXIMAL_SPATIAL_V1_ALGORITHM",
     "proximal_identify_v1",
+    "proximal_spatial_identify_v1",
 ]

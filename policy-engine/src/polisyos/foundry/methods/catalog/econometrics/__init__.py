@@ -19,6 +19,7 @@ from .diagnostics import (
     SarganHansenEstimator,
     WeakIVTestEstimator,
 )
+from .dynamic_panel import DifferenceGMMEstimator, SystemGMMEstimator
 from .expansion import (
     BayesianVAREstimator,
     SpatialAutoregressiveEstimator,
@@ -44,6 +45,7 @@ from .high_dimensional import (
 from .iv import GMMEstimator, TwoStageLeastSquaresEstimator
 from .panel import FixedEffectsEstimator, RandomEffectsEstimator
 from .protocols import (
+    CrossSectionalDependenceDiagnostic,
     EconometricDiagnosticResult,
     EconometricEstimator,
     EconometricResult,
@@ -73,6 +75,7 @@ def ensure_econometric_methods_registered(registry: MethodRegistry | None = None
 
 
 __all__ = [
+    "CrossSectionalDependenceDiagnostic",
     "EconometricDiagnosticResult",
     "EconometricEstimator",
     "EconometricResult",
@@ -80,6 +83,8 @@ __all__ = [
     "TimeSeriesData",
     "FixedEffectsEstimator",
     "RandomEffectsEstimator",
+    "DifferenceGMMEstimator",
+    "SystemGMMEstimator",
     "TwoStageLeastSquaresEstimator",
     "GMMEstimator",
     "ARIMAEstimator",

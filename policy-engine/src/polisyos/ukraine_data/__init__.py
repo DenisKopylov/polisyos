@@ -1,5 +1,13 @@
 """Server-first build stack for Ukraine open-data integration artifacts."""
 
+from .demography import (
+    UkraineDemographyArtifacts,
+    build_static_aging_state,
+    load_demography_artifacts,
+    load_donor_pool,
+    load_reconciled_targets,
+    load_transition_priors,
+)
 from .models import (
     ArtifactRetentionPolicy,
     BuildRootConfig,
@@ -28,6 +36,12 @@ __all__ = [
     "SourceConfig",
     "StageConfig",
     "StageId",
+    "UkraineDemographyArtifacts",
     "build_default_pipeline_config",
+    "build_static_aging_state",
+    "load_demography_artifacts",
+    "load_donor_pool",
+    "load_reconciled_targets",
+    "load_transition_priors",
     "main",
 ]

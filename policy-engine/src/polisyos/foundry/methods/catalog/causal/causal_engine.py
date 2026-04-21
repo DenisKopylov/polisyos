@@ -22,6 +22,10 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 
+from polisyos.foundry.methods.catalog._phase1_artifacts import (
+    is_government_dataset,
+    resolve_dataset_context,
+)
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.analytics.causal import (
     DataReadinessReport,
@@ -35,6 +39,7 @@ from polisyos.ir.analytics.causal import (
     proof_bundle_from_identification_result,
     proof_bundle_from_proximal_certificate,
 )
+from polisyos.ir.analytics.survey_quality import load_survey_quality_certificate
 from polisyos.ir.analytics.dual_certificate import hydrate_bounds_bundle_with_dual_certificate
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.dynamic_causal_semantics import (
@@ -118,6 +123,11 @@ from polisyos.ir.analytics.proximal import (
     persist_bridge_plausibility_report,
     persist_proximal_identification_certificate,
 )
+from polisyos.ir.governance.phase1 import (
+    build_phase1_gate_summary,
+    load_phase1_flagship_dataset_ids,
+)
+from polisyos.ir.refs import SurveyQualityCertificateRef
 from polisyos.ir.analytics.recoverability import (
     JointDecisionCertificate,
     RecoverabilityCertificate,
@@ -205,7 +215,10 @@ from polisyos.foundry.methods.catalog.causal.proof_trace_composability import (
     build_witness_index_from_proof_steps,
     check_proof_trace_composability,
 )
-from polisyos.foundry.methods.catalog.causal.proximal_identify import proximal_identify_v1
+from polisyos.foundry.methods.catalog.causal.proximal_identify import (
+    proximal_identify_v1,
+    proximal_spatial_identify_v1,
+)
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
     compile_estimand,
@@ -487,7 +500,17 @@ class CausalEngine:
                 ),
             )
 
-        proximal_result = proximal_identify_v1(
+        proxy_annotation = (
+            proximal_annotation
+            if isinstance(proximal_annotation, ProxyAnnotation)
+            else ProxyAnnotation.model_validate(proximal_annotation)
+        )
+        proximal_identifier = (
+            proximal_spatial_identify_v1
+            if proxy_annotation.spatial_proxy_specs
+            else proximal_identify_v1
+        )
+        proximal_result = proximal_identifier(
             graph,
             CausalQuery(
                 query_type=QueryType.INTERVENTIONAL,
@@ -495,7 +518,7 @@ class CausalEngine:
                 treatment_value=1.0,
                 outcome_variable=outcome_name,
             ),
-            proximal_annotation,
+            proxy_annotation,
         )
         upstream_hedge = _coerce_mapping_like_data(base_result.hedge_certificate)
         upstream_metadata: dict[str, Any] = {
@@ -5229,12 +5252,34 @@ class CausalEngine:
         missingness_assessment: Any | None = None,
     ) -> tuple[DataReadinessReport, dict[str, Any]]:
         """Build readiness from diagnostic nodes before any estimator executes."""
+        dataset_context = resolve_dataset_context(data_dict)
+        flagship_ids = set(load_phase1_flagship_dataset_ids())
+        government_dataset = is_government_dataset(
+            dataset_context,
+            flagship_dataset_ids=flagship_ids,
+        )
+        survey_quality_certificate, survey_quality_certificate_ref = _resolve_survey_quality_inputs(
+            data_dict,
+            artifact_store=self._artifact_store,
+        )
+        phase1_gate_summary = (
+            build_phase1_gate_summary(self._artifact_store) if government_dataset else None
+        )
         base_report = build_data_readiness_report(
             sample_size=sample_size,
             measurement_quality="unknown",
             fallback_data_available=fallback_data_available,
             recoverability_certificate=recoverability_certificate,
             missingness_assessment=missingness_assessment,
+            survey_quality_certificate=survey_quality_certificate,
+            survey_quality_certificate_ref=survey_quality_certificate_ref,
+            phase1_gate_summary=phase1_gate_summary,
+        )
+        base_report = _apply_government_phase1_requirements(
+            base_report,
+            government_dataset=government_dataset,
+            survey_quality_certificate_present=survey_quality_certificate is not None,
+            phase1_gate_summary=phase1_gate_summary,
         )
         if data_dict is None or self._registry is None:
             return base_report, {}
@@ -5264,6 +5309,10 @@ class CausalEngine:
             fallback_data_available=fallback_data_available,
             recoverability_certificate=recoverability_certificate,
             missingness_assessment=missingness_assessment,
+            survey_quality_certificate=survey_quality_certificate,
+            survey_quality_certificate_ref=survey_quality_certificate_ref,
+            phase1_gate_summary=phase1_gate_summary,
+            government_dataset=government_dataset,
         )
         return (
             resolved_report
@@ -5286,6 +5335,35 @@ class CausalEngine:
         data_dict = _coerce_mapping_like_data(data)
         sample_size = _infer_sample_size(data_dict)
         fallback_data_available = _has_fallback_arrays(data_dict, treatment, outcome)
+        dataset_context = resolve_dataset_context(data_dict)
+        flagship_ids = set(load_phase1_flagship_dataset_ids())
+        government_dataset = is_government_dataset(
+            dataset_context,
+            flagship_dataset_ids=flagship_ids,
+        )
+        survey_quality_certificate, survey_quality_certificate_ref = _resolve_survey_quality_inputs(
+            data_dict,
+            artifact_store=self._artifact_store,
+        )
+        phase1_gate_summary = (
+            build_phase1_gate_summary(self._artifact_store) if government_dataset else None
+        )
+        base_report = build_data_readiness_report(
+            sample_size=sample_size,
+            measurement_quality="unknown",
+            fallback_data_available=fallback_data_available,
+            survey_quality_certificate=survey_quality_certificate,
+            survey_quality_certificate_ref=survey_quality_certificate_ref,
+            phase1_gate_summary=phase1_gate_summary,
+        )
+        base_report = _apply_government_phase1_requirements(
+            base_report,
+            government_dataset=government_dataset,
+            survey_quality_certificate_present=survey_quality_certificate is not None,
+            phase1_gate_summary=phase1_gate_summary,
+        )
+        if base_report.decision == "block":
+            return base_report
         registry = _ensure_readiness_registry(self._registry)
         if registry is None:
             return _unknown_data_readiness_report(
@@ -5305,7 +5383,13 @@ class CausalEngine:
             node_outputs=diagnostic_outputs,
             sample_size=sample_size,
             fallback_data_available=fallback_data_available,
+            survey_quality_certificate=survey_quality_certificate,
+            survey_quality_certificate_ref=survey_quality_certificate_ref,
+            phase1_gate_summary=phase1_gate_summary,
+            government_dataset=government_dataset,
         )
+        if report is not None and report.decision == "block":
+            return report
         if status["positivity"] != "verified":
             return _unknown_data_readiness_report(
                 sample_size=sample_size,
@@ -5707,6 +5791,8 @@ class CausalEngine:
                     "sigma_min": "bridge_sigma_min",
                     "ill_posedness_index": "bridge_ill_posedness_index",
                     "proxy_association_score": "bridge_proxy_association",
+                    "moran_i_bridge_residual": "bridge_moran_i",
+                    "ring_sensitivity_instability": "bridge_ring_instability",
                 }
                 for source_key, target_key in bridge_metric_keys.items():
                     val = bridge_report.get(source_key)
@@ -5715,6 +5801,13 @@ class CausalEngine:
                             diag[target_key] = float(val)
                         except (TypeError, ValueError):
                             pass
+                if (
+                    "buffer_exclusion_falsification" in bridge_report
+                    and "buffer_exclusion_falsification" not in diag
+                ):
+                    diag["buffer_exclusion_falsification"] = (
+                        1.0 if bool(bridge_report["buffer_exclusion_falsification"]) else 0.0
+                    )
             kernel_report = outputs.get("kernel_report")
             if isinstance(kernel_report, dict):
                 for source_key, target_key in {
@@ -6351,12 +6444,21 @@ class CausalEngine:
             return None, bundle, negative_cert
 
         if proximal_certificate is not None:
-            proximal_state = _derive_proximal_bridge_state(
-                data_dict=data_dict,
-                treatment=treatment,
-                outcome=outcome,
-                certificate=proximal_certificate,
-            )
+            is_spatial_proximal = bool(getattr(proximal_certificate.proxies, "spatial_proxy_specs", ()))
+            if is_spatial_proximal:
+                proximal_state = _derive_spatial_proximal_bridge_state(
+                    data_dict=data_dict,
+                    treatment=treatment,
+                    outcome=outcome,
+                    certificate=proximal_certificate,
+                )
+            else:
+                proximal_state = _derive_proximal_bridge_state(
+                    data_dict=data_dict,
+                    treatment=treatment,
+                    outcome=outcome,
+                    certificate=proximal_certificate,
+                )
             proximal_output: dict[str, Any] | None = None
             proximal_metrics: dict[str, Any] = {
                 "bridge_functions_count": proof_bundle.metadata.get(
@@ -6367,17 +6469,49 @@ class CausalEngine:
             if proximal_state is not None:
                 from polisyos.foundry.methods.catalog.causal.frontier import (
                     ProximalBridgeEstimator,
+                    SpatialProximalBridgeEstimator,
                 )
 
-                proximal_output = ProximalBridgeEstimator.pure_step(
-                    proximal_state,
-                    {
-                        "n_bootstrap": 200,
-                        "confidence_level": 0.95,
-                        "ridge": 1.0e-4,
-                        "__seed__": int(hashlib.sha256(run_id.encode()).hexdigest()[:8], 16),
-                    },
-                )
+                method_seed = int(hashlib.sha256(run_id.encode()).hexdigest()[:8], 16)
+                if is_spatial_proximal:
+                    proximal_output = SpatialProximalBridgeEstimator.pure_step(
+                        proximal_state,
+                        {
+                            "model_family": proximal_state.get("model_family", "sdm"),
+                            "sieve_degree": 3,
+                            "n_folds": 4,
+                            "block_cv_scheme": "spatial_blocks",
+                            "n_bootstrap": 80,
+                            "confidence_level": 0.95,
+                            "ridge": 1.0e-4,
+                            "bridge_residual_splits": 12,
+                            "epsilon_grid": (0.01, 0.025, 0.05),
+                            "stability_constraint_margin": 0.025,
+                            "__seed__": method_seed,
+                        },
+                    )
+                    weight_matrix = np.asarray(proximal_state["weight_matrix"], dtype=float)
+                    weight_matrix_hash = hashlib.sha256(weight_matrix.tobytes()).hexdigest()
+                    updated_metadata = dict(proof_bundle.metadata)
+                    updated_metadata.update(
+                        {
+                            "weight_matrix_hash": weight_matrix_hash,
+                            "spatial_model_family": str(
+                                proximal_state.get("model_family", "sdm")
+                            ),
+                        }
+                    )
+                    proof_bundle = proof_bundle.model_copy(update={"metadata": updated_metadata})
+                else:
+                    proximal_output = ProximalBridgeEstimator.pure_step(
+                        proximal_state,
+                        {
+                            "n_bootstrap": 200,
+                            "confidence_level": 0.95,
+                            "ridge": 1.0e-4,
+                            "__seed__": method_seed,
+                        },
+                    )
                 bridge_report_payload = proximal_output.get("bridge_plausibility_report")
                 if isinstance(bridge_report_payload, dict):
                     proximal_metrics.update(
@@ -6388,6 +6522,20 @@ class CausalEngine:
                             "bridge_proxy_association": bridge_report_payload.get(
                                 "proxy_association_score"
                             ),
+                            "bridge_moran_i": bridge_report_payload.get(
+                                "moran_i_bridge_residual"
+                            ),
+                            "bridge_ring_instability": bridge_report_payload.get(
+                                "ring_sensitivity_instability"
+                            ),
+                            "buffer_exclusion_falsification": (
+                                1.0
+                                if bridge_report_payload.get("buffer_exclusion_falsification")
+                                else 0.0
+                            )
+                            if bridge_report_payload.get("buffer_exclusion_falsification")
+                            is not None
+                            else None,
                         }
                     )
 
@@ -6401,7 +6549,9 @@ class CausalEngine:
             )
             if proximal_output is not None:
                 proximal_report = proximal_output.get("report")
-                node_outputs = {"proximal_bridge": proximal_output}
+                node_outputs = {
+                    "spatial_proximal_bridge" if is_spatial_proximal else "proximal_bridge": proximal_output
+                }
                 negative_payload = proximal_output.get("negative_certificate")
                 bounds_payload = proximal_output.get("bounds_bundle")
                 proximal_negative_cert = (
@@ -8026,6 +8176,71 @@ def _coerce_aligned_covariates(value: Any, *, n_obs: int) -> np.ndarray | None:
     return arr
 
 
+def _coerce_aligned_proxy_matrix(value: Any, *, n_obs: int) -> np.ndarray | None:
+    if value is None:
+        return None
+    try:
+        arr = np.asarray(value, dtype=float)
+    except Exception:
+        return None
+    if arr.ndim == 1:
+        arr = arr.reshape(-1, 1)
+    if arr.ndim != 2 or arr.shape[0] != n_obs:
+        return None
+    return arr
+
+
+def _coerce_aligned_square_matrix(value: Any, *, n_obs: int) -> np.ndarray | None:
+    if value is None:
+        return None
+    try:
+        arr = np.asarray(value, dtype=float)
+    except Exception:
+        return None
+    if arr.ndim != 2 or arr.shape != (n_obs, n_obs):
+        return None
+    return arr
+
+
+def _collect_proxy_matrix(
+    *,
+    data_dict: dict[str, Any] | None,
+    direct_keys: tuple[str, ...],
+    proxy_variables: tuple[str, ...],
+    n_obs: int,
+) -> np.ndarray | None:
+    if not data_dict:
+        return None
+    for key in direct_keys:
+        matrix = _coerce_aligned_proxy_matrix(data_dict.get(key), n_obs=n_obs)
+        if matrix is not None:
+            return matrix
+    proxy_columns: list[np.ndarray] = []
+    for name in proxy_variables:
+        column = _coerce_aligned_vector(data_dict.get(name))
+        if column is None or column.shape[0] != n_obs:
+            return None
+        proxy_columns.append(column)
+    if not proxy_columns:
+        return None
+    return np.column_stack(proxy_columns)
+
+
+def _first_valid_square_matrix(
+    data_dict: dict[str, Any] | None,
+    candidate_keys: tuple[str, ...],
+    *,
+    n_obs: int,
+) -> np.ndarray | None:
+    if not data_dict:
+        return None
+    for key in candidate_keys:
+        matrix = _coerce_aligned_square_matrix(data_dict.get(key), n_obs=n_obs)
+        if matrix is not None:
+            return matrix
+    return None
+
+
 def _derive_proximal_bridge_state(
     *,
     data_dict: dict[str, Any] | None,
@@ -8044,11 +8259,20 @@ def _derive_proximal_bridge_state(
     outcome_vector = _coerce_aligned_vector(
         _first_non_null(data_dict, _outcome_candidate_keys(outcome))
     )
-    z_proxy = _coerce_aligned_vector(
-        _first_non_null(data_dict, ("treatment_proxy", *certificate.proxies.treatment_inducing))
+    if treatment_vector is None or outcome_vector is None:
+        return None
+    n_obs = int(outcome_vector.shape[0])
+    z_proxy = _collect_proxy_matrix(
+        data_dict=data_dict,
+        direct_keys=("treatment_proxy",),
+        proxy_variables=certificate.proxies.treatment_inducing,
+        n_obs=n_obs,
     )
-    w_proxy = _coerce_aligned_vector(
-        _first_non_null(data_dict, ("outcome_proxy", *certificate.proxies.outcome_inducing))
+    w_proxy = _collect_proxy_matrix(
+        data_dict=data_dict,
+        direct_keys=("outcome_proxy",),
+        proxy_variables=certificate.proxies.outcome_inducing,
+        n_obs=n_obs,
     )
     if (
         treatment_vector is None
@@ -8057,11 +8281,7 @@ def _derive_proximal_bridge_state(
         or w_proxy is None
     ):
         return None
-    n_obs = int(outcome_vector.shape[0])
-    if any(
-        vector.shape[0] != n_obs
-        for vector in (treatment_vector, z_proxy, w_proxy)
-    ):
+    if any(item.shape[0] != n_obs for item in (treatment_vector, z_proxy, w_proxy)):
         return None
 
     covariates = _coerce_aligned_covariates(data_dict.get("covariates"), n_obs=n_obs)
@@ -8082,8 +8302,8 @@ def _derive_proximal_bridge_state(
     finite_mask = (
         np.isfinite(outcome_vector)
         & np.isfinite(treatment_vector)
-        & np.isfinite(z_proxy)
-        & np.isfinite(w_proxy)
+        & np.isfinite(z_proxy).all(axis=1)
+        & np.isfinite(w_proxy).all(axis=1)
         & np.isfinite(covariates).all(axis=1)
     )
     binary_mask = np.isclose(treatment_vector, 0.0) | np.isclose(treatment_vector, 1.0)
@@ -8096,6 +8316,146 @@ def _derive_proximal_bridge_state(
         "covariates": covariates[mask].astype(float),
         "treatment_proxy": z_proxy[mask].astype(float),
         "outcome_proxy": w_proxy[mask].astype(float),
+    }
+
+
+def _derive_spatial_proximal_bridge_state(
+    *,
+    data_dict: dict[str, Any] | None,
+    treatment: str | frozenset[str],
+    outcome: str | frozenset[str],
+    certificate: ProximalIdentificationCertificate,
+) -> dict[str, Any] | None:
+    if not data_dict:
+        return None
+
+    treatment_vector = _coerce_aligned_vector(
+        _first_non_null(data_dict, _treatment_candidate_keys(treatment))
+    )
+    outcome_vector = _coerce_aligned_vector(
+        _first_non_null(data_dict, _outcome_candidate_keys(outcome))
+    )
+    if treatment_vector is None or outcome_vector is None:
+        return None
+    n_obs = int(outcome_vector.shape[0])
+    if treatment_vector.shape[0] != n_obs:
+        return None
+
+    z_proxy = _collect_proxy_matrix(
+        data_dict=data_dict,
+        direct_keys=("treatment_proxy",),
+        proxy_variables=certificate.proxies.treatment_inducing,
+        n_obs=n_obs,
+    )
+    w_proxy = _collect_proxy_matrix(
+        data_dict=data_dict,
+        direct_keys=("outcome_proxy",),
+        proxy_variables=certificate.proxies.outcome_inducing,
+        n_obs=n_obs,
+    )
+    if z_proxy is None or w_proxy is None:
+        return None
+
+    covariates = _coerce_aligned_covariates(data_dict.get("covariates"), n_obs=n_obs)
+    if covariates is None:
+        covariate_names = tuple(certificate.query.covariates or certificate.proxies.covariates)
+        covariate_columns: list[np.ndarray] = []
+        for name in covariate_names:
+            column = _coerce_aligned_vector(data_dict.get(name))
+            if column is None or column.shape[0] != n_obs:
+                return None
+            covariate_columns.append(column)
+        covariates = (
+            np.column_stack(covariate_columns)
+            if covariate_columns
+            else np.empty((n_obs, 0), dtype=float)
+        )
+
+    weight_matrix = _first_valid_square_matrix(
+        data_dict,
+        (
+            "weight_matrix",
+            "weights_matrix",
+            "spatial_weights",
+            "W",
+            "adjacency_matrix",
+            "adjacency",
+        ),
+        n_obs=n_obs,
+    )
+    if weight_matrix is None:
+        return None
+    weight_matrix_error = _first_valid_square_matrix(
+        data_dict,
+        (
+            "weight_matrix_error",
+            "weights_matrix_error",
+            "spatial_weights_error",
+            "M",
+            "adjacency_matrix_error",
+        ),
+        n_obs=n_obs,
+    )
+    spatial_lag_covariates = _coerce_aligned_covariates(
+        data_dict.get("spatial_lag_covariates"), n_obs=n_obs
+    )
+    spatial_lag_treatment = _coerce_aligned_vector(data_dict.get("spatial_lag_treatment"))
+    if spatial_lag_treatment is not None and spatial_lag_treatment.shape[0] != n_obs:
+        return None
+
+    finite_mask = (
+        np.isfinite(outcome_vector)
+        & np.isfinite(treatment_vector)
+        & np.isfinite(covariates).all(axis=1)
+        & np.isfinite(z_proxy).all(axis=1)
+        & np.isfinite(w_proxy).all(axis=1)
+        & np.isfinite(weight_matrix).all(axis=1)
+        & np.isfinite(weight_matrix).all(axis=0)
+    )
+    if spatial_lag_covariates is not None:
+        finite_mask = finite_mask & np.isfinite(spatial_lag_covariates).all(axis=1)
+    if spatial_lag_treatment is not None:
+        finite_mask = finite_mask & np.isfinite(spatial_lag_treatment)
+    if weight_matrix_error is not None:
+        finite_mask = (
+            finite_mask
+            & np.isfinite(weight_matrix_error).all(axis=1)
+            & np.isfinite(weight_matrix_error).all(axis=0)
+        )
+    binary_mask = np.isclose(treatment_vector, 0.0) | np.isclose(treatment_vector, 1.0)
+    mask = finite_mask & binary_mask
+    if int(np.sum(mask)) < 80:
+        return None
+
+    model_family = str(
+        data_dict.get("model_family")
+        or certificate.metadata.get("spatial_model_family")
+        or "sdm"
+    ).lower()
+    return {
+        "outcome": outcome_vector[mask].astype(float),
+        "treatment": treatment_vector[mask].astype(float),
+        "covariates": covariates[mask].astype(float),
+        "treatment_proxy": z_proxy[mask].astype(float),
+        "outcome_proxy": w_proxy[mask].astype(float),
+        "weight_matrix": weight_matrix[np.ix_(mask, mask)].astype(float),
+        "weight_matrix_error": (
+            None
+            if weight_matrix_error is None
+            else weight_matrix_error[np.ix_(mask, mask)].astype(float)
+        ),
+        "spatial_lag_covariates": (
+            None if spatial_lag_covariates is None else spatial_lag_covariates[mask].astype(float)
+        ),
+        "spatial_lag_treatment": (
+            None if spatial_lag_treatment is None else spatial_lag_treatment[mask].astype(float)
+        ),
+        "spatial_proxy_specs": tuple(certificate.proxies.spatial_proxy_specs),
+        "model_family": model_family,
+        "metadata": {
+            "weight_matrix_refs": list(certificate.metadata.get("weight_matrix_refs", [])),
+            "spatial_proxy_spec": list(certificate.metadata.get("spatial_proxy_spec", [])),
+        },
     }
 
 
@@ -8580,6 +8940,89 @@ def _extract_readiness_diagnostics(
     return positivity, support
 
 
+def _resolve_survey_quality_inputs(
+    data_dict: dict[str, Any] | None,
+    *,
+    artifact_store: Any | None,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    if not isinstance(data_dict, dict):
+        return None, None
+
+    search_spaces: list[dict[str, Any]] = [data_dict]
+    for nested_key in ("metadata", "dataset_metadata", "source_metadata", "data_quality_report"):
+        nested = data_dict.get(nested_key)
+        if isinstance(nested, dict):
+            search_spaces.append(nested)
+            nested_meta = nested.get("metadata")
+            if isinstance(nested_meta, dict):
+                search_spaces.append(nested_meta)
+
+    for payload_space in search_spaces:
+        payload = payload_space.get("survey_quality_certificate")
+        if isinstance(payload, dict):
+            for ref_space in (payload_space, *search_spaces):
+                ref_payload = ref_space.get("survey_quality_certificate_ref")
+                if isinstance(ref_payload, dict):
+                    return payload, ref_payload
+            return payload, None
+
+    ref_payload = None
+    for payload_space in search_spaces:
+        candidate = payload_space.get("survey_quality_certificate_ref")
+        if isinstance(candidate, dict):
+            ref_payload = candidate
+            break
+    if isinstance(ref_payload, dict) and artifact_store is not None:
+        try:
+            ref = SurveyQualityCertificateRef.model_validate(ref_payload)
+            certificate = load_survey_quality_certificate(
+                artifact_store,
+                ref,
+            )
+            return certificate.model_dump(mode="json"), ref.model_dump(mode="json")
+        except Exception:
+            return None, ref_payload
+    return None, ref_payload if isinstance(ref_payload, dict) else None
+
+
+def _apply_government_phase1_requirements(
+    report: DataReadinessReport,
+    *,
+    government_dataset: bool,
+    survey_quality_certificate_present: bool,
+    phase1_gate_summary: Any | None,
+) -> DataReadinessReport:
+    if not government_dataset:
+        return report
+
+    blocking_reasons = list(report.blocking_reasons)
+    if not survey_quality_certificate_present:
+        blocking_reasons.append("survey_quality_certificate_missing_for_government_dataset")
+    if phase1_gate_summary is not None:
+        blocking_reasons.extend(
+            item
+            for item in getattr(phase1_gate_summary, "blocking_reasons", ())
+            if item not in blocking_reasons
+        )
+    normalized_blocking_reasons: list[str] = []
+    seen: set[str] = set()
+    for item in blocking_reasons:
+        text = str(item).strip()
+        if text and text not in seen:
+            seen.add(text)
+            normalized_blocking_reasons.append(text)
+    if not normalized_blocking_reasons:
+        return report
+    return report.model_copy(
+        update={
+            "decision": "block",
+            "can_compile_estimation": False,
+            "can_run_estimation": False,
+            "blocking_reasons": normalized_blocking_reasons,
+        }
+    )
+
+
 def _build_postrun_readiness_report(
     *,
     node_outputs: dict[str, Any] | None,
@@ -8587,6 +9030,10 @@ def _build_postrun_readiness_report(
     fallback_data_available: bool,
     recoverability_certificate: dict[str, Any] | None = None,
     missingness_assessment: Any | None = None,
+    survey_quality_certificate: Any | None = None,
+    survey_quality_certificate_ref: Any | None = None,
+    phase1_gate_summary: Any | None = None,
+    government_dataset: bool = False,
 ) -> DataReadinessReport | None:
     """Build a richer readiness report from executor diagnostics when available."""
     positivity, support = _extract_readiness_diagnostics(node_outputs)
@@ -8597,7 +9044,7 @@ def _build_postrun_readiness_report(
         and missingness_assessment is None
     ):
         return None
-    return build_data_readiness_report(
+    report = build_data_readiness_report(
         positivity=positivity,
         support_mismatch=support,
         sample_size=sample_size,
@@ -8605,6 +9052,15 @@ def _build_postrun_readiness_report(
         fallback_data_available=fallback_data_available,
         recoverability_certificate=recoverability_certificate,
         missingness_assessment=missingness_assessment,
+        survey_quality_certificate=survey_quality_certificate,
+        survey_quality_certificate_ref=survey_quality_certificate_ref,
+        phase1_gate_summary=phase1_gate_summary,
+    )
+    return _apply_government_phase1_requirements(
+        report,
+        government_dataset=government_dataset,
+        survey_quality_certificate_present=survey_quality_certificate is not None,
+        phase1_gate_summary=phase1_gate_summary,
     )
 
 

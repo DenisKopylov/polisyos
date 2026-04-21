@@ -49,6 +49,8 @@ def test_method_catalog_snapshot_includes_non_causal_families() -> None:
 
     fqns = {entry.fqn for entry in snapshot.entries}
     assert "econometrics.panel.fixed_effects@1.0.0" in fqns
+    assert "econometrics.panel.difference_gmm@1.0.0" in fqns
+    assert "econometrics.panel.system_gmm@1.0.0" in fqns
     assert "econometrics.timeseries.vecm@1.0.0" in fqns
     assert "optimization.linear.resource_lp@1.0.0" in fqns
     assert "optimization.integer.budget_milp@1.0.0" in fqns
@@ -103,6 +105,7 @@ def test_method_catalog_snapshot_includes_non_causal_families() -> None:
     assert "causal.treatment_effects.tmle@1.0.0" in fqns
     assert "causal.treatment_effects.ipw@1.0.0" in fqns
     assert "causal.proximal.proximal_bridge@1.0.0" in fqns
+    assert "causal.proximal.spatial_proximal_bridge@1.0.0" in fqns
     assert "causal.distributional.unconditional_qte@1.0.0" in fqns
     assert "causal.interference.network_cate@1.0.0" in fqns
     assert "causal.inference.did.callaway_santanna@1.0.0" in fqns
@@ -132,9 +135,12 @@ def test_method_catalog_snapshot_includes_non_causal_families() -> None:
     assert "sensitivity.specification.specification_curve@1.0.0" in fqns
 
     # Phase 5: Survey expansion
+    assert "survey.adaptive.adaptive_calibrated_ipw@1.0.0" in fqns
+    assert "survey.adaptive.adaptive_augmented@1.0.0" in fqns
     assert "survey.estimation.fay_herriot@1.0.0" in fqns
     assert "survey.imputation.mice@1.0.0" in fqns
     assert "survey.design.complex_survey@1.0.0" in fqns
+    assert "microsim.imputation.mnar_income_bounds@1.0.0" in fqns
 
     # Phase 6: Minor expansions
     assert "simulation.inference.bootstrap@1.0.0" in fqns

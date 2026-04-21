@@ -6,6 +6,7 @@ from typing import Any, ClassVar, Mapping
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -17,6 +18,10 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
     foundry_method,
+)
+from polisyos.ir.analytics.dependence_structure import (
+    build_dependence_structure,
+    persist_dependence_structure,
 )
 
 from .protocols import SpatialData, SpatialResult
@@ -33,6 +38,42 @@ def _result_slot() -> frozenset[SlotSpec]:
             )
         }
     )
+
+
+def _persist_advanced_dependence_ref(
+    payload: Mapping[str, Any],
+    params: Mapping[str, Any],
+    *,
+    source_method: str,
+    coordinates: np.ndarray,
+    weights: np.ndarray | None = None,
+    metadata: Mapping[str, Any] | None = None,
+) -> Any | None:
+    artifact_store = resolve_artifact_store(payload, params)
+    if artifact_store is None:
+        return None
+    resolved_weights = None if weights is None else np.asarray(weights, dtype=float)
+    structure = build_dependence_structure(
+        regime="areal",
+        class_label="graph_local" if resolved_weights is not None else "weak_or_none",
+        calibrated=True,
+        recommended_covariance="conley_spatial_hac",
+        source_method=source_method,
+        metrics={
+            "n_areas": float(coordinates.shape[0]),
+            "n_dims": float(coordinates.shape[1]) if coordinates.ndim == 2 else 0.0,
+            "mean_weight": (
+                float(np.mean(resolved_weights))
+                if resolved_weights is not None and resolved_weights.size > 0
+                else 0.0
+            ),
+        },
+        metadata={
+            "has_explicit_weights": resolved_weights is not None,
+            **dict(metadata or {}),
+        },
+    )
+    return persist_dependence_structure(artifact_store, structure)
 
 
 def _payload(state: Any) -> dict[str, Any]:
@@ -222,6 +263,13 @@ class GaussianProcessKrigingEstimator:
         )
         fitted = in_sample_kernel @ alpha
         rmse = float(np.sqrt(np.mean((fitted - values) ** 2)))
+        dependence_ref = _persist_advanced_dependence_ref(
+            payload,
+            params,
+            source_method="spatial.interpolation.gaussian_process_kriging",
+            coordinates=coordinates,
+            metadata={"prediction_count": int(prediction_coords.shape[0])},
+        )
         return {
             "result": SpatialResult(
                 method_name="gaussian_process_kriging",
@@ -229,6 +277,7 @@ class GaussianProcessKrigingEstimator:
                     "rmse": rmse,
                     "mean_predictive_std": float(np.mean(std)),
                 },
+                dependence_ref=dependence_ref,
                 fitted_values=np.asarray(predictions, dtype=float),
                 scores=np.asarray(std, dtype=float),
                 metadata={
@@ -322,6 +371,13 @@ class InverseDistanceWeightingEstimator:
                 exact_index = int(np.argmax(exact_mask[row_idx]))
                 predictions[row_idx] = values[exact_index]
         neighbor_entropy = -np.sum(weights * np.log(np.maximum(weights, 1e-12)), axis=1)
+        dependence_ref = _persist_advanced_dependence_ref(
+            payload,
+            params,
+            source_method="spatial.interpolation.idw",
+            coordinates=coordinates,
+            metadata={"prediction_count": int(prediction_coords.shape[0])},
+        )
         return {
             "result": SpatialResult(
                 method_name="idw",
@@ -329,6 +385,7 @@ class InverseDistanceWeightingEstimator:
                     "mean_neighbor_entropy": float(np.mean(neighbor_entropy)),
                     "power": float(power),
                 },
+                dependence_ref=dependence_ref,
                 fitted_values=np.asarray(predictions, dtype=float),
                 scores=np.asarray(neighbor_entropy, dtype=float),
                 metadata={"epsilon": epsilon},
@@ -406,7 +463,6 @@ class SpatialSLXPanelEstimator:
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
-        del params
         payload = _payload(state)
         coordinates = _coords(payload["coordinates"], "coordinates")
         y = _vector(payload["values"], "values", expected=coordinates.shape[0])
@@ -435,6 +491,17 @@ class SpatialSLXPanelEstimator:
         rmse = float(np.sqrt(np.mean((fitted - y) ** 2)))
         direct_norm = float(np.linalg.norm(direct))
         spill_norm = float(np.linalg.norm(spillover))
+        dependence_ref = _persist_advanced_dependence_ref(
+            payload,
+            params,
+            source_method="spatial.panel.slx",
+            coordinates=coordinates,
+            weights=weights,
+            metadata={
+                "time_count": int(unique_times.shape[0]),
+                "unit_count": int(np.unique(unit_ids.astype(str)).shape[0]),
+            },
+        )
         names = payload.get("feature_names")
         if not isinstance(names, (list, tuple)) or len(names) != feature_count:
             names = [f"x{idx}" for idx in range(feature_count)]
@@ -446,6 +513,7 @@ class SpatialSLXPanelEstimator:
                     "direct_effect_norm": direct_norm,
                     "spillover_effect_norm": spill_norm,
                 },
+                dependence_ref=dependence_ref,
                 local_coefficients=np.vstack([direct, spillover]),
                 fitted_values=np.asarray(fitted, dtype=float),
                 metadata={
@@ -633,6 +701,16 @@ class SpatialSARARPanelEstimator:
         fitted_dm = x_dm @ beta + rho * wy
         residual = y_dm - fitted_dm
         rmse = float(np.sqrt(np.mean(residual**2)))
+        dependence_ref = _persist_advanced_dependence_ref(
+            payload,
+            params,
+            source_method="spatial.panel.sarar",
+            coordinates=coordinates,
+            metadata={
+                "time_count": int(np.unique(time_ids).shape[0]),
+                "unit_count": int(np.unique(unit_ids).shape[0]),
+            },
+        )
         names = payload.get("feature_names")
         if not isinstance(names, (list, tuple)) or len(names) != x.shape[1]:
             names = [f"x{idx}" for idx in range(x.shape[1])]
@@ -645,6 +723,7 @@ class SpatialSARARPanelEstimator:
                     "lambda": float(lambda_),
                     "spillover_effect_norm": float(np.linalg.norm(rho * wy)),
                 },
+                dependence_ref=dependence_ref,
                 fitted_values=np.asarray(fitted_dm, dtype=float),
                 scores=np.asarray(residual, dtype=float),
                 metadata={
@@ -765,6 +844,13 @@ class TwoStepFCAAccessibilityEstimator:
         reachable_demand = reachability.T @ demand
         provider_ratio = supply / np.maximum(reachable_demand, 1e-9)
         scores = reachability @ provider_ratio
+        dependence_ref = _persist_advanced_dependence_ref(
+            payload,
+            params,
+            source_method="spatial.accessibility.two_step_fca",
+            coordinates=origin_coords,
+            metadata={"destination_count": int(destination_coords.shape[0])},
+        )
         return {
             "result": SpatialResult(
                 method_name="two_step_fca",
@@ -773,6 +859,7 @@ class TwoStepFCAAccessibilityEstimator:
                     "max_accessibility": float(np.max(scores)),
                     "covered_origins_share": float(np.mean(np.sum(reachability, axis=1) > 0.0)),
                 },
+                dependence_ref=dependence_ref,
                 scores=np.asarray(scores, dtype=float),
                 metadata={
                     "catchment_threshold": threshold,
@@ -893,6 +980,13 @@ class SpatialMicrosimulationEstimator:
 
         fitted = weights @ sample_features
         absolute_gap = np.abs(fitted - area_constraints)
+        dependence_ref = _persist_advanced_dependence_ref(
+            payload,
+            params,
+            source_method="spatial.microsim.smsm",
+            coordinates=area_coordinates,
+            metadata={"sample_count": int(sample_features.shape[0])},
+        )
         return {
             "result": SpatialResult(
                 method_name="smsm",
@@ -901,6 +995,7 @@ class SpatialMicrosimulationEstimator:
                     "max_absolute_gap": float(np.max(absolute_gap)),
                     "iterations": float(iteration + 1),
                 },
+                dependence_ref=dependence_ref,
                 scores=np.asarray(weights, dtype=float),
                 metadata={
                     "final_delta": delta,
@@ -1009,6 +1104,13 @@ class ZoneBalanceDesignEstimator:
         imbalance = float(
             np.mean(np.abs(zone_totals - target_total) / max(target_total, 1e-9))
         )
+        dependence_ref = _persist_advanced_dependence_ref(
+            payload,
+            params,
+            source_method="spatial.design.zone_balance",
+            coordinates=coordinates,
+            metadata={"n_zones": int(n_zones)},
+        )
         return {
             "result": SpatialResult(
                 method_name="zone_balance",
@@ -1016,6 +1118,7 @@ class ZoneBalanceDesignEstimator:
                     "imbalance": imbalance,
                     "target_zone_total": target_total,
                 },
+                dependence_ref=dependence_ref,
                 scores=assignments.astype(float),
                 metadata={
                     "zone_totals": zone_totals.tolist(),
@@ -1171,6 +1274,13 @@ class MAUPSensitivityProfileEstimator:
                 best_assignments[n_zones] = best_row_assignment.astype(int).tolist()
 
         profile = np.asarray(profile_rows, dtype=float)
+        dependence_ref = _persist_advanced_dependence_ref(
+            payload,
+            params,
+            source_method="spatial.design.maup_profile",
+            coordinates=coordinates,
+            metadata={"max_zones": int(max_zones), "min_zones": int(min_zones)},
+        )
         return {
             "result": SpatialResult(
                 method_name="maup_profile",
@@ -1178,6 +1288,7 @@ class MAUPSensitivityProfileEstimator:
                     "global_variance": global_variance,
                     "max_relative_between_variance": float(np.max(profile[:, 3])) if profile.size else 0.0,
                 },
+                dependence_ref=dependence_ref,
                 scores=profile,
                 metadata={
                     "columns": [

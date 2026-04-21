@@ -20,6 +20,8 @@ def test_register_econometric_methods_queryable() -> None:
         "forecast_backtest",
         "fixed_effects",
         "random_effects",
+        "difference_gmm",
+        "system_gmm",
         "event_study",
         "two_stage_least_squares",
         "gmm",

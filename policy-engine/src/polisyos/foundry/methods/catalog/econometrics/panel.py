@@ -22,6 +22,7 @@ from polisyos.foundry.methods.base import (
 
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
 
+from .dependence import route_cross_sectional_dependence
 from .protocols import EconometricResult, PanelData
 
 logger = get_logger(__name__)
@@ -206,6 +207,7 @@ def _build_result(
     n_periods: int,
     diagnostics: dict[str, Any] | None = None,
     metadata: dict[str, Any] | None = None,
+    cross_sectional_dependence_diagnostic: Any = None,
 ) -> EconometricResult:
     params = fit_result.params
     param_names = [str(name) for name in getattr(params, "index", range(len(params)))]
@@ -257,7 +259,94 @@ def _build_result(
             "estimator": type(fit_result).__name__,
         },
         metadata=metadata or {},
+        cross_sectional_dependence_diagnostic=cross_sectional_dependence_diagnostic,
     )
+
+
+def _resolve_dependence_metadata(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+    metadata: dict[str, Any] = {}
+    if isinstance(state.metadata.get("dependence_metadata"), Mapping):
+        metadata.update(dict(state.metadata["dependence_metadata"]))
+    for key in ("cluster_ids", "coords", "W", "graph"):
+        if key in state.metadata:
+            metadata[key] = state.metadata[key]
+    param_metadata = params.get("dependence_metadata")
+    if isinstance(param_metadata, Mapping):
+        metadata.update(dict(param_metadata))
+    return metadata
+
+
+def _maybe_build_dependence_diagnostic(
+    *,
+    fit_result: Any,
+    state: PanelData,
+    params: Mapping[str, Any],
+    used_time_dummies: bool,
+) -> Any | None:
+    dependence_mode = str(params.get("dependence_mode", "off")).strip().lower()
+    if dependence_mode in {"", "off", "none", "false"}:
+        return None
+
+    residuals = getattr(fit_result, "resids", None)
+    if residuals is None:
+        return None
+
+    return route_cross_sectional_dependence(
+        np.asarray(residuals, dtype=float),
+        entity_ids=state.entity_ids,
+        time_ids=state.time_ids,
+        dependence_metadata=_resolve_dependence_metadata(state, params),
+        used_time_dummies=used_time_dummies,
+        dependence_covariance=params.get("dependence_covariance", "auto"),
+        dependence_fallback=str(params.get("dependence_fallback", "conservative")).strip().lower(),
+        covariance_applied=False,
+    )
+
+
+def _apply_dependence_posture(
+    result: EconometricResult,
+    *,
+    params: Mapping[str, Any],
+) -> EconometricResult:
+    diagnostic = result.cross_sectional_dependence_diagnostic
+    if diagnostic is None:
+        return result
+
+    metadata = dict(result.metadata)
+    warnings = list(metadata.get("warnings", []))
+    warnings.append(
+        "Cross-sectional dependence router classified residual dependence as "
+        f"'{diagnostic.class_label}' with status '{diagnostic.estimator_status}'."
+    )
+    metadata["warnings"] = warnings
+    metadata["dependence_posture"] = {
+        "class_label": diagnostic.class_label,
+        "strength": diagnostic.strength,
+        "estimator_status": diagnostic.estimator_status,
+        "recommended_covariance": diagnostic.recommended_covariance,
+    }
+
+    fallback = str(params.get("dependence_fallback", "conservative")).strip().lower()
+    if diagnostic.estimator_status == "ok_conservative":
+        metadata["exploratory_only"] = True
+
+    if fallback == "suppress_inference" and diagnostic.estimator_status in {
+        "reroute_required",
+        "unsafe_for_default_inference",
+    }:
+        metadata["inference_suppressed"] = True
+        metadata["exploratory_only"] = True
+        return result.model_copy(
+            update={
+                "std_errors": {},
+                "t_stats": {},
+                "p_values": {},
+                "confidence_intervals": {},
+                "metadata": metadata,
+            }
+        )
+
+    return result.model_copy(update={"metadata": metadata})
 
 
 def _run_fixed_effects(state: PanelData, params: Mapping[str, Any]) -> EconometricResult:
@@ -293,7 +382,14 @@ def _run_fixed_effects(state: PanelData, params: Mapping[str, Any]) -> Econometr
     for name in dropped:
         warnings.append(f"Dropped time-invariant variable '{name}' for Fixed Effects")
 
-    return _build_result(
+    dependence_diagnostic = _maybe_build_dependence_diagnostic(
+        fit_result=fit_result,
+        state=state,
+        params=params,
+        used_time_dummies=include_time_effects,
+    )
+
+    result = _build_result(
         method_name="fixed_effects",
         fit_result=fit_result,
         confidence_level=float(params.get("confidence_level", 0.95)),
@@ -305,7 +401,9 @@ def _run_fixed_effects(state: PanelData, params: Mapping[str, Any]) -> Econometr
             "dropped_time_invariant": dropped,
         },
         metadata={"warnings": warnings},
+        cross_sectional_dependence_diagnostic=dependence_diagnostic,
     )
+    return _apply_dependence_posture(result, params=params)
 
 
 def _run_random_effects(state: PanelData, params: Mapping[str, Any]) -> EconometricResult:
@@ -325,14 +423,23 @@ def _run_random_effects(state: PanelData, params: Mapping[str, Any]) -> Economet
     model = RandomEffects.from_formula(formula, data=frame)
     fit_result = model.fit(cov_type=cov_type)
 
-    return _build_result(
+    dependence_diagnostic = _maybe_build_dependence_diagnostic(
+        fit_result=fit_result,
+        state=state,
+        params=params,
+        used_time_dummies=False,
+    )
+
+    result = _build_result(
         method_name="random_effects",
         fit_result=fit_result,
         confidence_level=float(params.get("confidence_level", 0.95)),
         n_entities=state.n_entities,
         n_periods=state.n_periods,
         diagnostics={"cov_type": cov_type},
+        cross_sectional_dependence_diagnostic=dependence_diagnostic,
     )
+    return _apply_dependence_posture(result, params=params)
 
 
 @foundry_method(
@@ -371,6 +478,10 @@ class PanelDataEstimator:
             ParameterSpec(name="model", default="fixed_effects"),
             ParameterSpec(name="cov_type", default="robust"),
             ParameterSpec(name="include_time_effects", default=False),
+            ParameterSpec(name="dependence_mode", default="off"),
+            ParameterSpec(name="dependence_covariance", default="auto"),
+            ParameterSpec(name="dependence_fallback", default="conservative"),
+            ParameterSpec(name="dependence_metadata", default=None),
             ParameterSpec(name="confidence_level", default=0.95),
             ParameterSpec(name="envelope_param", default=None),
         ),
@@ -441,6 +552,10 @@ class FixedEffectsEstimator:
         parameters=(
             ParameterSpec(name="cov_type", default="robust"),
             ParameterSpec(name="include_time_effects", default=False),
+            ParameterSpec(name="dependence_mode", default="off"),
+            ParameterSpec(name="dependence_covariance", default="auto"),
+            ParameterSpec(name="dependence_fallback", default="conservative"),
+            ParameterSpec(name="dependence_metadata", default=None),
             ParameterSpec(name="confidence_level", default=0.95),
             ParameterSpec(name="envelope_param", default=None),
         ),
@@ -499,6 +614,10 @@ class RandomEffectsEstimator:
         output_slots=_panel_output_slots(),
         parameters=(
             ParameterSpec(name="cov_type", default="robust"),
+            ParameterSpec(name="dependence_mode", default="off"),
+            ParameterSpec(name="dependence_covariance", default="auto"),
+            ParameterSpec(name="dependence_fallback", default="conservative"),
+            ParameterSpec(name="dependence_metadata", default=None),
             ParameterSpec(name="confidence_level", default=0.95),
             ParameterSpec(name="envelope_param", default=None),
         ),

@@ -31,10 +31,16 @@ from pydantic import BaseModel, ConfigDict, Field
 _logger = logging.getLogger(__name__)
 
 from polisyos.ir.analytics.administrative_missingness import (
+    AdministrativeMissingnessClass,
+    AdministrativeMissingnessDirection,
     AdministrativeMissingnessMetadata,
     AdministrativeMissingnessScenarioFamily,
+    AdministrativeMissingnessUnitScope,
     MissingnessAssessmentReport,
+    MissingnessAssessmentProvenance,
     MissingnessAssessmentStatus,
+    MissingnessEstimandRisk,
+    MissingnessEvidenceItem,
     MissingnessImplicationFailure,
     MissingnessProofStep,
     MissingnessRecoverabilitySummary,
@@ -134,11 +140,244 @@ _SYSTEM_CHANGE_KEYWORDS = (
     "time",
 )
 
+_BOOLEAN_REQUIREMENT_FIELDS = {
+    "population_frame_observed": "population_frame_observed",
+    "bridge_window_observed": "bridge_window_observed",
+    "retention_window_observed": "retention_window_observed",
+    "legal_rule_observed": "legal_rule_observed",
+    "matured_cohorts_observed": "matured_cohorts_observed",
+    "validation_subset_available": "validation_subset_available",
+}
+
+_CLASS_DEFAULT_DIRECTIONS = {
+    AdministrativeMissingnessClass.NONE: AdministrativeMissingnessDirection.UNKNOWN,
+    AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED: (
+        AdministrativeMissingnessDirection.NOT_GENERATED
+    ),
+    AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED: (
+        AdministrativeMissingnessDirection.NOT_GENERATED
+    ),
+    AdministrativeMissingnessClass.COMPLIANCE_NOT_COMPLETED: (
+        AdministrativeMissingnessDirection.NOT_CAPTURED
+    ),
+    AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED: (
+        AdministrativeMissingnessDirection.NOT_CAPTURED
+    ),
+    AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK: (
+        AdministrativeMissingnessDirection.NOT_CAPTURED
+    ),
+    AdministrativeMissingnessClass.RETENTION_EXPIRED: (
+        AdministrativeMissingnessDirection.DELETED
+    ),
+    AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION: (
+        AdministrativeMissingnessDirection.WITHHELD
+    ),
+    AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG: (
+        AdministrativeMissingnessDirection.DELAYED
+    ),
+    AdministrativeMissingnessClass.LINKAGE_FAILURE: AdministrativeMissingnessDirection.NOT_LINKED,
+    AdministrativeMissingnessClass.MIXED: AdministrativeMissingnessDirection.UNKNOWN,
+    AdministrativeMissingnessClass.UNKNOWN: AdministrativeMissingnessDirection.UNKNOWN,
+}
+
+_CLASS_DEFAULT_SCOPES = {
+    AdministrativeMissingnessClass.NONE: AdministrativeMissingnessUnitScope.UNKNOWN,
+    AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED: (
+        AdministrativeMissingnessUnitScope.RECORD
+    ),
+    AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED: (
+        AdministrativeMissingnessUnitScope.RECORD
+    ),
+    AdministrativeMissingnessClass.COMPLIANCE_NOT_COMPLETED: (
+        AdministrativeMissingnessUnitScope.EPISODE
+    ),
+    AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED: (
+        AdministrativeMissingnessUnitScope.TIME_WINDOW
+    ),
+    AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK: (
+        AdministrativeMissingnessUnitScope.EXTRACT
+    ),
+    AdministrativeMissingnessClass.RETENTION_EXPIRED: (
+        AdministrativeMissingnessUnitScope.TIME_WINDOW
+    ),
+    AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION: (
+        AdministrativeMissingnessUnitScope.FIELD
+    ),
+    AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG: (
+        AdministrativeMissingnessUnitScope.EXTRACT
+    ),
+    AdministrativeMissingnessClass.LINKAGE_FAILURE: AdministrativeMissingnessUnitScope.LINK,
+    AdministrativeMissingnessClass.MIXED: AdministrativeMissingnessUnitScope.UNKNOWN,
+    AdministrativeMissingnessClass.UNKNOWN: AdministrativeMissingnessUnitScope.UNKNOWN,
+}
+
+_CLASS_ESTIMAND_SCOPE = {
+    AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED: "eligible_population",
+    AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED: "eligible_population",
+    AdministrativeMissingnessClass.COMPLIANCE_NOT_COMPLETED: "started_population",
+    AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED: "service_window",
+    AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK: "harmonised_window",
+    AdministrativeMissingnessClass.RETENTION_EXPIRED: "retention_window",
+    AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION: "restricted_domain",
+    AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG: "current_extract",
+    AdministrativeMissingnessClass.LINKAGE_FAILURE: "linked_population",
+}
+
+
+def _merge_requirement_specs(
+    *specs: tuple[tuple[str, ...], dict[str, tuple[str, ...]]],
+) -> tuple[tuple[str, ...], dict[str, tuple[str, ...]]]:
+    names: list[str] = []
+    variables: dict[str, tuple[str, ...]] = {}
+    for requirement_names, requirement_vars in specs:
+        for name in requirement_names:
+            if name not in names:
+                names.append(name)
+        for key, value in requirement_vars.items():
+            current = list(variables.get(key, ()))
+            for item in value:
+                text = str(item).strip()
+                if text and text not in current:
+                    current.append(text)
+            variables[key] = tuple(current)
+    return tuple(names), variables
+
+
+def _infer_operational_missingness(
+    *,
+    metadata: AdministrativeMissingnessMetadata | None,
+    scenario_family: AdministrativeMissingnessScenarioFamily,
+) -> tuple[
+    AdministrativeMissingnessClass,
+    AdministrativeMissingnessDirection,
+    AdministrativeMissingnessUnitScope,
+]:
+    if metadata is not None and metadata.scenario_class is not None:
+        scenario_class = metadata.scenario_class
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED:
+        label = str(metadata.registration_indicator or "").lower() if metadata else ""
+        if "apply" in label or "application" in label or "claim" in label:
+            scenario_class = AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED
+        else:
+            scenario_class = AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED:
+        scenario_class = AdministrativeMissingnessClass.COMPLIANCE_NOT_COMPLETED
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED:
+        if metadata is not None and metadata.office_availability_covariates:
+            scenario_class = AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED
+        else:
+            scenario_class = AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.HYBRID:
+        scenario_class = AdministrativeMissingnessClass.MIXED
+    else:
+        scenario_class = AdministrativeMissingnessClass.UNKNOWN
+
+    if metadata is not None and metadata.missingness_direction is not None:
+        direction = metadata.missingness_direction
+    else:
+        direction = _CLASS_DEFAULT_DIRECTIONS[scenario_class]
+
+    if metadata is not None and metadata.missingness_unit_scope is not None:
+        scope = metadata.missingness_unit_scope
+    else:
+        scope = _CLASS_DEFAULT_SCOPES[scenario_class]
+
+    return scenario_class, direction, scope
+
 
 def _scenario_requirements(
     metadata: AdministrativeMissingnessMetadata | None,
     scenario_family: AdministrativeMissingnessScenarioFamily,
+    scenario_class: AdministrativeMissingnessClass,
 ) -> tuple[tuple[str, ...], dict[str, tuple[str, ...]]]:
+    if scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE:
+        return _merge_requirement_specs(
+            (
+                ("identifier_quality_covariates", "validation_subset_available"),
+                {
+                    "identifier_quality_covariates": (
+                        tuple(metadata.identifier_quality_covariates) if metadata else ()
+                    ),
+                },
+            ),
+        )
+
+    if scenario_class is AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG:
+        return _merge_requirement_specs(
+            (
+                (
+                    "time_variable",
+                    "processing_lag_covariates",
+                    "matured_cohorts_observed",
+                ),
+                {
+                    "time_variable": (metadata.time_variable,) if metadata and metadata.time_variable else (),
+                    "processing_lag_covariates": (
+                        tuple(metadata.processing_lag_covariates) if metadata else ()
+                    ),
+                },
+            ),
+        )
+
+    if scenario_class is AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION:
+        return _merge_requirement_specs(
+            (
+                ("legal_restriction_covariates", "legal_rule_observed"),
+                {
+                    "legal_restriction_covariates": (
+                        tuple(metadata.legal_restriction_covariates) if metadata else ()
+                    ),
+                },
+            ),
+        )
+
+    if scenario_class is AdministrativeMissingnessClass.RETENTION_EXPIRED:
+        return _merge_requirement_specs(
+            (
+                ("time_variable", "retention_window_observed"),
+                {
+                    "time_variable": (metadata.time_variable,) if metadata and metadata.time_variable else (),
+                },
+            ),
+        )
+
+    if scenario_class is AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED:
+        return _merge_requirement_specs(
+            (
+                ("office_availability_covariates",),
+                {
+                    "office_availability_covariates": (
+                        tuple(metadata.office_availability_covariates) if metadata else ()
+                    ),
+                },
+            ),
+        )
+
+    if scenario_class is AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK:
+        requirement_names = ["system_version_or_time", "rollout_covariates"]
+        if metadata is not None and metadata.bridge_window_observed is not None:
+            requirement_names.append("bridge_window_observed")
+        return _merge_requirement_specs(
+            (
+                tuple(requirement_names),
+                {
+                    "system_version_or_time": (
+                        tuple(
+                            item
+                            for item in (
+                                metadata.system_version_variable,
+                                metadata.time_variable,
+                            )
+                            if item
+                        )
+                        if metadata
+                        else ()
+                    ),
+                    "rollout_covariates": tuple(metadata.rollout_covariates) if metadata else (),
+                },
+            ),
+        )
+
     if scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED:
         requirement_names = (
             "registration_indicator",
@@ -200,7 +439,11 @@ def _scenario_requirements(
             AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED,
             AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED,
         ):
-            component_names, component_vars = _scenario_requirements(metadata, component)
+            component_names, component_vars = _scenario_requirements(
+                metadata,
+                component,
+                AdministrativeMissingnessClass.UNKNOWN,
+            )
             for name in component_names:
                 if name not in names:
                     names.append(name)
@@ -258,17 +501,296 @@ def _infer_scenario_family(
     return top_family, confidence, tuple(_stable_names(hits_map[top_family]))
 
 
+def _operational_status_override(
+    *,
+    scenario_class: AdministrativeMissingnessClass,
+    metadata: AdministrativeMissingnessMetadata | None,
+    current_status: MissingnessAssessmentStatus,
+    missing_requirement_names: tuple[str, ...],
+) -> MissingnessAssessmentStatus:
+    if current_status is MissingnessAssessmentStatus.NOT_RECOVERABLE:
+        return current_status
+
+    if scenario_class is AdministrativeMissingnessClass.RETENTION_EXPIRED:
+        if metadata is None or metadata.retention_window_observed is not True:
+            return MissingnessAssessmentStatus.NOT_RECOVERABLE
+        return MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+
+    if scenario_class is AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION:
+        if "legal_rule_observed" in missing_requirement_names:
+            return MissingnessAssessmentStatus.UNKNOWN
+        return MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+
+    if scenario_class is AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG:
+        if "matured_cohorts_observed" in missing_requirement_names:
+            return MissingnessAssessmentStatus.UNKNOWN
+        return MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+
+    if scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE:
+        if "validation_subset_available" in missing_requirement_names:
+            return MissingnessAssessmentStatus.UNKNOWN
+        return MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+
+    if scenario_class is AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED:
+        return MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+
+    if scenario_class is AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK:
+        if metadata is not None and metadata.bridge_window_observed is False:
+            return MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+
+    return current_status
+
+
+def _risk_level_for_status(status: MissingnessAssessmentStatus) -> str:
+    if status is MissingnessAssessmentStatus.RECOVERABLE:
+        return "low"
+    if status is MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE:
+        return "medium"
+    if status is MissingnessAssessmentStatus.NOT_RECOVERABLE:
+        return "high"
+    return "unknown"
+
+
+def _identifiable_for_status(status: MissingnessAssessmentStatus) -> bool | None:
+    if status is MissingnessAssessmentStatus.RECOVERABLE:
+        return True
+    if status is MissingnessAssessmentStatus.NOT_RECOVERABLE:
+        return False
+    return None
+
+
+def _estimands_at_risk(
+    *,
+    metadata: AdministrativeMissingnessMetadata | None,
+    scenario_class: AdministrativeMissingnessClass,
+    status: MissingnessAssessmentStatus,
+    query_variables: frozenset[str],
+) -> tuple[MissingnessEstimandRisk, ...]:
+    target_variables = (
+        tuple(metadata.target_variables)
+        if metadata is not None and metadata.target_variables
+        else tuple(sorted(query_variables))
+    )
+    scope = _CLASS_ESTIMAND_SCOPE.get(scenario_class, "analysis_population")
+    return tuple(
+        MissingnessEstimandRisk(
+            name=f"E[{variable}]",
+            scope=scope,
+            identifiable=_identifiable_for_status(status),
+            risk_level=_risk_level_for_status(status),
+        )
+        for variable in target_variables
+    )
+
+
+def _identification_assumptions_for_assessment(
+    *,
+    metadata: AdministrativeMissingnessMetadata | None,
+    scenario_family: AdministrativeMissingnessScenarioFamily,
+    scenario_class: AdministrativeMissingnessClass,
+    target_variables: tuple[str, ...],
+) -> tuple[str, ...]:
+    assumptions: list[str] = []
+    if scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED:
+        indicator = metadata.registration_indicator if metadata else "registration_indicator"
+        drivers = ", ".join(metadata.eligibility_covariates) if metadata else "eligibility_covariates"
+        for target in target_variables:
+            assumptions.append(f"{target} ⟂ {indicator} | {drivers}")
+        assumptions.append(f"0 < P({indicator}=1 | {drivers}) < 1")
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED:
+        indicator = metadata.compliance_indicator if metadata else "compliance_indicator"
+        drivers = (
+            ", ".join(metadata.compliance_driver_covariates)
+            if metadata
+            else "compliance_driver_covariates"
+        )
+        for target in target_variables:
+            assumptions.append(f"{target} ⟂ {indicator} | {drivers}")
+        assumptions.append(f"0 < P({indicator}=1 | {drivers}) < 1")
+    elif scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE:
+        drivers = (
+            ", ".join(metadata.identifier_quality_covariates)
+            if metadata and metadata.identifier_quality_covariates
+            else "identifier_quality_covariates"
+        )
+        for target in target_variables:
+            assumptions.append(f"{target} ⟂ link_success | {drivers}")
+        assumptions.append("0 < P(link_success=1 | identifier_quality_covariates) < 1")
+    elif scenario_class is AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG:
+        drivers = (
+            ", ".join(_stable_names([metadata.time_variable, *metadata.processing_lag_covariates]))
+            if metadata
+            else "time, backlog_covariates"
+        )
+        for target in target_variables:
+            assumptions.append(f"{target} ⟂ R_{target} | {drivers}")
+    elif scenario_class in {
+        AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED,
+        AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK,
+    }:
+        drivers = (
+            ", ".join(
+                _stable_names(
+                    [
+                        metadata.system_version_variable,
+                        metadata.time_variable,
+                        *metadata.rollout_covariates,
+                        *metadata.office_availability_covariates,
+                    ]
+                )
+            )
+            if metadata
+            else "system_or_service_covariates"
+        )
+        for target in target_variables:
+            assumptions.append(f"{target} ⟂ R_{target} | {drivers}")
+    return tuple(_stable_names(assumptions))
+
+
+def _testable_implications_for_assessment(
+    *,
+    metadata: AdministrativeMissingnessMetadata | None,
+    scenario_class: AdministrativeMissingnessClass,
+    scenario_family: AdministrativeMissingnessScenarioFamily,
+) -> tuple[str, ...]:
+    implications: list[str] = []
+    if scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED:
+        implications.extend(("registration_indicator_observed", "population_frame_coverage_audited"))
+    if scenario_family is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED:
+        implications.extend(("process_log_sequence_complete", "compliance_indicator_observed"))
+    if scenario_class is AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED:
+        implications.extend(("office_availability_logged", "outage_windows_declared"))
+    if scenario_class is AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK:
+        implications.extend(("bridge_window_or_dual_run_available", "pre_post_consistency_checked"))
+    if scenario_class is AdministrativeMissingnessClass.RETENTION_EXPIRED:
+        implications.extend(("retention_boundary_declared", "disappearingness_monotone"))
+    if scenario_class is AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION:
+        implications.extend(("access_rule_deterministic", "redaction_rule_matches_payload"))
+    if scenario_class is AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG:
+        implications.extend(("revision_curve_monotone", "matured_cohorts_tracked"))
+    if scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE:
+        implications.extend(("linkage_precision_estimated", "validation_subset_available"))
+    if metadata is not None and metadata.bridge_window_observed is True:
+        implications.append("bridge_window_observed")
+    if metadata is not None and metadata.validation_subset_available is True:
+        implications.append("validation_subset_available")
+    return tuple(_stable_names(implications))
+
+
+def _evidence_for_assessment(
+    metadata: AdministrativeMissingnessMetadata | None,
+) -> tuple[MissingnessEvidenceItem, ...]:
+    if metadata is None:
+        return ()
+    return tuple(
+        MissingnessEvidenceItem(type="artifact", ref=ref, quality="medium")
+        for ref in metadata.evidence_refs
+    )
+
+
+def _provenance_for_assessment(
+    *,
+    graph: Any,
+    metadata: AdministrativeMissingnessMetadata | None,
+) -> MissingnessAssessmentProvenance:
+    graph_metadata = getattr(graph, "metadata", {}) or {}
+    return MissingnessAssessmentProvenance(
+        source_system=metadata.source_system if metadata else None,
+        extract_ts=metadata.extract_ts if metadata else None,
+        policy_version=metadata.policy_version if metadata else None,
+        linkage_run_id=metadata.linkage_run_id if metadata else None,
+        retention_schedule_id=metadata.retention_schedule_id if metadata else None,
+        assessment_method="assess_administrative_missingness",
+        code_commit=str(graph_metadata.get("code_commit") or "") or None,
+        mgraph_fingerprint=str(graph_metadata.get("mgraph_fingerprint") or "") or None,
+    )
+
+
+def _recommended_method_stack_for_assessment(
+    *,
+    scenario_class: AdministrativeMissingnessClass,
+    scenario_family: AdministrativeMissingnessScenarioFamily,
+    status: MissingnessAssessmentStatus,
+) -> tuple[str, ...]:
+    methods: list[str]
+    if scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE:
+        methods = [
+            "probabilistic_linkage_with_uncertainty",
+            "ipw_on_link_success",
+            "sensitivity_bounds",
+        ]
+    elif scenario_class is AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG:
+        methods = ["lag_adjusted_ipw", "nowcasting", "revision_aware_bounds"]
+    elif scenario_class is AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION:
+        methods = ["restricted_domain_weighting", "partial_identification_bounds"]
+    elif scenario_class is AdministrativeMissingnessClass.RETENTION_EXPIRED:
+        methods = ["restricted_estimand", "monotone_bounds"]
+    elif scenario_class in {
+        AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED,
+        AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK,
+    }:
+        methods = ["bridge_reweighting", "harmonisation", "bounds"]
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED:
+        methods = ["ipw", "doubly_robust", "pattern_mixture", "sensitivity_analysis"]
+    else:
+        methods = ["ipw", "aipw", "selection_model", "bounds"]
+
+    if status is MissingnessAssessmentStatus.NOT_RECOVERABLE:
+        return tuple(method for method in methods if "bounds" in method or "restricted" in method)
+    if status is MissingnessAssessmentStatus.UNKNOWN:
+        methods.append("collect_more_process_metadata")
+    return tuple(_stable_names(methods))
+
+
+def _sensitivity_plan_for_assessment(
+    *,
+    scenario_class: AdministrativeMissingnessClass,
+    status: MissingnessAssessmentStatus,
+) -> tuple[str, ...]:
+    if status is MissingnessAssessmentStatus.RECOVERABLE:
+        return ()
+    if scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE:
+        return ("Run linkage-rule perturbations and report bounded estimates.",)
+    if scenario_class is AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG:
+        return ("Publish revision-aware intervals until matured cohorts close the lag.",)
+    if scenario_class is AdministrativeMissingnessClass.RETENTION_EXPIRED:
+        return ("Restrict the estimand to the retention window or report monotone bounds.",)
+    return ("Escalate to bounds or sensitivity analysis if point identification fails.",)
+
+
+def _target_population_after_restriction(
+    *,
+    scenario_class: AdministrativeMissingnessClass,
+    metadata: AdministrativeMissingnessMetadata | None,
+) -> str | None:
+    if scenario_class is AdministrativeMissingnessClass.RETENTION_EXPIRED:
+        return "Units whose event times fall inside the observed retention window."
+    if scenario_class is AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION:
+        return "Units permitted by the declared access and redaction rule."
+    if scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE:
+        return "Units linkable under the declared identifier-quality regime."
+    if scenario_class is AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG:
+        return "Units observed by the current extract date after accounting for reporting lag."
+    if metadata is not None and metadata.population_frame_observed is False:
+        return "Registered or observed-frame units only; non-registered eligible units remain external."
+    return None
+
+
 def _recommendations_for_assessment(
     *,
     metadata: AdministrativeMissingnessMetadata | None,
     scenario_family: AdministrativeMissingnessScenarioFamily,
+    scenario_class: AdministrativeMissingnessClass,
     missing_requirement_names: tuple[str, ...],
     recoverability_status: str,
     selection_only_registration: bool,
     testability_invalid: bool,
 ) -> tuple[str, ...]:
     recommendations: list[str] = []
-    if scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED:
+    if scenario_class in {
+        AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED,
+        AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED,
+    }:
         if "registration_indicator" in missing_requirement_names:
             recommendations.append(
                 "Add a fully observed registration/apply flag and declare registration_flag -> R_X."
@@ -281,7 +803,7 @@ def _recommendations_for_assessment(
             recommendations.append(
                 "Record eligibility or queue covariates that drive registration before treating the pattern as recoverable."
             )
-    elif scenario_family is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED:
+    elif scenario_class is AdministrativeMissingnessClass.COMPLIANCE_NOT_COMPLETED:
         if "compliance_indicator" in missing_requirement_names:
             recommendations.append(
                 "Model compliance status C explicitly and declare C -> R_X for affected fields."
@@ -290,7 +812,12 @@ def _recommendations_for_assessment(
             recommendations.append(
                 "Add deadlines, sanctions, or service-access covariates that explain compliance."
             )
-    elif scenario_family is AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED:
+    elif scenario_class is AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED:
+        if "office_availability_covariates" in missing_requirement_names:
+            recommendations.append(
+                "Record outage windows, office availability, and service-channel metadata before certifying recoverability."
+            )
+    elif scenario_class is AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK:
         if "system_version_or_time" in missing_requirement_names:
             recommendations.append(
                 "Add a system_version or time variable and declare it as a parent of the affected R-nodes."
@@ -298,6 +825,42 @@ def _recommendations_for_assessment(
         if "rollout_covariates" in missing_requirement_names:
             recommendations.append(
                 "Record rollout covariates such as region or office type to separate migration effects from latent selection."
+            )
+        if "bridge_window_observed" in missing_requirement_names:
+            recommendations.append(
+                "Persist dual-run or overlap-window evidence before treating schema changes as harmonised."
+            )
+    elif scenario_class is AdministrativeMissingnessClass.RETENTION_EXPIRED:
+        recommendations.append(
+            "Restrict the estimand to the retention window unless an external archive or snapshot history is available."
+        )
+    elif scenario_class is AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION:
+        if "legal_rule_observed" in missing_requirement_names:
+            recommendations.append(
+                "Persist the legal or access-control rule that drives redaction before claiming partial recoverability."
+            )
+    elif scenario_class is AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG:
+        if "processing_lag_covariates" in missing_requirement_names:
+            recommendations.append(
+                "Store batch, workload, and extract-timing covariates so lagged observations can be modelled."
+            )
+        if "matured_cohorts_observed" in missing_requirement_names:
+            recommendations.append(
+                "Retain matured cohorts or revision histories to calibrate nowcasts for delayed administrative updates."
+            )
+    elif scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE:
+        if "identifier_quality_covariates" in missing_requirement_names:
+            recommendations.append(
+                "Capture identifier-quality covariates and linkage diagnostics before treating link success as ignorable."
+            )
+        if "validation_subset_available" in missing_requirement_names:
+            recommendations.append(
+                "Create a validation subset or clerical-review sample; otherwise fall back to bounds for linkage bias."
+            )
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED:
+        if "system_version_or_time" in missing_requirement_names:
+            recommendations.append(
+                "Add a system_version or time variable and declare it as a parent of the affected R-nodes."
             )
     elif scenario_family is AdministrativeMissingnessScenarioFamily.UNKNOWN:
         recommendations.append(
@@ -377,9 +940,14 @@ def assess_administrative_missingness(
         graph=parsed_graph,
         metadata=administrative_meta,
     )
+    scenario_class, missingness_direction, missingness_unit_scope = _infer_operational_missingness(
+        metadata=administrative_meta,
+        scenario_family=scenario_family,
+    )
     requirement_names, requirement_vars = _scenario_requirements(
         administrative_meta,
         scenario_family,
+        scenario_class,
     )
     available_nodes = set(parsed_graph.nodes)
     if isinstance(data, Mapping):
@@ -389,8 +957,9 @@ def assess_administrative_missingness(
     missing_covariates: list[str] = []
     missing_requirement_names: list[str] = []
     for requirement in requirement_names:
-        if requirement == "population_frame_observed":
-            if administrative_meta is None or administrative_meta.population_frame_observed is not True:
+        if requirement in _BOOLEAN_REQUIREMENT_FIELDS:
+            field_name = _BOOLEAN_REQUIREMENT_FIELDS[requirement]
+            if administrative_meta is None or getattr(administrative_meta, field_name) is not True:
                 missing_requirement_names.append(requirement)
             continue
         required_vars = tuple(requirement_vars.get(requirement, ()))
@@ -411,6 +980,11 @@ def assess_administrative_missingness(
         frozenset(query_variables)
         if query_variables is not None
         else frozenset(meta.substantive_vars)
+    )
+    resolved_target_variables = (
+        tuple(administrative_meta.target_variables)
+        if administrative_meta is not None and administrative_meta.target_variables
+        else tuple(sorted(resolved_query_vars))
     )
     recoverability_result = test_recoverability(
         query_vars=resolved_query_vars,
@@ -527,13 +1101,57 @@ def assess_administrative_missingness(
     else:
         status = MissingnessAssessmentStatus.RECOVERABLE
 
+    status = _operational_status_override(
+        scenario_class=scenario_class,
+        metadata=administrative_meta,
+        current_status=status,
+        missing_requirement_names=tuple(_stable_names(missing_requirement_names)),
+    )
+
     recommendations = _recommendations_for_assessment(
         metadata=administrative_meta,
         scenario_family=scenario_family,
+        scenario_class=scenario_class,
         missing_requirement_names=tuple(_stable_names(missing_requirement_names)),
         recoverability_status=recoverability_result.status.value,
         selection_only_registration=selection_only_registration,
         testability_invalid=testability_invalid,
+    )
+
+    estimands_at_risk = _estimands_at_risk(
+        metadata=administrative_meta,
+        scenario_class=scenario_class,
+        status=status,
+        query_variables=resolved_query_vars,
+    )
+    identification_assumptions = _identification_assumptions_for_assessment(
+        metadata=administrative_meta,
+        scenario_family=scenario_family,
+        scenario_class=scenario_class,
+        target_variables=resolved_target_variables,
+    )
+    testable_implications_declared = _testable_implications_for_assessment(
+        metadata=administrative_meta,
+        scenario_class=scenario_class,
+        scenario_family=scenario_family,
+    )
+    evidence = _evidence_for_assessment(administrative_meta)
+    provenance = _provenance_for_assessment(
+        graph=parsed_graph,
+        metadata=administrative_meta,
+    )
+    recommended_method_stack = _recommended_method_stack_for_assessment(
+        scenario_class=scenario_class,
+        scenario_family=scenario_family,
+        status=status,
+    )
+    sensitivity_plan = _sensitivity_plan_for_assessment(
+        scenario_class=scenario_class,
+        status=status,
+    )
+    target_population_after_restriction = _target_population_after_restriction(
+        scenario_class=scenario_class,
+        metadata=administrative_meta,
     )
 
     metadata_payload: dict[str, Any] = {
@@ -548,6 +1166,9 @@ def assess_administrative_missingness(
     return MissingnessAssessmentReport(
         status=status,
         scenario_family=scenario_family,
+        scenario_class=scenario_class,
+        missingness_direction=missingness_direction,
+        missingness_unit_scope=missingness_unit_scope,
         scenario_confidence=scenario_confidence,
         administrative_covariates_present=tuple(_stable_names(present_covariates)),
         administrative_covariates_missing=tuple(_stable_names(missing_covariates)),
@@ -561,6 +1182,14 @@ def assess_administrative_missingness(
         or None,
         recoverability=recoverability_summary,
         testability_audit=testability_audit,
+        estimands_at_risk=estimands_at_risk,
+        identification_assumptions=identification_assumptions,
+        testable_implications_declared=testable_implications_declared,
+        evidence=evidence,
+        provenance=provenance,
+        recommended_method_stack=recommended_method_stack,
+        sensitivity_plan=sensitivity_plan,
+        target_population_after_restriction=target_population_after_restriction,
         recommendations=recommendations,
         metadata=metadata_payload,
     )

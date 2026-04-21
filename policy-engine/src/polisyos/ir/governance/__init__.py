@@ -92,6 +92,9 @@ __all__ = [
     "SelectorExpr",
     "ValidationIssue",
     "ValidationReport",
+    "Phase1GateSummary",
+    "build_phase1_gate_summary",
+    "load_phase1_flagship_dataset_ids",
     "diff_payloads",
     "issues_from_validation_error",
     "summarize_issues",
@@ -278,6 +281,15 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "SelectorExpr": ("polisyos.ir.governance.selector_expr", "SelectorExpr"),
     "ValidationIssue": ("polisyos.ir.governance.validation", "ValidationIssue"),
     "ValidationReport": ("polisyos.ir.governance.validation", "ValidationReport"),
+    "Phase1GateSummary": ("polisyos.ir.governance.phase1", "Phase1GateSummary"),
+    "build_phase1_gate_summary": (
+        "polisyos.ir.governance.phase1",
+        "build_phase1_gate_summary",
+    ),
+    "load_phase1_flagship_dataset_ids": (
+        "polisyos.ir.governance.phase1",
+        "load_phase1_flagship_dataset_ids",
+    ),
     "diff_payloads": ("polisyos.ir.governance.validation", "diff_payloads"),
     "issues_from_validation_error": (
         "polisyos.ir.governance.validation",

@@ -56,6 +56,12 @@ class DiagnosticDashboardData(BaseModel):
     falsification: FalsificationReport | None = None
     """All falsification / refutation tests aggregated."""
 
+    raking_convergence: dict[str, Any] | None = None
+    """Survey/microsim raking convergence summary."""
+
+    weight_stability: dict[str, Any] | None = None
+    """Survey/microsim weight concentration and positivity summary."""
+
     # ------------------------------------------------------------------
     # Aggregate summary
     # ------------------------------------------------------------------
@@ -83,6 +89,7 @@ class DiagnosticDashboardData(BaseModel):
     has_balance_issues: bool = False
     has_falsification_failures: bool = False
     has_robustness_concerns: bool = False
+    has_weighting_issues: bool = False
     warnings: tuple[str, ...] = ()
 
     @classmethod
@@ -104,6 +111,7 @@ class DiagnosticDashboardData(BaseModel):
         sensitivity_result: dict[str, Any] | None = None
         pt_result: dict[str, Any] | None = None
         balance_report: CovariateBalanceReport | None = None
+        raking_result: dict[str, Any] | None = None
         warnings: dict[str, None] = {}
 
         for node_id, outputs in node_outputs.items():
@@ -120,6 +128,9 @@ class DiagnosticDashboardData(BaseModel):
                 # ParallelTrendsCheck result
                 elif result.get("test_name") == "parallel_trends_check" and pt_result is None:
                     pt_result = result
+
+            if raking_result is None:
+                raking_result = _serialize_raking(outputs.get("diagnostics", outputs.get("result")))
 
             # SensitivityResult object
             sr = outputs.get("sensitivity_result")
@@ -175,6 +186,7 @@ class DiagnosticDashboardData(BaseModel):
         has_balance = False
         has_falsification = False
         has_robustness = False
+        has_weighting = False
 
         if positivity_result is not None:
             n_run += 1
@@ -230,6 +242,18 @@ class DiagnosticDashboardData(BaseModel):
                 n_warn += 1
                 has_balance = True
 
+        if raking_result is not None:
+            n_run += 1
+            decision = str(raking_result.get("decision", "pass"))
+            if decision == "block":
+                n_fail += 1
+                has_weighting = True
+            elif decision == "warn":
+                n_warn += 1
+                has_weighting = True
+            else:
+                n_pass += 1
+
         overall = (n_fail == 0)
 
         return cls(
@@ -242,6 +266,8 @@ class DiagnosticDashboardData(BaseModel):
             parallel_trends=pt_test,
             sensitivity=sensitivity_result,
             falsification=falsification,
+            raking_convergence=_raking_convergence_view(raking_result),
+            weight_stability=_weight_stability_view(raking_result),
             n_diagnostics_run=n_run,
             n_passed=n_pass,
             n_failed=n_fail,
@@ -251,6 +277,7 @@ class DiagnosticDashboardData(BaseModel):
             has_balance_issues=has_balance,
             has_falsification_failures=has_falsification,
             has_robustness_concerns=has_robustness,
+            has_weighting_issues=has_weighting,
             warnings=tuple(warnings),
         )
 
@@ -272,6 +299,60 @@ def _serialize_sensitivity(sr: Any) -> tuple[dict[str, Any], str | None]:
             "rosenbaum_gamma": getattr(sr, "rosenbaum_gamma", None),
             "is_robust": getattr(sr, "is_robust", False),
         }, "sensitivity_serialize_fallback"
+
+
+def _serialize_raking(value: Any) -> dict[str, Any] | None:
+    """Convert a survey raking diagnostic payload to a plain dict when possible."""
+    if value is None:
+        return None
+    if hasattr(value, "contract_id") and getattr(value, "contract_id", None) == "ir.survey_raking_diagnostic_report.v1":
+        model_dump = getattr(value, "model_dump", None)
+        if callable(model_dump):
+            return model_dump(mode="json")
+    if isinstance(value, dict) and {"decision", "stop_reason", "max_rel_margin_error"} <= set(value):
+        return dict(value)
+    return None
+
+
+def _raking_convergence_view(raking_result: dict[str, Any] | None) -> dict[str, Any] | None:
+    if raking_result is None:
+        return None
+    keys = (
+        "decision",
+        "converged",
+        "stop_reason",
+        "n_sweeps",
+        "max_rel_margin_error",
+        "rms_rel_margin_error",
+        "max_logweight_change",
+        "improvement_ratio_5",
+        "monotonicity_share",
+        "worst_margin",
+        "worst_category",
+    )
+    return {key: raking_result.get(key) for key in keys if key in raking_result}
+
+
+def _weight_stability_view(raking_result: dict[str, Any] | None) -> dict[str, Any] | None:
+    if raking_result is None:
+        return None
+    keys = (
+        "decision",
+        "ess",
+        "ess_fraction",
+        "kish_deff",
+        "cv_weights",
+        "top1_weight_share",
+        "top5_weight_share",
+        "max_g_weight_ratio",
+        "min_g_weight_ratio",
+        "structural_zero_count",
+        "sparse_category_count",
+        "vif_lb_max",
+        "blocking_reasons",
+        "warnings",
+    )
+    return {key: raking_result.get(key) for key in keys if key in raking_result}
 
 
 __all__ = ["DiagnosticDashboardData"]

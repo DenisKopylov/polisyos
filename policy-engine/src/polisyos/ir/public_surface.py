@@ -47,6 +47,26 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "BacktestReport": ("polisyos.ir.analytics.backtest", "BacktestReport"),
     "BacktestScenario": ("polisyos.ir.analytics.backtest", "BacktestScenario"),
     "BiasDirection": ("polisyos.ir.analytics.backtest", "BiasDirection"),
+    "AdministrativeMissingnessClass": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "AdministrativeMissingnessClass",
+    ),
+    "AdministrativeMissingnessDirection": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "AdministrativeMissingnessDirection",
+    ),
+    "AdministrativeMissingnessMetadata": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "AdministrativeMissingnessMetadata",
+    ),
+    "AdministrativeMissingnessScenarioFamily": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "AdministrativeMissingnessScenarioFamily",
+    ),
+    "AdministrativeMissingnessUnitScope": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "AdministrativeMissingnessUnitScope",
+    ),
     "CausalDiscoveryReport": (
         "polisyos.ir.analytics.causal_discovery",
         "CausalDiscoveryReport",
@@ -102,6 +122,26 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "MetricValidationReport": (
         "polisyos.ir.analytics.metric_validation_report",
         "MetricValidationReport",
+    ),
+    "MissingnessAssessmentProvenance": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "MissingnessAssessmentProvenance",
+    ),
+    "MissingnessAssessmentReport": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "MissingnessAssessmentReport",
+    ),
+    "MissingnessAssessmentStatus": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "MissingnessAssessmentStatus",
+    ),
+    "MissingnessEstimandRisk": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "MissingnessEstimandRisk",
+    ),
+    "MissingnessEvidenceItem": (
+        "polisyos.ir.analytics.administrative_missingness",
+        "MissingnessEvidenceItem",
     ),
     "EdgeMark": ("polisyos.ir.analytics.causal_graph", "EdgeMark"),
     "EdgeSource": ("polisyos.ir.analytics.causal_graph", "EdgeSource"),
@@ -258,6 +298,74 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "RecoverabilityCertificateStatus": (
         "polisyos.ir.analytics.recoverability",
         "RecoverabilityCertificateStatus",
+    ),
+    "SurveyRakingIteration": (
+        "polisyos.ir.analytics.survey_raking",
+        "SurveyRakingIteration",
+    ),
+    "SurveyRakingCategoryDiagnostic": (
+        "polisyos.ir.analytics.survey_raking",
+        "SurveyRakingCategoryDiagnostic",
+    ),
+    "SurveyRakingDiagnosticReport": (
+        "polisyos.ir.analytics.survey_raking",
+        "SurveyRakingDiagnosticReport",
+    ),
+    "SurveyAssumptionComponent": (
+        "polisyos.ir.analytics.survey_quality",
+        "SurveyAssumptionComponent",
+    ),
+    "SurveyAssumptionLayer": (
+        "polisyos.ir.analytics.survey_quality",
+        "SurveyAssumptionLayer",
+    ),
+    "SurveyAssumptionStatus": (
+        "polisyos.ir.analytics.survey_quality",
+        "SurveyAssumptionStatus",
+    ),
+    "SurveyRequestedRegime": (
+        "polisyos.ir.analytics.survey_quality",
+        "SurveyRequestedRegime",
+    ),
+    "SurveyValidatedRegime": (
+        "polisyos.ir.analytics.survey_quality",
+        "SurveyValidatedRegime",
+    ),
+    "SurveyVarianceMode": (
+        "polisyos.ir.analytics.survey_quality",
+        "SurveyVarianceMode",
+    ),
+    "SurveyQualityCertificate": (
+        "polisyos.ir.analytics.survey_quality",
+        "SurveyQualityCertificate",
+    ),
+    "SurveyQualityCertificateRef": (
+        "polisyos.ir.refs",
+        "SurveyQualityCertificateRef",
+    ),
+    "MicrosimCalibrationReport": (
+        "polisyos.ir.analytics.microsim_calibration",
+        "MicrosimCalibrationReport",
+    ),
+    "MicrosimCalibrationReportRef": (
+        "polisyos.ir.refs",
+        "MicrosimCalibrationReportRef",
+    ),
+    "DependenceStructure": (
+        "polisyos.ir.analytics.dependence_structure",
+        "DependenceStructure",
+    ),
+    "DependenceStructureRef": (
+        "polisyos.ir.refs",
+        "DependenceStructureRef",
+    ),
+    "MobilityReport": (
+        "polisyos.ir.analytics.mobility",
+        "MobilityReport",
+    ),
+    "MobilityReportRef": (
+        "polisyos.ir.refs",
+        "MobilityReportRef",
     ),
     "RecourseAction": ("polisyos.ir.analytics.recourse", "RecourseAction"),
     "RecourseActionType": ("polisyos.ir.analytics.recourse", "RecourseActionType"),

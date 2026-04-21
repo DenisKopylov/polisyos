@@ -33,6 +33,7 @@ from polisyos.ir.analytics.proximal import (
     ProximalIdentificationCertificate,
     ProximalQuerySpec,
     ProxyAnnotation,
+    SpatialProxySpec,
     load_bridge_plausibility_report,
     persist_bridge_plausibility_report,
     load_proximal_identification_certificate,
@@ -325,3 +326,49 @@ def test_bridge_plausibility_ref_attaches_to_proof_bundle(tmp_path) -> None:
     assert loaded_bundle.metadata["bridge_plausibility_report_ref"]["artifact_id"] == str(
         report_ref.artifact_id
     )
+
+
+def test_spatial_proxy_specs_round_trip_in_proximal_certificate(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    certificate = _proximal_certificate().model_copy(
+        update={
+            "proxies": ProxyAnnotation(
+                treatment_inducing=("Z",),
+                outcome_inducing=("W",),
+                covariates=("X",),
+                spatial_proxy_specs=(
+                    SpatialProxySpec(
+                        proxy_variables=("Z",),
+                        weight_matrix_ref="artifact://weights/W",
+                        proxy_construction="buffered_ring_lag",
+                        lag_orders=(2,),
+                        buffer_radius=2,
+                        allowed_roles=("treatment_inducing",),
+                        spillover_radius_claim=1,
+                    ),
+                    SpatialProxySpec(
+                        proxy_variables=("W",),
+                        weight_matrix_ref="artifact://weights/W",
+                        proxy_construction="buffered_ring_lag",
+                        lag_orders=(3,),
+                        buffer_radius=3,
+                        allowed_roles=("outcome_inducing",),
+                        spillover_radius_claim=1,
+                    ),
+                ),
+            ),
+            "metadata": {
+                "theorem_family": "proximal_spatial_id_v1",
+                "method": "spatial_proximal_bridge",
+                "implementation_coverage": "spatial_proximal_bridge_v1",
+            },
+        }
+    )
+    certificate_ref = persist_proximal_identification_certificate(store, certificate)
+    loaded = load_proximal_identification_certificate(store, certificate_ref)
+    bundle = proof_bundle_from_proximal_certificate(certificate, certificate_ref=certificate_ref)
+
+    assert len(loaded.proxies.spatial_proxy_specs) == 2
+    assert loaded.proxies.spatial_proxy_specs[1].lag_orders == (3,)
+    assert bundle.theorem_family == "proximal_spatial_id_v1"
+    assert bundle.metadata["method"] == "spatial_proximal_bridge"

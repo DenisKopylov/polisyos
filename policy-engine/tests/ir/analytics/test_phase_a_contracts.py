@@ -5,9 +5,13 @@ from types import SimpleNamespace
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
 from polisyos.ir.analytics.administrative_missingness import (
+    AdministrativeMissingnessClass,
+    MissingnessAssessmentProvenance,
     AdministrativeMissingnessScenarioFamily,
     MissingnessAssessmentReport,
     MissingnessAssessmentStatus,
+    MissingnessEstimandRisk,
+    MissingnessEvidenceItem,
     MissingnessRecoverabilitySummary,
     MissingnessTestabilityAudit,
 )
@@ -18,6 +22,14 @@ from polisyos.ir.analytics.causal import (
     persist_data_readiness_report,
     persist_proof_bundle,
     proof_bundle_from_identification_result,
+)
+from polisyos.ir import (
+    AdministrativeMissingnessClass as RootAdministrativeMissingnessClass,
+    MissingnessAssessmentReport as RootMissingnessAssessmentReport,
+)
+from polisyos.ir.analytics import (
+    AdministrativeMissingnessClass as AnalyticsAdministrativeMissingnessClass,
+    MissingnessAssessmentReport as AnalyticsMissingnessAssessmentReport,
 )
 from polisyos.ir.analytics.dynamic_causal_semantics import (
     DynamicReductionStatus,
@@ -339,6 +351,62 @@ def test_data_readiness_warns_on_unknown_or_failed_missingness_model() -> None:
     assert readiness.decision == "warn"
     assert "missingness_model_underspecified" in readiness.warnings
     assert "missingness_implications_failed" in readiness.warnings
+
+
+def test_data_readiness_surfaces_decision_grade_missingness_metrics() -> None:
+    assessment = MissingnessAssessmentReport(
+        status=MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE,
+        scenario_family=AdministrativeMissingnessScenarioFamily.HYBRID,
+        scenario_class=AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION,
+        scenario_confidence=0.84,
+        estimands_at_risk=(
+            MissingnessEstimandRisk(
+                name="E[income]",
+                scope="restricted_domain",
+                identifiable=None,
+                risk_level="medium",
+            ),
+        ),
+        identification_assumptions=("income ⟂ R_income | region",),
+        testable_implications_declared=("access_rule_deterministic",),
+        evidence=(
+            MissingnessEvidenceItem(
+                type="artifact",
+                ref="artifact://policy/access_rule",
+                quality="high",
+            ),
+        ),
+        provenance=MissingnessAssessmentProvenance(
+            source_system="benefits_registry_v2",
+            assessment_method="mgraph_plus_rule_audit",
+        ),
+        recommended_method_stack=("restricted_domain_weighting", "partial_identification_bounds"),
+        sensitivity_plan=("Report bounds when access rules narrow the estimand.",),
+        target_population_after_restriction="Units permitted by the access-control rule.",
+    )
+
+    readiness = build_data_readiness_report(
+        missingness_assessment=assessment,
+        fallback_data_available=True,
+    )
+
+    assert readiness.decision == "warn"
+    assert readiness.metrics["missingness_estimands_at_risk_count"] == 1.0
+    assert readiness.metrics["missingness_estimands_partially_identified_count"] == 1.0
+    assert readiness.metrics["missingness_evidence_count"] == 1.0
+    assert readiness.metrics["missingness_bounds_or_sensitivity_required"] == 1.0
+    assert readiness.metrics["missingness_target_population_restricted"] == 1.0
+    assert "missingness_partially_recoverable" in readiness.warnings
+    assert "missingness_bounds_or_sensitivity_required" in readiness.warnings
+    assert "missingness_target_population_restricted" in readiness.warnings
+    assert "access_restricted_estimand_only" in readiness.warnings
+
+
+def test_ir_facades_export_administrative_missingness_taxonomy() -> None:
+    assert RootAdministrativeMissingnessClass is AdministrativeMissingnessClass
+    assert AnalyticsAdministrativeMissingnessClass is AdministrativeMissingnessClass
+    assert RootMissingnessAssessmentReport is MissingnessAssessmentReport
+    assert AnalyticsMissingnessAssessmentReport is MissingnessAssessmentReport
 
 
 def test_canonical_artifacts_round_trip_via_store(tmp_path) -> None:

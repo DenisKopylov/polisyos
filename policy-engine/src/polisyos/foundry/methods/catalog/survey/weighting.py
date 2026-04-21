@@ -18,10 +18,28 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.ir.analytics.survey_raking import SurveyRakingDiagnosticReport
+
+from ._raking_core import run_raking_ipf, run_raking_with_fallbacks
 
 
 def _result_slot() -> frozenset[SlotSpec]:
     return frozenset({SlotSpec("result", SlotType.SCALAR, Unit("result", "json"))})
+
+
+def _raking_ipf_output_slots() -> frozenset[SlotSpec]:
+    return frozenset(
+        {
+            SlotSpec("result", SlotType.SCALAR, Unit("result", "json")),
+            SlotSpec("weights", SlotType.VECTOR, Unit("weight", "mass"), shape=("n_obs",)),
+            SlotSpec(
+                "diagnostics",
+                SlotType.SCALAR,
+                Unit("diagnostic", "json"),
+                contract_id=SurveyRakingDiagnosticReport.contract_id,
+            ),
+        }
+    )
 
 
 def _vector(state: Mapping[str, Any], key: str) -> np.ndarray:
@@ -188,6 +206,131 @@ class RakingEstimator:
 @foundry_method(
     namespace="survey.weighting",
     version="1.0.0",
+    tags={"survey", "weighting", "raking", "ipf", "diagnostics"},
+)
+class RakingIPFEstimator:
+    """Production survey raking with convergence and positivity diagnostics."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="rake_ipf",
+        namespace="",
+        version="0.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec("base_weights", SlotType.VECTOR, Unit("weight", "mass"), shape=("n_obs",)),
+                SlotSpec(
+                    "category_matrix",
+                    SlotType.MATRIX,
+                    Unit("indicator", "flag"),
+                    shape=("n_obs", "n_categories"),
+                ),
+                SlotSpec("target_totals", SlotType.VECTOR, Unit("value", "amount"), shape=("n_categories",)),
+            }
+        ),
+        output_slots=_raking_ipf_output_slots(),
+        parameters=(
+            ParameterSpec(name="max_iterations", default=100),
+            ParameterSpec(name="exact_tolerance", default=1e-6),
+            ParameterSpec(name="warn_tolerance", default=1e-4),
+            ParameterSpec(name="logweight_tolerance", default=1e-8),
+            ParameterSpec(name="stagnation_window", default=5),
+            ParameterSpec(name="stagnation_min_improvement", default=1.02),
+            ParameterSpec(name="collapse_sparse_categories", default=True),
+            ParameterSpec(name="collapse_map", default=None),
+            ParameterSpec(name="allow_bounded_fallback", default=True),
+            ParameterSpec(name="allow_penalized_fallback", default=True),
+            ParameterSpec(name="bounded_lower_ratio", default=0.3),
+            ParameterSpec(name="bounded_upper_ratio", default=3.0),
+            ParameterSpec(name="hard_lower_ratio", default=0.2),
+            ParameterSpec(name="hard_upper_ratio", default=5.0),
+            ParameterSpec(name="fallback_ridge", default=1e-2),
+            ParameterSpec(name="fallback_max_iterations", default=200),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Iterative proportional fitting / raking with explicit diagnostics for "
+            "numerical convergence, structural positivity, and weight stability."
+        ),
+        tags=frozenset({"survey", "weighting", "raking", "ipf", "diagnostics"}),
+        when_to_use=(
+            "Calibrate survey or microsimulation weights to categorical control totals "
+            "when convergence and positivity must be audited before downstream use."
+        ),
+        when_not_to_use=(
+            "Control totals are inconsistent, structural zeros are unresolved, or "
+            "non-categorical calibration equations are required."
+        ),
+        citations=(
+            "Deming, W. & Stephan, F. (1940). On a least squares adjustment of a sampled frequency table when the expected marginal totals are known.",
+            "Deville, J. & Sarndal, C. (1992). Calibration estimators in survey sampling.",
+        ),
+        output_interpretation=(
+            "Use diagnostics.decision as the readiness gate. 'block' means structural "
+            "or stability issues remain even if weights were produced."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        execution = run_raking_with_fallbacks(
+            base_weights=state["base_weights"],
+            category_matrix=state["category_matrix"],
+            target_totals=state["target_totals"],
+            margin_ids=state.get("margin_ids"),
+            margin_names_by_category=state.get("margin_names_by_category") or state.get("margin_names"),
+            category_labels=state.get("category_labels"),
+            max_iterations=int(params.get("max_iterations", 100)),
+            exact_tolerance=float(params.get("exact_tolerance", 1e-6)),
+            warn_tolerance=float(params.get("warn_tolerance", 1e-4)),
+            logweight_tolerance=float(params.get("logweight_tolerance", 1e-8)),
+            stagnation_window=int(params.get("stagnation_window", 5)),
+            stagnation_min_improvement=float(params.get("stagnation_min_improvement", 1.02)),
+            collapse_sparse_categories=bool(params.get("collapse_sparse_categories", True)),
+            collapse_map=params.get("collapse_map"),
+            allow_bounded_fallback=bool(params.get("allow_bounded_fallback", True)),
+            allow_penalized_fallback=bool(params.get("allow_penalized_fallback", True)),
+            bounded_lower_ratio=float(params.get("bounded_lower_ratio", 0.3)),
+            bounded_upper_ratio=float(params.get("bounded_upper_ratio", 3.0)),
+            hard_lower_ratio=float(params.get("hard_lower_ratio", 0.2)),
+            hard_upper_ratio=float(params.get("hard_upper_ratio", 5.0)),
+            fallback_ridge=float(params.get("fallback_ridge", 1e-2)),
+            fallback_max_iterations=int(params.get("fallback_max_iterations", 200)),
+        )
+        weights = execution["weights"]
+        diagnostics = execution["diagnostics"]
+        return {
+            "result": {
+                "converged": diagnostics.converged,
+                "decision": diagnostics.decision,
+                "stop_reason": diagnostics.stop_reason,
+                "n_sweeps": diagnostics.n_sweeps,
+                "max_rel_margin_error": diagnostics.max_rel_margin_error,
+                "ess_fraction": diagnostics.ess_fraction,
+                "target_totals": diagnostics.target_totals,
+                "achieved_totals": diagnostics.achieved_totals,
+                "fallback_used": diagnostics.fallback_used,
+            },
+            "weights": weights,
+            "diagnostics": diagnostics,
+            "__numpy_artifacts__": execution["artifacts"],
+            "__numpy_warnings__": execution["warnings"],
+        }
+
+
+@foundry_method(
+    namespace="survey.weighting",
+    version="1.0.0",
     tags={"survey", "weighting", "propensity"},
 )
 class PropensityWeightingEstimator:
@@ -266,4 +409,5 @@ __all__ = [
     "HorvitzThompsonEstimator",
     "PropensityWeightingEstimator",
     "RakingEstimator",
+    "RakingIPFEstimator",
 ]

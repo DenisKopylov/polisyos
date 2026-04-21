@@ -17,6 +17,16 @@ def _survey_state() -> SurveyMicroData:
     )
 
 
+def _mnar_survey_state() -> SurveyMicroData:
+    return SurveyMicroData(
+        market_income=np.array(
+            [22.0, 28.0, 35.0, 41.0, 47.0, 55.0, 68.0, 80.0, np.nan, np.nan, np.nan, np.nan]
+        ),
+        weights=np.ones(12, dtype=float),
+        household_ids=np.arange(12),
+    )
+
+
 def test_tax_behavior_imputation_and_dynamic_microsim_run() -> None:
     MethodRegistry.reset_instance()
     MethodDispatcher.reset_instance()
@@ -73,3 +83,647 @@ def test_tax_behavior_imputation_and_dynamic_microsim_run() -> None:
     )
     assert dynamic_result.output["result"].weighted_mean_final_income > 0.0
     assert dynamic_result.output["uncertainty_envelope"] is not None
+
+
+def test_behavioral_response_v2_blocks_unidentified_cross_section() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+    survey = _survey_state()
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": survey.market_income,
+            "weights": survey.weights,
+            "effective_tax_rate": np.array([0.05, 0.09, 0.12, 0.18, 0.23]),
+            "features": survey.features,
+        },
+        params={"minimum_effective_sample_size": 1.0},
+        seed=211,
+    )
+
+    result = behavior_result.output["result"]
+    assert result.identified_object == "not_identified"
+    assert result.identifiability_status == "non_identified"
+    np.testing.assert_allclose(np.asarray(behavior_result.output["market_income"], dtype=float), survey.market_income)
+
+
+def test_behavioral_response_v2_supports_manual_override() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+    survey = _survey_state()
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": survey.market_income,
+            "weights": survey.weights,
+            "effective_tax_rate": np.array([0.05, 0.09, 0.12, 0.18, 0.23]),
+        },
+        params={"manual_elasticity": 0.15},
+        seed=223,
+    )
+
+    result = behavior_result.output["result"]
+    assert result.identified_object == "manual_override_required"
+    assert result.elasticity_mean == 0.15
+    assert not np.allclose(np.asarray(behavior_result.output["market_income"], dtype=float), survey.market_income)
+
+
+def test_behavioral_response_v2_estimates_panel_average_partial_effect() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    household_ids = np.repeat(np.arange(4), 3)
+    period_id = np.tile(np.arange(3), 4)
+    net_rate = np.array(
+        [
+            0.55, 0.60, 0.65,
+            0.58, 0.62, 0.68,
+            0.61, 0.66, 0.70,
+            0.64, 0.69, 0.74,
+        ],
+        dtype=float,
+    )
+    base_income = np.repeat(np.array([18000.0, 22000.0, 26000.0, 32000.0]), 3)
+    market_income = base_income * np.power(net_rate, 0.5)
+    weights = np.ones_like(market_income)
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": market_income,
+            "weights": weights,
+            "effective_tax_rate": 1.0 - net_rate,
+            "household_ids": household_ids,
+            "period_id": period_id,
+        },
+        params={
+            "minimum_effective_sample_size": 1.0,
+            "panel_min_periods": 3,
+            "variation_floor": 1e-8,
+        },
+        seed=227,
+    )
+
+    result = behavior_result.output["result"]
+    assert result.regime == "panel"
+    assert result.identified_object == "conditional_mean_eta"
+    assert result.identifiability_status in {"identified", "sloppy"}
+    assert result.elasticity_mean is not None
+    assert abs(result.elasticity_mean - 0.5) < 1e-6
+
+
+def test_behavioral_response_v2_uses_iv_proxy_when_instrument_is_strong() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    n_obs = 40
+    z = np.repeat(np.array([0.0, 1.0]), n_obs // 2)
+    feature = np.tile(np.linspace(0.0, 1.0, n_obs // 2), 2)
+    net_rate = 0.5 + 0.03 * z + 0.1 * feature
+    market_income = 12000.0 * np.exp(0.2 * feature) * np.power(net_rate, 0.4)
+    weights = np.ones(n_obs, dtype=float)
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": market_income,
+            "weights": weights,
+            "effective_tax_rate": 1.0 - net_rate,
+            "instrument_z": z,
+            "features": feature[:, None],
+        },
+        params={
+            "minimum_effective_sample_size": 1.0,
+            "minimum_first_stage_strength": 1.0,
+            "minimum_overlap_score": 0.05,
+            "variation_floor": 1e-8,
+            "max_control_features": 1,
+        },
+        seed=229,
+    )
+
+    result = behavior_result.output["result"]
+    assert result.regime == "cross_section"
+    assert result.identified_object == "conditional_mean_eta"
+    assert result.elasticity_mean is not None
+    assert abs(result.elasticity_mean - 0.4) < 0.05
+    assert result.first_stage_strength is not None
+
+
+def test_behavioral_response_v2_supports_matrix_instruments() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    n_obs = 80
+    z_binary = np.repeat(np.array([0.0, 1.0]), n_obs // 2)
+    z_continuous = np.tile(np.linspace(-1.0, 1.0, n_obs // 2), 2)
+    feature = np.tile(np.linspace(-0.8, 0.8, n_obs // 2), 2)
+    net_rate = 0.56 + 0.015 * z_binary + 0.03 * z_continuous + 0.04 * feature
+    true_eta = 0.35 + 0.08 * feature
+    market_income = 15000.0 * np.exp(0.1 * feature) * np.power(net_rate, true_eta)
+    weights = np.ones(n_obs, dtype=float)
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": market_income,
+            "weights": weights,
+            "effective_tax_rate": 1.0 - net_rate,
+            "instrument_z": np.column_stack([z_binary, z_continuous]),
+            "features": feature[:, None],
+        },
+        params={
+            "minimum_effective_sample_size": 1.0,
+            "minimum_first_stage_strength": 1.0,
+            "minimum_overlap_score": 0.02,
+            "variation_floor": 1e-8,
+            "max_control_features": 1,
+        },
+        seed=231,
+    )
+
+    result = behavior_result.output["result"]
+    assert result.identified_object in {"conditional_mean_eta", "bounds_only"}
+    assert result.elasticity_mean is not None
+    assert result.first_stage_strength is not None and result.first_stage_strength > 1.0
+    assert result.overlap_score is not None
+
+
+def test_behavioral_response_v2_recovers_conditional_mean_elasticity_under_exogeneity() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    feature = np.repeat(np.linspace(-1.0, 1.0, 20), 4)
+    price_component = np.tile(np.linspace(-0.15, 0.15, 4), 20)
+    net_rate = 0.6 + price_component
+    true_eta = 0.25 + 0.12 * feature
+    market_income = 10000.0 * np.exp(0.15 * feature) * np.power(net_rate, true_eta)
+    weights = np.ones_like(market_income)
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": market_income,
+            "weights": weights,
+            "effective_tax_rate": 1.0 - net_rate,
+            "features": feature[:, None],
+            "feature_names": ["skill_index"],
+        },
+        params={
+            "assume_exogenous_price": True,
+            "minimum_effective_sample_size": 1.0,
+            "variation_floor": 1e-8,
+            "max_control_features": 1,
+        },
+        seed=233,
+    )
+
+    result = behavior_result.output["result"]
+    eta_hat = np.asarray(result.elasticity_by_obs, dtype=float)
+    assert result.identified_object == "conditional_mean_eta"
+    assert eta_hat.shape == true_eta.shape
+    assert abs(result.elasticity_mean - float(np.mean(true_eta))) < 1e-3
+    assert float(np.corrcoef(eta_hat, true_eta)[0, 1]) > 0.99
+    assert "skill_index:low_mean" in result.elasticity_grid
+
+
+def test_behavioral_response_v2_uses_grouping_iv_for_repeated_cross_sections() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    cohort_id = np.repeat(np.array(["young", "old"]), 60)
+    period_id = np.tile(np.repeat(np.arange(4), 15), 2)
+    reform = np.tile(np.linspace(0.0, 1.0, 60), 2)
+    z = np.where(cohort_id == "young", 1.0, 0.4) + 0.5 * reform
+    beta = np.where(cohort_id == "young", 0.45, 0.25)
+    net_rate = 0.50 + 0.04 * z + 0.02 * reform
+    baseline_income = np.where(cohort_id == "young", 18000.0, 24000.0) * np.exp(0.05 * reform)
+    market_income = baseline_income * np.power(net_rate, beta)
+    weights = np.ones_like(market_income)
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": market_income,
+            "weights": weights,
+            "effective_tax_rate": 1.0 - net_rate,
+            "cohort_id": cohort_id,
+            "period_id": period_id,
+            "instrument_z": z,
+        },
+        params={
+            "minimum_effective_sample_size": 1.0,
+            "minimum_first_stage_strength": 1.0,
+            "minimum_overlap_score": 0.05,
+            "repeated_cross_section_min_periods": 3,
+            "minimum_cohort_cell_size": 10,
+            "variation_floor": 1e-8,
+        },
+        seed=237,
+    )
+
+    result = behavior_result.output["result"]
+    assert result.regime == "repeated_cross_section"
+    assert result.identified_object == "conditional_mean_eta"
+    assert result.elasticity_mean is not None
+    assert np.isfinite(result.elasticity_mean)
+    assert result.elasticity_by_obs is None
+    assert result.diagnostics["estimation_mode"] == "pseudo_panel_iv"
+
+
+def test_behavioral_response_v2_returns_bounds_only_when_iv_overlap_is_missing() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    n_obs = 60
+    z = np.repeat(np.array([0.0, 1.0]), n_obs // 2)
+    feature = np.tile(np.linspace(-0.5, 0.5, n_obs // 2), 2)
+    net_rate = np.where(z < 0.5, 0.42 + 0.02 * (feature + 0.5), 0.72 + 0.02 * (feature + 0.5))
+    market_income = 14000.0 * np.exp(0.1 * feature) * np.power(net_rate, 0.2 + 0.1 * z)
+    weights = np.ones(n_obs, dtype=float)
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": market_income,
+            "weights": weights,
+            "effective_tax_rate": 1.0 - net_rate,
+            "instrument_z": z,
+            "features": feature[:, None],
+        },
+        params={
+            "minimum_effective_sample_size": 1.0,
+            "minimum_first_stage_strength": 1.0,
+            "minimum_overlap_score": 0.5,
+            "variation_floor": 1e-8,
+            "max_control_features": 1,
+        },
+        seed=239,
+    )
+
+    result = behavior_result.output["result"]
+    assert result.identified_object == "bounds_only"
+    assert result.elasticity_lower is not None
+    assert result.elasticity_upper is not None
+    assert result.elasticity_grid is not None
+    assert result.elasticity_grid["weighted_mean_income_lower"] <= result.elasticity_grid["weighted_mean_income_upper"]
+    assert result.overlap_score is not None and result.overlap_score < 0.5
+
+
+def test_behavioral_response_v2_bounds_propagate_to_uncertainty_envelope() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    n_obs = 60
+    z = np.repeat(np.array([0.0, 1.0]), n_obs // 2)
+    feature = np.tile(np.linspace(-0.5, 0.5, n_obs // 2), 2)
+    net_rate = np.where(z < 0.5, 0.42 + 0.02 * (feature + 0.5), 0.72 + 0.02 * (feature + 0.5))
+    market_income = 14000.0 * np.exp(0.1 * feature) * np.power(net_rate, 0.2 + 0.1 * z)
+    weights = np.ones(n_obs, dtype=float)
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": market_income,
+            "weights": weights,
+            "effective_tax_rate": 1.0 - net_rate,
+            "instrument_z": z,
+            "features": feature[:, None],
+        },
+        params={
+            "minimum_effective_sample_size": 1.0,
+            "minimum_first_stage_strength": 1.0,
+            "minimum_overlap_score": 0.5,
+            "variation_floor": 1e-8,
+            "max_control_features": 1,
+        },
+        seed=240,
+    )
+
+    result = behavior_result.output["result"]
+    envelope = behavior_result.output["uncertainty_envelope"]
+    assert result.identified_object == "bounds_only"
+    assert envelope.confidence_interval[0] == result.elasticity_grid["weighted_mean_income_lower"]
+    assert envelope.confidence_interval[1] == result.elasticity_grid["weighted_mean_income_upper"]
+
+
+def test_behavioral_response_v2_uses_local_kink_fallback() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    market_income = np.array([45.0, 46.0, 47.0, 48.0, 49.0, 51.0, 52.0, 53.0, 54.0, 55.0])
+    net_rate = np.array([0.60, 0.60, 0.60, 0.60, 0.60, 0.72, 0.72, 0.72, 0.72, 0.72])
+    weights = np.ones_like(market_income)
+
+    behavior_cls = registry.get("microsim.behavior.behavioral_response@2.0.0")
+    behavior_result = dispatcher.dispatch(
+        method_class=behavior_cls,
+        signature=behavior_cls.signature,
+        state={
+            "market_income": market_income,
+            "weights": weights,
+            "effective_tax_rate": 1.0 - net_rate,
+            "kink_points": np.array([50.0]),
+        },
+        params={
+            "local_kink_bandwidth": 6.0,
+            "local_kink_min_side_obs": 2,
+        },
+        seed=241,
+    )
+
+    result = behavior_result.output["result"]
+    assert result.identified_object == "local_average_eta"
+    assert result.elasticity_mean is not None
+    assert result.elasticity_lower is not None
+    assert result.elasticity_upper is not None
+    assert "local_kink_estimates" in result.diagnostics
+
+
+def test_mnar_income_bounds_support_only_matches_manski_interval() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
+    dispatched = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_mnar_survey_state(),
+        params={
+            "mechanism_class": "support_only",
+            "support_lower": 0.0,
+            "support_upper": 120.0,
+        },
+        seed=311,
+    )
+
+    result = dispatched.output["result"]
+    payload = result.metadata["mnar_bounds"]
+    np.testing.assert_allclose(payload["bounds"]["lower"], 31.333333333333332)
+    np.testing.assert_allclose(payload["bounds"]["upper"], 71.33333333333333)
+    assert payload["assumption_vector"]["mechanism_class"] == "support_only"
+    assert dispatched.output["uncertainty_envelope"].interval_semantics.value == "deterministic_bounds"
+
+
+def test_mnar_income_bounds_pattern_mixture_matches_closed_form_rectangle() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
+    dispatched = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_mnar_survey_state(),
+        params={
+            "mechanism_class": "pattern_mixture.locscale",
+            "support_lower": 0.0,
+            "support_upper": 120.0,
+            "delta_range": [-10.0, 10.0],
+            "lambda_range": [0.9, 1.1],
+            "reference_delta": 0.0,
+            "reference_lambda": 1.0,
+            "n_delta_points": 3,
+            "n_lambda_points": 3,
+        },
+        seed=313,
+    )
+
+    payload = dispatched.output["result"].metadata["mnar_bounds"]
+    np.testing.assert_allclose(payload["bounds"]["lower"], 42.1, atol=1e-9)
+    np.testing.assert_allclose(payload["bounds"]["upper"], 51.9, atol=1e-9)
+    np.testing.assert_allclose(payload["bounds"]["reference_value"], 47.0, atol=1e-9)
+    assert payload["bounds"]["grid_argmin"] == {"delta": -10.0, "lambda": 0.9}
+    assert payload["bounds"]["grid_argmax"] == {"delta": 10.0, "lambda": 1.1}
+
+
+def test_mnar_income_bounds_selection_logit_records_monotone_curve() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
+    dispatched = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_mnar_survey_state(),
+        params={
+            "mechanism_class": "selection.logit",
+            "support_lower": 0.0,
+            "support_upper": 120.0,
+            "gamma_grid": [-1.0, 0.0, 1.0],
+        },
+        seed=317,
+    )
+
+    payload = dispatched.output["result"].metadata["mnar_bounds"]
+    estimates = [point["estimate"] for point in payload["scenario_grid"]]
+    assert len(estimates) == 3
+    assert estimates[0] > estimates[1] > estimates[2]
+    assert payload["bounds"]["lower"] <= payload["bounds"]["reference_value"] <= payload["bounds"]["upper"]
+    assert payload["bounds"]["manski_outer_bound"]["lower"] <= payload["bounds"]["lower"]
+    assert payload["bounds"]["upper"] <= payload["bounds"]["manski_outer_bound"]["upper"]
+    assert payload["diagnostics"]["selection_curve_monotonicity"] == "nonincreasing"
+    assert payload["diagnostics"]["selection_weight_effective_sample_size_min"] is not None
+
+
+def test_mnar_income_bounds_supports_missingness_type_overrides() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
+    dispatched = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_mnar_survey_state(),
+        params={
+            "mechanism_class": "selection.logit",
+            "support_lower": 0.0,
+            "support_upper": 120.0,
+            "missingness_types": ["refusal", "refusal", "dont_know", "dont_know"],
+            "gamma_overrides": {
+                "refusal": [0.0, 1.0],
+                "dont_know": [-1.0, 0.0],
+            },
+            "reference_gamma_overrides": {
+                "refusal": 0.5,
+                "dont_know": -0.5,
+            },
+        },
+        seed=319,
+    )
+
+    payload = dispatched.output["result"].metadata["mnar_bounds"]
+    assert payload["scenario_grid"] == []
+    assert "component_specific_parameter_overrides_disable_single_collapsed_scenario_grid" in payload["warnings"]
+    assert payload["assumption_vector"]["missingness_types"] == ["dont_know", "refusal"]
+    assert "mnar.refusal_vs_dk_split" in payload["assumption_vector"]["taxonomy_entries"]
+
+
+def test_mnar_income_bounds_supports_log_income_target_scale() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    survey = _mnar_survey_state()
+    observed = survey.market_income[np.isfinite(survey.market_income)]
+    observed_log_mean = float(np.mean(np.log1p(observed)))
+    expected_lower = (observed.size / survey.market_income.size) * observed_log_mean
+    expected_upper = expected_lower + (1.0 - observed.size / survey.market_income.size) * float(np.log1p(120.0))
+
+    method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
+    dispatched = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=survey,
+        params={
+            "mechanism_class": "support_only",
+            "target_scale": "log_income",
+            "support_lower": 0.0,
+            "support_upper": 120.0,
+        },
+        seed=331,
+    )
+
+    payload = dispatched.output["result"].metadata["mnar_bounds"]
+    np.testing.assert_allclose(payload["bounds"]["lower"], expected_lower)
+    np.testing.assert_allclose(payload["bounds"]["upper"], expected_upper)
+    assert payload["target"]["scale"] == "log_income"
+    assert payload["target"]["back_transform_rule"] == "no_exact_inverse_for_mean_log_income"
+    np.testing.assert_allclose(payload["assumption_vector"]["support_bounds"][1], float(np.log1p(120.0)))
+
+
+def test_mnar_income_bounds_equivalized_scale_uses_unit_specific_support() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    survey = _mnar_survey_state()
+    equivalence_scale = np.array([1.0] * 8 + [2.0] * 4, dtype=float)
+    observed_mask = np.isfinite(survey.market_income)
+    observed_equivalized = survey.market_income[observed_mask] / equivalence_scale[observed_mask]
+    fixed_observed_total = float(np.sum(observed_equivalized) / survey.market_income.size)
+    missing_upper_total = float(np.sum((120.0 / equivalence_scale[~observed_mask])) / survey.market_income.size)
+
+    method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
+    dispatched = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=survey,
+        params={
+            "mechanism_class": "support_only",
+            "target_scale": "equivalized_income",
+            "equivalence_scale": equivalence_scale,
+            "support_lower": 0.0,
+            "support_upper": 120.0,
+        },
+        seed=337,
+    )
+
+    payload = dispatched.output["result"].metadata["mnar_bounds"]
+    np.testing.assert_allclose(payload["bounds"]["lower"], fixed_observed_total)
+    np.testing.assert_allclose(payload["bounds"]["upper"], fixed_observed_total + missing_upper_total)
+    assert payload["target"]["scale"] == "equivalized_income"
+    assert payload["target"]["equivalence_scale_source"] == "vector_param_or_metadata"
+    assert payload["diagnostics"]["notes"]["unit_specific_support"] is True
+
+
+def test_mnar_income_bounds_pattern_mixture_respects_support_clipping() -> None:
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    ensure_microsim_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    survey = _mnar_survey_state()
+    observed = survey.market_income[np.isfinite(survey.market_income)]
+    clipped_nonrespondent_mean = float(np.mean(np.clip(observed + 60.0, 0.0, 90.0)))
+    expected_total = float((np.sum(observed) + 4.0 * clipped_nonrespondent_mean) / survey.market_income.size)
+
+    method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
+    dispatched = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=survey,
+        params={
+            "mechanism_class": "pattern_mixture.locscale",
+            "support_lower": 0.0,
+            "support_upper": 90.0,
+            "delta_range": [60.0, 60.0],
+            "lambda_range": [1.0, 1.0],
+            "reference_delta": 60.0,
+            "reference_lambda": 1.0,
+        },
+        seed=341,
+    )
+
+    payload = dispatched.output["result"].metadata["mnar_bounds"]
+    np.testing.assert_allclose(payload["bounds"]["lower"], expected_total)
+    np.testing.assert_allclose(payload["bounds"]["upper"], expected_total)
+    np.testing.assert_allclose(payload["bounds"]["reference_value"], expected_total)
+    np.testing.assert_allclose(payload["diagnostics"]["share_clipped_to_support"], 0.75)
+    assert payload["assumption_vector"]["taxonomy_entries"] == ["mnar.pattern_mixture.delta"]

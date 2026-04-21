@@ -17,6 +17,56 @@ from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import BridgePlausibilityReportRef, ProximalIdentificationCertificateRef
 
 
+class SpatialProxySpec(BaseModel):
+    """Machine-readable construction metadata for spatial proximal proxies."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    proxy_variables: tuple[str, ...]
+    weight_matrix_ref: str | None = None
+    proxy_construction: Literal[
+        "ring_lag",
+        "buffered_ring_lag",
+        "pre_treatment_ring_lag",
+        "negative_control_ring_lag",
+    ] = "ring_lag"
+    lag_orders: tuple[int, ...]
+    buffer_radius: int | None = Field(default=None, ge=0)
+    time_mode: Literal["contemporaneous", "pre_treatment", "lagged_panel"] = "contemporaneous"
+    allowed_roles: tuple[Literal["treatment_inducing", "outcome_inducing"], ...] = (
+        "treatment_inducing",
+        "outcome_inducing",
+    )
+    spillover_radius_claim: int | None = Field(default=None, ge=0)
+    symmetry_or_direction: Literal["undirected", "directed"] = "undirected"
+
+    @model_validator(mode="after")
+    def _normalize_spec(self) -> SpatialProxySpec:
+        proxy_variables = tuple(str(item).strip() for item in self.proxy_variables)
+        if not proxy_variables:
+            raise ValueError("proxy_variables must not be empty")
+        if any(not item for item in proxy_variables):
+            raise ValueError("proxy_variables must not contain empty names")
+        if len(set(proxy_variables)) != len(proxy_variables):
+            raise ValueError("proxy_variables must not contain duplicate names")
+        lag_orders = tuple(int(item) for item in self.lag_orders)
+        if not lag_orders:
+            raise ValueError("lag_orders must not be empty")
+        if any(item <= 0 for item in lag_orders):
+            raise ValueError("lag_orders must contain strictly positive integers")
+        if len(set(lag_orders)) != len(lag_orders):
+            raise ValueError("lag_orders must not contain duplicate values")
+        roles = tuple(str(item).strip() for item in self.allowed_roles)
+        if not roles:
+            raise ValueError("allowed_roles must not be empty")
+        if len(set(roles)) != len(roles):
+            raise ValueError("allowed_roles must not contain duplicate values")
+        object.__setattr__(self, "proxy_variables", tuple(sorted(proxy_variables)))
+        object.__setattr__(self, "lag_orders", tuple(sorted(lag_orders)))
+        object.__setattr__(self, "allowed_roles", tuple(sorted(roles)))
+        return self
+
+
 class ProxyAnnotation(BaseModel):
     """User/developer supplied proximal proxy annotation.
 
@@ -29,6 +79,7 @@ class ProxyAnnotation(BaseModel):
     treatment_inducing: tuple[str, ...] = Field(default_factory=tuple)
     outcome_inducing: tuple[str, ...] = Field(default_factory=tuple)
     covariates: tuple[str, ...] = Field(default_factory=tuple)
+    spatial_proxy_specs: tuple[SpatialProxySpec, ...] = Field(default_factory=tuple)
     estimand: Literal["ATE", "ATT", "MEAN_EFFECT"] = "ATE"
     include_treatment_bridge: bool = True
     accept_oracle_assumptions: bool = False
@@ -42,6 +93,31 @@ class ProxyAnnotation(BaseModel):
             if len(set(values)) != len(values):
                 raise ValueError(f"{field_name} must not contain duplicate variables")
             object.__setattr__(self, field_name, tuple(sorted(values)))
+        declared_proxies = {
+            *self.treatment_inducing,
+            *self.outcome_inducing,
+        }
+        for spec in self.spatial_proxy_specs:
+            missing = set(spec.proxy_variables) - declared_proxies
+            if missing:
+                raise ValueError(
+                    "spatial_proxy_specs may only reference declared treatment/outcome proxies; "
+                    f"unknown={sorted(missing)}"
+                )
+            if "treatment_inducing" in spec.allowed_roles:
+                treatment_missing = set(spec.proxy_variables) - set(self.treatment_inducing)
+                if treatment_missing and "outcome_inducing" not in spec.allowed_roles:
+                    raise ValueError(
+                        "treatment-inducing spatial_proxy_specs must only reference "
+                        f"treatment proxies; invalid={sorted(treatment_missing)}"
+                    )
+            if "outcome_inducing" in spec.allowed_roles:
+                outcome_missing = set(spec.proxy_variables) - set(self.outcome_inducing)
+                if outcome_missing and "treatment_inducing" not in spec.allowed_roles:
+                    raise ValueError(
+                        "outcome-inducing spatial_proxy_specs must only reference "
+                        f"outcome proxies; invalid={sorted(outcome_missing)}"
+                    )
         return self
 
 
@@ -289,6 +365,9 @@ class BridgePlausibilityReport(BaseModel):
     bridge_existence_supported: bool | None = None
     completeness_plausible: bool | None = None
     functional_invariant_to_nonuniqueness: bool | None = None
+    buffer_exclusion_falsification: bool | None = None
+    ring_sensitivity_instability: float | None = Field(default=None, ge=0.0)
+    moran_i_bridge_residual: float | None = None
     suspected_failure_mode: BridgeFailureMode = BridgeFailureMode.UNKNOWN
     severity: BridgePlausibilitySeverity = BridgePlausibilitySeverity.YELLOW
     fallback_disposition: BridgeFallbackDisposition | None = None
@@ -328,6 +407,9 @@ class BridgePlausibilityReport(BaseModel):
             "bridge_existence_supported": self.bridge_existence_supported,
             "completeness_plausible": self.completeness_plausible,
             "functional_invariant_to_nonuniqueness": self.functional_invariant_to_nonuniqueness,
+            "buffer_exclusion_falsification": self.buffer_exclusion_falsification,
+            "ring_sensitivity_instability": self.ring_sensitivity_instability,
+            "moran_i_bridge_residual": self.moran_i_bridge_residual,
             "suspected_failure_mode": self.suspected_failure_mode.value,
             "severity": self.severity.value,
             "fallback_disposition": (
@@ -445,6 +527,8 @@ def load_bridge_plausibility_report(
 def _default_fallback_disposition(
     report: BridgePlausibilityReport,
 ) -> BridgeFallbackDisposition:
+    if report.buffer_exclusion_falsification is True:
+        return BridgeFallbackDisposition.BLOCK_POINT_ESTIMATE
     if report.severity is BridgePlausibilitySeverity.GREEN:
         return BridgeFallbackDisposition.PROCEED_POINT_ESTIMATE
     if (
@@ -487,5 +571,6 @@ __all__ = [
     "ProximalIdentificationCertificate",
     "ProximalQuerySpec",
     "ProxyAnnotation",
+    "SpatialProxySpec",
     "persist_proximal_identification_certificate",
 ]

@@ -126,6 +126,34 @@ class DataReadinessReportRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class SurveyQualityCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted survey-quality certificates."""
+
+    kind: Literal["ir.survey_quality_certificate"] = "ir.survey_quality_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MicrosimCalibrationReportRef(ArtifactRefModel):
+    """Stable handle for persisted microsim calibration gate reports."""
+
+    kind: Literal["ir.microsim_calibration_report"] = "ir.microsim_calibration_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DependenceStructureRef(ArtifactRefModel):
+    """Stable handle for the shared persisted dependence primitive."""
+
+    kind: Literal["ir.dependence_structure"] = "ir.dependence_structure"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MobilityReportRef(ArtifactRefModel):
+    """Stable handle for the typed mobility shell registered in Phase 1."""
+
+    kind: Literal["ir.mobility_report"] = "ir.mobility_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class BoundsBundleRef(ArtifactRefModel):
     """Stable handle for persisted partial-identification outputs consumed by readiness checks and reporting."""
     kind: Literal["ir.bounds_bundle"] = "ir.bounds_bundle"
@@ -597,6 +625,10 @@ __all__ = [
     "CausalEffectReportRef",
     "CausalGraphModelRef",
     "DataReadinessReportRef",
+    "SurveyQualityCertificateRef",
+    "MicrosimCalibrationReportRef",
+    "DependenceStructureRef",
+    "MobilityReportRef",
     "LiteratureCausalPriorRef",
     "InterfaceMappingRef",
     "CausalSensitivityResultRef",

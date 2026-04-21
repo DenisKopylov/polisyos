@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import is_dataclass
+from statistics import NormalDist
 from typing import Any, ClassVar, Mapping
 
 import numpy as np
@@ -76,6 +77,24 @@ def _proximal_bridge_output_slots() -> frozenset[SlotSpec]:
     )
 
 
+def _spatial_proximal_bridge_output_slots() -> frozenset[SlotSpec]:
+    return _causal_frontier_output_slots("spatial_proximal_result") | frozenset(
+        {
+            SlotSpec(
+                "bridge_plausibility_report",
+                SlotType.SCALAR,
+                Unit("bridge_plausibility", "json"),
+            ),
+            SlotSpec("bounds_bundle", SlotType.SCALAR, Unit("bounds", "json")),
+            SlotSpec(
+                "negative_certificate",
+                SlotType.SCALAR,
+                Unit("negative_certificate", "json"),
+            ),
+        }
+    )
+
+
 def _observational_payload(state: Any) -> tuple[np.ndarray, np.ndarray, np.ndarray | None, Mapping[str, Any]]:
     if isinstance(state, HTEObservationalData):
         return (
@@ -115,9 +134,74 @@ def _coerce_matrix(mapping: Mapping[str, Any], key: str, n_obs: int) -> np.ndarr
     return arr
 
 
+def _coerce_proxy_matrix(mapping: Mapping[str, Any], key: str, n_obs: int) -> np.ndarray:
+    arr = np.asarray(mapping[key], dtype=float)
+    if arr.ndim == 1:
+        arr = arr[:, None]
+    if arr.ndim != 2 or arr.shape[0] != n_obs:
+        raise ValueError(f"{key} must be a vector or matrix with {n_obs} rows")
+    return arr
+
+
+def _coerce_square_matrix(mapping: Mapping[str, Any], key: str, n_obs: int) -> np.ndarray:
+    arr = np.asarray(mapping[key], dtype=float)
+    if arr.ndim != 2 or arr.shape != (n_obs, n_obs):
+        raise ValueError(f"{key} must be a square {n_obs}x{n_obs} matrix")
+    return arr
+
+
 def _validate_binary_treatment(treatment: np.ndarray) -> None:
     if not np.isin(treatment, [0.0, 1.0]).all():
         raise ValueError("treatment must be binary (0/1)")
+
+
+def _row_normalize_weights(weights: np.ndarray) -> np.ndarray:
+    matrix = np.asarray(weights, dtype=float)
+    normalized = matrix.copy()
+    np.fill_diagonal(normalized, 0.0)
+    row_sums = np.sum(normalized, axis=1, keepdims=True)
+    row_sums[row_sums == 0.0] = 1.0
+    return normalized / row_sums
+
+
+def _spectral_radius(weights: np.ndarray) -> float:
+    matrix = np.asarray(weights, dtype=float)
+    if matrix.size == 0:
+        return 1.0
+    try:
+        eigenvalues = np.linalg.eigvals(matrix)
+        radius = float(np.max(np.abs(eigenvalues)))
+        return radius if np.isfinite(radius) and radius > 1.0e-8 else 1.0
+    except np.linalg.LinAlgError:
+        return 1.0
+
+
+def _moran_i(values: np.ndarray, weights: np.ndarray) -> float:
+    y = np.asarray(values, dtype=float).reshape(-1)
+    if y.size < 3:
+        return 0.0
+    w = _row_normalize_weights(weights)
+    centered = y - float(np.mean(y))
+    denom = float(centered @ centered)
+    if denom <= 1.0e-12:
+        return 0.0
+    w_sum = float(np.sum(w))
+    if w_sum <= 1.0e-12:
+        return 0.0
+    return float((y.shape[0] / w_sum) * ((centered @ w @ centered) / denom))
+
+
+def _normal_interval(
+    point_estimate: float,
+    scale: float,
+    n_obs: int,
+    confidence_level: float,
+) -> tuple[float, float]:
+    if n_obs <= 1 or not np.isfinite(scale) or scale <= 1.0e-12:
+        return (float(point_estimate), float(point_estimate))
+    z_value = float(NormalDist().inv_cdf(0.5 + 0.5 * confidence_level))
+    half_width = z_value * float(scale) / float(np.sqrt(n_obs))
+    return (float(point_estimate - half_width), float(point_estimate + half_width))
 
 
 def _weighted_least_squares(
@@ -269,9 +353,13 @@ def _residualize_on_baseline(
 
 
 def _proxy_sieve_basis(proxy: np.ndarray, *, max_degree: int = 3) -> np.ndarray:
-    centered = np.asarray(proxy, dtype=float).reshape(-1)
-    centered = centered - float(np.mean(centered))
-    columns = [centered ** degree for degree in range(1, max_degree + 1)]
+    arr = np.asarray(proxy, dtype=float)
+    if arr.ndim == 1:
+        arr = arr.reshape(-1, 1)
+    columns: list[np.ndarray] = []
+    for col in range(arr.shape[1]):
+        centered = arr[:, col] - float(np.mean(arr[:, col]))
+        columns.extend(centered ** degree for degree in range(1, max_degree + 1))
     return _standardized_columns(np.column_stack(columns))
 
 
@@ -282,6 +370,7 @@ def _bridge_operator_diagnostics(
     treatment_proxy: np.ndarray,
     outcome_proxy: np.ndarray,
     ridge: float,
+    max_degree: int = 3,
 ) -> tuple[float, float, float, float]:
     """Approximate proxy-operator completeness with residualized sieve SVD."""
 
@@ -290,8 +379,16 @@ def _bridge_operator_diagnostics(
     w_residual = _residualize_on_baseline(outcome_proxy, baseline, ridge=ridge)
     proxy_association = abs(_safe_correlation(z_residual, w_residual))
 
-    z_basis = _residualize_on_baseline(_proxy_sieve_basis(treatment_proxy), baseline, ridge=ridge)
-    w_basis = _residualize_on_baseline(_proxy_sieve_basis(outcome_proxy), baseline, ridge=ridge)
+    z_basis = _residualize_on_baseline(
+        _proxy_sieve_basis(treatment_proxy, max_degree=max_degree),
+        baseline,
+        ridge=ridge,
+    )
+    w_basis = _residualize_on_baseline(
+        _proxy_sieve_basis(outcome_proxy, max_degree=max_degree),
+        baseline,
+        ridge=ridge,
+    )
     z_basis = _standardized_columns(z_basis)
     w_basis = _standardized_columns(w_basis)
     if z_basis.shape[0] == 0 or w_basis.shape[0] == 0:
@@ -435,6 +532,7 @@ def _build_bridge_plausibility_report(
     ridge: float,
     seed: int,
     n_residual_splits: int = 12,
+    max_degree: int = 3,
 ) -> BridgePlausibilityReport:
     residual_r, residual_interval = _bridge_residual_interval(
         outcome=outcome,
@@ -452,6 +550,7 @@ def _build_bridge_plausibility_report(
         treatment_proxy=treatment_proxy,
         outcome_proxy=outcome_proxy,
         ridge=ridge,
+        max_degree=max_degree,
     )
 
     severity = BridgePlausibilitySeverity.GREEN
@@ -530,6 +629,7 @@ def _build_bridge_plausibility_report(
             "diagnostic_basis": "residualized_polynomial_sieve_svd",
             "residual_scale": "out_of_sample_conditional_mean_variance",
             "residual_splits": int(max(3, n_residual_splits)),
+            "sieve_degree": int(max_degree),
         },
     )
 
@@ -601,6 +701,364 @@ def _proximal_manski_fallback(
             "display_label": "Manski fallback after proximal bridge diagnostic",
         }
     )
+
+
+def _epsilon_relaxed_spatial_bounds(
+    *,
+    point_estimate: float,
+    outcome_scale: float,
+    bridge_report: BridgePlausibilityReport,
+    estimand_label: str,
+    epsilon: float | None = None,
+) -> PartialIdentificationResult:
+    residual_upper = (
+        float(bridge_report.residual_interval[1])
+        if bridge_report.residual_interval is not None
+        else float(bridge_report.residual_r or 0.0)
+    )
+    instability = float(bridge_report.ring_sensitivity_instability or 0.0)
+    moran_penalty = abs(float(bridge_report.moran_i_bridge_residual or 0.0))
+    epsilon_value = max(0.0, float(epsilon or 0.0))
+    width = max(
+        0.05 * abs(point_estimate),
+        outcome_scale
+        * (residual_upper + epsilon_value + 0.5 * instability + 0.25 * moran_penalty),
+        1.0e-3,
+    )
+    return PartialIdentificationResult(
+        method=BoundMethod.INTERSECTION_BOUNDS,
+        lower_bound=float(point_estimate - width),
+        upper_bound=float(point_estimate + width),
+        confidence=0.0,
+        assumptions_used=[
+            "epsilon_relaxed_spatial_bridge_moments",
+            "relaxed_buffered_spatial_proxy_exclusion",
+        ],
+        bounds_type="relaxed_polynomial",
+        relaxation_gap=float(width),
+        display_label=f"Epsilon-relaxed proximal spatial bounds ({estimand_label})",
+        solver_metadata={
+            "residual_upper": residual_upper,
+            "epsilon": epsilon_value,
+            "ring_sensitivity_instability": instability,
+            "moran_i_bridge_residual": moran_penalty,
+        },
+    )
+
+
+def _resolve_epsilon_grid(raw_value: Any) -> tuple[float, ...]:
+    if raw_value is None:
+        return (0.01, 0.025, 0.05)
+    if isinstance(raw_value, (int, float)):
+        value = max(0.0, float(raw_value))
+        return (value,)
+    values: list[float] = []
+    for item in raw_value:
+        try:
+            value = float(item)
+        except Exception:
+            continue
+        if value >= 0.0:
+            values.append(value)
+    if not values:
+        return (0.01, 0.025, 0.05)
+    return tuple(sorted(set(values)))
+
+
+def _spatial_sensitivity_grid(
+    *,
+    point_estimate: float,
+    outcome_scale: float,
+    bridge_report: BridgePlausibilityReport,
+    epsilon_grid: tuple[float, ...],
+    estimand_label: str,
+) -> list[dict[str, float]]:
+    entries: list[dict[str, float]] = []
+    for epsilon in epsilon_grid:
+        bounds = _epsilon_relaxed_spatial_bounds(
+            point_estimate=point_estimate,
+            outcome_scale=outcome_scale,
+            bridge_report=bridge_report,
+            estimand_label=estimand_label,
+            epsilon=epsilon,
+        )
+        entries.append(
+            {
+                "epsilon": float(epsilon),
+                "lower_bound": float(bounds.lower_bound),
+                "upper_bound": float(bounds.upper_bound),
+                "width": float(bounds.bound_width),
+            }
+        )
+    return entries
+
+
+def _fit_spatial_proximal_linear(
+    *,
+    outcome: np.ndarray,
+    treatment: np.ndarray,
+    covariates: np.ndarray,
+    weight_matrix: np.ndarray,
+    treatment_proxy: np.ndarray,
+    outcome_proxy: np.ndarray,
+    ridge: float,
+    stability_constraint_margin: float,
+    model_family: str,
+    spatial_lag_covariates: np.ndarray | None = None,
+    spatial_lag_treatment: np.ndarray | None = None,
+    weight_matrix_error: np.ndarray | None = None,
+) -> dict[str, Any]:
+    n_obs = outcome.shape[0]
+    x = np.asarray(covariates, dtype=float)
+    z = np.asarray(treatment_proxy, dtype=float)
+    if z.ndim == 1:
+        z = z[:, None]
+    w_proxy = np.asarray(outcome_proxy, dtype=float)
+    if w_proxy.ndim == 1:
+        w_proxy = w_proxy[:, None]
+
+    weight_matrix = _row_normalize_weights(weight_matrix)
+    wa = (
+        np.asarray(spatial_lag_treatment, dtype=float).reshape(-1)
+        if spatial_lag_treatment is not None
+        else weight_matrix @ treatment
+    )
+    wx = (
+        np.asarray(spatial_lag_covariates, dtype=float)
+        if spatial_lag_covariates is not None
+        else weight_matrix @ x
+    )
+    if wx.ndim == 1:
+        wx = wx[:, None]
+    wy = weight_matrix @ outcome
+
+    proxy_design = np.column_stack([np.ones(n_obs), treatment, wa, x, wx, z])
+    proxy_coef = _weighted_least_squares(proxy_design, w_proxy, ridge=ridge)
+    bridge_design = np.column_stack([np.ones(n_obs), wy, treatment, wa, x, wx, w_proxy])
+    bridge_coef = _weighted_least_squares(bridge_design, outcome, ridge=ridge)
+
+    p = x.shape[1]
+    q = wx.shape[1]
+    intercept = float(bridge_coef[0])
+    raw_rho = float(bridge_coef[1])
+    tau = float(bridge_coef[2])
+    vartheta = float(bridge_coef[3])
+    beta = np.asarray(bridge_coef[4 : 4 + p], dtype=float)
+    gamma = np.asarray(bridge_coef[4 + p : 4 + p + q], dtype=float)
+    bridge_proxy_coef = np.asarray(bridge_coef[4 + p + q :], dtype=float)
+
+    spectral_radius = _spectral_radius(weight_matrix)
+    max_abs_rho = max(1.0e-6, (1.0 - stability_constraint_margin) / spectral_radius)
+    rho = float(np.clip(raw_rho, -max_abs_rho, max_abs_rho))
+
+    structural_fitted = (
+        intercept
+        + rho * wy
+        + tau * treatment
+        + vartheta * wa
+        + x @ beta
+        + wx @ gamma
+        + w_proxy @ bridge_proxy_coef
+    )
+    residual = np.asarray(outcome - structural_fitted, dtype=float)
+
+    lambda_hat = 0.0
+    if model_family == "sarar":
+        weight_matrix_error = (
+            weight_matrix
+            if weight_matrix_error is None
+            else _row_normalize_weights(weight_matrix_error)
+        )
+        error_radius = _spectral_radius(weight_matrix_error)
+        max_abs_lambda = max(1.0e-6, (1.0 - stability_constraint_margin) / error_radius)
+        raw_lambda = _safe_correlation(residual, weight_matrix_error @ residual)
+        lambda_hat = float(np.clip(raw_lambda, -max_abs_lambda, max_abs_lambda))
+        residual = residual - lambda_hat * (weight_matrix_error @ residual)
+
+    impact_matrix = np.linalg.solve(
+        np.eye(n_obs) - rho * weight_matrix,
+        tau * np.eye(n_obs) + vartheta * weight_matrix,
+    )
+    ade = float(np.trace(impact_matrix) / n_obs)
+    indirect_matrix = impact_matrix - np.diag(np.diag(impact_matrix))
+    aie = float(np.sum(indirect_matrix) / n_obs)
+    ate_total = float(ade + aie)
+    unit_total_effect = np.sum(impact_matrix, axis=1)
+    confidence_interval = _normal_interval(
+        ate_total,
+        float(np.std(unit_total_effect, ddof=1)) if n_obs > 1 else 0.0,
+        n_obs,
+        0.95,
+    )
+    denom = float(np.sum((outcome - np.mean(outcome)) ** 2))
+    bridge_r2 = (
+        1.0 - float(np.sum((outcome - structural_fitted) ** 2)) / denom
+        if denom > 1.0e-12
+        else 0.0
+    )
+
+    return {
+        "rho": rho,
+        "raw_rho": raw_rho,
+        "tau": tau,
+        "vartheta": vartheta,
+        "beta": beta,
+        "gamma": gamma,
+        "lambda": lambda_hat,
+        "bridge_proxy_coef": bridge_proxy_coef,
+        "bridge_coef": bridge_coef,
+        "proxy_coef": proxy_coef,
+        "wa": wa,
+        "wx": wx,
+        "wy": wy,
+        "residual": residual,
+        "bridge_r_squared": float(bridge_r2),
+        "impact_matrix": impact_matrix,
+        "ade": ade,
+        "aie": aie,
+        "ate_total": ate_total,
+        "unit_total_effect": unit_total_effect,
+        "confidence_interval": confidence_interval,
+        "spectral_radius": spectral_radius,
+        "stability_clipped": bool(abs(raw_rho - rho) > 1.0e-10),
+    }
+
+
+def _proxy_ring_instability(
+    *,
+    outcome: np.ndarray,
+    treatment: np.ndarray,
+    covariates: np.ndarray,
+    weight_matrix: np.ndarray,
+    treatment_proxy: np.ndarray,
+    outcome_proxy: np.ndarray,
+    ridge: float,
+    stability_constraint_margin: float,
+    model_family: str,
+    spatial_lag_covariates: np.ndarray | None = None,
+    spatial_lag_treatment: np.ndarray | None = None,
+    weight_matrix_error: np.ndarray | None = None,
+) -> float:
+    z = np.asarray(treatment_proxy, dtype=float)
+    if z.ndim == 1:
+        z = z[:, None]
+    w_proxy = np.asarray(outcome_proxy, dtype=float)
+    if w_proxy.ndim == 1:
+        w_proxy = w_proxy[:, None]
+    n_pairs = min(z.shape[1], w_proxy.shape[1])
+    if n_pairs <= 1:
+        return 0.0
+    effects = []
+    for idx in range(n_pairs):
+        fitted = _fit_spatial_proximal_linear(
+            outcome=outcome,
+            treatment=treatment,
+            covariates=covariates,
+            weight_matrix=weight_matrix,
+            treatment_proxy=z[:, [idx]],
+            outcome_proxy=w_proxy[:, [idx]],
+            ridge=ridge,
+            stability_constraint_margin=stability_constraint_margin,
+            model_family=model_family,
+            spatial_lag_covariates=spatial_lag_covariates,
+            spatial_lag_treatment=spatial_lag_treatment,
+            weight_matrix_error=weight_matrix_error,
+        )
+        effects.append(float(fitted["ate_total"]))
+    spread = float(np.std(np.asarray(effects, dtype=float), ddof=1))
+    scale = max(abs(float(np.mean(effects))), 1.0e-6)
+    return float(spread / scale)
+
+
+def _buffer_exclusion_falsification(spatial_proxy_specs: tuple[Mapping[str, Any], ...]) -> bool | None:
+    if not spatial_proxy_specs:
+        return None
+    for raw_spec in spatial_proxy_specs:
+        roles = {str(item) for item in raw_spec.get("allowed_roles", ())}
+        if "outcome_inducing" not in roles:
+            continue
+        time_mode = str(raw_spec.get("time_mode", "contemporaneous"))
+        if time_mode != "contemporaneous":
+            continue
+        lag_orders = tuple(int(item) for item in raw_spec.get("lag_orders", ()))
+        if not lag_orders:
+            continue
+        min_lag = min(lag_orders)
+        buffer_radius = int(raw_spec.get("buffer_radius") or 0)
+        spillover_radius = int(raw_spec.get("spillover_radius_claim") or 1)
+        proxy_construction = str(raw_spec.get("proxy_construction", "ring_lag"))
+        if proxy_construction in {"ring_lag", "buffered_ring_lag"} and max(
+            min_lag, buffer_radius
+        ) <= spillover_radius:
+            return True
+    return False
+
+
+def _build_spatial_bridge_plausibility_report(
+    *,
+    base_report: BridgePlausibilityReport,
+    residual: np.ndarray,
+    weight_matrix: np.ndarray,
+    spatial_proxy_specs: tuple[Mapping[str, Any], ...],
+    ring_sensitivity_instability: float,
+) -> BridgePlausibilityReport:
+    severity = base_report.severity
+    failure_mode = base_report.suspected_failure_mode
+    bridge_supported = base_report.bridge_existence_supported
+    completeness_plausible = base_report.completeness_plausible
+    reasons = list(base_report.reasons)
+
+    buffer_falsification = _buffer_exclusion_falsification(spatial_proxy_specs)
+    moran_i_bridge_residual = _moran_i(residual, weight_matrix)
+
+    if buffer_falsification is True:
+        severity = BridgePlausibilitySeverity.RED
+        failure_mode = BridgeFailureMode.INFEASIBLE_EQUATION
+        bridge_supported = False
+        if "buffer_exclusion_falsification" not in reasons:
+            reasons.append("buffer_exclusion_falsification")
+
+    if ring_sensitivity_instability >= 0.40:
+        if severity is BridgePlausibilitySeverity.GREEN:
+            severity = BridgePlausibilitySeverity.YELLOW
+        if failure_mode is BridgeFailureMode.NONE:
+            failure_mode = BridgeFailureMode.ILL_POSED
+        completeness_plausible = False
+        reasons.append("proxy_ring_sensitivity_instability_high")
+
+    if abs(moran_i_bridge_residual) >= 0.45:
+        severity = BridgePlausibilitySeverity.RED
+        if failure_mode is BridgeFailureMode.NONE:
+            failure_mode = BridgeFailureMode.INFEASIBLE_EQUATION
+        bridge_supported = False
+        reasons.append("bridge_residual_spatial_autocorrelation_high")
+    elif abs(moran_i_bridge_residual) >= 0.20:
+        if severity is BridgePlausibilitySeverity.GREEN:
+            severity = BridgePlausibilitySeverity.YELLOW
+        if failure_mode is BridgeFailureMode.NONE:
+            failure_mode = BridgeFailureMode.ILL_POSED
+        reasons.append("bridge_residual_spatial_autocorrelation_elevated")
+
+    payload = base_report.model_dump(mode="python")
+    payload.update(
+        {
+            "buffer_exclusion_falsification": buffer_falsification,
+            "ring_sensitivity_instability": float(ring_sensitivity_instability),
+            "moran_i_bridge_residual": float(moran_i_bridge_residual),
+            "bridge_existence_supported": bridge_supported,
+            "completeness_plausible": completeness_plausible,
+            "suspected_failure_mode": failure_mode,
+            "severity": severity,
+            "reasons": tuple(reasons),
+            "metadata": {
+                **base_report.metadata,
+                "spatial_proxy_specs_present": bool(spatial_proxy_specs),
+                "spatial_diagnostic_basis": "buffered_proxy_checks_plus_moran_i",
+            },
+            "fallback_disposition": None,
+        }
+    )
+    return BridgePlausibilityReport.model_validate(payload)
 
 
 @foundry_method(
@@ -858,6 +1316,440 @@ class ProximalBridgeEstimator:
             warnings=warnings,
             extras={
                 "proximal_result": proximal_result,
+                "bridge_plausibility_report": bridge_report_payload,
+                "bounds_bundle": None,
+                "negative_certificate": None,
+            },
+        )
+
+
+@foundry_method(
+    namespace="causal.proximal",
+    version="1.0.0",
+    tags={"causal", "proximal", "spatial", "negative-controls", "frontier"},
+)
+class SpatialProximalBridgeEstimator:
+    """Approximate spatial-proximal bridge estimation for latent spatial confounding."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="spatial_proximal_bridge",
+        namespace="",
+        version="0.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "weight_matrix",
+                    SlotType.MATRIX,
+                    Unit("spatial_weight", "value"),
+                    shape=("n_obs", "n_obs"),
+                ),
+                SlotSpec(
+                    "treatment_proxy",
+                    SlotType.MATRIX,
+                    Unit("proxy", "value"),
+                    shape=("n_obs", "n_proxy_features"),
+                ),
+                SlotSpec(
+                    "outcome_proxy",
+                    SlotType.MATRIX,
+                    Unit("proxy", "value"),
+                    shape=("n_obs", "n_proxy_features"),
+                ),
+            }
+        ),
+        output_slots=_spatial_proximal_bridge_output_slots(),
+        parameters=(
+            ParameterSpec("model_family", default="sdm"),
+            ParameterSpec("sieve_degree", default=3, bounds=(1, 6)),
+            ParameterSpec("n_folds", default=4, bounds=(2, 10)),
+            ParameterSpec("block_cv_scheme", default="spatial_blocks"),
+            ParameterSpec("n_bootstrap", default=80, bounds=(20, 400)),
+            ParameterSpec("confidence_level", default=0.95, bounds=(0.8, 0.99)),
+            ParameterSpec("ridge", default=1.0e-4, bounds=(1.0e-8, None)),
+            ParameterSpec("bridge_residual_splits", default=12, bounds=(3, 50)),
+            ParameterSpec("epsilon_grid", default=(0.01, 0.025, 0.05)),
+            ParameterSpec("stability_constraint_margin", default=0.025, bounds=(1.0e-4, 0.25)),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Buffered spatial-proximal bridge estimator for SDM/SARAR-style "
+            "settings with latent spatial confounding and proxy ring-lags."
+        ),
+        tags=frozenset({"causal", "proximal", "spatial", "negative-controls", "frontier"}),
+        citations=(
+            "Miao, W., Geng, Z. & Tchetgen Tchetgen, E. (2018). Identifying causal effects with proxy variables.",
+            "Tchetgen Tchetgen, E. et al. (2020). Introduction to proximal causal learning.",
+            "LeSage, J. & Pace, R.K. (2009). Introduction to Spatial Econometrics.",
+        ),
+        equations={
+            "spatial_bridge_moment": "E[s(Z, A, X) {Y - rho WY - tau A - vartheta WA - WX gamma - h(W, A, X)}] = 0",
+            "spatial_impacts": "B(rho, tau, vartheta) = (I - rho W)^(-1) (tau I + vartheta W)",
+        },
+        assumptions={
+            "buffered_spatial_proxy_exclusion": "Outcome-inducing spatial proxies are buffered, pre-treatment, or negative-control constructions.",
+            "dual_proxy_families": "Both treatment-inducing and outcome-inducing spatial proxy families carry latent-confounding signal.",
+            "bridge_stability": "Residualized proxy operator is sufficiently well-conditioned for point estimation.",
+        },
+        when_to_use=(
+            "Latent spatial confounding is plausible and the analyst can supply "
+            "spatial weights plus buffered proxy rings."
+        ),
+        when_not_to_use=(
+            "No credible spatial proxies, dense/global spillovers without buffered "
+            "exclusion, or no spatial-weights matrix."
+        ),
+        diagnostic_checks=("spatial.autocorrelation.moran_i@1.0.0",),
+        typical_min_obs=120,
+        output_interpretation=(
+            "point_estimate is the total spatial proximal effect. tau is the "
+            "own-unit structural effect; ADE/AIE decompose direct and indirect impacts."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any] | HTEObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+        try:
+            outcome, treatment, covariates, _ = _observational_payload(state)
+            if covariates is None:
+                raise ValueError("covariates are required for spatial proximal bridge estimation")
+            mapping = state if isinstance(state, Mapping) else state.model_dump(mode="python")
+            n_obs = outcome.shape[0]
+            weight_matrix = _coerce_square_matrix(mapping, "weight_matrix", n_obs)
+            treatment_proxy = _coerce_proxy_matrix(mapping, "treatment_proxy", n_obs)
+            outcome_proxy = _coerce_proxy_matrix(mapping, "outcome_proxy", n_obs)
+            spatial_lag_covariates = None
+            if mapping.get("spatial_lag_covariates") is not None:
+                spatial_lag_covariates = _coerce_matrix(mapping, "spatial_lag_covariates", n_obs)
+            spatial_lag_treatment = None
+            if mapping.get("spatial_lag_treatment") is not None:
+                spatial_lag_treatment = _coerce_vector(mapping, "spatial_lag_treatment", n_obs)
+            weight_matrix_error = None
+            if mapping.get("weight_matrix_error") is not None:
+                weight_matrix_error = _coerce_square_matrix(mapping, "weight_matrix_error", n_obs)
+            _validate_binary_treatment(treatment)
+            if n_obs < 80:
+                raise ValueError(
+                    "spatial proximal bridge estimation requires at least 80 observations"
+                )
+            model_family = str(params.get("model_family") or mapping.get("model_family") or "sdm").lower()
+            if model_family not in {"sdm", "sarar"}:
+                raise ValueError("model_family must be one of {'sdm', 'sarar'}")
+        except Exception as exc:
+            report = build_failure_report(
+                method=CausalMethod.PROXIMAL_BRIDGE,
+                status=EstimationStatus.INPUT_INVALID,
+                reason=str(exc),
+                estimand="spatial_proximal_ate",
+                sample_size=0,
+                n_treated=0,
+                n_control=0,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(SpatialProximalBridgeEstimator.metadata.assumptions),
+            )
+            return wrap_causal_output(
+                report,
+                warnings=[report.status_reason or "input invalid"],
+                extras={"spatial_proximal_result": None},
+            )
+
+        ridge = float(params.get("ridge", 1.0e-4))
+        stability_constraint_margin = float(params.get("stability_constraint_margin", 0.025))
+        confidence_level = float(params.get("confidence_level", 0.95))
+        n_bootstrap = int(params.get("n_bootstrap", 80) or 80)
+        sieve_degree = int(params.get("sieve_degree", 3) or 3)
+        n_folds = int(params.get("n_folds", 4) or 4)
+        block_cv_scheme = str(params.get("block_cv_scheme", "spatial_blocks") or "spatial_blocks")
+        epsilon_grid = _resolve_epsilon_grid(params.get("epsilon_grid"))
+        spatial_specs_raw = mapping.get("spatial_proxy_specs") or ()
+        spatial_proxy_specs = tuple(
+            spec.model_dump(mode="json") if hasattr(spec, "model_dump") else dict(spec)
+            for spec in spatial_specs_raw
+        )
+
+        fitted = _fit_spatial_proximal_linear(
+            outcome=outcome,
+            treatment=treatment,
+            covariates=np.asarray(covariates, dtype=float),
+            weight_matrix=weight_matrix,
+            treatment_proxy=treatment_proxy,
+            outcome_proxy=outcome_proxy,
+            ridge=ridge,
+            stability_constraint_margin=stability_constraint_margin,
+            model_family=model_family,
+            spatial_lag_covariates=spatial_lag_covariates,
+            spatial_lag_treatment=spatial_lag_treatment,
+            weight_matrix_error=weight_matrix_error,
+        )
+
+        diagnostic_covariates = np.column_stack(
+            [
+                np.asarray(covariates, dtype=float),
+                fitted["wa"],
+                fitted["wx"],
+                fitted["wy"],
+            ]
+        )
+        base_bridge_report = _build_bridge_plausibility_report(
+            outcome=outcome,
+            treatment=treatment,
+            covariates=diagnostic_covariates,
+            treatment_proxy=treatment_proxy,
+            outcome_proxy=outcome_proxy,
+            ridge=ridge,
+            seed=int(params.get("__seed__", 0)),
+            n_residual_splits=max(
+                int(params.get("bridge_residual_splits", 12) or 12),
+                n_folds,
+            ),
+            max_degree=sieve_degree,
+        )
+        ring_instability = _proxy_ring_instability(
+            outcome=outcome,
+            treatment=treatment,
+            covariates=np.asarray(covariates, dtype=float),
+            weight_matrix=weight_matrix,
+            treatment_proxy=treatment_proxy,
+            outcome_proxy=outcome_proxy,
+            ridge=ridge,
+            stability_constraint_margin=stability_constraint_margin,
+            model_family=model_family,
+            spatial_lag_covariates=spatial_lag_covariates,
+            spatial_lag_treatment=spatial_lag_treatment,
+            weight_matrix_error=weight_matrix_error,
+        )
+        bridge_report = _build_spatial_bridge_plausibility_report(
+            base_report=base_bridge_report,
+            residual=fitted["residual"],
+            weight_matrix=weight_matrix,
+            spatial_proxy_specs=spatial_proxy_specs,
+            ring_sensitivity_instability=ring_instability,
+        )
+        bridge_report_payload = bridge_report.model_dump(mode="json")
+        outcome_scale = float(np.std(outcome, ddof=1)) if n_obs > 1 else 1.0
+        sensitivity_grid = _spatial_sensitivity_grid(
+            point_estimate=float(fitted["ate_total"]),
+            outcome_scale=outcome_scale,
+            bridge_report=bridge_report,
+            epsilon_grid=epsilon_grid,
+            estimand_label="ATE_total",
+        )
+        bridge_diagnostics = [
+            *_bridge_diagnostic_tests(bridge_report),
+            DiagnosticTest(
+                test_name="spatial_bridge_residual_moran_i",
+                statistic=bridge_report.moran_i_bridge_residual,
+                passed=abs(float(bridge_report.moran_i_bridge_residual or 0.0)) < 0.20,
+                details=bridge_report.to_summary_dict(),
+            ),
+            DiagnosticTest(
+                test_name="spatial_proxy_ring_instability",
+                statistic=bridge_report.ring_sensitivity_instability,
+                passed=float(bridge_report.ring_sensitivity_instability or 0.0) < 0.40,
+                details=bridge_report.to_summary_dict(),
+            ),
+        ]
+        fallback_disposition = bridge_report.fallback_disposition
+
+        if fallback_disposition in {
+            BridgeFallbackDisposition.BLOCK_POINT_ESTIMATE,
+            BridgeFallbackDisposition.REQUIRE_BOUNDS,
+        }:
+            if bridge_report.buffer_exclusion_falsification is True or (
+                bridge_report.proxy_association_score is not None
+                and bridge_report.proxy_association_score < 0.03
+            ):
+                partial_bounds = _proximal_manski_fallback(outcome=outcome, treatment=treatment)
+                bounds_source = "spatial_proximal_manski_fallback"
+            else:
+                partial_bounds = _epsilon_relaxed_spatial_bounds(
+                    point_estimate=float(fitted["ate_total"]),
+                    outcome_scale=outcome_scale,
+                    bridge_report=bridge_report,
+                    estimand_label="ATE_total",
+                    epsilon=epsilon_grid[0],
+                )
+                bounds_source = "spatial_proximal_epsilon_relaxed_fallback"
+            bounds_bundle = bounds_bundle_from_partial_identification_result(
+                partial_bounds,
+                estimand_type="ate",
+                metadata={
+                    "source": bounds_source,
+                    "spatial_model_family": model_family,
+                    "spatial_proxy_specs_present": bool(spatial_proxy_specs),
+                    "epsilon_grid": [float(item) for item in epsilon_grid],
+                    "sensitivity_grid": sensitivity_grid,
+                    "block_cv_scheme": block_cv_scheme,
+                },
+            )
+            bounds_bundle = annotate_bounds_bundle_for_proximal_bridge_failure(
+                bounds_bundle,
+                bridge_report,
+            )
+            negative_certificate = negative_certificate_from_bridge_plausibility_report(
+                bridge_report,
+                estimand_type="ate",
+                bounds_bundle=bounds_bundle,
+                missing_vars=("buffered_outcome_proxy", "independent_treatment_proxy"),
+            )
+            reason = (
+                "spatial_buffer_exclusion_failed"
+                if bridge_report.buffer_exclusion_falsification is True
+                else "spatial_proximal_bridge_requires_bounds"
+            )
+            report = build_failure_report(
+                method=CausalMethod.PROXIMAL_BRIDGE,
+                status=EstimationStatus.ASSUMPTION_FAILED,
+                reason=reason,
+                estimand="spatial_proximal_ate",
+                sample_size=n_obs,
+                n_treated=int(np.sum(treatment == 1)),
+                n_control=int(np.sum(treatment == 0)),
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(SpatialProximalBridgeEstimator.metadata.assumptions),
+                diagnostics=bridge_diagnostics,
+                metadata={
+                    "spatial_model_family": model_family,
+                    "tau": float(fitted["tau"]),
+                    "ade": float(fitted["ade"]),
+                    "aie": float(fitted["aie"]),
+                    "ate_total": float(fitted["ate_total"]),
+                    "rho": float(fitted["rho"]),
+                    "lambda": float(fitted["lambda"]),
+                    "bridge_plausibility_report": bridge_report_payload,
+                    "sensitivity_grid": sensitivity_grid,
+                    "block_cv_scheme": block_cv_scheme,
+                },
+            )
+            return wrap_causal_output(
+                report,
+                warnings=list(bounds_bundle.warnings),
+                extras={
+                    "spatial_proximal_result": None,
+                    "bridge_plausibility_report": bridge_report_payload,
+                    "bounds_bundle": bounds_bundle.model_dump(mode="json"),
+                    "negative_certificate": negative_certificate.model_dump(mode="json"),
+                },
+            )
+
+        confidence_interval = _bootstrap_effect_interval(
+            lambda idx: float(
+                _fit_spatial_proximal_linear(
+                    outcome=outcome[idx],
+                    treatment=treatment[idx],
+                    covariates=np.asarray(covariates, dtype=float)[idx],
+                    weight_matrix=weight_matrix[np.ix_(idx, idx)],
+                    treatment_proxy=treatment_proxy[idx],
+                    outcome_proxy=outcome_proxy[idx],
+                    ridge=ridge,
+                    stability_constraint_margin=stability_constraint_margin,
+                    model_family=model_family,
+                    spatial_lag_covariates=(
+                        None if spatial_lag_covariates is None else spatial_lag_covariates[idx]
+                    ),
+                    spatial_lag_treatment=(
+                        None if spatial_lag_treatment is None else spatial_lag_treatment[idx]
+                    ),
+                    weight_matrix_error=(
+                        None
+                        if weight_matrix_error is None
+                        else weight_matrix_error[np.ix_(idx, idx)]
+                    ),
+                )["ate_total"]
+            ),
+            n_obs=n_obs,
+            n_bootstrap=n_bootstrap,
+            seed=int(params.get("__seed__", 0)),
+        )
+        report = build_success_report(
+            method=CausalMethod.PROXIMAL_BRIDGE,
+            estimand="spatial_proximal_ate",
+            point_estimate=float(fitted["ate_total"]),
+            confidence_interval=confidence_interval,
+            confidence_level=confidence_level,
+            inference_method="spatial_proximal_bridge",
+            sample_size=n_obs,
+            n_treated=int(np.sum(treatment == 1)),
+            n_control=int(np.sum(treatment == 0)),
+            pre_periods=0,
+            post_periods=0,
+            assumptions=dict(SpatialProximalBridgeEstimator.metadata.assumptions),
+            diagnostics=bridge_diagnostics,
+            metadata={
+                "spatial_model_family": model_family,
+                "tau": float(fitted["tau"]),
+                "ade": float(fitted["ade"]),
+                "aie": float(fitted["aie"]),
+                "ate_total": float(fitted["ate_total"]),
+                "rho": float(fitted["rho"]),
+                "lambda": float(fitted["lambda"]),
+                "bridge_r_squared": float(fitted["bridge_r_squared"]),
+                "bridge_plausibility_report": bridge_report_payload,
+                "sensitivity_grid": sensitivity_grid,
+                "block_cv_scheme": block_cv_scheme,
+                "sieve_degree": sieve_degree,
+            },
+        )
+        spatial_proximal_result = {
+            "point_estimate": float(fitted["ate_total"]),
+            "confidence_interval": [
+                float(confidence_interval[0]),
+                float(confidence_interval[1]),
+            ],
+            "tau": float(fitted["tau"]),
+            "ade": float(fitted["ade"]),
+            "aie": float(fitted["aie"]),
+            "ate_total": float(fitted["ate_total"]),
+            "rho": float(fitted["rho"]),
+            "lambda": float(fitted["lambda"]),
+            "vartheta": float(fitted["vartheta"]),
+            "bridge_r_squared": float(fitted["bridge_r_squared"]),
+            "proxy_strength": float(bridge_report.proxy_association_score or 0.0),
+            "bridge_plausibility_report": bridge_report_payload,
+            "bridge_plausibility_severity": bridge_report.severity.value,
+            "bridge_failure_mode": bridge_report.suspected_failure_mode.value,
+            "bridge_fallback_disposition": (
+                fallback_disposition.value if fallback_disposition is not None else None
+            ),
+            "sensitivity_grid": sensitivity_grid,
+            "moran_i_bridge_residual": float(bridge_report.moran_i_bridge_residual or 0.0),
+            "ring_sensitivity_instability": float(
+                bridge_report.ring_sensitivity_instability or 0.0
+            ),
+            "buffer_exclusion_falsification": bool(
+                bridge_report.buffer_exclusion_falsification
+            )
+            if bridge_report.buffer_exclusion_falsification is not None
+            else None,
+            "stability_clipped": bool(fitted["stability_clipped"]),
+            "block_cv_scheme": block_cv_scheme,
+            "sieve_degree": sieve_degree,
+        }
+        warnings = (
+            ["spatial_proximal_bridge_plausibility_warning"]
+            if fallback_disposition is BridgeFallbackDisposition.PROCEED_WITH_WARNING
+            else []
+        )
+        return wrap_causal_output(
+            report,
+            warnings=warnings,
+            extras={
+                "spatial_proximal_result": spatial_proximal_result,
                 "bridge_plausibility_report": bridge_report_payload,
                 "bounds_bundle": None,
                 "negative_certificate": None,

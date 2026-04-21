@@ -16,7 +16,12 @@ from polisyos.foundry.methods.catalog.causal.missing_data import (
     assess_administrative_missingness,
 )
 from polisyos.ir.analytics.administrative_missingness import (
+    AdministrativeMissingnessClass,
+    AdministrativeMissingnessDirection,
+    AdministrativeMissingnessMetadata,
     AdministrativeMissingnessScenarioFamily,
+    AdministrativeMissingnessUnitScope,
+    attach_administrative_missingness_metadata,
     MissingnessAssessmentStatus,
     build_compliance_based_mgraph,
     build_registration_based_mgraph,
@@ -340,6 +345,15 @@ def test_registration_based_assessment_is_recoverable_when_frame_observed():
         assessment.scenario_family
         is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED
     )
+    assert (
+        assessment.scenario_class
+        is AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED
+    )
+    assert (
+        assessment.missingness_direction
+        is AdministrativeMissingnessDirection.NOT_GENERATED
+    )
+    assert assessment.missingness_unit_scope is AdministrativeMissingnessUnitScope.RECORD
     assert assessment.status is MissingnessAssessmentStatus.RECOVERABLE
     assert set(assessment.administrative_covariates_present) == {
         "registration_flag",
@@ -347,6 +361,7 @@ def test_registration_based_assessment_is_recoverable_when_frame_observed():
     }
     assert assessment.recoverability is not None
     assert assessment.recoverability.blocking_r_nodes == ()
+    assert assessment.recommended_method_stack[:2] == ("ipw", "aipw")
 
 
 def test_registration_based_assessment_marks_selection_only_frame_as_partial():
@@ -366,6 +381,25 @@ def test_registration_based_assessment_marks_selection_only_frame_as_partial():
         "non-registered" in recommendation
         for recommendation in assessment.recommendations
     )
+
+
+def test_registration_builder_defaults_application_channel_to_not_applied():
+    graph = build_registration_based_mgraph(
+        substantive_vars=["benefit_need", "benefit_award"],
+        directed_edges=[("benefit_need", "benefit_award")],
+        target_variables=["benefit_award"],
+        registration_indicator="application_submitted",
+        eligibility_covariates=["eligibility_score"],
+        population_frame_observed=True,
+    )
+
+    assessment = assess_administrative_missingness(graph=graph)
+
+    assert (
+        assessment.scenario_class
+        is AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED
+    )
+    assert assessment.missingness_direction is AdministrativeMissingnessDirection.NOT_GENERATED
 
 
 def test_compliance_based_assessment_detects_self_censoring():
@@ -413,9 +447,130 @@ def test_system_change_assessment_populates_testability_audit():
         assessment.scenario_family
         is AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED
     )
+    assert (
+        assessment.scenario_class
+        is AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK
+    )
     assert assessment.status is MissingnessAssessmentStatus.RECOVERABLE
     assert assessment.testability_audit is not None
     assert assessment.testability_audit.implications_tested >= 0
+
+
+def test_system_change_builder_defaults_office_outage_to_service_unavailable():
+    graph = build_system_change_based_mgraph(
+        substantive_vars=["income", "outcome"],
+        directed_edges=[("income", "outcome")],
+        target_variables=["income"],
+        time_variable="event_month",
+        office_availability_covariates=["office_open_flag"],
+    )
+
+    assessment = assess_administrative_missingness(graph=graph)
+
+    assert (
+        assessment.scenario_class
+        is AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED
+    )
+    assert assessment.status is MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+    assert assessment.missingness_unit_scope is AdministrativeMissingnessUnitScope.TIME_WINDOW
+
+
+def test_linkage_failure_assessment_is_partially_recoverable_with_validation_subset():
+    graph = build_mgraph(
+        substantive_vars=["survey_income", "admin_earnings", "identifier_quality", "link_success"],
+        directed_edges=[
+            ("survey_income", "admin_earnings"),
+            ("identifier_quality", "link_success"),
+        ],
+        missingness_map={"admin_earnings": MissingnessKind.MAR},
+        missingness_edges=[("link_success", "R_admin_earnings")],
+    )
+    graph = attach_administrative_missingness_metadata(
+        graph,
+        AdministrativeMissingnessMetadata(
+            scenario_family=AdministrativeMissingnessScenarioFamily.HYBRID,
+            scenario_class=AdministrativeMissingnessClass.LINKAGE_FAILURE,
+            missingness_direction=AdministrativeMissingnessDirection.NOT_LINKED,
+            missingness_unit_scope=AdministrativeMissingnessUnitScope.LINK,
+            target_variables=("admin_earnings",),
+            identifier_quality_covariates=("identifier_quality",),
+            validation_subset_available=True,
+            evidence_refs=("artifact://linkage/validation",),
+        ),
+    )
+
+    assessment = assess_administrative_missingness(graph=graph)
+
+    assert assessment.scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE
+    assert assessment.status is MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+    assert assessment.estimands_at_risk[0].scope == "linked_population"
+    assert assessment.recommended_method_stack[:2] == (
+        "probabilistic_linkage_with_uncertainty",
+        "ipw_on_link_success",
+    )
+    assert assessment.evidence[0].ref == "artifact://linkage/validation"
+
+
+def test_retention_expired_assessment_blocks_point_recovery_without_window_metadata():
+    graph = build_mgraph(
+        substantive_vars=["benefit_amount", "event_time", "retention_rule"],
+        directed_edges=[("event_time", "benefit_amount"), ("event_time", "retention_rule")],
+        missingness_map={"benefit_amount": MissingnessKind.MAR},
+        missingness_edges=[("retention_rule", "R_benefit_amount")],
+    )
+    graph = attach_administrative_missingness_metadata(
+        graph,
+        AdministrativeMissingnessMetadata(
+            scenario_family=AdministrativeMissingnessScenarioFamily.HYBRID,
+            scenario_class=AdministrativeMissingnessClass.RETENTION_EXPIRED,
+            missingness_direction=AdministrativeMissingnessDirection.DELETED,
+            missingness_unit_scope=AdministrativeMissingnessUnitScope.TIME_WINDOW,
+            target_variables=("benefit_amount",),
+            time_variable="event_time",
+            retention_window_observed=False,
+            retention_schedule_id="retention_v1",
+        ),
+    )
+
+    assessment = assess_administrative_missingness(graph=graph)
+
+    assert assessment.status is MissingnessAssessmentStatus.NOT_RECOVERABLE
+    assert assessment.target_population_after_restriction is not None
+    assert assessment.recommended_method_stack == (
+        "restricted_estimand",
+        "monotone_bounds",
+    )
+
+
+def test_processing_backlog_assessment_requires_nowcast_style_repair():
+    graph = build_mgraph(
+        substantive_vars=["award_amount", "event_month", "backlog_batch"],
+        directed_edges=[("event_month", "backlog_batch")],
+        missingness_map={"award_amount": MissingnessKind.MAR},
+        missingness_edges=[("backlog_batch", "R_award_amount")],
+    )
+    graph = attach_administrative_missingness_metadata(
+        graph,
+        AdministrativeMissingnessMetadata(
+            scenario_family=AdministrativeMissingnessScenarioFamily.HYBRID,
+            scenario_class=AdministrativeMissingnessClass.PROCESSING_BACKLOG_OR_REPORTING_LAG,
+            missingness_direction=AdministrativeMissingnessDirection.DELAYED,
+            missingness_unit_scope=AdministrativeMissingnessUnitScope.EXTRACT,
+            target_variables=("award_amount",),
+            time_variable="event_month",
+            processing_lag_covariates=("backlog_batch",),
+            matured_cohorts_observed=True,
+        ),
+    )
+
+    assessment = assess_administrative_missingness(graph=graph)
+
+    assert assessment.status is MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+    assert assessment.recommended_method_stack[:2] == (
+        "lag_adjusted_ipw",
+        "nowcasting",
+    )
+    assert assessment.sensitivity_plan
 
 
 def test_assessment_populates_full_law_identification_metadata_for_query():

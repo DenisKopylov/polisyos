@@ -18,7 +18,10 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
+from polisyos.ir.analytics.microsim_calibration import load_microsim_calibration_report
+from polisyos.ir.refs import MicrosimCalibrationReportRef
 
 from .protocols import MicrosimResult, SurveyMicroData
 
@@ -43,6 +46,24 @@ def _weighted_gini(values: np.ndarray, weights: np.ndarray) -> float:
     relx = cumxw / cumxw[-1]
     area = np.trapezoid(relx, relw)
     return float(max(0.0, min(1.0, 1.0 - 2.0 * area)))
+
+
+def _resolve_calibration_gate(
+    data: SurveyMicroData,
+    *,
+    artifact_store: Any | None,
+) -> dict[str, Any]:
+    report = data.microsim_calibration_report
+    if isinstance(report, dict):
+        return report
+    ref_payload = data.microsim_calibration_report_ref
+    if isinstance(ref_payload, dict) and artifact_store is not None:
+        ref = MicrosimCalibrationReportRef.model_validate(ref_payload)
+        return load_microsim_calibration_report(artifact_store, ref).model_dump(mode="json")
+    raise ValueError(
+        "static_microsim requires microsim_calibration_report or microsim_calibration_report_ref; "
+        "raw uncertified weights are not allowed"
+    )
 
 
 @foundry_method(
@@ -121,6 +142,16 @@ class StaticMicrosimEstimator:
     @staticmethod
     def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
         data = state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        artifact_store = resolve_artifact_store(
+            state.model_dump(mode="python") if isinstance(state, SurveyMicroData) else state,
+            params,
+        )
+        calibration_gate = _resolve_calibration_gate(data, artifact_store=artifact_store)
+        if not bool(calibration_gate.get("can_run_microsim", False)):
+            reason = ", ".join(calibration_gate.get("blocking_reasons", ())) or str(
+                calibration_gate.get("compatibility_status", "blocked")
+            )
+            raise ValueError(f"static_microsim refused to run: {reason}")
         income = np.asarray(data.market_income, dtype=float)
         weights = np.asarray(data.weights, dtype=float)
         tax_allowance = float(params.get("tax_allowance", 12000.0))
@@ -150,6 +181,9 @@ class StaticMicrosimEstimator:
                 "tax_rate": tax_rate,
                 "benefit_floor": benefit_floor,
                 "benefit_taper": benefit_taper,
+                "microsim_calibration_decision": calibration_gate.get("decision"),
+                "microsim_calibration_report_ref": data.microsim_calibration_report_ref,
+                "microsim_calibration_warnings": calibration_gate.get("warnings", ()),
             },
         )
         return {

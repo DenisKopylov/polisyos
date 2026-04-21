@@ -57,6 +57,9 @@ from polisyos.foundry.methods.catalog.causal.density_ratio import DensityRatioEs
 from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
     DistributionalBoundsEngineMethod,
 )
+from polisyos.foundry.methods.catalog.causal.eif_bounds import (
+    SemiparametricEfficiencyBoundMethod,
+)
 from polisyos.foundry.methods.catalog.causal.diagnostics import (
     ParallelTrendsCheck,
     PolicyOverlapDiagnostic,
@@ -163,6 +166,7 @@ from polisyos.foundry.methods.catalog.causal.frontier import (
     DistributionalTreatmentEffectEstimator,
     NetworkHeterogeneousEffectEstimator,
     ProximalBridgeEstimator,
+    SpatialProximalBridgeEstimator,
 )
 from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
     ProximalMediationEstimator,
@@ -295,6 +299,7 @@ def register_causal_methods() -> Sequence[type]:
         IntersectionBoundsEstimator,
         RosenbaumSharpBoundsEstimator,
         DistributionalBoundsEngineMethod,
+        SemiparametricEfficiencyBoundMethod,
         # Mediation
         CausalMediationEstimator,
         ControlledDirectEffectEstimator,
@@ -347,6 +352,7 @@ def register_causal_methods() -> Sequence[type]:
         CausalExperimentDesigner,
         # WS-9 frontier additions
         ProximalBridgeEstimator,
+        SpatialProximalBridgeEstimator,
         ProximalMediationEstimator,
         DistributionalTreatmentEffectEstimator,
         NetworkHeterogeneousEffectEstimator,

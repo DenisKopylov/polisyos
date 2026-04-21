@@ -202,6 +202,7 @@ from .frontier import (
     DistributionalTreatmentEffectEstimator,
     NetworkHeterogeneousEffectEstimator,
     ProximalBridgeEstimator,
+    SpatialProximalBridgeEstimator,
 )
 from .operator_valued import (
     OperatorApplyProbeMethod,
@@ -381,6 +382,7 @@ __all__ = [
     "MultinomialIPWEstimator",
     "MultiArmAIPWEstimator",
     "ProximalBridgeEstimator",
+    "SpatialProximalBridgeEstimator",
     "ProximalMediationEstimator",
     "DistributionalTreatmentEffectEstimator",
     "pairwise_contrasts",

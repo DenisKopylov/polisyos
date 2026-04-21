@@ -486,6 +486,57 @@ def compute_eif_att(
     return EIFScores(estimand_type="att", scores=psi, n_obs=len(psi))
 
 
+def compute_eif_subgroup_mean(
+    Y: np.ndarray,
+    T: np.ndarray,
+    e: np.ndarray,
+    mu1: np.ndarray,
+    mu0: np.ndarray,
+    subgroup: np.ndarray,
+    *,
+    target_treatment: int = 1,
+    target_group: object = 1,
+    min_propensity: float = 1e-4,
+    min_group_probability: float = 1e-4,
+) -> EIFScores:
+    """Efficient non-centered score for E[Y^a | B=b].
+
+    The convention matches the rest of this module: ``mean(scores)`` equals the
+    subgroup mean itself, not a centered mean-zero influence curve.
+    """
+    Y, T, e, mu1, mu0 = (np.asarray(a, dtype=float) for a in (Y, T, e, mu1, mu0))
+    subgroup_arr = np.asarray(subgroup, dtype=object).reshape(-1)
+    if subgroup_arr.size != len(Y):
+        raise ValueError("subgroup must have the same length as Y")
+
+    group_indicator = (subgroup_arr == target_group).astype(float)
+    group_probability = float(np.mean(group_indicator))
+    if group_probability < min_group_probability:
+        raise ValueError("target_group must appear with positive frequency")
+
+    e_clip = np.clip(e, min_propensity, 1.0 - min_propensity)
+    if int(target_treatment) == 1:
+        treatment_indicator = T
+        treatment_probability = e_clip
+        outcome_model = mu1
+    elif int(target_treatment) == 0:
+        treatment_indicator = 1.0 - T
+        treatment_probability = 1.0 - e_clip
+        outcome_model = mu0
+    else:
+        raise ValueError("target_treatment must be 0 or 1")
+
+    psi = (
+        group_indicator
+        / max(group_probability, min_group_probability)
+        * (
+            treatment_indicator * (Y - outcome_model) / treatment_probability
+            + outcome_model
+        )
+    )
+    return EIFScores(estimand_type="subgroup_mean", scores=psi, n_obs=len(psi))
+
+
 def compute_eif_late(
     Y: np.ndarray,
     T: np.ndarray,
@@ -1024,6 +1075,18 @@ class SemiparametricEfficiencyBoundMethod:
 
         if estimand_type == "att":
             eif = compute_eif_att(Y, T, e, mu1, mu0, min_propensity=min_propensity)
+        elif estimand_type == "subgroup_mean":
+            eif = compute_eif_subgroup_mean(
+                Y,
+                T,
+                e,
+                mu1,
+                mu0,
+                np.asarray(state["subgroup"]),
+                target_treatment=int(params.get("target_treatment", 1)),
+                target_group=params.get("target_group", 1),
+                min_propensity=min_propensity,
+            )
         else:
             eif = compute_eif_ate(Y, T, e, mu1, mu0, min_propensity=min_propensity)
 
@@ -1312,6 +1375,7 @@ __all__ = [
     "EfficiencyReport",
     "compute_eif_ate",
     "compute_eif_att",
+    "compute_eif_subgroup_mean",
     "compute_eif_late",
     "compute_eif_frontdoor",
     "compute_eif_nde",

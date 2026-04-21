@@ -8,7 +8,7 @@ readiness/risk assessments.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Iterable
+from typing import Any, Iterable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -24,6 +24,47 @@ class AdministrativeMissingnessScenarioFamily(str, Enum):
     COMPLIANCE_BASED = "compliance_based"
     SYSTEM_CHANGE_BASED = "system_change_based"
     HYBRID = "hybrid"
+    UNKNOWN = "unknown"
+
+
+class AdministrativeMissingnessClass(str, Enum):
+    """Operational administrative-missingness class used by survey governance."""
+
+    NONE = "none"
+    REGISTRATION_NOT_APPLIED = "registration_not_applied"
+    REGISTRATION_NOT_REGISTERED = "registration_not_registered"
+    COMPLIANCE_NOT_COMPLETED = "compliance_not_completed"
+    SERVICE_UNAVAILABLE_OFFICE_CLOSED = "service_unavailable_office_closed"
+    SYSTEM_CHANGE_OR_SCHEMA_BREAK = "system_change_or_schema_break"
+    RETENTION_EXPIRED = "retention_expired"
+    LEGAL_RESTRICTION_OR_REDACTION = "legal_restriction_or_redaction"
+    PROCESSING_BACKLOG_OR_REPORTING_LAG = "processing_backlog_or_reporting_lag"
+    LINKAGE_FAILURE = "linkage_failure"
+    MIXED = "mixed"
+    UNKNOWN = "unknown"
+
+
+class AdministrativeMissingnessDirection(str, Enum):
+    """How an administrative value became unobservable."""
+
+    NOT_GENERATED = "not_generated"
+    NOT_CAPTURED = "not_captured"
+    DELAYED = "delayed"
+    WITHHELD = "withheld"
+    DELETED = "deleted"
+    NOT_LINKED = "not_linked"
+    UNKNOWN = "unknown"
+
+
+class AdministrativeMissingnessUnitScope(str, Enum):
+    """Granularity at which the administrative missingness mechanism operates."""
+
+    FIELD = "field"
+    RECORD = "record"
+    LINK = "link"
+    EPISODE = "episode"
+    EXTRACT = "extract"
+    TIME_WINDOW = "time_window"
     UNKNOWN = "unknown"
 
 
@@ -43,6 +84,9 @@ class AdministrativeMissingnessMetadata(BaseModel):
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     scenario_family: AdministrativeMissingnessScenarioFamily
+    scenario_class: AdministrativeMissingnessClass | None = None
+    missingness_direction: AdministrativeMissingnessDirection | None = None
+    missingness_unit_scope: AdministrativeMissingnessUnitScope | None = None
     target_variables: tuple[str, ...] = ()
     registration_indicator: str | None = None
     eligibility_covariates: tuple[str, ...] = ()
@@ -53,6 +97,20 @@ class AdministrativeMissingnessMetadata(BaseModel):
     time_variable: str | None = None
     rollout_covariates: tuple[str, ...] = ()
     office_availability_covariates: tuple[str, ...] = ()
+    identifier_quality_covariates: tuple[str, ...] = ()
+    processing_lag_covariates: tuple[str, ...] = ()
+    legal_restriction_covariates: tuple[str, ...] = ()
+    bridge_window_observed: bool | None = None
+    retention_window_observed: bool | None = None
+    legal_rule_observed: bool | None = None
+    matured_cohorts_observed: bool | None = None
+    validation_subset_available: bool | None = None
+    evidence_refs: tuple[str, ...] = ()
+    source_system: str | None = None
+    extract_ts: str | None = None
+    policy_version: str | None = None
+    linkage_run_id: str | None = None
+    retention_schedule_id: str | None = None
     notes: str = ""
 
     @property
@@ -67,6 +125,9 @@ class AdministrativeMissingnessMetadata(BaseModel):
             self.time_variable,
             *(self.rollout_covariates or ()),
             *(self.office_availability_covariates or ()),
+            *(self.identifier_quality_covariates or ()),
+            *(self.processing_lag_covariates or ()),
+            *(self.legal_restriction_covariates or ()),
         ]
         return tuple(_stable_strings(items))
 
@@ -117,14 +178,58 @@ class MissingnessTestabilityAudit(BaseModel):
     warnings: tuple[str, ...] = ()
 
 
+class MissingnessEstimandRisk(BaseModel):
+    """Machine-readable summary of which estimands are threatened by a mechanism."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    name: str
+    scope: str = ""
+    identifiable: bool | None = None
+    risk_level: Literal["low", "medium", "high", "unknown"] = "unknown"
+
+
+class MissingnessEvidenceItem(BaseModel):
+    """Evidence artifact supporting a missingness assessment."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    type: str
+    ref: str
+    quality: Literal["low", "medium", "high", "unknown"] = "unknown"
+
+
+class MissingnessAssessmentProvenance(BaseModel):
+    """Provenance block for decision-grade missingness assessments."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_system: str | None = None
+    extract_ts: str | None = None
+    policy_version: str | None = None
+    linkage_run_id: str | None = None
+    retention_schedule_id: str | None = None
+    assessment_method: str = ""
+    assessor: str | None = None
+    code_commit: str | None = None
+    mgraph_fingerprint: str | None = None
+
+
 class MissingnessAssessmentReport(BaseModel):
     """Readiness-facing report for administrative missingness modeling."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
     status: MissingnessAssessmentStatus
     scenario_family: AdministrativeMissingnessScenarioFamily
+    scenario_class: AdministrativeMissingnessClass = AdministrativeMissingnessClass.UNKNOWN
+    missingness_direction: AdministrativeMissingnessDirection = (
+        AdministrativeMissingnessDirection.UNKNOWN
+    )
+    missingness_unit_scope: AdministrativeMissingnessUnitScope = (
+        AdministrativeMissingnessUnitScope.UNKNOWN
+    )
     scenario_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     administrative_covariates_present: tuple[str, ...] = ()
     administrative_covariates_missing: tuple[str, ...] = ()
@@ -133,6 +238,14 @@ class MissingnessAssessmentReport(BaseModel):
     mgraph_ref: str | None = None
     recoverability: MissingnessRecoverabilitySummary | None = None
     testability_audit: MissingnessTestabilityAudit | None = None
+    estimands_at_risk: tuple[MissingnessEstimandRisk, ...] = ()
+    identification_assumptions: tuple[str, ...] = ()
+    testable_implications_declared: tuple[str, ...] = ()
+    evidence: tuple[MissingnessEvidenceItem, ...] = ()
+    provenance: MissingnessAssessmentProvenance | None = None
+    recommended_method_stack: tuple[str, ...] = ()
+    sensitivity_plan: tuple[str, ...] = ()
+    target_population_after_restriction: str | None = None
     recommendations: tuple[str, ...] = ()
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -170,9 +283,25 @@ def build_registration_based_mgraph(
     population_frame_observed: bool = True,
     missingness_kind: MissingnessKind = MissingnessKind.MAR,
     discovery_method: str = "administrative_registration",
+    scenario_class: AdministrativeMissingnessClass | None = None,
+    missingness_direction: AdministrativeMissingnessDirection | None = None,
+    missingness_unit_scope: AdministrativeMissingnessUnitScope | None = None,
+    evidence_refs: list[str] | None = None,
+    notes: str = "",
 ) -> CausalGraphModel:
     """Construct a registration-based administrative M-graph template."""
     eligibility_covariates = list(eligibility_covariates or [])
+    indicator_label = registration_indicator.lower()
+    resolved_class = scenario_class
+    if resolved_class is None:
+        if any(token in indicator_label for token in ("apply", "application", "claim")):
+            resolved_class = AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED
+        else:
+            resolved_class = AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED
+    resolved_direction = (
+        missingness_direction or AdministrativeMissingnessDirection.NOT_GENERATED
+    )
+    resolved_scope = missingness_unit_scope or AdministrativeMissingnessUnitScope.RECORD
     all_substantive = _stable_strings([
         *substantive_vars,
         registration_indicator,
@@ -195,10 +324,15 @@ def build_registration_based_mgraph(
         graph,
         AdministrativeMissingnessMetadata(
             scenario_family=AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED,
+            scenario_class=resolved_class,
+            missingness_direction=resolved_direction,
+            missingness_unit_scope=resolved_scope,
             target_variables=tuple(_stable_strings(target_variables)),
             registration_indicator=registration_indicator,
             eligibility_covariates=tuple(_stable_strings(eligibility_covariates)),
             population_frame_observed=population_frame_observed,
+            evidence_refs=tuple(_stable_strings(evidence_refs or [])),
+            notes=notes,
         ),
     )
 
@@ -213,10 +347,22 @@ def build_compliance_based_mgraph(
     self_censoring_variables: list[str] | None = None,
     missingness_kind: MissingnessKind = MissingnessKind.MAR,
     discovery_method: str = "administrative_compliance",
+    scenario_class: AdministrativeMissingnessClass | None = None,
+    missingness_direction: AdministrativeMissingnessDirection | None = None,
+    missingness_unit_scope: AdministrativeMissingnessUnitScope | None = None,
+    evidence_refs: list[str] | None = None,
+    notes: str = "",
 ) -> CausalGraphModel:
     """Construct a compliance-based administrative M-graph template."""
     compliance_driver_covariates = list(compliance_driver_covariates or [])
     self_censoring_variables = list(self_censoring_variables or [])
+    resolved_class = (
+        scenario_class or AdministrativeMissingnessClass.COMPLIANCE_NOT_COMPLETED
+    )
+    resolved_direction = (
+        missingness_direction or AdministrativeMissingnessDirection.NOT_CAPTURED
+    )
+    resolved_scope = missingness_unit_scope or AdministrativeMissingnessUnitScope.EPISODE
     all_substantive = _stable_strings([
         *substantive_vars,
         compliance_indicator,
@@ -240,9 +386,14 @@ def build_compliance_based_mgraph(
         graph,
         AdministrativeMissingnessMetadata(
             scenario_family=AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED,
+            scenario_class=resolved_class,
+            missingness_direction=resolved_direction,
+            missingness_unit_scope=resolved_scope,
             target_variables=tuple(_stable_strings(target_variables)),
             compliance_indicator=compliance_indicator,
             compliance_driver_covariates=tuple(_stable_strings(compliance_driver_covariates)),
+            evidence_refs=tuple(_stable_strings(evidence_refs or [])),
+            notes=notes,
         ),
     )
 
@@ -259,11 +410,32 @@ def build_system_change_based_mgraph(
     affected_outcomes: list[str] | None = None,
     missingness_kind: MissingnessKind = MissingnessKind.MAR,
     discovery_method: str = "administrative_system_change",
+    scenario_class: AdministrativeMissingnessClass | None = None,
+    missingness_direction: AdministrativeMissingnessDirection | None = None,
+    missingness_unit_scope: AdministrativeMissingnessUnitScope | None = None,
+    bridge_window_observed: bool | None = None,
+    evidence_refs: list[str] | None = None,
+    notes: str = "",
 ) -> CausalGraphModel:
     """Construct a system-change-based administrative M-graph template."""
     rollout_covariates = list(rollout_covariates or [])
     office_availability_covariates = list(office_availability_covariates or [])
     affected_outcomes = list(affected_outcomes or [])
+    resolved_class = scenario_class
+    if resolved_class is None:
+        if office_availability_covariates:
+            resolved_class = AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED
+        else:
+            resolved_class = AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK
+    resolved_direction = (
+        missingness_direction or AdministrativeMissingnessDirection.NOT_CAPTURED
+    )
+    if missingness_unit_scope is not None:
+        resolved_scope = missingness_unit_scope
+    elif resolved_class is AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED:
+        resolved_scope = AdministrativeMissingnessUnitScope.TIME_WINDOW
+    else:
+        resolved_scope = AdministrativeMissingnessUnitScope.EXTRACT
     mechanism_var = system_version_variable or time_variable
     if mechanism_var is None:
         raise ValueError(
@@ -295,6 +467,9 @@ def build_system_change_based_mgraph(
         graph,
         AdministrativeMissingnessMetadata(
             scenario_family=AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED,
+            scenario_class=resolved_class,
+            missingness_direction=resolved_direction,
+            missingness_unit_scope=resolved_scope,
             target_variables=tuple(_stable_strings(target_variables)),
             system_version_variable=system_version_variable,
             time_variable=time_variable,
@@ -302,6 +477,9 @@ def build_system_change_based_mgraph(
             office_availability_covariates=tuple(
                 _stable_strings(office_availability_covariates)
             ),
+            bridge_window_observed=bridge_window_observed,
+            evidence_refs=tuple(_stable_strings(evidence_refs or [])),
+            notes=notes,
         ),
     )
 
@@ -333,10 +511,16 @@ def _dedupe_edges(edges: Iterable[tuple[str, str]]) -> list[tuple[str, str]]:
 
 
 __all__ = [
+    "AdministrativeMissingnessClass",
+    "AdministrativeMissingnessDirection",
     "AdministrativeMissingnessMetadata",
     "AdministrativeMissingnessScenarioFamily",
+    "AdministrativeMissingnessUnitScope",
     "MissingnessAssessmentReport",
     "MissingnessAssessmentStatus",
+    "MissingnessAssessmentProvenance",
+    "MissingnessEstimandRisk",
+    "MissingnessEvidenceItem",
     "MissingnessImplicationFailure",
     "MissingnessProofStep",
     "MissingnessRecoverabilitySummary",

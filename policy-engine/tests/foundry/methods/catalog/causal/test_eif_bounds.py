@@ -26,6 +26,7 @@ from polisyos.foundry.methods.catalog.causal.eif_bounds import (
     compute_eif_att,
     compute_eif_frontdoor,
     compute_eif_late,
+    compute_eif_subgroup_mean,
     compute_second_order_eif,
     compute_eif_transport,
 )
@@ -101,6 +102,31 @@ class TestEIFATT:
         eif_att = compute_eif_att(Y, T, e, mu1, mu0)
         # Both have finite variance; just confirm they differ
         assert eif_ate.variance() != eif_att.variance()
+
+
+class TestEIFSubgroupMean:
+    def test_subgroup_mean_returns_scores(self):
+        Y, T, e, mu1, mu0 = _dgp()
+        subgroup = (mu0 > np.median(mu0)).astype(int)
+        eif = compute_eif_subgroup_mean(Y, T, e, mu1, mu0, subgroup, target_group=1)
+        assert eif.estimand_type == "subgroup_mean"
+        assert np.all(np.isfinite(eif.scores))
+
+    def test_subgroup_mean_matches_plugin_target_under_oracle_nuisance(self):
+        Y, T, e, mu1, mu0 = _dgp(n=5000)
+        subgroup = (mu0 > np.median(mu0)).astype(int)
+        target = float(np.mean(mu1[subgroup == 1]))
+        eif = compute_eif_subgroup_mean(
+            Y,
+            T,
+            e,
+            mu1,
+            mu0,
+            subgroup,
+            target_treatment=1,
+            target_group=1,
+        )
+        assert abs(eif.point_estimate() - target) < 0.1
 
 
 class TestEIFLATE:
@@ -336,6 +362,15 @@ class TestFoundryMethod:
             state, {"estimand_type": "att"}
         )
         assert result["efficiency_bound"]["estimand_type"] == "att"
+
+    def test_pure_step_subgroup_mean(self):
+        state = self._make_state()
+        state["subgroup"] = (state["mu0"] > np.median(state["mu0"])).astype(int)
+        result = SemiparametricEfficiencyBoundMethod.pure_step(
+            state,
+            {"estimand_type": "subgroup_mean", "target_group": 1, "target_treatment": 1},
+        )
+        assert result["efficiency_bound"]["estimand_type"] == "subgroup_mean"
 
     def test_pure_step_with_estimator_se(self):
         state = self._make_state()

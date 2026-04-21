@@ -1,6 +1,9 @@
 """Public simulation registry boot module API."""
 from __future__ import annotations
 
+from polisyos.foundry.methods.catalog.simulation.demography import (
+    StaticAgingSimulationEstimator,
+)
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
     AgentPopulationSimulationEstimator,
     QueueDiscreteEventEstimator,
@@ -22,6 +25,7 @@ def register_simulation_methods() -> tuple[type, ...]:
         QueueDiscreteEventEstimator,
         SIRCompartmentalEstimator,
         SEIRCompartmentalEstimator,
+        StaticAgingSimulationEstimator,
         AgentPopulationSimulationEstimator,
         MonteCarloEstimator,
         BootstrapInferenceEstimator,

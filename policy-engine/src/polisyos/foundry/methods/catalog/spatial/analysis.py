@@ -6,6 +6,11 @@ from typing import Any, ClassVar, Mapping
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
+from polisyos.ir.analytics.dependence_structure import (
+    build_dependence_structure,
+    persist_dependence_structure,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -78,6 +83,35 @@ def _distance_weights(coordinates: np.ndarray, *, decay: float = 1.0) -> np.ndar
     return weights / row_sums
 
 
+def _persist_spatial_dependence_ref(
+    data: SpatialData,
+    *,
+    params: Mapping[str, Any],
+    source_method: str,
+) -> Any | None:
+    artifact_store = resolve_artifact_store(data.model_dump(mode="python"), params)
+    if artifact_store is None:
+        return None
+    weights = (
+        np.asarray(data.weights_matrix, dtype=float)
+        if data.weights_matrix is not None
+        else _distance_weights(np.asarray(data.coordinates, dtype=float))
+    )
+    structure = build_dependence_structure(
+        regime="areal",
+        class_label="graph_local" if data.weights_matrix is not None else "weak_or_none",
+        calibrated=True,
+        recommended_covariance="conley_spatial_hac",
+        source_method=source_method,
+        metrics={
+            "n_areas": float(weights.shape[0]),
+            "mean_weight": float(np.mean(weights)),
+        },
+        metadata={"has_weights_matrix": data.weights_matrix is not None},
+    )
+    return persist_dependence_structure(artifact_store, structure)
+
+
 def _spatial_weights(data: SpatialData, *, decay: float = 1.0) -> np.ndarray:
     if data.weights_matrix is not None:
         weights = np.asarray(data.weights_matrix, dtype=float)
@@ -144,6 +178,11 @@ class MoranIEstimator:
         if rng is None or not hasattr(rng, "permutation"):
             rng = np.random.default_rng(int(params.get("__seed__", 0)))
         data = state if isinstance(state, SpatialData) else SpatialData.model_validate(state)
+        dependence_ref = _persist_spatial_dependence_ref(
+            data,
+            params=params,
+            source_method="spatial.autocorrelation.moran_i",
+        )
         y = np.asarray(data.values, dtype=float)
         weights = _spatial_weights(data, decay=float(params.get("distance_decay", 1.0)))
         z = y - np.mean(y)
@@ -161,6 +200,7 @@ class MoranIEstimator:
             "result": SpatialResult(
                 method_name="moran_i",
                 statistics={"moran_i": statistic, "p_value": float(p_value) if p_value is not None else np.nan},
+                dependence_ref=dependence_ref,
                 metadata={"n_permutations": n_perm},
             )
         }
@@ -220,6 +260,11 @@ class GWREstimator:
         from scipy.spatial.distance import cdist
 
         data = state if isinstance(state, SpatialData) else SpatialData.model_validate(state)
+        dependence_ref = _persist_spatial_dependence_ref(
+            data,
+            params=params,
+            source_method="spatial.regression.gwr",
+        )
         x = np.asarray(data.features, dtype=float)
         y = np.asarray(data.values, dtype=float)
         coords = np.asarray(data.coordinates, dtype=float)
@@ -241,6 +286,7 @@ class GWREstimator:
                 statistics={"rmse": rmse},
                 local_coefficients=local_betas,
                 fitted_values=fitted,
+                dependence_ref=dependence_ref,
                 metadata={"bandwidth": bandwidth},
             )
         }
@@ -302,6 +348,11 @@ class SpatialDurbinEstimator:
         import statsmodels.api as sm
 
         data = state if isinstance(state, SpatialData) else SpatialData.model_validate(state)
+        dependence_ref = _persist_spatial_dependence_ref(
+            data,
+            params=params,
+            source_method="spatial.regression.spatial_durbin",
+        )
         weights = _spatial_weights(data, decay=float(params.get("distance_decay", 1.0)))
         x = np.asarray(data.features, dtype=float)
         y = np.asarray(data.values, dtype=float)
@@ -321,6 +372,7 @@ class SpatialDurbinEstimator:
                 method_name="spatial_durbin",
                 statistics=statistics,
                 fitted_values=np.asarray(fit.fittedvalues, dtype=float),
+                dependence_ref=dependence_ref,
                 metadata={"cov_type": "HC1"},
             )
         }
@@ -413,6 +465,7 @@ class GravityModelEstimator:
                     "r_squared": float(getattr(fit, "rsquared", np.nan)),
                 },
                 fitted_values=fitted,
+                dependence_ref=None,
                 metadata={"cov_type": "HC1"},
             )
         }
@@ -500,6 +553,7 @@ class AccessibilityIndexEstimator:
                     "max_accessibility": float(np.max(scores)),
                 },
                 scores=scores,
+                dependence_ref=None,
                 metadata={"decay": decay},
             ),
             "scores": scores,

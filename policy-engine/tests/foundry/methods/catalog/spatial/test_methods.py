@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.spatial import (
@@ -11,6 +12,7 @@ from polisyos.foundry.methods.spatial import (
     SpatialData,
     ensure_spatial_methods_registered,
 )
+from polisyos.ir.analytics.dependence_structure import load_dependence_structure
 
 
 @pytest.fixture(autouse=True)
@@ -134,6 +136,24 @@ def test_gravity_model_and_accessibility_index_run() -> None:
         seed=159,
     )
     assert np.asarray(access_result.output["scores"], dtype=float).shape == (4,)
+
+
+def test_spatial_methods_emit_areal_dependence_ref(tmp_path) -> None:
+    pytest.importorskip("scipy")
+    pytest.importorskip("statsmodels")
+
+    ensure_spatial_methods_registered()
+    registry = MethodRegistry.get_instance()
+    store = FileSystemCAS(tmp_path / "cas")
+
+    moran_cls = registry.get("spatial.autocorrelation.moran_i@1.0.0")
+    result = moran_cls.pure_step(_spatial_state(), {"artifact_store": store})
+
+    dependence_ref = result["result"].dependence_ref
+    assert dependence_ref is not None
+    loaded = load_dependence_structure(store, dependence_ref)
+    assert loaded.regime == "areal"
+    assert loaded.source_method == "spatial.autocorrelation.moran_i"
 
 
 def test_advanced_spatial_methods_run() -> None:
@@ -307,3 +327,28 @@ def test_advanced_spatial_methods_run() -> None:
     )
     assert maup_result.output["result"].method_name == "maup_profile"
     assert np.asarray(maup_result.output["result"].scores, dtype=float).shape == (3, 4)
+
+
+def test_advanced_spatial_methods_emit_dependence_ref(tmp_path) -> None:
+    ensure_spatial_methods_registered()
+    registry = MethodRegistry.get_instance()
+    store = FileSystemCAS(tmp_path / "cas")
+
+    kriging_cls = registry.get("spatial.interpolation.gaussian_process_kriging@1.0.0")
+    kriging_result = kriging_cls.pure_step(
+        {
+            "coordinates": np.array(
+                [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0], [0.5, 0.4]],
+                dtype=float,
+            ),
+            "values": np.array([1.0, 1.8, 2.1, 2.9, 1.7], dtype=float),
+            "prediction_coords": np.array([[0.2, 0.2], [0.8, 0.8]], dtype=float),
+        },
+        {"length_scale": 0.7, "noise_level": 0.02, "artifact_store": store},
+    )
+
+    dependence_ref = kriging_result["result"].dependence_ref
+    assert dependence_ref is not None
+    loaded = load_dependence_structure(store, dependence_ref)
+    assert loaded.regime == "areal"
+    assert loaded.source_method == "spatial.interpolation.gaussian_process_kriging"

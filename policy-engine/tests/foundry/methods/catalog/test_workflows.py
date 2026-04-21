@@ -54,6 +54,25 @@ def _survey_data() -> SurveyMicroData:
     )
 
 
+def _survey_data_with_categories() -> SurveyMicroData:
+    incomes = np.array([4000.0, 9000.0, 18000.0, 26000.0], dtype=float)
+    feature_pattern = np.array(
+        [
+            ["north", "single"],
+            ["north", "family"],
+            ["south", "single"],
+            ["south", "family"],
+        ],
+        dtype=object,
+    )
+    return SurveyMicroData(
+        market_income=np.tile(incomes, 25),
+        weights=np.ones(100, dtype=float),
+        features=np.tile(feature_pattern, (25, 1)),
+        feature_names=["region", "family_type"],
+    )
+
+
 def _causal_panel() -> PanelObservationalData:
     return PanelObservationalData(
         outcome=np.array(
@@ -119,6 +138,30 @@ def test_end_to_end_microsim_calibration_to_static_chain() -> None:
     result = execute_heterogeneous_chain(composer.build(), state=_survey_data(), seed=431)
     final_output = result.node_results[-1][1].output
 
+    assert final_output["result"].weighted_mean_disposable_income > 0.0
+    assert final_output["uncertainty_envelope"] is not None
+
+
+def test_end_to_end_microsim_raking_calibration_to_static_chain() -> None:
+    ensure_all_methods_registered()
+    composer = MethodComposer(registry=MethodRegistry.get_instance())
+    calibration = composer.add(
+        "microsim.calibration.reweighting_calibration@1.0.0",
+        target_total_weight=100.0,
+        raking_targets={
+            "region": {"north": 60.0, "south": 40.0},
+            "family_type": {"single": 40.0, "family": 60.0},
+        },
+    )
+    microsim = composer.add("microsim.static.static_microsim@1.0.0")
+    composer.connect(calibration, microsim, {"weights": "weights"})
+
+    result = execute_heterogeneous_chain(composer.build(), state=_survey_data_with_categories(), seed=437)
+    calibration_output = result.node_results[0][1].output
+    final_output = result.node_results[-1][1].output
+
+    assert calibration_output["diagnostics"].decision == "pass"
+    assert calibration_output["result"].metadata["solver"] == "rake_ipf"
     assert final_output["result"].weighted_mean_disposable_income > 0.0
     assert final_output["uncertainty_envelope"] is not None
 

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from statistics import NormalDist
-from typing import TYPE_CHECKING, Any, ClassVar, Mapping, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Mapping, Protocol, runtime_checkable
 
 import numpy as np
 from pydantic import (
@@ -22,6 +22,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
+from polisyos.ir.refs import DependenceStructureRef
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -220,7 +221,7 @@ class TimeSeriesData(BaseModel):
 class EconometricResult(BaseModel):
     """Common output contract for econometric methods."""
 
-    contract_id: ClassVar[str] = "foundry.econometrics.result.v1"
+    contract_id: ClassVar[str] = "foundry.econometrics.result.v2"
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     method_name: str
@@ -242,6 +243,8 @@ class EconometricResult(BaseModel):
     diagnostics: dict[str, Any] = Field(default_factory=dict)
     model_info: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
+    dependence_ref: DependenceStructureRef | None = None
+    cross_sectional_dependence_diagnostic: CrossSectionalDependenceDiagnostic | None = None
 
     @model_validator(mode="after")
     def _validate_numerics(self) -> "EconometricResult":
@@ -330,6 +333,66 @@ class EconometricDiagnosticResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class CrossSectionalDependenceDiagnostic(BaseModel):
+    """Typed cross-sectional dependence routing payload shared across econometric panel workflows."""
+
+    contract_id: ClassVar[str] = "foundry.econometrics.cross_sectional_dependence_diagnostic.v1"
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    detected: bool
+    class_label: Literal[
+        "none",
+        "weak_or_none",
+        "common_shock_removed",
+        "block",
+        "spatial_local",
+        "network_local",
+        "factor",
+        "mixed",
+        "inconclusive",
+    ]
+    strength: Literal["none", "weak", "strong", "unknown"]
+    estimator_status: Literal[
+        "ok",
+        "ok_conservative",
+        "reroute_required",
+        "unsafe_for_default_inference",
+    ]
+    recommended_covariance: Literal[
+        "windmeijer",
+        "double_corrected_gmm",
+        "cluster",
+        "multiway_cluster",
+        "fixed_g_cluster",
+        "conley_spatial_hac",
+        "spatial_windmeijer",
+        "network_hac",
+        "cce_reroute",
+        "dynamic_spatial_network_gmm_reroute",
+        "none",
+    ]
+    tests: list[EconometricDiagnosticResult] = Field(default_factory=list)
+    factor_count: int | None = Field(default=None, ge=0)
+    alpha_hat: float | None = None
+    alpha_ci: tuple[float, float] | None = None
+    used_time_dummies: bool = False
+    dependence_removed_by_time_effects: bool | None = None
+    evidence: dict[str, Any] = Field(default_factory=dict)
+    shared_artifacts_ref: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_numeric_ranges(self) -> "CrossSectionalDependenceDiagnostic":
+        if self.alpha_hat is not None and not np.isfinite(self.alpha_hat):
+            raise ValueError("alpha_hat must be finite")
+        if self.alpha_ci is not None:
+            lo, hi = self.alpha_ci
+            if not np.isfinite(lo) or not np.isfinite(hi):
+                raise ValueError("alpha_ci must be finite")
+            if lo > hi:
+                raise ValueError("alpha_ci lower must be <= upper")
+        return self
+
+
 @runtime_checkable
 class EconometricEstimator(Protocol):
     """Declare the protocol shared by econometric estimators returning `EconometricResult` payloads."""
@@ -350,6 +413,7 @@ class EconometricEstimator(Protocol):
 
 
 __all__ = [
+    "CrossSectionalDependenceDiagnostic",
     "EconometricEstimator",
     "EconometricDiagnosticResult",
     "EconometricResult",

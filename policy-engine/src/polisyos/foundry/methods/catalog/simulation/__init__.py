@@ -5,6 +5,7 @@ from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
 from polisyos.foundry.methods.registry import MethodRegistry
 
 from ._registry_boot import register_simulation_methods
+from .demography import StaticAgingResult, StaticAgingSimulationEstimator
 from .dynamics import (
     AgentPopulationSimulationEstimator,
     QueueDiscreteEventEstimator,
@@ -37,6 +38,8 @@ __all__ = [
     "QueueDiscreteEventEstimator",
     "SEIRCompartmentalEstimator",
     "SIRCompartmentalEstimator",
+    "StaticAgingResult",
+    "StaticAgingSimulationEstimator",
     "StockFlowSystemDynamicsEstimator",
     "ensure_simulation_methods_registered",
     "register_simulation_methods",

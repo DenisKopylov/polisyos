@@ -110,6 +110,8 @@ SPOT_CHECK_FQNS = [
     "causal.discovery.dagma_discovery@1.0.0",
     "sensitivity.global.sobol_first_order@1.0.0",
     "sensitivity.global.morris@1.0.0",
+    "survey.adaptive.adaptive_calibrated_ipw@1.0.0",
+    "survey.adaptive.adaptive_augmented@1.0.0",
     "survey.estimation.fay_herriot@1.0.0",
     "survey.imputation.mice@1.0.0",
     "simulation.inference.bootstrap@1.0.0",

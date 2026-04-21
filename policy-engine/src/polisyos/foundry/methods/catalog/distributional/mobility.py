@@ -6,6 +6,7 @@ from typing import Any, ClassVar, Mapping
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -18,6 +19,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.ir.analytics.mobility import MobilityReport, persist_mobility_report
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -27,7 +29,13 @@ def _result_slot() -> frozenset[SlotSpec]:
                 name="result",
                 slot_type=SlotType.SCALAR,
                 unit=Unit("result", "json"),
-            )
+                contract_id=MobilityReport.contract_id,
+            ),
+            SlotSpec(
+                name="mobility_report_ref",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("artifact_ref", "json"),
+            ),
         }
     )
 
@@ -135,16 +143,29 @@ class MobilityMatrixEstimator:
             immobility_rate = 0.0
             upward_mobility_rate = 0.0
             downward_mobility_rate = 0.0
-
-        return {
-            "result": {
+        artifact_store = resolve_artifact_store(state, params)
+        report = MobilityReport(
+            analysis_type="transition_matrix",
+            status="ok",
+            summary_metrics={
                 "transition_matrix": transition_matrix.tolist(),
                 "upward_mobility_rate": upward_mobility_rate,
                 "downward_mobility_rate": downward_mobility_rate,
                 "immobility_rate": immobility_rate,
                 "n_classes": n_classes,
                 "n_obs": n_obs,
-            }
+            },
+            metadata={"valid_observations": n_valid},
+        )
+        report_ref = (
+            persist_mobility_report(artifact_store, report)
+            if artifact_store is not None
+            else None
+        )
+
+        return {
+            "result": report,
+            "mobility_report_ref": None if report_ref is None else report_ref.model_dump(mode="json"),
         }
 
 
@@ -197,7 +218,6 @@ class IntergenerationalElasticityEstimator:
 
     @staticmethod
     def pure_step(state: Any, params: Mapping[str, Any]) -> dict[str, Any]:
-        del params
         if not isinstance(state, Mapping):
             raise TypeError("state must provide parent_values and child_values")
         parent = np.asarray(state["parent_values"], dtype=float)
@@ -236,14 +256,27 @@ class IntergenerationalElasticityEstimator:
             r_squared = 1.0
         else:
             r_squared = (ss_xy ** 2) / (ss_xx * ss_yy)
-
-        return {
-            "result": {
+        artifact_store = resolve_artifact_store(state, params)
+        report = MobilityReport(
+            analysis_type="intergenerational_elasticity",
+            status="ok",
+            summary_metrics={
                 "ige": float(beta),
                 "intercept": float(alpha),
                 "r_squared": float(max(0.0, min(1.0, r_squared))),
                 "n": n,
-            }
+            },
+            metadata={"log_scale": True},
+        )
+        report_ref = (
+            persist_mobility_report(artifact_store, report)
+            if artifact_store is not None
+            else None
+        )
+
+        return {
+            "result": report,
+            "mobility_report_ref": None if report_ref is None else report_ref.model_dump(mode="json"),
         }
 
 

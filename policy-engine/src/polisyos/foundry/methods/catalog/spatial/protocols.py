@@ -6,6 +6,8 @@ from typing import Any, ClassVar
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
 
+from polisyos.ir.refs import DependenceStructureRef
+
 
 def _to_numpy(value: Any) -> np.ndarray:
     if isinstance(value, np.ndarray):
@@ -192,6 +194,7 @@ class SpatialResult(BaseModel):
     local_coefficients: Any | None = None
     fitted_values: Any | None = None
     scores: Any | None = None
+    dependence_ref: DependenceStructureRef | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("local_coefficients", "fitted_values", "scores", mode="before")

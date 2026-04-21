@@ -64,6 +64,8 @@ class NumpyRunner(MethodRunner):
         wall_ms = (time.perf_counter() - started) * 1000
 
         determinism_tier = DeterminismTier.LIBRARY_DETERMINISTIC
+        artifacts: dict[str, Any] = {}
+        warnings: list[str] = []
         class_tier = getattr(method_class, "determinism_tier", None)
         if isinstance(class_tier, DeterminismTier):
             determinism_tier = class_tier
@@ -73,6 +75,16 @@ class NumpyRunner(MethodRunner):
                 determinism_tier = maybe_tier
                 output = dict(output)
                 output.pop("__determinism_tier__", None)
+            maybe_artifacts = output.get("__numpy_artifacts__")
+            if isinstance(maybe_artifacts, Mapping):
+                output = dict(output)
+                output.pop("__numpy_artifacts__", None)
+                artifacts.update({str(key): value for key, value in maybe_artifacts.items()})
+            maybe_warnings = output.get("__numpy_warnings__")
+            if isinstance(maybe_warnings, (list, tuple, set, frozenset)):
+                output = dict(output)
+                output.pop("__numpy_warnings__", None)
+                warnings.extend(str(item) for item in maybe_warnings)
 
         runtime_stack = runtime_stack_for(method_class)
         versions = capture_versions(
@@ -115,5 +127,6 @@ class NumpyRunner(MethodRunner):
                 ),
             ),
             slot_outputs=slot_outputs,
-            artifacts={"backend_runtime_fingerprint": posture.as_dict()},
+            artifacts={**artifacts, "backend_runtime_fingerprint": posture.as_dict()},
+            warnings=tuple(dict.fromkeys(warnings)),
         )

@@ -48,6 +48,13 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 
 
 try:
+    from .dependence import ensure_dependence_methods_registered
+except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+    def ensure_dependence_methods_registered(registry: MethodRegistry | None = None) -> None:
+        return None
+
+
+try:
     from .bayesian import ensure_bayesian_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
     def ensure_bayesian_methods_registered(registry: MethodRegistry | None = None) -> None:
@@ -120,6 +127,7 @@ def ensure_all_methods_registered(registry: MethodRegistry | None = None) -> Non
     ensure_microsim_methods_registered(reg)
     ensure_spatial_methods_registered(reg)
     ensure_network_methods_registered(reg)
+    ensure_dependence_methods_registered(reg)
     ensure_bayesian_methods_registered(reg)
     ensure_distributional_methods_registered(reg)
     ensure_survey_methods_registered(reg)
@@ -140,6 +148,7 @@ __all__ = [
     "ensure_microsim_methods_registered",
     "ensure_spatial_methods_registered",
     "ensure_network_methods_registered",
+    "ensure_dependence_methods_registered",
     "ensure_bayesian_methods_registered",
     "ensure_distributional_methods_registered",
     "ensure_survey_methods_registered",

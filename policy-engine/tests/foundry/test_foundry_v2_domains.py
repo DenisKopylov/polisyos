@@ -48,6 +48,100 @@ def test_foundry_v2_distributional_and_survey_methods_dispatch() -> None:
     assert ht_result.output["result"]["total_estimate"] == pytest.approx(85.0)
     assert len(ht_result.output["result"]["weights"]) == 3
 
+    adaptive_cls = registry.get("survey.adaptive.adaptive_calibrated_ipw@1.0.0")
+    adaptive_result = dispatcher.dispatch(
+        method_class=adaptive_cls,
+        signature=adaptive_cls.signature,
+        state={
+            "y_observed": np.array([10.0, 12.0, np.nan, 20.0, 18.0, np.nan]),
+            "response_indicator": np.array([1.0, 1.0, 0.0, 1.0, 1.0, 0.0]),
+            "base_inclusion_probabilities": np.full(6, 0.5),
+            "followup_sampling_probabilities": np.array([1.0, 1.0, 0.5, 1.0, 0.5, 1.0]),
+            "X_aux": np.array(
+                [
+                    [1.0, 0.0],
+                    [1.0, 0.0],
+                    [1.0, 1.0],
+                    [1.0, 1.0],
+                    [1.0, 0.0],
+                    [1.0, 1.0],
+                ]
+            ),
+            "paradata_matrix": np.array(
+                [
+                    [2.0, 0.20],
+                    [1.0, 0.10],
+                    [3.0, 0.40],
+                    [2.0, 0.30],
+                    [1.0, 0.20],
+                    [4.0, 0.50],
+                ]
+            ),
+            "action_matrix": np.array([[0.0], [0.0], [1.0], [0.0], [1.0], [1.0]]),
+            "control_totals": np.array([12.0, 6.0]),
+        },
+        params={"calibration_method": "linear"},
+        seed=17,
+    )
+    assert adaptive_result.output["result"]["adaptive_status"]["n_respondents"] == 4
+    assert adaptive_result.output["result"]["final_weights_summary"]["effective_sample_size"] > 0.0
+
+    adaptive_augmented_cls = registry.get("survey.adaptive.adaptive_augmented@1.0.0")
+    adaptive_augmented_result = dispatcher.dispatch(
+        method_class=adaptive_augmented_cls,
+        signature=adaptive_augmented_cls.signature,
+        state={
+            "y_observed": np.array([10.0, 12.0, np.nan, 20.0, 18.0, np.nan]),
+            "response_indicator": np.array([1.0, 1.0, 0.0, 1.0, 1.0, 0.0]),
+            "base_inclusion_probabilities": np.full(6, 0.5),
+            "followup_sampling_probabilities": np.array([1.0, 1.0, 0.5, 1.0, 0.5, 1.0]),
+            "X_aux": np.array(
+                [
+                    [1.0, 0.0],
+                    [1.0, 0.0],
+                    [1.0, 1.0],
+                    [1.0, 1.0],
+                    [1.0, 0.0],
+                    [1.0, 1.0],
+                ]
+            ),
+            "paradata_matrix": np.array(
+                [
+                    [2.0, 0.20],
+                    [1.0, 0.10],
+                    [3.0, 0.40],
+                    [2.0, 0.30],
+                    [1.0, 0.20],
+                    [4.0, 0.50],
+                ]
+            ),
+            "action_matrix": np.array([[0.0], [0.0], [1.0], [0.0], [1.0], [1.0]]),
+            "control_totals": np.array([12.0, 6.0]),
+        },
+        params={"calibration_method": "linear", "variance_method": "bootstrap", "n_replicates": 8, "seed": 17},
+        seed=17,
+    )
+    assert np.isfinite(adaptive_augmented_result.output["result"]["point_estimate"])
+    assert adaptive_augmented_result.output["result"]["augmentation_status"]["outcome_model"] == "linear"
+
+    survey_semiparametric_cls = registry.get("survey.semiparametric.ate@1.0.0")
+    survey_semiparametric_result = dispatcher.dispatch(
+        method_class=survey_semiparametric_cls,
+        signature=survey_semiparametric_cls.signature,
+        state={
+            "X": np.column_stack([np.linspace(-1.0, 1.0, 40), np.sin(np.linspace(-1.0, 1.0, 40))]),
+            "Y": np.linspace(0.0, 1.0, 40) + np.tile([0.0, 1.0], 20),
+            "treatment": np.tile([0.0, 1.0], 20),
+            "weights": np.ones(40),
+            "strata": np.repeat(np.arange(4), 10),
+            "psu": np.repeat(np.arange(8), 5),
+        },
+        params={"crossfit_folds": 4, "seed": 17, "augmentation_mode": "mean"},
+        seed=17,
+    )
+    assert np.isfinite(survey_semiparametric_result.output["result"]["estimate"])
+    assert survey_semiparametric_result.output["result"]["variance_method"] == "binder"
+
 
 def test_foundry_v2_forecasting_validation_and_sensitivity_methods_dispatch() -> None:
     ensure_all_methods_registered()

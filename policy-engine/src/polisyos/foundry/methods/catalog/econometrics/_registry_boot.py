@@ -17,6 +17,7 @@ from .diagnostics import (
     SarganHansenEstimator,
     WeakIVTestEstimator,
 )
+from .dynamic_panel import DifferenceGMMEstimator, SystemGMMEstimator
 from .expansion import (
     BayesianVAREstimator,
     SpatialAutoregressiveEstimator,
@@ -59,6 +60,8 @@ def register_econometric_methods() -> Sequence[type]:
     return (
         FixedEffectsEstimator,
         RandomEffectsEstimator,
+        DifferenceGMMEstimator,
+        SystemGMMEstimator,
         TwoStageLeastSquaresEstimator,
         GMMEstimator,
         ARIMAEstimator,

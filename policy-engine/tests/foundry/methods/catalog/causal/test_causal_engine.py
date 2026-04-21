@@ -96,10 +96,19 @@ from polisyos.ir.analytics.interventions import (
     load_intervention_certificate,
     load_intervention_query,
 )
+from polisyos.ir.analytics.dependence_structure import (
+    build_dependence_structure,
+    persist_dependence_structure,
+)
 from polisyos.ir.analytics.local_independence import (
     LocalIndependenceWeightingCertificateRef,
     load_local_independence_weighting_certificate,
 )
+from polisyos.ir.analytics.microsim_calibration import (
+    build_microsim_calibration_report,
+    persist_microsim_calibration_report,
+)
+from polisyos.ir.analytics.mobility import MobilityReport, persist_mobility_report
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
     NegativeCertificate,
@@ -113,8 +122,17 @@ from polisyos.ir.analytics.proof_composability import (
 from polisyos.ir.analytics.proximal import (
     ProximalIdentificationCertificate,
     ProxyAnnotation,
+    SpatialProxySpec,
+    load_bridge_plausibility_report,
     load_proximal_identification_certificate,
 )
+from polisyos.ir.analytics.survey_quality import (
+    SurveyRequestedRegime,
+    SurveyValidatedRegime,
+    build_survey_quality_certificate,
+    persist_survey_quality_certificate,
+)
+from polisyos.ir.governance.phase1 import load_phase1_flagship_dataset_ids
 from polisyos.ir.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
@@ -253,6 +271,81 @@ def _identified_result(
         required_distributions=[],
         query_str=f"P({outcome}|do({treatment}))",
     )
+
+
+def _seed_phase1_gate_store(
+    store: FileSystemCAS,
+    *,
+    certified_dataset_ids: tuple[str, ...] | None = None,
+) -> dict[str, object]:
+    dataset_ids = tuple(certified_dataset_ids or load_phase1_flagship_dataset_ids())
+    certificate_refs: dict[str, object] = {}
+    for dataset_id in dataset_ids:
+        certificate = build_survey_quality_certificate(
+            target_estimand="E[Y]",
+            estimator_id="survey.dr.design_missingness@1.0.0",
+            dataset_id=dataset_id,
+            data_origin="government",
+            regime_requested=SurveyRequestedRegime.POPULATION_MAR,
+            regime_validated=SurveyValidatedRegime.BOTH_VALID,
+            estimate=1.0,
+            standard_error=0.1,
+            overall_pass=True,
+        )
+        certificate_refs[dataset_id] = persist_survey_quality_certificate(store, certificate)
+
+    for regime, covariance in (
+        ("panel", "driscoll_kraay"),
+        ("areal", "conley_spatial_hac"),
+        ("network_adjacent", "network_hac"),
+    ):
+        persist_dependence_structure(
+            store,
+            build_dependence_structure(
+                regime=regime,
+                class_label="shared",
+                calibrated=True,
+                recommended_covariance=covariance,
+                source_method=f"tests.phase1.{regime}",
+            ),
+        )
+
+    persist_microsim_calibration_report(
+        store,
+        build_microsim_calibration_report(
+            compatibility_status="compatible",
+            exact_feasible=True,
+        ),
+    )
+    persist_mobility_report(
+        store,
+        MobilityReport(
+            analysis_type="transition_matrix",
+            status="ok",
+            summary_metrics={"n_obs": 10},
+        ),
+    )
+    return {
+        "dataset_ids": dataset_ids,
+        "certificate_refs": certificate_refs,
+    }
+
+
+def _government_dynamic_data(
+    dataset_id: str,
+    *,
+    survey_quality_certificate_ref: object | None = None,
+    survey_quality_certificate: object | None = None,
+) -> DynamicTreatmentData:
+    metadata: dict[str, object] = {
+        "dataset_id": dataset_id,
+        "data_origin": "government",
+    }
+    if survey_quality_certificate_ref is not None:
+        metadata["survey_quality_certificate_ref"] = survey_quality_certificate_ref
+    if survey_quality_certificate is not None:
+        metadata["survey_quality_certificate"] = survey_quality_certificate
+    return TestCausalEngineTemporal._dynamic_data().model_copy(update={"metadata": metadata})
 
 
 class TestCausalEngineIdentify:
@@ -1395,6 +1488,145 @@ class TestCausalEngineRun:
         assert bundle.proof_bundle_ref is not None
         assert bundle.data_readiness_report_ref is not None
 
+    def test_run_routes_spatial_proximal_certificate_into_spatial_bridge_execution(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        engine = CausalEngine(registry=None, artifact_store=store)
+        graph = make_admg_confounded(
+            [
+                ("X1", "A"),
+                ("X1", "Y"),
+                ("X2", "A"),
+                ("X2", "Y"),
+                ("Z1", "A"),
+                ("Z2", "A"),
+                ("A", "Y"),
+            ],
+            [
+                ("A", "Y"),
+                ("A", "Z1"),
+                ("A", "Z2"),
+                ("Y", "W1"),
+                ("Y", "W2"),
+            ],
+        )
+
+        rng = np.random.default_rng(2405)
+        n_obs = 180
+        adjacency = np.zeros((n_obs, n_obs), dtype=float)
+        for idx in range(n_obs):
+            adjacency[idx, (idx - 1) % n_obs] = 1.0
+            adjacency[idx, (idx + 1) % n_obs] = 1.0
+            adjacency[idx, (idx - 2) % n_obs] = 1.0
+            adjacency[idx, (idx + 2) % n_obs] = 1.0
+
+        x1 = rng.normal(size=n_obs)
+        x2 = rng.normal(size=n_obs)
+        latent = 0.45 * x1 - 0.25 * x2 + rng.normal(scale=0.4, size=n_obs)
+        treatment_logits = 0.4 * x1 + 0.2 * x2 + 0.8 * latent
+        treatment = (
+            rng.uniform(size=n_obs) < (1.0 / (1.0 + np.exp(-treatment_logits)))
+        ).astype(float)
+        spillover_treatment = adjacency @ treatment / np.maximum(adjacency.sum(axis=1), 1.0)
+        outcome = (
+            0.9 * treatment
+            + 0.2 * spillover_treatment
+            + 0.3 * x1
+            + 0.15 * x2
+            + 0.8 * latent
+            + rng.normal(scale=0.25, size=n_obs)
+        )
+        z1 = latent + rng.normal(scale=0.15, size=n_obs)
+        z2 = 0.85 * latent + 0.1 * x1 + rng.normal(scale=0.15, size=n_obs)
+        w1 = 0.9 * latent + 0.05 * x2 + rng.normal(scale=0.15, size=n_obs)
+        w2 = 0.8 * latent + 0.1 * x1 + rng.normal(scale=0.15, size=n_obs)
+
+        report, bundle, cert = engine.run(
+            "A",
+            "Y",
+            graph,
+            data_dict={
+                "A": treatment,
+                "Y": outcome,
+                "X1": x1,
+                "X2": x2,
+                "Z1": z1,
+                "Z2": z2,
+                "W1": w1,
+                "W2": w2,
+                "adjacency_matrix": adjacency,
+                "model_family": "sdm",
+            },
+            proximal_annotation=ProxyAnnotation(
+                treatment_inducing=("Z1", "Z2"),
+                outcome_inducing=("W1", "W2"),
+                covariates=("X1", "X2"),
+                spatial_proxy_specs=(
+                    SpatialProxySpec(
+                        proxy_variables=("Z1", "Z2"),
+                        weight_matrix_ref="weights:ring4",
+                        proxy_construction="buffered_ring_lag",
+                        lag_orders=(2, 3),
+                        buffer_radius=1,
+                        time_mode="contemporaneous",
+                        allowed_roles=("treatment_inducing",),
+                        spillover_radius_claim=1,
+                    ),
+                    SpatialProxySpec(
+                        proxy_variables=("W1", "W2"),
+                        weight_matrix_ref="weights:ring4",
+                        proxy_construction="pre_treatment_ring_lag",
+                        lag_orders=(3, 4),
+                        buffer_radius=2,
+                        time_mode="pre_treatment",
+                        allowed_roles=("outcome_inducing",),
+                        spillover_radius_claim=1,
+                    ),
+                ),
+            ),
+        )
+
+        assert cert is None
+        assert report is not None
+        assert report.status.value == "success"
+        assert report.metadata["spatial_model_family"] == "sdm"
+        assert report.metadata["bridge_plausibility_report"]["severity"] in {"green", "yellow"}
+        assert bundle.identification_status == "identified"
+        assert bundle.algorithm_version == "proximal_spatial_id_v1"
+        assert "bridge_moran_i" in bundle.diagnostic_scores
+        assert "bridge_ring_instability" in bundle.diagnostic_scores
+        assert "buffer_exclusion_falsification" in bundle.diagnostic_scores
+        assert bundle.proof_bundle_ref is not None
+        assert bundle.data_readiness_report_ref is not None
+
+        proof_bundle = load_proof_bundle(store, bundle.proof_bundle_ref)
+        readiness = load_data_readiness_report(store, bundle.data_readiness_report_ref)
+        assert proof_bundle.metadata["method"] == "spatial_proximal_bridge"
+        assert proof_bundle.theorem_family == "proximal_spatial_id_v1"
+        assert proof_bundle.proximal_certificate_ref is not None
+        assert proof_bundle.bridge_plausibility_report_ref is not None
+        assert proof_bundle.metadata["spatial_model_family"] == "sdm"
+        assert proof_bundle.metadata["weight_matrix_hash"]
+        assert proof_bundle.metadata["impact_functionals_declared"] == [
+            "tau",
+            "ADE",
+            "AIE",
+            "ATE_total",
+        ]
+        assert readiness.measurement_quality == "proxy_only"
+        assert "bridge_moran_i" in readiness.metrics
+        assert "bridge_ring_instability" in readiness.metrics
+
+        restored_cert = load_proximal_identification_certificate(
+            store,
+            proof_bundle.proximal_certificate_ref,
+        )
+        assert restored_cert.metadata["method"] == "spatial_proximal_bridge"
+        restored_bridge = load_bridge_plausibility_report(
+            store,
+            proof_bundle.bridge_plausibility_report_ref,
+        )
+        assert restored_bridge.buffer_exclusion_falsification is False
+
     def test_run_path_specific_proximal_returns_bounds_when_oracle_not_accepted(self, tmp_path):
         store = FileSystemCAS(tmp_path / "cas")
         engine = CausalEngine(registry=None, artifact_store=store)
@@ -2222,6 +2454,128 @@ def test_dynamic_causal_effect_runs_with_verified_readiness(monkeypatch):
 
     assert result.method == "ice_g"
     assert result.counterfactual_mean == pytest.approx(1.25)
+
+
+def test_dynamic_causal_effect_blocks_government_data_without_survey_certificate(monkeypatch, tmp_path):
+    from polisyos.foundry.methods.catalog.causal.g_computation import ICEGFormula
+
+    store = FileSystemCAS(tmp_path / "cas")
+    seeded = _seed_phase1_gate_store(store)
+    dataset_id = seeded["dataset_ids"][0]
+    engine = CausalEngine(registry=None, artifact_store=store)
+
+    def _fake_pure_step(state, params):  # pragma: no cover - should never execute
+        raise AssertionError("estimator should not run when readiness is blocked")
+
+    monkeypatch.setattr(ICEGFormula, "pure_step", staticmethod(_fake_pure_step))
+
+    with pytest.raises(DataReadinessBlockedError) as exc_info:
+        engine.dynamic_causal_effect(
+            data=_government_dynamic_data(dataset_id),
+            method="ice_g",
+        )
+
+    assert "survey_quality_certificate_missing_for_government_dataset" in exc_info.value.report.blocking_reasons
+
+
+def test_dynamic_causal_effect_blocks_failing_government_certificate(monkeypatch, tmp_path):
+    from polisyos.foundry.methods.catalog.causal.g_computation import ICEGFormula
+
+    store = FileSystemCAS(tmp_path / "cas")
+    seeded = _seed_phase1_gate_store(store)
+    dataset_id = seeded["dataset_ids"][0]
+    engine = CausalEngine(registry=None, artifact_store=store)
+
+    def _fake_pure_step(state, params):  # pragma: no cover - should never execute
+        raise AssertionError("estimator should not run when readiness is blocked")
+
+    monkeypatch.setattr(ICEGFormula, "pure_step", staticmethod(_fake_pure_step))
+    failing_certificate = build_survey_quality_certificate(
+        target_estimand="E[Y]",
+        estimator_id="survey.dr.design_missingness@1.0.0",
+        dataset_id=dataset_id,
+        data_origin="government",
+        regime_requested=SurveyRequestedRegime.MNAR_SHADOW,
+        regime_validated=SurveyValidatedRegime.MNAR_UNIDENTIFIED,
+        estimate=1.0,
+        standard_error=0.1,
+        overall_pass=False,
+        blocking_reasons=("mnar_shadow_requires_shadow_variables",),
+    ).model_dump(mode="json")
+
+    with pytest.raises(DataReadinessBlockedError) as exc_info:
+        engine.dynamic_causal_effect(
+            data=_government_dynamic_data(
+                dataset_id,
+                survey_quality_certificate=failing_certificate,
+            ),
+            method="ice_g",
+        )
+
+    assert "survey_quality_failed" in exc_info.value.report.blocking_reasons
+
+
+def test_dynamic_causal_effect_blocks_when_flagship_coverage_is_incomplete(monkeypatch, tmp_path):
+    from polisyos.foundry.methods.catalog.causal.g_computation import ICEGFormula
+
+    all_dataset_ids = tuple(load_phase1_flagship_dataset_ids())
+    store = FileSystemCAS(tmp_path / "cas")
+    seeded = _seed_phase1_gate_store(store, certified_dataset_ids=all_dataset_ids[:2])
+    dataset_id = all_dataset_ids[0]
+    engine = CausalEngine(registry=None, artifact_store=store)
+
+    def _fake_pure_step(state, params):  # pragma: no cover - should never execute
+        raise AssertionError("estimator should not run when readiness is blocked")
+
+    monkeypatch.setattr(ICEGFormula, "pure_step", staticmethod(_fake_pure_step))
+
+    with pytest.raises(DataReadinessBlockedError) as exc_info:
+        engine.dynamic_causal_effect(
+            data=_government_dynamic_data(
+                dataset_id,
+                survey_quality_certificate_ref=seeded["certificate_refs"][dataset_id].model_dump(mode="json"),
+            ),
+            method="ice_g",
+        )
+
+    assert "phase1_flagship_dataset_coverage_incomplete" in exc_info.value.report.blocking_reasons
+
+
+def test_dynamic_causal_effect_runs_for_government_data_after_phase1_gate(monkeypatch, tmp_path):
+    from polisyos.foundry.methods.catalog.causal.g_computation import ICEGFormula
+    from polisyos.ir.analytics.dynamic_regime import GComputationResult
+
+    store = FileSystemCAS(tmp_path / "cas")
+    seeded = _seed_phase1_gate_store(store)
+    dataset_id = seeded["dataset_ids"][0]
+    engine = CausalEngine(registry=None, artifact_store=store)
+
+    def _fake_pure_step(state, params):
+        return {
+            "g_result": GComputationResult(
+                counterfactual_mean=1.4,
+                confidence_interval=(1.0, 1.8),
+                confidence_level=0.95,
+                standard_error=0.1,
+                regime=str(params.get("regime", "always_treat")),
+                n_units=220,
+                n_periods=3,
+                method="ice_g",
+            )
+        }
+
+    monkeypatch.setattr(ICEGFormula, "pure_step", staticmethod(_fake_pure_step))
+
+    result = engine.dynamic_causal_effect(
+        data=_government_dynamic_data(
+            dataset_id,
+            survey_quality_certificate_ref=seeded["certificate_refs"][dataset_id].model_dump(mode="json"),
+        ),
+        method="ice_g",
+    )
+
+    assert result.method == "ice_g"
+    assert result.counterfactual_mean == pytest.approx(1.4)
 
 
 def test_mediation_analysis_runs_with_verified_readiness(monkeypatch):

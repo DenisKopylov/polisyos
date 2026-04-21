@@ -10,6 +10,7 @@ Implements:
 """
 from __future__ import annotations
 
+from statistics import NormalDist
 from typing import Any, ClassVar, Mapping
 
 import numpy as np
@@ -40,7 +41,14 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
 )
 
-from .protocols import PosteriorResult
+from .protocols import (
+    PosteriorResult,
+    extract_truthfulness_hints,
+    pareto_tail_shape,
+    relative_interval_shift_max,
+    split_truthfulness_hints,
+    weighted_quantile,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -79,6 +87,193 @@ def _output_slots() -> frozenset[SlotSpec]:
                  contract_id=PredictionResult.contract_id),
         SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
     })
+
+
+def _reference_linear_gaussian_posterior(
+    X: np.ndarray,
+    y: np.ndarray,
+    *,
+    prior_scale: float,
+    noise_variance: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    tau2 = max(float(prior_scale) ** 2, 1e-12)
+    sigma2 = max(float(noise_variance), 1e-12)
+    precision = (X.T @ X) / sigma2 + np.eye(X.shape[1]) / tau2
+    try:
+        covariance = np.linalg.inv(precision)
+    except np.linalg.LinAlgError:
+        covariance = np.linalg.pinv(precision)
+    mean = covariance @ (X.T @ y) / sigma2
+    return mean, np.atleast_2d(covariance)
+
+
+def _gaussian_intervals(
+    *,
+    mean: np.ndarray,
+    std: np.ndarray,
+    credible_mass: float,
+) -> dict[str, tuple[float, float]]:
+    alpha = max(1e-6, 1.0 - float(credible_mass))
+    z_score = NormalDist().inv_cdf(1.0 - alpha / 2.0)
+    return {
+        f"beta_{idx}": (
+            float(mean[idx] - z_score * std[idx]),
+            float(mean[idx] + z_score * std[idx]),
+        )
+        for idx in range(mean.shape[0])
+    }
+
+
+def _diag_gaussian_log_density(
+    samples: np.ndarray,
+    *,
+    mean: np.ndarray,
+    std: np.ndarray,
+) -> np.ndarray:
+    centered = samples - mean[None, :]
+    variance = np.maximum(std**2, 1e-12)
+    return -0.5 * (
+        np.sum((centered**2) / variance[None, :], axis=1)
+        + np.sum(np.log(2.0 * np.pi * variance))
+    )
+
+
+def _full_gaussian_log_density(
+    samples: np.ndarray,
+    *,
+    mean: np.ndarray,
+    covariance: np.ndarray,
+) -> np.ndarray:
+    centered = samples - mean[None, :]
+    safe_cov = np.atleast_2d(covariance) + 1e-12 * np.eye(covariance.shape[0])
+    sign, logdet = np.linalg.slogdet(safe_cov)
+    if sign <= 0:
+        safe_cov = safe_cov + 1e-6 * np.eye(safe_cov.shape[0])
+        sign, logdet = np.linalg.slogdet(safe_cov)
+    precision = np.linalg.pinv(safe_cov)
+    quadratic = np.einsum("ni,ij,nj->n", centered, precision, centered)
+    return -0.5 * (quadratic + logdet + safe_cov.shape[0] * np.log(2.0 * np.pi))
+
+
+def _variational_truthfulness_payload(
+    *,
+    X: np.ndarray,
+    y: np.ndarray,
+    posterior_mean: np.ndarray,
+    posterior_std: np.ndarray,
+    credible_mass: float,
+    prior_scale: float,
+    noise_variance: float,
+    seed: int,
+    credible_intervals: Mapping[str, tuple[float, float]],
+    params: Mapping[str, Any],
+) -> tuple[dict[str, float], dict[str, Any]]:
+    reference_mean, reference_cov = _reference_linear_gaussian_posterior(
+        X,
+        y,
+        prior_scale=prior_scale,
+        noise_variance=noise_variance,
+    )
+    reference_std = np.sqrt(np.maximum(np.diag(reference_cov), 1e-12))
+    reference_intervals = _gaussian_intervals(
+        mean=reference_mean,
+        std=reference_std,
+        credible_mass=credible_mass,
+    )
+    rng = np.random.default_rng(seed)
+    importance_sample_size = max(512, 64 * X.shape[1])
+    q_samples = rng.normal(
+        loc=posterior_mean[None, :],
+        scale=np.maximum(posterior_std[None, :], 1e-9),
+        size=(importance_sample_size, X.shape[1]),
+    )
+    log_q = _diag_gaussian_log_density(
+        q_samples,
+        mean=posterior_mean,
+        std=np.maximum(posterior_std, 1e-9),
+    )
+    log_p = _full_gaussian_log_density(
+        q_samples,
+        mean=reference_mean,
+        covariance=reference_cov,
+    )
+    log_weights = log_p - log_q
+    weights = np.exp(log_weights - float(np.max(log_weights)))
+    weights = weights / np.maximum(np.sum(weights), 1e-12)
+    alpha = max(1e-6, 1.0 - float(credible_mass))
+    corrected_intervals = {
+        f"beta_{idx}": tuple(
+            float(value) for value in weighted_quantile(
+                q_samples[:, idx],
+                [alpha / 2.0, 1.0 - alpha / 2.0],
+                sample_weight=weights,
+            )
+        )
+        for idx in range(X.shape[1])
+    }
+    coverage_gaps: list[float] = []
+    tail_gaps: list[float] = []
+    nd = NormalDist()
+    for idx in range(X.shape[1]):
+        label = f"beta_{idx}"
+        lower, upper = credible_intervals[label]
+        mean_ref = float(reference_mean[idx])
+        std_ref = max(float(reference_std[idx]), 1e-12)
+        lower_tail = nd.cdf((float(lower) - mean_ref) / std_ref)
+        upper_tail = 1.0 - nd.cdf((float(upper) - mean_ref) / std_ref)
+        coverage = 1.0 - lower_tail - upper_tail
+        coverage_gaps.append(abs(coverage - float(credible_mass)))
+        tail_gaps.append(max(abs(lower_tail - alpha / 2.0), abs(upper_tail - alpha / 2.0)))
+    diagonal_cov = np.diag(np.maximum(posterior_std**2, 1e-12))
+    precision_ref = np.linalg.pinv(reference_cov + 1e-12 * np.eye(reference_cov.shape[0]))
+    sign_ref, logdet_ref = np.linalg.slogdet(reference_cov + 1e-12 * np.eye(reference_cov.shape[0]))
+    sign_q, logdet_q = np.linalg.slogdet(diagonal_cov)
+    diff = reference_mean - posterior_mean
+    kl_q_to_ref = 0.5 * float(
+        np.trace(precision_ref @ diagonal_cov)
+        + diff.T @ precision_ref @ diff
+        - X.shape[1]
+        + logdet_ref
+        - logdet_q
+    ) if sign_ref > 0 and sign_q > 0 else float("inf")
+    corr = reference_cov / np.sqrt(
+        np.maximum(np.diag(reference_cov), 1e-12)[:, None]
+        * np.maximum(np.diag(reference_cov), 1e-12)[None, :]
+    )
+    offdiag_mask = ~np.eye(corr.shape[0], dtype=bool)
+    base_diagnostics = {
+        "importance_sample_size": float(importance_sample_size),
+        "joint_psis_pareto_k": pareto_tail_shape(log_weights),
+        "posthoc_interval_shift_max": relative_interval_shift_max(
+            dict(credible_intervals),
+            corrected_intervals,
+        ),
+        "psis_interval_shift_max": relative_interval_shift_max(
+            dict(credible_intervals),
+            corrected_intervals,
+        ),
+        "reference_interval_shift_max": relative_interval_shift_max(
+            dict(credible_intervals),
+            reference_intervals,
+        ),
+        "reference_mean_shift_max": float(
+            np.max(np.abs(posterior_mean - reference_mean) / np.maximum(reference_std, 1e-12))
+        ),
+        "reference_correlation_max": float(np.max(np.abs(corr[offdiag_mask]))) if np.any(offdiag_mask) else 0.0,
+        "joint_kl_q_to_reference": kl_q_to_ref,
+        "offline_coverage_error_max": float(max(coverage_gaps)) if coverage_gaps else 0.0,
+        "offline_tail_coverage_error_max": float(max(tail_gaps)) if tail_gaps else 0.0,
+    }
+    base_metadata = {
+        "benchmark_regime": "linear_gaussian_conjugate",
+        "coverage_tolerance": 0.05,
+        "reference_noise_variance": float(noise_variance),
+    }
+    hints = extract_truthfulness_hints(params)
+    hint_diagnostics, hint_metadata = split_truthfulness_hints(hints)
+    base_diagnostics.update(hint_diagnostics)
+    base_metadata.update(hint_metadata)
+    return base_diagnostics, base_metadata
 
 
 # ---------------------------------------------------------------------------
@@ -139,6 +334,7 @@ class MeanFieldVIEstimator:
             "Faster than MCMC; approximate posterior."
         ),
         tags=frozenset({"bayesian", "variational-inference", "mean-field", "regression"}),
+        truthfulness_scope="posterior",
         when_to_use="Approximate Bayesian inference in large models where MCMC is too slow; scalable inference",
         citations=(
             "Blei, D., Kucukelbir, A. & McAuliffe, J. (2017). Variational inference: A review for statisticians. Journal of the American Statistical Association, 112(518), 859-877.",
@@ -193,6 +389,23 @@ class MeanFieldVIEstimator:
 
         sigma_q = np.exp(log_sigma_q)
         y_pred = X @ mu_q
+        credible_intervals = _gaussian_intervals(
+            mean=mu_q,
+            std=sigma_q,
+            credible_mass=0.95,
+        )
+        truthfulness_diagnostics, truthfulness_metadata = _variational_truthfulness_payload(
+            X=X,
+            y=y,
+            posterior_mean=mu_q,
+            posterior_std=sigma_q,
+            credible_mass=0.95,
+            prior_scale=float(params.get("prior_scale", 1.0)),
+            noise_variance=sigma2,
+            seed=int(params.get("__seed__", 0)),
+            credible_intervals=credible_intervals,
+            params=params,
+        )
 
         result = PosteriorResult(
             method_name="mean_field_vi",
@@ -204,15 +417,15 @@ class MeanFieldVIEstimator:
                     len(elbos) <= 1
                     or abs(elbos[-1] - elbos[-2]) < 100 * tol
                 ),
+                **truthfulness_diagnostics,
             },
             posterior_means={f"beta_{i}": float(mu_q[i]) for i in range(d)},
             posterior_stds={f"beta_{i}": float(sigma_q[i]) for i in range(d)},
-            credible_intervals={
-                f"beta_{i}": (float(mu_q[i] - 1.96 * sigma_q[i]),
-                              float(mu_q[i] + 1.96 * sigma_q[i]))
-                for i in range(d)
+            credible_intervals=credible_intervals,
+            metadata={
+                "noise_variance": sigma2,
+                **truthfulness_metadata,
             },
-            metadata={"noise_variance": sigma2},
         )
 
         pred_result = _build_prediction_result(
@@ -310,6 +523,7 @@ class BBVIEstimator:
             "gradients so no symbolic differentiation is required."
         ),
         tags=frozenset({"bayesian", "variational-inference", "black-box", "advi", "gradient"}),
+        truthfulness_scope="posterior",
         when_to_use="Approximate Bayesian inference in large models where MCMC is too slow; non-conjugate priors; scalable inference",
         when_not_to_use="Posterior is highly multimodal; mean-field assumption is too restrictive for the application",
         typical_min_obs=500,
@@ -403,6 +617,23 @@ class BBVIEstimator:
 
         sigma_final = np.exp(log_sigma)
         y_pred = X @ mu
+        credible_intervals = _gaussian_intervals(
+            mean=mu,
+            std=sigma_final,
+            credible_mass=0.95,
+        )
+        truthfulness_diagnostics, truthfulness_metadata = _variational_truthfulness_payload(
+            X=X,
+            y=y,
+            posterior_mean=mu,
+            posterior_std=sigma_final,
+            credible_mass=0.95,
+            prior_scale=tau,
+            noise_variance=1.0,
+            seed=int(params.get("__seed__", 0)),
+            credible_intervals=credible_intervals,
+            params=params,
+        )
 
         result = PosteriorResult(
             method_name="bbvi",
@@ -411,16 +642,12 @@ class BBVIEstimator:
                 "final_elbo": float(elbos[-1]) if elbos else float("nan"),
                 "n_iter": float(n_iter),
                 "num_samples": float(n_samples),
+                **truthfulness_diagnostics,
             },
             posterior_means={f"beta_{i}": float(mu[i]) for i in range(d)},
             posterior_stds={f"beta_{i}": float(sigma_final[i]) for i in range(d)},
-            credible_intervals={
-                f"beta_{i}": (
-                    float(mu[i] - 1.96 * sigma_final[i]),
-                    float(mu[i] + 1.96 * sigma_final[i]),
-                )
-                for i in range(d)
-            },
+            credible_intervals=credible_intervals,
+            metadata=truthfulness_metadata,
         )
 
         pred_result = _build_prediction_result(

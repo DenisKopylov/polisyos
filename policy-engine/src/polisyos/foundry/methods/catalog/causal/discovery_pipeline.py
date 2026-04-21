@@ -935,6 +935,9 @@ def _count_oriented_edges(graph: CausalGraphModel) -> int:
 def _maybe_run_regime_shift_discovery(
     state: UnifiedDiscoveryData,
     params: Mapping[str, Any],
+    *,
+    super_structure: CausalGraphModel | None = None,
+    prior_algebraic_reports: list[Any] | None = None,
 ) -> tuple[RegimeShiftIdentificationCertificate | None, list[str]]:
     if not bool(params.get("enable_regime_shift_discovery", True)):
         return None, []
@@ -965,6 +968,18 @@ def _maybe_run_regime_shift_discovery(
                 else None
             ),
             dataset_ref=_extract_regime_dataset_ref(state, params),
+            context_exogeneity=str(params.get("regime_context_exogeneity", "unverified")),
+            baseline_covariates=params.get("regime_baseline_covariates"),
+            selection_max_set_size=params.get("regime_selection_max_set_size"),
+            shift_type_random_seed=int(params.get("regime_shift_random_seed", 0)),
+            shift_type_repro_splits=int(params.get("regime_shift_repro_splits", 3)),
+            super_structure=super_structure,
+            algebraic_blocks=params.get("algebraic_blocks"),
+            prior_algebraic_reports=prior_algebraic_reports,
+            max_candidate_parents=int(params.get("regime_max_candidate_parents", 10)),
+            local_separator_cap=params.get("regime_local_separator_cap", 4),
+            exact_component_cap=int(params.get("regime_exact_component_cap", 12)),
+            exact_treewidth_cap=int(params.get("regime_exact_treewidth_cap", 8)),
         )
     except Exception as exc:  # noqa: BLE001
         return None, [f"regime_shift_discovery_failed:{type(exc).__name__}:{exc}"]
@@ -1116,9 +1131,16 @@ def _apply_regime_shift_constraints(
 
 def _pipeline_regime_shift_summary(
     certificate: RegimeShiftIdentificationCertificate | None,
+    *,
+    constraints_applied: bool,
 ) -> dict[str, Any]:
     if certificate is None:
-        return {"regime_shift_discovery": {"applied": False}}
+        return {
+            "regime_shift_discovery": {
+                "applied": False,
+                "constraints_applied": False,
+            }
+        }
 
     empty_set_targets = sorted(
         target.target
@@ -1132,9 +1154,15 @@ def _pipeline_regime_shift_summary(
             for env_id in target.informativeness.redundant_envs
         }
     )
+    assessment = certificate.shift_type_assessment
+    feasibility = certificate.computational_feasibility
+    shift_type_reproducibility = certificate.metadata.get(
+        "shift_type_reproducibility"
+    )
     return {
         "regime_shift_discovery": {
             "applied": True,
+            "constraints_applied": constraints_applied,
             "n_environments": len(certificate.environments),
             "n_targets": len(certificate.targets),
             "forced_orientation_count": len(
@@ -1144,6 +1172,87 @@ def _pipeline_regime_shift_summary(
             "edges_ambiguous_remaining": certificate.mec_contraction.summary.edges_ambiguous_remaining,
             "empty_set_stable_targets": empty_set_targets,
             "redundant_envs": redundant_envs,
+            "shift_type_label": (
+                assessment.overall_label.value if assessment is not None else None
+            ),
+            "shift_certification_level": (
+                assessment.certification_level.value if assessment is not None else None
+            ),
+            "allow_icp_graph_contraction": (
+                assessment.pipeline_action.allow_icp_graph_contraction
+                if assessment is not None
+                else True
+            ),
+            "allow_selection_transport_path": (
+                assessment.pipeline_action.allow_selection_transport_path
+                if assessment is not None
+                else False
+            ),
+            "route_to_latent_aware_discovery": (
+                assessment.pipeline_action.route_to_latent_aware_discovery
+                if assessment is not None
+                else False
+            ),
+            "feasibility_mode": feasibility.mode if feasibility is not None else None,
+            "exact_mode_possible": (
+                feasibility.exact_mode_possible if feasibility is not None else None
+            ),
+            "exact_mode_applied": (
+                feasibility.exact_mode_applied if feasibility is not None else None
+            ),
+            "expected_test_count": (
+                feasibility.expected_test_count if feasibility is not None else None
+            ),
+            "max_candidate_parents": (
+                feasibility.max_candidate_parents if feasibility is not None else None
+            ),
+            "largest_component_size": (
+                max(feasibility.component_sizes, default=0) if feasibility is not None else None
+            ),
+            "max_treewidth_upper_bound": (
+                max(feasibility.treewidth_upper_bounds, default=0)
+                if feasibility is not None
+                else None
+            ),
+            "track7_forbidden_edge_count": (
+                len(feasibility.track7.hard_forbidden_edges)
+                if feasibility is not None
+                else 0
+            ),
+            "track7_prior_blocker_families": (
+                list(feasibility.track7.prior_blocker_families)
+                if feasibility is not None
+                else []
+            ),
+            "track7_revalidation_performed": (
+                feasibility.track7.revalidation.performed
+                if feasibility is not None
+                else False
+            ),
+            "track7_revalidation_severity": (
+                feasibility.track7.revalidation.severity
+                if feasibility is not None
+                else None
+            ),
+            "track7_revalidation_violated_by_family": (
+                dict(feasibility.track7.revalidation.violated_by_family)
+                if feasibility is not None
+                else {}
+            ),
+            "families_with_blockers_after_revalidation": (
+                list(feasibility.track7.revalidation.blocker_families)
+                if feasibility is not None
+                else []
+            ),
+            "track7_exact_certificate_valid": (
+                feasibility.track7.revalidation.exact_certificate_valid
+                if feasibility is not None
+                else None
+            ),
+            "feasibility_fallback_reason": (
+                feasibility.fallback_reason if feasibility is not None else None
+            ),
+            "shift_type_reproducibility": shift_type_reproducibility,
         }
     }
 
@@ -1212,7 +1321,10 @@ def _run_unified_discovery(
                     "severity_by_method": {},
                 },
                 "families_with_blockers": [],
-                "regime_shift_discovery": {"applied": False},
+                "regime_shift_discovery": {
+                    "applied": False,
+                    "constraints_applied": False,
+                },
             },
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
@@ -1237,13 +1349,32 @@ def _run_unified_discovery(
     regime_shift_certificate, regime_warnings = _maybe_run_regime_shift_discovery(
         state=state,
         params=params,
+        super_structure=unified_pag,
+        prior_algebraic_reports=[
+            report.algebraic_constraints
+            for report in individual_results
+            if report.algebraic_constraints is not None
+        ],
     )
     warnings.extend(regime_warnings)
+    regime_constraints_applied = False
     if regime_shift_certificate is not None:
-        unified_pag, regime_shift_certificate, regime_apply_warnings = (
-            _apply_regime_shift_constraints(unified_pag, regime_shift_certificate)
-        )
-        warnings.extend(regime_apply_warnings)
+        assessment = regime_shift_certificate.shift_type_assessment
+        if assessment is None or assessment.pipeline_action.allow_icp_graph_contraction:
+            unified_pag, regime_shift_certificate, regime_apply_warnings = (
+                _apply_regime_shift_constraints(unified_pag, regime_shift_certificate)
+            )
+            warnings.extend(regime_apply_warnings)
+            regime_constraints_applied = True
+        else:
+            warnings.append(
+                "regime_shift_pre_screen_blocked:"
+                f"{assessment.overall_label.value}"
+            )
+            if assessment.pipeline_action.allow_selection_transport_path:
+                warnings.append("regime_shift_route:selection_transport_path")
+            if assessment.pipeline_action.route_to_latent_aware_discovery:
+                warnings.append("regime_shift_route:latent_aware_discovery")
 
     # Build temporal_dag from PCMCI lag>0 edges (if any)
     temporal_dag: CausalGraphModel | None = None
@@ -1276,7 +1407,10 @@ def _run_unified_discovery(
     pipeline_metadata = {
         **_pipeline_dispute_summary(individual_results),
         **_pipeline_algebraic_summary(individual_results),
-        **_pipeline_regime_shift_summary(regime_shift_certificate),
+        **_pipeline_regime_shift_summary(
+            regime_shift_certificate,
+            constraints_applied=regime_constraints_applied,
+        ),
     }
 
     report = DiscoveryPipelineReport(
@@ -1359,6 +1493,15 @@ class UnifiedCausalDiscovery:
             ParameterSpec(name="regime_target_cols", default=None),
             ParameterSpec(name="regime_screening", default=None),
             ParameterSpec(name="regime_dataset_ref", default=None),
+            ParameterSpec(name="regime_context_exogeneity", default="unverified"),
+            ParameterSpec(name="regime_baseline_covariates", default=None),
+            ParameterSpec(name="regime_selection_max_set_size", default=None),
+            ParameterSpec(name="regime_shift_random_seed", default=0),
+            ParameterSpec(name="regime_shift_repro_splits", default=3),
+            ParameterSpec(name="regime_max_candidate_parents", default=10),
+            ParameterSpec(name="regime_local_separator_cap", default=4),
+            ParameterSpec(name="regime_exact_component_cap", default=12),
+            ParameterSpec(name="regime_exact_treewidth_cap", default=8),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -1374,8 +1517,9 @@ class UnifiedCausalDiscovery:
             "based on data characteristics (dimensionality, sample size, suspected latents, "
             "time-series flag) and combines outputs into a PAG via weighted edge-mark voting "
             "with bootstrap stability scores. When environment labels are supplied, the "
-            "pipeline also runs Stage 16.1 regime-shift discovery and applies ICP-style "
-            "orientation constraints before reconciliation."
+            "pipeline also runs Stage 16.1 regime-shift discovery, attaches a Stage 16.2 "
+            "shift-type assessment, and applies ICP-style orientation constraints only "
+            "when the pre-screen certifies structural-only use."
         ),
         tags=frozenset({"causal", "discovery", "pipeline", "pag", "unified"}),
         assumptions={

@@ -92,8 +92,9 @@ cases:
     input_params: {n_bins: 5}
     expected_output:
       result:
-        brier_score: 0.0
-        n_obs: 10
+        metrics:
+          brier: 0.0
+          n_obs: 10
     tolerances: {rtol: 0.01, atol: 0.01}
     tags: [calibration, deterministic]
 
@@ -106,8 +107,9 @@ cases:
     input_params: {n_bins: 3}
     expected_output:
       result:
-        brier_score: 0.25
-        n_obs: 8
+        metrics:
+          brier: 0.25
+          n_obs: 8
     tolerances: {rtol: 0.01, atol: 0.01}
     tags: [calibration, deterministic]
 

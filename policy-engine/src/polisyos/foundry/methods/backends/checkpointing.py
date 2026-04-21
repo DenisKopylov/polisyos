@@ -63,14 +63,19 @@ from uuid import UUID
 
 import numpy as np
 
+from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
+    _build_chain_reproducibility_contract,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodTiming,
     ReproducibilityInfo,
+)
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
 )
 from polisyos.foundry.methods.registry import MethodRegistry, get_registry
 
@@ -328,17 +333,44 @@ class CheckpointingChainExecutor:
             skip_until = checkpoint.n_completed
             state = dict(checkpoint.intermediate_state)
             # Reconstruct stub results for already-completed nodes
-            for node_id, _, ms in zip(
+            for node_id, method_fqn, ms in zip(
                 [UUID(s) for s in checkpoint.completed_node_ids],
                 checkpoint.completed_fqns,
                 checkpoint.node_timing_ms or [0.0] * skip_until,
                 strict=True,
             ):
+                method_class = reg.get(method_fqn)
+                posture = capture_backend_runtime_fingerprint(
+                    method_class.signature.backend,
+                    method_class=method_class,
+                    seed=seed,
+                )
                 stub_result = MethodResult(
-                    output=state,
-                    timing=MethodTiming(wall_time_ms=ms, jit_compile_ms=0.0),
-                    reproducibility=ReproducibilityInfo(seed=seed, backend="restored"),
-                    status="restored_from_checkpoint",
+                    output=dict(state),
+                    timing=MethodTiming(wall_time_ms=ms),
+                    reproducibility=ReproducibilityInfo(
+                        backend=method_class.signature.backend,
+                        determinism_tier=(
+                            posture.determinism_tier or DeterminismTier.NONDETERMINISTIC
+                        ),
+                        seed=seed,
+                        fingerprint=posture.compute_hash(),
+                        observed_tolerance_budget=posture.observed_tolerance_budget,
+                        note="Restored from checkpoint; execution skipped for this node.",
+                    ),
+                    artifacts={
+                        "checkpoint_restore": {
+                            "status": "restored_from_checkpoint",
+                            "checkpoint_path": (
+                                None
+                                if checkpoint.checkpoint_path is None
+                                else str(checkpoint.checkpoint_path)
+                            ),
+                            "method_fqn": method_fqn,
+                            "node_id": str(node_id),
+                        }
+                    },
+                    warnings=("restored_from_checkpoint",),
                 )
                 all_node_results.append((node_id, stub_result))
 
@@ -385,6 +417,10 @@ class CheckpointingChainExecutor:
         return ChainExecutionResult(
             final_state=state,
             node_results=tuple(all_node_results),
+            reproducibility_contract=_build_chain_reproducibility_contract(
+                all_node_results,
+                composition_kind="serial",
+            ),
         )
 
     def find_latest_checkpoint(self, chain: Any) -> ChainCheckpoint | None:

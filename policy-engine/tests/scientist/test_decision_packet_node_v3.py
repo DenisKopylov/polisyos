@@ -4,7 +4,7 @@ import logging
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
 from polisyos.core.contracts.backtest import BacktestReportRef
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -52,6 +52,13 @@ from polisyos.ir.analytics.hte import (
     persist_hte_result,
     persist_policy_recommendation,
 )
+from polisyos.ir.analytics.metric_validation_report import (
+    FamilyAdjustment,
+    MetricComparisonResult,
+    MetricValidationReport,
+    SignificanceRecord,
+    persist_metric_validation_report,
+)
 from polisyos.ir.analytics.normative_arbitration import (
     ArbitrationOption,
     NormativeArbitrationResult,
@@ -63,20 +70,37 @@ from polisyos.ir.analytics.normative_arbitration import (
     persist_normative_arbitration_result,
 )
 from polisyos.ir.analytics.partial_identification import BoundsBundle, persist_bounds_bundle
+from polisyos.ir.analytics.causal_queries import InterventionSpec
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.strategic import (
+    MeanFieldMacroSimulationConfig,
     EquilibriumSelectionSummary,
     EquilibriumSetSummary,
     FiniteStrategicPayoffTable,
+    MeanFieldEquilibriumCertificate,
+    PerformativeLoopAnalysisScope,
+    PerformativeLoopProofFamily,
+    PerformativeLoopRecommendedAction,
+    PerformativeLoopStabilityStatus,
+    PerformativeLoopWitnessStrength,
+    PerformativeShiftSummary,
     PostAdaptationPolicyValueSummary,
     StrategicClosureSummary,
+    StrategicDecompositionFailureCard,
+    StrategicDecompositionStatus,
     StrategicEquilibriumConcept,
     StrategicFallbackMode,
     StrategicResponseBundle,
     StrategicSCM,
+    compile_intervention_spec_to_mean_field_perturbation,
     persist_equilibrium_selection_summary,
     persist_equilibrium_set_summary,
+    persist_mean_field_equilibrium_certificate,
+    persist_mean_field_macro_simulation_config,
+    persist_mean_field_perturbation_spec,
+    persist_performative_shift_summary,
     persist_post_adaptation_policy_value_summary,
+    persist_strategic_decomposition_failure_card,
     persist_strategic_closure_summary,
     persist_strategic_payoff_table,
     persist_strategic_response_bundle,
@@ -126,6 +150,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_METRICS_REF,
+    ARTIFACT_METRIC_VALIDATION_REPORT_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
@@ -230,6 +255,157 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert "input.data_snapshot_ref" in roles
     assert "artifact.metrics_ref" in roles
     assert "artifact.governance_report_ref" in roles
+
+
+def test_build_decision_packet_includes_metric_validation_projection(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_metric_validation",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.packet.metric_validation"),
+    )
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        Metrics(values={"accuracy": 0.76}),
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    metric_validation_ref = persist_metric_validation_report(
+        store,
+        MetricValidationReport(
+            report_id="mvr_packet",
+            dataset_id="holdout_v1",
+            task="binary",
+            checked_at="2026-04-21T12:00:00Z",
+            family_adjustment=FamilyAdjustment(
+                method="holm",
+                alpha=0.05,
+                hypotheses_total=1,
+                error_rate_target="FWER",
+                dependency_assumption="arbitrary",
+            ),
+            comparisons=(
+                MetricComparisonResult(
+                    metric_id="accuracy",
+                    metric_direction="higher_is_better",
+                    baseline_model_id="baseline",
+                    candidate_model_id="candidate",
+                    baseline_value=0.71,
+                    candidate_value=0.76,
+                    delta_value=0.05,
+                    significance=SignificanceRecord(
+                        test_id="mcnemar_exact",
+                        null_hypothesis="Accuracy(candidate) - Accuracy(baseline) = 0",
+                        alternative="greater",
+                        p_value_raw=0.02,
+                        p_value_adj=0.02,
+                        alpha=0.05,
+                        reject_null_raw=True,
+                        reject_null_adj=True,
+                    ),
+                    family_id="holdout_v1:baseline_vs_candidate",
+                    family_scope="per_candidate",
+                ),
+            ),
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_metric_validation",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_METRICS_REF: metrics_ref,
+            ARTIFACT_METRIC_VALIDATION_REPORT_REF: metric_validation_ref,
+        },
+        params={"random_seed": 123},
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+
+    assert payload["metric_validation_report_ref"] == str(metric_validation_ref.artifact_id)
+    assert payload["artifacts"]["metric_validation_report_ref"] == str(metric_validation_ref.artifact_id)
+    assert payload["metric_significance"]["accuracy"]["test_label"] == "McNemar exact"
+    assert payload["metric_significance"]["accuracy"]["significant"] is True
+    assert payload["metric_validation_family_adjustment"] == {
+        "alpha": 0.05,
+        "dependency_assumption": "arbitrary",
+        "error_rate_target": "FWER",
+        "hypotheses_total": 1,
+        "method": "holm",
+    }
+    assert payload["metric_validation_comparisons"] == [
+        {
+            "alpha": 0.05,
+            "assumption_warnings": [],
+            "baseline_model_id": "baseline",
+            "baseline_value": 0.71,
+            "calibration_warnings": [],
+            "candidate_model_id": "candidate",
+            "candidate_value": 0.76,
+            "ci_high": None,
+            "ci_level": None,
+            "ci_low": None,
+            "delta_value": 0.05,
+            "effect_size": None,
+            "family_id": "holdout_v1:baseline_vs_candidate",
+            "family_scope": "per_candidate",
+            "metric_direction": "higher_is_better",
+            "metric_id": "accuracy",
+            "p_adj": 0.02,
+            "p_value": 0.02,
+            "resampling_method": None,
+            "sample_size_effective": None,
+            "significant": True,
+            "statistic": None,
+            "test_id": "mcnemar_exact",
+            "test_label": "McNemar exact",
+        }
+    ]
+    assert payload["metric_significance_summary"]["comparison_count"] == 1
+    assert payload["metric_significance_summary"]["significant_improvements"] == [
+        {
+            "baseline_model_id": "baseline",
+            "candidate_model_id": "candidate",
+            "metric_id": "accuracy",
+            "delta_value": 0.05,
+            "p_value": 0.02,
+            "p_adj": 0.02,
+            "test_label": "McNemar exact",
+        }
+    ]
 
 
 def test_build_decision_packet_records_degraded_paths_for_invalid_metrics_and_governance(
@@ -724,6 +900,7 @@ def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> No
     metrics_ref = store.put_json(
         Metrics(values={"policy_cost": 100.0, "applied_nodes": 1}),
         PutOptions(kind="foundry.metrics", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
     governance_ref = store.put_json(
         GovernanceReport(verdict="approve", issues=[]),
@@ -1360,6 +1537,117 @@ def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:
     )
     assert "abm_alignment.report_ref" in roles
     assert "abstraction_certificate.certificate_ref" in roles
+
+
+def test_build_decision_packet_includes_approximate_abstraction_metadata(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_abm_approx",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    abstraction_map_ref = persist_finite_state_abstraction_map(
+        store,
+        FiniteStateAbstractionMap(
+            variable_maps=(
+                VariableStateAbstraction(
+                    micro_variable="X_m",
+                    macro_variable="X",
+                    state_map={"0": "0", "1": "1"},
+                ),
+            )
+        ),
+    )
+    abstraction_certificate_ref = persist_abstraction_certificate(
+        store,
+        AbstractionCertificate(
+            micro_graph_ref={
+                "artifact_id": _artifact_id("c"),
+                "kind": "ir.causal_graph_model",
+                "media_type": "application/json",
+            },
+            macro_graph_ref={
+                "artifact_id": _artifact_id("d"),
+                "kind": "ir.causal_graph_model",
+                "media_type": "application/json",
+            },
+            abstraction_map_ref=abstraction_map_ref,
+            preservation_type=AbstractionPreservationType.APPROXIMATE,
+            preserved_queries=(
+                "mean_potential_outcome:type_mean",
+                "policy_value:weighted_type_mean",
+            ),
+            error_bound=0.05,
+            metadata={
+                "abstraction_family": "type_mean_affine",
+                "allowed_intervention_family": "type_symmetric",
+                "intervention_family_verified": True,
+                "proof_obligations_satisfied": [
+                    "within_type_exchangeability",
+                    "mean_closure",
+                ],
+                "estimand_error_bounds": {
+                    "mean_potential_outcome:type_mean": 0.03,
+                    "policy_value:weighted_type_mean": 0.02,
+                },
+                "diagnostics": {"within_type_dispersion": {"max": 0.1}},
+                "non_preserved_queries": ["unit_level_potential_outcome"],
+            },
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_abm_approx",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF: abstraction_map_ref,
+            ARTIFACT_ABSTRACTION_CERTIFICATE_REF: abstraction_certificate_ref,
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["abstraction_certificate"]["preservation_type"] == "approximate"
+    assert payload["abstraction_certificate"]["error_bound"] == 0.05
+    assert payload["abstraction_certificate"]["metadata"]["abstraction_family"] == (
+        "type_mean_affine"
+    )
+    assert payload["abstraction_certificate"]["metadata"]["intervention_family_verified"] is True
+    assert payload["abstraction_certificate"]["metadata"]["estimand_error_bounds"] == {
+        "mean_potential_outcome:type_mean": 0.03,
+        "policy_value:weighted_type_mean": 0.02,
+    }
 
 
 def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> None:
@@ -2089,6 +2377,109 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
             point_value=1.3,
         ),
     )
+    performative_shift_ref = persist_performative_shift_summary(
+        store,
+        PerformativeShiftSummary(
+            performative_shift=0.3,
+            baseline_policy_value=1.0,
+            post_adaptation_policy_value=1.3,
+            analysis_scope=PerformativeLoopAnalysisScope.ITERATED_LOOP,
+            proof_family=PerformativeLoopProofFamily.STATEFUL_LIPSCHITZ,
+            stability_status=PerformativeLoopStabilityStatus.CERTIFIED_CONVERGENT,
+            contraction_upper_bound=0.8,
+            convergence_rate_upper=0.8,
+            witness_strength=PerformativeLoopWitnessStrength.THEOREM,
+            recommended_action=PerformativeLoopRecommendedAction.ALLOW_AUTO_ITERATION,
+            human_summary="Closed-loop contraction is certified below one.",
+        ),
+    )
+    mfg_perturbation_ref = persist_mean_field_perturbation_spec(
+        store,
+        compile_intervention_spec_to_mean_field_perturbation(
+            InterventionSpec(type="stochastic", distribution="benefit_assignment_kernel"),
+            source_intervention_ref=ArtifactRefModel(
+                artifact_id=policy_rule_ref.artifact_id,
+                kind="ir.intervention_certificate",
+                media_type="application/json",
+            ),
+            baseline_policy_ref=ArtifactRefModel.model_validate(
+                policy_rule_ref.model_dump(mode="json")
+            ),
+        ),
+    )
+    mfg_numerics_ref = persist_mean_field_macro_simulation_config(
+        store,
+        MeanFieldMacroSimulationConfig(
+            population_measure_snapshot_ref=ArtifactRefModel(
+                artifact_id=policy_rule_ref.artifact_id,
+                kind="ir.population_measure_snapshot",
+                media_type="application/json",
+            ),
+            coefficient_field_ref=ArtifactRefModel(
+                artifact_id=policy_rule_ref.artifact_id,
+                kind="ir.coefficient_field_estimate",
+                media_type="application/json",
+            ),
+            policy_kernel_ref=ArtifactRefModel(
+                artifact_id=policy_rule_ref.artifact_id,
+                kind="ir.policy_kernel_estimate",
+                media_type="application/json",
+            ),
+            numerics_scheme="semi_implicit_finite_difference",
+            fixed_point_method="forward_backward_sweep",
+            runtime_mode="replay",
+            time_horizon=8.0,
+            time_steps=64,
+            state_grid_shape=(32, 16),
+        ),
+    )
+    mfg_equilibrium_ref = persist_mean_field_equilibrium_certificate(
+        store,
+        MeanFieldEquilibriumCertificate(
+            intervention_kind="distributional",
+            baseline_policy_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            intervention_spec_ref=mfg_perturbation_ref,
+            mean_field_model_class="second_order",
+            well_posedness={
+                "scm_solvability_ref": ArtifactRefModel(
+                    artifact_id=policy_rule_ref.artifact_id,
+                    kind="ir.proof_bundle",
+                    media_type="application/json",
+                ),
+                "monotonicity_type": "lasry_lions",
+                "convexity_verified": True,
+                "regularity_scope": "Lipschitz_in_measure",
+                "uniqueness_status": "local_stable_branch",
+            },
+            identification={
+                "graph_semantics": "sigma_separation",
+                "positivity_status": "verified",
+                "selection_rule": "stable_branch",
+                "identified_estimands": ("welfare",),
+            },
+            stability={
+                "bound_type": "ergodic_exponential",
+                "constant_C": 1.0,
+                "decay_rate": 0.2,
+                "metric": "W1",
+            },
+            equilibrium_solution={
+                "solver_residual_ref": ArtifactRefModel(
+                    artifact_id=policy_rule_ref.artifact_id,
+                    kind="ir.solver_residual",
+                    media_type="application/json",
+                ),
+                "mass_conservation_ref": ArtifactRefModel(
+                    artifact_id=policy_rule_ref.artifact_id,
+                    kind="ir.mass_conservation_report",
+                    media_type="application/json",
+                ),
+            },
+            provenance={
+                "numerics_config_ref": mfg_numerics_ref,
+            },
+        ),
+    )
     strategic_bundle_ref = persist_strategic_response_bundle(
         store,
         StrategicResponseBundle(
@@ -2096,9 +2487,17 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
             strategic_closure_ref=strategic_closure_ref,
             equilibrium_selection_dependence="follower_best_response_tie_breaking",
             equilibrium_set_ref=equilibrium_set_ref,
-            selected_equilibrium_ref=selected_equilibrium_ref,
             multiplicity_note="multiple_stackelberg_equilibria",
+            mfg_equilibrium_ref=mfg_equilibrium_ref,
+            performative_shift_ref=performative_shift_ref,
             post_adaptation_policy_value_ref=post_value_ref,
+            decomposition_status=StrategicDecompositionStatus.EXACT,
+            decomposition_certificate_ref=ArtifactRefModel(
+                artifact_id=policy_rule_ref.artifact_id,
+                kind="ir.strategic_decomposition_certificate",
+                media_type="application/json",
+            ),
+            anchor_equilibrium_ref=selected_equilibrium_ref,
             fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
         ),
     )
@@ -2125,6 +2524,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         strategic_bundle_ref.artifact_id
     )
     assert payload["strategic"]["fallback_mode"] == "exact_equilibrium"
+    assert payload["strategic"]["decomposition_status"] == "exact"
     assert payload["strategic"]["equilibrium_selection_dependence"] == (
         "follower_best_response_tie_breaking"
     )
@@ -2133,6 +2533,171 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         strategic_bundle_ref.artifact_id
     )
     assert payload["strategic"]["post_adaptation_policy_value"] == 1.3
+    assert payload["strategic"]["performative_shift_ref"] == str(performative_shift_ref.artifact_id)
+    assert payload["strategic"]["performative_shift"] == 0.3
+    assert payload["strategic"]["performative_loop"]["stability_status"] == (
+        "certified_convergent"
+    )
+    assert payload["strategic"]["mfg_equilibrium_ref"] == str(mfg_equilibrium_ref.artifact_id)
+    assert payload["strategic"]["mfg_numerics_config_ref"] == str(mfg_numerics_ref.artifact_id)
+    assert payload["strategic"]["mfg_uniqueness_status"] == "local_stable_branch"
+    assert payload["strategic"]["mfg_selection_rule"] == "stable_branch"
+    assert payload["strategic"]["mfg_numerics_scheme"] == "semi_implicit_finite_difference"
+    assert payload["strategic"]["mfg_fixed_point_method"] == "forward_backward_sweep"
+    assert payload["strategic"]["mfg_population_channels"] == [
+        "policy_kernel",
+        "initial_distribution",
+    ]
+    assert payload["strategic"]["mfg_policy_kernel_overlap_required"] is True
+
+
+def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_strategic_decomposition_blocked",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.packet.strategic.decomposition_blocked"),
+    )
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.trinity_bundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"rows": 1},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    base_graph_ref = store.put_json(
+        {"graph": {}},
+        PutOptions(kind="ir.causal_graph", media_type="application/json"),
+    )
+    policy_rule_ref = store.put_json(
+        {"policy_rule": {}},
+        PutOptions(kind="scientist.policy_candidate_schema", media_type="application/json"),
+    )
+    leader_table_ref = persist_strategic_payoff_table(
+        store,
+        FiniteStrategicPayoffTable(
+            agent="leader",
+            strategic_agents=("leader", "follower"),
+            action_spaces={"leader": ("A",), "follower": ("X",)},
+            payoffs={"leader=A|follower=X": 1.0},
+        ),
+    )
+    follower_table_ref = persist_strategic_payoff_table(
+        store,
+        FiniteStrategicPayoffTable(
+            agent="follower",
+            strategic_agents=("leader", "follower"),
+            action_spaces={"leader": ("A",), "follower": ("X",)},
+            payoffs={"leader=A|follower=X": 1.0},
+        ),
+    )
+    strategic_scm_ref = persist_strategic_scm(
+        store,
+        StrategicSCM(
+            base_graph_ref=ArtifactRefModel.model_validate(base_graph_ref.model_dump(mode="json")),
+            strategic_agents=("leader", "follower"),
+            utility_refs={
+                "leader": leader_table_ref,
+                "follower": follower_table_ref,
+            },
+            policy_rule_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
+        ),
+    )
+    strategic_closure_ref = persist_strategic_closure_summary(
+        store,
+        StrategicClosureSummary(
+            fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
+            equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
+            equilibrium_selection_dependence="deterministic",
+            profile_count=1,
+            equilibrium_count=1,
+        ),
+    )
+    equilibrium_set_ref = persist_equilibrium_set_summary(
+        store,
+        EquilibriumSetSummary(
+            equilibrium_profiles=({"leader": "A", "follower": "X"},),
+            equilibrium_count=1,
+        ),
+    )
+    selected_equilibrium_ref = persist_equilibrium_selection_summary(
+        store,
+        EquilibriumSelectionSummary(
+            selected_equilibrium={"leader": "A", "follower": "X"},
+            equilibrium_selection_dependence="deterministic",
+        ),
+    )
+    post_value_ref = persist_post_adaptation_policy_value_summary(
+        store,
+        PostAdaptationPolicyValueSummary(
+            fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
+            baseline_policy_value=1.0,
+            point_value=1.2,
+        ),
+    )
+    failure_card_ref = persist_strategic_decomposition_failure_card(
+        store,
+        StrategicDecompositionFailureCard(
+            failure_code="decomposition_cross_world_anchor_undefined",
+            message=(
+                "Point decomposition requires an explicit frozen-baseline strategy anchor; "
+                "the current runtime only solves the post-policy equilibrium."
+            ),
+            fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
+            equilibrium_selection_dependence="deterministic",
+        ),
+    )
+    strategic_bundle_ref = persist_strategic_response_bundle(
+        store,
+        StrategicResponseBundle(
+            causal_component_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            strategic_closure_ref=strategic_closure_ref,
+            equilibrium_selection_dependence="deterministic",
+            equilibrium_set_ref=equilibrium_set_ref,
+            selected_equilibrium_ref=selected_equilibrium_ref,
+            post_adaptation_policy_value_ref=post_value_ref,
+            decomposition_status=StrategicDecompositionStatus.BLOCKED,
+            decomposition_failure_card_ref=failure_card_ref,
+            fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_strategic_decomposition_blocked",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_STRATEGIC_SCM_REF: strategic_scm_ref,
+            ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF: strategic_bundle_ref,
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["strategic"]["fallback_mode"] == "exact_equilibrium"
+    assert payload["strategic"]["decomposition_status"] == "blocked"
+    assert payload["strategic"]["decomposition_failure_code"] == (
+        "decomposition_cross_world_anchor_undefined"
+    )
+    assert "frozen-baseline strategy anchor" in payload["strategic"]["decomposition_message"]
 
 
 def test_build_decision_packet_falls_back_to_blocked_strategic_summary_without_bundle(

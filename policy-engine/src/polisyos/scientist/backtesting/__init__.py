@@ -26,14 +26,6 @@ from .evaluator import PredictionEvaluator
 from .masking import OutcomeMasker
 from .orchestrator import BacktestOrchestrator
 from .plan import HistoricalValidationPlan, MaskingStrategy, PredictionSource
-from .temporal import (
-    TemporalEvaluationResult,
-    TemporalThresholds,
-    build_temporal_backtest_report,
-    evaluate_temporal_safe_rejection,
-    evaluate_temporal_trajectory,
-    summarize_temporal_evaluations,
-)
 from .trust_scorer import TrustScorer
 
 __all__ = [
@@ -66,9 +58,21 @@ __all__ = [
 
 
 def __getattr__(name: str) -> Any:
-    """Resolve composition-replay helpers on first access."""
+    """Resolve optional backtesting helpers on first access."""
     if name in {"CompositionReplayResult", "replay_fragment_composition_case"}:
         module = importlib.import_module("polisyos.scientist.backtesting.composition_bridge")
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
+    if name in {
+        "TemporalThresholds",
+        "TemporalEvaluationResult",
+        "evaluate_temporal_trajectory",
+        "evaluate_temporal_safe_rejection",
+        "summarize_temporal_evaluations",
+        "build_temporal_backtest_report",
+    }:
+        module = importlib.import_module("polisyos.scientist.backtesting.temporal")
         value = getattr(module, name)
         globals()[name] = value
         return value

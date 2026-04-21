@@ -177,6 +177,16 @@ _SUITES: tuple[SuiteSpec, ...] = (
         stress_only=True,
     ),
     SuiteSpec(
+        suite_id="synthetic_world_seed",
+        label="Phase 0: Synthetic-world seed benchmark",
+        script_relpath="synthetic_world/phase0_seed_benchmark.py",
+        aliases=("phase0", "synthetic_worlds"),
+        proof_class="publication_benchmark",
+        family="synthetic_world",
+        primary_metrics=("target_coverage_rate", "deterministic_replay_rate"),
+        memory_gib_hint=2.0,
+    ),
+    SuiteSpec(
         suite_id="adversarial_symbolic_stress",
         label="Circuit 4e: Stress — Adversarial symbolic generator benchmark",
         script_relpath="adversarial/adversarial_symbolic_stress.py",

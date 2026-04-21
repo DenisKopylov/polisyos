@@ -38,11 +38,15 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.ir.analytics.certified_tightening import build_certified_tightening_claim
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
+    BoundTighteningLogEntry,
     BoundsReport,
     bounds_bundle_from_bounds_report,
+    BoundsMethodSummary,
     PartialIdentificationResult,
+    TighteningStatus,
 )
 
 from polisyos.foundry.methods.catalog.causal.bounds import (
@@ -54,7 +58,13 @@ from polisyos.foundry.methods.catalog.causal.bounds import (
     ManskiBoundsEstimator,
     OptimizationBasedBoundsEstimator,
 )
-from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds_with_metadata
+from polisyos.foundry.methods.catalog.causal.model_class_compatibility import (
+    check_model_class_compatibility,
+)
+from polisyos.foundry.methods.catalog.causal.lp_bounds import (
+    auto_bounds_with_metadata,
+    conditional_auto_bounds_with_metadata,
+)
 from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
     IntersectionBoundsEstimator,
     TanBoundsEstimator,
@@ -106,6 +116,115 @@ def _lee_partial_id(result_dict: dict[str, Any]) -> PartialIdentificationResult:
         confidence=0.9,
         assumptions_used=["monotone_selection"],
         display_label="Lee Selection Bounds",
+    )
+
+
+def _annotate_method_summaries(
+    summaries: list[BoundsMethodSummary],
+    annotations: list[dict[str, Any]],
+) -> list[BoundsMethodSummary]:
+    if len(summaries) != len(annotations):
+        return summaries
+    return [
+        summary.model_copy(update=annotation)
+        for summary, annotation in zip(summaries, annotations, strict=False)
+    ]
+
+
+def _conditioning_candidates(
+    state: Mapping[str, Any],
+    params: Mapping[str, Any],
+    *,
+    n_obs: int,
+) -> list[tuple[str, np.ndarray]]:
+    metadata = state.get("metadata")
+    metadata_map = metadata if isinstance(metadata, Mapping) else {}
+    raw = (
+        params.get("conditioning_variables")
+        or params.get("conditioning")
+        or state.get("conditioning_variables")
+        or state.get("conditioning")
+        or metadata_map.get("conditioning_variables")
+        or metadata_map.get("conditioning")
+    )
+    candidates: list[tuple[str, np.ndarray]] = []
+    if raw is None:
+        return candidates
+    if isinstance(raw, Mapping):
+        iterable = raw.items()
+    else:
+        iterable = [("conditioning", raw)]
+    for name, values in iterable:
+        arr = np.asarray(values, dtype=float).reshape(-1)
+        if arr.size == n_obs:
+            candidates.append((str(name), arr))
+    return candidates
+
+
+def _as_thresholds(value: Any) -> list[float]:
+    if value is None:
+        return []
+    if isinstance(value, (int, float)):
+        return [float(value)]
+    try:
+        return [float(item) for item in value]
+    except TypeError:
+        return []
+
+
+def _tightening_assumptions(
+    state: Mapping[str, Any],
+    params: Mapping[str, Any],
+    *,
+    has_monotone: bool,
+) -> list[str]:
+    metadata = state.get("metadata")
+    metadata_map = metadata if isinstance(metadata, Mapping) else {}
+    raw = (
+        params.get("tightening_assumptions")
+        or state.get("tightening_assumptions")
+        or metadata_map.get("tightening_assumptions")
+    )
+    if raw is None:
+        return []
+    if isinstance(raw, str):
+        items = [raw]
+    else:
+        items = [str(item) for item in raw]
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        token = str(item).strip().lower()
+        if token in {"mtr", "monotone", "monotone_treatment_response"} and not has_monotone:
+            canonical = "monotone_treatment_response"
+            if canonical not in seen:
+                normalized.append(canonical)
+                seen.add(canonical)
+    return normalized
+
+
+def _tightening_log_entry(
+    *,
+    method: BoundMethod,
+    status: str,
+    reason: str,
+    candidate_name: str,
+    lower_bound: float | None = None,
+    upper_bound: float | None = None,
+    bound_width: float | None = None,
+    metadata: Mapping[str, Any] | None = None,
+) -> BoundTighteningLogEntry:
+    return BoundTighteningLogEntry(
+        method=method,
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+        bound_width=bound_width,
+        status=status,
+        reason=reason,
+        metadata={
+            "candidate_name": candidate_name,
+            **dict(metadata or {}),
+        },
     )
 
 
@@ -221,6 +340,38 @@ class BoundsEngineMethod:
                 description="If True, run auto_bounds() as a first-pass bounds method.",
             ),
             ParameterSpec(
+                name="tighten_bounds",
+                default=False,
+                description=(
+                    "If True, run certified finite-class tightening and exclude uncertified "
+                    "auto_bounds candidates from the headline bundle."
+                ),
+            ),
+            ParameterSpec(
+                name="tightening_assumptions",
+                default=None,
+                description=(
+                    "Optional finite assumption family for certified tightening, "
+                    "for example ['mtr']."
+                ),
+            ),
+            ParameterSpec(
+                name="instrument_family_thresholds",
+                default=None,
+                description=(
+                    "Finite threshold family for binary IV transformations used only "
+                    "by certified tightening."
+                ),
+            ),
+            ParameterSpec(
+                name="tightening_candidate_limit",
+                default=None,
+                description=(
+                    "Optional hard cap on generated tightening candidates; when hit, "
+                    "certified tightening stops with budget_exceeded."
+                ),
+            ),
+            ParameterSpec(
                 name="treatment_target",
                 default=1.0,
                 description="Target treatment level passed to auto_bounds().",
@@ -295,6 +446,7 @@ class BoundsEngineMethod:
         sensitivity_lambda = bool(params.get("sensitivity_lambda", False))
         lambda_values = params.get("lambda_values")
         use_auto_bounds = bool(params.get("use_auto_bounds", True))
+        tighten_bounds = bool(params.get("tighten_bounds", False))
         y_range = y_hi - y_lo if y_hi > y_lo else 1.0
 
         # Detect available optional slots
@@ -307,12 +459,57 @@ class BoundsEngineMethod:
 
         base_params = {"y_lower": y_lo, "y_upper": y_hi}
         base_state = {"outcome": Y, "treatment": T}
+        tightening_assumptions = _tightening_assumptions(
+            state,
+            params,
+            has_monotone=has_monotone,
+        )
+        conditioning_candidates = _conditioning_candidates(state, params, n_obs=len(Y))
+        instrument_family_thresholds = _as_thresholds(params.get("instrument_family_thresholds"))
+        tightening_candidate_limit_raw = params.get("tightening_candidate_limit")
+        tightening_candidate_limit = (
+            None
+            if tightening_candidate_limit_raw in (None, "")
+            else max(int(tightening_candidate_limit_raw), 0)
+        )
 
         partial_id_results: list[PartialIdentificationResult] = []
         certificate_candidates: list[tuple[PartialIdentificationResult, dict[str, Any]]] = []
+        tightening_log_entries: list[BoundTighteningLogEntry] = []
         warnings: list[str] = []
+        negative_certificate_payload: dict[str, Any] | None = None
+        model_class_compatibility_payload: dict[str, Any] | None = None
         auto_pid: PartialIdentificationResult | None = None
         auto_payload: dict[str, Any] = {}
+        generated_tightener_count = 0
+        generated_tightener_certified_count = 0
+        tightening_infeasible_count = 0
+        budget_exhausted = False
+
+        def _reserve_tightening_budget(
+            *,
+            method: BoundMethod,
+            candidate_name: str,
+            metadata: Mapping[str, Any] | None = None,
+        ) -> bool:
+            nonlocal generated_tightener_count, budget_exhausted
+            if (
+                tightening_candidate_limit is not None
+                and generated_tightener_count >= tightening_candidate_limit
+            ):
+                budget_exhausted = True
+                tightening_log_entries.append(
+                    _tightening_log_entry(
+                        method=method,
+                        status="skipped",
+                        reason="budget_exceeded",
+                        candidate_name=candidate_name,
+                        metadata=metadata,
+                    )
+                )
+                return False
+            generated_tightener_count += 1
+            return True
 
         # --- Auto bounds (Phase 7 first-pass LP / relaxation) ---
         if use_auto_bounds:
@@ -329,12 +526,161 @@ class BoundsEngineMethod:
                     reference_treatment=float(params.get("treatment_ref", 0.0)),
                     constraints={"monotone": has_monotone},
                 )
-                partial_id_results.append(auto_pid)
                 candidate_payload = auto_payload.get("dual_certificate_payload")
+                auto_has_certificate = isinstance(candidate_payload, dict)
+                include_auto_result = not tighten_bounds or auto_has_certificate
+                if include_auto_result:
+                    partial_id_results.append(auto_pid)
+                else:
+                    warnings.append(
+                        "auto_bounds_excluded_from_headline_bundle_without_certificate"
+                    )
                 if isinstance(candidate_payload, dict):
                     certificate_candidates.append((auto_pid, candidate_payload))
             except Exception as exc:  # pragma: no cover - defensive fallback
                 warnings.append(f"auto_bounds failed: {exc}")
+
+        if tighten_bounds:
+            for assumption_name in tightening_assumptions:
+                candidate_name = f"assumption:{assumption_name}"
+                if not _reserve_tightening_budget(
+                    method=BoundMethod.GENERAL_LP_BOUNDS,
+                    candidate_name=candidate_name,
+                    metadata={"assumption_name": assumption_name},
+                ):
+                    continue
+                try:
+                    assumed_pid, assumed_metadata = auto_bounds_with_metadata(
+                        outcome=Y,
+                        treatment=T,
+                        target_treatment=float(params.get("treatment_target", 1.0)),
+                        reference_treatment=float(params.get("treatment_ref", 0.0)),
+                        constraints={"monotone": assumption_name == "monotone_treatment_response"},
+                    )
+                    candidate_payload = assumed_metadata.get("dual_certificate_payload")
+                    if isinstance(candidate_payload, dict):
+                        assumed_pid = assumed_pid.model_copy(
+                            update={
+                                "display_label": "Monotone treatment-response LP bounds",
+                                "assumptions_used": [
+                                    *assumed_pid.assumptions_used,
+                                    "assumption_card:monotone_treatment_response",
+                                ],
+                            }
+                        )
+                        partial_id_results.append(assumed_pid)
+                        certificate_candidates.append((assumed_pid, candidate_payload))
+                        generated_tightener_certified_count += 1
+                    else:
+                        solver_status = str(assumed_metadata.get("solver_status", "missing_solver_status"))
+                        is_infeasible = solver_status.startswith("infeasible(")
+                        if is_infeasible:
+                            tightening_infeasible_count += 1
+                        warnings.append(f"assumption_candidate_{'infeasible' if is_infeasible else 'uncertified'}:{assumption_name}")
+                        tightening_log_entries.append(
+                            _tightening_log_entry(
+                                method=BoundMethod.GENERAL_LP_BOUNDS,
+                                status="infeasible" if is_infeasible else "uncertified",
+                                reason=(
+                                    "candidate_infeasible_under_added_assumption"
+                                    if is_infeasible
+                                    else "missing_machine_checkable_certificate"
+                                ),
+                                candidate_name=candidate_name,
+                                metadata={
+                                    "assumption_name": assumption_name,
+                                    "solver_status": solver_status,
+                                },
+                            )
+                        )
+                except Exception as exc:
+                    warnings.append(
+                        f"assumption_candidate_failed:{assumption_name}:{exc.__class__.__name__}"
+                    )
+                    tightening_log_entries.append(
+                        _tightening_log_entry(
+                            method=BoundMethod.GENERAL_LP_BOUNDS,
+                            status="uncertified",
+                            reason=f"candidate_failed:{exc.__class__.__name__}",
+                            candidate_name=candidate_name,
+                            metadata={"assumption_name": assumption_name},
+                        )
+                    )
+
+            for conditioning_name, conditioning in conditioning_candidates:
+                candidate_name = f"conditioning:{conditioning_name}"
+                if not _reserve_tightening_budget(
+                    method=BoundMethod.GENERAL_LP_BOUNDS,
+                    candidate_name=candidate_name,
+                    metadata={"conditioning_name": conditioning_name},
+                ):
+                    continue
+                try:
+                    conditioned = conditional_auto_bounds_with_metadata(
+                        outcome=Y,
+                        treatment=T,
+                        conditioning=conditioning,
+                        target_treatment=float(params.get("treatment_target", 1.0)),
+                        reference_treatment=float(params.get("treatment_ref", 0.0)),
+                        constraints={"monotone": has_monotone},
+                    )
+                    if conditioned is None:
+                        warnings.append(
+                            f"conditioning_candidate_uncertified:{conditioning_name}"
+                        )
+                        tightening_log_entries.append(
+                            _tightening_log_entry(
+                                method=BoundMethod.GENERAL_LP_BOUNDS,
+                                status="uncertified",
+                                reason="conditioning_candidate_not_certifiable",
+                                candidate_name=candidate_name,
+                                metadata={"conditioning_name": conditioning_name},
+                            )
+                        )
+                        continue
+                    conditioned_pid, conditioned_payload = conditioned
+                    conditioned_pid = conditioned_pid.model_copy(
+                        update={
+                            "display_label": (
+                                f"Conditioned response-function LP bounds ({conditioning_name})"
+                            ),
+                            "assumptions_used": [
+                                *conditioned_pid.assumptions_used,
+                                f"condition_on:{conditioning_name}",
+                            ],
+                        }
+                    )
+                    partial_id_results.append(conditioned_pid)
+                    candidate_payload = conditioned_payload.get("dual_certificate_payload")
+                    if isinstance(candidate_payload, dict):
+                        certificate_candidates.append((conditioned_pid, candidate_payload))
+                        generated_tightener_certified_count += 1
+                    else:
+                        warnings.append(
+                            f"conditioning_candidate_uncertified:{conditioning_name}"
+                        )
+                        tightening_log_entries.append(
+                            _tightening_log_entry(
+                                method=BoundMethod.GENERAL_LP_BOUNDS,
+                                status="uncertified",
+                                reason="missing_machine_checkable_certificate",
+                                candidate_name=candidate_name,
+                                metadata={"conditioning_name": conditioning_name},
+                            )
+                        )
+                except Exception as exc:
+                    warnings.append(
+                        f"conditioning_candidate_failed:{conditioning_name}:{exc.__class__.__name__}"
+                    )
+                    tightening_log_entries.append(
+                        _tightening_log_entry(
+                            method=BoundMethod.GENERAL_LP_BOUNDS,
+                            status="uncertified",
+                            reason=f"candidate_failed:{exc.__class__.__name__}",
+                            candidate_name=candidate_name,
+                            metadata={"conditioning_name": conditioning_name},
+                        )
+                    )
 
         # --- Manski (always run — worst-case baseline) ---
         manski_out = ManskiBoundsEstimator.pure_step(base_state, base_params)
@@ -353,6 +699,131 @@ class BoundsEngineMethod:
             Z = np.asarray(Z_raw, dtype=float)
             n_unique_z = len(np.unique(Z[np.isfinite(Z)]))
             is_binary_iv = n_unique_z <= 2
+            binary_iv_incompatible = False
+            if is_binary_iv and not has_multi_valued:
+                try:
+                    compatibility = check_model_class_compatibility(
+                        model_class_id="iv.binary.unconditional",
+                        data=np.column_stack(
+                            [
+                                (Z > 0.5).astype(float),
+                                (T > 0.5).astype(float),
+                                (Y > 0.5).astype(float),
+                            ]
+                        ),
+                        variable_names=["Z", "X", "Y"],
+                        observed_variables=["Z", "X", "Y"],
+                        alpha=alpha,
+                        multiple_testing="holm",
+                    )
+                except ValueError as exc:
+                    compatibility = None
+                    warnings.append(
+                        f"binary_iv_model_class_check_failed:{exc.__class__.__name__}:{exc}"
+                    )
+                if compatibility is not None:
+                    model_class_compatibility_payload = compatibility.report.model_dump(mode="json")
+                    if compatibility.status == "incompatible":
+                        binary_iv_incompatible = True
+                        warnings.append(
+                            "binary_iv_model_class_incompatible:blocked_balke_pearl_under_declared_iv_class"
+                        )
+                        if compatibility.negative_certificate is not None:
+                            negative_certificate_payload = compatibility.negative_certificate.model_dump(
+                                mode="json"
+                            )
+            if tighten_bounds:
+                for threshold in instrument_family_thresholds:
+                    candidate_name = f"instrument_threshold:{threshold:g}"
+                    try:
+                        z_binary = (Z > threshold).astype(float)
+                        if len(np.unique(z_binary[np.isfinite(z_binary)])) < 2:
+                            warnings.append(
+                                f"instrument_family_candidate_degenerate:threshold={threshold:g}"
+                            )
+                            tightening_log_entries.append(
+                                _tightening_log_entry(
+                                    method=BoundMethod.LP_BALKE_PEARL,
+                                    status="skipped",
+                                    reason="degenerate_binary_instrument_transform",
+                                    candidate_name=candidate_name,
+                                    metadata={"threshold": threshold},
+                                )
+                            )
+                            continue
+                        if not _reserve_tightening_budget(
+                            method=BoundMethod.LP_BALKE_PEARL,
+                            candidate_name=candidate_name,
+                            metadata={"threshold": threshold},
+                        ):
+                            continue
+                        candidate_pid, candidate_metadata = auto_bounds_with_metadata(
+                            outcome=Y,
+                            treatment=T,
+                            instrument=z_binary,
+                            target_treatment=float(params.get("treatment_target", 1.0)),
+                            reference_treatment=float(params.get("treatment_ref", 0.0)),
+                            constraints={"monotone": has_monotone},
+                        )
+                        candidate_payload = candidate_metadata.get("dual_certificate_payload")
+                        if not isinstance(candidate_payload, dict):
+                            solver_status = str(
+                                candidate_metadata.get("solver_status", "missing_solver_status")
+                            )
+                            is_infeasible = solver_status.startswith("infeasible(")
+                            if is_infeasible:
+                                tightening_infeasible_count += 1
+                            warnings.append(
+                                f"instrument_family_candidate_"
+                                f"{'infeasible' if is_infeasible else 'uncertified'}:"
+                                f"threshold={threshold:g}"
+                            )
+                            tightening_log_entries.append(
+                                _tightening_log_entry(
+                                    method=BoundMethod.LP_BALKE_PEARL,
+                                    status="infeasible" if is_infeasible else "uncertified",
+                                    reason=(
+                                        "candidate_infeasible_under_instrument_family"
+                                        if is_infeasible
+                                        else "missing_machine_checkable_certificate"
+                                    ),
+                                    candidate_name=candidate_name,
+                                    metadata={
+                                        "threshold": threshold,
+                                        "solver_status": solver_status,
+                                    },
+                                )
+                            )
+                            continue
+                        candidate_pid = candidate_pid.model_copy(
+                            update={
+                                "display_label": (
+                                    "Instrument-family Balke-Pearl bounds "
+                                    f"(threshold={threshold:g})"
+                                ),
+                                "assumptions_used": [
+                                    *candidate_pid.assumptions_used,
+                                    f"instrument_threshold:{threshold:g}",
+                                ],
+                            }
+                        )
+                        partial_id_results.append(candidate_pid)
+                        certificate_candidates.append((candidate_pid, candidate_payload))
+                        generated_tightener_certified_count += 1
+                    except Exception as exc:
+                        warnings.append(
+                            f"instrument_family_candidate_failed:threshold={threshold:g}:"
+                            f"{exc.__class__.__name__}"
+                        )
+                        tightening_log_entries.append(
+                            _tightening_log_entry(
+                                method=BoundMethod.LP_BALKE_PEARL,
+                                status="uncertified",
+                                reason=f"candidate_failed:{exc.__class__.__name__}",
+                                candidate_name=candidate_name,
+                                metadata={"threshold": threshold},
+                            )
+                        )
 
             if is_binary_iv and has_multi_valued:
                 # Phase 7: multi-valued T or Y — use GeneralBalkePearlBoundsEstimator
@@ -369,7 +840,7 @@ class BoundsEngineMethod:
                     candidate_payload = gbp_out.get("result", {}).get("dual_certificate_payload")
                     if isinstance(candidate_payload, dict):
                         certificate_candidates.append((pid, candidate_payload))
-            elif is_binary_iv:
+            elif is_binary_iv and not binary_iv_incompatible:
                 # Balke-Pearl sharp IV bounds (binary IV + treatment + outcome)
                 bp_state = {**base_state, "instrument": Z}
                 bp_out = BalkePearlBoundsEstimator.pure_step(bp_state, {"clip_probs": True})
@@ -386,6 +857,8 @@ class BoundsEngineMethod:
                     pid = _extract_partial_id(im_out)
                     if pid is not None:
                         partial_id_results.append(pid)
+            elif is_binary_iv:
+                warnings.append("binary_iv_bounds_skipped_due_to_model_class_incompatibility")
             else:
                 # Non-binary IV → MIV bounds
                 miv_state = {**base_state, "miv_proxy": Z}
@@ -510,23 +983,101 @@ class BoundsEngineMethod:
                 "n_methods": len(report.results),
             },
         )
-        dual_certificate_payload = None
+        selected_certificate_payload = None
         if partial_id_results:
             tightest = min(partial_id_results, key=lambda item: item.bound_width)
             for candidate_pid, candidate_payload in certificate_candidates:
                 if candidate_pid == tightest:
-                    dual_certificate_payload = candidate_payload
+                    selected_certificate_payload = candidate_payload
                     break
-            if tightest.bounds_type == "sharp_lp" and dual_certificate_payload is None:
+            if tightest.bounds_type == "sharp_lp" and selected_certificate_payload is None:
                 bundle_warnings = list(bundle.warnings)
                 bundle_warnings.append("tightest_sharp_lp_missing_dual_certificate")
                 bundle = bundle.model_copy(update={"warnings": bundle_warnings})
 
+        tightening_claim = None
+        if partial_id_results:
+            all_tighteners_infeasible = (
+                generated_tightener_count > 0
+                and generated_tightener_certified_count == 0
+                and tightening_infeasible_count == generated_tightener_count
+            )
+            tightening_claim, annotations, certified_payload = build_certified_tightening_claim(
+                partial_id_results,
+                certificate_candidates,
+                class_spec={
+                    "tightening_assumptions": list(tightening_assumptions),
+                    "conditioning_candidates": [name for name, _ in conditioning_candidates],
+                    "instrument_family_thresholds": list(instrument_family_thresholds),
+                    "tightening_candidate_limit": tightening_candidate_limit,
+                },
+                extra_log_entries=tightening_log_entries,
+                budget_exhausted=budget_exhausted,
+                all_tighteners_infeasible=all_tighteners_infeasible,
+                generated_tightener_count=generated_tightener_count,
+                generated_tightener_certified_count=generated_tightener_certified_count,
+            )
+            bundle_metadata = dict(bundle.metadata)
+            bundle_metadata.update(
+                {
+                    "certified_tightening_class": tightening_claim.class_name,
+                    "certified_tightening_proof_note": tightening_claim.proof_note,
+                    "certified_tightening_generated_candidate_count": generated_tightener_count,
+                    "certified_tightening_generated_certified_count": (
+                        generated_tightener_certified_count
+                    ),
+                }
+            )
+            bundle_updates: dict[str, Any] = {
+                "method_summaries": _annotate_method_summaries(bundle.method_summaries, annotations),
+                "metadata": bundle_metadata,
+            }
+            if tighten_bounds:
+                bundle_updates["tightening_status"] = tightening_claim.status
+                bundle_updates["tightening_stop_reason"] = tightening_claim.stop_reason
+                bundle_updates["best_in_class_claim"] = tightening_claim
+                if (
+                    tightening_claim.status is TighteningStatus.IMPROVED
+                    and tightening_claim.lower_bound is not None
+                    and tightening_claim.upper_bound is not None
+                ):
+                    legacy_lower = bundle.lower_bound
+                    legacy_upper = bundle.upper_bound
+                    bundle_metadata.update(
+                        {
+                            "legacy_tightest_lower": legacy_lower,
+                            "legacy_tightest_upper": legacy_upper,
+                            "selected_method": (
+                                tightening_claim.selected_method.value
+                                if tightening_claim.selected_method is not None
+                                else None
+                            ),
+                        }
+                    )
+                    bundle_updates.update(
+                        {
+                            "lower_bound": tightening_claim.lower_bound,
+                            "upper_bound": tightening_claim.upper_bound,
+                            "point_identified": (
+                                abs(tightening_claim.upper_bound - tightening_claim.lower_bound)
+                                <= 1e-12
+                            ),
+                            "metadata": bundle_metadata,
+                        }
+                    )
+                    if certified_payload is not None:
+                        selected_certificate_payload = certified_payload
+            bundle = bundle.model_copy(update=bundle_updates)
+
         response: dict[str, Any] = {
             "bounds_report": bundle.model_dump(mode="json"),
         }
-        if dual_certificate_payload is not None:
-            response["dual_certificate_payload"] = dual_certificate_payload
+        if selected_certificate_payload is not None:
+            response["dual_certificate_payload"] = selected_certificate_payload
+        if negative_certificate_payload is not None:
+            response["negative_certificate"] = negative_certificate_payload
+        if model_class_compatibility_payload is not None:
+            response["model_class_compatibility"] = model_class_compatibility_payload
         return response
 
 

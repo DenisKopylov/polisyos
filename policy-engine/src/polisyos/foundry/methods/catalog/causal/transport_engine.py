@@ -11,6 +11,10 @@ from polisyos.ir.analytics.causal_capabilities import (
     CausalCapabilityContract,
 )
 from polisyos.ir.analytics.partial_identification import compute_manski_bounds
+from polisyos.ir.analytics.privacy_transportability import (
+    TransportPrivacyContext,
+    apply_transport_privacy_context,
+)
 from polisyos.ir.analytics.transportability import (
     PAGIdentificationPolicy,
     SelectionDiagram,
@@ -43,6 +47,7 @@ def solve_transportability(
     pag_threshold: float = 0.5,
     pag_seed: int = 0,
     capability_contract: CausalCapabilityContract | None = None,
+    privacy_context: TransportPrivacyContext | None = None,
 ) -> TransportabilityResult:
     """Solve transportability helper."""
     contract = capability_contract or build_causal_capability_contract()
@@ -70,14 +75,20 @@ def solve_transportability(
             pag_seed=pag_seed,
         )
         if pag_result is not None:
-            return pag_result
+            return _finalize_transport_result(
+                pag_result,
+                privacy_context=privacy_context,
+            )
     if not selection_diagram.s_nodes:
-        return _direct_result(
-            diagram=selection_diagram,
-            treatment=query_treatment,
-            outcome=query_outcome,
-            engine="simplified_legacy",
-            trace=[*trace, "family:direct"],
+        return _finalize_transport_result(
+            _direct_result(
+                diagram=selection_diagram,
+                treatment=query_treatment,
+                outcome=query_outcome,
+                engine="simplified_legacy",
+                trace=[*trace, "family:direct"],
+            ),
+            privacy_context=privacy_context,
         )
     for backend_id in _backend_order(mode, allow_degraded_transport=allow_degraded_transport):
         trace.append(f"backend_attempt:{backend_id.value}")
@@ -89,7 +100,10 @@ def solve_transportability(
                 trace=trace,
             )
             if result is not None:
-                return result
+                return _finalize_transport_result(
+                    result,
+                    privacy_context=privacy_context,
+                )
             continue
         if backend_id is CausalBackendId.SIMPLIFIED_LEGACY:
             result = _run_simplified_legacy(
@@ -103,7 +117,10 @@ def solve_transportability(
                 pag_seed=pag_seed,
             )
             if result is not None:
-                return result
+                return _finalize_transport_result(
+                    result,
+                    privacy_context=privacy_context,
+                )
             continue
 
         backend = contract.backend(backend_id)
@@ -120,24 +137,38 @@ def solve_transportability(
             trace=trace,
         )
         if result is not None:
-            return result
+            return _finalize_transport_result(
+                result,
+                privacy_context=privacy_context,
+            )
 
-    return TransportabilityResult(
-        query=f"P*({query_outcome}|do({query_treatment}))",
-        status=TransportabilityStatus.UNSUPPORTED,
-        transport_mode=TransportMode.NONE,
-        base_confidence=0.0,
-        context_distance_penalty=0.0,
-        data_availability_penalty=0.0,
-        final_confidence=0.0,
-        algorithm_version="trso_v2",
-        identification_engine="bounds_only",
-        identification_trace=trace + ["transport_engine:unsupported"],
-        unsupported_reason="transport_engine_exhausted_backends",
-        warnings=["All configured transport backends were exhausted without identification."],
-        source_context_id=selection_diagram.source_context.context_id,
-        target_context_id=selection_diagram.target_context.context_id,
+    return _finalize_transport_result(
+        TransportabilityResult(
+            query=f"P*({query_outcome}|do({query_treatment}))",
+            status=TransportabilityStatus.UNSUPPORTED,
+            transport_mode=TransportMode.NONE,
+            base_confidence=0.0,
+            context_distance_penalty=0.0,
+            data_availability_penalty=0.0,
+            final_confidence=0.0,
+            algorithm_version="trso_v2",
+            identification_engine="bounds_only",
+            identification_trace=trace + ["transport_engine:unsupported"],
+            unsupported_reason="transport_engine_exhausted_backends",
+            warnings=["All configured transport backends were exhausted without identification."],
+            source_context_id=selection_diagram.source_context.context_id,
+            target_context_id=selection_diagram.target_context.context_id,
+        ),
+        privacy_context=privacy_context,
     )
+
+
+def _finalize_transport_result(
+    result: TransportabilityResult,
+    *,
+    privacy_context: TransportPrivacyContext | None,
+) -> TransportabilityResult:
+    return apply_transport_privacy_context(result, privacy_context)
 
 
 def _should_use_probabilistic_pag_path(

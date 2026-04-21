@@ -16,11 +16,15 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
     persist_causal_graph_model,
 )
+from polisyos.ir.analytics.transportability import load_transportability_result
 from polisyos.ir.observation.causal_readiness import load_causal_readiness_bundle
-from polisyos.ir.refs import CausalReadinessBundleRef
+from polisyos.ir.refs import CausalReadinessBundleRef, TransportabilityResultRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import RunCausalReadinessNode
+from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
+    RunCausalReadinessNode,
+    _SPEC,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_READINESS_BUNDLE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
@@ -101,6 +105,10 @@ def _strategic_payload() -> dict[str, object]:
             },
         },
     }
+
+
+def test_run_causal_readiness_spec_reads_performative_loop_spec() -> None:
+    assert "params.performative_loop_spec" in _SPEC.state_reads
 
 
 def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> None:
@@ -201,6 +209,118 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
     assert len(bundle.strategic_results) == 1
     assert len(bundle.counterfactual_results) == 1
     assert len(bundle.interference_specs) == 1
+
+
+def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_c4a_privacy")
+    graph_ref = persist_causal_graph_model(ctx.store, _graph())
+    state = ExperimentState(
+        run_id="R_c4a_privacy",
+        artifacts_index={
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: ArtifactRef.model_validate(
+                graph_ref.model_dump(mode="json")
+            )
+        },
+        params={
+            "transportability_check_bundle": {
+                "checks": [
+                    {
+                        "check_id": "privacy_bounds",
+                        "family": "budget_flows",
+                        "treatment": "X",
+                        "outcome": "Y",
+                        "source_regime_id": "r1",
+                        "target_regime_id": "r1",
+                        "source_context": {"context_id": "UA"},
+                        "target_context": {"context_id": "UA"},
+                        "dp_utility_manifest": {
+                            "manifest_id": "privacy_bounds_manifest",
+                            "query_id": "privacy_bounds",
+                            "source_domains": ["source_a"],
+                            "target_domain": "target_t",
+                            "dp_scope": [
+                                {
+                                    "domain_id": "source_a",
+                                    "mechanism_id": "laplace_source",
+                                    "mechanism_family": "laplace",
+                                    "privacy_model": "central",
+                                    "epsilon": 2.0,
+                                    "released_statistics": ["P_s(Y|do(X))"],
+                                    "public_channel_spec": {
+                                        "query_class": "laplace_histogram_v1"
+                                    },
+                                }
+                            ],
+                            "private_factor_bounds": [
+                                {
+                                    "factor_id": "source_kernel",
+                                    "factor_expression": "P_s(Y|do(X))",
+                                    "domain_id": "source_a",
+                                    "metric": "linf",
+                                    "error_bound": 0.08,
+                                    "confidence_level": 0.95,
+                                    "estimator_kind": "debias_laplace_histogram",
+                                }
+                            ],
+                            "validity_predicates": [
+                                {
+                                    "predicate_id": "formula_error",
+                                    "predicate_kind": "formula_error",
+                                    "expression": "eta_source <= 0.03",
+                                    "margin": 0.03,
+                                    "sensitivity_by_factor": {"source_kernel": 1.0},
+                                }
+                            ],
+                            "distortion_tolerance_map": {
+                                "query_id": "privacy_bounds",
+                                "factor_ids": ["source_kernel"],
+                                "factor_metrics": {"source_kernel": "linf"},
+                                "factor_error_bounds": {"source_kernel": 0.03},
+                                "predicate_margins": {"formula_error": 0.03},
+                                "sensitivity_matrix": {
+                                    "formula_error": {"source_kernel": 1.0}
+                                },
+                                "utility_maps": {
+                                    "source_a": {
+                                        "mechanism_to_error_contract": "laplace_histogram_v1"
+                                    }
+                                },
+                            },
+                            "fallback_queries": [
+                                {
+                                    "query": "P_t(Y)",
+                                    "mode": "descriptive_interval",
+                                }
+                            ],
+                        },
+                    }
+                ]
+            }
+        },
+    )
+
+    outcome = RunCausalReadinessNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    bundle_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF]
+    bundle = load_causal_readiness_bundle(
+        ctx.store,
+        CausalReadinessBundleRef.model_validate(bundle_ref.model_dump(mode="json")),
+    )
+    transport_entry = bundle.transport_results[0]
+    transport_result = load_transportability_result(
+        ctx.store,
+        TransportabilityResultRef.model_validate(
+            transport_entry.result_ref.model_dump(mode="json")
+        ),
+    )
+
+    assert transport_entry.status == "partially_identified"
+    assert transport_entry.metadata["privacy_observed_mode"] == "bounds_only"
+    assert transport_entry.metadata["privacy_certificate_ref"]["kind"] == (
+        "ir.privacy_aware_transport_certificate"
+    )
+    assert transport_result.metadata["privacy_observed_mode"] == "bounds_only"
 
 
 def test_run_causal_readiness_graph_assertion_is_not_swallowed(tmp_path) -> None:

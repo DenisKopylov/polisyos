@@ -77,6 +77,47 @@ def test_interference_certificate_rejects_blank_assumptions_and_nonfinite_bound(
             fallback_mode="clustered",
         )
 
+    with pytest.raises(ValidationError, match="fallback_reason_codes must be non-empty"):
+        InterferenceCertificate(
+            supported_query_family="pairwise_projection_queries",
+            reduction_error_bound=None,
+            fallback_mode="pairwise",
+            mode_requested="complex",
+            mode_used="pairwise",
+            fallback_triggered=True,
+            fallback_reason_codes=(),
+        )
+
+    with pytest.raises(ValidationError, match="mode_requested must equal mode_used"):
+        InterferenceCertificate(
+            supported_query_family="simplicial_star_local_queries",
+            reduction_error_bound=None,
+            fallback_mode="unsupported",
+            mode_requested="complex",
+            mode_used="pairwise",
+            fallback_triggered=False,
+            fallback_reason_codes=(),
+        )
+
+    with pytest.raises(ValidationError, match="fallback_mode must be unsupported when mode_used is complex"):
+        InterferenceCertificate(
+            supported_query_family="simplicial_star_local_queries",
+            reduction_error_bound=None,
+            fallback_mode="pairwise",
+            mode_requested="complex",
+            mode_used="complex",
+            fallback_triggered=False,
+            fallback_reason_codes=(),
+            estimability_checks={
+                "topology_evidence": "pass",
+                "simplicial_closure": "pass",
+                "exposure_positivity": "pass",
+                "higher_order_separability": "pass",
+                "inference_regime": "pass",
+                "pre_outcome_selection": "pass",
+            },
+        )
+
 
 def test_phase_f_contracts_round_trip_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
@@ -89,6 +130,18 @@ def test_phase_f_contracts_round_trip_via_store(tmp_path) -> None:
         ),
         reduction_error_bound=None,
         fallback_mode="clustered",
+        mode_requested="complex",
+        mode_used="clustered",
+        fallback_triggered=True,
+        fallback_reason_codes=("higher_order_separability_failed",),
+        estimability_checks={
+            "topology_evidence": "pass",
+            "simplicial_closure": "pass",
+            "exposure_positivity": "pass",
+            "higher_order_separability": "fail",
+            "inference_regime": "pass",
+            "pre_outcome_selection": "pass",
+        },
     )
 
     interaction_complex_ref = persist_interaction_complex(store, interaction_complex)
@@ -106,7 +159,12 @@ def test_reduction_error_bound_none_is_honest_default() -> None:
         exposure_assumptions=("hypergraph_identification_not_claimed",),
         reduction_error_bound=None,
         fallback_mode="pairwise",
+        mode_requested="complex",
+        mode_used="pairwise",
+        fallback_triggered=True,
+        fallback_reason_codes=("higher_order_separability_failed",),
     )
 
     assert certificate.reduction_error_bound is None
     assert certificate.fallback_mode == "pairwise"
+    assert certificate.mode_used == "pairwise"

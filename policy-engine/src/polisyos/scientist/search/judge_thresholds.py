@@ -9,6 +9,9 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.foundry.methods.catalog.causal.algebraic_calibration import (
+    tetrad_threshold_recommendations,
+)
 from polisyos.scientist.autotune.models import default_search_registry_root
 
 __all__ = [
@@ -17,6 +20,8 @@ __all__ = [
     "JudgeThresholdSnapshot",
     "ResolvedThresholdSet",
     "ThresholdViolation",
+    "bucket_dp_delta",
+    "bucket_dp_epsilon",
     "_check_threshold_violation",
     "_default_threshold_entries",
     "_is_looser_threshold",
@@ -33,6 +38,7 @@ class JudgeThresholdEntry(BaseModel):
     metric_name: str
     threshold_value: float
     direction: Literal["max", "min"]
+    threshold_tier: Literal["warning", "blocker"] = "blocker"
     rationale: str
     benchmark_source: str
     maturity: Literal["provisional", "benchmarked", "hardened"] = "provisional"
@@ -42,16 +48,39 @@ class JudgeThresholdEntry(BaseModel):
     scope_query_type: str | None = None
     scope_estimator: str | None = None
     scope_readiness_target: str | None = None
+    scope_dp_mechanism: str | None = None
+    scope_dp_epsilon_bucket: str | None = None
+    scope_dp_delta_bucket: str | None = None
     change_reason: str | None = None
     approved_by: str | None = None
 
-    def scope_key(self) -> tuple[str | None, str | None, str | None, str | None]:
+    def scope_key(
+        self,
+    ) -> tuple[
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str,
+    ]:
         return (
             self.scope_family,
             self.scope_query_type,
             self.scope_estimator,
             self.scope_readiness_target,
+            self.scope_dp_mechanism,
+            self.scope_dp_epsilon_bucket,
+            self.scope_dp_delta_bucket,
+            self.threshold_tier,
         )
+
+    def resolved_key(self) -> str:
+        if self.threshold_tier == "blocker":
+            return self.metric_name
+        return f"{self.metric_name}:{self.threshold_tier}"
 
 
 class JudgeThresholdSnapshot(BaseModel):
@@ -85,8 +114,18 @@ class ResolvedThresholdSet(BaseModel):
     entries: dict[str, JudgeThresholdEntry] = Field(default_factory=dict)
     registry_version: int | None = None
 
-    def threshold_value(self, metric_name: str) -> float | None:
-        entry = self.entries.get(metric_name)
+    def threshold_value(
+        self,
+        metric_name: str,
+        *,
+        threshold_tier: Literal["warning", "blocker"] = "blocker",
+    ) -> float | None:
+        key = (
+            metric_name
+            if threshold_tier == "blocker"
+            else f"{metric_name}:{threshold_tier}"
+        )
+        entry = self.entries.get(key)
         return None if entry is None else float(entry.threshold_value)
 
 
@@ -126,7 +165,8 @@ class JudgeThresholdRegistry:
             latest = max(existing, key=lambda item: item.version)
             if not allow_loosen and _is_looser_threshold(entry, latest):
                 raise ValueError(
-                    "JudgeThresholdRegistry refuses to loosen a threshold without explicit override."
+                    "JudgeThresholdRegistry refuses to loosen a threshold "
+                    "without explicit override."
                 )
             next_version = latest.version + 1
         else:
@@ -167,6 +207,9 @@ class JudgeThresholdRegistry:
         query_type: str | None = None,
         estimator: str | None = None,
         readiness_target: str | None = None,
+        dp_mechanism: str | None = None,
+        dp_epsilon: float | str | None = None,
+        dp_delta: float | str | None = None,
     ) -> ResolvedThresholdSet:
         snapshot = self._load_snapshot()
         scope = {
@@ -174,19 +217,25 @@ class JudgeThresholdRegistry:
             "query_type": _normalize_scope_value(query_type),
             "estimator": _normalize_scope_value(estimator),
             "readiness_target": _normalize_scope_value(readiness_target),
+            "dp_mechanism": _normalize_scope_value(dp_mechanism),
+            "dp_epsilon_bucket": bucket_dp_epsilon(dp_epsilon),
+            "dp_delta_bucket": bucket_dp_delta(dp_delta),
         }
         resolved: dict[str, JudgeThresholdEntry] = {}
-        for metric_name in {
-            item.metric_name for item in snapshot.entries if item.judge_name == judge_name
+        for metric_name, threshold_tier in {
+            (item.metric_name, item.threshold_tier)
+            for item in snapshot.entries
+            if item.judge_name == judge_name
         }:
             entry = self._resolve_one(
                 snapshot.entries,
                 judge_name=judge_name,
                 metric_name=metric_name,
+                threshold_tier=threshold_tier,
                 scope=scope,
             )
             if entry is not None:
-                resolved[metric_name] = entry
+                resolved[entry.resolved_key()] = entry
         return ResolvedThresholdSet(
             judge_name=judge_name,
             scope=scope,
@@ -225,41 +274,26 @@ class JudgeThresholdRegistry:
         *,
         judge_name: str,
         metric_name: str,
+        threshold_tier: Literal["warning", "blocker"],
         scope: dict[str, str | None],
     ) -> JudgeThresholdEntry | None:
         candidates = [
             item
             for item in entries
-            if item.judge_name == judge_name and item.metric_name == metric_name
+            if item.judge_name == judge_name
+            and item.metric_name == metric_name
+            and item.threshold_tier == threshold_tier
         ]
-        family = scope.get("family")
-        query_type = scope.get("query_type")
-        estimator = scope.get("estimator")
-        readiness_target = scope.get("readiness_target")
-        resolution_order = [
-            (
-                family,
-                query_type,
-                estimator,
-                readiness_target,
-            ),
-            (family, query_type, estimator, None),
-            (family, query_type, None, None),
-            (family, None, None, None),
-            (None, None, None, None),
-        ]
-        for family, query_type, estimator, readiness_target in resolution_order:
-            scoped = [
-                item
-                for item in candidates
-                if item.scope_family == family
-                and item.scope_query_type == query_type
-                and item.scope_estimator == estimator
-                and item.scope_readiness_target == readiness_target
-            ]
-            if scoped:
-                return max(scoped, key=lambda item: item.version)
-        return None
+        ranked: list[tuple[int, int, JudgeThresholdEntry]] = []
+        for item in candidates:
+            score = _scope_match_score(item, scope)
+            if score is None:
+                continue
+            ranked.append((score, item.version, item))
+        if not ranked:
+            return None
+        ranked.sort(key=lambda payload: (payload[0], payload[1]), reverse=True)
+        return ranked[0][2]
 
 
 def _default_threshold_entries() -> list[JudgeThresholdEntry]:
@@ -336,6 +370,126 @@ def _default_threshold_entries() -> list[JudgeThresholdEntry]:
             benchmark_source="phase_a_seed_defaults",
             maturity="benchmarked",
         ),
+        *_default_algebraic_tetrad_threshold_entries(),
+        *_default_ci_threshold_entries(),
+    ]
+
+
+def _default_algebraic_tetrad_threshold_entries() -> list[JudgeThresholdEntry]:
+    source = "stage_8_2_tetrad_finite_sample_research"
+    family = "algebraic_tetrad"
+    return [
+        *(
+            JudgeThresholdEntry(
+                judge_name="statistical",
+                metric_name=recommendation.metric_name,
+                threshold_value=float(recommendation.threshold_value),
+                direction=recommendation.direction,
+                threshold_tier=recommendation.threshold_tier,
+                rationale=recommendation.rationale,
+                benchmark_source=source,
+                maturity="provisional",
+                scope_family=family,
+            )
+            for recommendation in tetrad_threshold_recommendations()
+        ),
+    ]
+
+
+def _default_ci_threshold_entries() -> list[JudgeThresholdEntry]:
+    source = "stage_15_2_dp_ci_research"
+    return [
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="alpha_base",
+            threshold_value=0.05,
+            direction="max",
+            rationale="Default CI alpha for kernel-family diagnostics.",
+            benchmark_source=source,
+            maturity="provisional",
+            scope_family="kernel_ci",
+        ),
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="mc_bootstrap_B",
+            threshold_value=299,
+            direction="min",
+            rationale="Kernel CI permutation nulls should use at least 299 draws by default.",
+            benchmark_source=source,
+            maturity="provisional",
+            scope_family="kernel_ci",
+        ),
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="min_n_rule_constant",
+            threshold_value=4.0,
+            direction="min",
+            rationale="Kernel DP sample-size rules use a conservative constant of 4.0.",
+            benchmark_source=source,
+            maturity="provisional",
+            scope_family="kernel_ci",
+        ),
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="naive_fpr_bound_rho",
+            threshold_value=0.01,
+            direction="max",
+            rationale="Naive kernel-DP FPR inflation bounds allocate 1% residual tail mass.",
+            benchmark_source=source,
+            maturity="provisional",
+            scope_family="kernel_ci",
+        ),
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="alpha_base",
+            threshold_value=0.05,
+            direction="max",
+            rationale="Default CI alpha for categorical G²/χ² diagnostics.",
+            benchmark_source=source,
+            maturity="provisional",
+            scope_family="categorical_ci",
+        ),
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="mc_bootstrap_B",
+            threshold_value=2000,
+            direction="min",
+            rationale="Categorical DP Monte Carlo calibration uses at least 2000 null draws.",
+            benchmark_source=source,
+            maturity="provisional",
+            scope_family="categorical_ci",
+        ),
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="mc_bootstrap_B",
+            threshold_value=4000,
+            direction="min",
+            rationale="Laplace-count releases need a larger Monte Carlo null to stabilize CI thresholds.",
+            benchmark_source=source,
+            maturity="provisional",
+            scope_family="categorical_ci",
+            scope_dp_mechanism="laplace_counts",
+        ),
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="min_n_rule_constant",
+            threshold_value=4.0,
+            direction="min",
+            rationale="Categorical DP sample-size rules use a conservative constant of 4.0.",
+            benchmark_source=source,
+            maturity="provisional",
+            scope_family="categorical_ci",
+        ),
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="naive_fpr_bound_rho",
+            threshold_value=0.01,
+            direction="max",
+            rationale="Naive categorical-DP FPR inflation bounds allocate 1% residual tail mass.",
+            benchmark_source=source,
+            maturity="provisional",
+            scope_family="categorical_ci",
+        ),
     ]
 
 
@@ -355,10 +509,16 @@ def _check_threshold_violation(
     *,
     metric_name: str,
     observed_value: float,
+    threshold_tier: Literal["warning", "blocker"] = "blocker",
 ) -> ThresholdViolation | None:
     if resolved is None:
         return None
-    entry = resolved.entries.get(metric_name)
+    key = (
+        metric_name
+        if threshold_tier == "blocker"
+        else f"{metric_name}:{threshold_tier}"
+    )
+    entry = resolved.entries.get(key)
     if entry is None:
         return None
     observed = float(observed_value)
@@ -381,3 +541,64 @@ def _check_threshold_violation(
 def _normalize_scope_value(value: str | None) -> str | None:
     text = str(value or "").strip()
     return text or None
+
+
+def bucket_dp_epsilon(value: float | str | None) -> str | None:
+    epsilon = _coerce_optional_float(value)
+    if epsilon is None:
+        return _normalize_scope_value(value if isinstance(value, str) else None)
+    if epsilon < 0.1:
+        return "lt_0.1"
+    if epsilon < 0.5:
+        return "0.1_to_0.5"
+    if epsilon < 1.0:
+        return "0.5_to_1.0"
+    if epsilon < 3.0:
+        return "1.0_to_3.0"
+    return "ge_3.0"
+
+
+def bucket_dp_delta(value: float | str | None) -> str | None:
+    delta = _coerce_optional_float(value)
+    if delta is None:
+        return _normalize_scope_value(value if isinstance(value, str) else None)
+    if delta <= 0.0:
+        return "zero"
+    if delta <= 1e-8:
+        return "lte_1e-8"
+    if delta <= 1e-6:
+        return "1e-8_to_1e-6"
+    if delta <= 1e-4:
+        return "1e-6_to_1e-4"
+    return "gt_1e-4"
+
+
+def _scope_match_score(
+    entry: JudgeThresholdEntry,
+    scope: dict[str, str | None],
+) -> int | None:
+    fields = (
+        ("family", entry.scope_family, 64),
+        ("query_type", entry.scope_query_type, 32),
+        ("estimator", entry.scope_estimator, 16),
+        ("readiness_target", entry.scope_readiness_target, 8),
+        ("dp_mechanism", entry.scope_dp_mechanism, 4),
+        ("dp_epsilon_bucket", entry.scope_dp_epsilon_bucket, 2),
+        ("dp_delta_bucket", entry.scope_dp_delta_bucket, 1),
+    )
+    score = 0
+    for scope_name, entry_value, weight in fields:
+        requested = scope.get(scope_name)
+        if entry_value is None:
+            continue
+        if entry_value != requested:
+            return None
+        score += weight
+    return score
+
+
+def _coerce_optional_float(value: float | str | None) -> float | None:
+    try:
+        return None if value is None else float(value)
+    except (TypeError, ValueError):
+        return None

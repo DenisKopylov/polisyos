@@ -81,6 +81,14 @@ def _make_record(
     output_quality: float | None = None,
     data_characteristics: dict | None = None,
     timestamp: float | None = None,
+    query_fingerprint: str | None = None,
+    loss_profile_id: str | None = None,
+    candidate_fqns: tuple[str, ...] = (),
+    selected_rank: int | None = None,
+    selection_propensity: float | None = None,
+    advisor_score_vector: dict[str, float] | None = None,
+    realized_loss_components: dict[str, float] | None = None,
+    shadow_loss_estimates: dict[str, float] | None = None,
 ) -> MethodExecutionRecord:
     return MethodExecutionRecord(
         method_fqn=fqn,
@@ -89,6 +97,14 @@ def _make_record(
         success=success,
         output_quality=output_quality,
         data_characteristics=data_characteristics or {},
+        query_fingerprint=query_fingerprint,
+        loss_profile_id=loss_profile_id,
+        candidate_fqns=candidate_fqns,
+        selected_rank=selected_rank,
+        selection_propensity=selection_propensity,
+        advisor_score_vector=advisor_score_vector or {},
+        realized_loss_components=realized_loss_components or {},
+        shadow_loss_estimates=shadow_loss_estimates or {},
     )
 
 
@@ -377,6 +393,37 @@ class TestSelectionHistoryStore:
         assert imported == 2
         assert len(restored) == 2
         assert restored.mean_latency_ms("m@1.0.0") == pytest.approx(150.0)
+
+    def test_jsonl_roundtrip_preserves_regret_telemetry_fields(self, tmp_path):
+        store = SelectionHistoryStore(persist_path=tmp_path / "history.jsonl")
+        store.record(
+            _make_record(
+                "m@1.0.0",
+                latency_ms=120.0,
+                success=True,
+                query_fingerprint="abc123",
+                loss_profile_id="coverage_strict",
+                candidate_fqns=("m@1.0.0", "alt@1.0.0"),
+                selected_rank=1,
+                selection_propensity=0.5,
+                advisor_score_vector={"m@1.0.0": 12.0, "alt@1.0.0": 11.5},
+                realized_loss_components={"coverage_shortfall": 0.2, "failure_penalty": 0.0},
+                shadow_loss_estimates={"alt@1.0.0": 0.3},
+            )
+        )
+        exported = store.export_jsonl()
+
+        restored = SelectionHistoryStore(persist_path=exported)
+        assert restored.import_jsonl() == 1
+        record = restored.records_for("m@1.0.0")[0]
+        assert record.query_fingerprint == "abc123"
+        assert record.loss_profile_id == "coverage_strict"
+        assert record.candidate_fqns == ("m@1.0.0", "alt@1.0.0")
+        assert record.selected_rank == 1
+        assert record.selection_propensity == pytest.approx(0.5)
+        assert record.advisor_score_vector["alt@1.0.0"] == pytest.approx(11.5)
+        assert record.realized_loss_components["coverage_shortfall"] == pytest.approx(0.2)
+        assert record.shadow_loss_estimates["alt@1.0.0"] == pytest.approx(0.3)
 
     def test_auto_persist_append_valid_under_concurrent_writers(self, tmp_path):
         path = tmp_path / "history.jsonl"

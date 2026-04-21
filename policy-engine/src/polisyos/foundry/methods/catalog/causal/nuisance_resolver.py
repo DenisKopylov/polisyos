@@ -1137,6 +1137,89 @@ class RatioCombiner:
 @foundry_method(
     namespace="causal.compiler",
     version="1.0.0",
+    tags={"causal", "compiler", "edge_intervention"},
+)
+class EdgeInterventionPassthrough:
+    """Carry edge-level assignments through recursive formula execution.
+
+    The current runtime treats edge interventions as symbolic annotations on top
+    of a lowered factor. This primitive preserves the operand numerically while
+    keeping the edge-assignment metadata in the execution plan.
+    """
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="edge_intervention",
+        namespace="",
+        version="0.0.0",
+        input_slots=frozenset({
+            SlotSpec("operand", SlotType.VECTOR, Unit("distribution", "value")),
+        }),
+        output_slots=frozenset({
+            SlotSpec("edge_intervention_result", SlotType.VECTOR, Unit("distribution", "value")),
+        }),
+        parameters=(
+            ParameterSpec(name="assignments", default=()),
+            ParameterSpec(name="domain", default="source"),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Symbolic edge-intervention wrapper for recursively lowered causal formulas."
+        ),
+        tags=frozenset({"causal", "compiler", "edge_intervention", "formula"}),
+        citations=(),
+        equations={"edge_intervention": "f_edge = f_inner  (annotation-preserving wrapper)"},
+        determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+        required_deps=("numpy",),
+        when_to_use="Lowered edge/path-specific formulas that carry edge assignments.",
+        when_not_to_use="Direct numeric edge-g estimators with a dedicated backend.",
+        prerequisites=(),
+        diagnostic_checks=(),
+        typical_min_obs=1,
+        output_interpretation=(
+            "edge_intervention_result: operand propagated forward with edge-level "
+            "assignment metadata kept in params."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        for key in (
+            "operand",
+            "distribution_values",
+            "product_result",
+            "marginal",
+            "ratio_result",
+            "integral",
+            "result",
+        ):
+            if key in state:
+                return {
+                    "edge_intervention_result": np.asarray(state[key], dtype=float)
+                }
+        for value in state.values():
+            try:
+                arr = np.asarray(value, dtype=float)
+            except Exception:
+                continue
+            if arr.size:
+                return {"edge_intervention_result": arr}
+        return {"edge_intervention_result": np.array([1.0], dtype=float)}
+
+
+@foundry_method(
+    namespace="causal.compiler",
+    version="1.0.0",
     tags={"causal", "compiler", "integrator"},
 )
 class Integrator:

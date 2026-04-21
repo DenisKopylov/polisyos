@@ -514,7 +514,13 @@ def _recoverability_certificate_from_result(
         RecoverabilityCertificate,
         RecoverabilityCertificateStatus,
         RecoverabilityEstimatorFamily,
+        RecoverabilityNuisanceKind,
+        RecoverabilityProofForm,
         mgraph_fingerprint,
+    )
+    from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
+        RecoveryEstimatorFamily as CompileTimeRecoveryFamily,
+        build_compile_time_recovery_summary,
     )
 
     if status_override is not None:
@@ -536,9 +542,49 @@ def _recoverability_certificate_from_result(
         expression = result.recovery_estimand
 
     blocking = tuple(sorted(result.blocking_r_nodes))
+    compile_time_recovery = build_compile_time_recovery_summary(
+        expression,
+        recoverability_certificate={
+            "status": status.value,
+            "blocking_r_nodes": list(blocking),
+        },
+    )
+
     estimator = None
-    if status is RecoverabilityCertificateStatus.RECOVERABLE:
-        estimator = RecoverabilityEstimatorFamily.G_FORMULA_REWEIGHT
+    compile_family = str(compile_time_recovery.get("family", "") or "")
+    if compile_family == CompileTimeRecoveryFamily.DOUBLY_ROBUST.value:
+        estimator = RecoverabilityEstimatorFamily.DOUBLY_ROBUST
+    elif compile_family == CompileTimeRecoveryFamily.IPW.value:
+        estimator = RecoverabilityEstimatorFamily.IPW
+    elif compile_family == CompileTimeRecoveryFamily.COMPLETE_CASE.value:
+        estimator = RecoverabilityEstimatorFamily.COMPLETE_CASE
+    elif compile_family == CompileTimeRecoveryFamily.AUGMENTATION.value:
+        estimator = RecoverabilityEstimatorFamily.AUGMENTATION
+    elif compile_family == CompileTimeRecoveryFamily.REFUSE.value:
+        estimator = RecoverabilityEstimatorFamily.REFUSE
+
+    profile_payload = compile_time_recovery.get("profile")
+    if isinstance(profile_payload, dict):
+        profile_data = dict(profile_payload)
+    else:
+        profile_data = {}
+
+    try:
+        recovery_form = RecoverabilityProofForm(
+            str(profile_data.get("recovery_form", "unknown") or "unknown")
+        )
+    except ValueError:
+        recovery_form = RecoverabilityProofForm.UNKNOWN
+
+    identified_nuisance: list[RecoverabilityNuisanceKind] = []
+    for item in profile_data.get("identified_nuisance", ()) or ():
+        try:
+            identified_nuisance.append(RecoverabilityNuisanceKind(str(item)))
+        except ValueError:
+            continue
+
+    metadata_payload = dict(metadata or {})
+    metadata_payload["compile_time_recovery"] = compile_time_recovery
 
     return RecoverabilityCertificate(
         target_query=target_query,
@@ -557,12 +603,36 @@ def _recoverability_certificate_from_result(
             else ""
         ),
         minimal_repair_sets=_minimal_repair_sets(result.blocking_r_nodes),
+        recovery_form=recovery_form,
+        identified_nuisance=tuple(
+            sorted(identified_nuisance, key=lambda item: item.value)
+        ),
+        required_side_conditions=tuple(
+            str(item) for item in profile_data.get("required_side_conditions", ()) or ()
+        ),
+        blocking_structures=tuple(
+            str(item) for item in profile_data.get("blocking_structures", ()) or ()
+        ),
         recommended_estimator_family=estimator,
+        compile_time_strategy=(
+            str(compile_time_recovery.get("preferred_strategy"))
+            if compile_time_recovery.get("preferred_strategy") is not None
+            else None
+        ),
+        compile_time_required_nuisance=tuple(
+            str(item) for item in compile_time_recovery.get("required_nuisance", ()) or ()
+        ),
+        compile_time_safety_guards=tuple(
+            str(item) for item in compile_time_recovery.get("safety_guards", ()) or ()
+        ),
+        compile_time_lowering_hooks=tuple(
+            str(item) for item in compile_time_recovery.get("compiler_lowering_hooks", ()) or ()
+        ),
         computable_functionals=computable_functionals,
         warnings=warnings,
         completeness_regime=completeness_regime,  # type: ignore[arg-type]
         theorem_family=theorem_family,
-        metadata=metadata or {},
+        metadata=metadata_payload,
     )
 
 
@@ -770,6 +840,7 @@ def full_law_identify(
     mgraph_meta: MGraphMetadata,
     dataset_ref: str | None = None,
     oracle: str = "none",
+    policy: object | None = None,
 ) -> object:  # returns IdentificationResult — typed as object to avoid circular imports
     """Identify P(Y|do(X)) from incomplete data in an M-graph.
 
@@ -812,6 +883,7 @@ def full_law_identify(
         IdentificationStatus,
         ProofStep,
         id_with_oracle_fallback,
+        sid_algorithm,
     )
 
     all_steps: list[ProofStep] = []
@@ -874,13 +946,24 @@ def full_law_identify(
     # ------------------------------------------------------------------
     base_graph = _project_to_base_dag(graph, mgraph_meta)
 
-    id_result = id_with_oracle_fallback(
-        treatment=frozenset(treatment),
-        outcome=frozenset(outcome),
-        graph=base_graph,
-        oracle=oracle,
-        dataset_ref=dataset_ref,
-    )
+    if policy is not None:
+        id_result = sid_algorithm(
+            treatment=frozenset(treatment),
+            outcome=frozenset(outcome),
+            graph=base_graph,
+            policy=policy,
+            dataset_ref=dataset_ref,
+        )
+        stage2_desc = f"POLICY-ID on base DAG: status={id_result.status.value}"
+    else:
+        id_result = id_with_oracle_fallback(
+            treatment=frozenset(treatment),
+            outcome=frozenset(outcome),
+            graph=base_graph,
+            oracle=oracle,
+            dataset_ref=dataset_ref,
+        )
+        stage2_desc = f"ID algorithm on base DAG: status={id_result.status.value}"
 
     all_steps.extend(list(id_result.proof_steps))
     all_steps.append(
@@ -888,9 +971,7 @@ def full_law_identify(
             rule_name="FULL_LAW_STAGE2",
             antecedent_vars=tuple(sorted(treatment)),
             consequent_vars=tuple(sorted(outcome)),
-            applied_to_graph_state=(
-                f"ID algorithm on base DAG: status={id_result.status.value}"
-            ),
+            applied_to_graph_state=stage2_desc,
             depth=0,
         )
     )

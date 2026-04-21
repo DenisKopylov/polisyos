@@ -15,9 +15,13 @@ from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionRef,
     EstimandAST,
+    ModifiedTreatmentPolicyNode,
+    PathSpecificNode,
     ProductNode,
     SideCondition,
     SideConditionKind,
+    StochasticInterventionNode,
+    StochasticPolicy,
     SumNode,
     make_backdoor_estimand,
     make_frontdoor_estimand,
@@ -90,6 +94,82 @@ def _make_cate_ast_by_conditioning() -> EstimandAST:
         outcome="Y",
         all_variables=("T", "Y", "Z", "V"),
         identification_method="backdoor",
+    )
+
+
+def _make_soft_policy_ast(policy_expr: str = "pi(T|Z)") -> EstimandAST:
+    """Simple stochastic-policy AST for compiler routing tests."""
+    inner = DistributionRef(
+        domain=DistributionDomain.SOURCE,
+        variables=("Y",),
+        conditioning=("T", "Z"),
+        dataset_ref="ds1",
+    )
+    root = StochasticInterventionNode(
+        treatment_var="T",
+        policy=StochasticPolicy(
+            policy_type="soft",
+            conditioning_vars=("Z",),
+            policy_expr=policy_expr,
+        ),
+        inner_do_node=inner,
+        integration_var="T",
+    )
+    return EstimandAST(
+        query_str="E_pi[Y]",
+        root=root,
+        treatment="T",
+        outcome="Y",
+        all_variables=("T", "Y", "Z"),
+        identification_method="sid_soft",
+    )
+
+
+def _make_shift_policy_ast() -> EstimandAST:
+    """Simple shift/MTP AST for compiler routing tests."""
+    inner = DistributionRef(
+        domain=DistributionDomain.SOURCE,
+        variables=("Y",),
+        conditioning=("T", "Z"),
+        dataset_ref="ds1",
+    )
+    root = ModifiedTreatmentPolicyNode(
+        treatment_var="T",
+        policy_expr="T+0.25",
+        natural_treatment_var="T",
+        covariates=("Z",),
+        inner_node=inner,
+        domain=DistributionDomain.SOURCE,
+        dataset_ref="ds1",
+    )
+    return EstimandAST(
+        query_str="E_d[Y|mtp(T)]",
+        root=root,
+        treatment="T",
+        outcome="Y",
+        all_variables=("T", "Y", "Z"),
+        identification_method="sid_shift",
+    )
+
+
+def _make_proximal_mediation_ast() -> EstimandAST:
+    """Path-specific AST carrying the Stage 11.3 proximal mediation marker."""
+    root = PathSpecificNode(
+        treatment="A",
+        outcome="Y",
+        active_paths=(("A", "M", "Y"),),
+        frozen_paths=(("A", "Y"),),
+        reference_treatment=0.0,
+        active_treatment=1.0,
+        dataset_ref="ds1",
+    )
+    return EstimandAST(
+        query_str="E[Y{1, M(0)}]",
+        root=root,
+        treatment="A",
+        outcome="Y",
+        all_variables=("A", "M", "Y", "X", "Z", "W"),
+        identification_method="proximal_mediation|target=nie|mediator=M",
     )
 
 
@@ -295,6 +375,119 @@ class TestC3MetaLearner:
         ast = _make_cate_ast_by_marker()
         rec = recommend_estimator(ast, n_obs=500)
         assert "learner" in rec.notes.lower() or "CATE" in rec.notes
+
+
+# ---------------------------------------------------------------------------
+# C3b: Stochastic / shift policy routing
+# ---------------------------------------------------------------------------
+
+
+class TestC3bPolicyRouting:
+    def test_shift_mtp_root_classifies_as_shift_intervention(self):
+        ast = _make_shift_policy_ast()
+        assert classify_estimand(ast) is EstimandShape.SHIFT_INTERVENTION
+
+    def test_shift_recommendation_uses_registered_continuous_treatment_method(self):
+        ast = _make_shift_policy_ast()
+        rec = recommend_estimator(ast, n_obs=500)
+        assert rec.primary_method_fqn == "causal.continuous_treatment.shift@1.0.0"
+
+    def test_stochastic_recommendation_uses_registered_policy_plugin_method(self):
+        ast = _make_soft_policy_ast()
+        rec = recommend_estimator(ast, n_obs=500)
+        assert rec.primary_method_fqn == "causal.stochastic.policy_plugin@1.0.0"
+
+    def test_shift_compile_preserves_delta_and_adds_policy_overlap_diagnostic(self):
+        ast = _make_shift_policy_ast()
+        rec = recommend_estimator(ast, n_obs=500)
+        eg = compile_to_method_dag_nodes(ast, rec, run_id="c3b-1")
+
+        shift_node = next(n for n in eg.nodes if n.method_fqn == "causal.continuous_treatment.shift")
+        assert shift_node.params["delta"] == pytest.approx(0.25)
+        assert any(n.method_fqn == "causal.diagnostics.policy_overlap" for n in eg.nodes)
+
+    def test_stochastic_compile_adds_policy_overlap_diagnostic(self):
+        ast = _make_soft_policy_ast()
+        rec = recommend_estimator(ast, n_obs=500)
+        eg = compile_to_method_dag_nodes(ast, rec, run_id="c3b-2")
+
+        plugin_node = next(n for n in eg.nodes if n.method_fqn == "causal.stochastic.policy_plugin")
+        overlap_node = next(n for n in eg.nodes if n.method_fqn == "causal.diagnostics.policy_overlap")
+        assert overlap_node.depends_on == (plugin_node.node_id,)
+
+    def test_incremental_policy_prefers_binary_policy_tmle_family(self):
+        ast = _make_soft_policy_ast(policy_expr="incremental_odds(delta=1.5)")
+        rec = recommend_estimator(ast, n_obs=800)
+        eg = compile_to_method_dag_nodes(ast, rec, run_id="c3b-3")
+
+        assert rec.primary_method_fqn == "causal.stochastic.policy_tmle@1.0.0"
+        policy_node = next(n for n in eg.nodes if n.method_fqn == "causal.stochastic.policy_tmle")
+        assert policy_node.params["incremental_delta"] == pytest.approx(1.5)
+        assert any(n.method_fqn == "causal.diagnostics.policy_overlap" for n in eg.nodes)
+
+
+# ---------------------------------------------------------------------------
+# C3c: Proximal mediation routing
+# ---------------------------------------------------------------------------
+
+
+class TestC3cProximalMediationRouting:
+    def test_proximal_mediation_marker_classifies_shape(self):
+        ast = _make_proximal_mediation_ast()
+        assert classify_estimand(ast) is EstimandShape.PROXIMAL_MEDIATION
+
+    def test_proximal_mediation_recommendation_uses_template_method(self):
+        ast = _make_proximal_mediation_ast()
+        rec = recommend_estimator(ast, n_obs=500)
+        assert rec.strategy is EstimationStrategy.PROXIMAL_MEDIATION
+        assert rec.primary_method_fqn == "causal.proximal.proximal_mediation@1.0.0"
+        assert rec.fallback_method_fqns == ("causal.bounds.bounds_engine@1.0.0",)
+
+    def test_proximal_mediation_compile_emits_template_node(self):
+        ast = _make_proximal_mediation_ast()
+        rec = recommend_estimator(ast, n_obs=500)
+        eg = compile_to_method_dag_nodes(ast, rec, run_id="c3c-1")
+
+        prox_node = next(
+            n for n in eg.nodes if n.method_fqn == "causal.proximal.proximal_mediation"
+        )
+        assert prox_node.params["theorem_family"] == "proximal_mediation_thm1_dukes_2023"
+        assert prox_node.params["oracle_gate"] == "required"
+        assert prox_node.params["target_effect"] == "psi"
+        assert any("sensitivity" in n.method_fqn for n in eg.nodes)
+
+    def test_proximal_mediation_compile_uses_certificate_roles_when_available(self):
+        ast = _make_proximal_mediation_ast()
+        rec = recommend_estimator(ast, n_obs=500)
+        eg = compile_to_method_dag_nodes(
+            ast,
+            rec,
+            run_id="c3c-2",
+            identification_metadata={
+                "oracle_assumptions_accepted": True,
+                "proximal_mediation_certificate": {
+                    "query": {
+                        "treatment": "A",
+                        "mediator": "M",
+                        "outcome": "Y",
+                        "target_effect": "nie",
+                    },
+                    "variable_roles": {
+                        "X": ["X"],
+                        "Z": ["Z"],
+                        "W": ["W"],
+                    },
+                },
+            },
+        )
+
+        prox_node = next(
+            n for n in eg.nodes if n.method_fqn == "causal.proximal.proximal_mediation"
+        )
+        assert prox_node.params["oracle_gate"] == "accepted"
+        assert prox_node.params["target_effect"] == "nie"
+        assert prox_node.params["mediator_name"] == "M"
+        assert prox_node.params["treatment_proxy_names"] == ["Z"]
 
 
 # ---------------------------------------------------------------------------

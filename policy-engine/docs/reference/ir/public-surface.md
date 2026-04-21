@@ -7,7 +7,7 @@ The broad compatibility boundary remains `polisyos.ir`. The package facades
 below serve a different purpose: predictable tooling/discovery imports that do
 not eagerly load whole dependency trees.
 
-Freshness: 2026-04-17
+Freshness: 2026-04-20
 Owner: `@ir-owners`
 Source of truth: `src/polisyos/ir/public_surface.py`, `src/polisyos/ir/__init__.py`, `src/polisyos/ir/analytics/__init__.py`, `src/polisyos/ir/kernel/__init__.py`, `src/polisyos/ir/world/__init__.py`, `tests/ir/test_public_surface.py`
 Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import optimization.
@@ -16,7 +16,7 @@ Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import opti
 
 | Facade | Symbol count | Import policy |
 |--------|--------------|---------------|
-| `polisyos.ir.analytics` | 95 | curated lazy facade |
+| `polisyos.ir.analytics` | 143 | curated lazy facade |
 | `polisyos.ir.kernel` | 52 | full lazy facade |
 | `polisyos.ir.world` | 54 | full lazy facade |
 

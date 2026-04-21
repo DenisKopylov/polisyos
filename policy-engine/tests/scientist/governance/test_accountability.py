@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.calibration import evaluate_binary
 from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
 from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
 from polisyos.scientist.governance.accountability import (
@@ -124,3 +125,30 @@ def test_governance_accountability_artifact_builds_thresholds_frontier_and_escal
     assert summary["requires_human_review"] is True
     assert "threshold_violation:fairness.counterfactual_direct_discrimination_max" in summary["escalation_triggers"]
     assert summary["fairness"]["counterfactual_fairness_satisfied"] is False
+
+
+def test_governance_accountability_prefers_external_calibration_diagnostics(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    external = evaluate_binary(
+        y_true=[1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+        y_prob=[0.80, 0.75, 0.20, 0.15, 0.70, 0.25, 0.30, 0.10],
+        curves={"binning": ["quantile"], "n_bins": [4]},
+    )
+    artifact = build_governance_accountability_artifact(
+        run_id="R_accountability_external_diag",
+        candidate_ref=_candidate_ref("b"),
+        governance_verdict="approve",
+        accountability_input=GovernanceAccountabilityInput(
+            predicted_scores=[0.99, 0.99, 0.99, 0.99, 0.01, 0.01, 0.01, 0.01],
+            observed_outcomes=[1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+            calibration_diagnostics=external,
+        ),
+    )
+
+    assert artifact.calibration is not None
+    assert artifact.calibration.ece == external.metrics.ece
+    assert len(artifact.calibration.reliability_diagram) == 4
+    ref = persist_governance_accountability_artifact(store, artifact)
+    loaded = load_governance_accountability_artifact(store, ref)
+    assert loaded.calibration is not None
+    assert loaded.calibration.ece == external.metrics.ece

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 
 def _method_or_skip(registry, fqn):
@@ -45,3 +44,7 @@ class TestCalibrationDiagnostic:
         }
         result = method.pure_step(state, {})
         assert isinstance(result, dict)
+        report = result["result"]
+        assert report.metrics.n_obs == 5
+        assert report.truthfulness_receipt is not None
+        assert report.truthfulness_receipt.truthfulness_scope == "predictive_calibration"

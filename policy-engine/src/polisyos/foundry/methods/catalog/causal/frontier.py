@@ -28,7 +28,23 @@ from polisyos.foundry.methods.catalog.causal._common import (
 from polisyos.foundry.methods.catalog.causal.density_ratio import compute_scalar_distributional_effect
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 from polisyos.foundry.methods.catalog.causal.treatment_effects import _logistic_propensity
-from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
+from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
+from polisyos.ir.analytics.negative_certificate import (
+    negative_certificate_from_bridge_plausibility_report,
+)
+from polisyos.ir.analytics.partial_identification import (
+    BoundMethod,
+    PartialIdentificationResult,
+    annotate_bounds_bundle_for_proximal_bridge_failure,
+    bounds_bundle_from_partial_identification_result,
+    compute_manski_bounds,
+)
+from polisyos.ir.analytics.proximal import (
+    BridgeFailureMode,
+    BridgeFallbackDisposition,
+    BridgePlausibilityReport,
+    BridgePlausibilitySeverity,
+)
 
 
 def _causal_frontier_output_slots(extra_slot: str) -> frozenset[SlotSpec]:
@@ -38,6 +54,24 @@ def _causal_frontier_output_slots(extra_slot: str) -> frozenset[SlotSpec]:
             SlotSpec("envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
             SlotSpec("warnings", SlotType.SCALAR, Unit("warning", "list")),
             SlotSpec(extra_slot, SlotType.SCALAR, Unit("result", "json")),
+        }
+    )
+
+
+def _proximal_bridge_output_slots() -> frozenset[SlotSpec]:
+    return _causal_frontier_output_slots("proximal_result") | frozenset(
+        {
+            SlotSpec(
+                "bridge_plausibility_report",
+                SlotType.SCALAR,
+                Unit("bridge_plausibility", "json"),
+            ),
+            SlotSpec("bounds_bundle", SlotType.SCALAR, Unit("bounds", "json")),
+            SlotSpec(
+                "negative_certificate",
+                SlotType.SCALAR,
+                Unit("negative_certificate", "json"),
+            ),
         }
     )
 
@@ -189,6 +223,386 @@ def _serialize_distributional_result(result: Any) -> dict[str, Any]:
     return payload
 
 
+def _safe_correlation(left: np.ndarray, right: np.ndarray) -> float:
+    lhs = np.asarray(left, dtype=float).reshape(-1)
+    rhs = np.asarray(right, dtype=float).reshape(-1)
+    if lhs.shape[0] != rhs.shape[0]:
+        return 0.0
+    mask = np.isfinite(lhs) & np.isfinite(rhs)
+    if int(np.sum(mask)) < 3:
+        return 0.0
+    lhs = lhs[mask]
+    rhs = rhs[mask]
+    if float(np.std(lhs)) <= 1.0e-12 or float(np.std(rhs)) <= 1.0e-12:
+        return 0.0
+    return float(np.clip(np.corrcoef(lhs, rhs)[0, 1], -1.0, 1.0))
+
+
+def _standardized_columns(matrix: np.ndarray) -> np.ndarray:
+    arr = np.asarray(matrix, dtype=float)
+    if arr.ndim == 1:
+        arr = arr.reshape(-1, 1)
+    means = np.mean(arr, axis=0)
+    stds = np.std(arr, axis=0)
+    return (arr - means) / np.where(stds > 1.0e-12, stds, 1.0)
+
+
+def _baseline_design(treatment: np.ndarray, covariates: np.ndarray) -> np.ndarray:
+    return np.column_stack([np.ones(treatment.shape[0]), treatment, covariates])
+
+
+def _residualize_on_baseline(
+    values: np.ndarray,
+    baseline: np.ndarray,
+    *,
+    ridge: float,
+) -> np.ndarray:
+    arr = np.asarray(values, dtype=float)
+    if arr.ndim == 1:
+        coef = _weighted_least_squares(baseline, arr, ridge=ridge)
+        return arr - baseline @ coef
+    residuals = np.empty_like(arr, dtype=float)
+    for col in range(arr.shape[1]):
+        coef = _weighted_least_squares(baseline, arr[:, col], ridge=ridge)
+        residuals[:, col] = arr[:, col] - baseline @ coef
+    return residuals
+
+
+def _proxy_sieve_basis(proxy: np.ndarray, *, max_degree: int = 3) -> np.ndarray:
+    centered = np.asarray(proxy, dtype=float).reshape(-1)
+    centered = centered - float(np.mean(centered))
+    columns = [centered ** degree for degree in range(1, max_degree + 1)]
+    return _standardized_columns(np.column_stack(columns))
+
+
+def _bridge_operator_diagnostics(
+    *,
+    treatment: np.ndarray,
+    covariates: np.ndarray,
+    treatment_proxy: np.ndarray,
+    outcome_proxy: np.ndarray,
+    ridge: float,
+) -> tuple[float, float, float, float]:
+    """Approximate proxy-operator completeness with residualized sieve SVD."""
+
+    baseline = _baseline_design(treatment, covariates)
+    z_residual = _residualize_on_baseline(treatment_proxy, baseline, ridge=ridge)
+    w_residual = _residualize_on_baseline(outcome_proxy, baseline, ridge=ridge)
+    proxy_association = abs(_safe_correlation(z_residual, w_residual))
+
+    z_basis = _residualize_on_baseline(_proxy_sieve_basis(treatment_proxy), baseline, ridge=ridge)
+    w_basis = _residualize_on_baseline(_proxy_sieve_basis(outcome_proxy), baseline, ridge=ridge)
+    z_basis = _standardized_columns(z_basis)
+    w_basis = _standardized_columns(w_basis)
+    if z_basis.shape[0] == 0 or w_basis.shape[0] == 0:
+        return 0.0, 0.0, float("inf"), proxy_association
+
+    cross_operator = z_basis.T @ w_basis / max(1, int(z_basis.shape[0]))
+    singular_values = np.linalg.svd(cross_operator, compute_uv=False)
+    finite_values = singular_values[np.isfinite(singular_values)]
+    if finite_values.size == 0:
+        return 0.0, 0.0, float("inf"), proxy_association
+    max_sigma = float(np.max(finite_values))
+    threshold = max(1.0e-4, 1.0e-3 * max_sigma)
+    effective_rank = float(np.sum(finite_values > threshold))
+    positive = finite_values[finite_values > threshold]
+    sigma_min = float(np.min(positive)) if positive.size else 0.0
+    ill_posedness = (
+        float(max_sigma / sigma_min)
+        if sigma_min > 1.0e-12
+        else float("inf")
+    )
+    return effective_rank, sigma_min, ill_posedness, proxy_association
+
+
+def _bridge_equation_residual(
+    *,
+    outcome: np.ndarray,
+    treatment: np.ndarray,
+    covariates: np.ndarray,
+    treatment_proxy: np.ndarray,
+    outcome_proxy: np.ndarray,
+    ridge: float,
+    seed: int,
+) -> float:
+    """Out-of-sample normalized residual for E[Y|Z,A,X] = E[h(W,A,X)|Z,A,X]."""
+
+    n_obs = outcome.shape[0]
+    rng = np.random.default_rng(seed)
+    order = rng.permutation(n_obs)
+    test_size = max(15, round(0.25 * n_obs))
+    test_idx = order[:test_size]
+    train_idx = order[test_size:]
+    if train_idx.size < max(20, covariates.shape[1] + 6):
+        train_idx = order
+        test_idx = order
+
+    train_x = covariates[train_idx]
+    test_x = covariates[test_idx]
+    m_train = np.column_stack(
+        [
+            np.ones(train_idx.size),
+            treatment[train_idx],
+            train_x,
+            treatment_proxy[train_idx],
+        ]
+    )
+    m_test = np.column_stack(
+        [
+            np.ones(test_idx.size),
+            treatment[test_idx],
+            test_x,
+            treatment_proxy[test_idx],
+        ]
+    )
+    m_coef = _weighted_least_squares(m_train, outcome[train_idx], ridge=ridge)
+    m_pred = m_test @ m_coef
+
+    proxy_train = m_train
+    proxy_test = m_test
+    proxy_coef = _weighted_least_squares(proxy_train, outcome_proxy[train_idx], ridge=ridge)
+    expected_w = proxy_test @ proxy_coef
+
+    bridge_train = np.column_stack(
+        [
+            np.ones(train_idx.size),
+            treatment[train_idx],
+            train_x,
+            outcome_proxy[train_idx],
+        ]
+    )
+    bridge_coef = _weighted_least_squares(bridge_train, outcome[train_idx], ridge=ridge)
+    bridge_test = np.column_stack(
+        [
+            np.ones(test_idx.size),
+            treatment[test_idx],
+            test_x,
+            expected_w,
+        ]
+    )
+    bridge_pred = bridge_test @ bridge_coef
+
+    residual = float(np.mean((m_pred - bridge_pred) ** 2))
+    scale = float(np.var(m_pred))
+    if scale <= 1.0e-12:
+        scale = float(np.var(outcome[test_idx]))
+    if scale <= 1.0e-12:
+        scale = 1.0
+    return max(0.0, residual / scale)
+
+
+def _bridge_residual_interval(
+    *,
+    outcome: np.ndarray,
+    treatment: np.ndarray,
+    covariates: np.ndarray,
+    treatment_proxy: np.ndarray,
+    outcome_proxy: np.ndarray,
+    ridge: float,
+    seed: int,
+    n_splits: int,
+) -> tuple[float, tuple[float, float]]:
+    residuals = np.array(
+        [
+            _bridge_equation_residual(
+                outcome=outcome,
+                treatment=treatment,
+                covariates=covariates,
+                treatment_proxy=treatment_proxy,
+                outcome_proxy=outcome_proxy,
+                ridge=ridge,
+                seed=seed + 7919 * split,
+            )
+            for split in range(max(3, n_splits))
+        ],
+        dtype=float,
+    )
+    residuals = residuals[np.isfinite(residuals)]
+    if residuals.size == 0:
+        return 1.0e12, (1.0e12, 1.0e12)
+    center = float(np.median(residuals))
+    lower, upper = np.percentile(residuals, [5.0, 95.0])
+    return center, (float(lower), float(upper))
+
+
+def _build_bridge_plausibility_report(
+    *,
+    outcome: np.ndarray,
+    treatment: np.ndarray,
+    covariates: np.ndarray,
+    treatment_proxy: np.ndarray,
+    outcome_proxy: np.ndarray,
+    ridge: float,
+    seed: int,
+    n_residual_splits: int = 12,
+) -> BridgePlausibilityReport:
+    residual_r, residual_interval = _bridge_residual_interval(
+        outcome=outcome,
+        treatment=treatment,
+        covariates=covariates,
+        treatment_proxy=treatment_proxy,
+        outcome_proxy=outcome_proxy,
+        ridge=ridge,
+        seed=seed,
+        n_splits=n_residual_splits,
+    )
+    effective_rank, sigma_min, ill_posedness, proxy_association = _bridge_operator_diagnostics(
+        treatment=treatment,
+        covariates=covariates,
+        treatment_proxy=treatment_proxy,
+        outcome_proxy=outcome_proxy,
+        ridge=ridge,
+    )
+
+    severity = BridgePlausibilitySeverity.GREEN
+    failure_mode = BridgeFailureMode.NONE
+    bridge_supported = True
+    completeness_plausible = True
+    reasons: list[str] = []
+
+    if not np.isfinite(residual_r) or residual_r >= 0.75:
+        severity = BridgePlausibilitySeverity.RED
+        failure_mode = BridgeFailureMode.INFEASIBLE_EQUATION
+        bridge_supported = False
+        reasons.append("bridge_equation_residual_large")
+    elif residual_r >= 0.35:
+        severity = BridgePlausibilitySeverity.YELLOW
+        failure_mode = BridgeFailureMode.ILL_POSED
+        reasons.append("bridge_equation_residual_elevated")
+
+    if proxy_association < 0.03 or effective_rank < 1.0:
+        severity = BridgePlausibilitySeverity.RED
+        if failure_mode is BridgeFailureMode.NONE:
+            failure_mode = BridgeFailureMode.WEAK_COMPLETENESS
+        completeness_plausible = False
+        reasons.append("proxy_association_or_effective_rank_too_low")
+    elif proxy_association < 0.10 or effective_rank < 2.0:
+        if severity is BridgePlausibilitySeverity.GREEN:
+            severity = BridgePlausibilitySeverity.YELLOW
+        if failure_mode is BridgeFailureMode.NONE:
+            failure_mode = BridgeFailureMode.WEAK_COMPLETENESS
+        completeness_plausible = False
+        reasons.append("proxy_association_or_effective_rank_weak")
+
+    if not np.isfinite(ill_posedness) or ill_posedness >= 1000.0 or sigma_min < 1.0e-6:
+        if severity is BridgePlausibilitySeverity.GREEN:
+            severity = BridgePlausibilitySeverity.YELLOW
+        if failure_mode is BridgeFailureMode.NONE:
+            failure_mode = BridgeFailureMode.ILL_POSED
+        reasons.append("bridge_operator_ill_posed")
+    elif ill_posedness >= 100.0 or sigma_min < 1.0e-3:
+        if severity is BridgePlausibilitySeverity.GREEN:
+            severity = BridgePlausibilitySeverity.YELLOW
+        if failure_mode is BridgeFailureMode.NONE:
+            failure_mode = BridgeFailureMode.ILL_POSED
+        reasons.append("bridge_operator_nearly_singular")
+
+    if failure_mode is BridgeFailureMode.NONE:
+        reasons.append("bridge_equation_residual_and_proxy_operator_passed")
+
+    return BridgePlausibilityReport(
+        equation_type="outcome_bridge",
+        residual_r=float(residual_r),
+        residual_interval=residual_interval,
+        effective_rank=float(effective_rank),
+        sigma_min=float(sigma_min),
+        ill_posedness_index=(
+            float(ill_posedness) if np.isfinite(ill_posedness) else None
+        ),
+        proxy_association_score=float(proxy_association),
+        bridge_existence_supported=bridge_supported,
+        completeness_plausible=completeness_plausible,
+        functional_invariant_to_nonuniqueness=True,
+        suspected_failure_mode=failure_mode,
+        severity=severity,
+        reasons=tuple(reasons),
+        recommended_bounds_methods=(
+            "manski_bounds",
+            "sensitivity_bounds",
+            "iv_bounds_if_available",
+        ),
+        recommended_rescue_actions=(
+            "add_an_independent_outcome_proxy",
+            "add_an_independent_treatment_proxy",
+            "expand_proxy_support_before_estimating_proximal_effects",
+        ),
+        metadata={
+            "diagnostic_basis": "residualized_polynomial_sieve_svd",
+            "residual_scale": "out_of_sample_conditional_mean_variance",
+            "residual_splits": int(max(3, n_residual_splits)),
+        },
+    )
+
+
+def _bridge_diagnostic_tests(report: BridgePlausibilityReport) -> list[DiagnosticTest]:
+    summary = report.to_summary_dict()
+    return [
+        DiagnosticTest(
+            test_name="proximal_bridge_equation_residual",
+            statistic=report.residual_r,
+            passed=report.bridge_existence_supported is not False,
+            details=summary,
+        ),
+        DiagnosticTest(
+            test_name="proximal_proxy_association",
+            statistic=report.proxy_association_score,
+            passed=(
+                report.proxy_association_score is not None
+                and report.proxy_association_score >= 0.03
+            ),
+            details=summary,
+        ),
+        DiagnosticTest(
+            test_name="proximal_operator_effective_rank",
+            statistic=report.effective_rank,
+            passed=report.completeness_plausible is not False,
+            details=summary,
+        ),
+    ]
+
+
+def _proximal_manski_fallback(
+    *,
+    outcome: np.ndarray,
+    treatment: np.ndarray,
+) -> PartialIdentificationResult:
+    y = np.asarray(outcome, dtype=float).reshape(-1)
+    a = np.asarray(treatment, dtype=float).reshape(-1)
+    y_min = float(np.min(y))
+    y_max = float(np.max(y))
+    if not np.isfinite(y_min) or not np.isfinite(y_max) or abs(y_max - y_min) <= 1.0e-12:
+        y_min, y_max = -1.0, 1.0
+    treated = y[a == 1.0]
+    control = y[a == 0.0]
+    if treated.size == 0 or control.size == 0:
+        span = max(float(y_max - y_min), 1.0)
+        return PartialIdentificationResult(
+            method=BoundMethod.MANSKI,
+            lower_bound=-span,
+            upper_bound=span,
+            confidence=0.0,
+            assumptions_used=["bounded_outcome_support", "proximal_bridge_diagnostic_failed"],
+            bounds_type="manski",
+            display_label="Worst-case proximal fallback bounds",
+        )
+
+    result = compute_manski_bounds(
+        outcome_conditioned=np.array([np.mean(control), np.mean(treated)], dtype=float),
+        treatment_probs=np.array([np.mean(a == 0.0), np.mean(a == 1.0)], dtype=float),
+        outcome_support=(y_min, y_max),
+    )
+    return result.model_copy(
+        update={
+            "assumptions_used": [
+                *result.assumptions_used,
+                "bounded_outcome_support",
+                "proximal_bridge_diagnostic_failed",
+            ],
+            "display_label": "Manski fallback after proximal bridge diagnostic",
+        }
+    )
+
+
 @foundry_method(
     namespace="causal.proximal",
     version="1.0.0",
@@ -213,7 +627,7 @@ class ProximalBridgeEstimator:
                 SlotSpec("outcome_proxy", SlotType.VECTOR, Unit("proxy", "value"), shape=("n_obs",)),
             }
         ),
-        output_slots=_causal_frontier_output_slots("proximal_result"),
+        output_slots=_proximal_bridge_output_slots(),
         parameters=(
             ParameterSpec("n_bootstrap", default=200, bounds=(50, 1000)),
             ParameterSpec("confidence_level", default=0.95, bounds=(0.8, 0.99)),
@@ -279,6 +693,7 @@ class ProximalBridgeEstimator:
             return wrap_causal_output(report, warnings=[report.status_reason or "input invalid"], extras={"proximal_result": None})
 
         ridge = float(params.get("ridge", 1.0e-4))
+        seed = int(params.get("__seed__", 0))
         x = np.asarray(covariates, dtype=float)
         z = treatment_proxy[:, None]
         w = outcome_proxy
@@ -318,6 +733,80 @@ class ProximalBridgeEstimator:
         denom = float(np.sum((outcome - np.mean(outcome)) ** 2))
         bridge_r2 = 1.0 - float(np.sum((outcome - bridge_pred) ** 2)) / denom if denom > 1.0e-12 else 0.0
         proxy_strength = float(abs(np.corrcoef(treatment_proxy, outcome_proxy)[0, 1])) if np.std(treatment_proxy) > 1.0e-12 and np.std(outcome_proxy) > 1.0e-12 else 0.0
+        bridge_report = _build_bridge_plausibility_report(
+            outcome=outcome,
+            treatment=treatment,
+            covariates=x,
+            treatment_proxy=treatment_proxy,
+            outcome_proxy=outcome_proxy,
+            ridge=ridge,
+            seed=seed,
+            n_residual_splits=int(params.get("bridge_residual_splits", 12) or 12),
+        )
+        bridge_report_payload = bridge_report.model_dump(mode="json")
+        bridge_diagnostics = _bridge_diagnostic_tests(bridge_report)
+        fallback_disposition = bridge_report.fallback_disposition
+        if fallback_disposition in {
+            BridgeFallbackDisposition.BLOCK_POINT_ESTIMATE,
+            BridgeFallbackDisposition.REQUIRE_BOUNDS,
+        }:
+            partial_bounds = _proximal_manski_fallback(
+                outcome=outcome,
+                treatment=treatment,
+            )
+            bounds_bundle = bounds_bundle_from_partial_identification_result(
+                partial_bounds,
+                estimand_type="ate",
+                metadata={"source": "proximal_bridge_plausibility_fallback"},
+            )
+            bounds_bundle = annotate_bounds_bundle_for_proximal_bridge_failure(
+                bounds_bundle,
+                bridge_report,
+            )
+            negative_certificate = negative_certificate_from_bridge_plausibility_report(
+                bridge_report,
+                estimand_type="ate",
+                bounds_bundle=bounds_bundle,
+                missing_vars=("additional_treatment_proxy", "additional_outcome_proxy"),
+            )
+            reason = (
+                "proximal_bridge_equation_infeasible"
+                if bridge_report.suspected_failure_mode is BridgeFailureMode.INFEASIBLE_EQUATION
+                else "proximal_bridge_completeness_or_stability_requires_bounds"
+            )
+            report = build_failure_report(
+                method=CausalMethod.PROXIMAL_BRIDGE,
+                status=EstimationStatus.ASSUMPTION_FAILED,
+                reason=reason,
+                estimand="proximal_ate",
+                sample_size=n_obs,
+                n_treated=int(np.sum(treatment == 1)),
+                n_control=int(np.sum(treatment == 0)),
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(ProximalBridgeEstimator.metadata.assumptions),
+                diagnostics=bridge_diagnostics,
+                metadata={
+                    "bridge_r_squared": float(bridge_r2),
+                    "proxy_strength": float(proxy_strength),
+                    "bridge_plausibility_report": bridge_report_payload,
+                    "bridge_plausibility_severity": bridge_report.severity.value,
+                    "bridge_failure_mode": bridge_report.suspected_failure_mode.value,
+                    "bridge_fallback_disposition": (
+                        fallback_disposition.value if fallback_disposition is not None else None
+                    ),
+                },
+            )
+            return wrap_causal_output(
+                report,
+                warnings=list(bounds_bundle.warnings),
+                extras={
+                    "proximal_result": None,
+                    "bridge_plausibility_report": bridge_report_payload,
+                    "bounds_bundle": bounds_bundle.model_dump(mode="json"),
+                    "negative_certificate": negative_certificate.model_dump(mode="json"),
+                },
+            )
 
         report = build_success_report(
             method=CausalMethod.PROXIMAL_BRIDGE,
@@ -332,18 +821,48 @@ class ProximalBridgeEstimator:
             pre_periods=0,
             post_periods=0,
             assumptions=dict(ProximalBridgeEstimator.metadata.assumptions),
-            metadata={"bridge_r_squared": bridge_r2, "proxy_strength": proxy_strength},
+            diagnostics=bridge_diagnostics,
+            metadata={
+                "bridge_r_squared": bridge_r2,
+                "proxy_strength": proxy_strength,
+                "bridge_plausibility_report": bridge_report_payload,
+                "bridge_plausibility_severity": bridge_report.severity.value,
+                "bridge_failure_mode": bridge_report.suspected_failure_mode.value,
+                "bridge_fallback_disposition": (
+                    fallback_disposition.value if fallback_disposition is not None else None
+                ),
+            },
         )
         proximal_result = {
             "point_estimate": point_estimate,
             "confidence_interval": [float(confidence_interval[0]), float(confidence_interval[1])],
             "bridge_r_squared": float(bridge_r2),
             "proxy_strength": float(proxy_strength),
+            "bridge_plausibility_report": bridge_report_payload,
+            "bridge_plausibility_severity": bridge_report.severity.value,
+            "bridge_failure_mode": bridge_report.suspected_failure_mode.value,
+            "bridge_fallback_disposition": (
+                fallback_disposition.value if fallback_disposition is not None else None
+            ),
             "bridge_coefficients": [float(value) for value in bridge_coef.tolist()],
             "proxy_model_coefficients": [float(value) for value in proxy_coef.tolist()],
             "effect_std": float(np.std(effect, ddof=1)) if effect.shape[0] > 1 else 0.0,
         }
-        return wrap_causal_output(report, extras={"proximal_result": proximal_result})
+        warnings = (
+            ["proximal_bridge_plausibility_warning"]
+            if fallback_disposition is BridgeFallbackDisposition.PROCEED_WITH_WARNING
+            else []
+        )
+        return wrap_causal_output(
+            report,
+            warnings=warnings,
+            extras={
+                "proximal_result": proximal_result,
+                "bridge_plausibility_report": bridge_report_payload,
+                "bounds_bundle": None,
+                "negative_certificate": None,
+            },
+        )
 
 
 @foundry_method(

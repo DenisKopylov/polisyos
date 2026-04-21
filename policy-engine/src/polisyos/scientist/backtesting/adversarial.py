@@ -410,7 +410,8 @@ def _resolve_strategic_summary(
                 summary["selected_equilibrium"] = dict(selected.selected_equilibrium)
             if bundle.performative_shift_ref is not None:
                 performative_shift = load_performative_shift_summary(store, bundle.performative_shift_ref)
-                summary["performative_shift"] = float(performative_shift.performative_shift)
+                if performative_shift.performative_shift is not None:
+                    summary["performative_shift"] = float(performative_shift.performative_shift)
             post_value = load_post_adaptation_policy_value_summary(
                 store,
                 bundle.post_adaptation_policy_value_ref,

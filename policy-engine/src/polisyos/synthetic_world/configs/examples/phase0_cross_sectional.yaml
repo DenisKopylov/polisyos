@@ -1,0 +1,25 @@
+world_id: sw.phase0.cross_sectional.calibrated.v1
+family: cross_sectional
+seed: 20260421
+n_units: 180
+n_features: 4
+missingness:
+  mechanism: mar
+  rate: 0.07
+  strength: 0.9
+  targets:
+    - outcome
+    - feature_0
+measurement:
+  kind: classical_additive
+  scale: 0.08
+  targets:
+    - outcome
+    - feature_0
+    - feature_1
+sampling:
+  kind: bernoulli
+  inclusion_rate: 0.85
+metadata:
+  phase: phase0
+  calibrated_world: true

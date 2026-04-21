@@ -1,18 +1,22 @@
 """independence_tests — conditional independence tests as falsification hints.
 
-Three methods for detecting gross violations of (conditional) independence
+Four methods for detecting gross violations of (conditional) independence
 in causal identification pipelines:
 
 * **HSICIndependenceTest**: Hilbert-Schmidt Independence Criterion with
   bootstrap permutation null — tests marginal independence X ⊥ Y.
 * **KCIConditionalTest**: Kernel Conditional Independence via residualization
   — tests conditional independence X ⊥ Y | Z.
+* **CategoricalConditionalIndependenceTest**: G²/χ² conditional independence
+  test for categorical variables, optionally stratified by categorical Z.
 * **PartialCorrelationTest**: Partial correlation via OLS residuals with
   Fisher z-transform — fast linear CI test.
 
-All three return a unified dict with test_name, statistic, p_value, passed,
-critical_value, and metadata.  They are "falsification hints" — a rejection
-flags a gross violation, non-rejection does not prove independence.
+All methods return a unified dict with test_name, statistic, p_value, passed,
+critical_value, and metadata. They are "falsification hints" — a rejection
+flags a gross violation, non-rejection does not prove independence. Kernel and
+categorical families additionally support DP-aware calibration via
+``polisyos.foundry.calibration.dp_ci``.
 """
 
 from __future__ import annotations
@@ -23,6 +27,12 @@ from typing import Any, ClassVar, Mapping
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.calibration.dp_ci import (
+    calibrate_discrete_ci,
+    calibrate_kernel_ci,
+    coerce_dp_context,
+    resolve_ci_threshold_policy,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -141,6 +151,100 @@ def _bootstrap_hsic_null(
     return np.array(null_stats, dtype=float)
 
 
+def _is_missing_value(value: object) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, (float, np.floating)):
+        return not math.isfinite(float(value))
+    return False
+
+
+def _complete_case_mask_generic(columns: list[np.ndarray]) -> np.ndarray:
+    if not columns:
+        raise ValueError("at least one column is required")
+    mask = np.ones(len(columns[0]), dtype=bool)
+    for column in columns:
+        arr = np.asarray(column, dtype=object).reshape(-1)
+        if len(arr) != len(mask):
+            raise ValueError("all columns must have the same length")
+        mask &= np.array([not _is_missing_value(item) for item in arr], dtype=bool)
+    return mask
+
+
+def _build_contingency_table(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    x_labels, x_codes = np.unique(np.asarray(x, dtype=object).astype(str), return_inverse=True)
+    y_labels, y_codes = np.unique(np.asarray(y, dtype=object).astype(str), return_inverse=True)
+    table = np.zeros((len(x_labels), len(y_labels)), dtype=float)
+    np.add.at(table, (x_codes, y_codes), 1.0)
+    return table
+
+
+def _categorical_tables(
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray | None = None,
+) -> tuple[list[np.ndarray], dict[str, Any]]:
+    if z is None:
+        return [_build_contingency_table(x, y)], {"valid_strata": 1, "skipped_strata": 0}
+
+    z_arr = np.asarray(z, dtype=object)
+    if z_arr.ndim == 1:
+        z_arr = z_arr[:, None]
+
+    strata: dict[tuple[str, ...], list[int]] = {}
+    for idx, row in enumerate(z_arr):
+        strata.setdefault(tuple(np.asarray(row, dtype=object).astype(str).tolist()), []).append(idx)
+
+    tables: list[np.ndarray] = []
+    skipped = 0
+    for indices in strata.values():
+        table = _build_contingency_table(x[indices], y[indices])
+        if table.shape[0] < 2 or table.shape[1] < 2:
+            skipped += 1
+            continue
+        tables.append(table)
+    return tables, {"valid_strata": len(tables), "skipped_strata": skipped}
+
+
+def _result_payload(
+    *,
+    test_name: str,
+    observed: float,
+    calibration: Any,
+    metadata: dict[str, Any],
+) -> dict[str, Any]:
+    passed = bool(float(observed) <= float(calibration.critical_statistic_value))
+    payload_metadata = dict(metadata)
+    payload_metadata.update(dict(calibration.null_summary))
+    if calibration.sample_size_requirement is not None:
+        payload_metadata["sample_size_requirement"] = calibration.sample_size_requirement.model_dump(
+            mode="json"
+        )
+    if calibration.threshold_policy.threshold_scope:
+        payload_metadata["threshold_registry_scope"] = dict(calibration.threshold_policy.threshold_scope)
+    if calibration.threshold_policy.threshold_registry_version is not None:
+        payload_metadata["threshold_registry_version"] = calibration.threshold_policy.threshold_registry_version
+    return {
+        "result": {
+            "test_name": test_name,
+            "statistic": float(observed),
+            "p_value": float(calibration.p_value),
+            "passed": passed,
+            "critical_value": float(calibration.alpha),
+            "alpha": float(calibration.alpha),
+            "critical_statistic_value": float(calibration.critical_statistic_value),
+            "calibration_mode": calibration.calibration_mode,
+            "dp_context_summary": calibration.dp_context_summary,
+            "naive_fpr_inflation_bound": (
+                None
+                if calibration.naive_fpr_inflation_bound is None
+                else calibration.naive_fpr_inflation_bound.model_dump(mode="json")
+            ),
+            "metadata": payload_metadata,
+        }
+    }
+
+
 # ---------------------------------------------------------------------------
 # Methods
 # ---------------------------------------------------------------------------
@@ -182,6 +286,9 @@ class HSICIndependenceTest:
             ParameterSpec(name="n_bootstrap", default=200),
             ParameterSpec(name="alpha", default=0.05),
             ParameterSpec(name="bandwidth", default="median"),
+            ParameterSpec(name="dp_context", default=None),
+            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="readiness_target", default="diagnostic"),
         ),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
@@ -236,8 +343,21 @@ class HSICIndependenceTest:
         if n != Y.shape[0]:
             raise ValueError("HSICIndependenceTest: X and Y must have the same number of rows")
 
-        n_bootstrap: int = int(params.get("n_bootstrap", 200))
-        alpha: float = float(params.get("alpha", 0.05))
+        requested_bootstrap = int(params.get("n_bootstrap", 200))
+        requested_alpha = float(params.get("alpha", 0.05))
+        dp_context = coerce_dp_context(params.get("dp_context"))
+        threshold_policy = resolve_ci_threshold_policy(
+            family="kernel_ci",
+            query_type="hsic",
+            estimator="permutation",
+            dp_context=dp_context,
+            registry_root=params.get("judge_threshold_registry_root"),
+            alpha=requested_alpha,
+            n_bootstrap=requested_bootstrap,
+            readiness_target=str(params.get("readiness_target", "diagnostic")),
+        )
+        n_bootstrap = int(threshold_policy.mc_bootstrap_B)
+        alpha = float(threshold_policy.alpha_base)
         bandwidth_param = params.get("bandwidth", "median")
 
         if bandwidth_param == "median":
@@ -253,26 +373,27 @@ class HSICIndependenceTest:
 
         rng = np.random.default_rng(0)
         null_dist = _bootstrap_hsic_null(Kx, Ky, n_bootstrap=n_bootstrap, rng=rng)
-        p_value = float(np.mean(null_dist >= observed))
-        passed = bool(p_value >= alpha)
+        calibration = calibrate_kernel_ci(
+            observed=float(observed),
+            null_distribution=null_dist,
+            n_obs=n,
+            alpha=alpha,
+            dp_context=dp_context,
+            threshold_policy=threshold_policy,
+            dims=max(X.shape[1] + Y.shape[1], 1),
+        )
 
-        return {
-            "result": {
-                "test_name": "hsic",
-                "statistic": float(observed),
-                "p_value": p_value,
-                "passed": passed,
-                "critical_value": alpha,
-                "metadata": {
-                    "n_obs": n,
-                    "n_bootstrap": n_bootstrap,
-                    "bandwidth_x": bw_x,
-                    "bandwidth_y": bw_y,
-                    "null_mean": float(np.mean(null_dist)),
-                    "null_std": float(np.std(null_dist)),
-                },
-            }
-        }
+        return _result_payload(
+            test_name="hsic",
+            observed=float(observed),
+            calibration=calibration,
+            metadata={
+                "n_obs": n,
+                "n_bootstrap": n_bootstrap,
+                "bandwidth_x": bw_x,
+                "bandwidth_y": bw_y,
+            },
+        )
 
 
 @foundry_method(
@@ -312,6 +433,9 @@ class KCIConditionalTest:
             ParameterSpec(name="n_bootstrap", default=200),
             ParameterSpec(name="alpha", default=0.05),
             ParameterSpec(name="ridge", default=1e-3),
+            ParameterSpec(name="dp_context", default=None),
+            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="readiness_target", default="diagnostic"),
         ),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
@@ -380,8 +504,21 @@ class KCIConditionalTest:
         if not (Y.shape[0] == n and Z.shape[0] == n):
             raise ValueError("KCIConditionalTest: X, Y, Z must have the same number of rows")
 
-        n_bootstrap: int = int(params.get("n_bootstrap", 200))
-        alpha: float = float(params.get("alpha", 0.05))
+        requested_bootstrap = int(params.get("n_bootstrap", 200))
+        requested_alpha = float(params.get("alpha", 0.05))
+        dp_context = coerce_dp_context(params.get("dp_context"))
+        threshold_policy = resolve_ci_threshold_policy(
+            family="kernel_ci",
+            query_type="kci",
+            estimator="residualized_hsic",
+            dp_context=dp_context,
+            registry_root=params.get("judge_threshold_registry_root"),
+            alpha=requested_alpha,
+            n_bootstrap=requested_bootstrap,
+            readiness_target=str(params.get("readiness_target", "diagnostic")),
+        )
+        n_bootstrap = int(threshold_policy.mc_bootstrap_B)
+        alpha = float(threshold_policy.alpha_base)
         ridge: float = float(params.get("ridge", 1e-3))
 
         bw_z = _median_bandwidth(Z)
@@ -397,26 +534,187 @@ class KCIConditionalTest:
         observed = _hsic_statistic(Kx, Ky)
         rng = np.random.default_rng(0)
         null_dist = _bootstrap_hsic_null(Kx, Ky, n_bootstrap=n_bootstrap, rng=rng)
-        p_value = float(np.mean(null_dist >= observed))
-        passed = bool(p_value >= alpha)
+        calibration = calibrate_kernel_ci(
+            observed=float(observed),
+            null_distribution=null_dist,
+            n_obs=n,
+            alpha=alpha,
+            dp_context=dp_context,
+            threshold_policy=threshold_policy,
+            dims=max(X.shape[1] + Y.shape[1] + Z.shape[1], 1),
+        )
 
-        return {
-            "result": {
-                "test_name": "kci",
-                "statistic": float(observed),
-                "p_value": p_value,
-                "passed": passed,
-                "critical_value": alpha,
-                "metadata": {
-                    "n_obs": n,
-                    "n_bootstrap": n_bootstrap,
-                    "bandwidth_z": bw_z,
-                    "bandwidth_residuals": bw_res,
-                    "ridge": ridge,
-                    "null_mean": float(np.mean(null_dist)),
-                },
+        return _result_payload(
+            test_name="kci",
+            observed=float(observed),
+            calibration=calibration,
+            metadata={
+                "n_obs": n,
+                "n_bootstrap": n_bootstrap,
+                "bandwidth_z": bw_z,
+                "bandwidth_residuals": bw_res,
+                "ridge": ridge,
+            },
+        )
+
+
+@foundry_method(
+    namespace="causal.diagnostics.independence",
+    version="1.0.0",
+    tags={
+        "causal",
+        "diagnostics",
+        "independence",
+        "categorical",
+        "g-test",
+        "chi-square",
+        "cross-section",
+    },
+)
+class CategoricalConditionalIndependenceTest:
+    """Categorical CI test using G² or Pearson χ² with optional DP calibration."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="categorical_ci",
+        namespace="",
+        version="0.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec("X", SlotType.VECTOR, Unit("covariate", "category"), shape=("n_obs",)),
+                SlotSpec("Y", SlotType.VECTOR, Unit("covariate", "category"), shape=("n_obs",)),
+                SlotSpec("Z", SlotType.MATRIX, Unit("covariate", "category"), shape=("n_obs", "r")),
             }
-        }
+        ),
+        output_slots=frozenset(
+            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
+        ),
+        parameters=(
+            ParameterSpec(name="alpha", default=0.05),
+            ParameterSpec(name="statistic_family", default="g2"),
+            ParameterSpec(name="n_bootstrap", default=2000),
+            ParameterSpec(name="dp_context", default=None),
+            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="readiness_target", default="diagnostic"),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Categorical CI test using stratified G² or Pearson χ² statistics, "
+            "with DP-aware threshold correction for privatized count releases."
+        ),
+        tags=frozenset(
+            {
+                "causal",
+                "diagnostics",
+                "independence",
+                "categorical",
+                "g-test",
+                "chi-square",
+                "falsification",
+            }
+        ),
+        citations=(
+            "Dwork, C. and Roth, A. (2014). The Algorithmic Foundations of Differential Privacy.",
+            "Gaboardi, M. et al. (2016). Differentially private chi-squared hypothesis testing.",
+        ),
+        equations={
+            "g2": "G² = 2 Σ O_ij log(O_ij / E_ij)",
+            "chi2": "χ² = Σ (O_ij - E_ij)² / E_ij",
+            "conditional": "T(X,Y|Z) = Σ_z T(X,Y ; Z=z)",
+        },
+        determinism_tier=DeterminismTier.STATISTICAL,
+        required_deps=("numpy", "scipy"),
+        when_to_use=(
+            "Check categorical independence or conditional independence, including "
+            "DP-noised contingency-table releases."
+        ),
+        when_not_to_use=(
+            "Not suitable for continuous variables. Use HSIC/KCI or partial correlation "
+            "for continuous settings."
+        ),
+        typical_min_obs=30,
+        output_interpretation=(
+            "passed=True means the categorical CI constraint is not rejected at the calibrated alpha. "
+            "passed=False flags a categorical dependence incompatible with the assumed graph."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        X = np.asarray(state["X"], dtype=object).reshape(-1)
+        Y = np.asarray(state["Y"], dtype=object).reshape(-1)
+        Z_raw = state.get("Z")
+
+        if len(X) != len(Y):
+            raise ValueError(
+                "CategoricalConditionalIndependenceTest: X and Y must have the same length"
+            )
+
+        requested_alpha = float(params.get("alpha", 0.05))
+        requested_bootstrap = int(params.get("n_bootstrap", 2000))
+        statistic_family = str(params.get("statistic_family", "g2")).strip().lower()
+        if statistic_family not in {"g2", "chi2"}:
+            raise ValueError("statistic_family must be either 'g2' or 'chi2'")
+
+        z_arr: np.ndarray | None
+        columns = [X, Y]
+        if Z_raw is None:
+            z_arr = None
+        else:
+            z_arr = np.asarray(Z_raw, dtype=object)
+            if z_arr.ndim == 1:
+                z_arr = z_arr[:, None]
+            if z_arr.shape[0] != len(X):
+                raise ValueError(
+                    "CategoricalConditionalIndependenceTest: Z must have the same number of rows as X/Y"
+                )
+            columns.extend(z_arr[:, idx] for idx in range(z_arr.shape[1]))
+
+        mask = _complete_case_mask_generic(columns)
+        x_obs = X[mask]
+        y_obs = Y[mask]
+        z_obs = None if z_arr is None else z_arr[mask]
+        dp_context = coerce_dp_context(params.get("dp_context"))
+        threshold_policy = resolve_ci_threshold_policy(
+            family="categorical_ci",
+            query_type=statistic_family,
+            estimator="stratified_counts",
+            dp_context=dp_context,
+            registry_root=params.get("judge_threshold_registry_root"),
+            alpha=requested_alpha,
+            n_bootstrap=requested_bootstrap,
+            readiness_target=str(params.get("readiness_target", "diagnostic")),
+        )
+        tables, table_meta = _categorical_tables(x_obs, y_obs, z_obs)
+        observed, observed_meta, calibration = calibrate_discrete_ci(
+            tables=tables,
+            alpha=float(threshold_policy.alpha_base),
+            statistic_family=statistic_family,  # type: ignore[arg-type]
+            dp_context=dp_context,
+            threshold_policy=threshold_policy,
+        )
+
+        return _result_payload(
+            test_name="categorical_ci",
+            observed=float(observed),
+            calibration=calibration,
+            metadata={
+                "n_obs": int(mask.sum()),
+                "statistic_family": statistic_family,
+                **table_meta,
+                **observed_meta,
+            },
+        )
 
 
 @foundry_method(
@@ -452,6 +750,7 @@ class PartialCorrelationTest:
         ),
         parameters=(
             ParameterSpec(name="alpha", default=0.05),
+            ParameterSpec(name="dp_context", default=None),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
@@ -496,6 +795,7 @@ class PartialCorrelationTest:
         X = np.asarray(state["X"], dtype=float).ravel()
         Y = np.asarray(state["Y"], dtype=float).ravel()
         Z_raw = state.get("Z")
+        dp_context = coerce_dp_context(params.get("dp_context"))
 
         n = len(X)
         if len(Y) != n:
@@ -525,7 +825,19 @@ class PartialCorrelationTest:
                     "p_value": 1.0,
                     "passed": True,
                     "critical_value": alpha,
-                    "metadata": {"n_obs": n, "partial_corr": 0.0, "note": "zero variance"},
+                    "metadata": {
+                        "n_obs": n,
+                        "partial_corr": 0.0,
+                        "note": "zero variance",
+                        **(
+                            {}
+                            if dp_context is None
+                            else {
+                                "dp_calibration_supported": False,
+                                "dp_warning": "partial_correlation_has_no_dp_specific_calibration",
+                            }
+                        ),
+                    },
                 }
             }
 
@@ -544,9 +856,22 @@ class PartialCorrelationTest:
                     "n_obs": n,
                     "partial_corr": partial_corr,
                     "has_conditioning_set": Z_raw is not None,
+                    **(
+                        {}
+                        if dp_context is None
+                        else {
+                            "dp_calibration_supported": False,
+                            "dp_warning": "partial_correlation_has_no_dp_specific_calibration",
+                        }
+                    ),
                 },
             }
         }
 
 
-__all__ = ["HSICIndependenceTest", "KCIConditionalTest", "PartialCorrelationTest"]
+__all__ = [
+    "CategoricalConditionalIndependenceTest",
+    "HSICIndependenceTest",
+    "KCIConditionalTest",
+    "PartialCorrelationTest",
+]

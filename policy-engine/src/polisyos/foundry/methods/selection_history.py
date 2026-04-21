@@ -14,12 +14,13 @@ import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
 _log = logging.getLogger("foundry.selection_history")
+ADVISOR_EXECUTION_CONTEXT_PARAM = "__advisor_execution_context__"
 
 
 class MethodExecutionRecord(BaseModel):
@@ -34,6 +35,33 @@ class MethodExecutionRecord(BaseModel):
     output_quality: float | None = Field(default=None, ge=0.0, le=1.0)
     data_characteristics: dict[str, Any] = Field(default_factory=dict)
     failure_type: str | None = None
+    runtime_truthfulness_tier: str | None = None
+    effective_truthfulness_tier: str | None = None
+    truthfulness_scope: str | None = None
+    truthfulness_status: str | None = None
+    truthfulness_evidence_ref: str | None = None
+    query_fingerprint: str | None = None
+    loss_profile_id: str | None = None
+    candidate_fqns: tuple[str, ...] = Field(default_factory=tuple)
+    selected_rank: int | None = Field(default=None, ge=1)
+    selection_propensity: float | None = Field(default=None, gt=0.0, le=1.0)
+    advisor_score_vector: dict[str, float] = Field(default_factory=dict)
+    realized_loss_components: dict[str, float] = Field(default_factory=dict)
+    shadow_loss_estimates: dict[str, float] = Field(default_factory=dict)
+
+
+class AdvisorExecutionContext(BaseModel):
+    """Selection-time telemetry that should be preserved through execution."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    query_fingerprint: str = Field(..., min_length=1)
+    loss_profile_id: str | None = None
+    candidate_fqns: tuple[str, ...] = Field(default_factory=tuple)
+    selected_rank: int | None = Field(default=None, ge=1)
+    selection_propensity: float | None = Field(default=None, gt=0.0, le=1.0)
+    advisor_score_vector: dict[str, float] = Field(default_factory=dict)
+    shadow_loss_estimates: dict[str, float] = Field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -119,6 +147,14 @@ class SelectionHistoryStore:
         with self._lock:
             return list(self._by_fqn.get(fqn, []))
 
+    def latest_record_for(self, fqn: str) -> MethodExecutionRecord | None:
+        """Return the most recent record for *fqn*, or None when absent."""
+        with self._lock:
+            records = self._by_fqn.get(fqn, [])
+            if not records:
+                return None
+            return max(records, key=lambda item: item.timestamp)
+
     def all_records(self) -> list[MethodExecutionRecord]:
         """Return a flat copy of all records across all FQNs."""
         with self._lock:
@@ -133,6 +169,11 @@ class SelectionHistoryStore:
         """Return a bounded history of JSONL persistence failures."""
         with self._persist_lock:
             return list(self._persistence_issues)
+
+    @property
+    def persist_path(self) -> Path | None:
+        """Return the configured JSONL persistence path, if any."""
+        return self._persist_path
 
     def export_jsonl(self, path: Path | str | None = None) -> Path:
         """Write all records to a JSONL file and return the resolved path."""
@@ -375,15 +416,32 @@ def fit_runtime_predictor_from_history(
 ) -> RuntimePredictor:
     """Fit a predictor from the provided history or the global store."""
     predictor = RuntimePredictor()
-    predictor.fit(history or get_global_selection_history())
+    predictor.fit(get_global_selection_history() if history is None else history)
     return predictor
 
 
+def split_advisor_execution_params(
+    params: Mapping[str, Any] | None,
+) -> tuple[dict[str, Any], AdvisorExecutionContext | None]:
+    """Split advisor-only execution context from regular method params."""
+
+    payload = dict(params or {})
+    raw_context = payload.pop(ADVISOR_EXECUTION_CONTEXT_PARAM, None)
+    if raw_context is None:
+        return payload, None
+    if isinstance(raw_context, AdvisorExecutionContext):
+        return payload, raw_context
+    return payload, AdvisorExecutionContext.model_validate(raw_context)
+
+
 __all__ = [
+    "ADVISOR_EXECUTION_CONTEXT_PARAM",
+    "AdvisorExecutionContext",
     "MethodExecutionRecord",
     "RuntimePredictor",
     "SelectionHistoryPersistenceIssue",
     "SelectionHistoryStore",
     "fit_runtime_predictor_from_history",
     "get_global_selection_history",
+    "split_advisor_execution_params",
 ]

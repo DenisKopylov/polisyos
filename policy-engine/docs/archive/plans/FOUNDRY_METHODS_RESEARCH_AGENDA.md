@@ -41,6 +41,15 @@
 > integration targets, not completion status, unless an explicit dated note
 > says otherwise.
 >
+> **Dated implementation note (2026-04-21)**: the archival `Status` line above
+> is preserved for historical context. Foundry Phase 0 closure is now
+> machine-checked in `tools/quality/validation/foundry_phase0_manifest.json`,
+> `tools/quality/validation/validate_foundry_phase0_closure.py`, and
+> `tools/quality/validation/run_foundry_phase0_validation.sh`, with
+> `docs/reference/foundry/phase0-acceptance.md` as the reference acceptance
+> surface. Any intentionally narrowed scope must be called out explicitly in
+> those artifacts; green tests alone do not count as closure.
+>
 > **How research integrates with the system**: research artifacts enter as
 > `FrontierSketch` objects with `max_readiness = PROOF_ONLY` (equivalently
 > `DecisionReadiness = RESEARCH_ARTIFACT`). They are invisible to Layer D
@@ -53,6 +62,7 @@
 
 ## Contents
 
+0. [Dated Implementation Status Update (2026-04-21)](#dated-implementation-status-update-2026-04-21)
 1. [Overview: Why These Tasks Require Research First](#1-overview)
 
 ### Part 0 — End-to-End Phased Execution Plan (primary structure)
@@ -131,6 +141,21 @@
 44. [Appendix D: New Method Family Stub Inventory](#22-appendix-d)
 
 ---
+
+## Dated Implementation Status Update (2026-04-21)
+
+Foundry Phase 0 is no longer tracked only as research intent. Current closure
+is machine-checked through the dedicated acceptance stack below:
+
+- Acceptance doc: `docs/reference/foundry/phase0-acceptance.md`
+- Manifest: `tools/quality/validation/foundry_phase0_manifest.json`
+- Validator: `tools/quality/validation/validate_foundry_phase0_closure.py`
+- Reproducible wrapper: `tools/quality/validation/run_foundry_phase0_validation.sh`
+
+This dated note supersedes any accidental reading of the archival Phase-0
+section as still purely aspirational. Remaining partial or narrowed claims must
+be represented in the machine-checked artifacts above rather than inferred from
+the historical plan prose.
 
 ## 1. Overview
 

@@ -37,6 +37,45 @@ def _make_frontier_observational(seed: int = 41) -> dict[str, np.ndarray]:
     }
 
 
+def _make_broken_proximal_observational(seed: int = 141) -> dict[str, np.ndarray]:
+    rng = np.random.default_rng(seed)
+    n_obs = 240
+    x = rng.normal(size=(n_obs, 2))
+    treatment = (rng.uniform(size=n_obs) > 0.5).astype(float)
+    treatment_proxy = rng.normal(size=n_obs)
+    outcome_proxy = rng.normal(size=n_obs)
+    outcome = 0.6 * treatment + 1.8 * treatment_proxy + rng.normal(scale=0.25, size=n_obs)
+    return {
+        "outcome": outcome,
+        "treatment": treatment,
+        "covariates": x,
+        "treatment_proxy": treatment_proxy,
+        "outcome_proxy": outcome_proxy,
+    }
+
+
+def _make_proximal_mediation_observational(seed: int = 91) -> dict[str, np.ndarray]:
+    rng = np.random.default_rng(seed)
+    n_obs = 180
+    x = rng.normal(size=(n_obs, 2))
+    latent = 0.6 * x[:, 0] + rng.normal(scale=0.5, size=n_obs)
+    logits = 0.5 * x[:, 0] + 0.8 * latent
+    treatment = (rng.uniform(size=n_obs) < (1.0 / (1.0 + np.exp(-logits)))).astype(float)
+    mediator = 0.9 * treatment + 0.4 * x[:, 1] + 0.5 * latent + rng.normal(scale=0.3, size=n_obs)
+    treatment_proxy = latent + rng.normal(scale=0.25, size=n_obs)
+    outcome_proxy = 0.7 * latent + 0.2 * x[:, 0] + rng.normal(scale=0.25, size=n_obs)
+    outcome = 0.8 * treatment + 0.9 * mediator + 0.3 * x[:, 0] + latent
+    outcome = outcome + rng.normal(scale=0.35, size=n_obs)
+    return {
+        "outcome": outcome,
+        "treatment": treatment,
+        "mediator": mediator,
+        "covariates": x,
+        "treatment_proxy": treatment_proxy,
+        "outcome_proxy": outcome_proxy,
+    }
+
+
 def _make_network_payload(seed: int = 73) -> dict[str, np.ndarray]:
     rng = np.random.default_rng(seed)
     n_obs = 120
@@ -74,6 +113,89 @@ def test_proximal_bridge_estimator_runs() -> None:
     assert result.output["report"].status == EstimationStatus.SUCCESS
     assert result.output["proximal_result"]["point_estimate"] > 0.4
     assert result.output["proximal_result"]["proxy_strength"] > 0.1
+    bridge_report = result.output["bridge_plausibility_report"]
+    assert bridge_report["severity"] in {"green", "yellow"}
+    assert bridge_report["fallback_disposition"] in {
+        "proceed_point_estimate",
+        "proceed_with_warning",
+    }
+    assert bridge_report["residual_r"] >= 0.0
+
+
+def test_proximal_bridge_estimator_blocks_infeasible_bridge_with_bounds() -> None:
+    ensure_causal_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+    method_cls = registry.get("causal.proximal.proximal_bridge@1.0.0")
+
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_broken_proximal_observational(),
+        params={"n_bootstrap": 60},
+        seed=31,
+    )
+
+    assert result.output["report"].status == EstimationStatus.ASSUMPTION_FAILED
+    assert result.output["proximal_result"] is None
+    assert result.output["bridge_plausibility_report"]["severity"] == "red"
+    assert (
+        result.output["bounds_bundle"]["lower_bound"]
+        < result.output["bounds_bundle"]["upper_bound"]
+    )
+    assert result.output["negative_certificate"]["blocking_type"] in {
+        "bridge_equation_infeasible",
+        "completeness_unlikely",
+    }
+
+
+def test_proximal_mediation_estimator_runs_when_oracle_gate_is_accepted() -> None:
+    ensure_causal_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+    method_cls = registry.get("causal.proximal.proximal_mediation@1.0.0")
+
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_proximal_mediation_observational(),
+        params={"oracle_gate": "accepted", "target_effect": "nie"},
+        seed=19,
+    )
+
+    report = result.output["report"]
+    payload = result.output["proximal_mediation_result"]
+    assert report.status == EstimationStatus.SUCCESS
+    assert payload is not None
+    assert payload["target_effect"] == "nie"
+    assert payload["point_estimate"] == report.point_estimate
+    assert payload["bridge_plausibility_report"]["severity"] in {"green", "yellow"}
+    assert result.output["negative_certificate"] is None
+    assert result.output["bounds_bundle"] is None
+
+
+def test_proximal_mediation_estimator_returns_bounds_when_oracle_gate_required() -> None:
+    ensure_causal_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+    method_cls = registry.get("causal.proximal.proximal_mediation@1.0.0")
+
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_proximal_mediation_observational(),
+        params={"oracle_gate": "required", "target_effect": "nie"},
+        seed=23,
+    )
+
+    report = result.output["report"]
+    assert report.status == EstimationStatus.ASSUMPTION_FAILED
+    assert report.status_reason == "proximal_mediation_oracle_not_accepted"
+    assert result.output["proximal_mediation_result"] is None
+    assert result.output["negative_certificate"]["blocking_type"] == "completeness_unlikely"
+    bounds = result.output["bounds_bundle"]
+    assert bounds["estimand_type"] == "path_specific_effect"
+    assert bounds["lower_bound"] < bounds["upper_bound"]
 
 
 def test_distributional_treatment_effect_estimator_emits_quantile_shift() -> None:

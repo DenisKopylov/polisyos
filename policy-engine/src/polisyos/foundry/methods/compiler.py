@@ -19,6 +19,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import MethodSignature
 from polisyos.foundry.methods.exceptions import CompilationError, ParameterValidationError
 from polisyos.foundry.methods.specialization import (
@@ -290,7 +291,7 @@ def _normalize_dynamic_value(value: Any) -> Any:
     return value
 
 
-_RUNTIME_PARAM_NAMES = frozenset({"__seed__", "__rng__"})
+_RUNTIME_PARAM_NAMES = frozenset({"__seed__", "__rng__", *VALIDATED_EXECUTION_PARAM_NAMES})
 
 
 def _resolve_params(

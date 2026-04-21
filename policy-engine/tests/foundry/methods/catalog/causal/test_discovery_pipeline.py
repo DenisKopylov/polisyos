@@ -42,6 +42,8 @@ def _report(
     dst: str,
     algebraic_severity: str,
     violated_by_family: dict[str, int],
+    families_run: list[AlgebraicConstraintFamily] | None = None,
+    blocker_conditions_met_by_family: dict[str, bool] | None = None,
 ) -> CausalDiscoveryReport:
     return CausalDiscoveryReport(
         method=method,
@@ -60,11 +62,12 @@ def _report(
         ),
         algebraic_constraints=AlgebraicConstraintReport(
             severity=algebraic_severity,  # type: ignore[arg-type]
-            families_run=[AlgebraicConstraintFamily.CI],
+            families_run=families_run or [AlgebraicConstraintFamily.CI],
             n_implied_constraints=1,
             n_violated_constraints=sum(violated_by_family.values()),
             tested_by_family={"ci": 1},
             violated_by_family=violated_by_family,
+            blocker_conditions_met_by_family=blocker_conditions_met_by_family or {},
         ),
         metadata={"algebraic_constraint_severity": algebraic_severity},
     )
@@ -210,6 +213,126 @@ def test_unified_discovery_applies_regime_shift_orientations(
     n = 220
     x_a = rng.normal(loc=0.0, scale=1.0, size=n)
     z_a = rng.normal(size=n)
+    y_a = 2.0 * x_a
+    x_b = rng.normal(loc=3.0, scale=1.0, size=n)
+    z_b = rng.normal(size=n)
+    y_b = 2.0 * x_b
+    state = UnifiedDiscoveryData(
+        data=np.column_stack(
+            [
+                np.concatenate([x_a, x_b]),
+                np.concatenate([z_a, z_b]),
+                np.concatenate([y_a, y_b]),
+            ]
+        ),
+        variable_names=["X", "Z", "Y"],
+        domain_labels=np.array(["pre"] * n + ["post"] * n),
+    )
+
+    result = pipeline_module._run_unified_discovery(
+        state,
+        params={
+            "regime_target_cols": ["Y"],
+            "regime_max_set_size": 1,
+            "regime_context_exogeneity": "declared",
+            "regime_baseline_covariates": ["Z"],
+            "regime_selection_max_set_size": 1,
+        },
+    )
+    report = result["report"]
+
+    assert report.regime_shift_certificate is not None
+    assert report.regime_shift_certificate.targets[0].estimated_parents == ("X",)
+    assert report.metadata["regime_shift_discovery"]["applied"] is True
+    assert report.metadata["regime_shift_discovery"]["constraints_applied"] is True
+    assert report.metadata["regime_shift_discovery"]["forced_orientation_count"] == 1
+    assert report.metadata["regime_shift_discovery"]["shift_type_label"] == (
+        "structural_only_consistent"
+    )
+    assert report.metadata["regime_shift_discovery"]["feasibility_mode"] == "exact"
+    assert report.metadata["regime_shift_discovery"]["exact_mode_possible"] is True
+    assert report.metadata["regime_shift_discovery"]["exact_mode_applied"] is True
+    assert report.metadata["regime_shift_discovery"]["max_candidate_parents"] == 1
+    assert report.metadata["regime_shift_discovery"]["expected_test_count"] > 0
+    assert (
+        report.metadata["regime_shift_discovery"]["shift_type_reproducibility"][
+            "agreement"
+        ]
+        == 1.0
+    )
+
+    edge = next(edge for edge in report.unified_pag.edges if {edge.src, edge.dst} == {"X", "Y"})
+    if edge.src == "X":
+        assert edge.mark_src is EdgeMark.TAIL
+        assert edge.mark_dst is EdgeMark.ARROW
+    else:
+        assert edge.mark_src is EdgeMark.ARROW
+        assert edge.mark_dst is EdgeMark.TAIL
+    assert edge.metadata["regime_shift_forced"] is True
+
+
+def test_unified_discovery_blocks_regime_shift_orientations_when_pre_screen_is_ambiguous(
+    monkeypatch,
+) -> None:
+    individual_results = [
+        _report(
+            method="pc",
+            src="X",
+            dst="Y",
+            algebraic_severity="info",
+            violated_by_family={},
+        ),
+    ]
+    ambiguous_pag = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Z", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.CIRCLE,
+            )
+        ],
+        discovery_method="unified_consensus_pag",
+    )
+
+    monkeypatch.setattr(
+        pipeline_module,
+        "_run_algorithms_parallel",
+        lambda **kwargs: (individual_results, {"pc": 1.0}),
+    )
+    monkeypatch.setattr(
+        pipeline_module,
+        "_build_consensus_pag",
+        lambda *args, **kwargs: (
+            ambiguous_pag,
+            [
+                EdgeAgreement(
+                    edge_key="X|circle>circle|Y",
+                    presence_score=1.0,
+                    orientation_confidence=0.5,
+                    mark_src="circle",
+                    mark_dst="circle",
+                    contributing_algorithms=["pc"],
+                )
+            ],
+            {"X|Y": 1.0},
+            [],
+            [],
+            [],
+        ),
+    )
+    monkeypatch.setattr(
+        pipeline_module,
+        "_maybe_reconcile",
+        lambda pag, state, params: pag,
+    )
+
+    rng = np.random.default_rng(2027)
+    n = 220
+    x_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    z_a = rng.normal(size=n)
     y_a = 2.0 * x_a + 0.08 * rng.normal(size=n)
     x_b = rng.normal(loc=3.0, scale=1.0, size=n)
     z_b = rng.normal(size=n)
@@ -228,20 +351,121 @@ def test_unified_discovery_applies_regime_shift_orientations(
 
     result = pipeline_module._run_unified_discovery(
         state,
-        params={"regime_target_cols": ["Y"], "regime_max_set_size": 1},
+        params={
+            "regime_target_cols": ["Y"],
+            "regime_max_set_size": 1,
+            "regime_context_exogeneity": "declared",
+        },
     )
     report = result["report"]
 
     assert report.regime_shift_certificate is not None
-    assert report.regime_shift_certificate.targets[0].estimated_parents == ("X",)
     assert report.metadata["regime_shift_discovery"]["applied"] is True
-    assert report.metadata["regime_shift_discovery"]["forced_orientation_count"] == 1
+    assert report.metadata["regime_shift_discovery"]["constraints_applied"] is False
+    assert report.metadata["regime_shift_discovery"]["shift_type_label"] == "ambiguous"
+    assert "regime_shift_pre_screen_blocked:ambiguous" in report.warnings
 
     edge = next(edge for edge in report.unified_pag.edges if {edge.src, edge.dst} == {"X", "Y"})
-    if edge.src == "X":
-        assert edge.mark_src is EdgeMark.TAIL
-        assert edge.mark_dst is EdgeMark.ARROW
-    else:
-        assert edge.mark_src is EdgeMark.ARROW
-        assert edge.mark_dst is EdgeMark.TAIL
-    assert edge.metadata["regime_shift_forced"] is True
+    assert edge.mark_src is EdgeMark.CIRCLE
+    assert edge.mark_dst is EdgeMark.CIRCLE
+
+
+def test_unified_discovery_surfaces_prior_track7_blockers_in_regime_shift_summary(
+    monkeypatch,
+) -> None:
+    individual_results = [
+        _report(
+            method="pc",
+            src="X",
+            dst="Y",
+            algebraic_severity="blocker",
+            violated_by_family={"trek_rank": 1},
+            families_run=[AlgebraicConstraintFamily.TREK_RANK],
+            blocker_conditions_met_by_family={"trek_rank": True},
+        ),
+    ]
+    ambiguous_pag = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Z", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.CIRCLE,
+            )
+        ],
+        discovery_method="unified_consensus_pag",
+    )
+
+    monkeypatch.setattr(
+        pipeline_module,
+        "_run_algorithms_parallel",
+        lambda **kwargs: (individual_results, {"pc": 1.0}),
+    )
+    monkeypatch.setattr(
+        pipeline_module,
+        "_build_consensus_pag",
+        lambda *args, **kwargs: (
+            ambiguous_pag,
+            [
+                EdgeAgreement(
+                    edge_key="X|circle>circle|Y",
+                    presence_score=1.0,
+                    orientation_confidence=0.5,
+                    mark_src="circle",
+                    mark_dst="circle",
+                    contributing_algorithms=["pc"],
+                )
+            ],
+            {"X|Y": 1.0},
+            [],
+            [],
+            [],
+        ),
+    )
+    monkeypatch.setattr(
+        pipeline_module,
+        "_maybe_reconcile",
+        lambda pag, state, params: pag,
+    )
+
+    rng = np.random.default_rng(2028)
+    n = 220
+    x_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    z_a = rng.normal(size=n)
+    y_a = 2.0 * x_a
+    x_b = rng.normal(loc=3.0, scale=1.0, size=n)
+    z_b = rng.normal(size=n)
+    y_b = 2.0 * x_b
+    state = UnifiedDiscoveryData(
+        data=np.column_stack(
+            [
+                np.concatenate([x_a, x_b]),
+                np.concatenate([z_a, z_b]),
+                np.concatenate([y_a, y_b]),
+            ]
+        ),
+        variable_names=["X", "Z", "Y"],
+        domain_labels=np.array(["pre"] * n + ["post"] * n),
+    )
+
+    result = pipeline_module._run_unified_discovery(
+        state,
+        params={
+            "regime_target_cols": ["Y"],
+            "regime_max_set_size": 1,
+            "regime_context_exogeneity": "declared",
+            "regime_baseline_covariates": ["Z"],
+            "regime_selection_max_set_size": 1,
+        },
+    )
+    summary = result["report"].metadata["regime_shift_discovery"]
+
+    assert summary["applied"] is True
+    assert summary["feasibility_mode"] == "partial"
+    assert summary["exact_mode_possible"] is False
+    assert summary["track7_prior_blocker_families"] == ["trek_rank"]
+    assert "track7_prior_blocker_conflict:trek_rank" in (
+        summary["feasibility_fallback_reason"] or ""
+    )

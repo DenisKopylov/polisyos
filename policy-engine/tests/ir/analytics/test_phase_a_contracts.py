@@ -4,6 +4,13 @@ from types import SimpleNamespace
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+from polisyos.ir.analytics.administrative_missingness import (
+    AdministrativeMissingnessScenarioFamily,
+    MissingnessAssessmentReport,
+    MissingnessAssessmentStatus,
+    MissingnessRecoverabilitySummary,
+    MissingnessTestabilityAudit,
+)
 from polisyos.ir.analytics.causal import (
     build_data_readiness_report,
     load_data_readiness_report,
@@ -21,12 +28,18 @@ from polisyos.ir.analytics.dynamic_causal_semantics import (
 )
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
+    BestInClassClaim,
+    BoundsBundle,
+    BoundsMethodSummary,
     BoundsReport,
     PartialIdentificationResult,
+    TighteningStatus,
+    attach_dual_certificate_ref,
     bounds_bundle_from_bounds_report,
     load_bounds_bundle,
     persist_bounds_bundle,
 )
+from polisyos.ir.refs import DualCertificateRef
 
 
 def _partial(lower: float, upper: float, *, method: BoundMethod) -> PartialIdentificationResult:
@@ -107,6 +120,62 @@ def test_bounds_bundle_translation_preserves_consensus_and_gates_sharpness_on_ce
     assert bundle.consensus_lower == report.consensus_lower
     assert bundle.consensus_upper == report.consensus_upper
     assert bundle.sharpness_status == "unknown"
+
+
+def test_attach_dual_certificate_uses_selected_best_in_class_summary_for_sharpness() -> None:
+    bundle = BoundsBundle(
+        lower_bound=-0.1,
+        upper_bound=0.4,
+        method_summaries=[
+            BoundsMethodSummary(
+                method=BoundMethod.LP_BALKE_PEARL,
+                lower_bound=-0.2,
+                upper_bound=0.2,
+                bound_width=0.4,
+                bounds_type="sharp_lp",
+                display_label="Uncertified tighter candidate",
+            ),
+            BoundsMethodSummary(
+                method=BoundMethod.GENERAL_LP_BOUNDS,
+                lower_bound=-0.1,
+                upper_bound=0.4,
+                bound_width=0.5,
+                bounds_type="sharp_lp",
+                display_label="Selected certified candidate",
+            ),
+        ],
+        best_in_class_claim=BestInClassClaim(
+            class_name="finite_sharp_lp_candidates_v1",
+            status=TighteningStatus.IMPROVED,
+            selected_method=BoundMethod.GENERAL_LP_BOUNDS,
+            lower_bound=-0.1,
+            upper_bound=0.4,
+        ),
+    )
+    ref = DualCertificateRef.model_validate(
+        {
+            "artifact_id": "sha256:" + ("0" * 64),
+            "kind": "ir.dual_certificate",
+            "media_type": "application/json",
+        }
+    )
+
+    attached = attach_dual_certificate_ref(bundle, ref)
+
+    selected = next(
+        summary
+        for summary in attached.method_summaries
+        if summary.method is BoundMethod.GENERAL_LP_BOUNDS
+    )
+    uncertified = next(
+        summary
+        for summary in attached.method_summaries
+        if summary.method is BoundMethod.LP_BALKE_PEARL
+    )
+
+    assert attached.sharpness_status == "sharp"
+    assert selected.certificate_ref == ref
+    assert uncertified.certificate_ref is None
 
 
 def test_data_readiness_thresholds_block_warn_unknown() -> None:
@@ -221,6 +290,55 @@ def test_data_readiness_marks_malformed_positivity_as_warning_not_absence() -> N
 
     assert malformed.decision == "warn"
     assert "positivity_parse_failed" in malformed.warnings
+
+
+def test_data_readiness_blocks_not_recoverable_missingness_assessment() -> None:
+    assessment = MissingnessAssessmentReport(
+        status=MissingnessAssessmentStatus.NOT_RECOVERABLE,
+        scenario_family=AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED,
+        scenario_confidence=1.0,
+        administrative_covariates_present=("filing_complete",),
+        key_variables=("income",),
+        proof_kernel_requirements=("compliance_indicator",),
+        recoverability=MissingnessRecoverabilitySummary(
+            status="not_recoverable",
+            query_variables=("income",),
+            blocking_r_nodes=("R_income",),
+            algorithm_version="recover_v1",
+        ),
+    )
+
+    readiness = build_data_readiness_report(
+        missingness_assessment=assessment,
+        fallback_data_available=True,
+    )
+
+    assert readiness.decision == "block"
+    assert "missingness_not_recoverable" in readiness.blocking_reasons
+    assert readiness.missingness_assessment is not None
+
+
+def test_data_readiness_warns_on_unknown_or_failed_missingness_model() -> None:
+    assessment = MissingnessAssessmentReport(
+        status=MissingnessAssessmentStatus.UNKNOWN,
+        scenario_family=AdministrativeMissingnessScenarioFamily.UNKNOWN,
+        scenario_confidence=0.0,
+        proof_kernel_requirements=(),
+        testability_audit=MissingnessTestabilityAudit(
+            overall_valid=False,
+            implications_tested=2,
+            warnings=("implication_test_failed",),
+        ),
+    )
+
+    readiness = build_data_readiness_report(
+        missingness_assessment=assessment,
+        fallback_data_available=True,
+    )
+
+    assert readiness.decision == "warn"
+    assert "missingness_model_underspecified" in readiness.warnings
+    assert "missingness_implications_failed" in readiness.warnings
 
 
 def test_canonical_artifacts_round_trip_via_store(tmp_path) -> None:

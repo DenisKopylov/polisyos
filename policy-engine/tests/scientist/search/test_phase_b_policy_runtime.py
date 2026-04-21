@@ -7,24 +7,30 @@ from decimal import Decimal
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal import (
-    build_data_readiness_report,
     CausalEffectReport,
     CausalMethod,
     DataReadinessReport,
     EstimationStatus,
     RefutationResult,
     RefutationTestType,
+    build_data_readiness_report,
     persist_data_readiness_report,
+)
+from polisyos.ir.analytics.causal_discovery import (
+    LatentAssumptionCard,
+    LatentDiscoveryBundle,
+    LatentPromotionEvidence,
+    LatentTrustLevel,
 )
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
-    EvidenceSourceKind,
-    EvidenceSourceState,
-    EvidenceSourceStatus,
     EvidenceNeed,
     EvidenceNeedAssessment,
     EvidenceNeedType,
+    EvidenceSourceKind,
+    EvidenceSourceState,
+    EvidenceSourceStatus,
     EvidenceStatus,
     LegalStatus,
     ObservabilityStatus,
@@ -39,11 +45,6 @@ from polisyos.ir.analytics.distributional import (
     MetricUnit,
     WinnersLosersEntry,
     WinnersLosersTable,
-)
-from polisyos.ir.analytics.causal_discovery import (
-    LatentAssumptionCard,
-    LatentDiscoveryBundle,
-    LatentTrustLevel,
 )
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import (
@@ -65,11 +66,11 @@ from polisyos.scientist.autotune.models import (
     persist_benchmark_evaluation,
 )
 from polisyos.scientist.autotune.registry import ChampionRegistry
-from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.discovery.priors import (
     PriorKnowledgeBundle,
     PriorKnowledgeSupport,
 )
+from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle
 from polisyos.scientist.policy_design.output import (
     ReplayableAuditBundle,
@@ -85,23 +86,26 @@ from polisyos.scientist.replay.verification import (
     ReplayVerificationReport,
     persist_replay_verification_report,
 )
-from polisyos.scientist.search.controller import SearchConfig, SearchController
 from polisyos.scientist.search.adversarial import PlatformMetaEvaluationReport
+from polisyos.scientist.search.controller import SearchConfig, SearchController
 from polisyos.scientist.search.judge_stack import (
     JudgeInputBundle,
     JudgeName,
     JudgeStack,
+    JudgeVerdict,
     PolicyPromotionCoordinator,
 )
+from polisyos.scientist.search.latent_governance import latent_governance_metadata
 from polisyos.scientist.search.objective import CompositeObjective
 from polisyos.scientist.search.pareto_registry import ParetoRegistry, ParetoView
-from polisyos.scientist.search.readiness import DecisionReadiness
+from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessEvaluator
 from polisyos.scientist.search.stopping import MaxIterations
 from polisyos.scientist.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,
 )
+from polisyos.ir.refs import ArtifactRefModel
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:
@@ -477,6 +481,95 @@ def _latent_bundle(*, complete: bool = True) -> LatentDiscoveryBundle:
         ),
         no_promotion_reasons=["latent_discovery_proof_only"],
     )
+
+
+def _latent_promotion_ref(ch: str, *, kind: str) -> ArtifactRefModel:
+    seed = ch.lower()
+    if seed not in "0123456789abcdef":
+        seed = format(sum(ord(symbol) for symbol in seed) % 16, "x")
+    return ArtifactRefModel(
+        artifact_id=f"sha256:{seed * 64}",
+        kind=kind,
+        media_type="application/json",
+    )
+
+
+def _conditional_latent_bundle() -> LatentDiscoveryBundle:
+    return LatentDiscoveryBundle(
+        proposed_latent_nodes=["U_labor_market"],
+        inducing_environments=["region_a", "region_b"],
+        identification_conditions=["environmental shift is exogenous"],
+        falsification_tests=["negative_control_outcome"],
+        trust_level=LatentTrustLevel.CONDITIONAL,
+        assumption_cards=[
+            LatentAssumptionCard(
+                assumption_id="latent_shift_exogeneity",
+                title="Shift exogeneity",
+                description="Regional shift is not downstream of the proposed policy.",
+                evidence_basis=["design_note:regional_comparison"],
+                falsification_hook="check baseline covariate balance",
+            )
+        ],
+        readiness_cap="bounds_ready",
+        promotion_allowed=True,
+        no_promotion_reasons=[],
+        not_for_decision_support=False,
+        promotion_evidence=LatentPromotionEvidence(
+            observable_implication_refs=[
+                _latent_promotion_ref("a", kind="scientist.latent.observable_implication")
+            ],
+            local_misspecification_test_refs=[
+                _latent_promotion_ref("b", kind="scientist.latent.local_misspecification")
+            ],
+            environment_stability_ref=_latent_promotion_ref(
+                "c", kind="scientist.latent.environment_stability"
+            ),
+            rival_explanation_audit_ref=_latent_promotion_ref(
+                "d", kind="scientist.latent.rival_explanation_audit"
+            ),
+            external_evidence_refs=[
+                _latent_promotion_ref("e", kind="scientist.latent.external_evidence")
+            ],
+            replication_refs=[
+                _latent_promotion_ref("f", kind="scientist.latent.replication")
+            ],
+            hidden_benchmark_ref=_latent_promotion_ref(
+                "g", kind="scientist.latent.hidden_benchmark"
+            ),
+            reviewer_decision_ref=_latent_promotion_ref(
+                "h", kind="scientist.latent.reviewer_decision"
+            ),
+            scope_regime=["linear_nongaussian", "metric_invariant"],
+            invariance_level="metric",
+        ),
+    )
+
+
+def _latent_separation_diagnostics() -> dict[str, object]:
+    return {
+        "resolution_label": "latent_confounding",
+        "design": {
+            "n_env": 2,
+            "proxy_blocks": ["W", "Z"],
+            "repeated_indicator_blocks": ["R"],
+        },
+        "measurement_block": {
+            "status": "passed",
+            "tetrad_test": "single_signal_tetrad_passed",
+            "invariance_test": "measurement_invariance_passed",
+        },
+        "proxy_block": {
+            "status": "passed",
+            "bridge_test": "proximal_bridge_solved",
+            "bridge_stability": "cross_environment_stable",
+        },
+        "environment_block": {
+            "status": "passed",
+            "residual_invariance": "post_calibration_residual_invariance_failed",
+            "post_calibration_shift": "not_restored",
+        },
+        "separated_pairs": ["measurement_vs_confounding"],
+    }
 
 
 def test_pareto_registry_tracks_frontiers_and_voi_snapshot(tmp_path) -> None:
@@ -966,6 +1059,95 @@ def test_latent_bundle_forces_research_only_cap_and_human_gate(tmp_path) -> None
     assert result.readiness_contract.metadata["latent_falsification_tests"] == [
         "negative_control_outcome"
     ]
+
+
+def test_readiness_metadata_surfaces_latent_separation_summary() -> None:
+    latent_bundle = _latent_bundle().model_copy(
+        update={"metadata": {"separation_diagnostics": _latent_separation_diagnostics()}}
+    )
+    governance_payload = latent_governance_metadata(latent_bundle)
+    assert governance_payload is not None
+
+    contract = DecisionReadinessEvaluator().evaluate(
+        candidate=_candidate(evidence_depth="single_study"),
+        judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
+        uncertainty_envelope=_uncertainty(0.1),
+        evidence_metadata={"latent_governance": governance_payload},
+    )
+
+    assert contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert contract.metadata["readiness_cap_reason"] == "latent_discovery_proof_only"
+    assert contract.metadata["latent_trust_level"] == "conditional"
+    assert contract.metadata["latent_resolution_label"] == "latent_confounding"
+    assert contract.metadata["latent_separated_pairs"] == ["measurement_vs_confounding"]
+
+
+def test_promoted_latent_bundle_maps_to_bounds_claim_mode_in_runtime(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+    coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+
+    candidate = _candidate(evidence_depth="replicated")
+    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    selection_eval, _ = _benchmark(candidate_ref, holdout_score=0.94)
+    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    replay_ref, replay_verification_ref = _persist_replay_support(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+    )
+
+    bundle = coordinator.build_input_bundle(
+        candidate=candidate,
+        benchmark_evaluation=selection_eval,
+        evaluation_vector=_evaluation_vector(candidate),
+        governance_report={"verdict": "approve", "issues": []},
+        latent_discovery_bundle=_conditional_latent_bundle(),
+        uncertainty_envelope=_uncertainty(0.1),
+        replay_bundle_ref=replay_ref,
+        replay_verification_ref=replay_verification_ref,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        state={
+            "checkpoints": [{"stage": "done", "timestamp": "2026-03-25T10:00:00Z"}],
+            "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+            "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+            "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+            "audit_lineage_complete": True,
+        },
+    )
+
+    result = coordinator.coordinate_promotion(
+        loop_id="policy_loop",
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+        judge_input=bundle,
+    )
+
+    governance = result.judge_verdict.per_judge["governance"]
+
+    assert bundle.effective_claim_mode() == "bounds"
+    assert result.judge_verdict.composite_decision == "defer_to_human"
+    assert governance.passed is True
+    assert governance.failure_card is None
+    assert any(card.failure_type == "human_gate_required" for card in governance.warnings)
+    assert result.readiness_contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert result.readiness_contract.metadata["claim_mode"] == "bounds"
+    assert result.readiness_contract.metadata["not_for_decision_support"] is False
+    assert (
+        result.readiness_contract.metadata["latent_governance"]["readiness_cap"]
+        == "bounds_ready"
+    )
+    analyst_assessment = next(
+        assessment
+        for assessment in result.readiness_contract.assessments
+        if assessment.readiness_level == DecisionReadiness.ANALYST_ADVISORY
+    )
+    assert analyst_assessment.passed is False
+    assert analyst_assessment.reasons == ["judge_failed:statistical"]
 
 
 def test_incomplete_latent_bundle_is_rejected_by_governance_judge() -> None:

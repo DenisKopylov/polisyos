@@ -23,6 +23,9 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog.causal.model_class_compatibility import (
+    check_model_class_compatibility,
+)
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -300,7 +303,13 @@ def _balke_pearl_lp(
             "optimal",
             cert.model_dump(mode="json"),
         )
-    return -1.0, 1.0, f"solver_failed(lo={res_lo.status},hi={res_hi.status})", None
+    if res_lo.status == 2 or res_hi.status == 2:
+        status = f"infeasible(lo={res_lo.status},hi={res_hi.status})"
+    elif res_lo.status == 3 or res_hi.status == 3:
+        status = f"unbounded(lo={res_lo.status},hi={res_hi.status})"
+    else:
+        status = f"solver_failed(lo={res_lo.status},hi={res_hi.status})"
+    return -1.0, 1.0, status, None
 
 
 @foundry_method(
@@ -374,6 +383,43 @@ class BalkePearlBoundsEstimator:
         y = (Y > 0.5).astype(int)
         t = (T > 0.5).astype(int)
         z = (Z > 0.5).astype(int)
+
+        compatibility_alpha = float(params.get("compatibility_alpha", 0.05))
+        compatibility_multiple_testing = str(
+            params.get("compatibility_multiple_testing", "holm")
+        ).strip().lower()
+        run_compatibility_check = bool(params.get("check_model_class_compatibility", True))
+        if run_compatibility_check:
+            compatibility = check_model_class_compatibility(
+                model_class_id="iv.binary.unconditional",
+                data=np.column_stack([z, t, y]).astype(float),
+                variable_names=["Z", "X", "Y"],
+                observed_variables=["Z", "X", "Y"],
+                alpha=compatibility_alpha,
+                multiple_testing=(
+                    compatibility_multiple_testing
+                    if compatibility_multiple_testing in {"holm", "bonferroni", "none"}
+                    else "holm"
+                ),
+            )
+            if compatibility.status == "incompatible":
+                return {
+                    "result": {
+                        "ate_lower_bound": None,
+                        "ate_upper_bound": None,
+                        "bound_width": None,
+                        "solver_status": "model_class_incompatible",
+                        "n_obs": n,
+                        "partial_id_result": None,
+                        "dual_certificate_payload": None,
+                        "negative_certificate": (
+                            compatibility.negative_certificate.model_dump(mode="json")
+                            if compatibility.negative_certificate is not None
+                            else None
+                        ),
+                        "model_class_compatibility": compatibility.report.model_dump(mode="json"),
+                    }
+                }
 
         # Estimate P(Y=y, X=x | Z=z) — shape (2,2,2)
         p_yxz = np.zeros((2, 2, 2))
@@ -989,10 +1035,16 @@ def _general_balke_pearl_lp(
             "optimal",
             cert.model_dump(mode="json"),
         )
+    if res_lo.status == 2 or res_hi.status == 2:
+        status = f"infeasible(lo={res_lo.status},hi={res_hi.status})"
+    elif res_lo.status == 3 or res_hi.status == 3:
+        status = f"unbounded(lo={res_lo.status},hi={res_hi.status})"
+    else:
+        status = f"solver_failed(lo={res_lo.status},hi={res_hi.status})"
     return (
         -float(J1 - 1) * float(outcome_scale),
         float(J1 - 1) * float(outcome_scale),
-        f"solver_failed(lo={res_lo.status},hi={res_hi.status})",
+        status,
         None,
     )
 

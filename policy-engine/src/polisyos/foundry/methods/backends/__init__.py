@@ -35,6 +35,14 @@ from polisyos.foundry.methods.backends.protocol import (
     ReproducibilityInfo,
     SolverStatus,
 )
+from polisyos.foundry.methods.backends.validated import (
+    ValidatedBound,
+    ValidatedExecutionPolicy,
+    ValidatedMethodFamily,
+    ValidatedMode,
+    ValidatedStatus,
+    validated_bound_to_envelopes,
+)
 
 __all__ = [
     "AsyncChainExecutionError",
@@ -53,5 +61,11 @@ __all__ = [
     "MethodTiming",
     "ReproducibilityInfo",
     "SolverStatus",
+    "ValidatedBound",
+    "ValidatedExecutionPolicy",
+    "ValidatedMethodFamily",
+    "ValidatedMode",
+    "ValidatedStatus",
+    "validated_bound_to_envelopes",
     "execute_heterogeneous_chain",
 ]

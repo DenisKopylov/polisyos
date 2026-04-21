@@ -19,6 +19,7 @@ from polisyos.ir.analytics.causal_discovery import (
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel
 from polisyos.ir.refs import CausalDiscoveryReportRef
+from polisyos.scientist.discovery.latent_producers import produce_latent_discovery_bundle
 
 GRAPH_HYPOTHESIS_SCHEMA_NAME = "polisyos.scientist.discovery.GraphHypothesis"
 GRAPH_HYPOTHESIS_SCHEMA_VERSION = "1.0"
@@ -281,7 +282,10 @@ def graph_hypothesis_from_report(
         failure_reasons=failure_reasons,
         warnings=warnings,
         algebraic_constraints=report.algebraic_constraints,
-        latent_discovery=report.latent_discovery,
+        latent_discovery=produce_latent_discovery_bundle(
+            report,
+            graph=report.resolved_graph or report.graph,
+        ),
         metadata={
             "discovery_report_metadata": dict(report.metadata),
             **(metadata or {}),

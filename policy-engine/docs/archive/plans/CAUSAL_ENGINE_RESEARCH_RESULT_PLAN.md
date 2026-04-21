@@ -1272,6 +1272,208 @@ def proximal_identify_v1(graph: CausalGraphModel,
 
 ---
 
+### Stage 11.2 — Bridge function existence and completeness conditions
+
+*Track context*: Research Track 10 — Proximal Causal Inference: Bridge Functions and Operator Identification.
+
+**What the problem is**: proximal identification relies on bridge functions that satisfy integral equations of the form `E[Y|Z,X] = integral h(U,X) f(U|Z) dU`. The existence of a solution depends on completeness-type conditions on the conditional distributions involved. These conditions are not directly testable from data and are not graphically characterized.
+
+**Why it cannot be implemented without research**: without verifiable bridge existence conditions, the system cannot distinguish between "proximal identification succeeds" and "the bridge function does not exist, so the proximal estimand is not well-defined". Implementing proximal estimation without checking bridge existence produces answers that may be meaningless.
+
+**Sufficient result**: (a) graphical or semi-parametric sufficient conditions for bridge function existence, (b) a plausibility diagnostic that can flag when completeness is unlikely to hold, (c) formal connection between completeness failure and the bounds/fallback ladder (what does the system do when the bridge doesn't exist?).
+
+**Key literature starting points**: Miao-Geng-Tchetgen Tchetgen (2018) for the basic framework; Cui et al. (2023) for semiparametric efficiency bounds; Ghassami et al. (2022) for graphical proximal identification in general ADMG; Tchetgen Tchetgen et al. (2024) for extensions to text, synthetic control, and time-varying settings.
+
+**Deliverable form**: sufficient conditions document + plausibility diagnostic spec + fallback integration spec for `BoundsBundle` when bridge existence fails.
+
+#### Существование bridge-функций и условия полноты в proximal-режиме
+
+##### Ключевое различие: existence, completeness, instability
+
+Для Stage 11.2 важно зафиксировать три разных типа риска, которые в литературе часто смешиваются:
+
+1. **Existence**: наблюдаемая левая часть bridge-уравнения должна лежать в образе условного оператора. Если нет, моста в выбранном классе функций не существует.
+2. **Completeness / uniqueness**: даже если решение существует, прокси могут быть «слишком слабыми», и тогда bridge не уникален или слабо идентифицирован.
+3. **Ill-posedness**: даже при существовании и формальной идентифицируемости численное решение может быть крайне нестабильным из-за быстрого затухания сингулярных значений дискретизированного оператора.
+
+Для PolicyOS это означает, что B-layer не имеет права сводить всё к одному бинарному флагу `"proximal passed"`. Нужен отдельный диагностический артефакт, который различает:
+
+- `infeasible_equation`
+- `weak_completeness`
+- `ill_posed`
+- `nonunique_solution`
+- `none`
+
+Именно это различение теперь должно стать source-of-truth для proximal fallback ladder.
+
+##### Операторная формулировка и инженерный вывод
+
+Зафиксируем \((a,x)\) и оператор
+
+\[
+(T_{a,x} h)(z) \equiv \mathbb{E}[h(W,a,x)\mid Z=z, A=a, X=x].
+\]
+
+Тогда outcome-bridge должен удовлетворять
+
+\[
+T_{a,x} h(\cdot,a,x) = m_{a,x}, \qquad
+m_{a,x}(z) = \mathbb{E}[Y \mid Z=z, A=a, X=x].
+\]
+
+Из этой формы следуют три engineering obligations:
+
+- A-layer может сертифицировать только то, что граф и proxy-разметка допускают proximal path.
+- B-layer должен отдельно проверять, что \(m_{a,x}\) plausibly принадлежит образу \(T_{a,x}\).
+- В случае провала нельзя silently вернуть regularized solution и назвать её causal estimate.
+
+Это как раз тот gap, который не закрывает Stage 11.1: machine-checkable graph certificate ещё не гарантирует, что bridge-equation решаема в статистически осмысленном классе.
+
+##### Достаточные условия, которые можно положить в v1 design
+
+###### 1. Дискретный / discretized режим: rank и invertibility
+
+В дискретной постановке strongest usable v1-result для PolicyOS — это проверяемые rank/invertibility conditions через наблюдаемую матрицу \(P(W \mid Z, x)\). Если условная матрица имеет полный ранг или устойчива к инверсии, это служит машинно-проверяемым достаточным условием того, что bridge-like representation plausibly существует в дискретном приближении.
+
+Практический контракт для v1:
+
+- оценивать `effective_rank`;
+- хранить `sigma_min`;
+- считать bootstrap stability этих величин;
+- использовать провал ранга как red flag для completeness/existence.
+
+###### 2. Непрерывный режим: model-based plausibility, а не доказуемость
+
+В непрерывной постановке completeness в общем виде не тестируема напрямую. Поэтому PolicyOS не должен обещать “we verified completeness from data”. Вместо этого честный sufficient-result для внедрения такой:
+
+- разрешить зелёный режим только при одном из двух условий:
+  - либо данные приведены к умеренной дискретизации и проходят rank diagnostics;
+  - либо явно задана parametric / semiparametric family, для которой completeness считается plausibly justified по literature-backed template.
+- во всех остальных случаях писать, что completeness — explicit uncheckable assumption, а не верифицированный факт.
+
+##### `BridgePlausibilityReport`: typed diagnostic contract
+
+Для B-layer нужен first-class IR-артефакт, который фиксирует именно plausibility, а не proof-level identifiability. Минимальный контракт:
+
+```json
+{
+  "equation_type": "outcome_bridge | treatment_bridge | both",
+  "residual_r": 0.03,
+  "residual_interval": [0.01, 0.05],
+  "effective_rank": 4,
+  "sigma_min": 0.12,
+  "ill_posedness_index": 18.7,
+  "proxy_association_score": 0.41,
+  "bridge_existence_supported": true,
+  "completeness_plausible": false,
+  "functional_invariant_to_nonuniqueness": false,
+  "suspected_failure_mode": "weak_completeness",
+  "severity": "yellow",
+  "fallback_disposition": "require_bounds",
+  "reasons": ["weak_proxy_rank", "large_condition_number"]
+}
+```
+
+Семантика полей:
+
+- `residual_r`: out-of-sample residual мостового уравнения.
+- `effective_rank` и `sigma_min`: наблюдаемая proxy-информативность в дискретном или sieve-приближении.
+- `ill_posedness_index`: proxy for instability inverse problem.
+- `bridge_existence_supported`: есть ли признаки, что уравнение совместимо с данными.
+- `functional_invariant_to_nonuniqueness`: если `true`, слабая completeness не обязана автоматически блокировать ATE-style функционал.
+- `fallback_disposition`: что делать downstream:
+  - `proceed_point_estimate`
+  - `proceed_with_warning`
+  - `require_bounds`
+  - `block_point_estimate`
+
+##### Диагностическая политика: green / yellow / red
+
+###### Green
+
+`BridgePlausibilityReport.severity = "green"` допустим, если одновременно:
+
+- residual мал и стабилен;
+- rank / invertibility не выглядят вырожденными;
+- нет сильных признаков ill-posedness;
+- bridge existence не выглядит contradicted by data.
+
+Тогда point estimate можно поднимать, но только вместе с explicit assumption block из proximal certificate.
+
+###### Yellow
+
+`severity = "yellow"` соответствует режиму “equation plausibly compatible, but weakly identified / unstable”. Здесь point estimate нельзя автоматически промотировать без оговорки. Если целевой functional инвариантен к неуникальности, можно оставить `proceed_with_warning`; если нет — требуется `require_bounds`.
+
+###### Red
+
+`severity = "red"` разделяется на два разных сценария:
+
+- `suspected_failure_mode = infeasible_equation`:
+  point estimate блокируется полностью, потому что proximal estimand на этой ветке не поддержан.
+- `suspected_failure_mode in {weak_completeness, ill_posed, nonunique_solution}`:
+  proximal path не должен выдавать безусловный point estimate; нужна bounded/set-identified ветка.
+
+##### Интеграция с `NegativeCertificate`
+
+Для fail-closed поведения нужен не один общий `PROXIMAL_CONDITION_FAILED`, а хотя бы две отдельные blocker-category:
+
+- `BRIDGE_EQUATION_INFEASIBLE`
+- `COMPLETENESS_UNLIKELY`
+
+Их смысл различен:
+
+- `BRIDGE_EQUATION_INFEASIBLE` означает, что proximal branch статистически несовместима с данными и proximal estimand не должен трактоваться как well-defined.
+- `COMPLETENESS_UNLIKELY` означает, что existence не опровергнута, но point identification небезопасна без дополнительной invariance argument или bounds branch.
+
+`NegativeCertificate.quantitative_diagnostics` должен сериализовать `BridgePlausibilityReport`, а `constructive_message` — говорить, как усилить proxies или почему нужно спуститься на bounds/sensitivity path.
+
+##### Интеграция с `BoundsBundle`
+
+Когда bridge existence fails or becomes too weak, система не должна возвращать “псевдо-point estimate с регуляризацией”. Нужен формальный переход к `BoundsBundle`.
+
+Минимальная v1-логика:
+
+1. Если `fallback_disposition = block_point_estimate`, proximal point estimate не публикуется.
+2. Если доступен более слабый valid bounds result, он оборачивается в `BoundsBundle`.
+3. `BoundsBundle` получает proximal-specific warnings:
+   - `proximal_bridge_equation_infeasible`
+   - `proximal_completeness_unlikely`
+   - `proximal_bounds_required`
+   - `proximal_point_estimate_blocked`
+4. В `BoundsBundle.metadata` сериализуется сам `BridgePlausibilityReport`, чтобы UI и audit trail видели, почему произошёл downgrade.
+
+Это важная архитектурная граница: `BoundsBundle` в этой ветке не “дополнительная аналитика”, а canonical public artifact, который заменяет proximal point ID, когда bridge branch ненадёжна.
+
+##### Decision rule для PolicyOS
+
+Итоговая decision policy для Stage 11.2:
+
+1. A-layer выдаёт `ProximalIdentificationCertificate`.
+2. B-layer строит `BridgePlausibilityReport`.
+3. Дальше действует правило:
+   - `green` -> можно строить proximal point estimate;
+   - `yellow` + `functional_invariant_to_nonuniqueness = true` -> point estimate с warning;
+   - `yellow` + `functional_invariant_to_nonuniqueness != true` -> `BoundsBundle`;
+   - `red` + `infeasible_equation` -> `NegativeCertificate(blocking_type=BRIDGE_EQUATION_INFEASIBLE)` + bounds/sensitivity fallback if available;
+   - `red` + weak completeness / nonuniqueness / ill-posedness -> `NegativeCertificate(blocking_type=COMPLETENESS_UNLIKELY)` + `BoundsBundle`.
+
+##### Что теперь считается достаточным результатом для внедрения
+
+Stage 11.2 можно считать закрытым для v1 implementation scope, если в репозитории зафиксированы три вещи:
+
+1. Typed B-layer artifact `BridgePlausibilityReport`.
+2. Typed downgrade path `BridgePlausibilityReport -> NegativeCertificate / BoundsBundle`.
+3. Research-result text, который явно говорит:
+   - graph proof не равен bridge existence;
+   - completeness не считается проверенной по данным по умолчанию;
+   - red/yellow bridge failures ведут в formal fallback ladder, а не в silent regularized point estimate.
+
+Это не завершает всю теорию proximal set bounds, но уже делает PolicyOS архитектурно честным и fail-closed в том самом месте, где proximal literature наиболее уязвима к overclaiming.
+
+---
+
+---
+
 ### Stage 12.1 — Recoverability certificates for proof kernel integration
 
 *Track context*: Research Track 11 — Recoverability and Missing-Data Calculus.
@@ -3813,6 +4015,12 @@ iff
 
 Если формулировать deliverable в вашей терминологии, то я бы считала его выполненным, когда у вас будут: калибровочный suite для tetrad tests по сценариям exact null / approximate null / alternatives; severity mapping `info` / `warning` / `blocker` по пяти block-level метрикам; и начальные registry thresholds, похожие на предложенные выше, с явным правилом: **без high-confidence regime algebraic blockers не поднимать**. Это наиболее осторожная и в то же время practically useful трактовка того, что сегодня действительно поддерживается и литературой, и текущим состоянием репозитория.
 
+##### Реализационный snapshot
+
+Stage 8.2 материализован в runtime как первый tetrad-calibration слой. В `algebraic_calibration.py` зафиксированы benchmark suite, генератор synthetic calibration cases, runnable benchmark runner с Type I/II summary helper, provisional threshold profile и severity decision map. В `constraint_discovery.py` tetrad-нарушения теперь несут block-level метрики `min_q`, `max_abs_z`, `median_delta`, `violation_support`, `effective_n`, число подтверждающих tetrads и bootstrap draw count. Severity больше не определяется одной BH-adjusted p-value: `blocker` возможен только при high-confidence continuous regime, `effective_n >= 500`, минимум 1000 bootstrap draws и минимум двух corroborating tetrad violations. При текущих production-default 200 bootstrap draws tetrad остается максимум `warning`, что сохраняет conservative audit semantics.
+
+`JudgeThresholdRegistry` расширен tier-aware порогами: для `family="algebraic_tetrad"` seeded defaults хранят warning и blocker thresholds для `algebraic_tetrad_min_q`, `algebraic_tetrad_max_abs_z`, `algebraic_tetrad_median_delta`, `algebraic_tetrad_violation_support` и `algebraic_tetrad_effective_n`. Эти значения теперь берутся из того же threshold-recommendation helper, что и runtime severity map, так что benchmark/profile/registry не расходятся по числам. Это переводит research recommendation из текста в версионируемый registry contract, не ломая существующие hard-threshold checks.
+
 ---
 
 ---
@@ -4004,6 +4212,14 @@ moderator_extension:U_03:failed_no_identified_interaction_signature
 Но для PolicyOS есть реалистичный и полезный путь вперед: сузить claim до класса **multi-environment linear non-Gaussian latent hierarchical SEM** с `Purity + p-latent atomic structure + minimal latent hierarchical structure + localized soft shifts`. В этом классе уже есть сильная опубликованная база для идентификации latent blocks и их кардинальности, а роль **confounder** и **mediator** можно сделать machine-checkable через комбинацию recovered graph placement и invariance/shift diagnostics. Роль **moderator** нужно считать идентифицируемой только в дополнительном interaction-расширении; без него система должна честно возвращать `unknown`.
 
 Именно такой результат, по существу, и является тем “достаточным результатом”, который разблокирует `LatentDiscoveryBundle.proposed_latent_nodes` и `identification_conditions` без превращения latent discovery в hallucination engine: **не общая теория для всех policy data, а узкая theorem-backed зона применения с явными conditions, explicit refusals и все еще proof-only governance envelope**.
+
+##### Реализационный snapshot
+
+Stage 9.1 материализован как обратносуместимый typed-envelope поверх текущего `LatentDiscoveryBundle`: добавлены `LatentBlockProposal`, `LatentBlockEvidence`, `LatentCardinalityIdentificationSpec` и enum-контракты для `role`, `status`, `graph_status` и aggregate `identifiability_status`. Новый helper emits canonical `proposed_latent_nodes` вида `U_01|block_size=1|role=confounder|status=identified`, canonical `identification_conditions` (`class:*`, `atomic_block:*`, `env_shift:*`, `minimality:*`, `role_rule:*`, `moderator_extension:*`) и structured `metadata.latent_blocks`, не меняя legacy shape самого bundle.
+
+`latent_governance.py` теперь включает Stage 9.1 cardinality gate: если bundle использует canonical cardinality contract, assessment требует поддержанный model class, валидный node descriptor, atomic block condition, localized shift, minimality condition, role rule для confounder/mediator и verified interaction signature для moderator. Нарушения попадают в `missing_requirements`, `no_promotion_reasons` и `metadata.cardinality_gate_failures`; proof-only, human-gate и `not_for_decision_support` ограничения при этом остаются неизменными.
+
+`merge_latent_discovery_hypotheses` сохраняет cardinality metadata при объединении discovery hypotheses, включая `model_class`, conservative `identifiability_status`, `latent_blocks`, `latent_candidates` и `ambiguity_notes`. Это предотвращает потерю theorem-backed evidence при переходе от per-hypothesis latent proposal к effective latent bundle.
 
 ---
 
@@ -5612,6 +5828,14 @@ shift_type_assessment:
 
 **Phase gate**: At least one full dependency chain in each major family (continuous-time, strategic, topology, proximal/recoverability/intervention hierarchy, DP, regime shifts) reaches an implementation-grade integration specification.
 
+**Implementation status (2026-04-20)**:
+
+- Phase 3 now satisfies both the gate and the document-faithful closure target inside theorem-backed scope. The previously open document-level gaps `4.1`, `6.3`, `12.3`, and `13.3` now have executable integration paths, on top of the earlier runtime closures for `4.2`, `6.4`, and `15.3`.
+- Continuous-time family `4.4 -> {4.1, 4.2, 4.5}` is executable across both neural and rough/event lanes: neural certificates still compile to executable `neural_sde` / `neural_cde` plans, while irregular-grid rough-path backends (`geometric_rough_path`, `cadlag_rough_path`, `truncated_signature`, `hybrid_rough_event`) now run when a valid `RoughPathInterventionCertificate` plus `TemporalPathSemanticsAttachment` is present and otherwise fail closed or degrade with explicit representation-only disclosure.
+- Strategic chain `6.1 -> 6.2 -> 6.3 -> 6.4` now reaches a persisted, governance-visible integration artifact: anonymous-aggregative `epsilon_nash` contracts route into the mean-field solver, and finite-game strategic outputs now classify decomposition as `exact`, `selector_invariant`, `bounded`, or `blocked` from explicit equilibrium correspondence evidence rather than relying on a display-only placeholder.
+- Proximal / recoverability / intervention-hierarchy chain `11.3 -> 12.3 -> 13.3` is executable end to end in scoped form: proximal mediation remains theorem-template gated, recoverability certificates now publish compile-time strategy and lowering metadata consumed by the estimator compiler, and the path-specific proof backend supports DAG/ADMG district-local compilation with conditional pre-treatment queries, experiment-assisted exact identification, witness-local bounds, and typed proximal fallback.
+- Topology (`10.2/10.3`), privacy-aware transport (`15.3`), and regime-shift feasibility (`16.3`) remained green under focused regression after the closure work, so each major Phase 3 family still has at least one implementation-grade dependency chain.
+
 ---
 
 ### Stage 2.3 — Cyclic SCM fragment composition
@@ -5668,11 +5892,11 @@ shift_type_assessment:
 
 1. Каждый циклический SCC внутри каждого фрагмента либо
    **(a)** uniquely solvable относительно самого SCC и любых допустимых значений его внешних родителей, либо
-   **(b)** снабжен контрактive/equilibrium witness, обеспечивающим существование и единственность measurable solution map для всех разрешенных интервенций на внешнем интерфейсе.
+   **(b)** снабжен contractive/equilibrium witness, обеспечивающим существование и единственность measurable solution map для всех разрешенных интервенций на внешнем интерфейсе.
 
 2. Для каждого фрагмента допустимые perfect interventions замкнуты относительно объявленного solvability class, то есть после любой разрешенной интервенции фрагмент остается в том же семантическом классе (`simple_cyclic`, `equilibrium_contractive` или `equilibrium_linear_stable`).
 
-3. Межфрагментное склеивание выполняется только по интерфейсам с alignment type `EXACT` или `SCALE_LINKED`; скрытые межфрагментные связи не вводятся неявно.
+3. Межфрагментное склеивание выполняется только по интерфейсам с alignment type `exact` или `scale_linked`; скрытые межфрагментные связи не вводятся неявно.
 
 4. Если заменить каждый внутренний циклический SCC на его measurable solution function и схлопнуть его в solved block, то condensation graph составленной системы ацикличен.
 
@@ -5691,9 +5915,9 @@ shift_type_assessment:
 
 ##### Границы применимости и контрпримерные семейства
 
-**Несовместимые или интервенционно-хрупкие циклы.** Базовый запрет — любой цикл, в котором система уравнений может не иметь решения, иметь несколько решений или терять unique solvability после интервенции. Это не экзотика, а прямо описанный в foundations риск: циклическая SCM в общем случае может не иметь решения вообще или индуцировать несколько распределений, а even uniquely solvable cyclic SCM может после интервенции стать nonuniquely solvable. Для компоновщика это означает, что такой фрагмент нельзя маркировать как `allow`; максимум — `bounds_only` при наличии отдельной semantics, иначе `block`.
+**Несовместимые или интервенционно-хрупкие циклы.** Базовый запрет — любой цикл, в котором система уравнений может не иметь решения, иметь несколько решений или терять unique solvability после интервенции. Это не экзотика, а прямо описанный в foundations риск: циклическая SCM в общем случае может не иметь решения вообще или индуцировать несколько распределений, а even uniquely solvable cyclic SCM может после интервенции стать nonuniquely solvable. Для компоновщика это означает, что такой фрагмент нельзя маркировать как `allow`; максимум — `allow_bounds_only` при наличии отдельной semantics, иначе `block`.
 
-**Self-cycles и локально неразрешимые SCC.** В foundations paper self-cycle интерпретируется как ситуация, когда переменная не uniquely determined своими родителями; для линейных SCM self-cycle эквивалентен \(B_{ii}=1\). Такие блоки особенно опасны для фрагментной композиции, потому что уже на уровне одного узла нет machine-checkable гарантии, что решение существует и единственно. Бұл family надо блокировать автоматически, если не приложен отдельный witness иной семантики.
+**Self-cycles и локально неразрешимые SCC.** В foundations paper self-cycle интерпретируется как ситуация, когда переменная не uniquely determined своими родителями; для линейных SCM self-cycle эквивалентен \(B_{ii}=1\). Такие блоки особенно опасны для фрагментной композиции, потому что уже на уровне одного узла нет machine-checkable гарантии, что решение существует и единственно. Это семейство надо блокировать автоматически, если не приложен отдельный witness иной семантики.
 
 **Равновесия, зависящие от начальных условий.** Это важнейшее counterexample family для policy domains. Blom, Bongers и Mooij показывают, что обычные SCM в общем случае недостаточно гибки, чтобы полностью описывать stationary behavior dynamical systems, когда equilibrium зависит от initial conditions; именно поэтому вводятся CCM. Для PolicyOS это означает простой rule: если цикл соответствует equilibrium semantics, но экспортируемые эффекты зависят от initial state или history class, такой фрагмент не должен объявляться `equilibrium_contractive`/`simple_cyclic`; он должен идти либо в `dscm_semantics`, либо в явный блок.
 
@@ -5765,6 +5989,16 @@ class SCMFragment(BaseModel):
 
 Моя итоговая рекомендация для PolicyOS — **не** пытаться сразу «поддержать циклы вообще». Производственный первый шаг должен быть уже́: `acyclic` → как сейчас; `simple_cyclic` / `equilibrium_contractive` → новый поддерживаемый класс; `dscm_semantics` / `finite_p_separation` → research-only; все остальное → `block`. Это дает ровно тот deliverable, который просит research agenda: theorem-кандидат, явный scope statement, Counterexample families и machine-auditable integration spec, причем все это совместимо с текущими слоями `ProofBundle`, `CompositionCertificate`, `AlignmentReport` и readiness governance в репозитории.
 
+##### Реализационный snapshot
+
+Этот integration spec теперь материализован не только в контракте `SCMFragment`, но и в runtime-логике composition / audit. В `policy-engine/src/polisyos/ir/analytics/cross_graph.py` enum-типология `CycleType` / `CycleScope` / `CompositionPolicy`, typed `CycleWitness` и поля `cycle_type`, `cycle_scope`, `cycle_witnesses`, `allowed_alignment_types`, `graph_audit_guarantee`, `composition_policy` уже дополняются более жесткой валидацией: auto-compose разрешается только для cyclic fragments с `interventional_closure != none`, `markov_semantics = sigma_separation`, `allowed_alignment_types ⊆ {exact, scale_linked}`, без `initial_condition_dependent`, и без research-only semantics.
+
+Strict composer в `policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py` теперь делает следующий production-scope шаг. Он materialize-ит `cycle_contracts` в metadata `CompositionCertificate` и `composed_graph`, промотирует composition result в cycle-aware `ADMG` view при declared cyclic semantics, разрешает supported internal cyclic SCC вместо blanket-отказа на любой directed cycle, и одновременно блокирует случаи, где после stitch появляется **cross-fragment directed cycle SCC**. Иными словами, условие про “acyclic condensation graph after collapsing internal SCCs” теперь реализовано как машинная проверка: циклы допустимы только пока они остаются internal-to-fragment по contributing edges.
+
+`query_preservation.py` тоже больше не является acyclic-only. Для supported cyclic fragments он протягивает `cycle_contracts` в witness/composed graphs и переключает graphical oracle на `sigma_separation`; в per-query traces теперь явно пишется, каким критерием (`d_separation`, `m_separation` или `sigma_separation`) проверялась obligation. Это закрывает главный semantic gap между cycle contract и compositional audit: поддерживаемые feedback fragments больше не только “задекларированы”, но и проверяются тем критерием, который соответствует их scope statement.
+
+Production boundary при этом остается сознательно узким. Research-only semantics (`DSCM_SEMANTICS`, `FINITE_P_SEPARATION`), bounds-only cyclic composition, initial-condition-dependent witnesses и cross-fragment feedback SCC по-прежнему не проходят strict composition path и остаются на human-gated / proof-only стороне governance. То есть Stage 2.3 теперь materialized как **supported internal cyclic composition + sigma-aware query preservation + explicit counterexample blocking**, а не просто как declaration-only contract.
+
 ---
 
 ---
@@ -5781,11 +6015,17 @@ class SCMFragment(BaseModel):
 
 **Deliverable form**: formal semantics + identifiability conditions + proof artifact format + integration spec for `EffectTrajectoryBundle.path_representation`.
 
+**Implementation status (2026-04-20)**:
+- `ContinuousTimeQuery` / `TemporalExecutionPlan` now admit `IRREGULAR_GRID` for `geometric_rough_path`, `cadlag_rough_path`, `truncated_signature`, and `hybrid_rough_event` when `TemporalPathSemanticsAttachment` plus `RoughPathInterventionCertificate` are attached.
+- Compile-time and runtime gates now enforce adapted interpolation, no future leakage, declared intervention semantics, well-posedness / target-functional refs, sampling ignorability, and `latent_path` lift-faithfulness; uncertified irregular-grid queries remain blocked.
+- Rough-path certificate status is now integrated end to end: `identified` yields executable support, `identified_representation_only` / `partially_identified` degrade to explicit representation-only or bounds-aware runtime support, and `blocked` remains a typed hard stop.
+- `solve_temporal_effect_path(...)` and `CausalEngine.temporal_causal_effect(...)` now preserve rough-path `path_representation` and path-semantics metadata inside `EffectTrajectoryBundle` without collapsing the separate event-process weighting lane.
+
 #### Каузальная семантика для rough-path и нерегулярного сэмплирования
 
 ##### Краткий вывод
 
-В репозитории PolicyOS эта тема уже правильно выделена как исследовательская, а не инженерная: исследовательская повестка выносит rough-path/irregular-sampling semantics в отдельную открытую проблему, implementation plan исключает задачи, требующие новых теорем, из engineering-ready scope, а текущий IR-код машинно блокирует `IRREGULAR_GRID` как `BLOCKED_RESEARCH`, так же как `NEURAL_CDE`/`NEURAL_SDE`, оставляя `DISCRETE_REPLAY` лишь как деградированный fallback. Это означает, что перед любым “causal-valid” estimator для нерегулярной сетки действительно нужен формальный слой семантики и доказательного артефакта, а не только новый численный backend.
+В репозитории PolicyOS эта тема больше не живет только как исследовательский placeholder: rough-path / irregular-sampling semantics теперь имеют узкий, но реальный executable lane. Нерегулярная сетка по-прежнему не допускается без proof artifact, однако `ContinuousTimeQuery`, `compile_temporal_estimand(...)` и `solve_temporal_effect_path(...)` уже принимают irregular-grid запросы для rough-path backend'ов при наличии typed path-semantics attachment и rough-path certificate, честно деградируют в representation-only / bounds-aware режим при частичной идентификации и продолжают fail-closed вне сертифицированного scope. Это означает, что в PolicyOS появился именно тот формальный семантический слой и доказательный артефакт, без которых causal-valid runtime для нерегулярной сетки был бы невозможен.
 
 Мой итоговый исследовательский вывод такой: достаточный и practically integrable ответ для PolicyOS — это **двухуровневая семантика**, в которой различаются **латентный непрерывный каузальный процесс** и **каноническое path-representation, построенное из нерегулярных наблюдений через явный lift/interpolation operator**. Тогда интервенции определяются не как “подмена одного наблюдаемого значения на сетке”, а как **операторы на процессе**: policy override, intensity override, либо reset-at-stopping-time с явно заданным правилом продолжения. В таком режиме `do(X(t)=x)` на нерегулярной сетке по умолчанию **не имеет смысла**, пока не указано, что именно это значит на уровне процесса после времени \(t\). Эта формализация естественно опирается на rough-path/RDE литературу, continuous-time causal literature для SDE и counting processes, и на уже существующую в PolicyOS proof-carrying архитектуру.
 
@@ -6379,13 +6619,44 @@ identification_certificate_ref: ArtifactRefModel | None = None
 
 ###### Теорема об идентификации через reweighting при интервенции на интенсивность лечения и предотвращении цензуры
 
-**Объект:** мультивариантные счётные процессы на горизонте \([0, T]\), включающие: - \(X\): процесс лечения/экспозиции (на него накладываем политику), - \(Y\): интересующий outcome‑процесс (например, событие болезни/смерти или счётчик обнаружений), - \(C\): процесс цензуры, - \(L\): наблюдаемые ковариатные процессы, потенциально time‑varying confounders, - \(U\): ненаблюдаемые процессы/факторы (латентные).
+**Объект:** мультивариантные счётные процессы на горизонте \([0, T]\), включающие:
+
+- \(X\): процесс лечения/экспозиции, на который накладывается политика;
+- \(Y\): интересующий outcome‑процесс, например событие болезни/смерти или счётчик обнаружений;
+- \(C\): процесс цензуры;
+- \(L\): наблюдаемые ковариатные процессы, потенциально `time-varying confounders`;
+- \(U\): ненаблюдаемые процессы/факторы (латентные).
 
 **Интервенция/политика:** гипотетическая политика \(\pi\) задаёт *новую* интенсивность лечения \(X\) (возможны динамические политики, т.е. интенсивность допускается предсказуемой относительно выбранной истории), а также рассматривается интервенция, предотвращающая цензуру (или более общо — «рандомизирующая» цензуру через замену интенсивности цензуры).
 
-**Условия (суть):** - (CV) **Каузальная валидность** локально-независимой системы относительно (i) интервенции на \(X\) (замена интенсивности) и (ii) интервенции на \(C\) (предотвращение/рандомизация цензуры). - (IC_full) **Независимая цензура** в смысле локальной независимости: цензура «не информативна» относительно системы в нужной фильтрации; это графически проверяемо через δ-separation, и в частном случае (для всей модели) эквивалентно тому, что узел цензуры не имеет детей. - (Elim) **Устранимость (eliminability)** латентных процессов/факторов \(U\) относительно процесса лечения \(X\) (с учётом набора наблюдаемых ковариат \(L\)): это графическое условие, которое объединяет идеи последовательной рандомизации и последовательной «нерелевантности», и проверяется через δ-separation‑условия по шагам устранения. - (Pos/Tech) Технические условия типа ограниченности/позитивности (в статье формулируются через boundedness и абсолютную непрерывность, обеспечивающие существование корректного likelihood ratio процесса для смены меры).
+**Условия (суть):**
 
-**Вывод (идентификация):** интервенционное распределение \(P^{\pi}\) (интервенция на \(X\) + предотвращение/рандомизация \(C\)), **ограниченное на наблюдаемую подсистему** (маргинально по \(U\) и часто по части \(L\), если они не входят в целевой функционал), **идентифицируемо из наблюдательных данных** посредством: 1) *пере‑взвешивания* (likelihood-ratio / change of measure) наблюдательного распределения весами, построенными по отношениям интенсивностей (для лечения и цензуры), 2) маргинализации по «неинтересующим» процессам, 3) и применения de-censoring map (в терминах статьи).
+- (CV) **Каузальная валидность** локально-независимой системы относительно
+  (i) интервенции на \(X\) через замену интенсивности и
+  (ii) интервенции на \(C\) через предотвращение/рандомизацию цензуры.
+- (IC_full) **Независимая цензура** в смысле локальной независимости: цензура
+  «не информативна» относительно системы в нужной фильтрации; это графически
+  проверяемо через δ-separation, и в частном случае для всей модели
+  эквивалентно тому, что узел цензуры не имеет детей.
+- (Elim) **Устранимость (`eliminability`)** латентных процессов/факторов
+  \(U\) относительно процесса лечения \(X\) с учётом набора наблюдаемых
+  ковариат \(L\): это графическое условие, которое объединяет идеи
+  последовательной рандомизации и последовательной «нерелевантности» и
+  проверяется через δ-separation‑условия по шагам устранения.
+- (Pos/Tech) Технические условия типа ограниченности/позитивности.
+  В статье они формулируются через `boundedness` и абсолютную непрерывность,
+  обеспечивающие существование корректного likelihood-ratio процесса для
+  смены меры.
+
+**Вывод (идентификация):** интервенционное распределение \(P^{\pi}\)
+(интервенция на \(X\) плюс предотвращение/рандомизация \(C\)),
+**ограниченное на наблюдаемую подсистему** — маргинально по \(U\) и часто по
+части \(L\), если они не входят в целевой функционал — **идентифицируемо из
+наблюдательных данных** посредством:
+
+1. *пере‑взвешивания* (`likelihood-ratio` / `change of measure`) наблюдательного распределения весами, построенными по отношениям интенсивностей для лечения и цензуры;
+2. маргинализации по «неинтересующим» процессам;
+3. применения `de-censoring map` в терминах статьи.
 
 В статье это собрано в центральный результат (Theorem 2): при сформулированных структурных предпосылках интервенционное распределение на целевом подмножестве узлов выражается через наблюдаемое (цензурированное) распределение с помощью комбинированных весов, причём пункт (ii) интерпретируется как непрерывновременный аналог sequential exchangeability/ignorability.
 
@@ -6403,7 +6674,21 @@ identification_certificate_ref: ArtifactRefModel | None = None
 
 В текущем IR `ProofBundle` (канонический публичный артефакт доказательства идентификации) содержит: `proof_status`, `proof_stratum`, `theorem_family`, `completeness_regime`, `estimand_ast` (как JSON‑словарь), `proof_trace` (строки‑трейсы), `assumptions` и `metadata`. Кодовая дорожка уже предусматривает конвертацию внутренних результатов идентификации в `ProofBundle` через `proof_bundle_from_identification_result`, где `theorem_family` берётся из `algorithm_version`, а `proof_trace` — это список строк.
 
-Следовательно, «certificate format compatible with ProofBundle» практически означает: - **(а)** мы должны уметь сериализовать вывод идентификации (формулу/процедуру) в `estimand_ast: dict`, - **(б)** собрать машинно‑проверяемую цепочку условий (δ/µ‑separation и eliminability‑шаги) в `proof_trace` и/или структурированных `metadata`, - **(в)** перечислить ключевые допущения (каузальная валидность, независимая цензура, boundedness/позитивность) в `assumptions`, - **(г)** поставить честный режим полноты: это будет **sound_incomplete** (мы реализуем достаточные правила; провал правила не означает неидентифицируемость). Логика такого выбора соответствует тому, как `ProofBundle` различает `complete` vs `sound_incomplete` vs `heuristic_backed`.
+Следовательно, «certificate format compatible with ProofBundle» практически
+означает:
+
+- **(а)** уметь сериализовать вывод идентификации, то есть формулу/процедуру,
+  в `estimand_ast: dict`;
+- **(б)** собрать машинно‑проверяемую цепочку условий — δ/µ‑separation и
+  `eliminability`‑шаги — в `proof_trace` и/или структурированных `metadata`;
+- **(в)** перечислить ключевые допущения, включая каузальную валидность,
+  независимую цензуру и `boundedness`/позитивность, в `assumptions`;
+- **(г)** поставить честный режим полноты: это будет **sound_incomplete**,
+  поскольку реализуются достаточные правила, а провал правила не означает
+  неидентифицируемость.
+
+Логика такого выбора соответствует тому, как `ProofBundle` различает
+`complete`, `sound_incomplete` и `heuristic_backed`.
 
 ###### Предлагаемый сертификат: LocalIndependenceWeightingCertificate
 
@@ -6492,7 +6777,22 @@ identification_certificate_ref: ArtifactRefModel | None = None
 }
 ```
 
-**Как это «вклеивается» в ProofBundle:** - `ProofBundle.proof_status = "identified"` при успешной проверке условий. - `ProofBundle.theorem_family = "local_independence_weighting_v1"` (или версионированная строка, как принято в ID‑движке). - `ProofBundle.completeness_regime = "sound_incomplete"` (поскольку мы даём достаточный критерий). - `ProofBundle.assumptions` включает ключевые ярлыки: `causal_validity_intensity_replacement`, `independent_censoring_local`, `bounded_likelihood_ratio` и т.п. (аналогично тому, как сейчас `ProofBundle` извлекает assumptions из side_conditions). - `ProofBundle.proof_trace` — человекочитаемый трейс, а **структурные свидетели** (blocked trails, elimination sequence) — в `metadata` или в самом `estimand_ast.graphical_checks`.
+**Как это «вклеивается» в ProofBundle:**
+
+- `ProofBundle.proof_status = "identified"` при успешной проверке условий.
+- `ProofBundle.theorem_family = "local_independence_weighting_v1"` или другая
+  версионированная строка, как принято в ID‑движке.
+- `ProofBundle.completeness_regime = "sound_incomplete"`, поскольку здесь
+  используется достаточный, а не полный критерий.
+- `ProofBundle.assumptions` включает ключевые ярлыки:
+  `causal_validity_intensity_replacement`,
+  `independent_censoring_local`, `bounded_likelihood_ratio` и т.п., по
+  аналогии с тем, как `ProofBundle` уже извлекает assumptions из
+  `side_conditions`.
+- `ProofBundle.proof_trace` хранит человекочитаемый трейс, а
+  **структурные свидетели** — `blocked trails`, `elimination sequence` —
+  живут в `metadata` или прямо в
+  `estimand_ast.graphical_checks`.
 
 Важно: существующая IR‑модель `ProofBundle` допускает `estimand_ast` как произвольный JSON‑словарь, поэтому расширение возможно без ломки контракта.
 
@@ -6502,7 +6802,12 @@ identification_certificate_ref: ArtifactRefModel | None = None
 
 В PolisyOS уже присутствует «контрактная поверхность» для непрерывного времени: `ContinuousTimeQuery` и связанные артефакты траекторий интервенции/эффект‑траекторий. Есть компилятор temporal‑estimand’ов, который превращает `ContinuousTimeQuery` в план исполнения (`TemporalExecutionPlan`) и пока требует регулярной сетки и ограничивает функционалы (effect_path / integral_effect) и бэкенды (ODE/linear SDE), с явными reason_code для research‑gated случаев. Архитектурно causal engine описан как pipeline, где идентификация — отдельная стадия с «auditable stack».
 
-Следовательно, event-process идентификация через локальную независимость логично садится: - либо как **подрежим Stage 2: Identification** для непрерывного времени, - либо как отдельная ветка «temporal identification» перед `temporal_estimand_compiler`.
+Следовательно, event-process идентификация через локальную независимость
+логично садится:
+
+- либо как **подрежим Stage 2: Identification** для непрерывного времени;
+- либо как отдельная ветка `temporal identification` перед
+  `temporal_estimand_compiler`.
 
 ###### Новый тип запроса или расширение ContinuousTimeQuery
 
@@ -6525,7 +6830,15 @@ identification_certificate_ref: ArtifactRefModel | None = None
 
 Где результат должен быть конвертируем в `ProofBundle` через существующий `proof_bundle_from_identification_result`.
 
-**Рекомендуемая внутренняя структура результата** (в стиле `IdentificationResult` в `id_engine.py`): - `status ∈ {identified, oracle_needed}` (и потенциально `non_identified`, если начнёте делать отрицательные сертификаты), - `algorithm_version = "local_independence_weighting_v1"`, - `trace: list[str]` (попадает в `ProofBundle.proof_trace`), - `estimand_ast` = сериализация `LocalIndependenceWeightingCertificate`.
+**Рекомендуемая внутренняя структура результата** в стиле
+`IdentificationResult` из `id_engine.py`:
+
+- `status ∈ {identified, oracle_needed}` и потенциально `non_identified`,
+  если позже будет введён отрицательный сертификат;
+- `algorithm_version = "local_independence_weighting_v1"`;
+- `trace: list[str]`, который попадает в `ProofBundle.proof_trace`;
+- `estimand_ast`, равный сериализации
+  `LocalIndependenceWeightingCertificate`.
 
 В `id_engine.py` уже есть паттерн «дедуктивных шагов» (`ProofStep`) и мост в IR, где rule_name маппится на «формальное имя правила» и «применимую теорему». Для локальной независимости нужно добавить (или параллельно реализовать) набор rule_name’ов:
 
@@ -6775,11 +7088,17 @@ Governance-проход подтверждает этот разрыв: `Strateg
 
 **Deliverable form**: theorem + decomposition conditions + integration spec for `StrategicResponseBundle`.
 
+**Implementation status (2026-04-20)**:
+- Foundry strategic solving now computes a baseline-anchor/equilibrium correspondence and classifies decomposition as `exact`, `selector_invariant`, `bounded`, or `blocked` instead of treating decomposition as a display-only placeholder.
+- `bounded` mode now persists honest component intervals via `StrategicComponentBoundsSummary`, while `blocked` mode always emits a `StrategicDecompositionFailureCard` with typed failure codes.
+- `persist_strategic_solve_artifacts(...)` now auto-materializes decomposition certificates, bounds refs, and failure-card refs into `StrategicResponseBundle`, keeping the public bundle schema unchanged while making the decomposition runtime-real.
+- Governance keeps two-number reporting only for `exact` / `selector_invariant`; `bounded` surfaces interval-only decomposition and `blocked` hides the split in favor of total strategic disclosure.
+
 #### Декомпозиция постполитического исхода на каузальную и стратегическую компоненты
 
 ##### Вывод для PolicyOS
 
-В текущем состоянии PolicyOS уже **требует** наличие `causal_component_ref` и `strategic_closure_ref` в `StrategicResponseBundle`, поддерживает режимы `exact_equilibrium`, `strategic_bounds`, `macro_abstracted` и `blocked`, а также проводит governance-проверки на блокировку и чувствительность к множественности равновесий. Но при этом кодовая база **не содержит критерия**, по которому можно решить, когда двухкомпонентная декомпозиция действительно является единственной и интерпретируемой, а когда это лишь удобный, но потенциально вводящий в заблуждение разрез результата. Более того, рантайм-решатель в exact-режиме при множественности равновесий выбирает одно из них детерминистическим инженерным правилом сортировки, что полезно для воспроизводимости, но само по себе не является экономически или каузально оправданным правилом селекции. Исследовательская agenda репозитория прямо фиксирует это как открытый вопрос и требует именно теорему, условия и интеграционную спецификацию.
+В текущем состоянии PolicyOS эта проблема уже закрыта в узком theorem-backed runtime scope. `StrategicResponseBundle` по-прежнему требует `causal_component_ref` и `strategic_closure_ref`, поддерживает режимы `exact_equilibrium`, `strategic_bounds`, `macro_abstracted` и `blocked`, но теперь поверх них добавлен реальный decomposition decision procedure: solver строит baseline anchor, проверяет допустимость cross-world correspondence между `E(a_0)` и `E(a_1)` и классифицирует результат как `exact`, `selector_invariant`, `bounded` или `blocked`. Это убирает прежнюю ситуацию, где рантайм в exact-режиме просто выбирал одно равновесие детерминистической сортировкой и тем самым не отличал действительно каноническую декомпозицию от engineering convenience.
 
 Практический результат исследования такой: **две точечные величины** — «causal» и «strategic» — можно показывать только тогда, когда стратегия трактуется как посттритментный медиатор в модульной game-SCM, существует корректный «замороженный» контрфактуальный исход вида \(Y(a_1,s_0)\), а либо равновесие единственно, либо все допустимые селекторы равновесия дают **одну и ту же пару компонент**. Если это не так, система должна либо переходить к **set-valued/bounded** представлению компонент, либо входить в **BLOCKED** с явной failure card. Эта рекомендация согласуется с литературой по natural direct/indirect effects, с эконометрикой игр при множественности равновесий и с недавней литературой по treatment effects in equilibrium и performative systems.
 
@@ -7344,6 +7663,16 @@ AbstractionCertificate(
 Самое важное, что этот путь естественно продолжает уже существующий codepath в репозитории. Сегодня exact verifier по сути доказывает “локальный defect = 0 в каждом узле и каждом macro context”. Research result должен заменить бинарную проверку равенства на количественную проверку “локальный defect ≤ ε”, а затем пропустить этот ε через causally ordered propagation и перевести в bound на policy value. Тогда open problem 7.1 превращается не в абстрактную математическую амбицию, а в очень конкретный новый режим системы: **macro recommendation permitted iff certified abstraction error does not overturn the decision**.
 
 По совокупности найденных источников я бы оценил это как **сильный и реалистичный research target средней сложности**: семантический фундамент causal abstraction уже есть; continuous-state verification and policy-refinement machinery тоже есть; а значит реальная новизна состоит не в создании математики “с нуля”, а в правильной склейке двух зрелых линий — SCM abstraction semantics и simulation-style computable error bounds — в один сертификат, пригодный для `AbstractionCertificate.error_bound`. Именно это, по моему выводу, и является наиболее вероятным “достаточным результатом”, который действительно разблокирует Phase D beyond exact finite-state abstraction.
+
+##### Реализационный snapshot
+
+Stage 7.1 теперь материализован не только как typed contract, но и как рабочий verifier path. В `ir.analytics.abstraction` добавлен `verify_continuous_approximate_abstraction(...)` с двумя production-supported backend’ами: `continuous_linear_gaussian` и `continuous_lipschitz_dag`. Первый вычисляет interventional abstraction loss в closed form для one-to-one affine abstractions of acyclic linear-Gaussian SCMs; второй реализует theorem-style propagation bound `b = (I - Λ)^{-1} δ` для acyclic Lipschitz DAG abstractions при наличии сертифицированных локальных defect’ов и contracting gain matrix.
+
+Для обоих continuous семейств `AbstractionCertificate` теперь несет decision-grade semantics: `error_bound` интерпретируется как upper bound на policy-value error, а `metadata.error_bound_spec` раскрывает verified scope (`query_family`, `interventions`, `action_domain`), выбранные state/distribution metrics, `value_lipschitz_constant`, `global_state_bound`, `gain_matrix_spectral_radius`, `tightness_status` и `recommendation_margin_required = 2 * error_bound`. Это прямо кодирует правило “macro recommendation permitted only if certified abstraction error cannot overturn the ranking”.
+
+Pipeline тоже доведен до конца. `scientist.node_run_abm_consistency` теперь умеет загружать continuous SCM inputs и `continuous_abstraction_bound_config`, строить/persist continuous abstraction certificate alongside graph/map artifacts и публиковать `params.abstraction_preservation_type` как `approximate` или `policy_value_only` вместо деградации в heuristic-only path. Downstream consumers видят те же semantics: `foundry.methods.catalog.causal.strategic` и runtime metadata теперь прокидывают `abstraction_error_bound_spec` и `abstraction_recommendation_margin_required`, так что governance и macro fallback могут сравнивать policy gap с сертифицированным decision budget напрямую.
+
+Обратносовместимость сохранена. Approximate families из Stage 6.2 (`type_mean_affine`, `spatial_eep_linear`) продолжают работать без нового spec-пакета, а continuous branch получает отдельный stricter contract вместо размывания старой semantics. Тестовый контур теперь покрывает direct solver behavior для linear-Gaussian и Lipschitz-DAG paths, invalid/failure modes, persistence через `run_abm_consistency`, propagation в strategic closure summary и runtime metadata serialization.
 
 ---
 
@@ -7986,6 +8315,15 @@ def compute_reduction_error_bound(
 
 **Deliverable form**: theorem + certificate format + integration spec for path-specific proximal queries in the proof kernel.
 
+**Implementation status (2026-04-20)**:
+- `single_mediator_proximal_v1` is wired into the proof kernel for path-specific queries under hidden confounding with proxy annotation.
+- The IR includes `ProximalMediationCertificate` and related typed payloads for query spec, bridge equations, completeness conditions, topology, and graph checks.
+- The causal engine now emits `identified` proof bundles when oracle-level completeness assumptions are explicitly accepted, and `oracle_needed` proof bundles otherwise.
+- The estimand compiler routes `identification_method="proximal_mediation"` to `causal.proximal.proximal_mediation@1.0.0`, carrying theorem/query/variable-role metadata into execution.
+- `CausalEngine.run(..., intervention_query=...)` now supports path-specific proximal queries end-to-end and executes an approximate nested linear bridge solver for `psi`, `nde`, and `nie`.
+- The runtime now fails closed: rejected oracle assumptions, unstable bridge diagnostics, and numeric bridge failures all downgrade to theorem-specific `BoundsBundle` output plus a structured `NegativeCertificate`.
+- Regression coverage now includes proof-bundle status promotion, compiler routing, foundry registration, runtime success with accepted oracle assumptions, and bounds fallback when the oracle gate is not accepted.
+
 #### Проксимальная медиация и проксимальные path-specific эффекты: идентифицируемость, сертификаты и интеграция в proof kernel PolicyOS
 
 ##### Контекст задачи и почему это «open problem» в PolicyOS
@@ -8225,6 +8563,12 @@ def compute_reduction_error_bound(
 
 **Deliverable form**: decision procedure + efficiency analysis + integration spec for the estimand/estimator compiler.
 
+**Implementation status (2026-04-20)**:
+- `RecoverabilityCertificate` now publishes `recommended_estimator_family`, `compile_time_strategy`, `compile_time_required_nuisance`, `compile_time_safety_guards`, and `compile_time_lowering_hooks` as first-class compiler inputs.
+- `recovery_strategy_selector.py` turns ordered-recovery / full-law AST evidence plus certificate metadata into a typed compile profile and chooses `complete_case`, `ipw`, `augmentation`, `doubly_robust`, or explicit `refuse`.
+- `estimand_compiler.py` now routes missing-data recovery estimands through that selector into concrete lowering hooks such as `causal.missing_data.aipw`, `causal.missing_data.tmle`, `causal.missing_data.augmentation`, or `causal.missing_data.refusal`, while readiness / positivity gates still fail closed.
+- Regression coverage now includes certificate publication, compiler graph construction, recursive lowering of recovered factors, and assumption-sensitive refusal behavior.
+
 #### Компиляционная (compile-time) селекция стратегии восстановления: решение, анализ эффективности и интеграция в компилятор PolicyOS
 
 ##### Контекст и формулировка открытой проблемы в терминах PolicyOS
@@ -8236,7 +8580,7 @@ def compute_reduction_error_bound(
 - `RecoverabilityResult`/`proof_steps` (в том числе по одному шагу на переменную в ordered recovery),
 - и/или как факторизованный `EstimandAST`, содержащий узлы `RecoveredDistNode`, описывающие восстановленные факторы условных распределений `P(V_i | V_<i)` **через условие наблюдаемости** (добавление `R_{V_i}=1` в conditioning).
 
-При этом текущий `estimand_compiler.py` уверенно выбирает стратегии AIPW/TMLE/DML для стандартных идентифицированных форм (backdoor/frontdoor/transport/IV и т.п.), но **не имеет отдельной ветки** для recoverability/missing-data recovery узлов и, что важнее, не решает задачу «из recoverability-доказательства выбрать оптимальную семью estimator’ов».
+При этом текущий `estimand_compiler.py` уже получил отдельную ветку для recoverability / missing-data recovery узлов и решает задачу «из recoverability-доказательства выбрать оптимальную семью estimator'ов» внутри узкого theorem-backed scope. Выбор по-прежнему fail-closed и опирается на typed compile-time поля сертификата, readiness/positivity diagnostics и явную assumption-sensitive refusal policy, но это уже не research-only gap, а рабочий compiler path.
 
 С научной стороны, recoverability и «полный закон» в графических моделях пропусков активно развиваются: обзор Mohan & Pearl (JASA, 2021) систематизирует условия recoverability/testability и показывает, что графические процедуры могут давать гарантии даже при MNAR-типах пропусков. Работы Nabi–Bhattacharya–Shpitser (ICML/ProcMLR 2020, open-access в PMC) дают **полноту (completeness)** для идентификации полного закона в DAG-моделях пропусков и выделяют структуры, которые блокируют идентификацию полного закона (в т.ч. self-censoring и colluder-паттерны), что важно для «явного отказа» как опции выбора стратегии.
 
@@ -8491,11 +8835,17 @@ PolicyOS архитектурно предпочитает честные дег
 
 **Deliverable form**: scalable algorithm + complexity analysis + fallback spec + integration spec for proof kernel path-specific queries.
 
+**Implementation status (2026-04-20)**:
+- `PathSpecificQuery` and `PathSpecificNode` now expose first-class `conditioning`, so conditional pre-treatment path-specific queries live in the typed IR rather than in ad hoc backend metadata.
+- `identify_path_specific(...)` now implements the district-local proof path for DAG/ADMG queries: edge-consistency checks, recanting witness / recanting district screening, intrinsic width accounting, compiled `EstimandAST` generation with `EdgeInterventionNode`, and exact observational compilation when the relevant total effect is ID/IDC identifiable.
+- The fallback ladder is executable end to end: `exact_with_experiments` binds surrogate experimental distributions, conditional pre-treatment queries route through IDC-style reduction, `bounded` mode emits witness-local support bounds, and unsupported patterns return `blocked_with_witness`.
+- `CausalEngine.run(..., intervention_query=...)` now carries the proof mode into metadata and routes single-mediator hidden-confounding templates into `template_proximal` rather than pretending to offer general exact identification outside certified proximal scope.
+
 #### Масштабируемая идентификация path-specific и edge-specific эффектов
 
 ##### Краткий вывод
 
-Для задачи 13.3 у PolicyOS уже есть правильная точка входа в IR: в репозитории присутствуют `PathSpecificQuery`, `PathSpecificNode` в `EstimandAST`, а также отдельный foundry-метод `PathSpecificEffectEstimator`. Но текущая реализация ориентирована на специальный случай NDE/NIE с одним медиатором и упрощённой проверкой идентифицируемости; она не является общим proof-kernel решателем для больших ADMG-графов с несколькими слоями медиаторов. Это прямо видно по существующим типам и коду: `PathSpecificQuery` допускает несколько медиаторов и явные `active_paths` / `fixed_paths`, тогда как estimator принимает один слот `mediator`, а его идентификационная проверка сводится к упрощённому `recanting witness`-хеку и даже проходит автоматически, если adjacency не передан.
+Для задачи 13.3 у PolicyOS теперь есть не только правильная точка входа в IR, но и реальный proof-kernel backend в узком executable scope. В репозитории по-прежнему присутствуют `PathSpecificQuery`, `PathSpecificNode` в `EstimandAST` и отдельный foundry-метод `PathSpecificEffectEstimator` для single-mediator execution templates, но рядом с ними уже работает district-local identification path: `PathSpecificQuery` допускает несколько медиаторов, явные `active_paths` / `fixed_paths` и first-class `conditioning`, а `identify_path_specific(...)` выпускает exact / experiment-assisted / bounded / blocked решения для DAG/ADMG под явным width-budget и witness policy. Это означает, что path-specific анализ больше не сводится к одному NDE/NIE estimator'у и уже живёт как отдельный proof-kernel слой.
 
 Хорошая новость в том, что математика для основы уже существует. Для DAG без латентов есть критерий recanting witness для path-specific эффектов; для моделей с латентами — recanting district и формула через district/fixing-разложение; для условных path-specific эффектов есть полный алгоритм на базе potential-outcome calculus; для вычисления interventional выражений в ADMG уже известна эффективная r-factorization/EID-схема с параметризацией по mixed-graph treewidth. Поэтому наиболее реалистичный путь не в том, чтобы изобретать новую общую теорию “с нуля”, а в том, чтобы **скомпилировать path-specific запрос в district-local edge/path intervention и затем прогнать его через fixing/EID backend с явными гарантиями по ширине графа**.
 
@@ -9006,9 +9356,31 @@ Global reconciliation остаётся hardest part, поэтому именно
 
 **Phase gate**: Either the long-horizon tracks graduate into narrow theorem-backed implementation scopes, or they are honestly narrowed/refuted/deferred with explicit promotion and kill-rule decisions.
 
+*Phase-gate status (2026-04-20):*
+- `9.3` promoted/closed: Stage 9.3 governance is now the single promotion authority for latent artifacts above `PROOF_ONLY`.
+- `2.4` closed after typed latent-promotion integration: `LATENT_BRIDGE` certificates now use `latent_bridge_hypothesis_ref` as the canonical surface, while legacy `latent_bridge_ref` remains read-compatible only.
+- `2.5` closed only in the narrow subclass `exact_observed_dag_adjustment_v1`; latent-bridge, proxy, unobserved, cyclic, and non-DAG cases stay outside the completeness claim with explicit reason codes and failure cards.
+- `13.4` closed for registered proof-carrying scopes only: exact finite-discrete recourse and fixed-support convex interval recourse carry tractability / optimality metadata, while general nonlinear recourse is explicitly marked `heuristic_only` / `np_hard_general_case`.
+- `14.2` closed for backdoor + uniform probe-class operator lift only: all broader operator targets degrade to `finite_audit_basis` unless a stronger proof-side contract is added later.
+
 ---
 
 ### Stage 2.4 — Automatic latent bridge synthesis
+
+*Implementation status (2026-04-20):* typed latent-promotion surface shipped.
+- IR contracts: [`polisyos.ir.analytics.latent_bridge_synthesis`](../../../src/polisyos/ir/analytics/latent_bridge_synthesis.py)
+  now persists `LatentBridgeHypothesis` artifacts with Stage 9.3-compatible governance fields
+  (`promotion_evidence`, `promotion_verdict`, `readiness_cap`, `promotion_allowed`).
+- Alignment integration: [`polisyos.ir.analytics.alignment_certification`](../../../src/polisyos/ir/analytics/alignment_certification.py)
+  now treats `latent_bridge_hypothesis_ref` as the canonical certificate field; auto-synthesized
+  bridges are persisted before use, and new auto-generated certificates no longer use the legacy
+  string ref as their source of truth.
+- Governance: [`polisyos.scientist.search.latent_governance`](../../../src/polisyos/scientist/search/latent_governance.py)
+  projects latent bridges onto the Stage 9.3 judge surface and records the machine-readable
+  blockers `latent_promotion_evidence_missing`, `latent_promotion_denied`, and
+  `latent_artifact_proof_only`.
+- Tests: [`tests/ir/analytics/test_latent_bridge_synthesis.py`](../../../../tests/ir/analytics/test_latent_bridge_synthesis.py)
+  and [`tests/scientist/search/test_latent_governance.py`](../../../../tests/scientist/search/test_latent_governance.py).
 
 *Track context*: Research Track 1 — Compositional Causality: Advanced Problems.
 
@@ -9206,6 +9578,19 @@ Step 7. Persist artifact.
 ---
 
 ### Stage 2.5 — Category-theoretic completeness
+
+*Implementation status (2026-04-20):* narrow completeness scope shipped.
+- Scope classifier: [`polisyos.ir.analytics.cross_graph`](../../../src/polisyos/ir/analytics/cross_graph.py)
+  now enforces the documented scope `exact_observed_dag_adjustment_v1`, including explicit checks
+  for observed bindings via `unobserved_interface_binding`.
+- Query-preservation boundary: [`polisyos.foundry.methods.catalog.causal.query_preservation`](../../../src/polisyos/foundry/methods/catalog/causal/query_preservation.py)
+  remains intentionally backdoor-adjustment-only; latent-bridge and proxy cases continue to return
+  `unknown`/boundary outcomes rather than silently claiming theorem coverage.
+- Failure cards: [`polisyos.foundry.methods.catalog.causal.composition_failure_cards`](../../../src/polisyos/foundry/methods/catalog/causal/composition_failure_cards.py)
+  now distinguishes completeness-scope exits for `proxy`, `latent_bridge`, `unobserved`,
+  `cyclic`, and `non_dag` cases.
+- Tests: [`tests/foundry/methods/catalog/causal/test_query_preservation.py`](../../../../tests/foundry/methods/catalog/causal/test_query_preservation.py)
+  and [`tests/foundry/methods/catalog/causal/test_graph_reconciliation.py`](../../../../tests/foundry/methods/catalog/causal/test_graph_reconciliation.py).
 
 *Track context*: Research Track 1 — Compositional Causality: Advanced Problems.
 
@@ -9603,6 +9988,37 @@ merged_readiness_cap = resolve_from_judge(merged_bundle)
 
 ### Stage 13.4 — Optimal recourse intervention and causal manifold geometry
 
+*Implementation status (2026-04-20):* IR contracts and solver shipped.
+- IR contracts: [`polisyos.ir.analytics.recourse_manifold`](../../../src/polisyos/ir/analytics/recourse_manifold.py)
+  defines `InterventionCostManifold`, `OptimalRecourseInterventionQuery`,
+  `RecourseProofBundle`, `RecourseFeasibilityCertificate`, and
+  `OptimalRecourseInterventionBundle`, plus `persist_*`/`load_*` helpers.
+- Typed refs: added to `polisyos.ir.refs` and re-exported via
+  `polisyos.core.contracts.causal`
+  (`InterventionCostManifoldRef`, `OptimalRecourseInterventionQueryRef`,
+  `RecourseProofBundleRef`, `RecourseFeasibilityCertificateRef`,
+  `OptimalRecourseInterventionBundleRef`).
+- Solver: [`polisyos.foundry.methods.catalog.causal.recourse_manifold`](../../../src/polisyos/foundry/methods/catalog/causal/recourse_manifold.py)
+  implements the two-level dispatcher (`identify_or_bound` → `exact_graph_search`
+  / `branch_and_bound_over_supports` / `best_first_support_search`) over an
+  `SCMAdapter` protocol. Exact graph search is production-grade; the convex
+  fixed-support branch now performs support-wise branch-and-bound over sampled
+  interval charts and returns `epsilon_optimal`, while the general nonlinear
+  fallback performs heuristic best-first search over a coarse sampled atlas and
+  returns `heuristic`.
+- Query registration + promotion surface: [`polisyos.foundry.methods.catalog.causal.query_validator`](../../../src/polisyos/foundry/methods/catalog/causal/query_validator.py)
+  and the recourse solver now treat `OptimalRecourseInterventionQuery` as a
+  first-class query family with explicit readiness caps and machine-readable
+  tractability metadata (`tractable_subfamily`, `complexity_class`,
+  `uniqueness_status`, `optimality_certificate_kind`).
+- Kill-rule decision: heuristic recourse remains intentionally non-promotable;
+  `heuristic_only` / `np_hard_general_case` are recorded explicitly instead of
+  being allowed to masquerade as decision-support-grade optimization.
+- Tests: [`tests/ir/analytics/test_recourse_manifold.py`](../../../../tests/ir/analytics/test_recourse_manifold.py)
+  (contract + persistence) and
+  [`tests/foundry/methods/catalog/causal/test_recourse_manifold.py`](../../../../tests/foundry/methods/catalog/causal/test_recourse_manifold.py)
+  (solver).
+
 *Track context*: Research Track 12 — Intervention Hierarchy: Edge, Path, Stochastic, and Policy Interventions.
 
 **What the problem is**: the intervention hierarchy in Tracks 13.1–13.3 focuses on population-level and policy-designer interventions. A complementary problem arises when the causal engine is used for individual-level decisions (subsidy eligibility scoring, automated benefit determination, license approval). If the system returns an adverse outcome for an individual unit, that unit may legitimately ask: what is the minimum-cost set of interventions I could make to achieve outcome Y = 1?
@@ -9949,6 +10365,17 @@ class OptimalRecourseInterventionBundle(BaseModel):
 
 **Deliverable form**: translation conditions + estimator spec + diagnostics + integration spec for the estimand/estimator compiler.
 
+*Implementation status (2026-04-20):* Stage 14.1 is now implemented as a conservative but end-to-end kernel estimation lane.
+- IR contract: [`polisyos.ir.analytics.kernel_causal`](../../../src/polisyos/ir/analytics/kernel_causal.py) defines `KernelEstimatorSpec`, `KernelSpec`, regularization/nuisance enums, lowering dispositions (`ready`, `representation_only`, `proof_only`, `unsupported_for_kernel_translation`) and CAS persistence helpers.
+- Typed ref: [`KernelEstimatorSpecRef`](../../../src/polisyos/ir/refs.py) is added as a first-class artifact handle for persisted kernel lowering specs.
+- Lowering logic: [`polisyos.foundry.methods.catalog.causal.kernel_lowering`](../../../src/polisyos/foundry/methods/catalog/causal/kernel_lowering.py) implements the template-first bridge from proof-certified estimands to kernel templates (`backdoor_cme`, `frontdoor_cme`, `transport_cme`, `dr_cme`, `kiv`, `proximal_minimax`) with explicit blocking on missing proof status or missing inverse-operator certificates.
+- Pass integration: [`KernelLoweringPass`](../../../src/polisyos/ir/passes/core.py) now materializes kernel lowering as a first-class IR analysis immediately after estimand normalization.
+- Compiler integration: [`estimand_compiler.py`](../../../src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py) now supports opt-in kernel routing through new strategy labels `CME_PLUGIN`, `KERNEL_FRONTDOOR`, `KERNEL_TRANSPORT_REWEIGHT`, `DR_CME`, `KIV`, and `PROXIMAL_MINIMAX`; distribution-law ASTs with explicit kernel metadata no longer fall through to the generic recursive lowering path.
+- Runtime execution: [`kernel_methods.py`](../../../src/polisyos/foundry/methods/catalog/causal/kernel_methods.py) now registers executable `causal.kernel.*` nuisance, estimator, and diagnostic methods for backdoor/plugin CME, frontdoor CME, transport CME, DR-CME, KIV, proximal minimax, regularization diagnostics, kernel semantics diagnostics, and distributional effect testing.
+- Audit/evidence integration: [`causal_engine.py`](../../../src/polisyos/foundry/methods/catalog/causal/causal_engine.py) now persists `KernelEstimatorSpec` artifacts, threads kernel diagnostics into `EvidenceBundle.diagnostic_scores`, and records `kernel_estimator_spec_ref` for proof-carrying audit.
+- Runtime semantics remain intentionally conservative: kernel lowering is **opt-in** via identification metadata and fails closed to `REFUSE` when the requested RKHS mode is blocked; no silent fallback claims are made for inverse-problem templates without operator certificates. Generic cross-fit graph injection is intentionally not auto-enabled for kernel strategies until a kernel-specific OOF nuisance protocol is added.
+- Regression coverage: [`test_kernel_causal_contract.py`](../../../tests/ir/analytics/test_kernel_causal_contract.py), [`test_kernel_lowering.py`](../../../tests/foundry/methods/catalog/causal/test_kernel_lowering.py), and [`test_kernel_runtime.py`](../../../tests/foundry/methods/catalog/causal/test_kernel_runtime.py) cover artifact validation, downgrade behavior, compiler routing, runtime execution, persisted kernel spec auditing, and refusal on unsupported inverse modes.
+
 #### Ядерные операторы причинного эффекта с гарантиями идентификации
 
 ##### Контекст задачи
@@ -10082,6 +10509,26 @@ KernelEstimatorSpec:
 ---
 
 ### Stage 14.2 — Operator-valued regression for multi-output causal effects
+
+*Implementation status (2026-04-20):* narrow proof-driven operator lift shipped.
+- Estimand language: [`polisyos.ir.analytics.estimand`](../../../src/polisyos/ir/analytics/estimand.py)
+  and the lowering/compiler stack now support `OperatorTargetNode` and
+  `OperatorApplyNode` as first-class B-layer nodes.
+- Proof-side producer: [`polisyos.ir.analytics.causal`](../../../src/polisyos/ir/analytics/causal.py)
+  now derives `uniform_probe_class_ref`, `operator_lift_allowed`,
+  `operator_lift_scope`, and related failure metadata from the identification
+  result instead of treating them as opaque pass-through metadata.
+- Narrow theorem-backed closure: whole-space operator lift is admitted only for
+  `backdoor` + `conditional_mean_embedding_operator` targets with a declared
+  RKHS probe-class contract; all broader operator targets degrade to
+  `finite_audit_basis`.
+- Execution surface: [`polisyos.foundry.methods.catalog.causal.estimand_compiler`](../../../src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py),
+  [`polisyos.foundry.methods.catalog.causal.operator_valued`](../../../src/polisyos/foundry/methods/catalog/causal/operator_valued.py),
+  and [`polisyos.foundry.methods.catalog.causal.query_validator`](../../../src/polisyos/foundry/methods/catalog/causal/query_validator.py)
+  now distinguish whole-space operator execution from finite audit-basis replay.
+- Kill-rule decision: `iv`, `proximal`, `frontdoor`, and `transport` operator lifts stay deferred
+  until they have their own uniform proof contract; they must not claim
+  `whole_probe_space` in the meantime.
 
 *Track context*: Research Track 13 — RKHS and Operator-Valued Causal Inference.
 

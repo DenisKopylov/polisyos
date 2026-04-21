@@ -12,16 +12,8 @@ from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
-from polisyos.foundry.methods.catalog.causal.protocols import (
-    DynamicTreatmentData,
-    NetworkCausalData,
-    PanelObservationalData,
-    ProxyMeasurementData,
-)
-from polisyos.foundry.methods.catalog.econometrics.protocols import PanelData
-from polisyos.foundry.methods.catalog.microsim.protocols import SurveyMicroData
-from polisyos.foundry.methods.catalog.ml.protocols import SurvivalData
 from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.privacy_transportability import DPUtilityManifest
 from polisyos.ir.analytics.transportability import SNode
 from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.observation.contracts import (
@@ -37,6 +29,14 @@ from polisyos.scientist.backtesting.plan import HistoricalValidationPlan
 from polisyos.scientist.search.lessons import LessonCard
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
+
+SURVEY_MICRODATA_CONTRACT_ID = "foundry.microsim.survey_micro_data.v1"
+NETWORK_CAUSAL_DATA_CONTRACT_ID = "foundry.causal.network_causal_data.v1"
+PANEL_OBSERVATIONAL_DATA_CONTRACT_ID = "foundry.causal.panel_observational_data.v1"
+PROXY_MEASUREMENT_DATA_CONTRACT_ID = "foundry.causal.proxy_measurement_data.v1"
+DYNAMIC_TREATMENT_DATA_CONTRACT_ID = "foundry.causal.dynamic_treatment_data.v1"
+PANEL_DATA_CONTRACT_ID = "foundry.econometrics.panel_data.v1"
+SURVIVAL_DATA_CONTRACT_ID = "foundry.ml.survival_data.v1"
 
 
 class ContractCompatibilityTarget(KernelModel):
@@ -163,6 +163,7 @@ class TransportabilityCheckSpec(KernelModel):
     source_context: ContextProfile | None = None
     target_context: ContextProfile | None = None
     explicit_s_nodes: list[SNode] = Field(default_factory=list)
+    dp_utility_manifest: DPUtilityManifest | None = None
     notes: list[str] = Field(default_factory=list)
 
 
@@ -605,11 +606,11 @@ class LessonRegistrySeedBundle(KernelModel):
 
 
 SURVEY_MICRODATA_TARGET = ContractCompatibilityTarget(
-    contract_id=SurveyMicroData.contract_id,
+    contract_id=SURVEY_MICRODATA_CONTRACT_ID,
     contract_fqn="polisyos.foundry.methods.catalog.microsim.protocols.SurveyMicroData",
 )
 NETWORK_DATA_TARGET = ContractCompatibilityTarget(
-    contract_id=NetworkCausalData.contract_id,
+    contract_id=NETWORK_CAUSAL_DATA_CONTRACT_ID,
     contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.NetworkCausalData",
 )
 NETWORK_ANALYSIS_TARGET = ContractCompatibilityTarget(
@@ -621,23 +622,23 @@ MULTIPLEX_NETWORK_TARGET = ContractCompatibilityTarget(
     contract_fqn="polisyos.foundry.methods.catalog.network.protocols.MultiplexNetworkData",
 )
 PANEL_OBSERVATIONAL_TARGET = ContractCompatibilityTarget(
-    contract_id=PanelObservationalData.contract_id,
+    contract_id=PANEL_OBSERVATIONAL_DATA_CONTRACT_ID,
     contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.PanelObservationalData",
 )
 PROXY_MEASUREMENT_TARGET = ContractCompatibilityTarget(
-    contract_id=ProxyMeasurementData.contract_id,
+    contract_id=PROXY_MEASUREMENT_DATA_CONTRACT_ID,
     contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.ProxyMeasurementData",
 )
 DYNAMIC_TREATMENT_TARGET = ContractCompatibilityTarget(
-    contract_id=DynamicTreatmentData.contract_id,
+    contract_id=DYNAMIC_TREATMENT_DATA_CONTRACT_ID,
     contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.DynamicTreatmentData",
 )
 PANEL_ECONOMETRIC_TARGET = ContractCompatibilityTarget(
-    contract_id=PanelData.contract_id,
+    contract_id=PANEL_DATA_CONTRACT_ID,
     contract_fqn="polisyos.foundry.methods.catalog.econometrics.protocols.PanelData",
 )
 SURVIVAL_DATA_TARGET = ContractCompatibilityTarget(
-    contract_id=SurvivalData.contract_id,
+    contract_id=SURVIVAL_DATA_CONTRACT_ID,
     contract_fqn="polisyos.foundry.methods.catalog.ml.protocols.SurvivalData",
 )
 BACKTEST_PLAN_TARGET = ContractCompatibilityTarget(

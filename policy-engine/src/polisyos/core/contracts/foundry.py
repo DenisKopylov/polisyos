@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef
 from ..artifacts.manifest import ArtifactRef
 from .distributional import DistributionalReportRef
+from .scientist import MetricValidationReportRef
 from .uncertainty import UncertaintyEnvelopeRef
 
 
@@ -106,6 +107,12 @@ class StateDeltaRef(ArtifactRef):
 class MetricsRef(ArtifactRef):
     """Artifact reference for the scalar metrics emitted by a Foundry execution."""
     kind: str = "foundry.metrics"
+    media_type: str = "application/json"
+
+
+class MetricObservationBundleRef(ArtifactRef):
+    """Artifact reference for per-example observations required for formal metric validation."""
+    kind: str = "foundry.metric_observation_bundle"
     media_type: str = "application/json"
 
 
@@ -588,8 +595,68 @@ class Metrics(BaseModel):
     """Scalar metrics emitted by a Foundry execution, keyed by metric identifier."""
     model_config = ConfigDict(extra="forbid")
 
-    values: dict[str, int | str] = Field(default_factory=dict)
+    values: dict[str, float | int | str] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
+
+
+class ModelOutputs(BaseModel):
+    """Per-model outputs needed to recompute metrics under paired tests and resampling."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    model_id: str
+    y_pred: list[bool | int | float | str] | None = None
+    y_score: list[float] | list[list[float]] | None = None
+    per_example_loss: dict[str, list[float]] | None = None
+
+
+class MetricObservationBundle(BaseModel):
+    """Per-example observations required for paired metric validation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    dataset_id: str
+    task: Literal["binary", "multiclass", "multilabel", "regression"]
+    sample_ids: list[str] = Field(default_factory=list)
+    y_true: list[bool | int | float | str]
+    models: dict[str, ModelOutputs] = Field(default_factory=dict)
+    sample_weight: list[float] | None = None
+    strata: dict[str, list[bool | int | float | str]] | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_shapes(self) -> "MetricObservationBundle":
+        n_samples = len(self.y_true)
+        if n_samples == 0:
+            raise ValueError("MetricObservationBundle requires at least one observation")
+        if self.sample_ids:
+            if len(self.sample_ids) != n_samples:
+                raise ValueError("sample_ids length must match y_true length")
+        else:
+            self.sample_ids = [f"row_{index}" for index in range(n_samples)]
+        if self.sample_weight is not None and len(self.sample_weight) != n_samples:
+            raise ValueError("sample_weight length must match y_true length")
+        if self.strata is not None:
+            for key, values in self.strata.items():
+                if len(values) != n_samples:
+                    raise ValueError(f"strata[{key!r}] length must match y_true length")
+        if not self.models:
+            raise ValueError("MetricObservationBundle requires at least one model output")
+        for model_id, outputs in self.models.items():
+            if outputs.y_pred is not None and len(outputs.y_pred) != n_samples:
+                raise ValueError(f"models[{model_id!r}].y_pred length must match y_true")
+            if outputs.y_score is not None and len(outputs.y_score) != n_samples:
+                raise ValueError(f"models[{model_id!r}].y_score length must match y_true")
+            if outputs.per_example_loss is not None:
+                for metric_id, losses in outputs.per_example_loss.items():
+                    if len(losses) != n_samples:
+                        raise ValueError(
+                            f"models[{model_id!r}].per_example_loss[{metric_id!r}] length "
+                            "must match y_true"
+                        )
+        return self
 
 
 class ConstraintViolation(BaseModel):
@@ -627,12 +694,14 @@ class SimulationResult(BaseModel):
 
     exec_plan_ref: ExecPlanRef
     metrics_ref: MetricsRef
+    metric_observation_bundle_ref: MetricObservationBundleRef | None = None
     state_snapshot_ref: StateSnapshotRef | None = None
     environment_ref: EnvironmentManifestRef | None = None
     environment_fingerprint: str | None = None
     trace_slice_ref: TraceSliceRef | None = None
     uncertainty_envelopes: Mapping[str, UncertaintyEnvelopeRef] | None = None
     distributional_report_ref: DistributionalReportRef | None = None
+    metric_validation_report_ref: MetricValidationReportRef | None = None
     propagation_config_ref: ArtifactRef | None = None
     propagation_report_ref: ArtifactRef | None = None
     notes: list[str] = Field(default_factory=list)

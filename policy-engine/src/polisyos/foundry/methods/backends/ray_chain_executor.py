@@ -44,7 +44,10 @@ from typing import Any, Mapping
 from uuid import UUID
 
 from polisyos.foundry.methods._logging import get_foundry_logger
-from polisyos.foundry.methods.backends.chain_executor import ChainExecutionResult
+from polisyos.foundry.methods.backends.chain_executor import (
+    ChainExecutionResult,
+    _build_level_parallel_reproducibility_contract,
+)
 from polisyos.foundry.methods.backends.ray_runner import (
     RayMethodRunner,
     RayNotAvailableError,
@@ -54,6 +57,10 @@ from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodTiming,
     ReproducibilityInfo,
+)
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
+    resolve_route_determinism_tier,
 )
 from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.core.observability.determinism import DeterminismTier
@@ -245,10 +252,27 @@ class RayChainExecutor:
                     node_slot_outputs[node_id] = output
                     current_state.update(output)
 
+                    method_class = method_classes[node_id]
+                    posture = capture_backend_runtime_fingerprint(
+                        sig.backend,
+                        method_class=method_class,
+                        route_key_overrides={
+                            "backend_route": f"{sig.backend.value}+ray",
+                        },
+                        notes=("ray-distributed", "ray-serialization-boundary"),
+                    )
                     timing = MethodTiming(wall_time_ms=wall_ms)
                     reproducibility = ReproducibilityInfo(
-                        backend=ComputeBackend.NUMPY,
-                        determinism_tier=DeterminismTier.DETERMINISTIC,
+                        backend=sig.backend,
+                        determinism_tier=(
+                            resolve_route_determinism_tier(
+                                posture.determinism_tier,
+                                posture.route_key,
+                            )
+                            or posture.determinism_tier
+                            or DeterminismTier.NONDETERMINISTIC
+                        ),
+                        observed_tolerance_budget=posture.observed_tolerance_budget,
                         note="ray-distributed",
                     )
                     node_results.append((
@@ -257,6 +281,7 @@ class RayChainExecutor:
                             output=output,
                             timing=timing,
                             reproducibility=reproducibility,
+                            artifacts={"backend_runtime_fingerprint": posture.as_dict()},
                         ),
                     ))
                 except Exception as exc:
@@ -278,6 +303,10 @@ class RayChainExecutor:
         return ChainExecutionResult(
             final_state=current_state,
             node_results=tuple(node_results),
+            reproducibility_contract=_build_level_parallel_reproducibility_contract(
+                levels,
+                node_results,
+            ),
         )
 
     def __repr__(self) -> str:

@@ -341,6 +341,238 @@ class PositivityDiagnostic:
 @foundry_method(
     namespace="causal.diagnostics",
     version="1.0.0",
+    tags={"causal", "diagnostics", "policy", "stochastic", "overlap", "weights"},
+)
+class PolicyOverlapDiagnostic:
+    """Policy-overlap diagnostic for stochastic interventions and MTPs.
+
+    Accepts pre-computed policy weights when available and otherwise falls back
+    to density-ratio diagnostics already emitted by upstream shift estimators.
+    The method is intentionally permissive: if the runtime has not materialized
+    policy weights yet, it returns an ``insufficient_inputs`` summary instead
+    of failing the whole execution plan.
+    """
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="policy_overlap",
+        namespace="",
+        version="0.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(
+            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
+        ),
+        parameters=(
+            ParameterSpec(
+                name="clip_min",
+                default=0.01,
+                description="Lower clipping threshold for policy weights / density ratios.",
+            ),
+            ParameterSpec(
+                name="clip_max",
+                default=100.0,
+                description="Upper clipping threshold for policy weights / density ratios.",
+            ),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Policy-overlap diagnostic for stochastic policies and modified treatment "
+            "policies. Summarizes ESS, dominant weights, clipping fraction, and "
+            "extreme-tail behavior."
+        ),
+        tags=frozenset(
+            {"causal", "diagnostics", "policy", "overlap", "stochastic", "weights"}
+        ),
+        citations=(
+            "Díaz, I. & van der Laan, M.J. (2012). Population intervention causal effects based on stochastic interventions.",
+            "Kennedy, E.H. (2019). Nonparametric causal effects based on incremental propensity score interventions.",
+        ),
+        equations={
+            "ess": "ESS = (Σw)^2 / Σw^2",
+            "dominant_share": "dominant_weight_share = max_i w_i / Σ_j w_j",
+        },
+        determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+        required_deps=("numpy",),
+        when_to_use="Run for stochastic policies, incremental interventions, and modified treatment policies.",
+        when_not_to_use="Not necessary for deterministic plug-in estimators without weighting.",
+        prerequisites=(),
+        diagnostic_checks=(),
+        typical_min_obs=50,
+        output_interpretation=(
+            "Large dominant_weight_share or low ESS fraction indicates unstable policy "
+            "evaluation under weak overlap."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        clip_min = float(params.get("clip_min", 0.01))
+        clip_max = float(params.get("clip_max", 100.0))
+
+        def _assess_overlap(
+            *,
+            ess_fraction: float | None,
+            dominant_weight_share: float | None,
+            clip_fraction: float | None,
+        ) -> tuple[bool | None, list[str], str]:
+            if ess_fraction is None or dominant_weight_share is None or clip_fraction is None:
+                return None, [], "unknown"
+
+            recommendations: list[str] = []
+            if ess_fraction < 0.3:
+                recommendations.append(
+                    f"ESS fraction is low ({ess_fraction:.2f}); consider a softer policy, "
+                    "weight clipping, or a more overlap-friendly intervention family."
+                )
+            if dominant_weight_share > 0.1:
+                recommendations.append(
+                    f"Dominant weight share is high ({dominant_weight_share:.2%}); "
+                    "a small number of observations dominate the estimate."
+                )
+            if clip_fraction > 0.05:
+                recommendations.append(
+                    f"{clip_fraction:.1%} of policy weights exceed clipping bounds "
+                    f"[{clip_min:.3f}, {clip_max:.1f}]."
+                )
+
+            severe = (
+                ess_fraction < 0.15
+                or dominant_weight_share > 0.2
+                or clip_fraction > 0.2
+            )
+            gate_eligible = (
+                ess_fraction >= 0.3
+                and dominant_weight_share <= 0.1
+                and clip_fraction <= 0.05
+            )
+            severity = "high_risk" if severe else ("ok" if gate_eligible else "warning")
+            return gate_eligible, recommendations, severity
+
+        if isinstance(state.get("shift_effect"), Mapping):
+            shift_payload = dict(state["shift_effect"])
+            diagnostics = shift_payload.get("density_ratio_diagnostics")
+            if isinstance(diagnostics, Mapping):
+                merged = {"status": "from_shift_estimator", **dict(diagnostics)}
+                gate_eligible, recommendations, severity = _assess_overlap(
+                    ess_fraction=(
+                        float(merged["ess_fraction"])
+                        if merged.get("ess_fraction") is not None
+                        else None
+                    ),
+                    dominant_weight_share=(
+                        float(merged["dominant_weight_share"])
+                        if merged.get("dominant_weight_share") is not None
+                        else None
+                    ),
+                    clip_fraction=(
+                        float(merged["clip_fraction"])
+                        if merged.get("clip_fraction") is not None
+                        else None
+                    ),
+                )
+                merged["gate_eligible"] = gate_eligible
+                merged["severity"] = severity
+                merged["recommendations"] = recommendations
+                return {"result": merged}
+
+        weights_raw = None
+        for key in ("policy_weights", "density_ratio", "importance_weights"):
+            candidate = state.get(key)
+            if candidate is not None:
+                weights_raw = candidate
+                break
+        if weights_raw is None:
+            return {
+                "result": {
+                    "status": "insufficient_inputs",
+                    "effective_sample_size": None,
+                    "recommendations": [
+                        "Policy weights were not materialized in runtime state; "
+                        "attach policy_weights or density_ratio to enable overlap diagnostics."
+                    ],
+                }
+            }
+
+        weights = np.asarray(weights_raw, dtype=float).reshape(-1)
+        if weights.size == 0:
+            return {
+                "result": {
+                    "status": "insufficient_inputs",
+                    "effective_sample_size": None,
+                    "recommendations": [
+                        "Policy weights were not materialized for this estimator; "
+                        "attach density-based policy weights to enable overlap diagnostics."
+                    ],
+                }
+            }
+        finite_mask = np.isfinite(weights)
+        weights = weights[finite_mask]
+        if weights.size == 0:
+            return {
+                "result": {
+                    "status": "invalid_weights",
+                    "effective_sample_size": 0.0,
+                    "recommendations": [
+                        "Policy weights are all non-finite; policy evaluation is not reliable."
+                    ],
+                }
+            }
+
+        abs_weights = np.abs(weights)
+        total_weight = float(np.sum(abs_weights))
+        ess = float(total_weight ** 2 / max(float(np.sum(abs_weights ** 2)), 1e-12))
+        ess_fraction = float(ess / max(abs_weights.size, 1))
+        dominant_weight_share = float(np.max(abs_weights) / max(total_weight, 1e-12))
+        n_clipped = int(np.sum((abs_weights < clip_min) | (abs_weights > clip_max)))
+        clip_fraction = float(n_clipped / max(abs_weights.size, 1))
+        top_1pct = max(1, int(np.ceil(abs_weights.size * 0.01)))
+        top_5pct = max(1, int(np.ceil(abs_weights.size * 0.05)))
+        sorted_weights = np.sort(abs_weights)[::-1]
+        gate_eligible, recommendations, severity = _assess_overlap(
+            ess_fraction=ess_fraction,
+            dominant_weight_share=dominant_weight_share,
+            clip_fraction=clip_fraction,
+        )
+
+        return {
+            "result": {
+                "status": "ok",
+                "n_obs": int(abs_weights.size),
+                "effective_sample_size": ess,
+                "ess_fraction": ess_fraction,
+                "min_weight": float(np.min(abs_weights)),
+                "max_weight": float(np.max(abs_weights)),
+                "p99_weight": float(np.percentile(abs_weights, 99)),
+                "p999_weight": float(np.percentile(abs_weights, 99.9)),
+                "dominant_weight_share": dominant_weight_share,
+                "top_1pct_weight_share": float(
+                    np.sum(sorted_weights[:top_1pct]) / max(total_weight, 1e-12)
+                ),
+                "top_5pct_weight_share": float(
+                    np.sum(sorted_weights[:top_5pct]) / max(total_weight, 1e-12)
+                ),
+                "n_clipped": n_clipped,
+                "clip_fraction": clip_fraction,
+                "gate_eligible": gate_eligible,
+                "severity": severity,
+                "recommendations": recommendations,
+            }
+        }
+
+
+@foundry_method(
+    namespace="causal.diagnostics",
+    version="1.0.0",
     tags={"causal", "diagnostics", "support", "transportability", "density-ratio", "cross-section"},
 )
 class SupportMismatchDiagnostic:

@@ -778,6 +778,17 @@
           "title": "Promotion Allowed",
           "type": "boolean"
         },
+        "promotion_evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LatentPromotionEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "proposed_latent_nodes": {
           "items": {
             "type": "string"
@@ -786,8 +797,12 @@
           "type": "array"
         },
         "readiness_cap": {
-          "const": "proof_only",
           "default": "proof_only",
+          "enum": [
+            "proof_only",
+            "bounds_ready",
+            "estimation_ready"
+          ],
           "title": "Readiness Cap",
           "type": "string"
         },
@@ -797,6 +812,144 @@
         }
       },
       "title": "LatentDiscoveryBundle",
+      "type": "object"
+    },
+    "LatentPromotionEvidence": {
+      "additionalProperties": false,
+      "description": "Stage 9.3 structured evidence supporting a LatentDiscoveryBundle promotion.\n\nThe bundle itself remains a research artifact; promotion above ``proof_only``\nis judge-derived from this evidence block and never self-certified by the\nfrontier module. Populated refs are pointers to replayable artifacts\n(tests, audits, benchmark traces, reviewer decisions).",
+      "properties": {
+        "cross_model_robustness_refs": {
+          "items": {
+            "$ref": "#/$defs/ArtifactRefModel"
+          },
+          "title": "Cross Model Robustness Refs",
+          "type": "array"
+        },
+        "environment_stability_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRefModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "exclusion_test_refs": {
+          "items": {
+            "$ref": "#/$defs/ArtifactRefModel"
+          },
+          "title": "Exclusion Test Refs",
+          "type": "array"
+        },
+        "external_anchor_refs": {
+          "items": {
+            "$ref": "#/$defs/ArtifactRefModel"
+          },
+          "title": "External Anchor Refs",
+          "type": "array"
+        },
+        "external_evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/ArtifactRefModel"
+          },
+          "title": "External Evidence Refs",
+          "type": "array"
+        },
+        "hidden_benchmark_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRefModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "invariance_level": {
+          "default": "none",
+          "enum": [
+            "none",
+            "configural",
+            "metric",
+            "scalar",
+            "strict",
+            "approximate"
+          ],
+          "title": "Invariance Level",
+          "type": "string"
+        },
+        "local_misspecification_test_refs": {
+          "items": {
+            "$ref": "#/$defs/ArtifactRefModel"
+          },
+          "title": "Local Misspecification Test Refs",
+          "type": "array"
+        },
+        "measurement_scope": {
+          "default": false,
+          "title": "Measurement Scope",
+          "type": "boolean"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "observable_implication_refs": {
+          "items": {
+            "$ref": "#/$defs/ArtifactRefModel"
+          },
+          "title": "Observable Implication Refs",
+          "type": "array"
+        },
+        "replication_refs": {
+          "items": {
+            "$ref": "#/$defs/ArtifactRefModel"
+          },
+          "title": "Replication Refs",
+          "type": "array"
+        },
+        "reviewer_decision_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRefModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "rival_explanation_audit_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRefModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "scope_regime": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope Regime",
+          "type": "array"
+        },
+        "structural_interpretation_rejected": {
+          "default": false,
+          "title": "Structural Interpretation Rejected",
+          "type": "boolean"
+        }
+      },
+      "title": "LatentPromotionEvidence",
       "type": "object"
     },
     "LatentTrustLevel": {

@@ -9,6 +9,9 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.analytics.dual_certificate import (
+    BoundsDualCertificateBundle,
+    StratifiedLPDualCertificate,
+    StratifiedLPDualCertificateBundle,
     build_response_function_dual_certificate_bundle,
 )
 from polisyos.ir.analytics.partial_identification import (
@@ -269,6 +272,12 @@ def _solve_response_lp(
             status="optimal",
             dual_certificate_payload=certificate_bundle.model_dump(mode="json"),
         )
+    if res_lo.status == 2 or res_hi.status == 2:
+        status = f"infeasible(lo={res_lo.status},hi={res_hi.status})"
+    elif res_lo.status == 3 or res_hi.status == 3:
+        status = f"unbounded(lo={res_lo.status},hi={res_hi.status})"
+    else:
+        status = f"solver_failed(lo={res_lo.status},hi={res_hi.status})"
     if res_lo.status == 0:
         lo = float(res_lo.fun)
     else:
@@ -277,7 +286,7 @@ def _solve_response_lp(
         hi = float(-res_hi.fun)
     else:
         hi = float(np.max(upper_effects)) if upper_effects.size else 0.0
-    return _LPResult(lower=lo, upper=hi, status=f"solver_failed(lo={res_lo.status},hi={res_hi.status})")
+    return _LPResult(lower=lo, upper=hi, status=status)
 
 
 def _discretize_continuous_for_bounds(
@@ -653,6 +662,9 @@ def _delegate_to_iv_bounds(
         return None, {}
     result = PartialIdentificationResult.model_validate(pid)
     metadata: dict[str, Any] = {}
+    solver_status = out.get("result", {}).get("solver_status")
+    if solver_status is not None:
+        metadata["solver_status"] = str(solver_status)
     certificate_payload = out.get("result", {}).get("dual_certificate_payload")
     if isinstance(certificate_payload, dict):
         metadata["dual_certificate_payload"] = certificate_payload
@@ -739,6 +751,114 @@ def auto_bounds_with_metadata(
     return relaxed, diagnostics
 
 
+def conditional_auto_bounds_with_metadata(
+    outcome: np.ndarray,
+    treatment: np.ndarray,
+    conditioning: np.ndarray,
+    *,
+    target_treatment: float = 1.0,
+    reference_treatment: float = 0.0,
+    constraints: Mapping[str, Any] | None = None,
+    max_cardinality: int = 8,
+    max_strata: int = 12,
+    min_stratum_n: int = 2,
+) -> tuple[PartialIdentificationResult, dict[str, Any]] | None:
+    """Compute certified bounds by conditioning on one finite stratum variable.
+
+    The returned certificate is an aggregate of per-stratum exact LP
+    certificates plus the deterministic weighted-sum rule.
+    """
+
+    y_raw = np.asarray(outcome, dtype=float).reshape(-1)
+    t_raw = np.asarray(treatment, dtype=float).reshape(-1)
+    w_raw = np.asarray(conditioning, dtype=float).reshape(-1)
+    if y_raw.size != t_raw.size or y_raw.size != w_raw.size:
+        raise ValueError("outcome, treatment, and conditioning must be same-length finite arrays")
+    finite = np.isfinite(y_raw) & np.isfinite(t_raw) & np.isfinite(w_raw)
+    y = y_raw[finite]
+    t = t_raw[finite]
+    w = w_raw[finite]
+    if y.size == 0:
+        raise ValueError("outcome, treatment, and conditioning must contain finite observations")
+    strata = _ordered_levels(w)
+    if strata.size < 2 or strata.size > max_strata:
+        return None
+    if not _looks_discrete(w, max_levels=max_strata):
+        return None
+
+    monotone = bool((constraints or {}).get("monotone") or (constraints or {}).get("mtr"))
+    stratum_certs: list[StratifiedLPDualCertificate] = []
+    lower = 0.0
+    upper = 0.0
+    total_n = float(len(w))
+    for stratum in strata:
+        mask = np.isclose(w, stratum, atol=1e-9)
+        n_stratum = int(np.sum(mask))
+        if n_stratum < min_stratum_n:
+            return None
+        exact = _exact_no_assumption_bounds(
+            treatment=t[mask],
+            outcome=y[mask],
+            max_cardinality=max_cardinality,
+            monotone=monotone,
+            target_treatment=target_treatment,
+            reference_treatment=reference_treatment,
+        )
+        if exact is None:
+            return None
+        result, metadata = exact
+        payload = metadata.get("dual_certificate_payload")
+        if not isinstance(payload, dict):
+            return None
+        certificate = BoundsDualCertificateBundle.model_validate(payload)
+        weight = float(n_stratum / total_n)
+        lower += weight * float(result.lower_bound)
+        upper += weight * float(result.upper_bound)
+        stratum_certs.append(
+            StratifiedLPDualCertificate(
+                stratum_id=str(float(stratum)),
+                weight=weight,
+                lower_bound=float(result.lower_bound),
+                upper_bound=float(result.upper_bound),
+                certificate=certificate,
+            )
+        )
+
+    cert_bundle = StratifiedLPDualCertificateBundle(
+        strata=tuple(stratum_certs),
+        aggregate_lower_bound=float(lower),
+        aggregate_upper_bound=float(upper),
+    )
+    result = PartialIdentificationResult(
+        method=BoundMethod.GENERAL_LP_BOUNDS,
+        lower_bound=float(lower),
+        upper_bound=float(upper),
+        confidence=0.95,
+        assumptions_used=[
+            "response_function_lp",
+            "exact_discrete_support",
+            "conditioning_weighted_aggregation",
+            *(
+                ["monotone_treatment_response"]
+                if monotone
+                else ["no_assumptions_on_selection"]
+            ),
+        ],
+        display_label="Conditioned response-function LP bounds",
+        bounds_type="sharp_lp",
+        relaxation_gap=0.0,
+        discretization_method="conditioning_exact",
+        n_bins_final=int(strata.size),
+        discretization_converged=True,
+        n_refinement_steps=0,
+    )
+    return result, {
+        "solver_status": "optimal",
+        "conditioning_levels": tuple(float(value) for value in strata),
+        "dual_certificate_payload": cert_bundle.model_dump(mode="json"),
+    }
+
+
 def auto_bounds(
     outcome: np.ndarray,
     treatment: np.ndarray,
@@ -775,4 +895,5 @@ __all__ = [
     "auto_bounds_with_metadata",
     "build_query_objective",
     "build_response_function_constraints",
+    "conditional_auto_bounds_with_metadata",
 ]

@@ -75,8 +75,9 @@ from polisyos.ir.analytics.dynamic_regime import (
     ContinuousTimeQuery,
     DTRResult,
     DynamicTreatmentRegime,
-    TemporalInterventionTrajectory,
     RegimeRule,
+    TemporalIdentificationCertificate,
+    TemporalInterventionTrajectory,
 )
 
 _ASSUMPTIONS = {
@@ -275,6 +276,7 @@ def estimate_dtr_trajectory(
     query: ContinuousTimeQuery,
     *,
     resolved_intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
+    identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
     intervention_contract_status: str | None = None,
     method: Literal["q_learning", "a_learning", "owl", "dr_dtr"] = "q_learning",
     method_params: Mapping[str, Any] | None = None,
@@ -352,6 +354,7 @@ def estimate_dtr_trajectory(
         query,
         data=dynamic_data,
         resolved_intervention=intervention,
+        identification_certificate=identification_certificate,
         intervention_contract_status=contract_status,
         allow_discrete_fallback=allow_discrete_fallback,
     )

@@ -32,6 +32,7 @@ from polisyos.core.contracts.scholar import FreshnessMetadata
 from polisyos.core.contracts.scientist import (
     DecisionMonitoringContractRef,
     DecisionPacketRef,
+    MetricValidationReportRef,
     SourceVerificationReportRef,
     VerifiedPolicyReportRef,
 )
@@ -41,8 +42,17 @@ from polisyos.ir.analytics.abstraction import load_abstraction_certificate
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
-from polisyos.ir.analytics.distributional import load_distributional_report
+from polisyos.ir.analytics.distributional import (
+    load_distributional_effect_bundle,
+    load_distributional_report,
+)
+from polisyos.ir.analytics.evidence_bundle import load_causal_evidence_bundle
 from polisyos.ir.analytics.hte import load_hte_result, load_policy_recommendation
+from polisyos.ir.analytics.kernel_causal import load_kernel_estimator_spec
+from polisyos.ir.analytics.metric_validation_report import (
+    MetricValidationReport,
+    load_metric_validation_report,
+)
 from polisyos.ir.analytics.normative_arbitration import (
     NormativeArbitrationResult,
     load_normative_arbitration_result,
@@ -50,7 +60,12 @@ from polisyos.ir.analytics.normative_arbitration import (
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 from polisyos.ir.analytics.sensitivity import load_sensitivity_result
 from polisyos.ir.analytics.strategic import (
+    load_mean_field_equilibrium_certificate,
+    load_mean_field_macro_simulation_config,
+    load_mean_field_perturbation_spec,
+    load_performative_shift_summary,
     load_post_adaptation_policy_value_summary,
+    load_strategic_decomposition_failure_card,
     load_strategic_response_bundle,
     load_strategic_scm,
 )
@@ -60,6 +75,9 @@ from polisyos.ir.refs import (
     AbstractionCertificateRef,
     CausalModelEnsembleRef,
     CausalSensitivityResultRef,
+    DistributionalEffectBundleRef,
+    EvidenceBundleRef,
+    KernelEstimatorSpecRef,
     NormativeArbitrationResultRef,
     StrategicResponseBundleRef,
     StrategicSCMRef,
@@ -98,12 +116,14 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
+    ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_CARD_REF,
     ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_DECISION_PACKET_REF,
+    ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_ECONOMETRIC_ENVELOPE_REF,
     ARTIFACT_ECONOMETRIC_EVIDENCE_REF,
@@ -115,6 +135,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_INPUT_BINDING_REPORT_REF,
     ARTIFACT_LOWERED_IR_REF,
     ARTIFACT_METRICS_REF,
+    ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,
+    ARTIFACT_METRIC_VALIDATION_REPORT_REF,
     ARTIFACT_NORM_IMPACT_REPORT_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
@@ -148,6 +170,7 @@ from polisyos.scientist.policy_verified import (
     load_source_verification_report,
     load_verified_policy_report,
 )
+from polisyos.scientist.validation.metrics import describe_test_id
 from polisyos.scientist.search.readiness import load_decision_readiness_contract
 
 logger = get_logger(__name__)
@@ -238,6 +261,11 @@ class BuildDecisionPacketNode:
                 "engine": "scientist.engine",
             },
             "simulation_results": None,
+            "metric_validation_report_ref": None,
+            "metric_significance": None,
+            "metric_significance_summary": None,
+            "metric_validation_family_adjustment": None,
+            "metric_validation_comparisons": [],
             "governance": None,
             "legal_verification": None,
             "source_coverage": None,
@@ -383,6 +411,34 @@ class BuildDecisionPacketNode:
                         exc=exc,
                         ref=metrics_ref,
                         artifact_key=ARTIFACT_METRICS_REF,
+                    ),
+                )
+
+        metric_validation_ref = state.artifacts_index.get(ARTIFACT_METRIC_VALIDATION_REPORT_REF)
+        if metric_validation_ref is not None:
+            try:
+                report = load_metric_validation_report(
+                    ctx.store,
+                    MetricValidationReportRef.model_validate(metric_validation_ref.model_dump()),
+                )
+                packet_payload["metric_validation_report_ref"] = str(metric_validation_ref.artifact_id)
+                packet_payload["metric_significance"] = _build_metric_significance_projection(report)
+                packet_payload["metric_significance_summary"] = _build_metric_significance_summary(report)
+                packet_payload["metric_validation_family_adjustment"] = report.family_adjustment.model_dump(
+                    mode="json"
+                )
+                packet_payload["metric_validation_comparisons"] = _build_metric_validation_comparison_rows(
+                    report
+                )
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
+                _record_decision_packet_degraded(
+                    packet_payload,
+                    _decision_packet_degraded(
+                        operation="load_metric_validation_report",
+                        reason="metric_validation_report_load_failed",
+                        exc=exc,
+                        ref=metric_validation_ref,
+                        artifact_key=ARTIFACT_METRIC_VALIDATION_REPORT_REF,
                     ),
                 )
 
@@ -649,6 +705,12 @@ def _build_artifacts_section(
         ),
         ARTIFACT_STATE_SNAPSHOT_REF: _ref_from_dict(artifacts_index, ARTIFACT_STATE_SNAPSHOT_REF),
         ARTIFACT_METRICS_REF: _ref_from_dict(artifacts_index, ARTIFACT_METRICS_REF),
+        ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF
+        ),
+        ARTIFACT_METRIC_VALIDATION_REPORT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_METRIC_VALIDATION_REPORT_REF
+        ),
         ARTIFACT_INPUT_BINDING_REPORT_REF: _ref_from_dict(
             artifacts_index,
             ARTIFACT_INPUT_BINDING_REPORT_REF,
@@ -660,6 +722,9 @@ def _build_artifacts_section(
         REPORT_CHANGE_PROPOSAL_REF: _ref_from_dict(reports_index, REPORT_CHANGE_PROPOSAL_REF),
         ARTIFACT_CAUSAL_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_REPORT_REF),
         ARTIFACT_CAUSAL_ENVELOPE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENVELOPE_REF),
+        ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF
+        ),
         ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF
         ),
@@ -682,6 +747,9 @@ def _build_artifacts_section(
             artifacts_index, ARTIFACT_POLICY_RECOMMENDATION_REF
         ),
         ARTIFACT_BACKTEST_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_BACKTEST_REPORT_REF),
+        ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF
+        ),
         ARTIFACT_DISTRIBUTIONAL_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_DISTRIBUTIONAL_REPORT_REF
         ),
@@ -805,6 +873,7 @@ def _build_causal_section(
     report_ref = artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     envelope_ref = artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
     ensemble_ref = artifacts_index.get(ARTIFACT_CAUSAL_ENSEMBLE_REF)
+    evidence_ref = artifacts_index.get(ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF)
     validity_ref = artifacts_index.get(ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF)
     bounds_ref = artifacts_index.get(ARTIFACT_BOUNDS_BUNDLE_REF)
     readiness_ref = artifacts_index.get(ARTIFACT_DECISION_READINESS_CONTRACT_REF)
@@ -812,6 +881,7 @@ def _build_causal_section(
         report_ref is None
         and envelope_ref is None
         and ensemble_ref is None
+        and evidence_ref is None
         and validity_ref is None
         and bounds_ref is None
         and readiness_ref is None
@@ -822,11 +892,17 @@ def _build_causal_section(
         "report_ref": str(report_ref.artifact_id) if report_ref is not None else None,
         "envelope_ref": str(envelope_ref.artifact_id) if envelope_ref is not None else None,
         "ensemble_ref": str(ensemble_ref.artifact_id) if ensemble_ref is not None else None,
+        "causal_method_evidence_ref": (
+            str(evidence_ref.artifact_id) if evidence_ref is not None else None
+        ),
         "causal_validity_ref": str(validity_ref.artifact_id) if validity_ref is not None else None,
         "bounds_ref": str(bounds_ref.artifact_id) if bounds_ref is not None else None,
         "decision_readiness_contract_ref": (
             str(readiness_ref.artifact_id) if readiness_ref is not None else None
         ),
+        "proof_bundle_ref": None,
+        "kernel_estimator_spec_ref": None,
+        "kernel_summary": None,
         "ensemble_member_count": None,
         "ensemble_methods": [],
         "ensemble_consensus_graph_ref": None,
@@ -897,6 +973,51 @@ def _build_causal_section(
                 exc=exc,
                 ref=report_ref,
                 artifact_key=ARTIFACT_CAUSAL_REPORT_REF,
+            )
+
+    if evidence_ref is not None:
+        try:
+            evidence_bundle = load_causal_evidence_bundle(
+                ctx.store,
+                EvidenceBundleRef.model_validate(evidence_ref.model_dump()),
+            )
+            payload["proof_bundle_ref"] = (
+                str(evidence_bundle.proof_bundle_ref.artifact_id)
+                if evidence_bundle.proof_bundle_ref is not None
+                else None
+            )
+            payload["kernel_estimator_spec_ref"] = (
+                str(evidence_bundle.kernel_estimator_spec_ref.artifact_id)
+                if evidence_bundle.kernel_estimator_spec_ref is not None
+                else None
+            )
+            if evidence_bundle.kernel_estimator_spec_ref is not None:
+                kernel_spec = load_kernel_estimator_spec(
+                    ctx.store,
+                    KernelEstimatorSpecRef.model_validate(
+                        evidence_bundle.kernel_estimator_spec_ref.model_dump(mode="json")
+                    ),
+                )
+                payload["kernel_summary"] = {
+                    "template": kernel_spec.template.value,
+                    "target_representation": kernel_spec.target_representation.value,
+                    "lowering_disposition": kernel_spec.lowering_disposition.value,
+                    "consistency_claim": kernel_spec.consistency_claim.value,
+                    "required_side_conditions": list(kernel_spec.required_side_conditions),
+                    "blocking_reasons": list(kernel_spec.blocking_reasons),
+                    "diagnostics_plan": list(kernel_spec.diagnostics_plan),
+                    "output_kernel": kernel_spec.output_kernel.name,
+                    "operator_ready": kernel_spec.target_representation.value == "effect_operator",
+                    "non_promotable": kernel_spec.lowering_disposition.value != "ready",
+                }
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_causal_method_evidence_bundle",
+                reason="causal_method_evidence_load_failed",
+                exc=exc,
+                ref=evidence_ref,
+                artifact_key=ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
             )
 
     if bounds_ref is not None:
@@ -1024,7 +1145,19 @@ def _build_strategic_section(
                 ctx.store,
                 StrategicSCMRef(artifact_id=strategic_scm_ref.artifact_id),
             )
-            payload["equilibrium_concept"] = strategic_scm.equilibrium_concept.value
+            payload["equilibrium_concept"] = (
+                None
+                if strategic_scm.equilibrium_concept is None
+                else strategic_scm.equilibrium_concept.value
+            )
+            if strategic_scm.equilibrium_descriptor is not None:
+                payload["strategic_game_class"] = strategic_scm.equilibrium_descriptor.game_class.value
+                payload["strategic_solution_concept"] = (
+                    strategic_scm.equilibrium_descriptor.solution_concept.value
+                )
+                payload["strategic_fallback_default"] = (
+                    strategic_scm.equilibrium_descriptor.default_fallback_mode.value
+                )
             payload["strategic_agents"] = list(strategic_scm.strategic_agents)
         except _DECISION_PACKET_LOAD_ERRORS as exc:
             payload["strategic_scm_parse_warning"] = "strategic_scm_parse_failed"
@@ -1049,10 +1182,22 @@ def _build_strategic_section(
                     "equilibrium_selection_dependence": bundle.equilibrium_selection_dependence,
                     "multiplicity_note": bundle.multiplicity_note,
                     "blocked_reason": bundle.blocked_reason,
+                    "decomposition_status": bundle.decomposition_status.value,
+                    "decomposition_semantics": bundle.decomposition_semantics.value,
                     "selected_equilibrium_ref": (
                         None
                         if bundle.selected_equilibrium_ref is None
                         else str(bundle.selected_equilibrium_ref.artifact_id)
+                    ),
+                    "mfg_equilibrium_ref": (
+                        None
+                        if bundle.mfg_equilibrium_ref is None
+                        else str(bundle.mfg_equilibrium_ref.artifact_id)
+                    ),
+                    "performative_shift_ref": (
+                        None
+                        if bundle.performative_shift_ref is None
+                        else str(bundle.performative_shift_ref.artifact_id)
                     ),
                     "post_adaptation_policy_value_ref": str(
                         bundle.post_adaptation_policy_value_ref.artifact_id
@@ -1060,8 +1205,171 @@ def _build_strategic_section(
                     "causal_component_ref": str(bundle.causal_component_ref.artifact_id),
                     "strategic_closure_ref": str(bundle.strategic_closure_ref.artifact_id),
                     "equilibrium_set_ref": str(bundle.equilibrium_set_ref.artifact_id),
+                    "decomposition_certificate_ref": (
+                        None
+                        if bundle.decomposition_certificate_ref is None
+                        else str(bundle.decomposition_certificate_ref.artifact_id)
+                    ),
+                    "decomposition_failure_card_ref": (
+                        None
+                        if bundle.decomposition_failure_card_ref is None
+                        else str(bundle.decomposition_failure_card_ref.artifact_id)
+                    ),
+                    "anchor_equilibrium_ref": (
+                        None
+                        if bundle.anchor_equilibrium_ref is None
+                        else str(bundle.anchor_equilibrium_ref.artifact_id)
+                    ),
                 }
             )
+            if bundle.mfg_equilibrium_ref is not None:
+                try:
+                    mfg_certificate = load_mean_field_equilibrium_certificate(
+                        ctx.store,
+                        bundle.mfg_equilibrium_ref,
+                    )
+                    payload.update(
+                        {
+                            "mfg_intervention_kind": mfg_certificate.intervention_kind.value,
+                            "mfg_model_class": mfg_certificate.mean_field_model_class.value,
+                            "mfg_uniqueness_status": (
+                                mfg_certificate.well_posedness.uniqueness_status.value
+                            ),
+                            "mfg_selection_rule": (
+                                mfg_certificate.identification.selection_rule.value
+                            ),
+                            "mfg_graph_semantics": (
+                                mfg_certificate.identification.graph_semantics.value
+                            ),
+                            "mfg_positivity_status": (
+                                mfg_certificate.identification.positivity_status.value
+                            ),
+                            "mfg_stability_bound_type": (
+                                mfg_certificate.stability.bound_type.value
+                            ),
+                            "mfg_solver_residual_ref": (
+                                None
+                                if mfg_certificate.equilibrium_solution is None
+                                or mfg_certificate.equilibrium_solution.solver_residual_ref is None
+                                else str(
+                                    mfg_certificate.equilibrium_solution.solver_residual_ref.artifact_id
+                                )
+                            ),
+                            "mfg_mass_conservation_ref": (
+                                None
+                                if mfg_certificate.equilibrium_solution is None
+                                or mfg_certificate.equilibrium_solution.mass_conservation_ref is None
+                                else str(
+                                    mfg_certificate.equilibrium_solution.mass_conservation_ref.artifact_id
+                                )
+                            ),
+                            "mfg_numerics_config_ref": (
+                                None
+                                if mfg_certificate.provenance is None
+                                or mfg_certificate.provenance.numerics_config_ref is None
+                                else str(mfg_certificate.provenance.numerics_config_ref.artifact_id)
+                            ),
+                        }
+                    )
+                    if (
+                        mfg_certificate.provenance is not None
+                        and mfg_certificate.provenance.numerics_config_ref is not None
+                        and mfg_certificate.provenance.numerics_config_ref.kind
+                        == "ir.mean_field_macro_simulation_config"
+                    ):
+                        try:
+                            numerics_config = load_mean_field_macro_simulation_config(
+                                ctx.store,
+                                mfg_certificate.provenance.numerics_config_ref,
+                            )
+                            payload.update(
+                                {
+                                    "mfg_numerics_scheme": numerics_config.numerics_scheme.value,
+                                    "mfg_fixed_point_method": (
+                                        numerics_config.fixed_point_method.value
+                                    ),
+                                    "mfg_runtime_mode": numerics_config.runtime_mode.value,
+                                }
+                            )
+                        except _DECISION_PACKET_LOAD_ERRORS as exc:
+                            payload["mfg_numerics_parse_warning"] = (
+                                "mean_field_macro_simulation_config_load_failed"
+                            )
+                            _record_decision_packet_section_degraded(
+                                packet_payload,
+                                operation="load_mean_field_macro_simulation_config",
+                                reason="mean_field_macro_simulation_config_load_failed",
+                                exc=exc,
+                                ref=mfg_certificate.provenance.numerics_config_ref,
+                                artifact_key=ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
+                            )
+                    if (
+                        bundle.mfg_equilibrium_ref.kind
+                        == "ir.mean_field_equilibrium_certificate"
+                        and mfg_certificate.intervention_spec_ref.kind
+                        == "ir.mean_field_perturbation_spec"
+                    ):
+                        try:
+                            perturbation_spec = load_mean_field_perturbation_spec(
+                                ctx.store,
+                                mfg_certificate.intervention_spec_ref,
+                            )
+                            payload.update(
+                                {
+                                    "mfg_representative_agent_channels": [
+                                        channel.value
+                                        for channel in perturbation_spec.representative_agent_channels
+                                    ],
+                                    "mfg_population_channels": [
+                                        channel.value for channel in perturbation_spec.population_channels
+                                    ],
+                                    "mfg_policy_kernel_overlap_required": (
+                                        perturbation_spec.policy_kernel_overlap_required
+                                    ),
+                                }
+                            )
+                        except _DECISION_PACKET_LOAD_ERRORS as exc:
+                            payload["mfg_perturbation_parse_warning"] = (
+                                "mean_field_perturbation_spec_load_failed"
+                            )
+                            _record_decision_packet_section_degraded(
+                                packet_payload,
+                                operation="load_mean_field_perturbation_spec",
+                                reason="mean_field_perturbation_spec_load_failed",
+                                exc=exc,
+                                ref=mfg_certificate.intervention_spec_ref,
+                                artifact_key=ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
+                            )
+                except _DECISION_PACKET_LOAD_ERRORS as exc:
+                    payload["mfg_parse_warning"] = "mean_field_equilibrium_certificate_load_failed"
+                    _record_decision_packet_section_degraded(
+                        packet_payload,
+                        operation="load_mean_field_equilibrium_certificate",
+                        reason="mean_field_equilibrium_certificate_load_failed",
+                        exc=exc,
+                        ref=bundle.mfg_equilibrium_ref,
+                        artifact_key=ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
+                    )
+            if bundle.performative_shift_ref is not None:
+                try:
+                    shift_summary = load_performative_shift_summary(
+                        ctx.store,
+                        bundle.performative_shift_ref,
+                    )
+                    if shift_summary.performative_shift is not None:
+                        payload["performative_shift"] = shift_summary.performative_shift
+                    payload["performative_loop"] = _performative_loop_payload(shift_summary)
+                except _DECISION_PACKET_LOAD_ERRORS as exc:
+                    payload["performative_shift_parse_warning"] = (
+                        "performative_shift_summary_parse_failed"
+                    )
+                    _record_decision_packet_section_degraded(
+                        packet_payload,
+                        operation="load_performative_shift_summary",
+                        reason="performative_shift_summary_load_failed",
+                        exc=exc,
+                        ref=bundle.performative_shift_ref,
+                    )
             try:
                 value_summary = load_post_adaptation_policy_value_summary(
                     ctx.store,
@@ -1087,6 +1395,25 @@ def _build_strategic_section(
                     exc=exc,
                     ref=bundle.post_adaptation_policy_value_ref,
                 )
+            if bundle.decomposition_failure_card_ref is not None:
+                try:
+                    failure_card = load_strategic_decomposition_failure_card(
+                        ctx.store,
+                        bundle.decomposition_failure_card_ref,
+                    )
+                    payload["decomposition_failure_code"] = failure_card.failure_code
+                    payload["decomposition_message"] = failure_card.message
+                except _DECISION_PACKET_LOAD_ERRORS as exc:
+                    payload["decomposition_failure_parse_warning"] = (
+                        "strategic_decomposition_failure_card_parse_failed"
+                    )
+                    _record_decision_packet_section_degraded(
+                        packet_payload,
+                        operation="load_strategic_decomposition_failure_card",
+                        reason="strategic_decomposition_failure_card_load_failed",
+                        exc=exc,
+                        ref=bundle.decomposition_failure_card_ref,
+                    )
         except _DECISION_PACKET_LOAD_ERRORS as exc:
             payload["strategic_bundle_parse_warning"] = "strategic_response_bundle_parse_failed"
             _record_decision_packet_section_degraded(
@@ -1104,6 +1431,8 @@ def _build_strategic_section(
             "multiplicity_note",
             "blocked_reason",
             "selected_equilibrium",
+            "performative_shift",
+            "performative_loop",
             "post_adaptation_policy_value",
             "warnings",
             "causal_component_ref",
@@ -1112,6 +1441,13 @@ def _build_strategic_section(
             "post_adaptation_policy_value_ref",
             "selected_equilibrium_ref",
             "performative_shift_ref",
+            "decomposition_status",
+            "decomposition_semantics",
+            "decomposition_failure_code",
+            "decomposition_message",
+            "decomposition_certificate_ref",
+            "decomposition_failure_card_ref",
+            "anchor_equilibrium_ref",
         ):
             if strategic_summary.get(key) is not None:
                 payload[key] = strategic_summary[key]
@@ -1119,6 +1455,32 @@ def _build_strategic_section(
             payload["post_adaptation_policy_value_bounds"] = strategic_summary["bounds"]
 
     return payload
+
+
+def _performative_loop_payload(summary: Any) -> dict[str, object]:
+    return {
+        "analysis_scope": summary.analysis_scope.value,
+        "proof_family": None if summary.proof_family is None else summary.proof_family.value,
+        "stability_status": (
+            None if summary.stability_status is None else summary.stability_status.value
+        ),
+        "reason_code": None if summary.reason_code is None else summary.reason_code.value,
+        "contraction_upper_bound": summary.contraction_upper_bound,
+        "local_spectral_radius_estimate": summary.local_spectral_radius_estimate,
+        "witness_strength": (
+            None if summary.witness_strength is None else summary.witness_strength.value
+        ),
+        "simulation_horizon": summary.simulation_horizon,
+        "detected_cycle_period": summary.detected_cycle_period,
+        "transient_gain_upper": summary.transient_gain_upper,
+        "convergence_rate_upper": summary.convergence_rate_upper,
+        "iterations_to_delta_bound": summary.iterations_to_delta_bound,
+        "hardness_flag": bool(summary.hardness_flag),
+        "recommended_action": (
+            None if summary.recommended_action is None else summary.recommended_action.value
+        ),
+        "human_summary": summary.human_summary,
+    }
 
 
 def _build_transportability_summary(
@@ -1235,6 +1597,7 @@ def _build_abstraction_section(
                 "preserved_queries": list(certificate.preserved_queries),
                 "error_bound": certificate.error_bound,
                 "validation_notes": list(certificate.validation_notes),
+                "metadata": dict(certificate.metadata),
             }
         )
     except _DECISION_PACKET_LOAD_ERRORS as exc:
@@ -1511,66 +1874,130 @@ def _build_distributional_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
+    bundle_ref = artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF)
     report_ref = artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)
-    if report_ref is None:
+    if report_ref is None and bundle_ref is None:
         return None
 
     payload: dict[str, object] = {
-        "report_ref": str(report_ref.artifact_id),
+        "report_ref": str(report_ref.artifact_id) if report_ref is not None else None,
+        "effect_bundle_ref": str(bundle_ref.artifact_id) if bundle_ref is not None else None,
     }
-    try:
-        report = load_distributional_report(
-            ctx.store,
-            DistributionalReportRef(artifact_id=report_ref.artifact_id),
-        )
-        payload.update(
-            {
-                "overall_gini_before": report.overall_gini_before,
-                "overall_gini_after": report.overall_gini_after,
-                "overall_gini_delta": report.overall_gini_delta,
-                "palma_ratio_before": report.palma_ratio_before,
-                "palma_ratio_after": report.palma_ratio_after,
-                "palma_ratio_delta": report.palma_ratio_delta,
-                "winners_count": len(report.winners_losers.winners),
-                "losers_count": len(report.winners_losers.losers),
-                "neutral_count": len(report.winners_losers.neutral),
-                "winners_share": report.winners_losers.total_winners_share,
-                "losers_share": report.winners_losers.total_losers_share,
-                "breakdowns": [
-                    {
-                        "dimension": breakdown.dimension.value,
-                        "dimension_label": breakdown.dimension_label,
-                        "primary_metric": breakdown.primary_metric,
-                        "primary_metric_unit": breakdown.primary_metric_unit.value,
-                        "gini_before": breakdown.gini_before,
-                        "gini_after": breakdown.gini_after,
-                        "gini_delta": breakdown.gini_delta,
-                        "cohorts": [
-                            {
-                                "cohort_id": cohort.cohort_id,
-                                "cohort_label": cohort.cohort_label,
-                                "population_share": cohort.population_share,
-                                "delta": cohort.metric_deltas.get(breakdown.primary_metric),
-                                "impact_direction": cohort.impact_direction.value,
-                                "is_vulnerable": cohort.is_vulnerable,
-                            }
-                            for cohort in breakdown.cohorts
-                        ],
-                    }
-                    for breakdown in report.breakdowns
-                ],
-            }
-        )
-    except _DECISION_PACKET_LOAD_ERRORS as exc:
-        payload["parse_warning"] = "distributional_report_parse_failed"
-        _record_decision_packet_section_degraded(
-            packet_payload,
-            operation="load_distributional_report",
-            reason="distributional_report_load_failed",
-            exc=exc,
-            ref=report_ref,
-            artifact_key=ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
-        )
+    if report_ref is not None:
+        try:
+            report = load_distributional_report(
+                ctx.store,
+                DistributionalReportRef(artifact_id=report_ref.artifact_id),
+            )
+            payload.update(
+                {
+                    "overall_gini_before": report.overall_gini_before,
+                    "overall_gini_after": report.overall_gini_after,
+                    "overall_gini_delta": report.overall_gini_delta,
+                    "palma_ratio_before": report.palma_ratio_before,
+                    "palma_ratio_after": report.palma_ratio_after,
+                    "palma_ratio_delta": report.palma_ratio_delta,
+                    "winners_count": len(report.winners_losers.winners),
+                    "losers_count": len(report.winners_losers.losers),
+                    "neutral_count": len(report.winners_losers.neutral),
+                    "winners_share": report.winners_losers.total_winners_share,
+                    "losers_share": report.winners_losers.total_losers_share,
+                    "breakdowns": [
+                        {
+                            "dimension": breakdown.dimension.value,
+                            "dimension_label": breakdown.dimension_label,
+                            "primary_metric": breakdown.primary_metric,
+                            "primary_metric_unit": breakdown.primary_metric_unit.value,
+                            "gini_before": breakdown.gini_before,
+                            "gini_after": breakdown.gini_after,
+                            "gini_delta": breakdown.gini_delta,
+                            "cohorts": [
+                                {
+                                    "cohort_id": cohort.cohort_id,
+                                    "cohort_label": cohort.cohort_label,
+                                    "population_share": cohort.population_share,
+                                    "delta": cohort.metric_deltas.get(breakdown.primary_metric),
+                                    "impact_direction": cohort.impact_direction.value,
+                                    "is_vulnerable": cohort.is_vulnerable,
+                                }
+                                for cohort in breakdown.cohorts
+                            ],
+                        }
+                        for breakdown in report.breakdowns
+                    ],
+                }
+            )
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            payload["parse_warning"] = "distributional_report_parse_failed"
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_distributional_report",
+                reason="distributional_report_load_failed",
+                exc=exc,
+                ref=report_ref,
+                artifact_key=ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+            )
+
+    if bundle_ref is not None:
+        try:
+            bundle = load_distributional_effect_bundle(
+                ctx.store,
+                DistributionalEffectBundleRef.model_validate(bundle_ref.model_dump()),
+            )
+            proof_kernel = bundle.metadata.get("proof_kernel")
+            payload.update(
+                {
+                    "distributional_query_kind": bundle.distributional_query_kind,
+                    "justification": bundle.justification.value,
+                    "marginal_law_justification": (
+                        bundle.marginal_law_justification.value
+                        if bundle.marginal_law_justification is not None
+                        else None
+                    ),
+                    "coupling_justification": (
+                        bundle.coupling_justification.value
+                        if bundle.coupling_justification is not None
+                        else None
+                    ),
+                    "distributional_bounds_count": len(bundle.distributional_bounds_refs),
+                    "causal_assumption_count": len(bundle.causal_assumption_refs),
+                    "readiness_cap": bundle.readiness_cap,
+                    "marginal_law_proof_ref": (
+                        str(bundle.marginal_law_proof_ref.artifact_id)
+                        if bundle.marginal_law_proof_ref is not None
+                        else None
+                    ),
+                    "distributional_proof_ref": (
+                        str(bundle.distributional_proof_ref.artifact_id)
+                        if bundle.distributional_proof_ref is not None
+                        else None
+                    ),
+                    "coupling_proof_ref": (
+                        str(bundle.coupling_proof_ref.artifact_id)
+                        if bundle.coupling_proof_ref is not None
+                        else None
+                    ),
+                    "proof_kernel_status": (
+                        str(proof_kernel.get("status"))
+                        if isinstance(proof_kernel, dict) and proof_kernel.get("status") is not None
+                        else None
+                    ),
+                    "proof_kernel_theorem_family": (
+                        str(proof_kernel.get("theorem_family"))
+                        if isinstance(proof_kernel, dict) and proof_kernel.get("theorem_family") is not None
+                        else None
+                    ),
+                }
+            )
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_distributional_effect_bundle",
+                reason="distributional_effect_bundle_load_failed",
+                exc=exc,
+                ref=bundle_ref,
+                artifact_key=ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
+            )
 
     return payload
 
@@ -2973,3 +3400,127 @@ def _build_uncertainty_bounds(
             )
 
     return bounds or None
+
+
+def _build_metric_significance_projection(
+    report: MetricValidationReport,
+) -> dict[str, dict[str, object]] | None:
+    projections: dict[str, dict[str, object]] = {}
+    duplicated_metrics: set[str] = set()
+    for comparison in report.comparisons:
+        metric_id = comparison.metric_id
+        if metric_id in projections:
+            duplicated_metrics.add(metric_id)
+            projections.pop(metric_id, None)
+            continue
+        significance = comparison.significance
+        projections[metric_id] = {
+            "baseline_model_id": comparison.baseline_model_id,
+            "candidate_model_id": comparison.candidate_model_id,
+            "metric_direction": comparison.metric_direction,
+            "baseline_value": comparison.baseline_value,
+            "candidate_value": comparison.candidate_value,
+            "delta_value": comparison.delta_value,
+            "test_id": significance.test_id,
+            "test_label": describe_test_id(significance.test_id),
+            "p_value": significance.p_value_raw,
+            "p_adj": significance.p_value_adj,
+            "alpha": significance.alpha,
+            "significant": (
+                significance.reject_null_adj
+                if significance.reject_null_adj is not None
+                else significance.reject_null_raw
+            ),
+            "effect_size": significance.effect_size,
+            "assumption_warnings": list(significance.assumption_flags),
+            "calibration_warnings": list(significance.calibration_flags),
+        }
+    for metric_id in duplicated_metrics:
+        projections.pop(metric_id, None)
+    return projections or None
+
+
+def _build_metric_significance_summary(
+    report: MetricValidationReport,
+) -> dict[str, object]:
+    significant_improvements: list[dict[str, object]] = []
+    significant_regressions: list[dict[str, object]] = []
+    for comparison in report.comparisons:
+        significance = comparison.significance
+        is_significant = (
+            significance.reject_null_adj
+            if significance.reject_null_adj is not None
+            else significance.reject_null_raw
+        )
+        if not is_significant:
+            continue
+        item = {
+            "baseline_model_id": comparison.baseline_model_id,
+            "candidate_model_id": comparison.candidate_model_id,
+            "metric_id": comparison.metric_id,
+            "delta_value": comparison.delta_value,
+            "p_value": significance.p_value_raw,
+            "p_adj": significance.p_value_adj,
+            "test_label": describe_test_id(significance.test_id),
+        }
+        if _metric_delta_is_improvement(comparison.metric_direction, comparison.delta_value):
+            significant_improvements.append(item)
+        else:
+            significant_regressions.append(item)
+    return {
+        "family_method": report.family_adjustment.method,
+        "alpha": report.family_adjustment.alpha,
+        "hypotheses_total": report.family_adjustment.hypotheses_total,
+        "comparison_count": len(report.comparisons),
+        "warning_count": len(report.warnings),
+        "error_count": len(report.errors),
+        "significant_improvements": significant_improvements,
+        "significant_regressions": significant_regressions,
+    }
+
+
+def _build_metric_validation_comparison_rows(
+    report: MetricValidationReport,
+) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for comparison in report.comparisons:
+        significance = comparison.significance
+        rows.append(
+            {
+                "metric_id": comparison.metric_id,
+                "metric_direction": comparison.metric_direction,
+                "baseline_model_id": comparison.baseline_model_id,
+                "candidate_model_id": comparison.candidate_model_id,
+                "baseline_value": comparison.baseline_value,
+                "candidate_value": comparison.candidate_value,
+                "delta_value": comparison.delta_value,
+                "family_id": comparison.family_id,
+                "family_scope": comparison.family_scope,
+                "sample_size_effective": comparison.sample_size_effective,
+                "resampling_method": comparison.resampling_method,
+                "test_id": significance.test_id,
+                "test_label": describe_test_id(significance.test_id),
+                "statistic": significance.statistic,
+                "effect_size": significance.effect_size,
+                "ci_low": significance.ci_low,
+                "ci_high": significance.ci_high,
+                "ci_level": significance.ci_level,
+                "p_value": significance.p_value_raw,
+                "p_adj": significance.p_value_adj,
+                "alpha": significance.alpha,
+                "significant": (
+                    significance.reject_null_adj
+                    if significance.reject_null_adj is not None
+                    else significance.reject_null_raw
+                ),
+                "assumption_warnings": list(significance.assumption_flags),
+                "calibration_warnings": list(significance.calibration_flags),
+            }
+        )
+    return rows
+
+
+def _metric_delta_is_improvement(metric_direction: str, delta_value: float) -> bool:
+    if metric_direction == "lower_is_better":
+        return delta_value < 0
+    return delta_value > 0

@@ -1,10 +1,16 @@
 {
   "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
     "BoundMethod": {
       "description": "Bound method public type.",
       "enum": [
         "manski_bounds",
         "transport_bounds",
+        "dp_robustness_bounds",
         "iv_bounds",
         "monotone_treatment",
         "lp_balke_pearl",
@@ -20,6 +26,68 @@
       ],
       "title": "BoundMethod",
       "type": "string"
+    },
+    "BoundSoundnessLevel": {
+      "description": "Soundness tier for one bounds result.",
+      "enum": [
+        "CERTIFIED",
+        "ASSUMPTION_ONLY",
+        "HEURISTIC"
+      ],
+      "title": "BoundSoundnessLevel",
+      "type": "string"
+    },
+    "BoundsTighteningLogRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for certified bounds-tightening search logs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.bounds_tightening_log",
+          "default": "ir.bounds_tightening_log",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "BoundsTighteningLogRef",
+      "type": "object"
+    },
+    "DualCertificateRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for persisted LP dual certificates consumed by bounds auditing.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.dual_certificate",
+          "default": "ir.dual_certificate",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "DualCertificateRef",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -53,6 +121,33 @@
       ],
       "title": "Bounds Type",
       "type": "string"
+    },
+    "certificate_kind": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Certificate Kind"
+    },
+    "certificate_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DualCertificateRef"
+        },
+        {
+          "$ref": "#/$defs/BoundsTighteningLogRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Certificate Ref"
     },
     "chart_type": {
       "default": "interval",
@@ -147,6 +242,22 @@
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"
+    },
+    "solver_metadata": {
+      "additionalProperties": true,
+      "title": "Solver Metadata",
+      "type": "object"
+    },
+    "soundness_level": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BoundSoundnessLevel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "upper_bound": {
       "title": "Upper Bound",

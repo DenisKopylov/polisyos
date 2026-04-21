@@ -11,7 +11,19 @@ from polisyos.foundry.methods.catalog.causal.query_preservation import (
 from polisyos.ir.analytics.alignment_certification import AlignmentVerificationConfig, verify_fragment_bundle_alignment
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, EdgeSource, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
-from polisyos.ir.analytics.cross_graph import CompositionCertificate, SCMFragment
+from polisyos.ir.analytics.cross_graph import (
+    CompositionCertificate,
+    CompositionPolicy,
+    CycleScope,
+    CycleType,
+    CycleWitness,
+    GraphAuditGuarantee,
+    InterventionalClosure,
+    MarkovSemantics,
+    SCMFragment,
+    SolverKind,
+    UniquenessScope,
+)
 from polisyos.ir.analytics.negative_certificate import BlockingType
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ComposeSCMFragments
 from polisyos.foundry.methods.catalog.causal.protocols import FragmentCompositionData
@@ -69,6 +81,51 @@ def _fragment(
             or {name: name.replace("_", " ").title() for name in interface_variables}
         ),
         variable_units=dict(units or {}),
+    )
+
+
+def _cycle_witness() -> CycleWitness:
+    return CycleWitness(
+        scc_id="feedback_cycle",
+        solver_kind=SolverKind.LINEAR_SOLVE,
+        uniqueness_scope=UniquenessScope.SCC,
+        interventional_closure=InterventionalClosure.INTERFACE_ONLY,
+        markov_semantics=MarkovSemantics.SIGMA_SEPARATION,
+        initial_condition_dependent=False,
+        existence_conditions=["invertible_linear_block"],
+        uniqueness_conditions=["spectral_radius_lt_1"],
+        audit_refs=["artifact:witness:feedback"],
+    )
+
+
+def _cyclic_fragment(
+    fragment_id: str,
+    *,
+    interface_variables: list[str],
+    inputs: list[str] | None = None,
+    outputs: list[str] | None = None,
+    definitions: dict[str, str] | None = None,
+    units: dict[str, str] | None = None,
+    composition_policy: CompositionPolicy = CompositionPolicy.ALLOW,
+) -> SCMFragment:
+    return SCMFragment(
+        fragment_id=fragment_id,
+        graph_ref=f"artifact:graph:{fragment_id}",
+        semantic_namespace=f"policy.{fragment_id}",
+        interface_variables=interface_variables,
+        exposed_inputs=list(inputs or []),
+        exposed_outputs=list(outputs or []),
+        variable_definitions=dict(
+            definitions
+            or {name: name.replace("_", " ").title() for name in interface_variables}
+        ),
+        variable_units=dict(units or {}),
+        cycle_type=CycleType.SIMPLE_CYCLIC,
+        cycle_scope=CycleScope.INTERNAL_SCC,
+        cycle_witnesses=[_cycle_witness()],
+        allowed_alignment_types=["exact", "scale_linked"],
+        graph_audit_guarantee=GraphAuditGuarantee.SEMANTIC_ONLY,
+        composition_policy=composition_policy,
     )
 
 
@@ -243,6 +300,63 @@ def test_check_query_preservation_uses_m_separation_for_admg() -> None:
         )
         == "preserved"
     )
+
+
+def test_evaluate_query_preservation_uses_sigma_for_supported_cyclic_fragments() -> None:
+    fragments = [
+        _fragment(
+            "policy",
+            interface_variables=["employment_rate"],
+            outputs=["employment_rate"],
+            definitions={"employment_rate": "Employment rate"},
+            units={"employment_rate": "percent"},
+        ),
+        _cyclic_fragment(
+            "feedback",
+            interface_variables=["employment_rate"],
+            inputs=["employment_rate"],
+            definitions={"employment_rate": "Employment rate"},
+            units={"employment_rate": "percent"},
+            composition_policy=CompositionPolicy.ALLOW,
+        ),
+    ]
+    fragment_graphs = {
+        "policy": _graph(
+            ["training_subsidy", "employment_rate"],
+            [_edge("training_subsidy", "employment_rate")],
+        ),
+        "feedback": _graph(
+            ["employment_rate", "wage_pressure", "wage_growth"],
+            [
+                _edge("employment_rate", "wage_pressure"),
+                _edge("wage_pressure", "employment_rate"),
+                _edge("wage_pressure", "wage_growth"),
+            ],
+            graph_type=GraphType.ADMG,
+        ),
+    }
+    composed_graph, certificate, mapping = _compose(fragments, fragment_graphs)
+    query = CausalQuery(
+        query_type=QueryType.INTERVENTIONAL,
+        treatment_variable="training_subsidy",
+        treatment_value=1.0,
+        outcome_variable="wage_growth",
+    )
+
+    trace = evaluate_query_preservation(
+        query,
+        composed_graph=composed_graph,
+        fragments=fragments,
+        fragment_graphs=fragment_graphs,
+        interface_mapping=mapping,
+        composition_certificate=certificate,
+    )
+
+    assert certificate.status == "preserved"
+    assert trace.status == "preserved"
+    assert trace.reason_code == "evaluated"
+    assert trace.obligations_checked
+    assert trace.obligations_checked[0].criterion == "sigma_separation"
 
 
 def test_check_query_preservation_returns_unknown_for_unsupported_query_shape() -> None:

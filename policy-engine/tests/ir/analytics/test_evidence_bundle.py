@@ -1,6 +1,13 @@
 """Tests for EvidenceBundle IR models."""
 import pytest
-from polisyos.ir.analytics.evidence_bundle import ProofStep, DataProvenance, EvidenceBundle
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir.analytics.evidence_bundle import (
+    DataProvenance,
+    EvidenceBundle,
+    ProofStep,
+    load_causal_evidence_bundle,
+    persist_causal_evidence_bundle,
+)
 
 
 class TestProofStep:
@@ -34,6 +41,12 @@ class TestProofStep:
         assert step.applicable_theorem == ""
         assert step.graph_state_before == ""
         assert step.graph_state_after == ""
+        assert step.step_id == ""
+        assert step.theorem_family == ""
+        assert step.witness_ids == ()
+        assert step.depends_on_steps == ()
+        assert step.local_status == "unknown"
+        assert step.invalidation_reason is None
 
     def test_new_fields_can_be_set(self):
         step = ProofStep(
@@ -43,11 +56,21 @@ class TestProofStep:
             applicable_theorem="do-calculus-R3",
             graph_state_before="G_X_intervened",
             graph_state_after="G_X_observed",
+            step_id="s3",
+            theorem_family="id_v1",
+            input_expr_ref="artifact:expr:before",
+            output_expr_ref="artifact:expr:after",
+            witness_ids=("w1",),
+            depends_on_steps=("s1", "s2"),
+            local_status="valid",
         )
         assert step.rule_formal_name == "do-calculus rule 3"
         assert step.applicable_theorem == "do-calculus-R3"
         assert step.graph_state_before == "G_X_intervened"
         assert step.graph_state_after == "G_X_observed"
+        assert step.step_id == "s3"
+        assert step.local_status == "valid"
+        assert step.witness_ids == ("w1",)
 
     def test_new_fields_round_trip_json(self):
         step = ProofStep(
@@ -57,11 +80,19 @@ class TestProofStep:
             applicable_theorem="ID-algorithm-step-4a",
             graph_state_before="G_full",
             graph_state_after="G_blocked",
+            step_id="h1",
+            theorem_family="id_v1",
+            witness_ids=("w_hedge",),
+            local_status="invalid",
+            invalidation_reason="hedge_witness_broken",
         )
         data = step.model_dump(mode="json")
         restored = ProofStep.model_validate(data)
         assert restored.rule_formal_name == "hedge-certificate"
         assert restored.graph_state_after == "G_blocked"
+        assert restored.step_id == "h1"
+        assert restored.local_status == "invalid"
+        assert restored.invalidation_reason == "hedge_witness_broken"
 
 
 class TestDataProvenance:
@@ -159,3 +190,17 @@ class TestEvidenceBundle:
     def test_extra_fields_forbidden(self):
         with pytest.raises(Exception):
             EvidenceBundle(run_id="r", query_str="q", secret_field="oops")
+
+    def test_persist_causal_evidence_bundle_round_trip(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = EvidenceBundle(
+            run_id="r5",
+            query_str="P(Y|do(X))",
+            proof_steps=(ProofStep(rule_name="RULE1", description="backdoor"),),
+            identification_status="identified",
+        )
+
+        ref = persist_causal_evidence_bundle(store, bundle)
+        restored = load_causal_evidence_bundle(store, ref)
+
+        assert restored == bundle

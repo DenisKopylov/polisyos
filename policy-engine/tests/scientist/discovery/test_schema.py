@@ -4,11 +4,20 @@ from polisyos.ir.analytics.causal_discovery import (
     AlgebraicConstraintReport,
     CausalDiscoveryReport,
     ConstraintEvaluationResult,
+    LatentBlockEvidence,
+    LatentBlockProposal,
+    LatentBlockStatus,
+    LatentCardinalityEvidencePayload,
+    LatentCausalRole,
     LatentAssumptionCard,
     LatentDiscoveryBundle,
+    LatentGraphStatus,
     LatentTrustLevel,
+    LATENT_CARDINALITY_EVIDENCE_KEY,
+    LATENT_CARDINALITY_FAILURE_REASONS_KEY,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.scientist.latent_separation import SEPARATION_DIAGNOSTIC_INPUTS_KEY
 from polisyos.scientist.discovery.schema import (
     ComputeFootprint,
     DiscoveryAlgorithmFamily,
@@ -175,3 +184,147 @@ def test_infer_algorithm_family_supports_functional_methods() -> None:
         infer_algorithm_family(DiscoveryMethod.PAIRWISE_HEURISTIC)
         is DiscoveryAlgorithmFamily.FUNCTIONAL
     )
+
+
+def test_graph_hypothesis_auto_produces_latent_bundle_from_structured_evidence() -> None:
+    report = CausalDiscoveryReport(
+        method="pc",
+        graph=_graph(
+            graph_type=GraphType.DAG,
+            edges=[
+                CausalEdge(src="W_anchor", dst="X", combined_confidence=0.9),
+                CausalEdge(src="W_anchor", dst="Y", combined_confidence=0.9),
+                CausalEdge(src="X", dst="Y", combined_confidence=0.8),
+            ],
+            nodes=["W_anchor", "X", "Y", "R1", "R2", "R3", "W", "Z"],
+            discovery_method="pc",
+        ),
+        metadata={
+            LATENT_CARDINALITY_EVIDENCE_KEY: LatentCardinalityEvidencePayload(
+                model_class="ME-LiNGLaH-S",
+                treatment_variable="X",
+                outcome_variable="Y",
+                inducing_environments=["region_a", "region_b"],
+                latent_blocks=[
+                    LatentBlockProposal(
+                        latent_id="U_01",
+                        block_size=1,
+                        role=LatentCausalRole.CONFOUNDER,
+                        status=LatentBlockStatus.PARTIAL,
+                        graph_status=LatentGraphStatus.PARTIAL,
+                        anchor_variables=["W_anchor"],
+                        informative_environment_contrasts=["region_a_vs_region_b"],
+                        evidence=LatentBlockEvidence(
+                            gin_supported=True,
+                            atomic_structure_supported=True,
+                            shift_localized=True,
+                            minimal_decomposition_supported=True,
+                            role_rule_supported=False,
+                            pure_child_count=2,
+                            neighbor_count=3,
+                            rank=1,
+                        ),
+                    )
+                ],
+            ).model_dump(mode="json"),
+            "latent_separation_measurement": {
+                "status": "passed",
+                "tetrad_test": "single_signal_tetrad_passed",
+                "invariance_test": "measurement_invariance_passed",
+                "repeated_indicator_blocks": ["R_block"],
+                "repeated_indicator_block_variables": {"R_block": ["R1", "R2", "R3"]},
+            },
+            "latent_separation_proxy": {
+                "status": "passed",
+                "bridge_test": "proximal_bridge_solved",
+                "bridge_stability": "cross_environment_stable",
+                "proxy_blocks": ["W", "Z"],
+                "proxy_block_variables": {"W": ["W"], "Z": ["Z"]},
+            },
+            "latent_separation_environment": {
+                "status": "passed",
+                "residual_invariance": "post_calibration_residual_invariance_failed",
+                "post_calibration_shift": "not_restored",
+                "environments": ["region_a", "region_b"],
+                "n_env": 2,
+                "route_to_latent_aware_discovery": True,
+            },
+            "latent_separation_design": {
+                "environments": ["region_a", "region_b"],
+                "proxy_blocks": ["W", "Z"],
+                "repeated_indicator_blocks": ["R_block"],
+            },
+        },
+    )
+
+    hypothesis = graph_hypothesis_from_report(report, hypothesis_id="pc_latent_auto")
+
+    assert hypothesis.latent_discovery is not None
+    assert hypothesis.latent_discovery.readiness_cap == "proof_only"
+    assert hypothesis.latent_discovery.promotion_allowed is False
+    assert hypothesis.latent_discovery.trust_level is LatentTrustLevel.CONDITIONAL
+    assert hypothesis.latent_discovery.proposed_latent_nodes == [
+        "U_01|block_size=1|role=confounder|status=identified"
+    ]
+    assert LATENT_CARDINALITY_EVIDENCE_KEY in hypothesis.latent_discovery.metadata
+    assert LATENT_CARDINALITY_FAILURE_REASONS_KEY in hypothesis.latent_discovery.metadata
+    assert hypothesis.latent_discovery.metadata[LATENT_CARDINALITY_FAILURE_REASONS_KEY] == []
+    assert SEPARATION_DIAGNOSTIC_INPUTS_KEY in hypothesis.latent_discovery.metadata
+    assert hypothesis.latent_discovery.metadata["separation_diagnostics"]["resolution_label"] == (
+        "latent_confounding"
+    )
+
+
+def test_graph_hypothesis_keeps_cardinality_bundle_fail_closed_when_prerequisites_missing() -> None:
+    report = CausalDiscoveryReport(
+        method="pc",
+        graph=_graph(
+            graph_type=GraphType.DAG,
+            edges=[CausalEdge(src="W_anchor", dst="Y", combined_confidence=0.9)],
+            nodes=["W_anchor", "X", "Y"],
+            discovery_method="pc",
+        ),
+        metadata={
+            LATENT_CARDINALITY_EVIDENCE_KEY: LatentCardinalityEvidencePayload(
+                model_class="ME-LiNGLaH-S",
+                treatment_variable="X",
+                outcome_variable="Y",
+                inducing_environments=["region_a", "region_b"],
+                latent_blocks=[
+                    LatentBlockProposal(
+                        latent_id="U_weak",
+                        block_size=1,
+                        role=LatentCausalRole.CONFOUNDER,
+                        status=LatentBlockStatus.PARTIAL,
+                        graph_status=LatentGraphStatus.PARTIAL,
+                        anchor_variables=["W_anchor"],
+                        informative_environment_contrasts=["region_a_vs_region_b"],
+                        evidence=LatentBlockEvidence(
+                            gin_supported=True,
+                            atomic_structure_supported=True,
+                            shift_localized=False,
+                            minimal_decomposition_supported=True,
+                            role_rule_supported=False,
+                            pure_child_count=1,
+                            neighbor_count=2,
+                            rank=1,
+                        ),
+                    )
+                ],
+            ).model_dump(mode="json")
+        },
+    )
+
+    hypothesis = graph_hypothesis_from_report(report, hypothesis_id="pc_latent_fail_closed")
+
+    assert hypothesis.latent_discovery is not None
+    assert hypothesis.latent_discovery.trust_level is LatentTrustLevel.RESEARCH
+    assert hypothesis.latent_discovery.readiness_cap == "proof_only"
+    assert hypothesis.latent_discovery.promotion_allowed is False
+    assert hypothesis.latent_discovery.metadata[LATENT_CARDINALITY_FAILURE_REASONS_KEY] == [
+        "U_weak:neighbors",
+        "U_weak:pure_children",
+        "U_weak:role_rule_supported",
+        "U_weak:shift_localized",
+    ]
+    assert "latent_discovery_proof_only" in hypothesis.latent_discovery.no_promotion_reasons

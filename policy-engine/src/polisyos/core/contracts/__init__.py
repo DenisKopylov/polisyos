@@ -32,6 +32,12 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "CausalSensitivityResultRef",
         "FiniteStateAbstractionMapRef",
         "LiteratureCausalPriorRef",
+        "MeanFieldEquilibriumCertificateRef",
+        "MeanFieldMacroSimulationConfigRef",
+        "MeanFieldPerturbationSpecRef",
+        "OperatorEffectBundleRef",
+        "PrivacyAwareTransportCertificateRef",
+        "RoughPathInterventionCertificateRef",
         "StrategicResponseBundleRef",
         "StrategicSCMRef",
         "StructuralCausalModelSpecRef",
@@ -60,7 +66,13 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "RunLaunchResponse",
         "WorkflowRunRequest",
     ),
-    ".distributional": ("DistributionalEffectBundleRef", "DistributionalReportRef"),
+    ".distributional": (
+        "CausalAssumptionCardRef",
+        "DistributionalBoundsBundleRef",
+        "DistributionalEffectBundleRef",
+        "DistributionalProofArtifactRef",
+        "DistributionalReportRef",
+    ),
     ".execution_plan": (
         "BudgetSpec",
         "EvaluatorReport",
@@ -125,8 +137,11 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "FoundryValidationFlags",
         "LoweredIR",
         "LoweredIRRef",
+        "MetricObservationBundle",
+        "MetricObservationBundleRef",
         "Metrics",
         "MetricsRef",
+        "ModelOutputs",
         "ProgramGraph",
         "ProgramGraphRef",
         "SimulationResult",
@@ -230,6 +245,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "DecisionCompareReportRef",
         "DecisionMonitoringContractRef",
         "DecisionMonitoringReportRef",
+        "MetricValidationReportRef",
         "DecisionPacketRef",
         "DecisionReadinessContractRef",
         "DecisionReissuePlanRef",
@@ -278,7 +294,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "TrinityBundleRef",
         "TrinityManifest",
     ),
-    ".uncertainty": ("UncertaintyEnvelopeRef",),
+    ".uncertainty": ("ForecastingUncertaintyBundleRef", "UncertaintyEnvelopeRef"),
 }
 
 if TYPE_CHECKING:
@@ -309,6 +325,11 @@ if TYPE_CHECKING:
         CausalSensitivityResultRef,
         FiniteStateAbstractionMapRef,
         LiteratureCausalPriorRef,
+        MeanFieldEquilibriumCertificateRef,
+        MeanFieldMacroSimulationConfigRef,
+        MeanFieldPerturbationSpecRef,
+        PrivacyAwareTransportCertificateRef,
+        RoughPathInterventionCertificateRef,
         StrategicResponseBundleRef,
         StrategicSCMRef,
         StructuralCausalModelSpecRef,
@@ -341,7 +362,10 @@ if TYPE_CHECKING:
         WorkflowRunRequest,
     )
     from .distributional import (
+        CausalAssumptionCardRef,
+        DistributionalBoundsBundleRef,
         DistributionalEffectBundleRef,
+        DistributionalProofArtifactRef,
         DistributionalReportRef,
     )
     from .execution_plan import (
@@ -408,8 +432,11 @@ if TYPE_CHECKING:
         FoundryValidationFlags,
         LoweredIR,
         LoweredIRRef,
+        MetricObservationBundle,
+        MetricObservationBundleRef,
         Metrics,
         MetricsRef,
+        ModelOutputs,
         ProgramGraph,
         ProgramGraphRef,
         SimulationResult,
@@ -516,6 +543,7 @@ if TYPE_CHECKING:
         DecisionCompareReportRef,
         DecisionMonitoringContractRef,
         DecisionMonitoringReportRef,
+        MetricValidationReportRef,
         DecisionPacketRef,
         DecisionReadinessContractRef,
         DecisionReissuePlanRef,
@@ -564,7 +592,7 @@ if TYPE_CHECKING:
         TrinityBundleRef,
         TrinityManifest,
     )
-    from .uncertainty import UncertaintyEnvelopeRef
+    from .uncertainty import ForecastingUncertaintyBundleRef, UncertaintyEnvelopeRef
 
 _rel_mod = ""
 _names: tuple[str, ...] = ()
@@ -649,8 +677,11 @@ __all__ = [
     "CalibrationReportRef",
     "LoweredIR",
     "LoweredIRRef",
+    "MetricObservationBundle",
+    "MetricObservationBundleRef",
     "Metrics",
     "MetricsRef",
+    "ModelOutputs",
     "ProgramGraph",
     "ProgramGraphRef",
     "CompileRequest",
@@ -671,6 +702,10 @@ __all__ = [
     "WarningsRef",
     "LinkReportRef",
     "CompileReportRef",
+    "CausalAssumptionCardRef",
+    "DistributionalBoundsBundleRef",
+    "DistributionalEffectBundleRef",
+    "DistributionalProofArtifactRef",
     "DistributionalReportRef",
     "FailureCardRef",
     "TrinityIRRef",
@@ -684,6 +719,8 @@ __all__ = [
     "SensitivityResultRef",
     "StressTestReportRef",
     "CalibrationValidationBundleRef",
+    "MetricValidationReportRef",
+    "ForecastingUncertaintyBundleRef",
     "UncertaintyEnvelopeRef",
     "BacktestReportRef",
     "HTEResultRef",
@@ -737,6 +774,7 @@ __all__ = [
     "CausalQueryResultRef",
     "CausalSensitivityResultRef",
     "LiteratureCausalPriorRef",
+    "PrivacyAwareTransportCertificateRef",
     "TransportabilityResultRef",
     "StructuralCausalModelSpecRef",
     "ApiMeta",

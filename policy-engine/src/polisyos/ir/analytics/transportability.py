@@ -66,6 +66,7 @@ class SNodeOrigin(str, Enum):
     CONTEXT_DELTA = "context_delta"
     LEGAL = "legal"
     DATA_MISMATCH = "data_mismatch"
+    PRIVACY = "privacy"
 
 
 class SNodeRole(str, Enum):

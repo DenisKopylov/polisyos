@@ -1,0 +1,296 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "InterventionProgram": {
+      "additionalProperties": false,
+      "description": "A concrete intervention ``a`` used as a representative of a class ``[a]``.",
+      "properties": {
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/PrimitiveAction"
+          },
+          "minItems": 0,
+          "title": "Actions",
+          "type": "array"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "actions"
+      ],
+      "title": "InterventionProgram",
+      "type": "object"
+    },
+    "PrimitiveAction": {
+      "additionalProperties": false,
+      "description": "One primitive action in an intervention program.",
+      "properties": {
+        "channel": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Channel"
+        },
+        "node": {
+          "title": "Node",
+          "type": "string"
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        },
+        "target_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Value"
+        }
+      },
+      "required": [
+        "node"
+      ],
+      "title": "PrimitiveAction",
+      "type": "object"
+    },
+    "RecourseProofBundleRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for a persisted recourse-specific proof bundle.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.recourse_proof_bundle",
+          "default": "ir.recourse_proof_bundle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "RecourseProofBundleRef",
+      "type": "object"
+    },
+    "RecourseSemantics": {
+      "description": "Recourse semantic regime selected by the query.\n\nDistinguishes individualized counterfactual semantics from weaker\nprobabilistic / subpopulation / bounded regimes. The proof kernel uses\nthis field to choose identification pathways and refuse requests that\ncannot be supported under the selected regime.",
+      "enum": [
+        "counterfactual_unit",
+        "probabilistic_counterfactual_unit",
+        "interventional_subpopulation",
+        "bounded_recourse"
+      ],
+      "title": "RecourseSemantics",
+      "type": "string"
+    },
+    "RecourseSuccessMode": {
+      "description": "How ``g(a) >= tau`` is evaluated by the planner.",
+      "enum": [
+        "point_probability",
+        "lower_confidence_bound",
+        "lower_identification_bound"
+      ],
+      "title": "RecourseSuccessMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Machine-readable certificate that a recourse recommendation is actionable.\n\nThe five checks required by the plan:\n\n1. Support lies inside the mutable node set; immutable violations are\n   enumerated for auditors.\n2. Values respect declared domains and programmatic / legal prerequisites.\n3. Replay of the SCM after ``do(a)`` is structurally consistent with the\n   reported post-intervention state.\n4. Achieved success value exceeds ``threshold_tau`` under the declared\n   ``success_measure`` (point probability, lower confidence bound, or\n   lower identification bound).\n5. Planner honestly labels optimality as ``exact`` / ``epsilon_optimal``\n   / ``heuristic`` and records any available optimality gap.",
+  "properties": {
+    "achieved_success_value": {
+      "title": "Achieved Success Value",
+      "type": "number"
+    },
+    "action": {
+      "$ref": "#/$defs/InterventionProgram"
+    },
+    "data_readiness_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Data Readiness Ref"
+    },
+    "domain_constraints_ok": {
+      "title": "Domain Constraints Ok",
+      "type": "boolean"
+    },
+    "factual_unit_ref": {
+      "title": "Factual Unit Ref",
+      "type": "string"
+    },
+    "immutable_violations": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Immutable Violations",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "mutable_support_ok": {
+      "title": "Mutable Support Ok",
+      "type": "boolean"
+    },
+    "optimality_gap": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Optimality Gap"
+    },
+    "optimality_status": {
+      "enum": [
+        "exact",
+        "epsilon_optimal",
+        "heuristic"
+      ],
+      "title": "Optimality Status",
+      "type": "string"
+    },
+    "prerequisite_constraints_ok": {
+      "title": "Prerequisite Constraints Ok",
+      "type": "boolean"
+    },
+    "recoverability_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RecourseProofBundleRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "robustness_margin_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Robustness Margin Ref"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scm_ref": {
+      "title": "Scm Ref",
+      "type": "string"
+    },
+    "semantics": {
+      "$ref": "#/$defs/RecourseSemantics"
+    },
+    "structural_consistency_ok": {
+      "title": "Structural Consistency Ok",
+      "type": "boolean"
+    },
+    "structural_replay_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Structural Replay Ref"
+    },
+    "success_measure": {
+      "$ref": "#/$defs/RecourseSuccessMode"
+    },
+    "threshold_met": {
+      "title": "Threshold Met",
+      "type": "boolean"
+    },
+    "threshold_tau": {
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Threshold Tau",
+      "type": "number"
+    }
+  },
+  "required": [
+    "action",
+    "factual_unit_ref",
+    "scm_ref",
+    "semantics",
+    "mutable_support_ok",
+    "domain_constraints_ok",
+    "prerequisite_constraints_ok",
+    "structural_consistency_ok",
+    "success_measure",
+    "achieved_success_value",
+    "threshold_tau",
+    "threshold_met",
+    "optimality_status"
+  ],
+  "title": "RecourseFeasibilityCertificate",
+  "type": "object"
+}

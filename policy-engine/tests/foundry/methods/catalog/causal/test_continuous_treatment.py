@@ -319,6 +319,15 @@ class TestShiftInterventionEstimator:
         method = result["shift_effect"].get("method", "")
         assert "shift" in method.lower() or "diaz" in method.lower() or method == ""
 
+    def test_density_ratio_diagnostics_present(self, small_linear_dgp):
+        Y, T, X = small_linear_dgp
+        state = {"outcome": Y, "treatment": T, "covariates": X}
+        result = ShiftInterventionEstimator.pure_step(state, {"delta": 0.2, "n_folds": 3})
+        diagnostics = result["shift_effect"]["density_ratio_diagnostics"]
+        assert diagnostics["status"] == "ok"
+        assert diagnostics["effective_sample_size"] > 0
+        assert diagnostics["max_density_ratio"] >= diagnostics["min_density_ratio"]
+
 
 # ---------------------------------------------------------------------------
 # EntropyBalancingContinuousEstimator

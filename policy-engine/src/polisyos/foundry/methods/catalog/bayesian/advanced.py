@@ -1,11 +1,21 @@
 """Estimate hierarchical, HMC/NUTS, and mixture-model Bayesian methods."""
 from __future__ import annotations
 
+import hashlib
+import os
+import platform
+import sys
+from dataclasses import dataclass
 from typing import Any, ClassVar, Mapping
 
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    BackendRuntimeFingerprint,
+    build_backend_route_key,
+    safe_version,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -24,8 +34,554 @@ from polisyos.foundry.methods.catalog.ml.regression import (
     _tabular_payload,
 )
 from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
+from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
 
-from .protocols import PosteriorResult, metropolis_sample, summarize_posterior_samples
+from .protocols import (
+    PosteriorResult,
+    augment_sampler_diagnostics,
+    canonical_draws_artifact,
+    extract_truthfulness_hints,
+    flatten_chain_draws,
+    metropolis_sample,
+    relative_interval_shift_max,
+    split_truthfulness_hints,
+    summarize_posterior_samples,
+)
+
+_REFERENCE_SAMPLER_CONTRACT = "foundry.bayesian.reference_sampler.v1"
+_REFERENCE_CONTRACT_SALT = 0x504F4C59
+_THREAD_PIN_ENV_VARS = (
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+)
+_SAMPLER_CODE = {
+    "hmc": 101,
+    "nuts": 202,
+}
+
+
+@dataclass(frozen=True, slots=True)
+class _SamplerTrace:
+    posterior_by_chain: dict[str, np.ndarray]
+    warmup_by_chain: dict[str, np.ndarray]
+    diagnostics_per_chain: dict[str, dict[str, float]]
+    diagnostics_summary: dict[str, float]
+
+
+def _stable_entropy_token(value: str | int) -> int:
+    if isinstance(value, int):
+        return int(value) & 0xFFFFFFFF
+    digest = hashlib.blake2b(str(value).encode("utf-8"), digest_size=8).digest()
+    return int.from_bytes(digest[:4], "little", signed=False)
+
+
+@dataclass(frozen=True, slots=True)
+class _SamplerRngNamespace:
+    root_seed: int
+    sampler_kernel: str
+    chain_id: int
+    phase: str
+    iteration: int
+
+    def generator(self, purpose: str, *tokens: str | int) -> np.random.Generator:
+        code = _SAMPLER_CODE.get(self.sampler_kernel, 0)
+        entropy = [
+            int(self.root_seed),
+            int(code),
+            _REFERENCE_CONTRACT_SALT,
+            int(self.chain_id),
+            _stable_entropy_token(self.phase),
+            int(self.iteration),
+            _stable_entropy_token(purpose),
+        ]
+        entropy.extend(_stable_entropy_token(token) for token in tokens)
+        return np.random.default_rng(np.random.SeedSequence(entropy))
+
+
+def _thread_configuration_snapshot() -> dict[str, str]:
+    snapshot: dict[str, str] = {}
+    for key in _THREAD_PIN_ENV_VARS:
+        value = os.getenv(key)
+        if value is not None and value.strip():
+            snapshot[key] = value.strip()
+    return snapshot
+
+
+def _thread_configuration_is_pinned_single_thread(snapshot: Mapping[str, str]) -> bool:
+    return all(snapshot.get(key) == "1" for key in _THREAD_PIN_ENV_VARS)
+
+
+def _numpy_runtime_config() -> dict[str, Any]:
+    config = getattr(np.__config__, "CONFIG", {})
+    if not isinstance(config, Mapping):
+        return {}
+    build = config.get("Build Dependencies")
+    machine = config.get("Machine Information")
+    blas = build.get("blas", {}) if isinstance(build, Mapping) else {}
+    lapack = build.get("lapack", {}) if isinstance(build, Mapping) else {}
+    host = machine.get("host", {}) if isinstance(machine, Mapping) else {}
+    return {
+        "blas_name": str(blas.get("name", "unknown")),
+        "blas_version": str(blas.get("version", "unknown")),
+        "lapack_name": str(lapack.get("name", "unknown")),
+        "lapack_version": str(lapack.get("version", "unknown")),
+        "host_cpu": str(host.get("cpu", "unknown")),
+        "host_family": str(host.get("family", "unknown")),
+        "host_system": str(host.get("system", "unknown")),
+    }
+
+
+def _bayesian_execution_device(backend_used: str) -> str:
+    if backend_used == "numpy":
+        return "cpu:bayesian"
+    if backend_used == "numpyro":
+        try:
+            import jax
+
+            backend = str(jax.default_backend()).strip().lower()
+            if backend:
+                return f"{backend}:bayesian"
+        except Exception:
+            pass
+    return f"cpu:{backend_used or 'bayesian'}"
+
+
+def _bayesian_runtime_versions(backend_used: str) -> dict[str, str]:
+    versions = {"numpy": np.__version__}
+    package_names = ("scipy", "arviz")
+    if backend_used == "numpyro":
+        package_names = (*package_names, "numpyro", "jax", "jaxlib")
+    for package_name in package_names:
+        if package_name in versions:
+            continue
+        version = safe_version(package_name)
+        if version is not None:
+            versions[package_name] = version
+    return versions
+
+
+def _bayesian_observed_tolerance_budget(
+    *,
+    backend_used: str,
+    effective_tier: DeterminismTier,
+    seed: int,
+    notes: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    execution_device = _bayesian_execution_device(backend_used)
+    library_versions = _bayesian_runtime_versions(backend_used)
+    runtime_stack = tuple(
+        dict.fromkeys(
+            item
+            for item in (
+                backend_used,
+                "numpy",
+                "scipy",
+                "arviz",
+                "jax" if backend_used == "numpyro" else None,
+                "jaxlib" if backend_used == "numpyro" else None,
+                "numpyro" if backend_used == "numpyro" else None,
+            )
+            if item
+        )
+    )
+    route_key = build_backend_route_key(
+        ComputeBackend.BAYESIAN,
+        execution_device=execution_device,
+        runtime_backend=backend_used,
+        library_versions=library_versions,
+        route_key_overrides={"backend_route": f"bayesian:{backend_used}"},
+    )
+    posture = BackendRuntimeFingerprint(
+        backend=ComputeBackend.BAYESIAN,
+        available=True,
+        determinism_tier=effective_tier,
+        execution_device=execution_device,
+        runtime_stack=runtime_stack,
+        library_versions=library_versions,
+        runtime_backend=backend_used,
+        seed=seed,
+        notes=notes,
+        route_key=route_key,
+    )
+    return posture.observed_tolerance_budget
+
+
+def _scalar_parameter_series(samples_by_chain: Mapping[str, np.ndarray]) -> dict[str, np.ndarray]:
+    series: dict[str, np.ndarray] = {}
+    for name, value in sorted(samples_by_chain.items()):
+        arr = np.asarray(value, dtype=float)
+        if arr.ndim < 2:
+            continue
+        if arr.ndim == 2:
+            series[name] = arr
+            continue
+        flat = arr.reshape(arr.shape[0], arr.shape[1], -1)
+        for idx in range(flat.shape[2]):
+            label = name if flat.shape[2] == 1 else f"{name}_{idx}"
+            series[label] = flat[:, :, idx]
+    return series
+
+
+def _split_rhat(samples: np.ndarray) -> float:
+    arr = np.asarray(samples, dtype=float)
+    if arr.ndim != 2:
+        raise ValueError("R-hat expects an array with shape (chains, draws)")
+    chains, draws = arr.shape
+    if chains < 2 or draws < 4:
+        return -1.0
+    usable = draws - (draws % 2)
+    if usable < 4:
+        return -1.0
+    split = np.concatenate([arr[:, : usable // 2], arr[:, usable // 2 : usable]], axis=0)
+    split_vars = np.var(split, axis=1, ddof=1)
+    if np.any(~np.isfinite(split_vars)) or float(np.max(split_vars, initial=0.0)) <= 0.0:
+        return -1.0
+    n = split.shape[1]
+    chain_means = np.mean(split, axis=1)
+    between = n * float(np.var(chain_means, ddof=1))
+    within = float(np.mean(split_vars))
+    if within <= 0.0:
+        return -1.0
+    var_hat = ((n - 1.0) / n) * within + between / n
+    return float(np.sqrt(max(var_hat / within, 0.0)))
+
+
+def _ess_estimate(samples: np.ndarray) -> float:
+    arr = np.asarray(samples, dtype=float)
+    if arr.ndim != 2:
+        raise ValueError("ESS expects an array with shape (chains, draws)")
+    chains, draws = arr.shape
+    if chains < 1 or draws < 4:
+        return float(chains * draws)
+    centered = arr - np.mean(arr, axis=1, keepdims=True)
+    variance = np.var(centered, axis=1)
+    if np.any(~np.isfinite(variance)) or float(np.max(variance, initial=0.0)) <= 0.0:
+        return -1.0
+
+    tau = 1.0
+    previous_pair = None
+    for lag in range(1, draws - 1, 2):
+        pair_sum = 0.0
+        for inner_lag in (lag, lag + 1):
+            rho_values: list[float] = []
+            for chain_idx in range(chains):
+                chain = centered[chain_idx]
+                denom = float(np.dot(chain, chain))
+                if denom <= 0.0:
+                    continue
+                numerator = float(np.dot(chain[:-inner_lag], chain[inner_lag:]))
+                rho_values.append(numerator / denom)
+            if not rho_values:
+                continue
+            pair_sum += float(np.mean(rho_values))
+        if previous_pair is not None and pair_sum > previous_pair:
+            pair_sum = previous_pair
+        if pair_sum <= 0.0:
+            break
+        tau += 2.0 * pair_sum
+        previous_pair = pair_sum
+    return float((chains * draws) / max(tau, 1.0))
+
+
+def _tail_ess_estimate(samples: np.ndarray) -> float:
+    pooled = np.asarray(samples, dtype=float).reshape(-1)
+    if pooled.size < 8:
+        return -1.0
+    lower_q, upper_q = np.quantile(pooled, [0.05, 0.95])
+    lower_indicator = (samples <= lower_q).astype(float)
+    upper_indicator = (samples >= upper_q).astype(float)
+    lower_ess = _ess_estimate(lower_indicator)
+    upper_ess = _ess_estimate(upper_indicator)
+    candidates = [value for value in (lower_ess, upper_ess) if value >= 0.0]
+    return min(candidates) if candidates else -1.0
+
+
+def _energy_bfmi(energy: np.ndarray) -> float:
+    arr = np.asarray(energy, dtype=float).reshape(-1)
+    if arr.size < 2:
+        return -1.0
+    variance = float(np.var(arr))
+    if not np.isfinite(variance) or variance <= 0.0:
+        return -1.0
+    deltas = np.diff(arr)
+    return float(np.mean(deltas * deltas) / variance)
+
+
+def _sampler_diagnostic_bundle(
+    *,
+    sampler_kernel: str,
+    samples_by_chain: Mapping[str, np.ndarray],
+    diagnostics_per_chain: Mapping[str, Mapping[str, float]],
+) -> tuple[dict[str, float], dict[str, bool], tuple[str, ...], str]:
+    series = _scalar_parameter_series(samples_by_chain)
+    rhat_measurements = {name: _split_rhat(item) for name, item in series.items()}
+    bulk_ess_measurements = {name: _ess_estimate(item) for name, item in series.items()}
+    tail_ess_measurements = {name: _tail_ess_estimate(item) for name, item in series.items()}
+
+    def _is_valid_metric(value: float) -> bool:
+        return bool(np.isfinite(value) and value >= 0.0)
+
+    rhat_values = [value for value in rhat_measurements.values() if _is_valid_metric(value)]
+    bulk_ess_values = [value for value in bulk_ess_measurements.values() if _is_valid_metric(value)]
+    tail_ess_values = [value for value in tail_ess_measurements.values() if _is_valid_metric(value)]
+    chain_count = len(diagnostics_per_chain)
+    ess_gate_chain_count = max(chain_count, 1)
+    min_required_ess = 100.0 * ess_gate_chain_count
+    bfmi_measurements = {
+        str(chain_id): float(metrics.get("bfmi", -1.0)) for chain_id, metrics in diagnostics_per_chain.items()
+    }
+    bfmi_values = [value for value in bfmi_measurements.values() if _is_valid_metric(value)]
+    divergence_total = float(
+        sum(int(round(float(metrics.get("divergences", 0.0)))) for metrics in diagnostics_per_chain.values())
+    )
+    treedepth_total = float(
+        sum(int(round(float(metrics.get("max_treedepth_hits", 0.0)))) for metrics in diagnostics_per_chain.values())
+    )
+    acceptance_values = [
+        float(metrics.get("acceptance_rate", 0.0)) for metrics in diagnostics_per_chain.values()
+    ]
+    invalid_counts = {
+        "rhat": int(len(rhat_measurements) - len(rhat_values)),
+        "bulk_ess": int(len(bulk_ess_measurements) - len(bulk_ess_values)),
+        "tail_ess": int(len(tail_ess_measurements) - len(tail_ess_values)),
+        "bfmi": int(len(bfmi_measurements) - len(bfmi_values)),
+    }
+    has_invalid_rhat = bool(rhat_measurements) and invalid_counts["rhat"] > 0
+    has_invalid_bulk_ess = bool(bulk_ess_measurements) and invalid_counts["bulk_ess"] > 0
+    has_invalid_tail_ess = bool(tail_ess_measurements) and invalid_counts["tail_ess"] > 0
+    has_invalid_bfmi = chain_count > 0 and invalid_counts["bfmi"] > 0
+
+    diagnostics_summary = {
+        "num_monitored_chains": float(chain_count),
+        "max_rhat": max(rhat_values) if rhat_values else -1.0,
+        "min_bulk_ess": min(bulk_ess_values) if bulk_ess_values else -1.0,
+        "min_tail_ess": min(tail_ess_values) if tail_ess_values else -1.0,
+        "min_bfmi": min(bfmi_values) if bfmi_values else -1.0,
+        "divergences": divergence_total,
+        "max_treedepth_hits": treedepth_total,
+        "mean_acceptance_rate": float(np.mean(acceptance_values)) if acceptance_values else 0.0,
+        "num_scalar_parameters_monitored": float(len(series)),
+        "minimum_required_ess": float(min_required_ess),
+        "invalid_rhat_count": float(invalid_counts["rhat"]),
+        "invalid_bulk_ess_count": float(invalid_counts["bulk_ess"]),
+        "invalid_tail_ess_count": float(invalid_counts["tail_ess"]),
+        "invalid_bfmi_count": float(invalid_counts["bfmi"]),
+    }
+    diagnostic_gates = {
+        "minimum_chains": chain_count >= 4,
+        "rhat": (
+            bool(rhat_measurements)
+            and not has_invalid_rhat
+            and 0.0 <= diagnostics_summary["max_rhat"] <= 1.01
+        ),
+        "bulk_ess": (
+            bool(bulk_ess_measurements)
+            and not has_invalid_bulk_ess
+            and diagnostics_summary["min_bulk_ess"] >= min_required_ess
+        ),
+        "tail_ess": (
+            bool(tail_ess_measurements)
+            and not has_invalid_tail_ess
+            and diagnostics_summary["min_tail_ess"] >= min_required_ess
+        ),
+        "bfmi": chain_count > 0 and not has_invalid_bfmi and diagnostics_summary["min_bfmi"] >= 0.30,
+        "divergences": divergence_total == 0.0,
+        "max_treedepth_hits": True if sampler_kernel != "nuts" else treedepth_total == 0.0,
+    }
+    warnings = tuple(
+        dict.fromkeys(
+            [
+                *(
+                    f"diagnostic_metric_invalid:{name}"
+                    for name, invalid in (
+                        ("rhat", has_invalid_rhat),
+                        ("bulk_ess", has_invalid_bulk_ess),
+                        ("tail_ess", has_invalid_tail_ess),
+                        ("bfmi", has_invalid_bfmi),
+                    )
+                    if invalid
+                ),
+                *(f"diagnostic_gate_failed:{name}" for name, passed in diagnostic_gates.items() if not passed),
+            ]
+        )
+    )
+    status = "ok" if all(diagnostic_gates.values()) else "diagnostics_failed"
+    return diagnostics_summary, diagnostic_gates, warnings, status
+
+
+def _reference_sampler_reproducibility(
+    *,
+    params: Mapping[str, Any],
+    backend_used: str,
+    sampler_kernel: str,
+    posterior_hash: str,
+    warmup_hash: str | None,
+    draw_layout: Mapping[str, Any],
+) -> tuple[DeterminismTier, dict[str, Any], tuple[str, ...], str | None]:
+    requested_runtime = _requested_runtime_backend(params)
+    thread_snapshot = _thread_configuration_snapshot()
+    degradation_reasons: list[str] = []
+    if backend_used != "numpy":
+        degradation_reasons.append("runtime_backend_not_reference")
+    if requested_runtime != "numpy":
+        degradation_reasons.append(
+            "runtime_backend_auto_not_allowed" if requested_runtime == "auto" else "requested_runtime_backend_mismatch"
+        )
+    if not _thread_configuration_is_pinned_single_thread(thread_snapshot):
+        degradation_reasons.append("thread_configuration_not_pinned_single_thread")
+
+    effective_tier = (
+        DeterminismTier.LIBRARY_DETERMINISTIC
+        if not degradation_reasons
+        else DeterminismTier.STATISTICAL
+    )
+    envelope = {
+        "contract_version": _REFERENCE_SAMPLER_CONTRACT,
+        "requested_runtime_backend": requested_runtime,
+        "effective_runtime_backend": backend_used,
+        "sampler_kernel": sampler_kernel,
+        "execution_device": "cpu:bayesian",
+        "chain_execution": "sequential",
+        "float_precision": "float64",
+        "jit_enabled": False,
+        "gpu_allowed": False,
+        "python_version": sys.version.split()[0],
+        "python_implementation": platform.python_implementation(),
+        "platform": platform.platform(),
+        "machine": platform.machine(),
+        "processor": platform.processor(),
+        "arch_family": platform.machine(),
+        "libc": {
+            "lib": platform.libc_ver()[0] or "unknown",
+            "version": platform.libc_ver()[1] or "unknown",
+        },
+        "numpy_version": np.__version__,
+        "numpy_runtime_config": _numpy_runtime_config(),
+        "thread_configuration": {
+            "required_variables": list(_THREAD_PIN_ENV_VARS),
+            "observed": dict(sorted(thread_snapshot.items())),
+            "single_thread_pinned": _thread_configuration_is_pinned_single_thread(thread_snapshot),
+        },
+        "rng_partitioning": {
+            "scheme": "seedsequence_substreams",
+            "components": [
+                "root_seed",
+                "sampler_code",
+                "contract_salt",
+                "chain_id",
+                "phase",
+                "iteration",
+                "purpose",
+                "stream_tokens",
+            ],
+        },
+    }
+    envelope_id = content_hash(
+        to_canonical_bytes(envelope, spec=CanonSpec(forbid_floats=False)),
+        prefix=True,
+    )
+    observed_budget = _bayesian_observed_tolerance_budget(
+        backend_used=backend_used,
+        effective_tier=effective_tier,
+        seed=int(params.get("__seed__", 0)),
+        notes=tuple(f"determinism_degraded:{reason}" for reason in degradation_reasons),
+    )
+    reproducibility = {
+        "contract_version": _REFERENCE_SAMPLER_CONTRACT,
+        "requested_determinism_tier": (
+            DeterminismTier.LIBRARY_DETERMINISTIC.value
+            if requested_runtime == "numpy"
+            else DeterminismTier.STATISTICAL.value
+        ),
+        "effective_determinism_tier": effective_tier.value,
+        "requested_runtime_backend": requested_runtime,
+        "effective_runtime_backend": backend_used,
+        "root_seed": int(params.get("__seed__", 0)),
+        "chain_seed_derivation": (
+            "SeedSequence([root_seed, sampler_code, contract_salt, chain_id, phase, iteration, purpose, stream_tokens...])"
+        ),
+        "envelope_id": envelope_id,
+        "determinism_envelope": envelope,
+        "degradation_reasons": list(degradation_reasons),
+        "replay_output_hash": posterior_hash,
+        "warmup_output_hash": warmup_hash,
+        "draw_layout": dict(draw_layout),
+        "route_key": dict(observed_budget.get("route_key") or {}),
+        "observed_tolerance_budget": observed_budget,
+    }
+    warnings = tuple(f"determinism_degraded:{reason}" for reason in degradation_reasons)
+    degradation_reason = degradation_reasons[0] if degradation_reasons else None
+    return effective_tier, reproducibility, warnings, degradation_reason
+
+
+def _reference_sampler_contract(
+    *,
+    method_name: str,
+    sampler_kernel: str,
+    params: Mapping[str, Any],
+    backend_used: str,
+    trace: _SamplerTrace,
+) -> tuple[dict[str, Any], dict[str, Any], tuple[str, ...], DeterminismTier]:
+    diagnostics_summary, diagnostic_gates, gate_warnings, status = _sampler_diagnostic_bundle(
+        sampler_kernel=sampler_kernel,
+        samples_by_chain=trace.posterior_by_chain,
+        diagnostics_per_chain=trace.diagnostics_per_chain,
+    )
+    posterior_ref, posterior_artifact, posterior_hash, draw_layout = canonical_draws_artifact(
+        trace.posterior_by_chain,
+        method_name=method_name,
+        sampler_kernel=sampler_kernel,
+        stage="posterior",
+    )
+    warmup_ref, warmup_artifact, warmup_hash, _ = canonical_draws_artifact(
+        trace.warmup_by_chain,
+        method_name=method_name,
+        sampler_kernel=sampler_kernel,
+        stage="warmup",
+    )
+    determinism_tier, reproducibility, replay_warnings, degradation_reason = _reference_sampler_reproducibility(
+        params=params,
+        backend_used=backend_used,
+        sampler_kernel=sampler_kernel,
+        posterior_hash=posterior_hash,
+        warmup_hash=warmup_hash,
+        draw_layout=draw_layout,
+    )
+    warnings = tuple(dict.fromkeys([*gate_warnings, *replay_warnings]))
+    posterior_fields = {
+        "sampler_family": "mcmc",
+        "sampler_kernel": sampler_kernel,
+        "draws_ref": posterior_ref,
+        "warmup_draws_ref": warmup_ref,
+        "draw_layout": dict(draw_layout),
+        "diagnostics_per_chain": {key: dict(value) for key, value in trace.diagnostics_per_chain.items()},
+        "diagnostics_summary": {**trace.diagnostics_summary, **diagnostics_summary},
+        "diagnostic_gates": diagnostic_gates,
+        "reproducibility": reproducibility,
+        "warnings": warnings,
+        "status": status,
+        "degradation_reason": degradation_reason,
+    }
+    artifacts = {
+        "posterior_draws": {
+            "artifact_ref": posterior_ref,
+            "artifact_hash": posterior_hash,
+            "payload": posterior_artifact,
+        },
+        "warmup_draws": {
+            "artifact_ref": warmup_ref,
+            "artifact_hash": warmup_hash,
+            "payload": warmup_artifact,
+        },
+        "sampler_reproducibility": reproducibility,
+        "sampler_status": status,
+        "diagnostic_gates": diagnostic_gates,
+    }
+    return posterior_fields, artifacts, warnings, determinism_tier
 
 
 def _prediction_output_slots() -> frozenset[SlotSpec]:
@@ -455,7 +1011,9 @@ def _build_nuts_tree(
     y: np.ndarray,
     prior_scale: float,
     joint0: float,
-    rng: np.random.Generator,
+    rng: np.random.Generator | None = None,
+    rng_namespace: _SamplerRngNamespace | None = None,
+    path: tuple[int, ...] = (),
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, int, bool, float, int]:
     if depth == 0:
         theta_prime, momentum_prime, _, _ = _leapfrog(
@@ -511,6 +1069,8 @@ def _build_nuts_tree(
         prior_scale=prior_scale,
         joint0=joint0,
         rng=rng,
+        rng_namespace=rng_namespace,
+        path=(*path, 0),
     )
     if not s_prime:
         return (
@@ -548,6 +1108,8 @@ def _build_nuts_tree(
             prior_scale=prior_scale,
             joint0=joint0,
             rng=rng,
+            rng_namespace=rng_namespace,
+            path=(*path, 1),
         )
         theta_minus = theta_minus_2
         momentum_minus = momentum_minus_2
@@ -574,11 +1136,20 @@ def _build_nuts_tree(
             prior_scale=prior_scale,
             joint0=joint0,
             rng=rng,
+            rng_namespace=rng_namespace,
+            path=(*path, 2),
         )
         theta_plus = theta_plus_2
         momentum_plus = momentum_plus_2
 
-    if (n_prime + n_prime_2) > 0 and float(rng.uniform()) < (n_prime_2 / max(n_prime + n_prime_2, 1)):
+    if rng_namespace is not None:
+        combine_rng = rng_namespace.generator("tree_combine", depth, direction, *path)
+    elif rng is not None:
+        combine_rng = rng
+    else:  # pragma: no cover - defensive guard for malformed internal calls.
+        raise ValueError("NUTS tree builder requires either rng or rng_namespace")
+
+    if (n_prime + n_prime_2) > 0 and float(combine_rng.uniform()) < (n_prime_2 / max(n_prime + n_prime_2, 1)):
         theta_prime = theta_prime_2
     n_prime += n_prime_2
     s_prime = bool(
@@ -716,6 +1287,315 @@ def _nuts_sample_linear_regression(
     return np.concatenate(draws, axis=0), accepted_weight / max(total_weight, 1)
 
 
+def _hmc_reference_trace(
+    *,
+    x: np.ndarray,
+    y: np.ndarray,
+    initial_state: np.ndarray,
+    prior_scale: float,
+    step_size: float,
+    n_leapfrog: int,
+    root_seed: int,
+    num_warmup: int,
+    num_samples: int,
+    num_chains: int,
+) -> _SamplerTrace:
+    warmup_draws: list[np.ndarray] = []
+    posterior_draws: list[np.ndarray] = []
+    diagnostics_per_chain: dict[str, dict[str, float]] = {}
+    for chain_id in range(max(1, int(num_chains))):
+        init_rng = _SamplerRngNamespace(
+            root_seed=int(root_seed),
+            sampler_kernel="hmc",
+            chain_id=chain_id,
+            phase="initialization",
+            iteration=0,
+        ).generator("initial_state")
+        current = np.asarray(initial_state, dtype=float) + init_rng.normal(scale=0.05, size=initial_state.shape)
+        current_lp, _ = _linear_regression_log_density_and_grad(
+            current,
+            x=x,
+            y=y,
+            prior_scale=prior_scale,
+        )
+        local_step = max(float(step_size), 1e-4)
+        chain_warmup: list[np.ndarray] = []
+        chain_posterior: list[np.ndarray] = []
+        energy_trace: list[float] = []
+        accepted = 0
+        attempted = 0
+        divergences = 0
+        for step_idx in range(max(0, int(num_warmup)) + max(1, int(num_samples))):
+            phase = "warmup" if step_idx < max(0, int(num_warmup)) else "posterior"
+            rng_namespace = _SamplerRngNamespace(
+                root_seed=int(root_seed),
+                sampler_kernel="hmc",
+                chain_id=chain_id,
+                phase=phase,
+                iteration=step_idx,
+            )
+            momentum = rng_namespace.generator("momentum").normal(size=current.shape)
+            proposal, proposal_momentum, proposal_lp, _ = _leapfrog(
+                current,
+                momentum,
+                step_size=local_step,
+                n_steps=n_leapfrog,
+                x=x,
+                y=y,
+                prior_scale=prior_scale,
+            )
+            current_energy = -current_lp + 0.5 * float(np.dot(momentum, momentum))
+            proposal_energy = -proposal_lp + 0.5 * float(np.dot(proposal_momentum, proposal_momentum))
+            if (not np.isfinite(current_energy)) or (not np.isfinite(proposal_energy)):
+                divergences += 1
+                accept_prob = 0.0
+            else:
+                energy_error = abs(proposal_energy - current_energy)
+                if energy_error > 100.0:
+                    divergences += 1
+                accept_prob = min(1.0, float(np.exp(min(current_energy - proposal_energy, 0.0))))
+            if float(rng_namespace.generator("accept").uniform()) <= accept_prob:
+                current = proposal
+                current_lp = proposal_lp
+                accepted += 1
+                current_energy = proposal_energy
+            attempted += 1
+            if step_idx < max(0, int(num_warmup)):
+                chain_warmup.append(current.copy())
+                if accept_prob < 0.6:
+                    local_step *= 0.92
+                elif accept_prob > 0.8:
+                    local_step *= 1.04
+                local_step = min(max(local_step, 1e-4), 0.25)
+                continue
+            chain_posterior.append(current.copy())
+            energy_trace.append(float(current_energy))
+        acceptance_rate = accepted / max(attempted, 1)
+        diagnostics_per_chain[str(chain_id)] = {
+            "acceptance_rate": float(acceptance_rate),
+            "divergences": float(divergences),
+            "bfmi": float(_energy_bfmi(np.asarray(energy_trace, dtype=float))),
+            "final_step_size": float(local_step),
+            "max_treedepth_hits": 0.0,
+        }
+        warmup_draws.append(np.asarray(chain_warmup, dtype=float))
+        posterior_draws.append(np.asarray(chain_posterior, dtype=float))
+
+    warmup_arr = np.asarray(warmup_draws, dtype=float)
+    posterior_arr = np.asarray(posterior_draws, dtype=float)
+    diagnostics_summary = {
+        "acceptance_rate": float(
+            np.mean([metrics["acceptance_rate"] for metrics in diagnostics_per_chain.values()])
+        ),
+        "divergences": float(sum(metrics["divergences"] for metrics in diagnostics_per_chain.values())),
+        "bfmi": float(min(metrics["bfmi"] for metrics in diagnostics_per_chain.values())),
+    }
+    return _SamplerTrace(
+        posterior_by_chain={
+            "intercept": posterior_arr[:, :, 0],
+            "coefficients": posterior_arr[:, :, 1:-1],
+            "sigma": np.exp(posterior_arr[:, :, -1]),
+        },
+        warmup_by_chain={
+            "intercept": warmup_arr[:, :, 0],
+            "coefficients": warmup_arr[:, :, 1:-1],
+            "sigma": np.exp(warmup_arr[:, :, -1]),
+        },
+        diagnostics_per_chain=diagnostics_per_chain,
+        diagnostics_summary=diagnostics_summary,
+    )
+
+
+def _nuts_reference_trace(
+    *,
+    x: np.ndarray,
+    y: np.ndarray,
+    initial_state: np.ndarray,
+    prior_scale: float,
+    step_size: float,
+    max_depth: int,
+    root_seed: int,
+    num_warmup: int,
+    num_samples: int,
+    num_chains: int,
+    target_accept: float,
+) -> _SamplerTrace:
+    warmup_draws: list[np.ndarray] = []
+    posterior_draws: list[np.ndarray] = []
+    diagnostics_per_chain: dict[str, dict[str, float]] = {}
+    for chain_id in range(max(1, int(num_chains))):
+        init_rng = _SamplerRngNamespace(
+            root_seed=int(root_seed),
+            sampler_kernel="nuts",
+            chain_id=chain_id,
+            phase="initialization",
+            iteration=0,
+        ).generator("initial_state")
+        current = np.asarray(initial_state, dtype=float) + init_rng.normal(scale=0.03, size=initial_state.shape)
+        local_step = max(float(step_size), 1e-4)
+        chain_warmup: list[np.ndarray] = []
+        chain_posterior: list[np.ndarray] = []
+        energy_trace: list[float] = []
+        max_depth_hits = 0
+        accepted_weight = 0.0
+        total_weight = 0
+        divergences = 0
+        for step_idx in range(max(0, int(num_warmup)) + max(1, int(num_samples))):
+            phase = "warmup" if step_idx < max(0, int(num_warmup)) else "posterior"
+            rng_namespace = _SamplerRngNamespace(
+                root_seed=int(root_seed),
+                sampler_kernel="nuts",
+                chain_id=chain_id,
+                phase=phase,
+                iteration=step_idx,
+            )
+            momentum0 = rng_namespace.generator("momentum").normal(size=current.shape)
+            joint0 = _joint_log_density_linear_regression(
+                current,
+                momentum0,
+                x=x,
+                y=y,
+                prior_scale=prior_scale,
+            )
+            if not np.isfinite(joint0):
+                divergences += 1
+                continue
+            log_slice = joint0 - float(rng_namespace.generator("slice").exponential(1.0))
+            theta_minus = current.copy()
+            theta_plus = current.copy()
+            momentum_minus = momentum0.copy()
+            momentum_plus = momentum0.copy()
+            theta_candidate = current.copy()
+            depth = 0
+            n = 1
+            continue_tree = True
+            alpha_sum = 0.0
+            alpha_count = 0
+            while continue_tree and depth < max(1, int(max_depth)):
+                direction = -1 if float(rng_namespace.generator("direction", depth).uniform()) < 0.5 else 1
+                if direction < 0:
+                    (
+                        theta_minus,
+                        momentum_minus,
+                        _,
+                        _,
+                        theta_prime,
+                        n_prime,
+                        s_prime,
+                        alpha_prime,
+                        alpha_count_prime,
+                    ) = _build_nuts_tree(
+                        theta_minus,
+                        momentum_minus,
+                        log_slice=log_slice,
+                        direction=direction,
+                        depth=depth,
+                        step_size=local_step,
+                        x=x,
+                        y=y,
+                        prior_scale=prior_scale,
+                        joint0=joint0,
+                        rng_namespace=rng_namespace,
+                        path=(depth, 0),
+                    )
+                else:
+                    (
+                        _,
+                        _,
+                        theta_plus,
+                        momentum_plus,
+                        theta_prime,
+                        n_prime,
+                        s_prime,
+                        alpha_prime,
+                        alpha_count_prime,
+                    ) = _build_nuts_tree(
+                        theta_plus,
+                        momentum_plus,
+                        log_slice=log_slice,
+                        direction=direction,
+                        depth=depth,
+                        step_size=local_step,
+                        x=x,
+                        y=y,
+                        prior_scale=prior_scale,
+                        joint0=joint0,
+                        rng_namespace=rng_namespace,
+                        path=(depth, 1),
+                    )
+                if s_prime and (n + n_prime) > 0 and float(
+                    rng_namespace.generator("candidate_accept", depth, direction).uniform()
+                ) < (n_prime / max(n + n_prime, 1)):
+                    theta_candidate = theta_prime.copy()
+                n += n_prime
+                continue_tree = bool(
+                    s_prime
+                    and _nuts_stop_criterion(theta_minus, theta_plus, momentum_minus, momentum_plus)
+                )
+                alpha_sum += alpha_prime
+                alpha_count += alpha_count_prime
+                depth += 1
+            accept_rate = alpha_sum / max(alpha_count, 1)
+            if depth >= max(1, int(max_depth)) and continue_tree:
+                max_depth_hits += 1
+            accepted_weight += accept_rate
+            total_weight += 1
+            current = theta_candidate
+            posterior_energy = -_joint_log_density_linear_regression(
+                current,
+                np.zeros_like(current),
+                x=x,
+                y=y,
+                prior_scale=prior_scale,
+            )
+            if step_idx < max(0, int(num_warmup)):
+                chain_warmup.append(current.copy())
+                if accept_rate < target_accept:
+                    local_step *= 0.9
+                else:
+                    local_step *= 1.03
+                local_step = min(max(local_step, 1e-4), 0.25)
+                continue
+            chain_posterior.append(current.copy())
+            energy_trace.append(float(posterior_energy))
+        diagnostics_per_chain[str(chain_id)] = {
+            "acceptance_rate": float(accepted_weight / max(total_weight, 1)),
+            "divergences": float(divergences),
+            "bfmi": float(_energy_bfmi(np.asarray(energy_trace, dtype=float))),
+            "final_step_size": float(local_step),
+            "max_treedepth_hits": float(max_depth_hits),
+        }
+        warmup_draws.append(np.asarray(chain_warmup, dtype=float))
+        posterior_draws.append(np.asarray(chain_posterior, dtype=float))
+
+    warmup_arr = np.asarray(warmup_draws, dtype=float)
+    posterior_arr = np.asarray(posterior_draws, dtype=float)
+    diagnostics_summary = {
+        "acceptance_rate": float(
+            np.mean([metrics["acceptance_rate"] for metrics in diagnostics_per_chain.values()])
+        ),
+        "divergences": float(sum(metrics["divergences"] for metrics in diagnostics_per_chain.values())),
+        "bfmi": float(min(metrics["bfmi"] for metrics in diagnostics_per_chain.values())),
+        "max_treedepth_hits": float(
+            sum(metrics["max_treedepth_hits"] for metrics in diagnostics_per_chain.values())
+        ),
+    }
+    return _SamplerTrace(
+        posterior_by_chain={
+            "intercept": posterior_arr[:, :, 0],
+            "coefficients": posterior_arr[:, :, 1:-1],
+            "sigma": np.exp(posterior_arr[:, :, -1]),
+        },
+        warmup_by_chain={
+            "intercept": warmup_arr[:, :, 0],
+            "coefficients": warmup_arr[:, :, 1:-1],
+            "sigma": np.exp(warmup_arr[:, :, -1]),
+        },
+        diagnostics_per_chain=diagnostics_per_chain,
+        diagnostics_summary=diagnostics_summary,
+    )
+
+
 def _diag_gaussian_log_prob(
     observations: np.ndarray,
     means: np.ndarray,
@@ -788,11 +1668,58 @@ def _fit_bayesian_gaussian_mixture(
     }
 
 
+def _sorted_component_payload(fitted: Mapping[str, Any]) -> dict[str, np.ndarray]:
+    weights = np.asarray(fitted["weights"], dtype=float)
+    means = np.asarray(fitted["means"], dtype=float)
+    variances = np.asarray(fitted["variances"], dtype=float)
+    component_mass = np.asarray(fitted["component_mass"], dtype=float)
+    sort_key = np.lexsort((
+        means[:, 0] if means.ndim == 2 and means.shape[1] > 0 else np.zeros(weights.shape[0], dtype=float),
+        -weights,
+    ))
+    return {
+        "weights": weights[sort_key],
+        "means": means[sort_key],
+        "variances": variances[sort_key],
+        "component_mass": component_mass[sort_key],
+    }
+
+
+def _prune_dp_fit(fitted: Mapping[str, Any], *, prune_threshold: float) -> dict[str, Any]:
+    active = np.asarray(fitted["weights"], dtype=float) >= prune_threshold
+    if not np.any(active):
+        active[np.argmax(np.asarray(fitted["weights"], dtype=float))] = True
+    responsibilities = np.asarray(fitted["responsibilities"], dtype=float)[:, active]
+    responsibilities = responsibilities / np.maximum(
+        np.sum(responsibilities, axis=1, keepdims=True),
+        1e-12,
+    )
+    weights = np.asarray(fitted["weights"], dtype=float)[active]
+    weights = weights / np.sum(weights)
+    means = np.asarray(fitted["means"], dtype=float)[active]
+    variances = np.asarray(fitted["variances"], dtype=float)[active]
+    component_mass = np.sum(responsibilities, axis=0)
+    return {
+        "weights": weights,
+        "means": means,
+        "variances": variances,
+        "responsibilities": responsibilities,
+        "assignments": np.argmax(responsibilities, axis=1).astype(float),
+        "component_mass": component_mass,
+        "entropy": float(fitted["entropy"]),
+        "log_likelihood": float(fitted["log_likelihood"]),
+        "iterations": float(fitted["iterations"]),
+        "n_obs": float(fitted["n_obs"]),
+    }
+
+
 def _mixture_posterior_result(
     *,
     method_name: str,
     fitted: Mapping[str, Any],
     concentration: float,
+    diagnostics_extra: Mapping[str, Any] | None = None,
+    metadata_extra: Mapping[str, Any] | None = None,
 ) -> PosteriorResult:
     weights = np.asarray(fitted["weights"], dtype=float)
     means = np.asarray(fitted["means"], dtype=float)
@@ -846,10 +1773,16 @@ def _mixture_posterior_result(
             "iterations": float(fitted["iterations"]),
             "concentration": float(concentration),
             "num_samples": float(fitted["n_obs"]),
+            **{
+                str(key): float(value)
+                for key, value in (diagnostics_extra or {}).items()
+                if np.isfinite(float(value))
+            },
         },
         metadata={
             "component_mass": component_mass.tolist(),
             "active_components": int(np.sum(weights > 1e-3)),
+            **dict(metadata_extra or {}),
         },
     )
 
@@ -958,6 +1891,7 @@ class BayesianHierarchicalRegressionEstimator:
             )
             accept_rate = float(runtime_diag.get("acceptance_rate", float("nan")))
         else:
+            runtime_diag: dict[str, float] = {}
             ols_design = np.column_stack([np.ones(x.shape[0]), x])
             ols_coef = np.linalg.pinv(ols_design) @ y
             residuals = y - ols_design @ ols_coef
@@ -1067,11 +2001,8 @@ class BayesianHierarchicalRegressionEstimator:
                 **_runtime_backend_metadata(params, backend_used=backend_used),
             },
         )
-        posterior_result = PosteriorResult(
-            method_name="bayesian_hierarchical_regression",
-            posterior_means=posterior_means,
-            posterior_stds=posterior_stds,
-            credible_intervals=credible_intervals,
+        diagnostics = augment_sampler_diagnostics(
+            posterior,
             diagnostics={
                 "acceptance_rate": float(accept_rate),
                 "credible_mass": float(credible_mass),
@@ -1079,7 +2010,20 @@ class BayesianHierarchicalRegressionEstimator:
                 "num_samples": float(num_samples),
                 "num_chains": float(num_chains),
                 "n_groups": float(n_groups),
+                "divergences": float(runtime_diag.get("divergences", 0.0)),
             },
+            num_chains=num_chains,
+            num_samples=num_samples,
+            credible_mass=credible_mass,
+        )
+        posterior_result = PosteriorResult(
+            method_name="bayesian_hierarchical_regression",
+            posterior_means=posterior_means,
+            posterior_stds=posterior_stds,
+            credible_intervals=credible_intervals,
+            diagnostics=diagnostics,
+            sampler_family="mcmc",
+            sampler_kernel="metropolis" if backend_used == "numpy" else "nuts",
             metadata={
                 "group_labels": [str(item) for item in np.unique(group_ids.astype(str))],
                 "feature_names": _feature_names_from_payload(payload, x.shape[1]),
@@ -1146,6 +2090,8 @@ class BayesianHMCRegressionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Hamiltonian Monte Carlo sampler for Bayesian linear regression with adaptive warmup step size.",
         tags=frozenset({"bayesian", "sampling", "hmc"}),
+        declared_truthfulness_tier="asymptotic",
+        truthfulness_scope="posterior",
         when_to_use="Bayesian regression where Metropolis-Hastings mixes poorly; correlated posteriors; moderate sample sizes",
         citations=(
             "Neal, R. (2011). MCMC using Hamiltonian dynamics. In Handbook of Markov Chain Monte Carlo, CRC Press.",
@@ -1197,7 +2143,35 @@ class BayesianHMCRegressionEstimator:
                 seed=int(params.get("__seed__", 0)),
             )
             accept_rate = float(runtime_diag.get("acceptance_rate", float("nan")))
+            observed_budget = _bayesian_observed_tolerance_budget(
+                backend_used=backend_used,
+                effective_tier=DeterminismTier.STATISTICAL,
+                seed=int(params.get("__seed__", 0)),
+                notes=("determinism_degraded:accelerated_backend_statistical_only",),
+            )
+            contract_fields = {
+                "sampler_family": "mcmc",
+                "sampler_kernel": "hmc",
+                "reproducibility": {
+                    "contract_version": _REFERENCE_SAMPLER_CONTRACT,
+                    "requested_determinism_tier": DeterminismTier.STATISTICAL.value,
+                    "effective_determinism_tier": DeterminismTier.STATISTICAL.value,
+                    "requested_runtime_backend": _requested_runtime_backend(params),
+                    "effective_runtime_backend": backend_used,
+                    "root_seed": int(params.get("__seed__", 0)),
+                    "degradation_reasons": ["accelerated_backend_statistical_only"],
+                    "route_key": dict(observed_budget.get("route_key") or {}),
+                    "observed_tolerance_budget": observed_budget,
+                },
+                "warnings": ("determinism_degraded:accelerated_backend_statistical_only",),
+                "status": "ok",
+                "degradation_reason": "accelerated_backend_statistical_only",
+            }
+            contract_artifacts: dict[str, Any] = {}
+            contract_warnings: tuple[str, ...] = contract_fields["warnings"]
+            determinism_tier = DeterminismTier.STATISTICAL
         else:
+            runtime_diag: dict[str, float] = {}
             ols_design = np.column_stack([np.ones(x.shape[0]), x])
             ols_coef = np.linalg.pinv(ols_design) @ y
             residual = y - ols_design @ ols_coef
@@ -1210,24 +2184,27 @@ class BayesianHMCRegressionEstimator:
                     ),
                 ]
             )
-            rng = np.random.default_rng(int(params.get("__seed__", 0)))
-            draws, accept_rate = _hmc_sample_linear_regression(
+            trace = _hmc_reference_trace(
                 x=x,
                 y=y,
                 initial_state=initial,
                 prior_scale=prior_scale,
                 step_size=step_size,
                 n_leapfrog=n_leapfrog,
-                rng=rng,
+                root_seed=int(params.get("__seed__", 0)),
                 num_warmup=num_warmup,
                 num_samples=num_samples,
                 num_chains=num_chains,
             )
-            posterior = {
-                "intercept": draws[:, 0],
-                "coefficients": draws[:, 1:-1],
-                "sigma": np.exp(draws[:, -1]),
-            }
+            posterior = flatten_chain_draws(trace.posterior_by_chain)
+            accept_rate = float(trace.diagnostics_summary.get("acceptance_rate", 0.0))
+            contract_fields, contract_artifacts, contract_warnings, determinism_tier = _reference_sampler_contract(
+                method_name="bayesian_hmc_regression",
+                sampler_kernel="hmc",
+                params=params,
+                backend_used=backend_used,
+                trace=trace,
+            )
         posterior_means, posterior_stds, credible_intervals = summarize_posterior_samples(
             posterior,
             credible_mass=credible_mass,
@@ -1266,11 +2243,8 @@ class BayesianHMCRegressionEstimator:
                 **_runtime_backend_metadata(params, backend_used=backend_used),
             },
         )
-        posterior_result = PosteriorResult(
-            method_name="bayesian_hmc_regression",
-            posterior_means=posterior_means,
-            posterior_stds=posterior_stds,
-            credible_intervals=credible_intervals,
+        diagnostics = augment_sampler_diagnostics(
+            posterior,
             diagnostics={
                 "acceptance_rate": float(accept_rate),
                 "credible_mass": float(credible_mass),
@@ -1279,18 +2253,36 @@ class BayesianHMCRegressionEstimator:
                 "num_chains": float(num_chains),
                 "step_size": float(step_size),
                 "n_leapfrog": float(n_leapfrog),
+                "divergences": float(runtime_diag.get("divergences", 0.0)),
             },
+            num_chains=num_chains,
+            num_samples=num_samples,
+            credible_mass=credible_mass,
+        )
+        posterior_result = PosteriorResult(
+            method_name="bayesian_hmc_regression",
+            posterior_means=posterior_means,
+            posterior_stds=posterior_stds,
+            credible_intervals=credible_intervals,
+            diagnostics=diagnostics,
+            **contract_fields,
             metadata={
                 "feature_names": _feature_names_from_payload(payload, x.shape[1]),
                 "uncertainty_decomposition": decomposition.as_dict(),
                 **_runtime_backend_metadata(params, backend_used=backend_used),
             },
         )
-        return {
+        result = {
             "result": posterior_result,
             "prediction_result": prediction_output["result"],
             "uncertainty_envelope": posterior_result.to_uncertainty_envelope(param_name="sigma"),
         }
+        if contract_artifacts:
+            result["__bayesian_artifacts__"] = contract_artifacts
+        if contract_warnings:
+            result["__bayesian_warnings__"] = contract_warnings
+        result["__determinism_tier__"] = determinism_tier
+        return result
 
 
 @foundry_method(
@@ -1343,6 +2335,8 @@ class BayesianNUTSRegressionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="No-U-Turn Sampler for Bayesian linear regression with dynamic trajectory expansion.",
         tags=frozenset({"bayesian", "sampling", "nuts"}),
+        declared_truthfulness_tier="asymptotic",
+        truthfulness_scope="posterior",
         when_to_use="Bayesian regression requiring efficient exploration of curved posteriors; preferred over HMC when step count is hard to tune",
         citations=(
             "Hoffman, M. & Gelman, A. (2014). The No-U-Turn sampler: Adaptively setting path lengths in Hamiltonian Monte Carlo. JMLR, 15, 1593-1623.",
@@ -1394,7 +2388,35 @@ class BayesianNUTSRegressionEstimator:
                 seed=int(params.get("__seed__", 0)),
             )
             accept_rate = float(runtime_diag.get("acceptance_rate", float("nan")))
+            observed_budget = _bayesian_observed_tolerance_budget(
+                backend_used=backend_used,
+                effective_tier=DeterminismTier.STATISTICAL,
+                seed=int(params.get("__seed__", 0)),
+                notes=("determinism_degraded:accelerated_backend_statistical_only",),
+            )
+            contract_fields = {
+                "sampler_family": "mcmc",
+                "sampler_kernel": "nuts",
+                "reproducibility": {
+                    "contract_version": _REFERENCE_SAMPLER_CONTRACT,
+                    "requested_determinism_tier": DeterminismTier.STATISTICAL.value,
+                    "effective_determinism_tier": DeterminismTier.STATISTICAL.value,
+                    "requested_runtime_backend": _requested_runtime_backend(params),
+                    "effective_runtime_backend": backend_used,
+                    "root_seed": int(params.get("__seed__", 0)),
+                    "degradation_reasons": ["accelerated_backend_statistical_only"],
+                    "route_key": dict(observed_budget.get("route_key") or {}),
+                    "observed_tolerance_budget": observed_budget,
+                },
+                "warnings": ("determinism_degraded:accelerated_backend_statistical_only",),
+                "status": "ok",
+                "degradation_reason": "accelerated_backend_statistical_only",
+            }
+            contract_artifacts: dict[str, Any] = {}
+            contract_warnings: tuple[str, ...] = contract_fields["warnings"]
+            determinism_tier = DeterminismTier.STATISTICAL
         else:
+            runtime_diag: dict[str, float] = {}
             ols_design = np.column_stack([np.ones(x.shape[0]), x])
             ols_coef = np.linalg.pinv(ols_design) @ y
             residual = y - ols_design @ ols_coef
@@ -1407,25 +2429,28 @@ class BayesianNUTSRegressionEstimator:
                     ),
                 ]
             )
-            rng = np.random.default_rng(int(params.get("__seed__", 0)))
-            draws, accept_rate = _nuts_sample_linear_regression(
+            trace = _nuts_reference_trace(
                 x=x,
                 y=y,
                 initial_state=initial,
                 prior_scale=prior_scale,
                 step_size=step_size,
                 max_depth=max_depth,
-                rng=rng,
+                root_seed=int(params.get("__seed__", 0)),
                 num_warmup=num_warmup,
                 num_samples=num_samples,
                 num_chains=num_chains,
                 target_accept=target_accept,
             )
-            posterior = {
-                "intercept": draws[:, 0],
-                "coefficients": draws[:, 1:-1],
-                "sigma": np.exp(draws[:, -1]),
-            }
+            posterior = flatten_chain_draws(trace.posterior_by_chain)
+            accept_rate = float(trace.diagnostics_summary.get("acceptance_rate", 0.0))
+            contract_fields, contract_artifacts, contract_warnings, determinism_tier = _reference_sampler_contract(
+                method_name="bayesian_nuts_regression",
+                sampler_kernel="nuts",
+                params=params,
+                backend_used=backend_used,
+                trace=trace,
+            )
         posterior_means, posterior_stds, credible_intervals = summarize_posterior_samples(
             posterior,
             credible_mass=credible_mass,
@@ -1464,11 +2489,8 @@ class BayesianNUTSRegressionEstimator:
                 **_runtime_backend_metadata(params, backend_used=backend_used),
             },
         )
-        posterior_result = PosteriorResult(
-            method_name="bayesian_nuts_regression",
-            posterior_means=posterior_means,
-            posterior_stds=posterior_stds,
-            credible_intervals=credible_intervals,
+        diagnostics = augment_sampler_diagnostics(
+            posterior,
             diagnostics={
                 "acceptance_rate": float(accept_rate),
                 "credible_mass": float(credible_mass),
@@ -1478,18 +2500,36 @@ class BayesianNUTSRegressionEstimator:
                 "step_size": float(step_size),
                 "max_depth": float(max_depth),
                 "target_accept": float(target_accept),
+                "divergences": float(runtime_diag.get("divergences", 0.0)),
             },
+            num_chains=num_chains,
+            num_samples=num_samples,
+            credible_mass=credible_mass,
+        )
+        posterior_result = PosteriorResult(
+            method_name="bayesian_nuts_regression",
+            posterior_means=posterior_means,
+            posterior_stds=posterior_stds,
+            credible_intervals=credible_intervals,
+            diagnostics=diagnostics,
+            **contract_fields,
             metadata={
                 "feature_names": _feature_names_from_payload(payload, x.shape[1]),
                 "uncertainty_decomposition": decomposition.as_dict(),
                 **_runtime_backend_metadata(params, backend_used=backend_used),
             },
         )
-        return {
+        result = {
             "result": posterior_result,
             "prediction_result": prediction_output["result"],
             "uncertainty_envelope": posterior_result.to_uncertainty_envelope(param_name="sigma"),
         }
+        if contract_artifacts:
+            result["__bayesian_artifacts__"] = contract_artifacts
+        if contract_warnings:
+            result["__bayesian_warnings__"] = contract_warnings
+        result["__determinism_tier__"] = determinism_tier
+        return result
 
 
 @foundry_method(
@@ -1553,17 +2593,88 @@ class BayesianGaussianMixtureEstimator:
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
         payload = _mapping_payload(state)
+        seed = int(params.get("__seed__", 0))
+        n_components = int(params.get("n_components", 3))
+        concentration = max(1e-3, float(params.get("concentration", 1.0)))
+        max_iter = max(8, int(params.get("max_iter", 64)))
         fitted = _fit_bayesian_gaussian_mixture(
             payload["observations"],
-            n_components=int(params.get("n_components", 3)),
-            concentration=max(1e-3, float(params.get("concentration", 1.0))),
-            max_iter=max(8, int(params.get("max_iter", 64))),
-            seed=int(params.get("__seed__", 0)),
+            n_components=n_components,
+            concentration=concentration,
+            max_iter=max_iter,
+            seed=seed,
+        )
+        baseline_result = _mixture_posterior_result(
+            method_name="bayesian_gaussian_mixture",
+            fitted=fitted,
+            concentration=concentration,
+        )
+        baseline_sorted = _sorted_component_payload(fitted)
+        interval_shifts: list[float] = []
+        weight_shifts: list[float] = []
+        mean_shifts: list[float] = []
+        for offset in (1, 2):
+            alt_fit = _fit_bayesian_gaussian_mixture(
+                payload["observations"],
+                n_components=n_components,
+                concentration=concentration,
+                max_iter=max_iter,
+                seed=seed + offset,
+            )
+            alt_result = _mixture_posterior_result(
+                method_name="bayesian_gaussian_mixture",
+                fitted=alt_fit,
+                concentration=concentration,
+            )
+            alt_sorted = _sorted_component_payload(alt_fit)
+            interval_shifts.append(
+                relative_interval_shift_max(
+                    baseline_result.credible_intervals,
+                    alt_result.credible_intervals,
+                )
+            )
+            shared_components = min(
+                baseline_sorted["weights"].shape[0],
+                alt_sorted["weights"].shape[0],
+            )
+            if shared_components > 0:
+                weight_shifts.append(
+                    float(
+                        np.max(
+                            np.abs(
+                                baseline_sorted["weights"][:shared_components]
+                                - alt_sorted["weights"][:shared_components]
+                            )
+                        )
+                    )
+                )
+                mean_shifts.append(
+                    float(
+                        np.max(
+                            np.abs(
+                                baseline_sorted["means"][:shared_components]
+                                - alt_sorted["means"][:shared_components]
+                            )
+                        )
+                    )
+                )
+        hint_diagnostics, hint_metadata = split_truthfulness_hints(
+            extract_truthfulness_hints(payload, params)
         )
         posterior_result = _mixture_posterior_result(
             method_name="bayesian_gaussian_mixture",
             fitted=fitted,
-            concentration=float(params.get("concentration", 1.0)),
+            concentration=concentration,
+            diagnostics_extra={
+                "multistart_interval_shift_max": float(max(interval_shifts)) if interval_shifts else 0.0,
+                "multistart_weight_shift_max": float(max(weight_shifts)) if weight_shifts else 0.0,
+                "multistart_mean_shift_max": float(max(mean_shifts)) if mean_shifts else 0.0,
+                "component_collapse_fraction": float(
+                    np.mean(np.asarray(fitted["component_mass"], dtype=float) < 1.0)
+                ),
+                **hint_diagnostics,
+            },
+            metadata_extra=hint_metadata,
         )
         return {
             "result": posterior_result,
@@ -1637,55 +2748,103 @@ class DirichletProcessMixtureEstimator:
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
         payload = _mapping_payload(state)
+        seed = int(params.get("__seed__", 0))
+        max_components = int(params.get("max_components", 8))
+        concentration = max(1e-3, float(params.get("concentration", 0.75)))
+        max_iter = max(16, int(params.get("max_iter", 96)))
         fitted = _fit_bayesian_gaussian_mixture(
             payload["observations"],
-            n_components=int(params.get("max_components", 8)),
-            concentration=max(1e-3, float(params.get("concentration", 0.75))),
-            max_iter=max(16, int(params.get("max_iter", 96))),
-            seed=int(params.get("__seed__", 0)),
+            n_components=max_components,
+            concentration=concentration,
+            max_iter=max_iter,
+            seed=seed,
         )
         prune_threshold = min(max(float(params.get("prune_threshold", 0.05)), 0.0), 0.5)
-        active = np.asarray(fitted["weights"], dtype=float) >= prune_threshold
-        if not np.any(active):
-            active[np.argmax(np.asarray(fitted["weights"], dtype=float))] = True
-        responsibilities = np.asarray(fitted["responsibilities"], dtype=float)[:, active]
-        responsibilities = responsibilities / np.maximum(
-            np.sum(responsibilities, axis=1, keepdims=True),
-            1e-12,
+        pruned = _prune_dp_fit(fitted, prune_threshold=prune_threshold)
+        baseline_result = _mixture_posterior_result(
+            method_name="dirichlet_process_mixture",
+            fitted=pruned,
+            concentration=concentration,
         )
-        weights = np.asarray(fitted["weights"], dtype=float)[active]
-        weights = weights / np.sum(weights)
-        means = np.asarray(fitted["means"], dtype=float)[active]
-        variances = np.asarray(fitted["variances"], dtype=float)[active]
-        component_mass = np.sum(responsibilities, axis=0)
-        pruned = {
-            "weights": weights,
-            "means": means,
-            "variances": variances,
-            "responsibilities": responsibilities,
-            "assignments": np.argmax(responsibilities, axis=1).astype(float),
-            "component_mass": component_mass,
-            "entropy": float(fitted["entropy"]),
-            "log_likelihood": float(fitted["log_likelihood"]),
-            "iterations": float(fitted["iterations"]),
-            "n_obs": float(fitted["n_obs"]),
-        }
+        baseline_sorted = _sorted_component_payload(pruned)
+        interval_shifts: list[float] = []
+        weight_shifts: list[float] = []
+        mean_shifts: list[float] = []
+        active_component_counts = [baseline_sorted["weights"].shape[0]]
+        for offset in (1, 2):
+            alt_fit = _fit_bayesian_gaussian_mixture(
+                payload["observations"],
+                n_components=max_components,
+                concentration=concentration,
+                max_iter=max_iter,
+                seed=seed + offset,
+            )
+            alt_pruned = _prune_dp_fit(alt_fit, prune_threshold=prune_threshold)
+            alt_result = _mixture_posterior_result(
+                method_name="dirichlet_process_mixture",
+                fitted=alt_pruned,
+                concentration=concentration,
+            )
+            alt_sorted = _sorted_component_payload(alt_pruned)
+            active_component_counts.append(alt_sorted["weights"].shape[0])
+            interval_shifts.append(
+                relative_interval_shift_max(
+                    baseline_result.credible_intervals,
+                    alt_result.credible_intervals,
+                )
+            )
+            shared_components = min(
+                baseline_sorted["weights"].shape[0],
+                alt_sorted["weights"].shape[0],
+            )
+            if shared_components > 0:
+                weight_shifts.append(
+                    float(
+                        np.max(
+                            np.abs(
+                                baseline_sorted["weights"][:shared_components]
+                                - alt_sorted["weights"][:shared_components]
+                            )
+                        )
+                    )
+                )
+                mean_shifts.append(
+                    float(
+                        np.max(
+                            np.abs(
+                                baseline_sorted["means"][:shared_components]
+                                - alt_sorted["means"][:shared_components]
+                            )
+                        )
+                    )
+                )
+        hint_diagnostics, hint_metadata = split_truthfulness_hints(
+            extract_truthfulness_hints(payload, params)
+        )
         posterior_result = _mixture_posterior_result(
             method_name="dirichlet_process_mixture",
             fitted=pruned,
-            concentration=float(params.get("concentration", 0.75)),
-        ).model_copy(
-            update={
-                "metadata": {
-                    "active_components": int(np.sum(active)),
-                    "prune_threshold": prune_threshold,
-                }
-            }
+            concentration=concentration,
+            diagnostics_extra={
+                "multistart_interval_shift_max": float(max(interval_shifts)) if interval_shifts else 0.0,
+                "multistart_weight_shift_max": float(max(weight_shifts)) if weight_shifts else 0.0,
+                "multistart_mean_shift_max": float(max(mean_shifts)) if mean_shifts else 0.0,
+                "component_collapse_fraction": float(
+                    np.mean(np.asarray(pruned["component_mass"], dtype=float) < 1.0)
+                ),
+                "active_component_count_std": float(np.std(active_component_counts, ddof=0)),
+                **hint_diagnostics,
+            },
+            metadata_extra={
+                "active_components": int(pruned["weights"].shape[0]),
+                "prune_threshold": prune_threshold,
+                **hint_metadata,
+            },
         )
         return {
             "result": posterior_result,
             "cluster_assignments": np.asarray(pruned["assignments"], dtype=float),
-            "cluster_probabilities": responsibilities,
+            "cluster_probabilities": np.asarray(pruned["responsibilities"], dtype=float),
             "uncertainty_envelope": posterior_result.to_uncertainty_envelope(
                 param_name="weight_0"
             ),

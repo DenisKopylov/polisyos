@@ -1,0 +1,34 @@
+world_id: sw.phase0.survey_repeated_cs.seed.v1
+family: survey_repeated_cross_section
+seed: 20260424
+n_units: 220
+n_features: 4
+n_waves: 4
+n_strata: 5
+n_clusters: 10
+truth:
+  posterior_mode: reference_posterior
+sampling:
+  kind: stratified
+  inclusion_rate: 0.7
+  response_rate: 0.82
+  n_strata: 5
+  n_clusters: 10
+  calibrate_weights: true
+intervention:
+  style: survey_wave
+  treatment_share: 0.5
+missingness:
+  mechanism: mar
+  rate: 0.05
+  targets:
+    - outcome
+    - feature_0
+measurement:
+  kind: classical_additive
+  scale: 0.06
+  targets:
+    - outcome
+    - feature_0
+metadata:
+  phase: phase0

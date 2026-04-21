@@ -309,6 +309,9 @@ def _cmd_advisor(args: argparse.Namespace) -> int:
         runtime_budget_ms=args.runtime_budget_ms,
         limit=args.limit,
         runnable_only=not args.include_unrunnable,
+        loss_profile_id=args.loss_profile_id,
+        coverage_floor=args.coverage_floor,
+        confidence_level=args.confidence_level,
     )
     result = advise_methods(snapshot, query)
 
@@ -321,6 +324,12 @@ def _cmd_advisor(args: argparse.Namespace) -> int:
                     "payload": list(result.payload),
                     "capability_matrix": list(result.capability_matrix),
                     "family_summary": list(result.family_summary),
+                    "score_trace": [asdict(item) for item in result.score_trace],
+                    "calibrated_regret_certificate": (
+                        None
+                        if result.calibrated_regret_certificate is None
+                        else asdict(result.calibrated_regret_certificate)
+                    ),
                 },
                 indent=2,
                 sort_keys=True,
@@ -444,6 +453,23 @@ def _build_parser() -> argparse.ArgumentParser:
     p_advisor.add_argument("--minimum-fidelity-tier", choices=["low", "medium", "high"])
     p_advisor.add_argument("--n-obs", type=int, help="Observation count available to the method")
     p_advisor.add_argument("--runtime-budget-ms", type=float, help="Runtime budget in milliseconds")
+    p_advisor.add_argument(
+        "--loss-profile-id",
+        default="balanced",
+        choices=["balanced", "coverage_strict", "latency_sensitive"],
+        help="Decision-theoretic loss profile used by the regret certificate",
+    )
+    p_advisor.add_argument(
+        "--coverage-floor",
+        type=float,
+        help="Optional downstream coverage floor used in proxy loss normalization",
+    )
+    p_advisor.add_argument(
+        "--confidence-level",
+        type=float,
+        default=0.95,
+        help="Confidence level for calibrated regret diagnostics",
+    )
     p_advisor.add_argument("--limit", type=int, default=5, help="Maximum number of methods to return")
     p_advisor.add_argument("--include-unrunnable", action="store_true", help="Include unrunnable methods")
     p_advisor.add_argument("--json", action="store_true", help="Emit JSON instead of a table")

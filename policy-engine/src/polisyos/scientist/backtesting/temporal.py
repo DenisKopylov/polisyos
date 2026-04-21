@@ -10,7 +10,11 @@ import numpy as np
 from polisyos.foundry.methods.catalog.causal.structural_time_series import TemporalTrajectoryResult
 from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import TemporalCompileError
 from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario
-from polisyos.ir.analytics.dynamic_regime import TemporalPathRepresentation
+from polisyos.ir.analytics.dynamic_regime import (
+    CausalTranslationCertificate,
+    CausalTranslationCertificateStatus,
+    TemporalPathRepresentation,
+)
 
 from .evaluator import PredictionEvaluator
 
@@ -27,11 +31,21 @@ _REJECTION_ALLOWED_REASON_CODES = {
     "time_scale_mismatch",
     "unsupported_target_functional",
     "unsupported_backend_target",
+    "unsupported_identification_scope",
     "unsupported_dynamic_intervention",
     "unsupported_intervention_regime_consistency",
     "unsupported_panel_intervention",
     "time_grid_mismatch",
     "horizon_out_of_range",
+}
+
+_RESEARCH_GATED_PATH_REPRESENTATIONS = {
+    TemporalPathRepresentation.NEURAL_CDE,
+    TemporalPathRepresentation.NEURAL_SDE,
+    TemporalPathRepresentation.GEOMETRIC_ROUGH_PATH,
+    TemporalPathRepresentation.CADLAG_ROUGH_PATH,
+    TemporalPathRepresentation.TRUNCATED_SIGNATURE,
+    TemporalPathRepresentation.HYBRID_ROUGH_EVENT,
 }
 
 
@@ -121,6 +135,16 @@ def evaluate_temporal_trajectory(
         "band_coverage": band_coverage,
     }
     diagnostics_checks = _evaluate_diagnostics(trajectory)
+    path_semantics_attachment = (
+        None
+        if trajectory.effect_bundle is None
+        else trajectory.effect_bundle.path_semantics_attachment
+    )
+    path_semantics_scope = (
+        None
+        if trajectory.effect_bundle is None or trajectory.effect_bundle.path_semantics_scope is None
+        else trajectory.effect_bundle.path_semantics_scope.value
+    )
 
     acceptance_checks: dict[str, bool] = {}
     if threshold_spec.max_path_rmse is not None:
@@ -169,10 +193,7 @@ def evaluate_temporal_trajectory(
             trajectory.effect_bundle.runtime_eligible
             if trajectory.effect_bundle is not None
             else trajectory.path_representation
-            not in {
-                TemporalPathRepresentation.NEURAL_CDE,
-                TemporalPathRepresentation.NEURAL_SDE,
-            }
+            not in _RESEARCH_GATED_PATH_REPRESENTATIONS
         ),
         "runtime_support_status": (
             trajectory.effect_bundle.runtime_support_status.value
@@ -180,8 +201,19 @@ def evaluate_temporal_trajectory(
             else (
                 "degraded"
                 if trajectory.path_representation is TemporalPathRepresentation.DISCRETE_REPLAY
-                else trajectory.plan.query.runtime_support_status.value
+                else (
+                    "blocked_research"
+                    if trajectory.path_representation in _RESEARCH_GATED_PATH_REPRESENTATIONS
+                    else trajectory.plan.query.runtime_support_status.value
+                )
             )
+        ),
+        "path_semantics_present": bool(path_semantics_attachment is not None),
+        "path_semantics_scope": path_semantics_scope,
+        "path_semantics_disclosure_notes": (
+            []
+            if trajectory.effect_bundle is None
+            else list(trajectory.effect_bundle.path_semantics_disclosure_notes)
         ),
     }
 
@@ -453,11 +485,47 @@ def _evaluate_diagnostics(trajectory: TemporalTrajectoryResult) -> dict[str, Any
     if not (has_discretization_error or explicit_note):
         missing_fields.append("discretization_error_or_note")
 
+    certificate: CausalTranslationCertificate | None = None
+    certificate_payload = diagnostics.get("causal_translation_certificate")
+    if certificate_payload is None and trajectory.causal_translation_certificate is not None:
+        certificate = trajectory.causal_translation_certificate
+    elif certificate_payload is not None:
+        try:
+            certificate = CausalTranslationCertificate.model_validate(certificate_payload)
+        except Exception:
+            missing_fields.append("causal_translation_certificate")
+
+    certificate_present = certificate is not None
+    certificate_status = certificate.status if certificate is not None else None
+    if fallback_mode == "none" and has_discretization_error:
+        if not certificate_present:
+            missing_fields.append("causal_translation_certificate")
+        elif certificate_status not in {
+            CausalTranslationCertificateStatus.CERTIFIED_EXACT,
+            CausalTranslationCertificateStatus.CERTIFIED_RESTRICTED,
+        }:
+            missing_fields.append("causal_translation_certificate_status")
+    if fallback_mode == "discrete_time" and certificate_present:
+        if certificate_status not in {
+            CausalTranslationCertificateStatus.NOT_CERTIFIED,
+            CausalTranslationCertificateStatus.FAILED,
+        }:
+            missing_fields.append("causal_translation_certificate_status")
+
     return {
         "solver_family_present": bool(solver_family),
         "dt_present": bool(dt_finite),
         "fallback_mode_present": bool(fallback_mode),
         "discretization_disclosed": bool(has_discretization_error or explicit_note),
+        "causal_translation_certificate_present": certificate_present,
+        "causal_translation_status": None if certificate_status is None else certificate_status.value,
+        "causal_translation_certified": bool(
+            certificate_status
+            in {
+                CausalTranslationCertificateStatus.CERTIFIED_EXACT,
+                CausalTranslationCertificateStatus.CERTIFIED_RESTRICTED,
+            }
+        ),
         "complete": not missing_fields,
         "missing_fields": missing_fields,
     }

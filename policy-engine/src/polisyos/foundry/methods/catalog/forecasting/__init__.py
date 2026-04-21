@@ -10,6 +10,15 @@ from .advanced import (
     STLDecompositionEstimator,
     VECForecastEstimator,
 )
+from .benchmarking import (
+    ForecastBenchmarkRegime,
+    ForecastBenchmarkResult,
+    ForecastRecommendationCell,
+    ForecastResearchStrategy,
+    lookup_phase0_forecasting_recommendation,
+    phase0_forecasting_recommendation_matrix,
+    run_phase0_forecasting_benchmark,
+)
 from .univariate import (
     BottomUpReconciliationEstimator,
     ExponentialSmoothingEstimator,
@@ -31,11 +40,18 @@ def ensure_forecasting_methods_registered(registry: MethodRegistry | None = None
 __all__ = [
     "BottomUpReconciliationEstimator",
     "ExponentialSmoothingEstimator",
+    "ForecastBenchmarkRegime",
+    "ForecastBenchmarkResult",
     "ForecastEnsembleEstimator",
+    "ForecastRecommendationCell",
+    "ForecastResearchStrategy",
     "ProphetEstimator",
     "STLDecompositionEstimator",
     "ThetaMethodEstimator",
     "VECForecastEstimator",
     "ensure_forecasting_methods_registered",
+    "lookup_phase0_forecasting_recommendation",
+    "phase0_forecasting_recommendation_matrix",
     "register_forecasting_methods",
+    "run_phase0_forecasting_benchmark",
 ]

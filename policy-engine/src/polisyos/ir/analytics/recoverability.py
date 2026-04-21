@@ -39,8 +39,30 @@ class RecoverabilityEstimatorFamily(str, Enum):
 
     COMPLETE_CASE = "complete_case"
     IPW = "ipw"
+    AUGMENTATION = "augmentation"
+    DOUBLY_ROBUST = "doubly_robust"
+    REFUSE = "refuse"
     AIPW = "aipw"
     G_FORMULA_REWEIGHT = "g_formula_reweight"
+
+
+class RecoverabilityProofForm(str, Enum):
+    """Structural form of the certified missing-data recovery proof."""
+
+    CONDITIONING = "conditioning"
+    REWEIGHTING = "reweighting"
+    AUGMENTATION = "augmentation"
+    MIXED = "mixed"
+    UNKNOWN = "unknown"
+
+
+class RecoverabilityNuisanceKind(str, Enum):
+    """Nuisance objects certified as identifiable by the recoverability proof."""
+
+    PROPENSITY = "propensity"
+    OUTCOME_REGRESSION = "outcome_regression"
+    DENSITY_RATIO = "density_ratio"
+    ODDS_RATIO = "odds_ratio"
 
 
 class RepairSetType(str, Enum):
@@ -98,7 +120,15 @@ class RecoverabilityCertificate(BaseModel):
     blocking_r_nodes: tuple[str, ...] = ()
     blocking_explanation: str = ""
     minimal_repair_sets: tuple[MinimalRepairSet, ...] = ()
+    recovery_form: RecoverabilityProofForm = RecoverabilityProofForm.UNKNOWN
+    identified_nuisance: tuple[RecoverabilityNuisanceKind, ...] = ()
+    required_side_conditions: tuple[str, ...] = ()
+    blocking_structures: tuple[str, ...] = ()
     recommended_estimator_family: RecoverabilityEstimatorFamily | None = None
+    compile_time_strategy: str | None = None
+    compile_time_required_nuisance: tuple[str, ...] = ()
+    compile_time_safety_guards: tuple[str, ...] = ()
+    compile_time_lowering_hooks: tuple[str, ...] = ()
     computable_functionals: tuple[str, ...] = ()
     warnings: tuple[str, ...] = ()
     completeness_regime: Literal["complete", "sound_incomplete", "heuristic_backed"] = (
@@ -113,7 +143,7 @@ class RecoverabilityCertificate(BaseModel):
 
     def to_summary_dict(self) -> dict[str, Any]:
         """Return the compact JSON shape embedded in proof/readiness metadata."""
-        return {
+        summary = {
             "schema_version": self.schema_version,
             "target_query": self.target_query,
             "mgraph_fingerprint": self.mgraph_fingerprint,
@@ -121,6 +151,10 @@ class RecoverabilityCertificate(BaseModel):
             "recovery_scope": self.recovery_scope.value,
             "blocking_r_nodes": list(self.blocking_r_nodes),
             "blocking_r_nodes_count": len(self.blocking_r_nodes),
+            "recovery_form": self.recovery_form.value,
+            "identified_nuisance": [item.value for item in self.identified_nuisance],
+            "required_side_conditions": list(self.required_side_conditions),
+            "blocking_structures": list(self.blocking_structures),
             "minimal_repair_sets": [
                 repair.model_dump(mode="json") for repair in self.minimal_repair_sets
             ],
@@ -130,11 +164,19 @@ class RecoverabilityCertificate(BaseModel):
                 if self.recommended_estimator_family is not None
                 else None
             ),
+            "compile_time_strategy": self.compile_time_strategy,
+            "compile_time_required_nuisance": list(self.compile_time_required_nuisance),
+            "compile_time_safety_guards": list(self.compile_time_safety_guards),
+            "compile_time_lowering_hooks": list(self.compile_time_lowering_hooks),
             "computable_functionals": list(self.computable_functionals),
             "warnings": list(self.warnings),
             "completeness_regime": self.completeness_regime,
             "theorem_family": self.theorem_family,
         }
+        compile_time_recovery = self.metadata.get("compile_time_recovery")
+        if isinstance(compile_time_recovery, dict):
+            summary["compile_time_recovery"] = dict(compile_time_recovery)
+        return summary
 
 
 class JointDecisionStatus(str, Enum):
@@ -263,6 +305,8 @@ __all__ = [
     "RecoverabilityCertificateRef",
     "RecoverabilityCertificateStatus",
     "RecoverabilityEstimatorFamily",
+    "RecoverabilityNuisanceKind",
+    "RecoverabilityProofForm",
     "RecoveryScope",
     "RecoveryStep",
     "RepairSetTestability",

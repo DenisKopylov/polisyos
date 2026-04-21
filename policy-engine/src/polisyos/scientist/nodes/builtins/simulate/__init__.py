@@ -1,26 +1,43 @@
-"""Simulation-stage builtin nodes for execution, uncertainty propagation, and runtime analysis."""
+"""Lazy facade for simulation-stage builtin nodes."""
 from __future__ import annotations
 
-from .run_simulation import RunSimulationNode
+from typing import TYPE_CHECKING, Any
 
-try:  # pragma: no cover - optional JAX dependency
+if TYPE_CHECKING:
     from .propagate_uncertainty import PropagateUncertaintyNode
-except ModuleNotFoundError:  # pragma: no cover
-    PropagateUncertaintyNode = None  # type: ignore[assignment]
-
-try:  # pragma: no cover - optional JAX dependency
-    from .run_distributional_analysis import RunDistributionalAnalysisNode
-except ModuleNotFoundError:  # pragma: no cover
-    RunDistributionalAnalysisNode = None  # type: ignore[assignment]
-
-try:  # pragma: no cover - optional JAX dependency
     from .run_causal_evaluation import RunCausalEvaluationNode
-except ModuleNotFoundError:  # pragma: no cover
-    RunCausalEvaluationNode = None  # type: ignore[assignment]
+    from .run_distributional_analysis import RunDistributionalAnalysisNode
+    from .run_metric_validation import RunMetricValidationNode
+    from .run_simulation import RunSimulationNode
 
 __all__ = [
     "RunSimulationNode",
+    "RunMetricValidationNode",
     "RunCausalEvaluationNode",
     "RunDistributionalAnalysisNode",
     "PropagateUncertaintyNode",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    if name == "RunSimulationNode":
+        from .run_simulation import RunSimulationNode
+
+        return RunSimulationNode
+    if name == "RunMetricValidationNode":
+        from .run_metric_validation import RunMetricValidationNode
+
+        return RunMetricValidationNode
+    if name == "RunCausalEvaluationNode":
+        from .run_causal_evaluation import RunCausalEvaluationNode
+
+        return RunCausalEvaluationNode
+    if name == "RunDistributionalAnalysisNode":
+        from .run_distributional_analysis import RunDistributionalAnalysisNode
+
+        return RunDistributionalAnalysisNode
+    if name == "PropagateUncertaintyNode":
+        from .propagate_uncertainty import PropagateUncertaintyNode
+
+        return PropagateUncertaintyNode
+    raise AttributeError(name)

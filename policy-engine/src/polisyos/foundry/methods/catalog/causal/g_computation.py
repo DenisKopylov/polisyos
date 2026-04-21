@@ -59,8 +59,9 @@ from polisyos.ir.analytics.dynamic_regime import (
     ContinuousTimeQuery,
     DynamicTreatmentRegime,
     GComputationResult,
-    TemporalInterventionTrajectory,
     RegimeRule,
+    TemporalIdentificationCertificate,
+    TemporalInterventionTrajectory,
 )
 
 # ---------------------------------------------------------------------------
@@ -656,6 +657,7 @@ def estimate_g_computation_trajectory(
     *,
     regime: DynamicTreatmentRegime | None = None,
     resolved_intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
+    identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
     method: str = "parametric_g",
     method_params: Mapping[str, Any] | None = None,
     allow_discrete_fallback: bool = True,
@@ -732,6 +734,7 @@ def estimate_g_computation_trajectory(
         query,
         data=dynamic_data,
         resolved_intervention=intervention,
+        identification_certificate=identification_certificate,
         intervention_contract_status=contract_status,
         allow_discrete_fallback=allow_discrete_fallback,
     )

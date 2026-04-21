@@ -1,0 +1,26 @@
+world_id: sw.phase0.panel_dynamic.seed.v1
+family: panel_dynamic
+seed: 20260422
+n_units: 72
+n_features: 3
+n_periods: 9
+truth:
+  posterior_mode: reference_posterior
+intervention:
+  style: dynamic
+  treatment_start_period: 4
+sampling:
+  kind: bernoulli
+  inclusion_rate: 0.9
+missingness:
+  mechanism: mcar
+  rate: 0.04
+  targets:
+    - outcome
+measurement:
+  kind: classical_additive
+  scale: 0.05
+  targets:
+    - outcome
+metadata:
+  phase: phase0

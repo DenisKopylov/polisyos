@@ -4,10 +4,19 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+from polisyos.ir.analytics.dual_certificate import (
+    StratifiedLPDualCertificateBundle,
+    coerce_bounds_certificate_bundle,
+    validate_bounds_certificate_bundle,
+)
 from polisyos.ir.analytics.partial_identification import (
+    BoundSoundnessLevel,
     BoundMethod,
     BoundsBundle,
     PartialIdentificationResult,
+    TighteningStatus,
+    TighteningStopReason,
 )
 
 
@@ -48,6 +57,38 @@ def _make_selection_state(n: int = 300, *, seed: int = 13) -> dict:
     Y_full = np.clip(Y_full, 0.0, 1.0)
     Y = Y_full * S  # observed only for selected
     return {"outcome": Y, "treatment": T, "selected": S}
+
+
+def _make_invalid_iv_family_state() -> dict:
+    z_binary = np.array(
+        [1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1],
+        dtype=float,
+    )
+    z = np.where(
+        z_binary > 0.5,
+        np.where(np.arange(z_binary.size) % 2 == 0, 0.8, 0.9),
+        np.where(np.arange(z_binary.size) % 2 == 0, 0.1, 0.2),
+    )
+    t = np.array(
+        [1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1],
+        dtype=float,
+    )
+    y = np.array(
+        [1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+        dtype=float,
+    )
+    return {"outcome": y, "treatment": t, "instrument": z}
+
+
+def _make_incompatible_binary_iv_state() -> dict:
+    rows: list[list[float]] = []
+    rows.extend([[1.0, 0.0, 0.0]] * 360)
+    rows.extend([[1.0, 1.0, 0.0]] * 20)
+    rows.extend([[1.0, 1.0, 1.0]] * 20)
+    rows.extend([[0.0, 0.0, 1.0]] * 260)
+    rows.extend([[0.0, 1.0, 0.0]] * 140)
+    arr = np.asarray(rows, dtype=float)
+    return {"instrument": arr[:, 0], "treatment": arr[:, 1], "outcome": arr[:, 2]}
 
 
 # ---------------------------------------------------------------------------
@@ -128,6 +169,145 @@ class TestBoundsEngineMethodDefault:
         assert "dual_certificate_payload" in result
         assert report.sharpness_status == "unknown"
 
+    def test_tighten_bounds_emits_certified_improvement_claim_for_exact_auto_bounds(self):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        state = _make_exact_lp_state()
+        result = BoundsEngineMethod.pure_step(
+            state,
+            {"use_auto_bounds": True, "tighten_bounds": True, "has_monotone": True},
+        )
+        report = BoundsBundle.model_validate(result["bounds_report"])
+
+        assert report.tightening_status is TighteningStatus.IMPROVED
+        assert report.best_in_class_claim is not None
+        assert report.best_in_class_claim.selected_method is BoundMethod.GENERAL_LP_BOUNDS
+        assert any(
+            summary.soundness_level is BoundSoundnessLevel.CERTIFIED
+            for summary in report.method_summaries
+            if summary.method is BoundMethod.GENERAL_LP_BOUNDS
+        )
+
+    def test_tighten_bounds_accepts_conditioning_only_with_aggregate_certificate(self):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        state = {
+            "outcome": np.array([0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+            "treatment": np.array([0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]),
+            "metadata": {
+                "conditioning_variables": {
+                    "risk_stratum": [0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0],
+                }
+            },
+        }
+
+        result = BoundsEngineMethod.pure_step(
+            state,
+            {"use_auto_bounds": False, "tighten_bounds": True, "has_monotone": True},
+        )
+        report = BoundsBundle.model_validate(result["bounds_report"])
+        cert = coerce_bounds_certificate_bundle(result["dual_certificate_payload"])
+        validation = validate_bounds_certificate_bundle(cert)
+
+        assert report.tightening_status is TighteningStatus.IMPROVED
+        assert isinstance(cert, StratifiedLPDualCertificateBundle)
+        assert validation.ok, validation.errors
+        assert any(
+            summary.certificate_kind == "stratified_lp_primal_dual"
+            for summary in report.method_summaries
+        )
+
+    def test_tighten_bounds_supports_assumption_family_candidates(self):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        state = _make_exact_lp_state()
+        result = BoundsEngineMethod.pure_step(
+            state,
+            {
+                "use_auto_bounds": False,
+                "tighten_bounds": True,
+                "tightening_assumptions": ["mtr"],
+            },
+        )
+        report = BoundsBundle.model_validate(result["bounds_report"])
+
+        assert report.tightening_status is TighteningStatus.IMPROVED
+        assert report.best_in_class_claim is not None
+        assert report.best_in_class_claim.selected_method is BoundMethod.GENERAL_LP_BOUNDS
+        assert any(
+            "assumption_card:monotone_treatment_response" in summary.assumptions_used
+            for summary in report.method_summaries
+            if summary.method is BoundMethod.GENERAL_LP_BOUNDS
+        )
+
+    def test_tighten_bounds_marks_budget_exhaustion_when_candidate_limit_hits(self):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        state = {
+            "outcome": np.array([0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+            "treatment": np.array([0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]),
+            "metadata": {
+                "conditioning_variables": {
+                    "risk_stratum": [0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0],
+                }
+            },
+        }
+
+        result = BoundsEngineMethod.pure_step(
+            state,
+            {
+                "use_auto_bounds": False,
+                "tighten_bounds": True,
+                "tightening_candidate_limit": 0,
+            },
+        )
+        report = BoundsBundle.model_validate(result["bounds_report"])
+
+        assert report.tightening_status is TighteningStatus.INCOMPLETE
+        assert report.tightening_stop_reason is TighteningStopReason.BUDGET_EXCEEDED
+        assert report.best_in_class_claim is not None
+        assert any(entry.reason == "budget_exceeded" for entry in report.best_in_class_claim.log)
+
+    def test_tighten_bounds_reports_infeasible_instrument_family_candidates(self):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        state = _make_invalid_iv_family_state()
+        result = BoundsEngineMethod.pure_step(
+            state,
+            {
+                "has_iv": True,
+                "use_auto_bounds": False,
+                "tighten_bounds": True,
+                "instrument_family_thresholds": [0.5],
+            },
+        )
+        report = BoundsBundle.model_validate(result["bounds_report"])
+
+        assert report.tightening_status is TighteningStatus.BLOCKED
+        assert (
+            report.tightening_stop_reason
+            is TighteningStopReason.MODEL_INFEASIBLE_UNDER_ALL_TIGHTENERS
+        )
+        assert report.best_in_class_claim is not None
+        assert any(entry.status == "infeasible" for entry in report.best_in_class_claim.log)
+
+    def test_tighten_bounds_blocks_when_no_certified_candidates_exist(self):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        state = _make_state()
+        result = BoundsEngineMethod.pure_step(
+            state,
+            {"use_auto_bounds": True, "tighten_bounds": True},
+        )
+        report = BoundsBundle.model_validate(result["bounds_report"])
+
+        assert "auto_bounds_excluded_from_headline_bundle_without_certificate" in report.warnings
+        assert report.tightening_status is TighteningStatus.BLOCKED
+        assert (
+            report.tightening_stop_reason
+            is TighteningStopReason.CLASS_NOT_CERTIFIABLE_WITH_BACKEND
+        )
+
 
 class TestBoundsEngineMethodWithIV:
     def test_with_binary_iv_runs_balke_pearl(self):
@@ -148,6 +328,23 @@ class TestBoundsEngineMethodWithIV:
 
         assert "dual_certificate_payload" in result
         assert report.sharpness_status == "unknown"
+
+    def test_with_binary_iv_blocks_balke_pearl_when_model_class_is_falsified(self):
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        state = _make_incompatible_binary_iv_state()
+        result = BoundsEngineMethod.pure_step(state, {"has_iv": True})
+        report = BoundsBundle.model_validate(result["bounds_report"])
+        methods = {r.method for r in report.method_summaries}
+        negative = NegativeCertificate.model_validate(result["negative_certificate"])
+
+        assert BoundMethod.LP_BALKE_PEARL not in methods
+        assert negative.blocking_type is BlockingType.MODEL_CLASS_INCOMPATIBLE
+        assert result["model_class_compatibility"]["compatibility_status"] == "incompatible"
+        assert any(
+            "binary_iv_model_class_incompatible" in warning
+            for warning in report.warnings
+        )
 
     def test_with_iv_reports_tighter_than_manski(self):
         """Balke-Pearl bounds should be at most as wide as Manski (typically tighter)."""

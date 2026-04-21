@@ -23,7 +23,12 @@ from polisyos.foundry.methods.catalog.econometrics.protocols import TimeSeriesDa
 from polisyos.foundry.methods.catalog.ml.protocols import PredictionResult
 from polisyos.foundry.methods.catalog.ml.regression import _build_prediction_result
 
-from .protocols import PosteriorResult, metropolis_sample, summarize_posterior_samples
+from .protocols import (
+    PosteriorResult,
+    augment_sampler_diagnostics,
+    metropolis_sample,
+    summarize_posterior_samples,
+)
 
 
 def _time_series_payload(state: Any) -> dict[str, Any]:
@@ -173,15 +178,21 @@ class BayesianAutoregressionEstimator:
             posterior,
             credible_mass=credible_mass,
         )
-        diagnostics = {
-            "num_warmup": float(num_warmup),
-            "num_samples": float(num_samples),
-            "num_chains": float(num_chains),
-            "credible_mass": float(credible_mass),
-            "n_lags": float(n_lags),
-            "acceptance_rate": float(accept_rate),
-            "proposal_scale": float(proposal_scale),
-        }
+        diagnostics = augment_sampler_diagnostics(
+            posterior,
+            diagnostics={
+                "num_warmup": float(num_warmup),
+                "num_samples": float(num_samples),
+                "num_chains": float(num_chains),
+                "credible_mass": float(credible_mass),
+                "n_lags": float(n_lags),
+                "acceptance_rate": float(accept_rate),
+                "proposal_scale": float(proposal_scale),
+            },
+            num_chains=num_chains,
+            num_samples=num_samples,
+            credible_mass=credible_mass,
+        )
 
         prediction_output = _build_prediction_result(
             method_name="bayesian_autoregression",
@@ -200,6 +211,8 @@ class BayesianAutoregressionEstimator:
             posterior_stds=posterior_stds,
             credible_intervals=credible_intervals,
             diagnostics=diagnostics,
+            sampler_family="mcmc",
+            sampler_kernel="metropolis",
             metadata={"n_lags": n_lags},
         )
         return {

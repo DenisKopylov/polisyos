@@ -81,6 +81,9 @@ class PathSpecificQuery(BaseModel):
     active_treatment: float = 1.0
     """Active (treated) value of treatment."""
 
+    conditioning: tuple[str, ...] = ()
+    """Observed conditioning variables for conditional path-specific queries."""
+
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
@@ -95,10 +98,20 @@ class PathSpecificQuery(BaseModel):
             raise ValueError("treatment and outcome must be distinct")
 
         ensure_unique_ids(self.mediators, key_fn=lambda item: item, label="mediators")
+        ensure_unique_ids(
+            self.conditioning,
+            key_fn=lambda item: item,
+            label="conditioning",
+        )
         ensure_disjoint_sets(
             self.mediators,
             (treatment, outcome),
             label="mediators and treatment/outcome",
+        )
+        ensure_disjoint_sets(
+            self.conditioning,
+            (treatment, outcome),
+            label="conditioning and treatment/outcome",
         )
         ensure_finite_numeric(self.reference_treatment, field_name="reference_treatment")
         ensure_finite_numeric(self.active_treatment, field_name="active_treatment")

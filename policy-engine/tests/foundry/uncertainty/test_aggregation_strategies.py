@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from polisyos.ir.analytics.uncertainty import (
+    ExactnessKind,
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,
@@ -39,6 +40,8 @@ class TestPrecisionWeighted:
 
         assert result.ci_width < env1.ci_width
         assert result.ci_width < env2.ci_width
+        assert result.composition_provenance is not None
+        assert result.composition_provenance.exactness == ExactnessKind.APPROXIMATION
 
     def test_precision_weighted_equal_variance_averages(self) -> None:
         """With equal variances, point estimate should be the simple average."""

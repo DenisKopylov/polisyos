@@ -12,6 +12,7 @@ from polisyos.ir.analytics.strategic import (
     EquilibriumSetSummary,
     PostAdaptationPolicyValueSummary,
     StrategicClosureSummary,
+    StrategicDecompositionStatus,
     StrategicEquilibriumConcept,
     StrategicFallbackMode,
     StrategicResponseBundle,
@@ -90,6 +91,13 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(tmp_path
             equilibrium_set_ref=equilibrium_set_ref,
             selected_equilibrium_ref=selected_equilibrium_ref,
             post_adaptation_policy_value_ref=post_adaptation_policy_value_ref,
+            decomposition_status=StrategicDecompositionStatus.EXACT,
+            decomposition_certificate_ref=ArtifactRefModel(
+                artifact_id=candidate_ref.artifact_id,
+                kind="ir.strategic_decomposition_certificate",
+                media_type="application/json",
+            ),
+            anchor_equilibrium_ref=selected_equilibrium_ref,
             fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
         ),
     )

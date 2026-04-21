@@ -21,7 +21,7 @@ class _FakeChain:
     def __init__(self, fqns: list[str]) -> None:
         self.execution_order = [uuid4() for _ in fqns]
         self._nodes = {
-            node_id: SimpleNamespace(method_fqn=fqn)
+            node_id: SimpleNamespace(method_fqn=fqn, params={})
             for node_id, fqn in zip(self.execution_order, fqns, strict=True)
         }
 
@@ -122,3 +122,66 @@ def test_checkpoint_save_failure_is_diagnostic_and_can_fail_closed(tmp_path, mon
             all_node_results=[(node_id, result)],
             state={"value": 1},
         )
+
+
+def test_execute_resumes_with_checkpoint_stub_results(tmp_path) -> None:
+    from polisyos.core.observability.determinism import DeterminismTier
+    from polisyos.foundry.methods.backends.protocol import (
+        MethodResult,
+        MethodTiming,
+        ReproducibilityInfo,
+    )
+    from polisyos.foundry.methods.base import ComputeBackend
+
+    chain = _FakeChain(["demo.a@1.0.0", "demo.b@1.0.0"])
+    checkpoint_path = tmp_path / "checkpoint_resume.json"
+    ChainCheckpoint(
+        chain_digest=_compute_chain_digest(chain),
+        completed_fqns=["demo.a@1.0.0"],
+        completed_node_ids=[str(chain.execution_order[0])],
+        intermediate_state={"value": 1},
+        node_timing_ms=[3.5],
+    ).save(checkpoint_path)
+    checkpoint = ChainCheckpoint.load(checkpoint_path)
+
+    method_class = type(
+        "FakeMethod",
+        (),
+        {"signature": SimpleNamespace(backend=ComputeBackend.NUMPY)},
+    )
+    registry = SimpleNamespace(get=lambda _fqn: method_class)
+
+    class _Dispatcher:
+        def dispatch(self, *, method_class, signature, state, params, seed):
+            return MethodResult(
+                output={"value": int(state["value"]) + 1},
+                timing=MethodTiming(wall_time_ms=1.25),
+                reproducibility=ReproducibilityInfo(
+                    backend=signature.backend,
+                    determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+                    seed=seed,
+                ),
+            )
+
+    executor = CheckpointingChainExecutor(
+        checkpoint_dir=None,
+        registry=registry,
+        dispatcher=_Dispatcher(),
+    )
+
+    result = executor.execute(
+        chain,
+        initial_state={"value": 0},
+        checkpoint=checkpoint,
+        seed=11,
+    )
+
+    assert len(result.node_results) == 2
+    restored = result.node_results[0][1]
+    assert restored.warnings == ("restored_from_checkpoint",)
+    assert restored.artifacts["checkpoint_restore"]["status"] == "restored_from_checkpoint"
+    assert restored.reproducibility.backend == ComputeBackend.NUMPY
+    assert result.final_state["value"] == 2
+    assert result.reproducibility_contract["determinism_tier"] == "library_deterministic"
+    assert result.reproducibility_contract["node_count"] == 2
+    assert result.reproducibility_contract["composition_kind"] == "serial"

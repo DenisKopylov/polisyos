@@ -113,6 +113,8 @@ export default function SimulationResultsViewer({
 
       <MetricsPanel
         metrics={model.metrics}
+        metricComparisons={model.metricComparisons}
+        metricValidationFamilyAdjustment={model.metricValidationFamilyAdjustment}
         timeSeries={model.timeSeries}
         showUncertainty={showUncertainty && selectedMethod !== "none"}
       />

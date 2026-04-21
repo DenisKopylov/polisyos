@@ -116,7 +116,8 @@ class CostBenefitAnalysisEstimator:
 
         # IRR via bisection
         net_flows = benefits * shadow - costs
-        irr = _compute_irr(net_flows)
+        irr_info = _compute_irr_diagnostics(net_flows)
+        irr = irr_info["irr"]
 
         # Payback period
         cumulative = np.cumsum(net_flows)
@@ -128,6 +129,11 @@ class CostBenefitAnalysisEstimator:
                 "npv": npv,
                 "bcr": bcr,
                 "irr": irr,
+                "irr_bracket": irr_info["bracket"],
+                "irr_iterations": irr_info["iterations"],
+                "irr_bracket_width": irr_info["bracket_width"],
+                "irr_npv_bracket": irr_info["npv_bracket"],
+                "irr_npv_residual": irr_info["npv_residual"],
                 "payback_period": payback_period,
                 "pv_benefits": pv_benefits,
                 "pv_costs": pv_costs,
@@ -137,29 +143,60 @@ class CostBenefitAnalysisEstimator:
         }
 
 
-def _compute_irr(cash_flows: np.ndarray, tol: float = 1e-8, max_iter: int = 200) -> float | None:
-    """Compute IRR via bisection on NPV(r)=0."""
-    def npv_at(r: float) -> float:
-        t = np.arange(len(cash_flows), dtype=float)
-        return float(np.sum(cash_flows / (1.0 + r) ** t))
+def _npv_at_rate(cash_flows: np.ndarray, rate: float) -> float:
+    periods = np.arange(len(cash_flows), dtype=float)
+    return float(np.sum(cash_flows / (1.0 + rate) ** periods))
+
+
+def _compute_irr_diagnostics(
+    cash_flows: np.ndarray,
+    tol: float = 1e-8,
+    max_iter: int = 200,
+) -> dict[str, Any]:
+    """Compute IRR via bisection and retain the terminal bracket."""
 
     lo, hi = -0.5, 5.0
-    npv_lo = npv_at(lo)
-    npv_hi = npv_at(hi)
+    npv_lo = _npv_at_rate(cash_flows, lo)
+    npv_hi = _npv_at_rate(cash_flows, hi)
     if npv_lo * npv_hi > 0:
-        return None
-    for _ in range(max_iter):
+        return {
+            "irr": None,
+            "bracket": None,
+            "iterations": 0,
+            "bracket_width": None,
+            "npv_bracket": (float(npv_lo), float(npv_hi)),
+            "npv_residual": None,
+        }
+
+    mid = float((lo + hi) / 2.0)
+    npv_mid = _npv_at_rate(cash_flows, mid)
+    iterations_run = 0
+    for iteration in range(max_iter):
         mid = (lo + hi) / 2.0
-        npv_mid = npv_at(mid)
+        npv_mid = _npv_at_rate(cash_flows, mid)
+        iterations_run = iteration + 1
         if abs(npv_mid) < tol:
-            return float(mid)
+            break
         if npv_lo * npv_mid < 0:
             hi = mid
             npv_hi = npv_mid
         else:
             lo = mid
             npv_lo = npv_mid
-    return float((lo + hi) / 2.0)
+    irr = float((lo + hi) / 2.0)
+    return {
+        "irr": irr,
+        "bracket": (float(lo), float(hi)),
+        "iterations": iterations_run,
+        "bracket_width": float(hi - lo),
+        "npv_bracket": (float(npv_lo), float(npv_hi)),
+        "npv_residual": float(npv_mid),
+    }
+
+
+def _compute_irr(cash_flows: np.ndarray, tol: float = 1e-8, max_iter: int = 200) -> float | None:
+    """Compute IRR via bisection on NPV(r)=0."""
+    return _compute_irr_diagnostics(cash_flows, tol=tol, max_iter=max_iter)["irr"]
 
 
 # ---------------------------------------------------------------------------

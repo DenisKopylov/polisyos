@@ -34,12 +34,23 @@ from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
 )
 from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
 from polisyos.ir.analytics.dynamic_regime import (
+    CausalTranslationCertificate,
+    CausalTranslationCertificateStatus,
+    CausalTranslationOmegaMapping,
+    CausalTranslationScope,
+    CausalTranslationSufficientConditions,
+    CausalTranslationTauMapping,
     ContinuousTimeQuery,
     EffectTrajectoryBundle,
     InterventionInterpolationPolicy,
+    TemporalIdentificationCertificate,
     TemporalInterventionTrajectory,
     TemporalPathRepresentation,
+    TemporalTargetFunctional,
 )
+
+_TEMPORAL_SOLVER_DIAGNOSTICS_SCHEMA_NAME = "ir.temporal_solver_diagnostics"
+_TEMPORAL_SOLVER_DIAGNOSTICS_SCHEMA_VERSION = "1.1"
 
 
 def _normal_two_sided_pvalue(z_score: float) -> float:
@@ -63,6 +74,8 @@ class TemporalTrajectoryResult(BaseModel):
     path_representation: TemporalPathRepresentation
     discretization_error: float | None = Field(default=None, ge=0.0)
     discretization_note: str | None = None
+    causal_translation_certificate: CausalTranslationCertificate | None = None
+    causal_equivalence_note: str | None = None
     continuous_time_degraded: bool = False
     diagnostics: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -129,7 +142,11 @@ class TemporalTrajectoryResult(BaseModel):
         }
 
     def solver_diagnostics_payload(self) -> dict[str, Any]:
-        return {
+        identification_scope = self.metadata.get("identification_scope")
+        identification_support_status = self.metadata.get("identification_support_status")
+        payload = {
+            "schema_name": _TEMPORAL_SOLVER_DIAGNOSTICS_SCHEMA_NAME,
+            "schema_version": _TEMPORAL_SOLVER_DIAGNOSTICS_SCHEMA_VERSION,
             "time_grid": list(self.plan.time_grid),
             "discretization_error": (
                 None if self.discretization_error is None else float(self.discretization_error)
@@ -137,9 +154,20 @@ class TemporalTrajectoryResult(BaseModel):
             "discretization_note": self.discretization_note,
             "solver_family": self.solver_family,
             "path_representation": self.path_representation.value,
+            "causal_translation_certificate": (
+                None
+                if self.causal_translation_certificate is None
+                else self.causal_translation_certificate.model_dump(mode="json")
+            ),
+            "causal_equivalence_note": self.causal_equivalence_note,
             "continuous_time_degraded": bool(self.continuous_time_degraded),
             "diagnostics": dict(self.diagnostics),
         }
+        if isinstance(identification_scope, dict):
+            payload["identification_scope"] = dict(identification_scope)
+        if identification_support_status is not None:
+            payload["identification_support_status"] = str(identification_support_status)
+        return payload
 
 
 def _coerce_1d_series(
@@ -305,6 +333,206 @@ def estimate_discretization_error(
     return float(np.max(np.abs(refined - coarse))) if refined.size else 0.0
 
 
+def _is_regular_time_grid(time_grid: np.ndarray) -> bool:
+    if time_grid.shape[0] < 2:
+        return False
+    diffs = np.diff(time_grid)
+    return bool(np.allclose(diffs, diffs[0], atol=1e-8, rtol=1e-8))
+
+
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    return value
+
+
+def _solver_supports_exact_discretization(
+    plan: TemporalExecutionPlan,
+    *,
+    solver_family: str,
+) -> bool:
+    solver_declares_exact = bool(plan.solver_config.get("exact_discretization", False)) or (
+        solver_family in {"exact_flow", "matrix_exponential", "exact_ou"}
+    )
+    if not solver_declares_exact:
+        return False
+    if plan.interpolation_policy is not InterventionInterpolationPolicy.PIECEWISE_CONSTANT:
+        return False
+    return plan.backend_target in {
+        TemporalBackendTarget.LINEAR_SDE,
+        TemporalBackendTarget.ODE,
+    }
+
+
+def build_causal_translation_certificate(
+    plan: TemporalExecutionPlan,
+    *,
+    solver_family: str,
+) -> tuple[CausalTranslationCertificate, str | None]:
+    """Build a semantic translation certificate for temporal discretization."""
+
+    time_grid = np.asarray(plan.time_grid, dtype=float)
+    grid_regular = _is_regular_time_grid(time_grid)
+    horizon_aligned = bool(
+        np.isclose(time_grid[0], plan.query.horizon_start, atol=1e-8)
+        and np.isclose(time_grid[-1], plan.query.horizon_end, atol=1e-8)
+    )
+    time_scale_matches = plan.query.time_scale == plan.resolved_intervention.time_scale
+    interpolation_policy_matches_contract = (
+        plan.query.interpolation_policy is plan.interpolation_policy
+        and plan.resolved_intervention.interpolation_policy is plan.interpolation_policy
+    )
+    backend_exact_discretization = _solver_supports_exact_discretization(
+        plan,
+        solver_family=solver_family,
+    )
+    fallback_active = (
+        plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK
+        or plan.fallback_mode.value != "none"
+    )
+    neural_backend = plan.backend_target in {
+        TemporalBackendTarget.NEURAL_SDE,
+        TemporalBackendTarget.NEURAL_CDE,
+    }
+    sufficient_conditions = CausalTranslationSufficientConditions(
+        time_scale_matches=time_scale_matches,
+        interpolation_policy_matches_contract=interpolation_policy_matches_contract,
+        grid_regular=grid_regular,
+        horizon_aligned=horizon_aligned,
+        backend_exact_discretization=backend_exact_discretization,
+        allowed_interventions_restricted_to_omega_image=not fallback_active,
+        unique_solution_assumed=True,
+    )
+    hold_semantics = (
+        "zoh"
+        if plan.interpolation_policy is InterventionInterpolationPolicy.PIECEWISE_CONSTANT
+        else "foh"
+    )
+    query_functionals_covered = [
+        TemporalTargetFunctional.EFFECT_PATH.value,
+        TemporalTargetFunctional.INTEGRAL_EFFECT.value,
+    ]
+    variables_covered = [
+        "effect_path",
+        "counterfactual_path",
+        "solver_mean_path",
+    ]
+
+    assumptions_introduced = [
+        "Causal claims are restricted to functionals measurable on the certified time grid.",
+        f"Interventions are interpreted between knots via {hold_semantics} hold semantics.",
+    ]
+    if not backend_exact_discretization:
+        assumptions_introduced.append(
+            "Exact continuous-time equivalence is not claimed away from the certified grid."
+        )
+    identification_scope = plan.metadata.get("identification_scope")
+    if neural_backend:
+        assumptions_introduced.append(
+            "Neural temporal execution is theorem-scoped and does not certify exact discretization."
+        )
+
+    failure_reasons: list[str] = []
+    note: str | None = None
+    if not time_scale_matches:
+        failure_reasons.append("time_scale_mismatch")
+    if not interpolation_policy_matches_contract:
+        failure_reasons.append("interpolation_policy_mismatch")
+    if not grid_regular:
+        failure_reasons.append("irregular_time_grid")
+    if not horizon_aligned:
+        failure_reasons.append("horizon_not_aligned")
+    if fallback_active:
+        failure_reasons.append("discrete_fallback_changes_estimand_support")
+        fallback_reason_code = str(plan.metadata.get("fallback_reason_code") or "").strip()
+        if fallback_reason_code:
+            failure_reasons.append(fallback_reason_code)
+
+    if not time_scale_matches or not interpolation_policy_matches_contract:
+        status = CausalTranslationCertificateStatus.FAILED
+        note = "temporal causal translation certificate failed because the execution contract is inconsistent"
+    elif fallback_active or not grid_regular or not horizon_aligned:
+        status = CausalTranslationCertificateStatus.NOT_CERTIFIED
+        note = (
+            "numerical discretization error != causal estimand equivalence; "
+            "causal translation not certified"
+        )
+    elif neural_backend:
+        status = CausalTranslationCertificateStatus.CERTIFIED_RESTRICTED
+        note = (
+            "neural temporal execution is certified only within the supplied theorem-backed "
+            "identification scope on the declared time grid"
+        )
+    elif backend_exact_discretization:
+        status = CausalTranslationCertificateStatus.CERTIFIED_EXACT
+        note = "causal translation is exact on the certified grid under zero-order hold semantics"
+    else:
+        status = CausalTranslationCertificateStatus.CERTIFIED_RESTRICTED
+        note = (
+            "causal claims are certified only for functionals measurable on the declared time grid "
+            "under the stated interpolation policy"
+        )
+
+    certificate = CausalTranslationCertificate(
+        status=status,
+        scope=CausalTranslationScope(
+            query_functionals_covered=tuple(query_functionals_covered),
+            time_grid_covered=tuple(float(value) for value in time_grid.tolist()),
+            variables_covered=tuple(variables_covered),
+        ),
+        tau_mapping=CausalTranslationTauMapping(
+            sampling_times=tuple(float(value) for value in time_grid.tolist()),
+        ),
+        omega_mapping=CausalTranslationOmegaMapping(
+            interpolation_policy=plan.interpolation_policy,
+            hold_semantics=hold_semantics,
+            knot_times=tuple(float(value) for value in plan.resolved_intervention.time_points),
+            knot_values=tuple(float(value) for value in plan.resolved_intervention.values),
+        ),
+        sufficient_conditions=sufficient_conditions,
+        assumptions_introduced=tuple(assumptions_introduced),
+        failure_reasons=tuple(failure_reasons),
+        evidence={
+            "backend_target": plan.backend_target.value,
+            "solver_family": solver_family,
+            "fallback_mode": plan.fallback_mode.value,
+            "time_scale_validation": plan.time_scale_validation,
+            "intervention_contract_status": plan.intervention_contract_status,
+            "fallback_reason_code": str(plan.metadata.get("fallback_reason_code") or ""),
+            "theorem_family": (
+                None
+                if not isinstance(identification_scope, dict)
+                else identification_scope.get("theorem_family")
+            ),
+            "law_object": (
+                None
+                if not isinstance(identification_scope, dict)
+                else identification_scope.get("law_object")
+            ),
+            "observability_regime": (
+                None
+                if not isinstance(identification_scope, dict)
+                else identification_scope.get("observability_regime")
+            ),
+            "plan_metadata": _json_safe(dict(plan.metadata)),
+            "theory_refs": [
+                "Rubenstein et al. 2017 (exact transformations)",
+                "Rubenstein et al. 2018 (ODE to DSCM causal consistency)",
+                (
+                    "Pechlivanidou & Karampetakis 2022 (ZOH exact discretization)"
+                    if backend_exact_discretization
+                    else "Boeken & Mooij 2024 (subsampled DSCM semantics)"
+                ),
+            ],
+        },
+    )
+    return certificate, note
+
+
 def build_solver_diagnostics(
     plan: TemporalExecutionPlan,
     *,
@@ -316,6 +544,8 @@ def build_solver_diagnostics(
     discretization_note: str | None,
     control_count: int,
     band_source: str,
+    causal_translation_certificate: CausalTranslationCertificate,
+    causal_equivalence_note: str | None,
 ) -> dict[str, Any]:
     """Build solver diagnostics."""
     dt = float(plan.step_size)
@@ -338,13 +568,15 @@ def build_solver_diagnostics(
         "comparator_semantics": plan.comparator_semantics.value,
         "target_functional": plan.target_functional.value,
         "interpolation_policy": plan.interpolation_policy.value,
+        "causal_translation_certificate": causal_translation_certificate.model_dump(mode="json"),
+        "causal_equivalence_note": causal_equivalence_note,
         "materialized_intervention_values": list(plan.materialized_intervention_values),
         "time_scale_validation": plan.time_scale_validation,
         "intervention_contract_status": plan.intervention_contract_status,
         "control_count": int(control_count),
         "band_source": band_source,
         "grid_source": plan.grid_source,
-        "plan_metadata": dict(plan.metadata),
+        "plan_metadata": _json_safe(dict(plan.metadata)),
     }
 
 
@@ -410,6 +642,7 @@ def solve_temporal_effect_path(
     intervention_path = np.asarray(plan.materialized_intervention_values, dtype=float)
     force_zero_diffusion = plan.backend_target in {
         TemporalBackendTarget.ODE,
+        TemporalBackendTarget.NEURAL_CDE,
         TemporalBackendTarget.DISCRETE_FALLBACK,
     }
     drift, treatment_gain, intercept, diffusion = _estimate_linear_dynamics(
@@ -420,7 +653,13 @@ def solve_temporal_effect_path(
     )
 
     discretization_note: str | None = None
-    continuous_time_degraded = plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK
+    rough_path_degraded = str(
+        plan.metadata.get("rough_path_runtime_support", "on_support")
+    ).strip().lower() == "degraded"
+    continuous_time_degraded = (
+        plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK
+        or rough_path_degraded
+    )
     if plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK:
         solver_mean_path = effect_path.copy()
         discretization_error = None
@@ -489,8 +728,37 @@ def solve_temporal_effect_path(
         else (
             TemporalPathRepresentation.ODE
             if plan.backend_target is TemporalBackendTarget.ODE
-            else TemporalPathRepresentation.LINEAR_SDE
+            else (
+                TemporalPathRepresentation.NEURAL_SDE
+                if plan.backend_target is TemporalBackendTarget.NEURAL_SDE
+                else (
+                    TemporalPathRepresentation.NEURAL_CDE
+                    if plan.backend_target is TemporalBackendTarget.NEURAL_CDE
+                    else (
+                        TemporalPathRepresentation.GEOMETRIC_ROUGH_PATH
+                        if plan.backend_target is TemporalBackendTarget.GEOMETRIC_ROUGH_PATH
+                        else (
+                            TemporalPathRepresentation.CADLAG_ROUGH_PATH
+                            if plan.backend_target is TemporalBackendTarget.CADLAG_ROUGH_PATH
+                            else (
+                                TemporalPathRepresentation.TRUNCATED_SIGNATURE
+                                if plan.backend_target is TemporalBackendTarget.TRUNCATED_SIGNATURE
+                                else (
+                                    TemporalPathRepresentation.HYBRID_ROUGH_EVENT
+                                    if plan.backend_target is TemporalBackendTarget.HYBRID_ROUGH_EVENT
+                                    else TemporalPathRepresentation.LINEAR_SDE
+                                )
+                            )
+                        )
+                    )
+                )
+            )
         )
+    )
+    solver_family = str(plan.solver_config.get("solver_family", "euler_maruyama"))
+    causal_translation_certificate, causal_equivalence_note = build_causal_translation_certificate(
+        plan,
+        solver_family=solver_family,
     )
     diagnostics = build_solver_diagnostics(
         plan,
@@ -502,6 +770,8 @@ def solve_temporal_effect_path(
         discretization_note=discretization_note,
         control_count=control_count,
         band_source=band_source,
+        causal_translation_certificate=causal_translation_certificate,
+        causal_equivalence_note=causal_equivalence_note,
     )
     return TemporalTrajectoryResult(
         plan=plan,
@@ -512,18 +782,30 @@ def solve_temporal_effect_path(
         confidence_band_lower=tuple(float(value) for value in confidence_band_lower.tolist()),
         confidence_band_upper=tuple(float(value) for value in confidence_band_upper.tolist()),
         integral_effect=integral_effect,
-        solver_family=str(plan.solver_config.get("solver_family", "euler_maruyama")),
+        solver_family=solver_family,
         path_representation=path_representation,
         discretization_error=(
             None if discretization_error is None else float(discretization_error)
         ),
         discretization_note=discretization_note,
+        causal_translation_certificate=causal_translation_certificate,
+        causal_equivalence_note=causal_equivalence_note,
         continuous_time_degraded=continuous_time_degraded,
         diagnostics=diagnostics,
         metadata={
             "control_count": control_count,
             "band_source": band_source,
             "intervention_contract_status": plan.intervention_contract_status,
+            "identification_scope": plan.metadata.get("identification_scope"),
+            "identification_support_status": plan.metadata.get(
+                "identification_support_status"
+            ),
+            "path_semantics": plan.metadata.get("path_semantics"),
+            "rough_path_certificate": plan.metadata.get("rough_path_certificate"),
+            "rough_path_identification_status": plan.metadata.get(
+                "rough_path_identification_status"
+            ),
+            "rough_path_runtime_support": plan.metadata.get("rough_path_runtime_support"),
         },
     )
 
@@ -533,6 +815,7 @@ def estimate_structural_time_series_trajectory(
     query: ContinuousTimeQuery,
     *,
     resolved_intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
+    identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
     allow_discrete_fallback: bool = True,
     max_donors: int = 10,
 ) -> TemporalTrajectoryResult:
@@ -569,6 +852,7 @@ def estimate_structural_time_series_trajectory(
         query,
         data=panel,
         resolved_intervention=intervention,
+        identification_certificate=identification_certificate,
         intervention_contract_status=contract_status,
         allow_discrete_fallback=allow_discrete_fallback,
     )

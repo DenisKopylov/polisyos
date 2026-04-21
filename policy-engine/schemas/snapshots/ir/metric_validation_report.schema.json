@@ -1,0 +1,438 @@
+{
+  "$defs": {
+    "FamilyAdjustment": {
+      "additionalProperties": false,
+      "description": "Family-level multiplicity metadata applied to raw p-values.",
+      "properties": {
+        "alpha": {
+          "title": "Alpha",
+          "type": "number"
+        },
+        "dependency_assumption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dependency Assumption"
+        },
+        "error_rate_target": {
+          "enum": [
+            "FWER",
+            "FDR"
+          ],
+          "title": "Error Rate Target",
+          "type": "string"
+        },
+        "hypotheses_total": {
+          "title": "Hypotheses Total",
+          "type": "integer"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "alpha",
+        "hypotheses_total",
+        "error_rate_target"
+      ],
+      "title": "FamilyAdjustment",
+      "type": "object"
+    },
+    "MetricComparisonResult": {
+      "additionalProperties": false,
+      "description": "Structured result for one metric comparison inside a validation family.",
+      "properties": {
+        "baseline_model_id": {
+          "title": "Baseline Model Id",
+          "type": "string"
+        },
+        "baseline_value": {
+          "title": "Baseline Value",
+          "type": "number"
+        },
+        "candidate_model_id": {
+          "title": "Candidate Model Id",
+          "type": "string"
+        },
+        "candidate_value": {
+          "title": "Candidate Value",
+          "type": "number"
+        },
+        "delta_value": {
+          "title": "Delta Value",
+          "type": "number"
+        },
+        "family_id": {
+          "title": "Family Id",
+          "type": "string"
+        },
+        "family_scope": {
+          "title": "Family Scope",
+          "type": "string"
+        },
+        "metric_direction": {
+          "enum": [
+            "higher_is_better",
+            "lower_is_better"
+          ],
+          "title": "Metric Direction",
+          "type": "string"
+        },
+        "metric_id": {
+          "title": "Metric Id",
+          "type": "string"
+        },
+        "resampling_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resampling Method"
+        },
+        "sample_size_effective": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Size Effective"
+        },
+        "significance": {
+          "$ref": "#/$defs/SignificanceRecord"
+        }
+      },
+      "required": [
+        "metric_id",
+        "metric_direction",
+        "baseline_model_id",
+        "candidate_model_id",
+        "baseline_value",
+        "candidate_value",
+        "delta_value",
+        "significance",
+        "family_id",
+        "family_scope"
+      ],
+      "title": "MetricComparisonResult",
+      "type": "object"
+    },
+    "SignificanceRecord": {
+      "additionalProperties": false,
+      "description": "Significance metadata for a single baseline-vs-candidate metric comparison.",
+      "properties": {
+        "alpha": {
+          "title": "Alpha",
+          "type": "number"
+        },
+        "alternative": {
+          "title": "Alternative",
+          "type": "string"
+        },
+        "assumption_flags": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumption Flags",
+          "type": "array"
+        },
+        "calibration_flags": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Calibration Flags",
+          "type": "array"
+        },
+        "ci_high": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ci High"
+        },
+        "ci_level": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ci Level"
+        },
+        "ci_low": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ci Low"
+        },
+        "effect_size": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effect Size"
+        },
+        "null_hypothesis": {
+          "title": "Null Hypothesis",
+          "type": "string"
+        },
+        "p_value_adj": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value Adj"
+        },
+        "p_value_raw": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value Raw"
+        },
+        "reject_null_adj": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reject Null Adj"
+        },
+        "reject_null_raw": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reject Null Raw"
+        },
+        "statistic": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Statistic"
+        },
+        "test_id": {
+          "title": "Test Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "test_id",
+        "null_hypothesis",
+        "alternative",
+        "alpha"
+      ],
+      "title": "SignificanceRecord",
+      "type": "object"
+    },
+    "ValidationIssue": {
+      "additionalProperties": false,
+      "description": "Machine-readable issue emitted while validating a metric-comparison family.",
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "field_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field Path"
+        },
+        "hint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hint"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "title": "ValidationIssue",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Persisted formal validation report for metric-comparison hypotheses.",
+  "properties": {
+    "checked_at": {
+      "title": "Checked At",
+      "type": "string"
+    },
+    "comparisons": {
+      "items": {
+        "$ref": "#/$defs/MetricComparisonResult"
+      },
+      "title": "Comparisons",
+      "type": "array"
+    },
+    "dataset_id": {
+      "title": "Dataset Id",
+      "type": "string"
+    },
+    "errors": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ValidationIssue"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "family_adjustment": {
+      "$ref": "#/$defs/FamilyAdjustment"
+    },
+    "is_valid": {
+      "default": true,
+      "title": "Is Valid",
+      "type": "boolean"
+    },
+    "kind": {
+      "const": "scientist.metric_validation_report",
+      "default": "scientist.metric_validation_report",
+      "title": "Kind",
+      "type": "string"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "report_id": {
+      "title": "Report Id",
+      "type": "string"
+    },
+    "run_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Run Id"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "title": "Task",
+      "type": "string"
+    },
+    "warnings": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ValidationIssue"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "report_id",
+    "dataset_id",
+    "task",
+    "checked_at",
+    "family_adjustment",
+    "comparisons"
+  ],
+  "title": "MetricValidationReport",
+  "type": "object"
+}

@@ -12,6 +12,9 @@ cases:
         forecast: [5.0, 5.0, 5.0]
         level: 5.0
         horizon: 3
+      forecasting_uncertainty_bundle:
+        interval_semantics: "conformalized_prediction_interval"
+        calibration_method: "conformal"
     tolerances: {rtol: 0.02, atol: 0.1}
     tags: [univariate, deterministic]
 
@@ -36,6 +39,8 @@ cases:
     expected_output:
       result:
         forecast: [3.0, 3.0]
+      forecasting_uncertainty_bundle:
+        interval_semantics: "conformalized_prediction_interval"
     tolerances: {rtol: 0.05, atol: 0.2}
     tags: [univariate, deterministic]
 
@@ -48,6 +53,8 @@ cases:
       result:
         forecast: [1.0, 2.0, 3.0]
         weights: [0.5, 0.5]
+      forecasting_uncertainty_bundle:
+        interval_semantics: "heuristic_range"
     tolerances: {rtol: 0.001, atol: 0.001}
     tags: [ensemble, deterministic]
 
@@ -60,6 +67,8 @@ cases:
     expected_output:
       result:
         bottom_forecasts: [[1.0, 2.0], [3.0, 4.0]]
+      forecasting_uncertainty_bundle:
+        interval_semantics: "heuristic_range"
     tolerances: {rtol: 0.001, atol: 0.001}
     tags: [reconciliation, deterministic]
 
@@ -73,6 +82,9 @@ cases:
     expected_output:
       result:
         period: 4
+      forecasting_uncertainty_bundle:
+        horizon_policy:
+          gate_eligible: false
     tolerances: {rtol: 0.1, atol: 0.5}
     tags: [decomposition, deterministic]
 
@@ -95,6 +107,8 @@ cases:
     expected_output:
       result:
         n_obs: 10
+      forecasting_uncertainty_bundle:
+        calibration_method: "conformal"
     tolerances: {rtol: 0.1, atol: 2.0}
     tags: [multivariate, deterministic]
 
@@ -107,6 +121,8 @@ cases:
     expected_output:
       result:
         horizon: 1
+      forecasting_uncertainty_bundle:
+        calibration_method: "conformal"
     tolerances: {rtol: 0.1, atol: 1.0}
     tags: [univariate, deterministic]
 
@@ -119,5 +135,7 @@ cases:
     expected_output:
       result:
         forecast: [11.0, 12.0]
+      forecasting_uncertainty_bundle:
+        interval_semantics: "conformalized_prediction_interval"
     tolerances: {rtol: 0.2, atol: 2.0}
     tags: [univariate, deterministic]

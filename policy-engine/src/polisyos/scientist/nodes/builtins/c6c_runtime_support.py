@@ -19,30 +19,23 @@ from polisyos.core.contracts.foundry import (
     ProgramGraphRef,
 )
 from polisyos.foundry.methods.catalog.causal.strategic import (
-    build_strategic_response_bundle,
     solve_strategic_response,
     strategic_result_summary,
 )
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
+    abstraction_allowed_intervention_family,
+    abstraction_error_bound_spec,
+    abstraction_estimand_error_bounds,
+    abstraction_recommendation_margin_required,
     load_abstraction_certificate,
 )
 from polisyos.ir.analytics.strategic import (
-    EquilibriumSelectionSummary,
-    EquilibriumSetSummary,
     FiniteStrategicPayoffTable,
-    PerformativeShiftSummary,
-    PostAdaptationPolicyValueSummary,
-    StrategicClosureSummary,
     StrategicSCM,
     load_strategic_payoff_table,
-    persist_equilibrium_selection_summary,
-    persist_equilibrium_set_summary,
-    persist_performative_shift_summary,
-    persist_post_adaptation_policy_value_summary,
-    persist_strategic_closure_summary,
     persist_strategic_payoff_table,
-    persist_strategic_response_bundle,
+    persist_strategic_solve_artifacts,
     persist_strategic_scm,
 )
 from polisyos.ir.artifacts import InputRef as IRInputRef
@@ -443,91 +436,28 @@ def persist_runtime_strategic_artifacts(
             baseline_policy_value=baseline_policy_value,
             abstraction_certificate=abstraction_certificate,
             macro_payoff_tables=macro_payoff_tables,
-        )
-        closure_summary = StrategicClosureSummary(
-            fallback_mode=result.fallback_mode,
-            equilibrium_concept=normalized_contract.equilibrium_concept,
-            equilibrium_selection_dependence=result.equilibrium_selection_dependence,
-            profile_count=int(result.closure_summary.get("profile_count") or 0),
-            equilibrium_count=int(
-                result.closure_summary.get("equilibrium_count") or len(result.equilibrium_profiles)
-            ),
-            blocked_reason=result.blocked_reason,
-            warnings=result.warnings,
-            metadata={"run_id": state.run_id},
-        )
-        strategic_closure_ref = persist_strategic_closure_summary(
-            ctx.store,
-            closure_summary,
-            inputs=inputs,
-        )
-        equilibrium_set_ref = persist_equilibrium_set_summary(
-            ctx.store,
-            EquilibriumSetSummary(
-                equilibrium_profiles=tuple(dict(profile) for profile in result.equilibrium_profiles),
-                equilibrium_count=len(result.equilibrium_profiles),
-                multiplicity_note=result.multiplicity_note,
-                metadata={"run_id": state.run_id},
-            ),
-            inputs=inputs,
-        )
-        selected_equilibrium_ref = None
-        if result.selected_equilibrium is not None:
-            selected_equilibrium_ref = persist_equilibrium_selection_summary(
-                ctx.store,
-                EquilibriumSelectionSummary(
-                    selected_equilibrium=dict(result.selected_equilibrium),
-                    equilibrium_selection_dependence=result.equilibrium_selection_dependence,
-                    metadata={"run_id": state.run_id},
-                ),
-                inputs=inputs,
-            )
-        performative_shift_ref = None
-        if result.performative_shift is not None:
-            performative_shift_ref = persist_performative_shift_summary(
-                ctx.store,
-                PerformativeShiftSummary(
-                    performative_shift=float(result.performative_shift),
-                    baseline_policy_value=baseline_policy_value,
-                    post_adaptation_policy_value=result.post_adaptation_policy_value,
-                    metadata={"run_id": state.run_id},
-                ),
-                inputs=inputs,
-            )
-        post_adaptation_policy_value_ref = persist_post_adaptation_policy_value_summary(
-            ctx.store,
-            PostAdaptationPolicyValueSummary(
-                fallback_mode=result.fallback_mode,
-                baseline_policy_value=baseline_policy_value,
-                point_value=result.post_adaptation_policy_value if result.bounds is None else None,
-                lower_bound=None if result.bounds is None else float(result.bounds[0]),
-                upper_bound=None if result.bounds is None else float(result.bounds[1]),
-                blocked_reason=result.blocked_reason,
-                metadata={"run_id": state.run_id},
-            ),
-            inputs=inputs,
+            performative_loop_spec=state.params.get("performative_loop_spec"),
+            mean_field_inputs=state.params.get("mean_field_game"),
         )
         causal_component_ref = ArtifactRefModel.model_validate(causal_report_ref.model_dump(mode="json"))
-        bundle = build_strategic_response_bundle(
+        bundle, bundle_ref = persist_strategic_solve_artifacts(
+            ctx.store,
             causal_component_ref=causal_component_ref,
-            strategic_closure_ref=strategic_closure_ref,
-            equilibrium_set_ref=equilibrium_set_ref,
-            post_adaptation_policy_value_ref=post_adaptation_policy_value_ref,
-            selected_equilibrium_ref=selected_equilibrium_ref,
-            performative_shift_ref=performative_shift_ref,
             result=result,
-        ).model_copy(
-            update={
-                "metadata": {
-                    **dict(result.closure_summary),
-                    "run_id": state.run_id,
-                    "strategic_scm_ref": strategic_scm_ref.model_dump(mode="json"),
-                }
-            }
+            equilibrium_concept=normalized_contract.equilibrium_concept,
+            equilibrium_descriptor=normalized_contract.equilibrium_descriptor,
+            baseline_policy_value=baseline_policy_value,
+            inputs=inputs,
+            metadata={
+                "run_id": state.run_id,
+                "strategic_scm_ref": strategic_scm_ref.model_dump(mode="json"),
+            },
+            mfg_equilibrium_certificate=result.mfg_equilibrium_certificate,
+            mfg_macro_simulation_config=result.mfg_macro_simulation_config,
+            mfg_solver_residual_report=result.mfg_solver_residual_report,
+            mfg_mass_conservation_report=result.mfg_mass_conservation_report,
         )
-        strategic_response_bundle_ref = ArtifactRef.model_validate(
-            persist_strategic_response_bundle(ctx.store, bundle, inputs=inputs).model_dump(mode="json")
-        )
+        strategic_response_bundle_ref = ArtifactRef.model_validate(bundle_ref.model_dump(mode="json"))
         summary = strategic_result_summary(result)
         summary.update(
             {
@@ -546,10 +476,32 @@ def persist_runtime_strategic_artifacts(
                     if bundle.selected_equilibrium_ref is None
                     else bundle.selected_equilibrium_ref.model_dump(mode="json")
                 ),
+                "mfg_equilibrium_ref": (
+                    None
+                    if bundle.mfg_equilibrium_ref is None
+                    else bundle.mfg_equilibrium_ref.model_dump(mode="json")
+                ),
                 "performative_shift_ref": (
                     None
                     if bundle.performative_shift_ref is None
                     else bundle.performative_shift_ref.model_dump(mode="json")
+                ),
+                "decomposition_status": bundle.decomposition_status.value,
+                "decomposition_semantics": bundle.decomposition_semantics.value,
+                "decomposition_certificate_ref": (
+                    None
+                    if bundle.decomposition_certificate_ref is None
+                    else bundle.decomposition_certificate_ref.model_dump(mode="json")
+                ),
+                "decomposition_failure_card_ref": (
+                    None
+                    if bundle.decomposition_failure_card_ref is None
+                    else bundle.decomposition_failure_card_ref.model_dump(mode="json")
+                ),
+                "anchor_equilibrium_ref": (
+                    None
+                    if bundle.anchor_equilibrium_ref is None
+                    else bundle.anchor_equilibrium_ref.model_dump(mode="json")
                 ),
             }
         )
@@ -607,6 +559,13 @@ def build_blocked_strategic_summary(
         "equilibrium_selection_dependence": "runtime_precondition_blocked",
         "multiplicity_note": None,
         "blocked_reason": str(blocked_reason),
+        "decomposition_status": "blocked",
+        "decomposition_semantics": "frozen_baseline_strategy",
+        "decomposition_failure_code": "decomposition_no_equilibrium",
+        "decomposition_message": (
+            "Strategic runtime did not produce a decomposition certificate that would "
+            "license separate causal and strategic components."
+        ),
         "closure_summary": {
             "mode": "blocked",
             "blocked_reason": str(blocked_reason),
@@ -681,6 +640,27 @@ def build_runtime_abstraction_metadata(
         certificate = load_runtime_abstraction_certificate(ctx, artifacts_index)
         if certificate is not None:
             metadata["abstraction_preservation_type"] = certificate.preservation_type.value
+            metadata["abstraction_preserved_queries"] = list(certificate.preserved_queries)
+            if certificate.error_bound is not None:
+                metadata["abstraction_error_bound"] = float(certificate.error_bound)
+            allowed_intervention_family = abstraction_allowed_intervention_family(certificate)
+            if allowed_intervention_family is not None:
+                metadata["abstraction_allowed_intervention_family"] = (
+                    allowed_intervention_family
+                )
+            estimand_error_bounds = abstraction_estimand_error_bounds(certificate)
+            if estimand_error_bounds:
+                metadata["abstraction_estimand_error_bounds"] = estimand_error_bounds
+            error_bound_spec = abstraction_error_bound_spec(certificate)
+            if error_bound_spec:
+                metadata["abstraction_error_bound_spec"] = error_bound_spec
+            recommendation_margin_required = abstraction_recommendation_margin_required(
+                certificate
+            )
+            if recommendation_margin_required is not None:
+                metadata["abstraction_recommendation_margin_required"] = (
+                    recommendation_margin_required
+                )
     return metadata
 
 

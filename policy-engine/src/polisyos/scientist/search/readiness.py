@@ -224,10 +224,13 @@ class DecisionReadinessEvaluator:
         readiness_cap_reason = None
         promotable_source = bool(runtime_metadata.get("promotable_source", True))
         degradation_mode = str(runtime_metadata.get("degradation_mode") or "").strip().lower()
+        latent_readiness_cap = _resolve_latent_governance_readiness_cap(latent_governance)
         if latent_resolution_error is not None:
             readiness_cap_reason = "latent_discovery_bundle_unreadable"
-        elif latent_governance is not None:
+        elif latent_readiness_cap == "proof_only":
             readiness_cap_reason = "latent_discovery_proof_only"
+        elif latent_readiness_cap == "bounds_ready" and claim_mode == "estimation":
+            readiness_cap_reason = "latent_discovery_bounds_only"
         elif not promotable_source:
             readiness_cap_reason = "evaluation_source_not_promotable"
         elif degradation_mode in {"research_only", "no_promotion"}:
@@ -333,6 +336,19 @@ class DecisionReadinessEvaluator:
             metadata["not_for_decision_support"] = bool(
                 latent_governance.get("not_for_decision_support", True)
             )
+            latent_metadata = latent_governance.get("metadata")
+            if isinstance(latent_metadata, dict):
+                trust_level = latent_metadata.get("trust_level")
+                if trust_level is not None:
+                    metadata["latent_trust_level"] = str(trust_level)
+                resolution_label = latent_metadata.get("resolution_label")
+                if resolution_label is not None:
+                    metadata["latent_resolution_label"] = str(resolution_label)
+                separated_pairs = latent_metadata.get("separated_pairs")
+                if isinstance(separated_pairs, list):
+                    metadata["latent_separated_pairs"] = [
+                        str(value) for value in separated_pairs
+                    ]
         if latent_resolution_error is not None:
             metadata["latent_discovery_resolution_error"] = dict(latent_resolution_error)
         if readiness_cap is not None:
@@ -463,8 +479,12 @@ def _resolve_readiness_cap(
 ) -> DecisionReadiness | None:
     if _resolve_latent_discovery_resolution_error(evidence_metadata) is not None:
         return DecisionReadiness.RESEARCH_ARTIFACT
-    if _resolve_latent_governance(evidence_metadata) is not None:
+    latent_governance = _resolve_latent_governance(evidence_metadata)
+    latent_readiness_cap = _resolve_latent_governance_readiness_cap(latent_governance)
+    if latent_readiness_cap == "proof_only":
         return DecisionReadiness.RESEARCH_ARTIFACT
+    if latent_readiness_cap == "bounds_ready" and claim_mode == "estimation":
+        return DecisionReadiness.ANALYST_ADVISORY
     promotable_source = bool(evidence_metadata.get("promotable_source", True))
     degradation_mode = str(evidence_metadata.get("degradation_mode") or "").strip().lower()
     if not promotable_source:
@@ -488,6 +508,17 @@ def _resolve_latent_governance(
     if not isinstance(payload, dict) or not payload.get("active", False):
         return None
     return payload
+
+
+def _resolve_latent_governance_readiness_cap(
+    payload: dict[str, object] | None,
+) -> Literal["proof_only", "bounds_ready", "estimation_ready"] | None:
+    if not isinstance(payload, dict):
+        return None
+    cap = str(payload.get("readiness_cap") or "").strip().lower()
+    if cap in {"proof_only", "bounds_ready", "estimation_ready"}:
+        return cap
+    return None
 
 
 def _resolve_latent_discovery_resolution_error(

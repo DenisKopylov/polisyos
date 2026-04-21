@@ -47,7 +47,10 @@ from typing import Any, Mapping
 from uuid import UUID
 
 from polisyos.foundry.methods._logging import get_foundry_logger
-from polisyos.foundry.methods.backends.chain_executor import ChainExecutionResult
+from polisyos.foundry.methods.backends.chain_executor import (
+    ChainExecutionResult,
+    _build_level_parallel_reproducibility_contract,
+)
 from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import MethodResult
@@ -223,6 +226,10 @@ class AsyncChainExecutor:
         return ChainExecutionResult(
             final_state=state,
             node_results=tuple(all_node_results),
+            reproducibility_contract=_build_level_parallel_reproducibility_contract(
+                levels,
+                all_node_results,
+            ),
         )
 
     # ------------------------------------------------------------------

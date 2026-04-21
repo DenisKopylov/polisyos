@@ -374,6 +374,75 @@ class EstimandNormalizationPass(IRAnalysis):
         )
 
 
+class KernelLoweringPass(IRAnalysis):
+    """Build a typed RKHS lowering contract after estimand normalization."""
+
+    name = "kernel_lowering"
+    reads = ("normalized_estimand_ast", "estimand_ast")
+
+    def run(self, context: PassContext) -> PassResult:
+        raw_estimand = context.get("normalized_estimand_ast") or context.get("estimand_ast")
+        if raw_estimand is None:
+            return PassResult.noop()
+        estimand = (
+            raw_estimand
+            if isinstance(raw_estimand, EstimandAST)
+            else EstimandAST.model_validate(raw_estimand)
+        )
+        lowering_metadata = dict(context.get("kernel_lowering_metadata") or {})
+
+        from polisyos.foundry.methods.catalog.causal.estimand_compiler import classify_estimand
+        from polisyos.foundry.methods.catalog.causal.kernel_lowering import (
+            build_kernel_estimator_spec,
+            should_request_kernel_lowering,
+        )
+
+        if not should_request_kernel_lowering(estimand, lowering_metadata):
+            return PassResult.noop()
+
+        shape = context.get("estimand_shape")
+        shape_value = (
+            shape.value
+            if hasattr(shape, "value")
+            else str(shape).strip().lower()
+            if shape is not None
+            else classify_estimand(estimand).value
+        )
+        kernel_spec = build_kernel_estimator_spec(
+            estimand,
+            shape=shape_value,
+            identification_metadata=lowering_metadata,
+        )
+        severity = "info"
+        if kernel_spec.lowering_disposition.value == "representation_only":
+            severity = "warning"
+        elif kernel_spec.lowering_disposition.value != "ready":
+            severity = "error"
+        diagnostics = [
+            PassDiagnostic(
+                code="kernel_lowering_compiled",
+                severity=severity,
+                message=(
+                    f"kernel lowering {kernel_spec.lowering_disposition.value} "
+                    f"for template {kernel_spec.template.value}"
+                ),
+                data={
+                    "template": kernel_spec.template.value,
+                    "target_representation": kernel_spec.target_representation.value,
+                    "blocking_reasons": list(kernel_spec.blocking_reasons),
+                },
+            )
+        ]
+        return PassResult(
+            analysis_updates={
+                "kernel_estimator_spec": kernel_spec,
+                "kernel_lowering_disposition": kernel_spec.lowering_disposition.value,
+                "kernel_estimator_template": kernel_spec.template.value,
+            },
+            diagnostics=_sorted_diagnostics(diagnostics),
+        )
+
+
 class SlotMechanismReachabilityPass(IRAnalysis):
     """Compute reachability between linked mechanisms and runtime slots."""
 
@@ -509,6 +578,7 @@ __all__ = [
     "ArtifactRefTypeCheckResult",
     "CrossModelTypeCheckPass",
     "EstimandNormalizationPass",
+    "KernelLoweringPass",
     "RegistryDependencyPass",
     "SlotMechanismReachability",
     "SlotMechanismReachabilityPass",

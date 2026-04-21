@@ -15,6 +15,11 @@ class ValidationIssue(BaseModel):
     message: str
     error_type: str
     input_value: Optional[Any] = None
+    path: Optional[str] = None
+    code: Optional[str] = None
+    expected: Optional[Any] = None
+    actual: Optional[Any] = None
+    severity: Optional[str] = None
     model_config = ConfigDict(extra="forbid")
 
 
@@ -24,6 +29,7 @@ class ValidationReport(BaseModel):
     issues: List[ValidationIssue]
     repair_attempt: Optional[str] = None
     diff_before_after: Optional[str] = None
+    normalized_payload: Optional[dict[str, Any]] = None
     generated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     model_config = ConfigDict(extra="forbid")
 
@@ -58,6 +64,10 @@ def issues_from_validation_error(error: ValidationError) -> List[ValidationIssue
                 message=entry.get("msg", ""),
                 error_type=entry.get("type", ""),
                 input_value=entry.get("input"),
+                path=".".join(str(part) for part in loc),
+                code=entry.get("type", ""),
+                actual=entry.get("input"),
+                severity="error",
             )
         )
     return issues

@@ -1,0 +1,279 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "InterventionProgram": {
+      "additionalProperties": false,
+      "description": "A concrete intervention ``a`` used as a representative of a class ``[a]``.",
+      "properties": {
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/PrimitiveAction"
+          },
+          "minItems": 0,
+          "title": "Actions",
+          "type": "array"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "actions"
+      ],
+      "title": "InterventionProgram",
+      "type": "object"
+    },
+    "OptimalRecourseInterventionQueryRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for a persisted ``OptimalRecourseInterventionQuery``.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.optimal_recourse_intervention_query",
+          "default": "ir.optimal_recourse_intervention_query",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "OptimalRecourseInterventionQueryRef",
+      "type": "object"
+    },
+    "PrimitiveAction": {
+      "additionalProperties": false,
+      "description": "One primitive action in an intervention program.",
+      "properties": {
+        "channel": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Channel"
+        },
+        "node": {
+          "title": "Node",
+          "type": "string"
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        },
+        "target_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Value"
+        }
+      },
+      "required": [
+        "node"
+      ],
+      "title": "PrimitiveAction",
+      "type": "object"
+    },
+    "RecourseFeasibilityCertificateRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for a persisted recourse feasibility certificate.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.recourse_feasibility_certificate",
+          "default": "ir.recourse_feasibility_certificate",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "RecourseFeasibilityCertificateRef",
+      "type": "object"
+    },
+    "RecourseProofBundleRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for a persisted recourse-specific proof bundle.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.recourse_proof_bundle",
+          "default": "ir.recourse_proof_bundle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "RecourseProofBundleRef",
+      "type": "object"
+    },
+    "RecourseReadinessCap": {
+      "description": "Readiness cap inherited from the recoverability status.",
+      "enum": [
+        "PROOF_ONLY",
+        "BOUNDS_READY",
+        "ESTIMATION_READY"
+      ],
+      "title": "RecourseReadinessCap",
+      "type": "string"
+    },
+    "RecourseSolverStatus": {
+      "description": "Planner termination status in the execution layer.",
+      "enum": [
+        "exact",
+        "epsilon_optimal",
+        "heuristic",
+        "blocked_nonrecoverable",
+        "blocked_infeasible"
+      ],
+      "title": "RecourseSolverStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Planner output for an optimal-recourse query.\n\nContains the selected action, its achieved cost and success value, a link\nto the feasibility certificate, the solver-reported status, and the\nreadiness cap inherited from the proof bundle.",
+  "properties": {
+    "achieved_cost": {
+      "minimum": 0.0,
+      "title": "Achieved Cost",
+      "type": "number"
+    },
+    "achieved_success_value": {
+      "title": "Achieved Success Value",
+      "type": "number"
+    },
+    "action": {
+      "$ref": "#/$defs/InterventionProgram"
+    },
+    "blocked_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Blocked Reason"
+    },
+    "candidate_supports_explored": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Candidate Supports Explored"
+    },
+    "feasibility_certificate_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RecourseFeasibilityCertificateRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "proof_ref": {
+      "$ref": "#/$defs/RecourseProofBundleRef"
+    },
+    "query_ref": {
+      "$ref": "#/$defs/OptimalRecourseInterventionQueryRef"
+    },
+    "readiness_cap": {
+      "$ref": "#/$defs/RecourseReadinessCap"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "solver_status": {
+      "$ref": "#/$defs/RecourseSolverStatus"
+    }
+  },
+  "required": [
+    "query_ref",
+    "proof_ref",
+    "action",
+    "achieved_cost",
+    "achieved_success_value",
+    "solver_status",
+    "readiness_cap"
+  ],
+  "title": "OptimalRecourseInterventionBundle",
+  "type": "object"
+}

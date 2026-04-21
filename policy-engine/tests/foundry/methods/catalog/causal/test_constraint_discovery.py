@@ -186,6 +186,31 @@ def _auto_trek_rank_state(n_samples: int = 1200, seed: int = 37) -> TabularCausa
     )
 
 
+def _binary_iv_compatible_state(n_samples: int = 4000, seed: int = 41) -> TabularCausalDiscoveryData:
+    rng = np.random.default_rng(seed)
+    z = rng.integers(0, 2, size=n_samples)
+    u = rng.integers(0, 2, size=n_samples)
+    d = (z | u).astype(float)
+    y = (d.astype(int) | u).astype(float)
+    return TabularCausalDiscoveryData(
+        data=np.column_stack([z, d, y]).astype(float),
+        variable_names=["Z", "D", "Y"],
+    )
+
+
+def _binary_iv_incompatible_state() -> TabularCausalDiscoveryData:
+    rows: list[list[float]] = []
+    rows.extend([[1.0, 0.0, 0.0]] * 360)
+    rows.extend([[1.0, 1.0, 0.0]] * 20)
+    rows.extend([[1.0, 1.0, 1.0]] * 20)
+    rows.extend([[0.0, 0.0, 1.0]] * 260)
+    rows.extend([[0.0, 1.0, 0.0]] * 140)
+    return TabularCausalDiscoveryData(
+        data=np.asarray(rows, dtype=float),
+        variable_names=["Z", "D", "Y"],
+    )
+
+
 def test_pc_discovery_graceful_fallback_on_missing_backend(monkeypatch) -> None:
     def _fake_runner(**kwargs):
         del kwargs
@@ -438,6 +463,51 @@ def test_ci_violation_escalates_to_blocker(monkeypatch) -> None:
     assert "ci" in report.metadata["algebraic_constraint_families_run"]
 
 
+def test_ci_violation_carries_dp_calibration_metadata(monkeypatch, tmp_path) -> None:
+    x = np.tile(np.array([0.0, 1.0]), 200)
+    y = x.copy()
+    state = TabularCausalDiscoveryData(
+        data=np.column_stack([x, y]),
+        variable_names=["X", "Y"],
+    )
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=np.zeros((2, 2), dtype=int),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={
+            "timeout_seconds": 30,
+            "dp_context": {
+                "mechanism": "gaussian_counts",
+                "epsilon": 0.6,
+                "delta": 1e-6,
+            },
+            "judge_threshold_registry_root": str(tmp_path),
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    violation = next(
+        item
+        for item in report.algebraic_constraints.violated_constraints_preview
+        if item.family is AlgebraicConstraintFamily.CI
+    )
+    assert violation.metadata["route"] == "g_test"
+    assert violation.metadata["ci_test_impl"] == "categorical_ci"
+    assert violation.metadata["calibration_mode"] == "analytic_weighted_chi2"
+    assert violation.metadata["dp_context_summary"]["mechanism"] == "gaussian_counts"
+    assert violation.metadata["threshold_registry_scope"]["family"] == "categorical_ci"
+
+
 def test_malformed_algebraic_blocks_are_rejected() -> None:
     with pytest.raises(ValueError):
         PCDiscovery.pure_step(
@@ -518,6 +588,20 @@ def test_tetrad_block_flags_two_factor_violation(monkeypatch) -> None:
     assert report.algebraic_constraints is not None
     assert report.algebraic_constraints.violated_by_family["tetrad"] >= 1
     assert report.algebraic_constraints.severity == "warning"
+    violation = report.algebraic_constraints.violated_constraints_preview[0]
+    metrics = violation.metadata["block_calibration_metrics"]
+    decision = violation.metadata["severity_decision"]
+    assert set(metrics) >= {
+        "min_q",
+        "max_abs_z",
+        "median_delta",
+        "violation_support",
+        "effective_n",
+        "bootstrap_draws",
+    }
+    assert metrics["bootstrap_draws"] == constraint_module._ALGEBRAIC_BOOTSTRAP_DRAWS
+    assert decision["severity"] == "warning"
+    assert "bootstrap_draws_below_blocker_floor" in decision["blocker_eligibility_failures"]
 
 
 def test_overcomplete_block_passes_for_low_rank_data(monkeypatch) -> None:
@@ -763,6 +847,86 @@ def test_algebraic_geometry_invariant_block_is_ranking_only_info_signal(monkeypa
     )
     assert geometry_violation.scope_of_falsification.value == "ranking_only"
     assert geometry_violation.reproducibility_tier.value == "research_preview"
+
+
+def test_binary_iv_algebraic_geometry_block_passes_on_compatible_data(monkeypatch) -> None:
+    state = _binary_iv_compatible_state()
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_adj_without_edges(),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "iv_binary",
+                    "family": "algebraic_geometry_invariant",
+                    "variables": ["Z", "D", "Y"],
+                    "derivation_method": "iv_binary_response_polytope",
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert report.algebraic_constraints.tested_by_family["algebraic_geometry_invariant"] == 4
+    assert report.algebraic_constraints.violated_by_family["algebraic_geometry_invariant"] == 0
+    assert report.algebraic_constraints.blocker_conditions_met_by_family["algebraic_geometry_invariant"] is False
+
+
+def test_binary_iv_algebraic_geometry_block_emits_graph_class_blocker(monkeypatch) -> None:
+    state = _binary_iv_incompatible_state()
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_adj_without_edges(),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "iv_binary",
+                    "family": "algebraic_geometry_invariant",
+                    "variables": ["Z", "D", "Y"],
+                    "derivation_method": "iv_binary_response_polytope",
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert report.algebraic_constraints.severity == "blocker"
+    assert report.algebraic_constraints.tested_by_family["algebraic_geometry_invariant"] == 4
+    assert report.algebraic_constraints.violated_by_family["algebraic_geometry_invariant"] >= 1
+    assert report.algebraic_constraints.blocker_conditions_met_by_family["algebraic_geometry_invariant"] is True
+    geometry_violation = next(
+        violation
+        for violation in report.algebraic_constraints.violated_constraints_preview
+        if violation.family is AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT
+    )
+    assert geometry_violation.scope_of_falsification.value == "graph_class"
+    assert geometry_violation.severity == "blocker"
+    assert geometry_violation.metadata["route"] == "binary_iv_instrumental_inequalities"
+    assert geometry_violation.metadata["negative_certificate"]["blocking_type"] == "model_class_incompatible"
 
 
 def test_nested_verma_block_is_recorded_as_research_preview(monkeypatch) -> None:

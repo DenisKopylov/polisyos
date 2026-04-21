@@ -163,6 +163,11 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                 ],
             ),
             NodeInvocation(
+                alias="run_metric_validation",
+                node_id="scientist.node_run_metric_validation@1.0.0",
+                depends_on=["run_simulation"],
+            ),
+            NodeInvocation(
                 alias="legal_check",
                 node_id="scientist.node_legal_check@1.0.1",
                 depends_on=["run_simulation"],
@@ -254,6 +259,7 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                 depends_on=[
                     "build_verified_policy_report",
                     "build_policy_output_bundle",
+                    "run_metric_validation",
                 ],
             ),
         ],

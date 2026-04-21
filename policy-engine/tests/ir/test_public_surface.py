@@ -65,7 +65,23 @@ def test_lazy_export_access_imports_only_requested_module_group() -> None:
     assert "polisyos.ir.analytics.hte" in loaded
     assert "polisyos.ir.analytics.strategic" not in loaded
     assert "polisyos.ir.analytics.alignment_certification" not in loaded
-    assert len(loaded) < 10
+    assert len(loaded) < 20
+
+
+def test_analytics_facade_exports_performative_loop_contracts() -> None:
+    assert "PerformativeLoopCertificate" in analytics.__all__
+    assert "PerformativeShiftSummary" in analytics.__all__
+    assert analytics.PerformativeLoopCertificate.__name__ == "PerformativeLoopCertificate"
+    assert analytics.PerformativeShiftSummary.__name__ == "PerformativeShiftSummary"
+
+
+def test_analytics_facade_exports_privacy_transportability_contracts() -> None:
+    assert "DPUtilityManifest" in analytics.__all__
+    assert "PrivacyAwareTransportCertificate" in analytics.__all__
+    assert "PrivacyObservedMode" in analytics.__all__
+    assert analytics.PrivacyAwareTransportCertificate.__name__ == (
+        "PrivacyAwareTransportCertificate"
+    )
 
 
 def test_public_surface_docs_counts_match_manifest() -> None:

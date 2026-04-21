@@ -18,7 +18,19 @@ from polisyos.foundry.methods.base import (
     MethodMetadata,
     MethodSignature,
 )
+from polisyos.foundry.methods.equivalence import (
+    ComparatorKind,
+    CrossBackendEquivalenceCertificate,
+    get_default_equivalence_resolver,
+    FieldToleranceSpec,
+    InMemoryEquivalenceCertificateRegistry,
+    reset_default_equivalence_resolver,
+    runtime_envelope_from_results,
+    set_default_equivalence_resolver,
+)
 from polisyos.foundry.methods.selection_history import (
+    ADVISOR_EXECUTION_CONTEXT_PARAM,
+    AdvisorExecutionContext,
     MethodExecutionRecord,
     SelectionHistoryStore,
     get_global_selection_history,
@@ -58,10 +70,12 @@ class _RecordingRunner(MethodRunner):
         *,
         fail: bool = False,
         error: Exception | None = None,
+        equivalence_ref: str | None = None,
     ) -> None:
         self._backend = backend
         self._fail = fail
         self._error = error
+        self._equivalence_ref = equivalence_ref
         self.calls: list[ComputeBackend] = []
 
     @property
@@ -93,6 +107,7 @@ class _RecordingRunner(MethodRunner):
                 determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
                 seed=seed,
             ),
+            cross_backend_equivalence_ref=self._equivalence_ref,
         )
 
 
@@ -155,10 +170,12 @@ def _reset_runtime_globals() -> None:
     MethodDispatcher.reset_instance()
     CircuitBreakerRegistry.reset_instance()
     get_global_selection_history().clear()
+    reset_default_equivalence_resolver()
     yield
     MethodDispatcher.reset_instance()
     CircuitBreakerRegistry.reset_instance()
     get_global_selection_history().clear()
+    reset_default_equivalence_resolver()
 
 
 def _history_with_numpy_advantage() -> SelectionHistoryStore:
@@ -229,6 +246,9 @@ def test_dispatcher_emits_dispatch_trace_and_cost_attribution(monkeypatch) -> No
 
     assert result.artifacts["dispatch_trace"]["selected_backend"] == "numpy"
     assert result.artifacts["dispatch_trace"]["selection_reason"] == "runtime_profile_fallback_preferred"
+    assert result.artifacts["dispatch_trace"]["declared_route_budget"]["route_key"]["backend_route"] == "jax"
+    assert result.artifacts["dispatch_trace"]["observed_route_budget"]["route_key"]["backend_route"] == "jax->numpy_fallback"
+    assert result.artifacts["dispatch_trace"]["observed_route_budget"]["validation_status"] == "degraded"
     assert result.artifacts["cost_attribution"]["backend"] == "numpy"
     assert result.artifacts["cost_attribution"]["estimated_cost_usd"] > 0.0
     assert tracer.spans[0].attributes["span_name"] == "foundry.method.dispatch"
@@ -236,6 +256,7 @@ def test_dispatcher_emits_dispatch_trace_and_cost_attribution(monkeypatch) -> No
     assert tracer.spans[0].attributes["foundry.determinism_tier"] == "library_deterministic"
     assert metrics.slo_run_cost_usd.calls
     assert metrics.degraded_paths == []
+    assert "dispatch_contract_degraded:jax->numpy" in result.warnings
 
 
 def test_dispatcher_retries_declared_backend_when_profile_selected_backend_fails() -> None:
@@ -258,6 +279,269 @@ def test_dispatcher_retries_declared_backend_when_profile_selected_backend_fails
     assert numpy_runner.calls == [ComputeBackend.NUMPY]
     assert jax_runner.calls == [ComputeBackend.JAX]
     assert result.warnings == ()
+
+
+def test_dispatcher_preserves_cross_backend_equivalence_ref() -> None:
+    dispatcher = MethodDispatcher(enable_runtime_selection=False)
+    jax_runner = _RecordingRunner(
+        ComputeBackend.JAX,
+        equivalence_ref="sha256:" + "a" * 64,
+    )
+    dispatcher.register_runner(jax_runner)
+
+    result = dispatcher.dispatch(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=3,
+    )
+
+    assert result.cross_backend_equivalence_ref == "sha256:" + "a" * 64
+
+
+def test_dispatcher_attaches_resolved_cross_backend_equivalence_certificate() -> None:
+    history = _history_with_numpy_advantage()
+    numpy_runner = _RecordingRunner(ComputeBackend.NUMPY)
+    jax_runner = _RecordingRunner(ComputeBackend.JAX)
+    source_result = numpy_runner.execute(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=11,
+    )
+    target_result = jax_runner.execute(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=11,
+    )
+    registry = InMemoryEquivalenceCertificateRegistry()
+    registry.register(
+        certificate_ref="sha256:" + "b" * 64,
+        attestation_ref="sha256:" + "c" * 64,
+        certificate=CrossBackendEquivalenceCertificate(
+            certificate_id="xbeq:test:dispatch",
+            method_fqn=_DummyMethod.signature.fqn,
+            runtime_envelope=runtime_envelope_from_results(
+                source_result=source_result,
+                target_result=target_result,
+            ),
+            field_specs=(
+                FieldToleranceSpec(
+                    path="output.backend",
+                    comparator=ComparatorKind.EXACT,
+                ),
+            ),
+        ),
+    )
+    dispatcher = MethodDispatcher(
+        runtime_history=history,
+        equivalence_resolver=registry,
+    )
+    dispatcher.register_runner(_RecordingRunner(ComputeBackend.JAX))
+    dispatcher.register_runner(_RecordingRunner(ComputeBackend.NUMPY))
+
+    result = dispatcher.dispatch(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((64, 4))},
+        params={},
+        seed=11,
+    )
+
+    assert result.output["backend"] == "numpy"
+    assert result.cross_backend_equivalence_ref == "sha256:" + "b" * 64
+    assert result.artifacts["cross_backend_equivalence"]["attestation_ref"] == "sha256:" + "c" * 64
+
+
+def test_dispatcher_default_singleton_uses_global_equivalence_resolver() -> None:
+    history = _history_with_numpy_advantage()
+    numpy_runner = _RecordingRunner(ComputeBackend.NUMPY)
+    jax_runner = _RecordingRunner(ComputeBackend.JAX)
+    source_result = numpy_runner.execute(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=21,
+    )
+    target_result = jax_runner.execute(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=21,
+    )
+    registry = InMemoryEquivalenceCertificateRegistry()
+    registry.register(
+        certificate_ref="sha256:" + "d" * 64,
+        certificate=CrossBackendEquivalenceCertificate(
+            certificate_id="xbeq:test:default-path",
+            method_fqn=_DummyMethod.signature.fqn,
+            runtime_envelope=runtime_envelope_from_results(
+                source_result=source_result,
+                target_result=target_result,
+            ),
+            field_specs=(
+                FieldToleranceSpec(
+                    path="output.backend",
+                    comparator=ComparatorKind.EXACT,
+                ),
+            ),
+        ),
+    )
+    set_default_equivalence_resolver(registry)
+
+    dispatcher = MethodDispatcher.get_instance()
+    dispatcher._runtime_history = history
+    dispatcher.register_runner(_RecordingRunner(ComputeBackend.JAX))
+    dispatcher.register_runner(_RecordingRunner(ComputeBackend.NUMPY))
+
+    result = dispatcher.dispatch(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((64, 4))},
+        params={},
+        seed=21,
+    )
+
+    assert get_default_equivalence_resolver() is registry
+    assert result.output["backend"] == "numpy"
+    assert result.cross_backend_equivalence_ref == "sha256:" + "d" * 64
+
+
+def test_dispatcher_explicit_equivalence_resolver_overrides_global_default() -> None:
+    history = _history_with_numpy_advantage()
+    numpy_runner = _RecordingRunner(ComputeBackend.NUMPY)
+    jax_runner = _RecordingRunner(ComputeBackend.JAX)
+    source_result = numpy_runner.execute(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=23,
+    )
+    target_result = jax_runner.execute(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=23,
+    )
+    global_registry = InMemoryEquivalenceCertificateRegistry()
+    global_registry.register(
+        certificate_ref="sha256:" + "e" * 64,
+        certificate=CrossBackendEquivalenceCertificate(
+            certificate_id="xbeq:test:global",
+            method_fqn="other.method@1.0.0",
+            runtime_envelope=runtime_envelope_from_results(
+                source_result=source_result,
+                target_result=target_result,
+            ),
+            field_specs=(
+                FieldToleranceSpec(
+                    path="output.backend",
+                    comparator=ComparatorKind.EXACT,
+                ),
+            ),
+        ),
+    )
+    explicit_registry = InMemoryEquivalenceCertificateRegistry()
+    explicit_registry.register(
+        certificate_ref="sha256:" + "f" * 64,
+        certificate=CrossBackendEquivalenceCertificate(
+            certificate_id="xbeq:test:explicit",
+            method_fqn=_DummyMethod.signature.fqn,
+            runtime_envelope=runtime_envelope_from_results(
+                source_result=source_result,
+                target_result=target_result,
+            ),
+            field_specs=(
+                FieldToleranceSpec(
+                    path="output.backend",
+                    comparator=ComparatorKind.EXACT,
+                ),
+            ),
+        ),
+    )
+    set_default_equivalence_resolver(global_registry)
+
+    dispatcher = MethodDispatcher(
+        runtime_history=history,
+        equivalence_resolver=explicit_registry,
+    )
+    dispatcher.register_runner(_RecordingRunner(ComputeBackend.JAX))
+    dispatcher.register_runner(_RecordingRunner(ComputeBackend.NUMPY))
+
+    result = dispatcher.dispatch(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((64, 4))},
+        params={},
+        seed=23,
+    )
+
+    assert result.cross_backend_equivalence_ref == "sha256:" + "f" * 64
+
+
+def test_dispatcher_preserves_existing_equivalence_ref_when_global_resolver_matches() -> None:
+    history = _history_with_numpy_advantage()
+    numpy_runner = _RecordingRunner(
+        ComputeBackend.NUMPY,
+        equivalence_ref="sha256:" + "1" * 64,
+    )
+    jax_runner = _RecordingRunner(ComputeBackend.JAX)
+    source_result = numpy_runner.execute(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=25,
+    )
+    target_result = jax_runner.execute(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=25,
+    )
+    registry = InMemoryEquivalenceCertificateRegistry()
+    registry.register(
+        certificate_ref="sha256:" + "2" * 64,
+        certificate=CrossBackendEquivalenceCertificate(
+            certificate_id="xbeq:test:preserve-existing",
+            method_fqn=_DummyMethod.signature.fqn,
+            runtime_envelope=runtime_envelope_from_results(
+                source_result=source_result,
+                target_result=target_result,
+            ),
+            field_specs=(
+                FieldToleranceSpec(
+                    path="output.backend",
+                    comparator=ComparatorKind.EXACT,
+                ),
+            ),
+        ),
+    )
+    set_default_equivalence_resolver(registry)
+
+    dispatcher = MethodDispatcher(runtime_history=history)
+    dispatcher.register_runner(jax_runner)
+    dispatcher.register_runner(numpy_runner)
+
+    result = dispatcher.dispatch(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((64, 4))},
+        params={},
+        seed=25,
+    )
+
+    assert result.output["backend"] == "numpy"
+    assert result.cross_backend_equivalence_ref == "sha256:" + "1" * 64
 
 
 def test_dispatcher_records_degraded_recovery_when_profile_backend_fails(monkeypatch) -> None:
@@ -311,3 +595,51 @@ def test_dispatcher_fail_closes_on_unclassified_profile_backend_error() -> None:
 
     assert numpy_runner.calls == [ComputeBackend.NUMPY]
     assert jax_runner.calls == []
+
+
+def test_dispatcher_records_advisor_execution_context_in_runtime_history() -> None:
+    history = SelectionHistoryStore()
+    dispatcher = MethodDispatcher(
+        runtime_history=history,
+        enable_runtime_selection=False,
+    )
+    jax_runner = _RecordingRunner(ComputeBackend.JAX)
+    dispatcher.register_runner(jax_runner)
+
+    result = dispatcher.dispatch(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={
+            ADVISOR_EXECUTION_CONTEXT_PARAM: AdvisorExecutionContext(
+                query_fingerprint="query-abc",
+                loss_profile_id="coverage_strict",
+                candidate_fqns=(
+                    _DummyMethod.signature.fqn,
+                    "tests.dispatch.alternative@1.0.0",
+                ),
+                selected_rank=1,
+                selection_propensity=0.5,
+                advisor_score_vector={
+                    _DummyMethod.signature.fqn: 12.0,
+                    "tests.dispatch.alternative@1.0.0": 11.2,
+                },
+                shadow_loss_estimates={"tests.dispatch.alternative@1.0.0": 0.2},
+            ).model_dump(mode="json")
+        },
+        seed=5,
+    )
+
+    assert result.output["backend"] == "jax"
+    record = history.latest_record_for(_DummyMethod.signature.fqn)
+    assert record is not None
+    assert record.query_fingerprint == "query-abc"
+    assert record.loss_profile_id == "coverage_strict"
+    assert record.candidate_fqns == (
+        _DummyMethod.signature.fqn,
+        "tests.dispatch.alternative@1.0.0",
+    )
+    assert record.selected_rank == 1
+    assert record.selection_propensity == pytest.approx(0.5)
+    assert record.advisor_score_vector["tests.dispatch.alternative@1.0.0"] == pytest.approx(11.2)
+    assert record.shadow_loss_estimates["tests.dispatch.alternative@1.0.0"] == pytest.approx(0.2)

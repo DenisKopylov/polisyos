@@ -16,6 +16,7 @@ from polisyos.foundry.methods.catalog.causal.measurement_error import (
     MeasurementErrorEstimator,
 )
 from polisyos.foundry.methods.catalog.causal.missing_data import (
+    AdministrativeMissingnessAssessment,
     FullLawIdentify,
     OrderedRecovery,
     RecoverabilityTest,
@@ -51,13 +52,19 @@ from polisyos.foundry.methods.catalog.causal.constraint_discovery import (
 from polisyos.foundry.methods.catalog.causal.dagma_discovery import DAGMADiscovery
 from polisyos.foundry.methods.catalog.causal.discovery_pipeline import UnifiedCausalDiscovery
 from polisyos.foundry.methods.catalog.causal.cross_fit import CrossFitOrchestrator
+from polisyos.foundry.methods.catalog.causal.cross_fit_schedule import FoldAggregator
 from polisyos.foundry.methods.catalog.causal.density_ratio import DensityRatioEstimator
+from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
+    DistributionalBoundsEngineMethod,
+)
 from polisyos.foundry.methods.catalog.causal.diagnostics import (
     ParallelTrendsCheck,
+    PolicyOverlapDiagnostic,
     PositivityDiagnostic,
     SupportMismatchDiagnostic,
 )
 from polisyos.foundry.methods.catalog.causal.independence_tests import (
+    CategoricalConditionalIndependenceTest,
     HSICIndependenceTest,
     KCIConditionalTest,
     PartialCorrelationTest,
@@ -120,6 +127,11 @@ from polisyos.foundry.methods.catalog.causal.continuous_treatment import (
     KernelDoseResponseEstimator,
     ShiftInterventionEstimator,
 )
+from polisyos.foundry.methods.catalog.causal.stochastic_policies import (
+    PolicyAIPWEstimator,
+    PolicyPluginEstimator,
+    PolicyTMLEEstimator,
+)
 from polisyos.foundry.methods.catalog.causal.multi_treatment import (
     MultiArmAIPWEstimator,
     MultinomialIPWEstimator,
@@ -138,10 +150,42 @@ from polisyos.foundry.methods.catalog.causal.fairness import (
 from polisyos.foundry.methods.catalog.causal.causal_fairness import CausalFairnessEngine
 from polisyos.foundry.methods.catalog.causal.data_fusion import DataFusionEngine
 from polisyos.foundry.methods.catalog.causal.optimal_design import CausalExperimentDesigner
+from polisyos.foundry.methods.catalog.causal.operator_valued import (
+    OperatorApplyProbeMethod,
+    OperatorCMEKRREstimator,
+    OperatorExportBasisMethod,
+    OperatorKIVEstimator,
+    OperatorProximalMinimaxEstimator,
+    OperatorRLearnerEstimator,
+    OperatorUnsupportedTargetMethod,
+)
 from polisyos.foundry.methods.catalog.causal.frontier import (
     DistributionalTreatmentEffectEstimator,
     NetworkHeterogeneousEffectEstimator,
     ProximalBridgeEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
+    ProximalMediationEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.kernel_methods import (
+    FitCMEMGivenX,
+    FitCMEYGivenMX,
+    FitCMEYGivenXZ,
+    FitDensityRatio,
+    FitKernelPropensity,
+    FitKIVFirstStage,
+    FitKIVSecondStage,
+    KernelCMEPluginEstimator,
+    KernelDRCMEEstimator,
+    KernelEffectTest,
+    KernelFrontdoorEstimator,
+    KernelIVEstimator,
+    KernelProximalMinimaxEstimator,
+    KernelRefusal,
+    KernelRegularizationDiagnostics,
+    KernelSemanticsDiagnostics,
+    KernelTransportEstimator,
+    SolveKernelProximalBridge,
 )
 
 _logger = logging.getLogger(__name__)
@@ -187,9 +231,11 @@ def register_causal_methods() -> Sequence[type]:
     methods: list[type] = [
         SyntheticControlMethod,
         ParallelTrendsCheck,
+        PolicyOverlapDiagnostic,
         PositivityDiagnostic,
         SupportMismatchDiagnostic,
         # Independence tests (D1)
+        CategoricalConditionalIndependenceTest,
         HSICIndependenceTest,
         KCIConditionalTest,
         PartialCorrelationTest,
@@ -208,6 +254,7 @@ def register_causal_methods() -> Sequence[type]:
         BuildLiteraturePrior,
         ReconcileCausalGraph,
         SensitivityMetrics,
+        FoldAggregator,
         CheckTransportability,
         SymbolicIdentify,
         SymbolicIdentifyV2,
@@ -247,11 +294,13 @@ def register_causal_methods() -> Sequence[type]:
         TanBoundsEstimator,
         IntersectionBoundsEstimator,
         RosenbaumSharpBoundsEstimator,
+        DistributionalBoundsEngineMethod,
         # Mediation
         CausalMediationEstimator,
         ControlledDirectEffectEstimator,
         NaturalEffectEstimator,
         # Phase 2: Missing data theory (M-graphs)
+        AdministrativeMissingnessAssessment,
         RecoverabilityTest,
         OrderedRecovery,
         FullLawIdentify,
@@ -279,6 +328,9 @@ def register_causal_methods() -> Sequence[type]:
         GeneralizedPropensityScoreEstimator,
         KernelDoseResponseEstimator,
         ShiftInterventionEstimator,
+        PolicyPluginEstimator,
+        PolicyAIPWEstimator,
+        PolicyTMLEEstimator,
         EntropyBalancingContinuousEstimator,
         MultinomialIPWEstimator,
         MultiArmAIPWEstimator,
@@ -295,8 +347,36 @@ def register_causal_methods() -> Sequence[type]:
         CausalExperimentDesigner,
         # WS-9 frontier additions
         ProximalBridgeEstimator,
+        ProximalMediationEstimator,
         DistributionalTreatmentEffectEstimator,
         NetworkHeterogeneousEffectEstimator,
+        # Stage 14.2 operator-valued causal effects
+        OperatorCMEKRREstimator,
+        OperatorRLearnerEstimator,
+        OperatorKIVEstimator,
+        OperatorProximalMinimaxEstimator,
+        OperatorApplyProbeMethod,
+        OperatorExportBasisMethod,
+        OperatorUnsupportedTargetMethod,
+        # Stage 14.1 kernel causal operators
+        KernelSemanticsDiagnostics,
+        KernelRegularizationDiagnostics,
+        KernelEffectTest,
+        KernelRefusal,
+        FitCMEYGivenXZ,
+        FitCMEMGivenX,
+        FitCMEYGivenMX,
+        FitDensityRatio,
+        FitKernelPropensity,
+        FitKIVFirstStage,
+        FitKIVSecondStage,
+        SolveKernelProximalBridge,
+        KernelCMEPluginEstimator,
+        KernelFrontdoorEstimator,
+        KernelTransportEstimator,
+        KernelDRCMEEstimator,
+        KernelIVEstimator,
+        KernelProximalMinimaxEstimator,
     ]
     methods.extend(
         _optional_method_types(

@@ -1,0 +1,51 @@
+{
+  "phase_id": "foundry.phase0",
+  "source_of_truth": {
+    "acceptance_doc": "docs/reference/foundry/phase0-acceptance.md",
+    "validator": "tools/quality/validation/validate_foundry_phase0_closure.py",
+    "wrapper": "tools/quality/validation/run_foundry_phase0_validation.sh",
+    "benchmark_command": "python3 benchmarks/synthetic_world/phase0_seed_benchmark.py --mode smoke --json <path> --quiet"
+  },
+  "deliverables": [
+    {
+      "id": "posterior_truthfulness_contract",
+      "label": "PosteriorResult.truthfulness_tier first-class"
+    },
+    {
+      "id": "forecasting_uncertainty_bundle_contract",
+      "label": "ForecastingUncertaintyBundle includes the full Phase-0 forecasting uncertainty surface"
+    },
+    {
+      "id": "uncertainty_envelope_provenance",
+      "label": "UncertaintyEnvelope carries composition_provenance"
+    },
+    {
+      "id": "advisor_regret_certificate",
+      "label": "MethodAdvisorResult carries calibrated_regret_certificate"
+    },
+    {
+      "id": "hmc_nuts_truthfulness_closure",
+      "label": "HMC/NUTS declare and preserve catalog-only asymptotic truthfulness before runtime"
+    },
+    {
+      "id": "statistical_tolerance_budget_validation",
+      "label": "Statistical observed_tolerance_budget is machine-checkable"
+    },
+    {
+      "id": "cross_backend_equivalence_default_dispatch",
+      "label": "Default dispatcher emits cross-backend equivalence certificates from the global resolver"
+    },
+    {
+      "id": "validated_bound_reachability",
+      "label": "ValidatedBound certificates are reachable from critical-path estimators"
+    },
+    {
+      "id": "synthetic_world_registry",
+      "label": "SyntheticWorldDGP registry contains a calibrated Phase-0 world and benchmark binding"
+    },
+    {
+      "id": "synthetic_world_smoke_benchmark",
+      "label": "Synthetic-world smoke benchmark achieves full target coverage and deterministic replay"
+    }
+  ]
+}

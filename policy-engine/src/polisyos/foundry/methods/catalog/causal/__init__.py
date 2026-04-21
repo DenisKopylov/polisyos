@@ -33,7 +33,7 @@ from .cate import CausalForestEstimator
 from .constraint_discovery import FCIDiscovery, GESDiscovery, PCDiscovery
 from .dagma_discovery import DAGMADiscovery
 from .discovery_pipeline import UnifiedCausalDiscovery
-from .diagnostics import ParallelTrendsCheck
+from .diagnostics import ParallelTrendsCheck, PolicyOverlapDiagnostic
 from .invariance_tests import InvariantDiscoveryFromRegimes
 from .did import (
     StandardDifferenceInDifferences,
@@ -43,6 +43,11 @@ from .dtr import estimate_dtr_trajectory
 from .dml import DoubleMachineLearning
 from .dowhy_identify_estimate import DoWhyIdentifyEstimate, DoWhyIdentifyEstimateV1
 from .dowhy_refute import DoWhyRefute
+from .distributional_bounds import (
+    DistributionalBoundsEngineMethod,
+    lee_trimming_distributional_bounds,
+    makarov_distributional_bounds,
+)
 from .g_computation import estimate_g_computation_trajectory
 from .g_estimation import StructuralNestedMeanModel
 from .gcm_fit import HybridSCMFit
@@ -58,8 +63,18 @@ from .query_preservation import (
     update_query_preservation_cache,
     update_query_preservation_artifact_refs,
 )
+from .proof_trace_composability import (
+    build_witness_index_from_proof_steps,
+    check_proof_trace_composability,
+    proof_composability_cache_key,
+    replay_graph_witness,
+)
 from .literature_prior import BuildLiteraturePrior
 from .mediation import CausalMediationEstimator, ControlledDirectEffectEstimator
+from .model_class_compatibility import (
+    CompatibilityVerdict,
+    check_model_class_compatibility,
+)
 from .causal_bcf import CausalBCF
 from .forest_dr import ForestDRLearnerEstimator
 from .meta_learners import MetaLearnerEstimator
@@ -73,8 +88,25 @@ from .parameter_transfer import ParameterTransfer
 from .pcmci_discovery import PCMCIDiscovery
 from .policy_learning import OptimalPolicyLearner
 from .proximal_identify import proximal_identify_v1
+from .proximal_mediation import (
+    ProximalMediationEstimator,
+    proximal_mediation_identify_v1,
+)
+from .recourse_manifold import (
+    DiscreteActionAtlas,
+    PlannerOptions,
+    SCMAdapter,
+    best_first_support_search,
+    branch_and_bound_over_supports,
+    build_discrete_atlas,
+    exact_graph_search,
+    optimal_recourse_intervention,
+    program_cost,
+)
 from .strategic import (
+    PerformativeLoopSpec,
     StrategicSolveResult,
+    analyze_performative_loop,
     build_strategic_response_bundle,
     evaluate_strategic_hook,
     solve_strategic_response,
@@ -148,6 +180,11 @@ from .continuous_treatment import (
     KernelDoseResponseEstimator,
     ShiftInterventionEstimator,
 )
+from .stochastic_policies import (
+    PolicyAIPWEstimator,
+    PolicyPluginEstimator,
+    PolicyTMLEEstimator,
+)
 from .multi_treatment import (
     MultiArmAIPWEstimator,
     MultinomialIPWEstimator,
@@ -165,6 +202,15 @@ from .frontier import (
     DistributionalTreatmentEffectEstimator,
     NetworkHeterogeneousEffectEstimator,
     ProximalBridgeEstimator,
+)
+from .operator_valued import (
+    OperatorApplyProbeMethod,
+    OperatorCMEKRREstimator,
+    OperatorExportBasisMethod,
+    OperatorKIVEstimator,
+    OperatorProximalMinimaxEstimator,
+    OperatorRLearnerEstimator,
+    OperatorUnsupportedTargetMethod,
 )
 from .causal_fairness import (
     CausalFairnessEngine,
@@ -212,6 +258,7 @@ __all__ = [
     "TabularCausalDiscoveryData",
     "SyntheticControlMethod",
     "ParallelTrendsCheck",
+    "PolicyOverlapDiagnostic",
     "InvariantDiscoveryFromRegimes",
     "StandardDifferenceInDifferences",
     "StaggeredDifferenceInDifferences",
@@ -232,7 +279,9 @@ __all__ = [
     "TwinNetworkQuery",
     "ParameterTransfer",
     "BuildLiteraturePrior",
+    "CompatibilityVerdict",
     "ReconcileCausalGraph",
+    "check_model_class_compatibility",
     "compute_reconciliation_diagnostics",
     "check_query_preservation",
     "check_query_preservation_batch",
@@ -241,8 +290,13 @@ __all__ = [
     "negative_certificate_from_query_preservation_trace",
     "update_query_preservation_cache",
     "update_query_preservation_artifact_refs",
+    "build_witness_index_from_proof_steps",
+    "check_proof_trace_composability",
+    "proof_composability_cache_key",
+    "replay_graph_witness",
     "PCMCIDiscovery",
     "proximal_identify_v1",
+    "proximal_mediation_identify_v1",
     "PCDiscovery",
     "FCIDiscovery",
     "GESDiscovery",
@@ -258,6 +312,7 @@ __all__ = [
     "StructuralNestedMeanModel",
     "MetaLearnerEstimator",
     "OptimalPolicyLearner",
+    "PerformativeLoopSpec",
     "StrategicSolveResult",
     "AIPWEstimator",
     "TMLEEstimator",
@@ -275,6 +330,9 @@ __all__ = [
     "ImbensManskiBoundsEstimator",
     "OptimizationBasedBoundsEstimator",
     "BoundsEngineMethod",
+    "DistributionalBoundsEngineMethod",
+    "lee_trimming_distributional_bounds",
+    "makarov_distributional_bounds",
     "auto_bounds",
     "CausalMediationEstimator",
     "ControlledDirectEffectEstimator",
@@ -296,6 +354,7 @@ __all__ = [
     "strategic_result_summary",
     "build_strategic_response_bundle",
     "evaluate_strategic_hook",
+    "analyze_performative_loop",
     "estimate_g_computation_trajectory",
     "estimate_dtr_trajectory",
     "CausalQueryValidator",
@@ -315,10 +374,14 @@ __all__ = [
     "GeneralizedPropensityScoreEstimator",
     "KernelDoseResponseEstimator",
     "ShiftInterventionEstimator",
+    "PolicyAIPWEstimator",
+    "PolicyPluginEstimator",
+    "PolicyTMLEEstimator",
     "EntropyBalancingContinuousEstimator",
     "MultinomialIPWEstimator",
     "MultiArmAIPWEstimator",
     "ProximalBridgeEstimator",
+    "ProximalMediationEstimator",
     "DistributionalTreatmentEffectEstimator",
     "pairwise_contrasts",
     "FittedSuperLearner",
@@ -326,6 +389,14 @@ __all__ = [
     "ParametricConditionalDensity",
     "MultinomialPropensityModel",
     "CrossFitContinuousOrchestrator",
+    # Stage 14.2: operator-valued causal effects
+    "OperatorCMEKRREstimator",
+    "OperatorRLearnerEstimator",
+    "OperatorKIVEstimator",
+    "OperatorProximalMinimaxEstimator",
+    "OperatorApplyProbeMethod",
+    "OperatorExportBasisMethod",
+    "OperatorUnsupportedTargetMethod",
     # Phase 8: Causal Fairness
     "FairnessObservationalData",
     "TVFairnessDecomposer",
@@ -343,4 +414,14 @@ __all__ = [
     "cyclic_id_algorithm",
     "sigma_identify",
     "sigma_z_identify",
+    # Stage 13.4: Optimal recourse intervention + causal manifold geometry
+    "DiscreteActionAtlas",
+    "PlannerOptions",
+    "SCMAdapter",
+    "best_first_support_search",
+    "branch_and_bound_over_supports",
+    "build_discrete_atlas",
+    "exact_graph_search",
+    "optimal_recourse_intervention",
+    "program_cost",
 ]

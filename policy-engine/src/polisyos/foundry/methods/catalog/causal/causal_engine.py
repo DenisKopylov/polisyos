@@ -25,9 +25,10 @@ import numpy as np
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.analytics.causal import (
     DataReadinessReport,
+    EstimationStatus,
     ProofBundle,
-    build_dynamic_proof_bundle,
     build_data_readiness_report,
+    build_dynamic_proof_bundle,
     persist_data_readiness_report,
     persist_proof_bundle,
     proof_bundle_from_negative_certificate,
@@ -94,9 +95,27 @@ from polisyos.ir.analytics.interventions import (
     persist_intervention_query,
     render_intervention_query,
 )
+from polisyos.ir.analytics.local_independence import (
+    CensoringInterventionSpec,
+    EliminabilityCheck,
+    EliminabilityStep,
+    IndependentCensoringCheck,
+    IntensityModelRequirement,
+    LocalIndependenceEdge,
+    LocalIndependenceGraphicalChecks,
+    LocalIndependenceGraphSpec,
+    LocalIndependenceIdentificationSpec,
+    LocalIndependenceRuntimeRequirements,
+    LocalIndependenceTarget,
+    LocalIndependenceWeightingCertificate,
+    TreatmentIntensityInterventionSpec,
+    persist_local_independence_weighting_certificate,
+)
 from polisyos.ir.analytics.proximal import (
+    BridgePlausibilityReport,
     ProximalIdentificationCertificate,
     ProxyAnnotation,
+    persist_bridge_plausibility_report,
     persist_proximal_identification_certificate,
 )
 from polisyos.ir.analytics.recoverability import (
@@ -112,6 +131,7 @@ from polisyos.ir.analytics.evidence_bundle import (
     EvidenceBundle,
     ProofStep as IRProofStep,
     _fingerprint,
+    persist_causal_evidence_bundle,
 )
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
@@ -127,23 +147,34 @@ from polisyos.ir.analytics.partial_identification import (
     bounds_bundle_from_partial_identification_result,
     persist_bounds_bundle,
 )
+from polisyos.ir.analytics.proof_composability import (
+    attach_proof_composability_to_proof_bundle,
+    persist_proof_composability_certificate,
+    persist_proof_witness_index,
+)
 from polisyos.ir.analytics.dynamic_regime import (
     ContinuousTimeQuery,
     DynamicTreatmentRegime,
     EffectTrajectoryBundle,
+    InterventionInterpolationPolicy,
     StrategicAdaptationMode,
+    TemporalIdentificationCertificate,
+    TemporalIdentificationTheoremFamily,
     TemporalInterventionTrajectory,
     TemporalQueryMode,
+    TemporalSamplingScheme,
     load_temporal_intervention_trajectory,
     persist_continuous_time_query,
     persist_dynamic_treatment_regime,
     persist_effect_trajectory_bundle,
+    persist_temporal_identification_certificate,
     persist_temporal_intervention_trajectory,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, put_json_artifact
 from polisyos.ir.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
+    TemporalIdentificationCertificateRef,
     TemporalInterventionTrajectoryRef,
 )
 from polisyos.foundry.methods.catalog.causal.id_engine import (
@@ -165,6 +196,14 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (
     dynamic_intervention_id,
     joint_id_algorithm,
     multi_outcome_id,
+)
+from polisyos.foundry.methods.catalog.causal.local_independence_id import (
+    build_temporal_identification_certificate,
+    li_id_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.proof_trace_composability import (
+    build_witness_index_from_proof_steps,
+    check_proof_trace_composability,
 )
 from polisyos.foundry.methods.catalog.causal.proximal_identify import proximal_identify_v1
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
@@ -909,7 +948,33 @@ class CausalEngine:
             )
 
         if policy is not None:
-            return sid_algorithm(
+            if mgraph_meta is not None:
+                from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+                    full_law_identify,
+                )
+                from polisyos.ir.analytics.mgraph import (
+                    MGraphMetadata,
+                    extract_mgraph_metadata,
+                )
+
+                if isinstance(mgraph_meta, MGraphMetadata):
+                    meta = mgraph_meta
+                elif isinstance(mgraph_meta, dict):
+                    meta = MGraphMetadata.model_validate(mgraph_meta)
+                else:
+                    meta = extract_mgraph_metadata(graph)
+
+                return full_law_identify(
+                    treatment=treatment,
+                    outcome=outcome,
+                    graph=graph,
+                    mgraph_meta=meta,
+                    dataset_ref=dataset_ref,
+                    oracle=oracle,
+                    policy=policy,
+                )
+
+            policy_result = sid_algorithm(
                 treatment=treatment,
                 outcome=outcome,
                 graph=graph,
@@ -917,6 +982,35 @@ class CausalEngine:
                 dataset_ref=dataset_ref,
                 s_nodes=s_nodes,
             )
+            proximal_candidate = (
+                self._maybe_proximal_identify(
+                    base_result=policy_result,
+                    treatment=treatment,
+                    outcome=outcome,
+                    graph=graph,
+                    proximal_annotation=proximal_annotation,
+                )
+                if getattr(policy, "policy_type", None) == "soft"
+                else policy_result
+            )
+            if proximal_candidate is not policy_result and isinstance(
+                proximal_candidate,
+                ProximalIdentificationCertificate,
+            ):
+                return proximal_candidate.model_copy(
+                    update={
+                        "metadata": {
+                            **dict(proximal_candidate.metadata or {}),
+                            "policy_type": getattr(policy, "policy_type", None),
+                            "policy_conditioning_vars": list(
+                                getattr(policy, "conditioning_vars", ()) or ()
+                            ),
+                            "policy_expr": getattr(policy, "policy_expr", None),
+                            "policy_lifting": "stochastic_policy_mixture",
+                        }
+                    }
+                )
+            return proximal_candidate
 
         if mgraph_meta is not None:
             from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
@@ -1315,6 +1409,7 @@ class CausalEngine:
         query: ContinuousTimeQuery,
     ) -> DynamicSemanticsAttachment:
         metadata = dict(query.metadata or {})
+        process_family = str(metadata.get("process_family") or "counting_process").strip().lower()
         semantics_family = str(
             metadata.get("graph_semantics") or metadata.get("semantics_family") or ""
         ).strip()
@@ -1342,10 +1437,28 @@ class CausalEngine:
         eliminable_processes = tuple(
             str(item) for item in metadata.get("eliminable_processes", ()) if str(item)
         )
+        eliminability_checked = bool(
+            metadata.get("eliminability_verified", bool(eliminable_processes))
+        )
+        independent_censoring_checked = bool(
+            metadata.get("independent_censoring_verified", False)
+        )
+        if not independent_censoring_checked and metadata.get("identification_via_reweighting", False):
+            independent_censoring_checked = True
+        weighting_components = tuple(
+            str(item)
+            for item in metadata.get("weight_components", ("W_treatment", "W_censoring"))
+            if str(item)
+        )
         validated = (
-            semantics_family in {"local_independence", "local_independence_graph"}
+            (
+                semantics_family in {"local_independence", "local_independence_graph"}
+                or process_family in {"counting_process", "marked_point_process", "event_log"}
+            )
             and bool(metadata.get("causal_validity_verified", False))
             and bool(metadata.get("identification_via_reweighting", False))
+            and independent_censoring_checked
+            and eliminability_checked
         )
         certificate = GraphicalMarkovCertificate(
             semantics_family=DynamicSemanticsFamily.LOCAL_INDEPENDENCE_GRAPH,
@@ -1388,6 +1501,21 @@ class CausalEngine:
                     metadata.get("causal_validity_rule") or "causally_valid_local_independence"
                 ),
                 eliminable_processes=eliminable_processes,
+                process_family=process_family,
+                policy_semantics=str(
+                    metadata.get("policy_semantics") or "intensity_replacement"
+                ),
+                censoring_mode=str(
+                    metadata.get("censoring_semantics")
+                    or metadata.get("censoring_mode")
+                    or "prevent_or_randomize"
+                ),
+                identification_method=str(
+                    metadata.get("identification_method") or "continuous_time_reweighting"
+                ),
+                weighting_components=weighting_components,
+                independent_censoring_checked=independent_censoring_checked,
+                positivity_assumed=bool(metadata.get("positivity_assumed", True)),
                 notes=tuple(
                     str(item) for item in metadata.get("continuous_time_notes", ()) if str(item)
                 ),
@@ -1402,49 +1530,619 @@ class CausalEngine:
             ),
         )
 
+    @staticmethod
+    def _continuous_time_string_tuple(payload: Any) -> tuple[str, ...]:
+        if payload in (None, "", (), []):
+            return ()
+        if not isinstance(payload, (tuple, list, set)):
+            payload = (payload,)
+        return tuple(str(item).strip() for item in payload if str(item).strip())
+
+    @classmethod
+    def _continuous_time_graph_edges(
+        cls,
+        payload: Any,
+    ) -> tuple[LocalIndependenceEdge, ...]:
+        if payload in (None, "", (), []):
+            return ()
+        if not isinstance(payload, (tuple, list)):
+            return ()
+        edges: list[LocalIndependenceEdge] = []
+        for item in payload:
+            if isinstance(item, dict):
+                src = str(item.get("src", "")).strip()
+                dst = str(item.get("dst", "")).strip()
+                edge_type = str(item.get("type") or item.get("edge_type") or "directed").strip()
+                if src and dst:
+                    edges.append(LocalIndependenceEdge(src=src, dst=dst, edge_type=edge_type))
+            elif isinstance(item, (tuple, list)) and len(item) >= 2:
+                src = str(item[0]).strip()
+                dst = str(item[1]).strip()
+                if src and dst:
+                    edges.append(LocalIndependenceEdge(src=src, dst=dst))
+        return tuple(edges)
+
+    @classmethod
+    def _continuous_time_elimination_sequence(
+        cls,
+        payload: Any,
+    ) -> tuple[EliminabilityStep, ...]:
+        if payload in (None, "", (), []):
+            return ()
+        if not isinstance(payload, (tuple, list)):
+            return ()
+        steps: list[EliminabilityStep] = []
+        for index, item in enumerate(payload, start=1):
+            if not isinstance(item, dict):
+                continue
+            removed = cls._continuous_time_string_tuple(item.get("removed"))
+            if not removed:
+                continue
+            steps.append(
+                EliminabilityStep(
+                    step=int(item.get("step", index)),
+                    removed=removed,
+                    justification_kind=str(
+                        item.get("justification_kind")
+                        or item.get("kind")
+                        or "delta_separation"
+                    ),
+                    witness=(
+                        str(item.get("witness")).strip()
+                        if item.get("witness") not in (None, "")
+                        else None
+                    ),
+                )
+            )
+        return tuple(steps)
+
+    def _build_local_independence_certificate(
+        self,
+        query: ContinuousTimeQuery,
+        attachment: DynamicSemanticsAttachment,
+        *,
+        proof_status: Literal["identified", "oracle_needed"],
+        query_ref: str | None = None,
+    ) -> tuple[LocalIndependenceWeightingCertificate, ArtifactRefModel | None]:
+        metadata = dict(query.metadata or {})
+        continuous = attachment.continuous_time_attachment
+        markov_certificate = attachment.markov_criterion_certificate
+        oracle = (
+            continuous.graphical_oracle
+            if continuous is not None
+            else GraphicalOracleKind.MU
+        )
+        process_family = str(
+            metadata.get("process_family")
+            or (continuous.process_family if continuous is not None else "counting_process")
+            or "counting_process"
+        ).strip().lower()
+        if process_family not in {"counting_process", "marked_point_process", "event_log"}:
+            process_family = "counting_process"
+        theorem_family = str(
+            metadata.get("theorem_family")
+            or metadata.get("algorithm_version")
+            or "local_independence_weighting_v1"
+        ).strip()
+        theorem_reference = self._continuous_time_string_tuple(
+            metadata.get("theorem_reference")
+            or (
+                "Røysland–Ryalen–Nygård–Didelez (2024/2025), Theorem 2",
+                "Røysland et al., Proposition 1 (likelihood ratio / change of measure)",
+            )
+        )
+        intervention_targets = self._continuous_time_string_tuple(
+            metadata.get("intervention_targets")
+        )
+        treatment_node = (
+            intervention_targets[0]
+            if intervention_targets
+            else str(metadata.get("treatment_process") or "X").strip()
+        )
+        eliminable_processes = self._continuous_time_string_tuple(
+            metadata.get("eliminable_processes")
+        )
+        elimination_sequence = self._continuous_time_elimination_sequence(
+            metadata.get("elimination_sequence")
+        )
+        eliminability_checked = bool(
+            metadata.get("eliminability_verified", bool(eliminable_processes or elimination_sequence))
+        )
+        independent_censoring_checked = bool(
+            metadata.get("independent_censoring_verified", proof_status == "identified")
+        )
+        positivity_assumed = bool(metadata.get("positivity_assumed", True))
+        assumptions: list[str] = []
+        if bool(metadata.get("causal_validity_verified", False)):
+            assumptions.append("causal_validity_intensity_replacement")
+        if independent_censoring_checked:
+            assumptions.append("independent_censoring_local")
+        if eliminability_checked:
+            assumptions.append("eliminable_latent_processes")
+        if positivity_assumed:
+            assumptions.append("bounded_likelihood_ratio")
+
+        proof_trace: list[str] = [
+            "continuous_time_query",
+            "event_process_view",
+            "local_independence_graph",
+            "LI_CAUSAL_VALIDITY",
+        ]
+        if independent_censoring_checked:
+            proof_trace.append("LI_IC_CENSORING")
+        if elimination_sequence:
+            proof_trace.extend(
+                f"LI_ELIMINABILITY_STEP:{step.step}:{','.join(step.removed)}"
+                for step in elimination_sequence
+            )
+        elif eliminability_checked:
+            proof_trace.append("LI_ELIMINABILITY_STEP")
+        if proof_status == "identified":
+            proof_trace.append("LI_WEIGHTING_IDENTIFY")
+        else:
+            proof_trace.append("LI_RESEARCH_BOUNDARY")
+        if markov_certificate is not None:
+            proof_trace.extend(
+                item
+                for item in markov_certificate.transformation_trace
+                if item not in proof_trace
+            )
+
+        certificate = LocalIndependenceWeightingCertificate(
+            verification_status=proof_status,
+            theorem_family=theorem_family,
+            target=LocalIndependenceTarget(
+                functional=str(
+                    metadata.get("event_functional")
+                    or metadata.get("target_functional_override")
+                    or "cumulative_incidence_difference"
+                ),
+                outcome_process=query.outcome_process,
+                horizon_start=float(query.horizon_start),
+                horizon_end=float(query.horizon_end),
+                time_scale=query.time_scale,
+                contrast_policy=str(metadata.get("contrast_policy") or "pi"),
+                contrast_baseline=str(
+                    metadata.get("contrast_baseline") or metadata.get("baseline_policy") or "natural_or_pi0"
+                ),
+            ),
+            graph=LocalIndependenceGraphSpec(
+                process_family=process_family,
+                representation=str(
+                    metadata.get("lig_representation")
+                    or metadata.get("graph_representation")
+                    or "LIG_or_muDMG"
+                ),
+                separation_criterion=(
+                    "delta_or_mu"
+                    if oracle not in {GraphicalOracleKind.DELTA, GraphicalOracleKind.MU}
+                    else oracle.value
+                ),
+                graph_ref=str(
+                    metadata.get("lig_graph_ref") or metadata.get("graph_ref") or ""
+                ).strip()
+                or None,
+                latent_projection_ref=str(
+                    metadata.get("latent_projection_ref") or ""
+                ).strip()
+                or None,
+                nodes=self._continuous_time_string_tuple(metadata.get("graph_nodes")),
+                edges=self._continuous_time_graph_edges(metadata.get("graph_edges")),
+                latent_nodes=self._continuous_time_string_tuple(metadata.get("latent_nodes")),
+                notes=self._continuous_time_string_tuple(metadata.get("graph_notes")),
+            ),
+            treatment_intervention=TreatmentIntensityInterventionSpec(
+                node=treatment_node,
+                predictable_wrt=self._continuous_time_string_tuple(
+                    metadata.get("conditioning_processes")
+                    or metadata.get("predictable_wrt")
+                ),
+                lambda_pi_ref=str(metadata.get("lambda_pi_ref") or "").strip() or None,
+                absolute_continuity_assumed=bool(
+                    metadata.get("absolute_continuity_assumed", True)
+                ),
+                bound_note=str(metadata.get("bound_note") or "").strip() or None,
+            ),
+            censoring_intervention=CensoringInterventionSpec(
+                node=str(metadata.get("censoring_node") or "C").strip() or "C",
+                mode=str(
+                    metadata.get("censoring_semantics")
+                    or metadata.get("censoring_mode")
+                    or "prevent_or_randomize"
+                ),
+                lambda_c_ref=str(metadata.get("lambda_c_ref") or "").strip() or None,
+                value=metadata.get("censoring_value"),
+            ),
+            identification=LocalIndependenceIdentificationSpec(
+                theorem_reference=theorem_reference,
+                weight_components=self._continuous_time_string_tuple(
+                    metadata.get("weight_components")
+                    or ("W_treatment", "W_censoring")
+                ),
+                formula_hint=str(metadata.get("formula_hint") or "").strip() or None,
+                marginalize_over=self._continuous_time_string_tuple(
+                    metadata.get("marginalize_over")
+                ),
+                decensoring_map_used=bool(metadata.get("decensoring_map_used", True)),
+                decensoring_note=str(metadata.get("decensoring_note") or "").strip() or None,
+            ),
+            graphical_checks=LocalIndependenceGraphicalChecks(
+                independent_censoring=IndependentCensoringCheck(
+                    checked=independent_censoring_checked,
+                    criterion=str(
+                        metadata.get("independent_censoring_criterion")
+                        or ("mu_separation" if oracle is GraphicalOracleKind.MU else "delta_separation")
+                    ),
+                    statement=str(
+                        metadata.get("independent_censoring_statement")
+                        or "C is locally independent of the target given the declared conditioning history."
+                    ),
+                    conditioning_set=self._continuous_time_string_tuple(
+                        metadata.get("independent_censoring_conditioning_set")
+                        or metadata.get("conditioning_processes")
+                    ),
+                    blocked_trails=self._continuous_time_string_tuple(
+                        metadata.get("blocked_trails")
+                    ),
+                ),
+                eliminability=EliminabilityCheck(
+                    checked=eliminability_checked,
+                    target_node=treatment_node,
+                    eliminate_set=eliminable_processes,
+                    elimination_sequence=elimination_sequence,
+                ),
+            ),
+            runtime_requirements=LocalIndependenceRuntimeRequirements(
+                needed_intensity_models=tuple(
+                    IntensityModelRequirement(
+                        process=str(item.get("process")),
+                        conditioning=self._continuous_time_string_tuple(item.get("conditioning")),
+                        estimation=str(item.get("estimation") or "parametric"),
+                    )
+                    for item in metadata.get("needed_intensity_models", ())
+                    if isinstance(item, dict) and str(item.get("process", "")).strip()
+                ),
+                data_contract=str(
+                    metadata.get("event_data_contract")
+                    or metadata.get("data_contract")
+                    or "event_log_or_counting_process_panel"
+                ),
+                positivity_assumed=positivity_assumed,
+                diagnostics_required=bool(metadata.get("positivity_diagnostics_required", True)),
+            ),
+            assumptions=tuple(assumptions),
+            proof_trace=tuple(proof_trace),
+            metadata={
+                "query_ref": query_ref,
+                "runtime_support_status": query.runtime_support_status.value,
+                "runtime_blockers": list(query.runtime_blockers),
+            },
+        )
+        certificate_ref: ArtifactRefModel | None = None
+        if self._artifact_store is not None:
+            certificate_ref = persist_local_independence_weighting_certificate(
+                self._artifact_store,
+                certificate,
+                inputs=self._temporal_input_refs(
+                    (query_ref, "query"),
+                    (query.intervention_trajectory_ref, "intervention_trajectory"),
+                ),
+            )
+        return certificate, certificate_ref
+
+    @staticmethod
+    def _normalize_temporal_identification_certificate(
+        identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
+        *,
+        query: ContinuousTimeQuery | None = None,
+    ) -> TemporalIdentificationCertificate | None:
+        payload = identification_certificate
+        if payload is None and query is not None:
+            payload = (query.metadata or {}).get("temporal_identification_certificate")
+        if payload is None:
+            return None
+        if isinstance(payload, TemporalIdentificationCertificate):
+            return payload
+        return TemporalIdentificationCertificate.model_validate(payload)
+
+    @staticmethod
+    def _temporal_strategic_adaptation_mode(query: ContinuousTimeQuery) -> str:
+        raw = (query.metadata or {}).get(
+            "strategic_adaptation_mode",
+            StrategicAdaptationMode.ABSENT.value,
+        )
+        if isinstance(raw, StrategicAdaptationMode):
+            return raw.value
+        candidate = str(raw).strip().lower()
+        return candidate or StrategicAdaptationMode.ABSENT.value
+
+    @classmethod
+    def _temporal_identification_scope_is_supported(
+        cls,
+        query: ContinuousTimeQuery,
+        certificate: TemporalIdentificationCertificate,
+    ) -> bool:
+        if query.query_mode is not TemporalQueryMode.FIXED_INTERVENTION:
+            return False
+        if query.sampling_scheme is not TemporalSamplingScheme.REGULAR_GRID:
+            return False
+        if query.target_functional not in set(certificate.identified_functionals):
+            return False
+        if cls._temporal_strategic_adaptation_mode(query) != StrategicAdaptationMode.ABSENT.value:
+            return False
+        if str(certificate.intervention_semantics.value) != "surgical_replacement":
+            return False
+        if str(certificate.observability_regime.value) != "full_state":
+            return False
+        if not certificate.law_invariant:
+            return False
+        if (
+            certificate.theorem_family
+            is TemporalIdentificationTheoremFamily.NSDE_FIXED_OBSERVED_CHANNEL_V1
+        ):
+            return certificate.law_object.value in {
+                "generator",
+                "semimartingale_characteristics",
+            }
+        if (
+            certificate.theorem_family
+            is TemporalIdentificationTheoremFamily.NCDE_FIXED_OBSERVED_CHANNEL_V1
+        ):
+            return (
+                certificate.law_object.value == "canonical_control_path"
+                and certificate.canonical_control_required
+                and query.interpolation_policy
+                in {
+                    InterventionInterpolationPolicy.PIECEWISE_CONSTANT,
+                    InterventionInterpolationPolicy.LINEAR,
+                }
+                and certificate.control_canonicalization is query.interpolation_policy
+            )
+        return True
+
+    @classmethod
+    def _temporal_identification_scope_snapshot(
+        cls,
+        query: ContinuousTimeQuery,
+        certificate: TemporalIdentificationCertificate,
+    ) -> dict[str, Any]:
+        notes = dict(certificate.notes or {})
+        return {
+            "theorem_family": certificate.theorem_family.value,
+            "identified_functionals": [
+                item.value for item in certificate.identified_functionals
+            ],
+            "intervention_semantics": certificate.intervention_semantics.value,
+            "observability_regime": certificate.observability_regime.value,
+            "law_object": certificate.law_object.value,
+            "law_invariant": bool(certificate.law_invariant),
+            "canonical_control_required": bool(certificate.canonical_control_required),
+            "control_canonicalization": (
+                None
+                if certificate.control_canonicalization is None
+                else certificate.control_canonicalization.value
+            ),
+            "support_status": certificate.support_status.value,
+            "query_mode": query.query_mode.value,
+            "sampling_scheme": query.sampling_scheme.value,
+            "target_functional": query.target_functional.value,
+            "interpolation_policy": query.interpolation_policy.value,
+            "strategic_adaptation_mode": cls._temporal_strategic_adaptation_mode(query),
+            "scope_covered": cls._temporal_identification_scope_is_supported(
+                query,
+                certificate,
+            ),
+            "tree_like_invariant_estimand": bool(
+                notes.get("tree_like_invariant_estimand", False)
+            ),
+        }
+
+    @classmethod
+    def _continuous_time_theorem_attachment(
+        cls,
+        query: ContinuousTimeQuery,
+        certificate: TemporalIdentificationCertificate,
+    ) -> DynamicSemanticsAttachment:
+        metadata = dict(query.metadata or {})
+        intervention_targets = cls._continuous_time_string_tuple(
+            metadata.get("intervention_targets")
+            or metadata.get("observed_intervention_channel")
+        )
+        supported = cls._temporal_identification_scope_is_supported(query, certificate)
+        notes = [
+            "Continuous-time theorem path identifies law-invariant trajectory functionals only.",
+            f"intervention_semantics={certificate.intervention_semantics.value}",
+            f"observability_regime={certificate.observability_regime.value}",
+            f"law_object={certificate.law_object.value}",
+        ]
+        if certificate.theorem_family is TemporalIdentificationTheoremFamily.NCDE_FIXED_OBSERVED_CHANNEL_V1:
+            notes.append(
+                "Canonical control representative is required for neural CDE identification."
+            )
+        return DynamicSemanticsAttachment(
+            semantics_family=DynamicSemanticsFamily.IOSCM,
+            reduction_status=(
+                DynamicReductionStatus.VALIDATED_REDUCTION
+                if supported
+                else DynamicReductionStatus.BLOCKED
+            ),
+            intervention_scope=InterventionScope(
+                kind=InterventionKind.MECHANISM_SWAP,
+                targets=intervention_targets,
+                admissible=supported,
+                admissibility_theorem=certificate.theorem_family.value,
+            ),
+            well_posedness_witness=WellPosednessWitness(
+                status=(
+                    WellPosednessStatus.PROVED
+                    if supported
+                    else WellPosednessStatus.HEURISTIC_BLOCKED
+                ),
+                family=certificate.theorem_family.value,
+                method="temporal_identification_certificate",
+                confidence="assumption_backed",
+                warning=(
+                    None
+                    if supported
+                    else "The supplied certificate does not cover the declared continuous-time query."
+                ),
+                evidence={
+                    "identified_functionals": [
+                        item.value for item in certificate.identified_functionals
+                    ],
+                    "assumptions": list(certificate.assumptions),
+                    "support_status": certificate.support_status.value,
+                },
+            ),
+            scope_statement=DynamicScopeStatement(
+                covered_families=(
+                    (certificate.theorem_family.value,) if supported else ()
+                ),
+                excluded_families=(
+                    ()
+                    if supported
+                    else ("optimal_policy_discovery", "irregular_grid", "strategic_adaptation")
+                ),
+                notes=tuple(notes),
+            ),
+        )
+
     def identify_continuous_time_query(
         self,
         query: ContinuousTimeQuery,
         *,
+        identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
         query_ref: str | None = None,
     ) -> ProofBundle:
+        temporal_certificate = self._normalize_temporal_identification_certificate(
+            identification_certificate,
+            query=query,
+        )
+        if temporal_certificate is not None and temporal_certificate.theorem_family in {
+            TemporalIdentificationTheoremFamily.NSDE_FIXED_OBSERVED_CHANNEL_V1,
+            TemporalIdentificationTheoremFamily.NCDE_FIXED_OBSERVED_CHANNEL_V1,
+        }:
+            scope_snapshot = self._temporal_identification_scope_snapshot(
+                query,
+                temporal_certificate,
+            )
+            proof_status: Literal["identified", "non_identified", "oracle_needed"] = (
+                "identified" if scope_snapshot["scope_covered"] else "oracle_needed"
+            )
+            attachment = self._continuous_time_theorem_attachment(query, temporal_certificate)
+            metadata = {
+                "status": proof_status,
+                "query_mode": query.query_mode.value,
+                "runtime_support_status": query.runtime_support_status.value,
+                "runtime_blockers": list(query.runtime_blockers),
+                "preferred_backend": str(
+                    query.metadata.get("preferred_backend", "linear_sde")
+                ).strip(),
+                "outcome_process": query.outcome_process,
+                "temporal_identification_certificate": temporal_certificate.model_dump(
+                    mode="json"
+                ),
+                "identification_scope": scope_snapshot,
+            }
+            temporal_certificate_ref = None
+            if self._artifact_store is not None:
+                temporal_certificate_ref = persist_temporal_identification_certificate(
+                    self._artifact_store,
+                    temporal_certificate,
+                    inputs=self._temporal_input_refs(
+                        (query_ref, "query"),
+                        (query.intervention_trajectory_ref, "intervention_trajectory"),
+                    ),
+                )
+                metadata["temporal_identification_certificate_ref"] = self._serialize_ref(
+                    temporal_certificate_ref
+                )
+            return build_dynamic_proof_bundle(
+                dynamic_semantics=attachment,
+                theorem_family=temporal_certificate.theorem_family.value,
+                proof_status=proof_status,
+                query_ref=query_ref,
+                proof_trace=[
+                    "observational_law_to_law_invariant_object",
+                    "surgical_replacement_on_observed_channel",
+                    "post_intervention_weak_uniqueness",
+                ],
+                assumptions=list(temporal_certificate.assumptions),
+                metadata=metadata,
+            )
+
         attachment = self._continuous_time_dynamic_attachment(query)
         proof_status: Literal["identified", "non_identified", "oracle_needed"]
         if attachment.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION:
             proof_status = "identified"
         else:
             proof_status = "oracle_needed"
+        certificate, certificate_ref = self._build_local_independence_certificate(
+            query,
+            attachment,
+            proof_status=proof_status,
+            query_ref=query_ref,
+        )
+        result = li_id_algorithm(
+            dynamic_semantics=attachment,
+            certificate=certificate,
+            query_ref=query_ref,
+        )
         metadata = {
+            **dict(result.metadata or {}),
             "status": proof_status,
             "query_mode": query.query_mode.value,
             "runtime_support_status": query.runtime_support_status.value,
             "runtime_blockers": list(query.runtime_blockers),
             "outcome_process": query.outcome_process,
+            "local_independence_missing_requirements": [
+                item
+                for item in (
+                    None
+                    if "causal_validity_intensity_replacement" in certificate.assumptions
+                    else "causal_validity_intensity_replacement",
+                    None
+                    if "independent_censoring_local" in certificate.assumptions
+                    else "independent_censoring_local",
+                    None
+                    if "eliminable_latent_processes" in certificate.assumptions
+                    else "eliminable_latent_processes",
+                    None
+                    if "bounded_likelihood_ratio" in certificate.assumptions
+                    else "bounded_likelihood_ratio",
+                )
+                if item is not None
+            ],
         }
-        theorem_family = (
-            attachment.markov_criterion_certificate.theorem_family
-            if attachment.markov_criterion_certificate is not None
-            else "local_independence_identification_v1"
-        )
-        proof_trace = [
-            "continuous_time_query",
-            "dynamic_semantics_dispatch",
-            (
-                "validated_local_independence"
-                if proof_status == "identified"
-                else "continuous_time_oracle_needed"
-            ),
-        ]
-        if attachment.markov_criterion_certificate is not None:
-            proof_trace.extend(list(attachment.markov_criterion_certificate.transformation_trace))
-        return build_dynamic_proof_bundle(
-            dynamic_semantics=attachment,
-            theorem_family=theorem_family,
-            proof_status=proof_status,
-            query_ref=query_ref,
-            proof_trace=proof_trace,
-            assumptions=list(query.runtime_blockers),
+        if certificate_ref is not None:
+            metadata["local_independence_certificate_ref"] = self._serialize_ref(
+                certificate_ref
+            )
+        temporal_certificate_ref = None
+        if proof_status == "identified":
+            temporal_certificate = build_temporal_identification_certificate(certificate)
+            metadata["temporal_identification_certificate"] = temporal_certificate.model_dump(
+                mode="json"
+            )
+        if proof_status == "identified" and self._artifact_store is not None:
+            temporal_certificate_ref = persist_temporal_identification_certificate(
+                self._artifact_store,
+                temporal_certificate,
+                inputs=self._temporal_input_refs(
+                    (query.intervention_trajectory_ref, "intervention_trajectory"),
+                    (certificate_ref, "local_independence_certificate"),
+                ),
+            )
+            metadata["temporal_identification_certificate_ref"] = self._serialize_ref(
+                temporal_certificate_ref
+            )
+        result = dataclasses.replace(
+            result,
             metadata=metadata,
+        )
+        return proof_bundle_from_identification_result(
+            result,
+            query_ref=query_ref,
         )
 
     @staticmethod
@@ -2072,6 +2770,191 @@ class CausalEngine:
             ),
         )
 
+    def _maybe_identify_proximal_path_intervention(
+        self,
+        *,
+        query: InterventionQuery,
+        graph: CausalGraphModel,
+        dataset_ref: str | None,
+        intervention: PathIntervention,
+        outcome: frozenset[str],
+        proximal_annotation: ProxyAnnotation | dict[str, Any] | None,
+    ) -> IdentificationResult | NegativeCertificate | None:
+        """Try the Stage 11.3 single-mediator proximal mediation template."""
+
+        if proximal_annotation is None or not self._graph_has_bidirected_confounding(graph):
+            return None
+
+        paths = tuple(intervention.active_paths) + tuple(intervention.frozen_paths)
+        if not paths:
+            return None
+        treatment_name = paths[0][0]
+        outcome_name = next(iter(sorted(outcome)))
+        mediator_candidates = sorted(
+            {
+                *intervention.natural_value_vars,
+                *(node for path in paths for node in path[1:-1]),
+            }
+        )
+        if len(mediator_candidates) != 1:
+            return None
+        mediator = mediator_candidates[0]
+
+        from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
+            PROXIMAL_MEDIATION_V1_THEOREM,
+            proximal_mediation_identify_v1,
+        )
+
+        certificate = proximal_mediation_identify_v1(
+            graph,
+            treatment=treatment_name,
+            mediator=mediator,
+            outcome=outcome_name,
+            proxies=proximal_annotation,
+            target_effect=_infer_proximal_path_target(
+                treatment=treatment_name,
+                mediator=mediator,
+                outcome=outcome_name,
+                intervention=intervention,
+            ),
+        )
+        if isinstance(certificate, NegativeCertificate):
+            return self._intervention_negative_certificate(
+                query=query,
+                blocking_type=certificate.blocking_type,
+                blocking_description=certificate.blocking_description,
+                algorithm_version=PROXIMAL_MEDIATION_V1_THEOREM,
+                constructive_message=certificate.constructive_message,
+                proof_trace=list(
+                    certificate.quantitative_diagnostics.get("proof_trace", ()) or ()
+                ),
+                negative_payload={
+                    "blocking_type": certificate.blocking_type.value,
+                    "blocking_description": certificate.blocking_description,
+                    "failed_check": certificate.quantitative_diagnostics.get("failed_check"),
+                },
+                extra_diagnostics={
+                    **dict(certificate.quantitative_diagnostics or {}),
+                    "path_specific_proximal": True,
+                    "target_effect": _infer_proximal_path_target(
+                        treatment=treatment_name,
+                        mediator=mediator,
+                        outcome=outcome_name,
+                        intervention=intervention,
+                    ),
+                    "mediator": mediator,
+                },
+            )
+
+        all_variables = tuple(
+            sorted(
+                {
+                    treatment_name,
+                    mediator,
+                    outcome_name,
+                    *certificate.variable_roles.get("X", ()),
+                    *certificate.variable_roles.get("Z", ()),
+                    *certificate.variable_roles.get("W", ()),
+                }
+            )
+        )
+        target_effect = certificate.query.target_effect
+        proxy_annotation = (
+            proximal_annotation
+            if isinstance(proximal_annotation, ProxyAnnotation)
+            else ProxyAnnotation.model_validate(proximal_annotation)
+        )
+        oracle_assumptions_accepted = bool(
+            getattr(proxy_annotation, "accept_oracle_assumptions", False)
+        )
+        root = PathSpecificNode(
+            treatment=treatment_name,
+            outcome=outcome_name,
+            active_paths=intervention.active_paths,
+            frozen_paths=intervention.frozen_paths,
+            conditioning=tuple(query.target.conditioning),
+            reference_treatment=certificate.query.reference_treatment_value,
+            active_treatment=certificate.query.active_treatment_value,
+            dataset_ref=dataset_ref,
+        )
+        proof_trace = list(certificate.proof_trace)
+        if oracle_assumptions_accepted:
+            proof_trace.append(
+                "Proximal mediation template matched and oracle-level completeness assumptions were accepted for execution."
+            )
+        else:
+            proof_trace.append(
+                "Proximal mediation template matched; completeness remains an oracle-backed requirement."
+            )
+        if query.target.conditioning:
+            proof_trace.append(
+                "Conditioning variables were preserved on the semantic path-specific node; execution still relies on the proximal template contract."
+            )
+        return IdentificationResult(
+            status=(
+                IdentificationStatus.IDENTIFIED
+                if oracle_assumptions_accepted
+                else IdentificationStatus.ORACLE_NEEDED
+            ),
+            estimand_ast=EstimandAST(
+                query_str=render_intervention_query(query),
+                root=root,
+                treatment=treatment_name,
+                outcome=outcome_name,
+                all_variables=all_variables,
+                identification_method=(
+                    f"proximal_mediation|target={target_effect}|mediator={mediator}"
+                ),
+            ),
+            hedge_certificate=None,
+            trace=proof_trace,
+            required_distributions=[],
+            algorithm_version=PROXIMAL_MEDIATION_V1_THEOREM,
+            proof_steps=[
+                IRProofStep(
+                    rule_name="PROXIMAL_MEDIATION_TEMPLATE",
+                    description=(
+                        "Matched the Stage 11.3 single-mediator proximal mediation "
+                        "template and constructed the oracle-backed path-specific proof."
+                    ),
+                    variables_affected=tuple(sorted({treatment_name, mediator, outcome_name})),
+                    graph_subset=graph.graph_type.value,
+                    rule_formal_name="Proximal mediation template",
+                    applicable_theorem="Dukes, Shpitser & Tchetgen Tchetgen (2023)",
+                    graph_state_before=f"{len(graph.nodes)} nodes / {len(graph.edges)} edges",
+                    graph_state_after="proximal mediation oracle contract recorded",
+                ),
+                IRProofStep(
+                    rule_name="PROXIMAL_MEDIATION_ORACLE_GATE",
+                    description=(
+                        "Recorded completeness and cross-world assumptions as explicit "
+                        "oracle-level obligations and resolved the governance gate for execution."
+                    ),
+                    variables_affected=tuple(sorted({mediator, *certificate.variable_roles.get("Z", ()), *certificate.variable_roles.get("W", ())})),
+                    graph_subset=graph.graph_type.value,
+                    rule_formal_name="Oracle gate",
+                    applicable_theorem=PROXIMAL_MEDIATION_V1_THEOREM,
+                    graph_state_before="template matched",
+                    graph_state_after=(
+                        "proof status promoted to identified"
+                        if oracle_assumptions_accepted
+                        else "proof status downgraded to oracle_needed"
+                    ),
+                ),
+            ],
+            metadata={
+                "proximal_mediation_certificate": certificate.model_dump(mode="json"),
+                "path_specific_proximal": True,
+                "path_specific_mode": "template_proximal",
+                "target_effect": target_effect,
+                "fallback_policy": certificate.diagnostics_and_gates.get("fallback_policy"),
+                "oracle_flags": certificate.diagnostics_and_gates.get("oracle_flags", []),
+                "oracle_assumptions_accepted": oracle_assumptions_accepted,
+                "conditioning_variables": list(query.target.conditioning),
+            },
+            query_str=render_intervention_query(query),
+        )
+
     def _identify_path_intervention_backend(
         self,
         *,
@@ -2080,133 +2963,313 @@ class CausalEngine:
         dataset_ref: str | None,
         intervention: PathIntervention,
         outcome: frozenset[str],
+        proximal_annotation: ProxyAnnotation | dict[str, Any] | None = None,
     ) -> IdentificationResult | NegativeCertificate:
-        from polisyos.foundry.methods.catalog.causal.path_specific import (
-            _identify_path_specific,
-            _recanting_witness_check,
+        proximal_template_result = self._maybe_identify_proximal_path_intervention(
+            query=query,
+            graph=graph,
+            dataset_ref=dataset_ref,
+            intervention=intervention,
+            outcome=outcome,
+            proximal_annotation=proximal_annotation,
+        )
+        if proximal_template_result is not None:
+            if isinstance(proximal_template_result, IdentificationResult):
+                return self._decorate_identification_result_with_intervention_query(
+                    proximal_template_result,
+                    query,
+                )
+            return proximal_template_result
+
+        from polisyos.foundry.methods.catalog.causal.path_specific_identify import (
+            identify_path_specific,
+        )
+        from polisyos.ir.analytics.path_specific_identification import (
+            PathSpecificDecisionMode,
+            PathSpecificWitnessKind,
         )
 
-        if has_directed_cycle(graph) or self._graph_has_bidirected_confounding(graph):
-            result = self._oracle_needed_intervention_result(
-                query=query,
-                algorithm_version="path_intervention_v1",
-                trace_message=(
-                    "path-specific backend currently requires an acyclic graph "
-                    "without hidden confounding"
+        outcome_name = next(iter(sorted(outcome)))
+        width_budget_raw = (graph.metadata or {}).get("path_specific_width_budget")
+        width_budget = None
+        if isinstance(width_budget_raw, int) and width_budget_raw > 0:
+            width_budget = width_budget_raw
+        report = identify_path_specific(
+            graph=graph,
+            intervention=intervention,
+            outcome=outcome_name,
+            query_str=render_intervention_query(query),
+            dataset_ref=dataset_ref,
+            conditioning=tuple(query.target.conditioning),
+            available_experimental_distributions=tuple(query.context.available_data_refs),
+            width_budget=width_budget,
+        )
+
+        compilation = report.compilation_plan
+        treatment_name = report.treatment
+        mediators = report.semantic_query.mediators
+        proof_trace = [*report.proof_trace, *report.fallback_trace]
+        diagnostics = {
+            "path_specific_mode": report.mode.value,
+            "path_policy_hash": (
+                compilation.path_policy_hash if compilation is not None else report.metadata.get("path_policy_hash")
+            ),
+            "district_partition": (
+                [list(item) for item in compilation.district_partition]
+                if compilation is not None
+                else []
+            ),
+            "treatment_frontier": (
+                [list(item) for item in compilation.treatment_frontier]
+                if compilation is not None
+                else []
+            ),
+            "intrinsic_width_bound": (
+                compilation.intrinsic_width_bound if compilation is not None else None
+            ),
+            "witnesses": [item.model_dump(mode="json") for item in report.witnesses],
+            "witness_variables": sorted(
+                {
+                    variable
+                    for witness in report.witnesses
+                    for variable in witness.variables
+                }
+            ),
+        }
+        if compilation is not None and compilation.compiled_estimand_ast is not None:
+            diagnostics["compiled_path_specific_estimand_ast"] = (
+                compilation.compiled_estimand_ast.model_dump(mode="json")
+            )
+            diagnostics["path_specific_compilation_plan"] = compilation.model_dump(mode="json")
+
+        if report.mode is PathSpecificDecisionMode.EXACT_IDENTIFIED:
+            all_variables = tuple(
+                sorted(
+                    {
+                        outcome_name,
+                        treatment_name,
+                        *(
+                            compilation.relevant_nodes
+                            if compilation is not None
+                            else [node for path in intervention.active_paths + intervention.frozen_paths for node in path]
+                        ),
+                    }
+                )
+            )
+            result = IdentificationResult(
+                status=IdentificationStatus.IDENTIFIED,
+                estimand_ast=EstimandAST(
+                    query_str=render_intervention_query(query),
+                    root=PathSpecificNode(
+                        treatment=treatment_name,
+                        outcome=outcome_name,
+                        active_paths=intervention.active_paths,
+                        frozen_paths=intervention.frozen_paths,
+                        conditioning=tuple(report.semantic_query.conditioning),
+                        dataset_ref=dataset_ref,
+                    ),
+                    treatment=treatment_name,
+                    outcome=outcome_name,
+                    all_variables=all_variables,
+                    identification_method="path_specific_id",
                 ),
+                hedge_certificate=None,
+                trace=proof_trace,
+                required_distributions=list(report.required_distributions),
+                algorithm_version="path_intervention_v1",
+                proof_steps=[
+                    IRProofStep(
+                        rule_name="PATH_ID_START",
+                        description=(
+                            "Constructed a path-specific effect query from the declared "
+                            "active and frozen paths."
+                        ),
+                        variables_affected=tuple(sorted({treatment_name, outcome_name, *mediators})),
+                        graph_subset=graph.graph_type.value,
+                        rule_formal_name="Path-specific effect construction",
+                        applicable_theorem="Avin, Shpitser & Pearl (2005), IJCAI",
+                        graph_state_before=f"{len(graph.nodes)} nodes / {len(graph.edges)} edges",
+                        graph_state_after="path-specific query instantiated",
+                    ),
+                    IRProofStep(
+                        rule_name="PATH_DISTRICT_COMPILE",
+                        description=(
+                            "Compiled the path policy into a district-local symbolic plan "
+                            "with explicit frontier labels."
+                        ),
+                        variables_affected=tuple(sorted(compilation.relevant_nodes if compilation is not None else ())),
+                        graph_subset=graph.graph_type.value,
+                        rule_formal_name="District-local path compilation",
+                        applicable_theorem=report.theorem_family,
+                        graph_state_before="candidate path-specific effect",
+                        graph_state_after="district-local compiled plan",
+                    ),
+                ],
+                metadata={
+                    **diagnostics,
+                    **dict(report.metadata),
+                    "required_distributions": [
+                        item.model_dump(mode="json") for item in report.required_distributions
+                    ],
+                },
             )
             return self._decorate_identification_result_with_intervention_query(result, query)
 
-        paths = (*intervention.active_paths, *intervention.frozen_paths)
-        outcome_name = next(iter(sorted(outcome)))
-        treatment_name = paths[0][0] if paths else "path"
-        mediators = tuple(
-            sorted(
-                {
-                    *intervention.natural_value_vars,
-                    *(node for path in paths for node in path[1:-1]),
-                }
+        witness_kinds = {
+            item.kind for item in report.witnesses
+        }
+        if report.mode is PathSpecificDecisionMode.EXACT_WITH_EXPERIMENTS:
+            all_variables = tuple(
+                sorted(
+                    {
+                        outcome_name,
+                        treatment_name,
+                        *(
+                            compilation.relevant_nodes
+                            if compilation is not None
+                            else [
+                                node
+                                for path in intervention.active_paths + intervention.frozen_paths
+                                for node in path
+                            ]
+                        ),
+                    }
+                )
             )
-        )
-        adjacency = self._directed_adjacency(graph)
-        has_witness, witness_vars = _recanting_witness_check(
-            treatment_name,
-            outcome_name,
-            mediators,
-            adjacency,
-        )
-        if has_witness or not _identify_path_specific(
-            treatment_name,
-            outcome_name,
-            mediators,
-            intervention.active_paths,
-            intervention.frozen_paths,
-            adjacency,
-        ):
-            proof_trace = [
-                "path_id: constructed path-specific query",
-                (
-                    "path_id: recanting witness detected for "
-                    f"{', '.join(witness_vars) if witness_vars else 'unknown mediator'}"
+            result = IdentificationResult(
+                status=IdentificationStatus.ORACLE_NEEDED,
+                estimand_ast=EstimandAST(
+                    query_str=render_intervention_query(query),
+                    root=PathSpecificNode(
+                        treatment=treatment_name,
+                        outcome=outcome_name,
+                        active_paths=intervention.active_paths,
+                        frozen_paths=intervention.frozen_paths,
+                        conditioning=tuple(report.semantic_query.conditioning),
+                        dataset_ref=dataset_ref,
+                    ),
+                    treatment=treatment_name,
+                    outcome=outcome_name,
+                    all_variables=all_variables,
+                    identification_method="path_specific_id",
                 ),
-            ]
+                hedge_certificate=None,
+                trace=proof_trace,
+                required_distributions=list(report.required_distributions),
+                algorithm_version="path_intervention_surrogate_v1",
+                proof_steps=[
+                    IRProofStep(
+                        rule_name="PATH_ID_START",
+                        description=(
+                            "Constructed a path-specific effect query from the declared "
+                            "active and frozen paths."
+                        ),
+                        variables_affected=tuple(sorted({treatment_name, outcome_name, *mediators})),
+                        graph_subset=graph.graph_type.value,
+                        rule_formal_name="Path-specific effect construction",
+                        applicable_theorem="Avin, Shpitser & Pearl (2005), IJCAI",
+                        graph_state_before=f"{len(graph.nodes)} nodes / {len(graph.edges)} edges",
+                        graph_state_after="path-specific query instantiated",
+                    ),
+                    IRProofStep(
+                        rule_name="PATH_SURROGATE_COMPILE",
+                        description=(
+                            "Compiled the path query into a hybrid source/experimental "
+                            "district-local formula that can be discharged once the "
+                            "required surrogate distributions are bound."
+                        ),
+                        variables_affected=tuple(sorted(compilation.relevant_nodes if compilation is not None else ())),
+                        graph_subset=graph.graph_type.value,
+                        rule_formal_name="Surrogate-experiment path compilation",
+                        applicable_theorem=report.theorem_family,
+                        graph_state_before="observational path query blocked",
+                        graph_state_after="hybrid source/experimental compiled plan",
+                    ),
+                ],
+                metadata={
+                    **diagnostics,
+                    **dict(report.metadata),
+                },
+            )
+            return self._decorate_identification_result_with_intervention_query(result, query)
+
+        if report.mode is PathSpecificDecisionMode.TEMPLATE_PROXIMAL:
             return self._intervention_negative_certificate(
                 query=query,
-                blocking_type=BlockingType.SEMANTICS_NOT_WELL_DEFINED,
+                blocking_type=BlockingType.OUT_OF_SCOPE_FOR_PROXIMAL_V1,
                 blocking_description=(
-                    "Path-specific query is blocked by the recanting witness criterion."
+                    "This path-specific query requires a certified proximal template "
+                    "reducer that is not yet wired into the native backend."
                 ),
                 algorithm_version="path_intervention_v1",
-                constructive_message=(
-                    "Collect interventional data on the mediator-specific channels or "
-                    "restate the query as an edge/node intervention that avoids natural "
-                    "value cross-world semantics."
-                ),
+                constructive_message=report.constructive_message,
                 proof_trace=proof_trace,
-                negative_payload={
-                    "blocking_type": "recanting_witness",
-                    "witness_variables": list(witness_vars),
-                    "treatment": treatment_name,
-                    "outcome": outcome_name,
-                },
+                negative_payload={"blocking_type": "template_proximal"},
                 extra_diagnostics={
-                    "witness_variables": list(witness_vars),
+                    **diagnostics,
+                    **dict(report.metadata),
                 },
             )
 
-        all_variables = tuple(
-            sorted({outcome_name, treatment_name, *(node for path in paths for node in path)})
-        )
-        result = IdentificationResult(
-            status=IdentificationStatus.IDENTIFIED,
-            estimand_ast=EstimandAST(
-                query_str=render_intervention_query(query),
-                root=PathSpecificNode(
-                    treatment=treatment_name,
-                    outcome=outcome_name,
-                    active_paths=intervention.active_paths,
-                    frozen_paths=intervention.frozen_paths,
-                    dataset_ref=dataset_ref,
-                ),
-                treatment=treatment_name,
-                outcome=outcome_name,
-                all_variables=all_variables,
-                identification_method="path_specific_id",
-            ),
-            hedge_certificate=None,
-            trace=[
-                "path_id: constructed path-specific estimand",
-                "path_id: recanting witness check passed",
-            ],
-            required_distributions=[],
+        if PathSpecificWitnessKind.WIDTH_BUDGET_EXCEEDED in witness_kinds:
+            blocking_description = (
+                "Path-specific exact compilation exceeded the configured width budget."
+            )
+        elif PathSpecificWitnessKind.UNSUPPORTED_CONDITIONING in witness_kinds:
+            blocking_description = (
+                "Conditional path-specific queries are not yet certified in the native backend."
+            )
+        elif PathSpecificWitnessKind.EDGE_INCONSISTENCY in witness_kinds:
+            blocking_description = (
+                "The path-specific policy is edge-inconsistent: at least one edge is both active and frozen."
+            )
+        elif PathSpecificWitnessKind.TOTAL_EFFECT_NOT_IDENTIFIED in witness_kinds:
+            blocking_description = (
+                "The corresponding total/interventional effect is not observationally identified."
+            )
+        elif PathSpecificWitnessKind.RECANTING_DISTRICT in witness_kinds:
+            blocking_description = (
+                "Path-specific query is blocked by the recanting district criterion."
+            )
+        else:
+            blocking_description = (
+                "Path-specific query is blocked by the recanting witness criterion."
+            )
+
+        negative = self._intervention_negative_certificate(
+            query=query,
+            blocking_type=BlockingType.SEMANTICS_NOT_WELL_DEFINED,
+            blocking_description=blocking_description,
             algorithm_version="path_intervention_v1",
-            proof_steps=[
-                IRProofStep(
-                    rule_name="PATH_ID_START",
-                    description=(
-                        "Constructed a path-specific effect query from the declared "
-                        "active and frozen paths."
-                    ),
-                    variables_affected=tuple(sorted({treatment_name, outcome_name, *mediators})),
-                    graph_subset="directed acyclic graph",
-                    rule_formal_name="Path-specific effect construction",
-                    applicable_theorem="Avin, Shpitser & Pearl (2005), IJCAI",
-                    graph_state_before=f"{len(graph.nodes)} nodes / {len(graph.edges)} edges",
-                    graph_state_after="path-specific query instantiated",
+            constructive_message=report.constructive_message or (
+                "Collect interventional data on the mediator-specific channels or "
+                "restate the query as an edge/node intervention that avoids natural "
+                "value cross-world semantics."
+            ),
+            proof_trace=proof_trace,
+            negative_payload={
+                "blocking_type": (
+                    report.witnesses[0].kind.value if report.witnesses else report.mode.value
                 ),
-                IRProofStep(
-                    rule_name="RECANTING_WITNESS_CHECK",
-                    description="No recanting witness detected for the requested path intervention.",
-                    variables_affected=tuple(sorted(mediators)),
-                    graph_subset="directed acyclic graph",
-                    rule_formal_name="Recanting witness criterion",
-                    applicable_theorem="Avin, Shpitser & Pearl (2005), IJCAI",
-                    graph_state_before="candidate path-specific effect",
-                    graph_state_after="path-specific effect accepted as identifiable",
-                ),
-            ],
+                "treatment": treatment_name,
+                "outcome": outcome_name,
+            },
+            extra_diagnostics={
+                **diagnostics,
+                **dict(report.metadata),
+            },
         )
-        return self._decorate_identification_result_with_intervention_query(result, query)
+        if report.bounds_bundle is not None:
+            negative = negative.model_copy(update={"bounds_bundle": report.bounds_bundle})
+        if report.required_distributions:
+            negative = negative.model_copy(
+                update={
+                    "required_distributions": tuple(
+                        item.model_dump(mode="json") for item in report.required_distributions
+                    )
+                }
+            )
+        return negative
 
     def _identify_interference_intervention_backend(
         self,
@@ -2262,6 +3325,15 @@ class CausalEngine:
             interference_result,
             reduction_policy=reduction_policy,
         )
+        effective_mode = (
+            interference_certificate.mode_used or interference_certificate.fallback_mode
+        )
+        estimand_label = {
+            "complex": "complex_exposure_effect",
+            "clustered": "clustered_exposure_effect",
+            "pairwise": "pairwise_projection_effect",
+            "unsupported": "unsupported_complex_effect",
+        }[effective_mode]
         metadata: dict[str, Any] = {
             "interaction_complex": (
                 interaction_complex.model_dump(mode="json")
@@ -2271,6 +3343,12 @@ class CausalEngine:
             "interference_certificate": interference_certificate.model_dump(mode="json"),
             "interference_mode": intervention.interference_mode,
             "interference_fallback_mode": intervention.fallback_mode,
+            "interference_mode_requested": (
+                interference_certificate.mode_requested or intervention.interference_mode
+            ),
+            "interference_mode_used": effective_mode,
+            "interference_fallback_triggered": interference_certificate.fallback_triggered,
+            "interference_estimand_label": estimand_label,
             "exposure_mapping": exposure_mapping.value,
         }
         if self._artifact_store is not None and intervention.interaction_complex_ref is not None:
@@ -2359,6 +3437,7 @@ class CausalEngine:
         graph: CausalGraphModel,
         oracle: str,
         dataset_ref: str | None,
+        proximal_annotation: ProxyAnnotation | dict[str, Any] | None = None,
     ) -> IdentificationResult | NegativeCertificate:
         composition = check_intervention_composition(query.intervention)
         if not composition.well_typed:
@@ -2679,6 +3758,7 @@ class CausalEngine:
                 dataset_ref=dataset_ref,
                 intervention=effective_intervention,
                 outcome=outcome,
+                proximal_annotation=proximal_annotation,
             )
 
         if isinstance(effective_intervention, InterferenceIntervention):
@@ -2779,6 +3859,7 @@ class CausalEngine:
                     graph=graph,
                     oracle=oracle,
                     dataset_ref=dataset_ref,
+                    proximal_annotation=proximal_annotation,
                 )
             elif has_directed_cycle(graph):
                 result = self._identify_with_dynamic_semantics(
@@ -3310,8 +4391,56 @@ class CausalEngine:
                     dp_certificate,
                     estimand_type="causal_effect",
                 )
+        proximal_mediation_bounds = None
+        metadata = dict(getattr(identification_outcome, "metadata", {}) or {})
+        cert_payload = metadata.get("proximal_mediation_certificate")
+        if (
+            cert_payload is not None
+            and getattr(identification_outcome, "status", None) is IdentificationStatus.ORACLE_NEEDED
+        ):
+            try:
+                from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
+                    proximal_mediation_bounds_bundle,
+                )
+                from polisyos.ir.analytics.proximal import ProximalMediationCertificate
 
-        return identification_outcome, proof_bundle, None, dp_bounds_bundle, None, dp_certificate, None
+                certificate = ProximalMediationCertificate.model_validate(cert_payload)
+                outcome_vector = None
+                if data_dict:
+                    outcome_vector = _coerce_aligned_vector(
+                        _first_non_null(
+                            data_dict,
+                            ("outcome", certificate.query.outcome),
+                        )
+                    )
+                proximal_mediation_bounds = proximal_mediation_bounds_bundle(
+                    outcome=outcome_vector,
+                    target_effect=certificate.query.target_effect,
+                    outcome_support=_resolve_graph_outcome_support(
+                        graph,
+                        outcome=certificate.query.outcome,
+                    ),
+                    assumption_tag="proximal_mediation_oracle_not_accepted",
+                    metadata={
+                        "path_specific_proximal": True,
+                        "query_target_effect": certificate.query.target_effect,
+                    },
+                    warnings=[
+                        "Proof kernel certified the proximal mediation template, but oracle assumptions were not accepted; returned bounds instead of a point estimate.",
+                    ],
+                )
+            except Exception:
+                proximal_mediation_bounds = None
+
+        return (
+            identification_outcome,
+            proof_bundle,
+            None,
+            proximal_mediation_bounds or dp_bounds_bundle,
+            None,
+            dp_certificate,
+            None,
+        )
 
     def _complete_negative_certificate(
         self,
@@ -3341,6 +4470,35 @@ class CausalEngine:
         notes = list(extraction_notes)
         bounds_bundle: BoundsBundle | None = negative_cert.bounds_bundle
         dual_certificate_payload: dict[str, Any] | None = None
+        if bounds_bundle is None and diagnostics.get("path_specific_proximal"):
+            try:
+                from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
+                    proximal_mediation_bounds_bundle,
+                )
+
+                bounds_bundle = proximal_mediation_bounds_bundle(
+                    outcome=y,
+                    target_effect=str(diagnostics.get("target_effect") or "psi"),
+                    outcome_support=_resolve_graph_outcome_support(
+                        graph,
+                        outcome=(
+                            outcome
+                            if isinstance(outcome, str)
+                            else next(iter(sorted(outcome)), "outcome")
+                        ),
+                    ),
+                    assumption_tag="proximal_mediation_structure_failed",
+                    metadata={
+                        "path_specific_proximal": True,
+                        "failed_check": diagnostics.get("failed_check"),
+                    },
+                    warnings=[
+                        "Structural proximal mediation checks failed; returned theorem-specific outer bounds when support information was available.",
+                    ],
+                )
+                notes.append("Computed proximal mediation support-implied bounds bundle.")
+            except Exception as exc:
+                notes.append(f"Proximal mediation bounds completion failed: {exc}")
         if bounds_bundle is None and y is not None and t is not None:
             bounds_bundle, bounds_notes, dual_certificate_payload = self._compute_generic_bounds_bundle(
                 y=y,
@@ -3761,6 +4919,7 @@ class CausalEngine:
         covariate_dim: int | None = None,
         run_id: str | None = None,
         use_cross_fitting: bool = True,
+        data_readiness_report: Any | None = None,
     ) -> ExecutorGraph:
         """Compile an IdentificationResult into an ExecutorGraph.
 
@@ -3774,6 +4933,7 @@ class CausalEngine:
         if identification_result.estimand_ast is None:
             raise ValueError("IdentificationResult has no estimand_ast to compile")
 
+        identification_metadata = dict(getattr(identification_result, "metadata", {}) or {})
         _, executor_graph = compile_estimand(
             identification_result.estimand_ast,
             run_id=run_id or "",
@@ -3783,6 +4943,15 @@ class CausalEngine:
             knowledge_base=self._kb,
             proof_steps=tuple(identification_result.proof_steps),
             causal_graph=graph,
+            identification_metadata=identification_metadata,
+            recoverability_certificate=(
+                identification_metadata.get("recoverability_certificate")
+            ),
+            data_readiness=(
+                data_readiness_report
+                if data_readiness_report is not None
+                else identification_metadata.get("data_readiness_report")
+            ),
         )
         return executor_graph
 
@@ -4057,6 +5226,7 @@ class CausalEngine:
         sample_size: int | None,
         fallback_data_available: bool,
         recoverability_certificate: dict[str, Any] | None = None,
+        missingness_assessment: Any | None = None,
     ) -> tuple[DataReadinessReport, dict[str, Any]]:
         """Build readiness from diagnostic nodes before any estimator executes."""
         base_report = build_data_readiness_report(
@@ -4064,6 +5234,7 @@ class CausalEngine:
             measurement_quality="unknown",
             fallback_data_available=fallback_data_available,
             recoverability_certificate=recoverability_certificate,
+            missingness_assessment=missingness_assessment,
         )
         if data_dict is None or self._registry is None:
             return base_report, {}
@@ -4092,6 +5263,7 @@ class CausalEngine:
             sample_size=sample_size,
             fallback_data_available=fallback_data_available,
             recoverability_certificate=recoverability_certificate,
+            missingness_assessment=missingness_assessment,
         )
         return (
             resolved_report
@@ -4234,14 +5406,25 @@ class CausalEngine:
             proof_payload = ProofBundle.model_validate(proof_payload)
         if self._artifact_store is not None:
             metadata_update = dict(proof_payload.metadata)
+            if "bridge_plausibility_report" not in metadata_update:
+                for outputs in (node_outputs or {}).values():
+                    if isinstance(outputs, dict) and isinstance(
+                        outputs.get("bridge_plausibility_report"), dict
+                    ):
+                        metadata_update["bridge_plausibility_report"] = outputs[
+                            "bridge_plausibility_report"
+                        ]
+                        break
             resolved_query_ref = proof_payload.query_ref
             resolved_frontier_sketch_ref = proof_payload.frontier_sketch_ref
+            resolved_bridge_plausibility_report_ref = proof_payload.bridge_plausibility_report_ref
             resolved_proximal_certificate_ref = proof_payload.proximal_certificate_ref
             resolved_recoverability_certificate_ref = proof_payload.recoverability_certificate_ref
             resolved_joint_decision_ref = proof_payload.joint_decision_ref
             intervention_query_payload = metadata_update.get("intervention_query")
             intervention_certificate_payload = metadata_update.get("intervention_certificate")
             frontier_sketch_payload = metadata_update.get("frontier_sketch")
+            bridge_plausibility_payload = metadata_update.get("bridge_plausibility_report")
             proximal_certificate_payload = metadata_update.get("proximal_certificate")
             recoverability_certificate_payload = metadata_update.get("recoverability_certificate")
             joint_decision_payload = metadata_update.get("joint_decision")
@@ -4292,6 +5475,17 @@ class CausalEngine:
                 )
                 metadata_update["frontier_sketch_ref"] = resolved_frontier_sketch_ref.model_dump(
                     mode="json"
+                )
+            if isinstance(bridge_plausibility_payload, dict):
+                bridge_plausibility_model = BridgePlausibilityReport.model_validate(
+                    bridge_plausibility_payload
+                )
+                resolved_bridge_plausibility_report_ref = persist_bridge_plausibility_report(
+                    self._artifact_store,
+                    bridge_plausibility_model,
+                )
+                metadata_update["bridge_plausibility_report_ref"] = (
+                    resolved_bridge_plausibility_report_ref.model_dump(mode="json")
                 )
             if isinstance(proximal_certificate_payload, dict):
                 proximal_certificate_model = ProximalIdentificationCertificate.model_validate(
@@ -4354,6 +5548,7 @@ class CausalEngine:
                         "metadata": metadata_update,
                         "query_ref": resolved_query_ref,
                         "frontier_sketch_ref": resolved_frontier_sketch_ref,
+                        "bridge_plausibility_report_ref": resolved_bridge_plausibility_report_ref,
                         "proximal_certificate_ref": resolved_proximal_certificate_ref,
                         "recoverability_certificate_ref": resolved_recoverability_certificate_ref,
                         "joint_decision_ref": resolved_joint_decision_ref,
@@ -4504,6 +5699,98 @@ class CausalEngine:
                         diag[key] = float(val)
                     except (TypeError, ValueError):
                         pass
+            bridge_report = outputs.get("bridge_plausibility_report")
+            if isinstance(bridge_report, dict):
+                bridge_metric_keys = {
+                    "residual_r": "bridge_residual_r",
+                    "effective_rank": "bridge_effective_rank",
+                    "sigma_min": "bridge_sigma_min",
+                    "ill_posedness_index": "bridge_ill_posedness_index",
+                    "proxy_association_score": "bridge_proxy_association",
+                }
+                for source_key, target_key in bridge_metric_keys.items():
+                    val = bridge_report.get(source_key)
+                    if val is not None and target_key not in diag:
+                        try:
+                            diag[target_key] = float(val)
+                        except (TypeError, ValueError):
+                            pass
+            kernel_report = outputs.get("kernel_report")
+            if isinstance(kernel_report, dict):
+                for source_key, target_key in {
+                    "effect_norm": "kernel_effect_norm",
+                    "condition_number": "kernel_condition_number",
+                }.items():
+                    val = kernel_report.get(source_key)
+                    if val is not None and target_key not in diag:
+                        try:
+                            diag[target_key] = float(val)
+                        except (TypeError, ValueError):
+                            pass
+                if "characteristic" in kernel_report:
+                    diag["kernel_characteristic"] = (
+                        1.0 if bool(kernel_report["characteristic"]) else 0.0
+                    )
+                if "weak_metrizing" in kernel_report:
+                    diag["kernel_weak_metrizing"] = (
+                        1.0 if bool(kernel_report["weak_metrizing"]) else 0.0
+                    )
+            kernel_semantics = outputs.get("kernel_semantics")
+            if isinstance(kernel_semantics, dict):
+                if "passed" in kernel_semantics:
+                    diag["kernel_semantics_passed"] = (
+                        1.0 if bool(kernel_semantics["passed"]) else 0.0
+                    )
+                if (
+                    "characteristic" in kernel_semantics
+                    and "kernel_characteristic" not in diag
+                ):
+                    diag["kernel_characteristic"] = (
+                        1.0 if bool(kernel_semantics["characteristic"]) else 0.0
+                    )
+                if (
+                    "weak_metrizing" in kernel_semantics
+                    and "kernel_weak_metrizing" not in diag
+                ):
+                    diag["kernel_weak_metrizing"] = (
+                        1.0 if bool(kernel_semantics["weak_metrizing"]) else 0.0
+                    )
+            kernel_regularization = outputs.get("kernel_regularization")
+            if isinstance(kernel_regularization, dict):
+                for source_key, target_key in {
+                    "condition_number": "kernel_condition_number",
+                    "instability": "kernel_regularization_instability",
+                }.items():
+                    val = kernel_regularization.get(source_key)
+                    if val is not None and target_key not in diag:
+                        try:
+                            diag[target_key] = float(val)
+                        except (TypeError, ValueError):
+                            pass
+            kernel_effect_test = outputs.get("kernel_effect_test")
+            if isinstance(kernel_effect_test, dict):
+                p_val = kernel_effect_test.get("p_value")
+                if p_val is not None:
+                    try:
+                        diag["kernel_effect_test_p_value"] = float(p_val)
+                    except (TypeError, ValueError):
+                        pass
+                if "effect_norm" in kernel_effect_test and "kernel_effect_norm" not in diag:
+                    try:
+                        diag["kernel_effect_norm"] = float(kernel_effect_test["effect_norm"])
+                    except (TypeError, ValueError):
+                        pass
+            if isinstance(result_dict, dict):
+                for source_key, target_key in {
+                    "operator_injectivity_score": "operator_injectivity_score",
+                    "proxy_association_score": "proxy_association_score",
+                }.items():
+                    val = result_dict.get(source_key)
+                    if val is not None and target_key not in diag:
+                        try:
+                            diag[target_key] = float(val)
+                        except (TypeError, ValueError):
+                            pass
 
         # -- Estimand AST -----------------------------------------------
         estimand_dict: dict[str, Any] = {}
@@ -4517,6 +5804,59 @@ class CausalEngine:
                 estimand_dict = ast.model_dump(mode="json")
             except Exception:
                 estimand_dict = {}
+
+        method_config: dict[str, Any] = {}
+        kernel_spec_payload: dict[str, Any] | None = None
+        resolved_kernel_spec = None
+        if executor_graph is not None:
+            primary_nodes = [
+                node
+                for node in executor_graph.nodes
+                if not getattr(node, "is_nuisance", False)
+                and node.method_fqn != "causal.sensitivity.sensitivity_metrics"
+            ]
+            if primary_nodes:
+                primary_node = primary_nodes[-1]
+                method_config["primary_method_fqn"] = (
+                    f"{primary_node.method_fqn}@{primary_node.method_version}"
+                )
+            method_config["executor_node_count"] = len(executor_graph.nodes)
+            nuisance_fqns = [
+                f"{node.method_fqn}@{node.method_version}"
+                for node in executor_graph.nodes
+                if getattr(node, "is_nuisance", False)
+            ]
+            if nuisance_fqns:
+                method_config["nuisance_method_fqns"] = nuisance_fqns
+            for node in executor_graph.nodes:
+                payload = node.params.get("kernel_spec")
+                if isinstance(payload, dict):
+                    kernel_spec_payload = payload
+                    break
+        if kernel_spec_payload is not None:
+            try:
+                from polisyos.ir.analytics.kernel_causal import KernelEstimatorSpec
+
+                resolved_kernel_spec = KernelEstimatorSpec.model_validate(kernel_spec_payload)
+                method_config.update(
+                    {
+                        "kernel_template": resolved_kernel_spec.template.value,
+                        "kernel_target_representation": (
+                            resolved_kernel_spec.target_representation.value
+                        ),
+                        "kernel_consistency_claim": (
+                            resolved_kernel_spec.consistency_claim.value
+                        ),
+                        "kernel_lowering_disposition": (
+                            resolved_kernel_spec.lowering_disposition.value
+                        ),
+                        "kernel_output_kernel": resolved_kernel_spec.output_kernel.model_dump(
+                            mode="json"
+                        ),
+                    }
+                )
+            except Exception:
+                resolved_kernel_spec = None
 
         # -- 5.1: fingerprints ------------------------------------------
         graph_fp = ""
@@ -4625,10 +5965,121 @@ class CausalEngine:
         except Exception:
             pass
 
+        witness_index = None
+        if graph is not None and ir_steps:
+            try:
+                witness_index = build_witness_index_from_proof_steps(
+                    ir_steps,
+                    graph=graph,
+                    theorem_family=proof_payload.theorem_family,
+                )
+            except Exception:
+                witness_index = None
+
+        proof_trace_ref = proof_payload.proof_trace_ref
+        witness_index_ref = proof_payload.witness_index_ref
+        if self._artifact_store is not None and proof_trace_ref is None and ir_steps:
+            trace_bundle_payload = EvidenceBundle(
+                run_id=run_id,
+                query_str=query_str,
+                estimand_ast=estimand_dict,
+                proof_steps=tuple(ir_steps),
+                data_provenance=tuple(provenance),
+                diagnostic_scores=diag,
+                method_config=method_config,
+                identification_status=(
+                    identification_result.status.value
+                    if isinstance(identification_result, IdentificationResult)
+                    else str(proof_payload.metadata.get("status") or proof_payload.proof_status)
+                ),
+                algorithm_version=(
+                    getattr(identification_result, "algorithm_version", "id_v1")
+                    if isinstance(identification_result, IdentificationResult)
+                    else str(
+                        negative_certificate.quantitative_diagnostics.get("algorithm_version")
+                        if negative_certificate is not None
+                        else proof_payload.theorem_family
+                    )
+                ),
+                created_at=datetime.now(timezone.utc).isoformat(),
+                graph_fingerprint=graph_fp,
+                estimand_fingerprint=estimand_fp,
+                compilation_steps=tuple(compilation_steps),
+                estimation_steps=tuple(estimation_steps),
+                diagnostic_dashboard=dashboard_dict,
+                quality_report=quality_dict,
+            )
+            proof_trace_ref = persist_causal_evidence_bundle(
+                self._artifact_store,
+                trace_bundle_payload,
+            )
+        if (
+            self._artifact_store is not None
+            and witness_index_ref is None
+            and witness_index is not None
+        ):
+            witness_inputs = (
+                [
+                    InputRef(
+                        artifact_id=proof_trace_ref.artifact_id,
+                        role="proof_trace",
+                    )
+                ]
+                if proof_trace_ref is not None
+                else None
+            )
+            witness_index_ref = persist_proof_witness_index(
+                self._artifact_store,
+                witness_index,
+                inputs=witness_inputs,
+            )
+        if proof_trace_ref is not None or witness_index_ref is not None or witness_index is not None:
+            metadata_update = dict(proof_payload.metadata)
+            if proof_trace_ref is not None:
+                metadata_update["proof_trace_ref"] = proof_trace_ref.model_dump(mode="json")
+            if witness_index_ref is not None:
+                metadata_update["witness_index_ref"] = witness_index_ref.model_dump(mode="json")
+            proof_support_projection_hash = (
+                proof_payload.proof_support_projection_hash
+                or (
+                    witness_index.proof_support_projection_hash
+                    if witness_index is not None
+                    else None
+                )
+            )
+            metadata_update["proof_support_projection_hash"] = proof_support_projection_hash
+            metadata_update.setdefault(
+                "composability_status",
+                proof_payload.composability_status,
+            )
+            proof_payload = proof_payload.model_copy(
+                update={
+                    "proof_trace_ref": proof_trace_ref,
+                    "witness_index_ref": witness_index_ref,
+                    "proof_support_projection_hash": proof_support_projection_hash,
+                    "metadata": metadata_update,
+                }
+            )
+        if (
+            self._artifact_store is not None
+            and graph is not None
+            and witness_index is not None
+            and witness_index.witnesses
+        ):
+            proof_payload = _attach_proof_composability_certificate(
+                store=self._artifact_store,
+                proof_payload=proof_payload,
+                witness_index=witness_index,
+                graph=graph,
+                query_str=query_str,
+                graph_fingerprint=graph_fp,
+            )
+
         proof_bundle_ref = None
         bounds_bundle_ref = None
         negative_certificate_ref = None
         data_readiness_report_ref = None
+        kernel_estimator_spec_ref = None
         if self._artifact_store is not None:
             if resolved_dp_certificate is not None:
                 dp_robustness_ref = persist_dp_robustness_certificate(
@@ -4640,9 +6091,31 @@ class CausalEngine:
                     dp_robustness_ref,
                     resolved_dp_certificate,
                 )
+            proof_bundle_inputs = [
+                InputRef(artifact_id=trace_ref.artifact_id, role="proof_trace")
+                for trace_ref in (proof_payload.proof_trace_ref,)
+                if trace_ref is not None
+            ]
+            proof_bundle_inputs.extend(
+                InputRef(
+                    artifact_id=witness_ref.artifact_id,
+                    role="proof_witness_index",
+                )
+                for witness_ref in (proof_payload.witness_index_ref,)
+                if witness_ref is not None
+            )
+            proof_bundle_inputs.extend(
+                InputRef(
+                    artifact_id=composability_ref.artifact_id,
+                    role="proof_composability_certificate",
+                )
+                for composability_ref in (proof_payload.composability_certificate_ref,)
+                if composability_ref is not None
+            )
             proof_bundle_ref = persist_proof_bundle(
                 self._artifact_store,
                 proof_payload,
+                inputs=proof_bundle_inputs or None,
             )
             if bounds_payload is not None:
                 bounds_payload, bounds_inputs = hydrate_bounds_bundle_with_dual_certificate(
@@ -4706,6 +6179,31 @@ class CausalEngine:
                     negative_certificate,
                     inputs=negative_inputs,
                 )
+            if resolved_kernel_spec is not None:
+                from polisyos.ir.analytics.kernel_causal import persist_kernel_estimator_spec
+
+                if proof_bundle_ref is not None and resolved_kernel_spec.proof_bundle_ref is None:
+                    resolved_kernel_spec = resolved_kernel_spec.model_copy(
+                        update={"proof_bundle_ref": proof_bundle_ref}
+                    )
+                kernel_inputs = (
+                    [
+                        InputRef(
+                            artifact_id=proof_bundle_ref.artifact_id,
+                            role="proof_bundle",
+                        )
+                    ]
+                    if proof_bundle_ref is not None
+                    else None
+                )
+                kernel_estimator_spec_ref = persist_kernel_estimator_spec(
+                    self._artifact_store,
+                    resolved_kernel_spec,
+                    inputs=kernel_inputs,
+                )
+                method_config["kernel_estimator_spec_ref"] = (
+                    kernel_estimator_spec_ref.model_dump(mode="json")
+                )
 
         return EvidenceBundle(
             run_id=run_id,
@@ -4714,6 +6212,7 @@ class CausalEngine:
             proof_steps=tuple(ir_steps),
             data_provenance=tuple(provenance),
             diagnostic_scores=diag,
+            method_config=method_config,
             identification_status=(
                 identification_result.status.value
                 if isinstance(identification_result, IdentificationResult)
@@ -4739,6 +6238,7 @@ class CausalEngine:
             bounds_bundle_ref=bounds_bundle_ref,
             negative_certificate_ref=negative_certificate_ref,
             data_readiness_report_ref=data_readiness_report_ref,
+            kernel_estimator_spec_ref=kernel_estimator_spec_ref,
         )
 
     # ------------------------------------------------------------------
@@ -4766,6 +6266,7 @@ class CausalEngine:
         dataset_ref: str | None = None,
         mgraph_meta: Any | None = None,
         counterfactual_query: CtfQuery | None = None,
+        intervention_query: InterventionQuery | None = None,
         proximal_annotation: ProxyAnnotation | dict[str, Any] | None = None,
     ) -> tuple[Any, EvidenceBundle, NegativeCertificate | None]:
         """Run the full Pearl-Bareinboim pipeline: identify → compile → estimate → audit.
@@ -4791,6 +6292,7 @@ class CausalEngine:
             dataset_ref=dataset_ref,
             mgraph_meta=mgraph_meta,
             counterfactual_query=counterfactual_query,
+            intervention_query=intervention_query,
             proximal_annotation=proximal_annotation,
         )
 
@@ -4814,6 +6316,13 @@ class CausalEngine:
         recoverability_summary = _extract_recoverability_summary(
             resolved_id_result if negative_cert is None else negative_cert
         ) or _extract_recoverability_summary(proof_bundle)
+        missingness_assessment = _resolve_missingness_assessment(
+            graph=graph,
+            data_dict=data_dict,
+            mgraph_meta=mgraph_meta,
+            treatment=treatment,
+            outcome=outcome,
+        )
 
         # If identification failed, return canonical impossibility artifacts.
         if negative_cert is not None:
@@ -4822,6 +6331,7 @@ class CausalEngine:
                 measurement_quality="unknown",
                 fallback_data_available=fallback_data_available,
                 recoverability_certificate=recoverability_summary,
+                missingness_assessment=missingness_assessment,
                 extra_metrics=_float_metrics_from_mapping(negative_cert.quantitative_diagnostics),
             )
             bundle = self.audit(
@@ -4841,20 +6351,95 @@ class CausalEngine:
             return None, bundle, negative_cert
 
         if proximal_certificate is not None:
+            proximal_state = _derive_proximal_bridge_state(
+                data_dict=data_dict,
+                treatment=treatment,
+                outcome=outcome,
+                certificate=proximal_certificate,
+            )
+            proximal_output: dict[str, Any] | None = None
+            proximal_metrics: dict[str, Any] = {
+                "bridge_functions_count": proof_bundle.metadata.get(
+                    "bridge_functions_count"
+                ),
+                "graph_checks_count": proof_bundle.metadata.get("graph_checks_count"),
+            }
+            if proximal_state is not None:
+                from polisyos.foundry.methods.catalog.causal.frontier import (
+                    ProximalBridgeEstimator,
+                )
+
+                proximal_output = ProximalBridgeEstimator.pure_step(
+                    proximal_state,
+                    {
+                        "n_bootstrap": 200,
+                        "confidence_level": 0.95,
+                        "ridge": 1.0e-4,
+                        "__seed__": int(hashlib.sha256(run_id.encode()).hexdigest()[:8], 16),
+                    },
+                )
+                bridge_report_payload = proximal_output.get("bridge_plausibility_report")
+                if isinstance(bridge_report_payload, dict):
+                    proximal_metrics.update(
+                        {
+                            "bridge_residual_r": bridge_report_payload.get("residual_r"),
+                            "bridge_effective_rank": bridge_report_payload.get("effective_rank"),
+                            "bridge_sigma_min": bridge_report_payload.get("sigma_min"),
+                            "bridge_proxy_association": bridge_report_payload.get(
+                                "proxy_association_score"
+                            ),
+                        }
+                    )
+
             readiness_report = build_data_readiness_report(
                 sample_size=sample_size,
                 measurement_quality="proxy_only",
                 fallback_data_available=fallback_data_available,
                 recoverability_certificate=recoverability_summary,
-                extra_metrics=_float_metrics_from_mapping(
-                    {
-                        "bridge_functions_count": proof_bundle.metadata.get(
-                            "bridge_functions_count"
-                        ),
-                        "graph_checks_count": proof_bundle.metadata.get("graph_checks_count"),
-                    }
-                ),
+                missingness_assessment=missingness_assessment,
+                extra_metrics=_float_metrics_from_mapping(proximal_metrics),
             )
+            if proximal_output is not None:
+                proximal_report = proximal_output.get("report")
+                node_outputs = {"proximal_bridge": proximal_output}
+                negative_payload = proximal_output.get("negative_certificate")
+                bounds_payload = proximal_output.get("bounds_bundle")
+                proximal_negative_cert = (
+                    NegativeCertificate.model_validate(negative_payload)
+                    if isinstance(negative_payload, dict)
+                    else None
+                )
+                proximal_bounds_bundle = None
+                if proximal_negative_cert is not None:
+                    proximal_bounds_bundle = proximal_negative_cert.bounds_bundle
+                if proximal_bounds_bundle is None and isinstance(bounds_payload, dict):
+                    proximal_bounds_bundle = BoundsBundle.model_validate(bounds_payload)
+                if proximal_negative_cert is not None:
+                    bundle = self.audit(
+                        None,
+                        proximal_report,
+                        run_id=run_id,
+                        graph=graph,
+                        schema_report=schema_report,
+                        node_outputs=node_outputs,
+                        negative_certificate=proximal_negative_cert,
+                        proof_bundle=proof_bundle,
+                        bounds_bundle=proximal_bounds_bundle,
+                        data_readiness_report=readiness_report,
+                    )
+                    return None, bundle, proximal_negative_cert
+                if proximal_report is not None:
+                    bundle = self.audit(
+                        None,
+                        proximal_report,
+                        run_id=run_id,
+                        graph=graph,
+                        schema_report=schema_report,
+                        node_outputs=node_outputs,
+                        proof_bundle=proof_bundle,
+                        data_readiness_report=readiness_report,
+                    )
+                    return proximal_report, bundle, None
             bundle = self.audit(
                 None,
                 None,
@@ -4868,12 +6453,189 @@ class CausalEngine:
 
         assert resolved_id_result is not None
 
+        proximal_mediation_payload = dict(
+            getattr(resolved_id_result, "metadata", {}) or {}
+        ).get("proximal_mediation_certificate")
+        if proximal_mediation_payload is not None:
+            from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
+                PROXIMAL_MEDIATION_V1_THEOREM,
+                ProximalMediationEstimator,
+            )
+            from polisyos.ir.analytics.proximal import ProximalMediationCertificate
+
+            proximal_mediation_certificate = ProximalMediationCertificate.model_validate(
+                proximal_mediation_payload
+            )
+            proximal_mediation_state = _derive_proximal_mediation_state(
+                data_dict=data_dict,
+                certificate=proximal_mediation_certificate,
+            )
+            bridge_metrics: dict[str, Any] = {
+                "bridge_equations_count": len(proximal_mediation_certificate.bridge_equations),
+                "graph_checks_count": len(proximal_mediation_certificate.graph_checks),
+            }
+            readiness_report = build_data_readiness_report(
+                sample_size=sample_size,
+                measurement_quality="proxy_only",
+                fallback_data_available=fallback_data_available,
+                recoverability_certificate=recoverability_summary,
+                missingness_assessment=missingness_assessment,
+                extra_metrics=_float_metrics_from_mapping(bridge_metrics),
+            )
+            if proximal_mediation_state is None:
+                bundle = self.audit(
+                    resolved_id_result,
+                    None,
+                    run_id=run_id,
+                    graph=graph,
+                    schema_report=schema_report,
+                    proof_bundle=proof_bundle,
+                    bounds_bundle=resolved_bounds_bundle,
+                    dual_certificate_payload=dual_certificate_payload,
+                    data_readiness_report=readiness_report,
+                    dp_robustness_certificate=dp_robustness_certificate,
+                )
+                return None, bundle, None
+
+            proximal_mediation_output = ProximalMediationEstimator.pure_step(
+                proximal_mediation_state,
+                {
+                    "theorem_family": PROXIMAL_MEDIATION_V1_THEOREM,
+                    "oracle_gate": (
+                        "accepted"
+                        if bool(
+                            dict(getattr(resolved_id_result, "metadata", {}) or {}).get(
+                                "oracle_assumptions_accepted",
+                                False,
+                            )
+                        )
+                        else "required"
+                    ),
+                    "target_effect": proximal_mediation_certificate.query.target_effect,
+                    "treatment_name": proximal_mediation_certificate.query.treatment,
+                    "mediator_name": proximal_mediation_certificate.query.mediator,
+                    "outcome_name": proximal_mediation_certificate.query.outcome,
+                    "treatment_proxy_names": list(
+                        proximal_mediation_certificate.variable_roles.get("Z", ())
+                    ),
+                    "outcome_proxy_names": list(
+                        proximal_mediation_certificate.variable_roles.get("W", ())
+                    ),
+                    "covariate_names": list(
+                        proximal_mediation_certificate.variable_roles.get("X", ())
+                    ),
+                    "n_bootstrap": 200,
+                    "confidence_level": 0.95,
+                    "ridge": 1.0e-4,
+                    "y_lower": (
+                        _resolve_graph_outcome_support(
+                            graph,
+                            outcome=proximal_mediation_certificate.query.outcome,
+                        )[0]
+                        if _resolve_graph_outcome_support(
+                            graph,
+                            outcome=proximal_mediation_certificate.query.outcome,
+                        )
+                        is not None
+                        else None
+                    ),
+                    "y_upper": (
+                        _resolve_graph_outcome_support(
+                            graph,
+                            outcome=proximal_mediation_certificate.query.outcome,
+                        )[1]
+                        if _resolve_graph_outcome_support(
+                            graph,
+                            outcome=proximal_mediation_certificate.query.outcome,
+                        )
+                        is not None
+                        else None
+                    ),
+                    "__seed__": int(hashlib.sha256(run_id.encode()).hexdigest()[:8], 16),
+                },
+            )
+            bridge_report_payload = proximal_mediation_output.get("bridge_plausibility_report")
+            if isinstance(bridge_report_payload, dict):
+                bridge_metrics.update(
+                    {
+                        "bridge_residual_r": bridge_report_payload.get("residual_r"),
+                        "bridge_effective_rank": bridge_report_payload.get("effective_rank"),
+                        "bridge_sigma_min": bridge_report_payload.get("sigma_min"),
+                        "bridge_proxy_association": bridge_report_payload.get(
+                            "proxy_association_score"
+                        ),
+                    }
+                )
+                readiness_report = build_data_readiness_report(
+                    sample_size=sample_size,
+                    measurement_quality="proxy_only",
+                    fallback_data_available=fallback_data_available,
+                    recoverability_certificate=recoverability_summary,
+                    missingness_assessment=missingness_assessment,
+                    extra_metrics=_float_metrics_from_mapping(bridge_metrics),
+                )
+            proximal_report = proximal_mediation_output.get("report")
+            node_outputs = {"proximal_mediation": proximal_mediation_output}
+            negative_payload = proximal_mediation_output.get("negative_certificate")
+            bounds_payload = proximal_mediation_output.get("bounds_bundle")
+            proximal_negative_cert = (
+                NegativeCertificate.model_validate(negative_payload)
+                if isinstance(negative_payload, dict)
+                else None
+            )
+            proximal_bounds_bundle = None
+            if proximal_negative_cert is not None:
+                proximal_bounds_bundle = proximal_negative_cert.bounds_bundle
+            if proximal_bounds_bundle is None and isinstance(bounds_payload, dict):
+                proximal_bounds_bundle = BoundsBundle.model_validate(bounds_payload)
+            if proximal_negative_cert is not None:
+                bundle = self.audit(
+                    resolved_id_result,
+                    proximal_report,
+                    run_id=run_id,
+                    graph=graph,
+                    schema_report=schema_report,
+                    node_outputs=node_outputs,
+                    negative_certificate=proximal_negative_cert,
+                    proof_bundle=proof_bundle,
+                    bounds_bundle=proximal_bounds_bundle,
+                    data_readiness_report=readiness_report,
+                )
+                return None, bundle, proximal_negative_cert
+            if proximal_report is not None and getattr(
+                proximal_report, "status", None
+            ) is EstimationStatus.SUCCESS:
+                bundle = self.audit(
+                    resolved_id_result,
+                    proximal_report,
+                    run_id=run_id,
+                    graph=graph,
+                    schema_report=schema_report,
+                    node_outputs=node_outputs,
+                    proof_bundle=proof_bundle,
+                    data_readiness_report=readiness_report,
+                )
+                return proximal_report, bundle, None
+            bundle = self.audit(
+                resolved_id_result,
+                proximal_report,
+                run_id=run_id,
+                graph=graph,
+                schema_report=schema_report,
+                node_outputs=node_outputs,
+                proof_bundle=proof_bundle,
+                bounds_bundle=proximal_bounds_bundle or resolved_bounds_bundle,
+                data_readiness_report=readiness_report,
+            )
+            return None, bundle, None
+
         if resolved_id_result.status is not IdentificationStatus.IDENTIFIED:
             readiness_report = build_data_readiness_report(
                 sample_size=sample_size,
                 measurement_quality="unknown",
                 fallback_data_available=fallback_data_available,
                 recoverability_certificate=recoverability_summary,
+                missingness_assessment=missingness_assessment,
             )
             bundle = self.audit(
                 resolved_id_result,
@@ -4898,6 +6660,7 @@ class CausalEngine:
                     measurement_quality="unknown",
                     fallback_data_available=fallback_data_available,
                     recoverability_certificate=recoverability_summary,
+                    missingness_assessment=missingness_assessment,
                 ),
                 dp_robustness_certificate,
             )
@@ -4945,6 +6708,7 @@ class CausalEngine:
                     measurement_quality="unknown",
                     fallback_data_available=fallback_data_available,
                     recoverability_certificate=recoverability_summary,
+                    missingness_assessment=missingness_assessment,
                 ),
                 dp_robustness_certificate=dp_robustness_certificate,
             )
@@ -4998,6 +6762,7 @@ class CausalEngine:
                     sample_size=sample_size,
                     measurement_quality="unknown",
                     fallback_data_available=fallback_data_available,
+                    missingness_assessment=missingness_assessment,
                 ),
                 dp_robustness_certificate=dp_robustness_certificate,
             )
@@ -5015,6 +6780,7 @@ class CausalEngine:
             sample_size=sample_size,
             fallback_data_available=fallback_data_available,
             recoverability_certificate=recoverability_summary,
+            missingness_assessment=missingness_assessment,
         )
         if dp_robustness_certificate is not None:
             from polisyos.ir.analytics.dp_robustness import apply_dp_readiness_gate
@@ -5055,6 +6821,7 @@ class CausalEngine:
             sample_size=sample_size,
             fallback_data_available=fallback_data_available,
             recoverability_certificate=recoverability_summary,
+            missingness_assessment=missingness_assessment,
         )
         if postrun_readiness is not None and dp_robustness_certificate is not None:
             from polisyos.ir.analytics.dp_robustness import apply_dp_readiness_gate
@@ -5123,6 +6890,7 @@ class CausalEngine:
         *,
         kind: str,
         schema_name: str,
+        schema_version: str = "1.0",
         inputs: list[Any] | None = None,
     ) -> ArtifactRefModel:
         if self._artifact_store is None:
@@ -5132,7 +6900,7 @@ class CausalEngine:
             payload,
             kind=kind,
             schema_name=schema_name,
-            schema_version="1.0",
+            schema_version=schema_version,
             inputs=inputs,
             canon_spec=CanonSpec(forbid_floats=False),
         )
@@ -5307,20 +7075,31 @@ class CausalEngine:
         regime: DynamicTreatmentRegime | None = None,
         intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
         method: str = "linear_sde",
+        identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
     ) -> Any:
         """Estimate a temporal effect trajectory and optionally persist its bundle."""
 
-        self._require_estimation_readiness(
-            data=data,
-            treatment="treatment",
-            outcome="outcome",
-        )
+        readiness_treatment = "treatment"
+        readiness_outcome = "outcome"
+        if str(method).strip().lower() == "event_process_weighting":
+            readiness_treatment = "policy_weights"
+            readiness_outcome = "outcome_events"
+        if str(method).strip().lower() != "event_process_weighting":
+            self._require_estimation_readiness(
+                data=data,
+                treatment=readiness_treatment,
+                outcome=readiness_outcome,
+            )
         from polisyos.foundry.methods.catalog.causal.dtr import estimate_dtr_trajectory
         from polisyos.foundry.methods.catalog.causal.g_computation import (
             estimate_g_computation_trajectory,
         )
+        from polisyos.foundry.methods.catalog.causal.event_process_weighting import (
+            estimate_event_process_weighting_trajectory,
+        )
         from polisyos.foundry.methods.catalog.causal.protocols import (
             DynamicTreatmentData,
+            EventProcessObservationalData,
             PanelObservationalData,
         )
         from polisyos.foundry.methods.catalog.causal.structural_time_series import (
@@ -5330,26 +7109,63 @@ class CausalEngine:
             TemporalCompileError,
         )
 
+        resolved_identification_certificate = self._normalize_temporal_identification_certificate(
+            identification_certificate,
+            query=query,
+        )
         effective_query = query.model_copy(
             update={
                 "metadata": {
                     **query.metadata,
                     "preferred_backend": method,
+                    **(
+                        {
+                            "temporal_identification_certificate": (
+                                resolved_identification_certificate.model_dump(mode="json")
+                            )
+                        }
+                        if resolved_identification_certificate is not None
+                        else {}
+                    ),
                 }
             }
         )
+        if resolved_identification_certificate is not None:
+            effective_query = effective_query.model_copy(
+                update={
+                    "metadata": {
+                        **effective_query.metadata,
+                        "identification_scope": self._temporal_identification_scope_snapshot(
+                            effective_query,
+                            resolved_identification_certificate,
+                        ),
+                    }
+                }
+            )
 
         panel_data: PanelObservationalData | None = None
         dynamic_data: DynamicTreatmentData | None = None
-        if isinstance(data, PanelObservationalData):
+        event_process_data: EventProcessObservationalData | None = None
+        if isinstance(data, EventProcessObservationalData):
+            event_process_data = data
+        elif isinstance(data, PanelObservationalData):
             panel_data = data
         elif isinstance(data, DynamicTreatmentData):
             dynamic_data = data
         else:
-            try:
-                panel_data = PanelObservationalData.model_validate(data)
-            except Exception:
-                dynamic_data = DynamicTreatmentData.model_validate(data)
+            preferred_backend = str(
+                effective_query.metadata.get("preferred_backend", "linear_sde")
+            ).strip()
+            if preferred_backend == "event_process_weighting":
+                event_process_data = EventProcessObservationalData.model_validate(data)
+            else:
+                try:
+                    panel_data = PanelObservationalData.model_validate(data)
+                except Exception:
+                    try:
+                        dynamic_data = DynamicTreatmentData.model_validate(data)
+                    except Exception:
+                        event_process_data = EventProcessObservationalData.model_validate(data)
 
         if (
             effective_query.query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
@@ -5386,11 +7202,19 @@ class CausalEngine:
         scalar_result: Any | None = None
         policy_ref: DynamicTreatmentRegimeRef | None = None
         derived_schedule_ref: ArtifactRefModel | None = None
-        if panel_data is not None:
+        if event_process_data is not None:
+            trajectory = estimate_event_process_weighting_trajectory(
+                event_process_data,
+                effective_query,
+                resolved_intervention=resolved_intervention,
+                identification_certificate=resolved_identification_certificate,
+            )
+        elif panel_data is not None:
             trajectory = estimate_structural_time_series_trajectory(
                 panel_data,
                 effective_query,
                 resolved_intervention=resolved_intervention,
+                identification_certificate=resolved_identification_certificate,
             )
         elif regime is not None:
             estimator_method = str(
@@ -5401,6 +7225,7 @@ class CausalEngine:
                 effective_query,
                 regime=regime,
                 resolved_intervention=resolved_intervention,
+                identification_certificate=resolved_identification_certificate,
                 method=estimator_method,
             )
         else:
@@ -5411,6 +7236,7 @@ class CausalEngine:
                 dynamic_data,
                 effective_query,
                 resolved_intervention=resolved_intervention,
+                identification_certificate=resolved_identification_certificate,
                 intervention_contract_status=(
                     "derived_optimal_policy"
                     if effective_query.query_mode
@@ -5451,8 +7277,48 @@ class CausalEngine:
             query_ref = persist_continuous_time_query(self._artifact_store, effective_query)
             proof_payload = self.identify_continuous_time_query(
                 effective_query,
+                identification_certificate=resolved_identification_certificate,
                 query_ref=str(query_ref.artifact_id),
             )
+            local_independence_certificate_ref = None
+            temporal_identification_certificate_ref = None
+            proof_temporal_certificate = resolved_identification_certificate
+            identification_scope = None
+            try:
+                payload = proof_payload.metadata.get("local_independence_certificate_ref")
+                if isinstance(payload, dict):
+                    local_independence_certificate_ref = ArtifactRefModel.model_validate(payload)
+            except Exception:
+                local_independence_certificate_ref = None
+            try:
+                payload = proof_payload.metadata.get("temporal_identification_certificate_ref")
+                if isinstance(payload, dict):
+                    temporal_identification_certificate_ref = (
+                        TemporalIdentificationCertificateRef.model_validate(payload)
+                    )
+            except Exception:
+                temporal_identification_certificate_ref = None
+            try:
+                payload = proof_payload.metadata.get("temporal_identification_certificate")
+                if payload is not None:
+                    proof_temporal_certificate = self._normalize_temporal_identification_certificate(
+                        payload
+                    )
+            except Exception:
+                pass
+            payload = proof_payload.metadata.get("identification_scope")
+            if isinstance(payload, dict):
+                identification_scope = dict(payload)
+            elif proof_temporal_certificate is not None:
+                identification_scope = self._temporal_identification_scope_snapshot(
+                    effective_query,
+                    proof_temporal_certificate,
+                )
+            if identification_scope is not None:
+                trajectory.metadata["identification_scope"] = identification_scope
+                trajectory.metadata["identification_support_status"] = str(
+                    identification_scope.get("support_status")
+                )
             proof_bundle_ref = persist_proof_bundle(
                 self._artifact_store,
                 proof_payload,
@@ -5460,6 +7326,14 @@ class CausalEngine:
                     (query_ref, "query"),
                     (intervention_ref, "intervention_trajectory"),
                     (policy_ref, "policy_artifact"),
+                    (
+                        temporal_identification_certificate_ref,
+                        "temporal_identification_certificate",
+                    ),
+                    (
+                        local_independence_certificate_ref,
+                        "local_independence_certificate",
+                    ),
                 ),
             )
             trajectory_ref = self._persist_temporal_payload(
@@ -5483,10 +7357,16 @@ class CausalEngine:
                     (trajectory_ref, "trajectory"),
                 ),
             )
+            if proof_temporal_certificate is not None:
+                trajectory.metadata["temporal_identification_certificate"] = (
+                    proof_temporal_certificate.model_dump(mode="json")
+                )
+            solver_diagnostics_payload = trajectory.solver_diagnostics_payload()
             diagnostics_ref = self._persist_temporal_payload(
-                trajectory.solver_diagnostics_payload(),
+                solver_diagnostics_payload,
                 kind="ir.temporal_solver_diagnostics",
                 schema_name="ir.temporal_solver_diagnostics",
+                schema_version=str(solver_diagnostics_payload.get("schema_version", "1.0")),
                 inputs=self._temporal_input_refs(
                     (query_ref, "query"),
                     (intervention_ref, "intervention_trajectory"),
@@ -5494,11 +7374,28 @@ class CausalEngine:
                     (trajectory_ref, "trajectory"),
                 ),
             )
+            rough_path_metadata = {
+                key: value
+                for key, value in {
+                    "path_semantics": trajectory.metadata.get("path_semantics"),
+                    "rough_path_certificate": trajectory.metadata.get(
+                        "rough_path_certificate"
+                    ),
+                    "rough_path_identification_status": trajectory.metadata.get(
+                        "rough_path_identification_status"
+                    ),
+                    "rough_path_runtime_support": trajectory.metadata.get(
+                        "rough_path_runtime_support"
+                    ),
+                }.items()
+                if value is not None
+            }
             bundle = EffectTrajectoryBundle(
                 query_ref=query_ref,
                 trajectory_ref=trajectory_ref,
                 confidence_band_ref=confidence_band_ref,
                 solver_diagnostics_ref=diagnostics_ref,
+                identification_certificate_ref=temporal_identification_certificate_ref,
                 discretization_error=trajectory.discretization_error,
                 discretization_note=trajectory.discretization_note,
                 path_representation=trajectory.path_representation,
@@ -5518,9 +7415,22 @@ class CausalEngine:
                     "intervention_artifact_ref": self._serialize_ref(intervention_ref),
                     "policy_artifact_ref": self._serialize_ref(policy_ref),
                     "derived_schedule_ref": self._serialize_ref(derived_schedule_ref),
+                    "temporal_identification_certificate_ref": self._serialize_ref(
+                        temporal_identification_certificate_ref
+                    ),
+                    "local_independence_certificate_ref": self._serialize_ref(
+                        local_independence_certificate_ref
+                    ),
                     "proof_bundle_ref": self._serialize_ref(proof_bundle_ref),
                     "proof_bundle_artifact_id": str(proof_bundle_ref.artifact_id),
                     "proof_status": proof_payload.proof_status,
+                    "identification_scope": identification_scope,
+                    "identification_support_status": (
+                        None
+                        if identification_scope is None
+                        else identification_scope.get("support_status")
+                    ),
+                    **rough_path_metadata,
                 },
             )
             bundle_ref = persist_effect_trajectory_bundle(
@@ -5530,6 +7440,10 @@ class CausalEngine:
                     (query_ref, "query"),
                     (intervention_ref, "intervention_trajectory"),
                     (policy_ref, "policy_artifact"),
+                    (
+                        temporal_identification_certificate_ref,
+                        "temporal_identification_certificate",
+                    ),
                     (trajectory_ref, "trajectory"),
                     (confidence_band_ref, "confidence_band"),
                     (diagnostics_ref, "solver_diagnostics"),
@@ -5552,6 +7466,21 @@ class CausalEngine:
             trajectory.metadata["scalar_result_method"] = getattr(scalar_result, "method", None)
         trajectory.metadata["intervention_resolution_source"] = intervention_resolution_source
         trajectory.metadata["execution_contract_kind"] = effective_query.query_mode.value
+        if (
+            "identification_scope" not in trajectory.metadata
+            and resolved_identification_certificate is not None
+        ):
+            identification_scope = self._temporal_identification_scope_snapshot(
+                effective_query,
+                resolved_identification_certificate,
+            )
+            trajectory.metadata["identification_scope"] = identification_scope
+            trajectory.metadata["identification_support_status"] = str(
+                identification_scope.get("support_status")
+            )
+            trajectory.metadata["temporal_identification_certificate"] = (
+                resolved_identification_certificate.model_dump(mode="json")
+            )
         if policy_ref is not None:
             trajectory.metadata["policy_artifact_id"] = str(policy_ref.artifact_id)
         if derived_schedule_ref is not None:
@@ -6064,6 +7993,245 @@ def _has_fallback_arrays(
     )
 
 
+def _coerce_aligned_vector(value: Any) -> np.ndarray | None:
+    if value is None:
+        return None
+    try:
+        arr = np.asarray(value, dtype=float)
+    except Exception:
+        return None
+    if arr.ndim == 2 and arr.shape[1] == 1:
+        arr = arr[:, 0]
+    if arr.ndim != 1:
+        return None
+    return arr
+
+
+def _coerce_aligned_covariates(value: Any, *, n_obs: int) -> np.ndarray | None:
+    if value is None:
+        return None
+    try:
+        arr = np.asarray(value, dtype=float)
+    except Exception:
+        return None
+    if arr.ndim == 1:
+        arr = arr.reshape(-1, 1)
+    elif arr.ndim > 2:
+        try:
+            arr = arr.reshape(arr.shape[0], -1)
+        except Exception:
+            return None
+    if arr.ndim != 2 or arr.shape[0] != n_obs:
+        return None
+    return arr
+
+
+def _derive_proximal_bridge_state(
+    *,
+    data_dict: dict[str, Any] | None,
+    treatment: str | frozenset[str],
+    outcome: str | frozenset[str],
+    certificate: ProximalIdentificationCertificate,
+) -> dict[str, np.ndarray] | None:
+    """Build the B-layer proximal estimator state from graph variable names."""
+
+    if not data_dict:
+        return None
+
+    treatment_vector = _coerce_aligned_vector(
+        _first_non_null(data_dict, _treatment_candidate_keys(treatment))
+    )
+    outcome_vector = _coerce_aligned_vector(
+        _first_non_null(data_dict, _outcome_candidate_keys(outcome))
+    )
+    z_proxy = _coerce_aligned_vector(
+        _first_non_null(data_dict, ("treatment_proxy", *certificate.proxies.treatment_inducing))
+    )
+    w_proxy = _coerce_aligned_vector(
+        _first_non_null(data_dict, ("outcome_proxy", *certificate.proxies.outcome_inducing))
+    )
+    if (
+        treatment_vector is None
+        or outcome_vector is None
+        or z_proxy is None
+        or w_proxy is None
+    ):
+        return None
+    n_obs = int(outcome_vector.shape[0])
+    if any(
+        vector.shape[0] != n_obs
+        for vector in (treatment_vector, z_proxy, w_proxy)
+    ):
+        return None
+
+    covariates = _coerce_aligned_covariates(data_dict.get("covariates"), n_obs=n_obs)
+    if covariates is None:
+        covariate_names = tuple(certificate.query.covariates or certificate.proxies.covariates)
+        covariate_columns: list[np.ndarray] = []
+        for name in covariate_names:
+            column = _coerce_aligned_vector(data_dict.get(name))
+            if column is None or column.shape[0] != n_obs:
+                return None
+            covariate_columns.append(column)
+        covariates = (
+            np.column_stack(covariate_columns)
+            if covariate_columns
+            else np.empty((n_obs, 0), dtype=float)
+        )
+
+    finite_mask = (
+        np.isfinite(outcome_vector)
+        & np.isfinite(treatment_vector)
+        & np.isfinite(z_proxy)
+        & np.isfinite(w_proxy)
+        & np.isfinite(covariates).all(axis=1)
+    )
+    binary_mask = np.isclose(treatment_vector, 0.0) | np.isclose(treatment_vector, 1.0)
+    mask = finite_mask & binary_mask
+    if int(np.sum(mask)) < 60:
+        return None
+    return {
+        "outcome": outcome_vector[mask].astype(float),
+        "treatment": treatment_vector[mask].astype(float),
+        "covariates": covariates[mask].astype(float),
+        "treatment_proxy": z_proxy[mask].astype(float),
+        "outcome_proxy": w_proxy[mask].astype(float),
+    }
+
+
+def _derive_proximal_mediation_state(
+    *,
+    data_dict: dict[str, Any] | None,
+    certificate: "ProximalMediationCertificate",
+) -> dict[str, np.ndarray] | None:
+    """Build the proximal mediation estimator state from certificate variable roles."""
+
+    if not data_dict:
+        return None
+
+    treatment_vector = _coerce_aligned_vector(
+        _first_non_null(data_dict, ("treatment", certificate.query.treatment))
+    )
+    outcome_vector = _coerce_aligned_vector(
+        _first_non_null(data_dict, ("outcome", certificate.query.outcome))
+    )
+    mediator_vector = _coerce_aligned_vector(
+        _first_non_null(data_dict, ("mediator", certificate.query.mediator))
+    )
+    z_proxy = _coerce_aligned_vector(
+        _first_non_null(
+            data_dict,
+            ("treatment_proxy", *certificate.variable_roles.get("Z", ())),
+        )
+    )
+    w_proxy = _coerce_aligned_vector(
+        _first_non_null(
+            data_dict,
+            ("outcome_proxy", *certificate.variable_roles.get("W", ())),
+        )
+    )
+    if (
+        treatment_vector is None
+        or outcome_vector is None
+        or mediator_vector is None
+        or z_proxy is None
+        or w_proxy is None
+    ):
+        return None
+    n_obs = int(outcome_vector.shape[0])
+    if any(
+        vector.shape[0] != n_obs
+        for vector in (treatment_vector, mediator_vector, z_proxy, w_proxy)
+    ):
+        return None
+
+    covariates = _coerce_aligned_covariates(data_dict.get("covariates"), n_obs=n_obs)
+    if covariates is None:
+        covariate_names = tuple(certificate.variable_roles.get("X", ()))
+        covariate_columns: list[np.ndarray] = []
+        for name in covariate_names:
+            column = _coerce_aligned_vector(data_dict.get(name))
+            if column is None or column.shape[0] != n_obs:
+                return None
+            covariate_columns.append(column)
+        covariates = (
+            np.column_stack(covariate_columns)
+            if covariate_columns
+            else np.empty((n_obs, 0), dtype=float)
+        )
+
+    finite_mask = (
+        np.isfinite(outcome_vector)
+        & np.isfinite(treatment_vector)
+        & np.isfinite(mediator_vector)
+        & np.isfinite(z_proxy)
+        & np.isfinite(w_proxy)
+        & np.isfinite(covariates).all(axis=1)
+    )
+    binary_mask = np.isclose(treatment_vector, 0.0) | np.isclose(treatment_vector, 1.0)
+    mask = finite_mask & binary_mask
+    if int(np.sum(mask)) < 60:
+        return None
+    return {
+        "outcome": outcome_vector[mask].astype(float),
+        "treatment": treatment_vector[mask].astype(float),
+        "mediator": mediator_vector[mask].astype(float),
+        "covariates": covariates[mask].astype(float),
+        "treatment_proxy": z_proxy[mask].astype(float),
+        "outcome_proxy": w_proxy[mask].astype(float),
+    }
+
+
+def _resolve_graph_outcome_support(
+    graph: CausalGraphModel,
+    *,
+    outcome: str,
+) -> tuple[float, float] | None:
+    metadata = dict(graph.metadata or {})
+    raw = metadata.get("outcome_support")
+    candidate: Any = None
+    if isinstance(raw, dict):
+        candidate = raw.get(outcome)
+    elif raw is not None:
+        candidate = raw
+    if not isinstance(candidate, (tuple, list)) or len(candidate) != 2:
+        return None
+    try:
+        lower = float(candidate[0])
+        upper = float(candidate[1])
+    except (TypeError, ValueError):
+        return None
+    if not np.isfinite(lower) or not np.isfinite(upper) or lower >= upper:
+        return None
+    return (lower, upper)
+
+
+def _infer_proximal_path_target(
+    *,
+    treatment: str,
+    mediator: str,
+    outcome: str,
+    intervention: PathIntervention,
+) -> str:
+    """Classify the requested path policy as NDE, NIE, or generic psi."""
+
+    direct_path = (treatment, outcome)
+
+    def _uses_mediator(path: tuple[str, ...]) -> bool:
+        return mediator in path[1:-1]
+
+    active_uses_mediator = any(_uses_mediator(path) for path in intervention.active_paths)
+    frozen_uses_mediator = any(_uses_mediator(path) for path in intervention.frozen_paths)
+    active_has_direct = direct_path in intervention.active_paths
+    frozen_has_direct = direct_path in intervention.frozen_paths
+
+    if active_uses_mediator and frozen_has_direct:
+        return "nie"
+    if active_has_direct and frozen_uses_mediator:
+        return "nde"
+    return "psi"
+
+
 def _float_metrics_from_mapping(values: dict[str, Any] | None) -> dict[str, float]:
     """Best-effort float extraction for readiness metrics."""
     metrics: dict[str, float] = {}
@@ -6418,10 +8586,16 @@ def _build_postrun_readiness_report(
     sample_size: int | None,
     fallback_data_available: bool,
     recoverability_certificate: dict[str, Any] | None = None,
+    missingness_assessment: Any | None = None,
 ) -> DataReadinessReport | None:
     """Build a richer readiness report from executor diagnostics when available."""
     positivity, support = _extract_readiness_diagnostics(node_outputs)
-    if positivity is None and support is None and sample_size is None:
+    if (
+        positivity is None
+        and support is None
+        and sample_size is None
+        and missingness_assessment is None
+    ):
         return None
     return build_data_readiness_report(
         positivity=positivity,
@@ -6430,7 +8604,45 @@ def _build_postrun_readiness_report(
         measurement_quality="unknown",
         fallback_data_available=fallback_data_available,
         recoverability_certificate=recoverability_certificate,
+        missingness_assessment=missingness_assessment,
     )
+
+
+def _resolve_missingness_assessment(
+    *,
+    graph: Any | None,
+    data_dict: dict[str, Any] | None,
+    mgraph_meta: Any | None = None,
+    query_variables: frozenset[str] | None = None,
+    treatment: Any | None = None,
+    outcome: Any | None = None,
+) -> Any | None:
+    """Best-effort administrative missingness assessment for M-graphs."""
+    if graph is None:
+        return None
+    try:
+        from polisyos.foundry.methods.catalog.causal.missing_data import (
+            assess_administrative_missingness,
+        )
+        from polisyos.ir.analytics.causal_graph import GraphType
+    except Exception:
+        return None
+
+    if getattr(graph, "graph_type", None) is not GraphType.MGRAPH:
+        return None
+
+    try:
+        return assess_administrative_missingness(
+            graph=graph,
+            data=data_dict,
+            mgraph_meta=mgraph_meta,
+            query_variables=query_variables,
+            treatment=treatment,
+            outcome=outcome,
+        )
+    except Exception as exc:
+        logger.warning("Failed to build missingness assessment for readiness: %s", exc)
+        return None
 
 
 def _extract_recoverability_summary(payload: Any) -> dict[str, Any] | None:
@@ -6548,13 +8760,163 @@ def _identification_query_str(identification_result: IdentificationResult) -> st
     return ""
 
 
+def _attach_proof_composability_certificate(
+    *,
+    store: ArtifactStore,
+    proof_payload: ProofBundle,
+    witness_index: Any,
+    graph: CausalGraphModel,
+    query_str: str,
+    graph_fingerprint: str,
+) -> ProofBundle:
+    """Persist and attach the Stage 2.2 replay certificate for an audited proof."""
+
+    metadata = dict(proof_payload.metadata or {})
+    source_fragment_id = _proof_composability_source_fragment_id(
+        proof_payload,
+        graph_fingerprint=graph_fingerprint,
+    )
+    composed_graph_ref = proof_payload.graph_ref or graph_fingerprint or None
+    interface_vars = _proof_composability_interface_vars(metadata)
+    proof_trace_hash = _proof_composability_trace_hash(proof_payload)
+    certificate = check_proof_trace_composability(
+        witness_index=witness_index,
+        composed_graph=graph,
+        source_fragment_id=source_fragment_id,
+        checked_query=query_str or str(proof_payload.query_ref or ""),
+        composed_graph_ref=composed_graph_ref,
+        proof_trace_ref=proof_payload.proof_trace_ref,
+        witness_index_ref=proof_payload.witness_index_ref,
+        interface_vars=interface_vars,
+        invalidated_by_graph_hashes=tuple(proof_payload.invalidated_by_graph_hashes),
+        metadata={
+            "theorem_family": proof_payload.theorem_family,
+            "proof_trace_hash": proof_trace_hash,
+            "source": "CausalEngine.audit",
+        },
+    )
+    inputs = [
+        InputRef(artifact_id=ref.artifact_id, role=role)
+        for ref, role in (
+            (proof_payload.proof_trace_ref, "proof_trace"),
+            (proof_payload.witness_index_ref, "proof_witness_index"),
+        )
+        if ref is not None
+    ]
+    certificate_ref = persist_proof_composability_certificate(
+        store,
+        certificate,
+        inputs=inputs or None,
+    )
+    return attach_proof_composability_to_proof_bundle(
+        proof_payload,
+        certificate_ref,
+        certificate,
+    )
+
+
+def _proof_composability_source_fragment_id(
+    proof_payload: ProofBundle,
+    *,
+    graph_fingerprint: str,
+) -> str:
+    metadata = dict(proof_payload.metadata or {})
+    for candidate in (
+        proof_payload.graph_ref,
+        metadata.get("source_fragment_id"),
+        metadata.get("fragment_id"),
+        graph_fingerprint,
+    ):
+        text = str(candidate or "").strip()
+        if text:
+            return text
+    return "unknown_source_fragment"
+
+
+def _proof_composability_interface_vars(metadata: dict[str, Any]) -> tuple[str, ...]:
+    candidates: list[Any] = [
+        metadata.get("interface_vars"),
+        metadata.get("interface_variables"),
+    ]
+    for key in ("composition_certificate", "composition", "graph_composition"):
+        payload = metadata.get(key)
+        if isinstance(payload, dict):
+            candidates.extend(
+                [
+                    payload.get("interface_vars"),
+                    payload.get("interface_variables"),
+                    payload.get("preserved_interface_vars"),
+                ]
+            )
+    output: set[str] = set()
+    for value in candidates:
+        if isinstance(value, str):
+            items = [value]
+        elif isinstance(value, (list, tuple, set, frozenset)):
+            items = list(value)
+        else:
+            continue
+        for item in items:
+            text = str(item).strip()
+            if text:
+                output.add(text)
+    return tuple(sorted(output))
+
+
+def _proof_composability_trace_hash(proof_payload: ProofBundle) -> str:
+    if proof_payload.proof_trace_ref is not None:
+        return str(proof_payload.proof_trace_ref.artifact_id)
+    if proof_payload.proof_trace:
+        return _fingerprint(list(proof_payload.proof_trace))
+    metadata_trace = proof_payload.metadata.get("proof_trace")
+    if isinstance(metadata_trace, (list, tuple)):
+        return _fingerprint(list(metadata_trace))
+    return ""
+
+
 def _prepare_executor_state(node: ExecutorNode, state: dict[str, Any]) -> Any:
     """Adapt raw engine state to method-specific payload contracts when needed."""
     if node.method_fqn == "causal.structural.hybrid_scm_fit":
         return _build_scm_fit_payload(state, node.params)
     if node.method_fqn == "causal.structural.twin_network_query":
         return _build_twin_network_payload(state, node.params)
+    if node.method_fqn == "causal.diagnostics.positivity_check":
+        return _build_positivity_diagnostic_payload(state)
+    if node.method_fqn == "causal.diagnostics.support_mismatch":
+        return _build_support_mismatch_payload(state)
     return state
+
+
+def _build_positivity_diagnostic_payload(state: dict[str, Any]) -> dict[str, Any]:
+    """Provide the slot names expected by positivity diagnostics."""
+    payload = dict(state)
+    if "X" not in payload:
+        if "covariates" in state:
+            payload["X"] = state["covariates"]
+        elif "X_source" in state:
+            payload["X"] = state["X_source"]
+    if "treatment" not in payload:
+        for candidate in ("T", "treatment_value"):
+            if candidate in state:
+                payload["treatment"] = state[candidate]
+                break
+    return payload
+
+
+def _build_support_mismatch_payload(state: dict[str, Any]) -> dict[str, Any]:
+    """Provide source/target covariate matrices expected by support diagnostics."""
+    payload = dict(state)
+    if "X_source" not in payload:
+        if "source_covariates" in state:
+            payload["X_source"] = state["source_covariates"]
+        elif "covariates" in state:
+            payload["X_source"] = state["covariates"]
+    if "X_target" not in payload:
+        if "target_covariates" in state:
+            payload["X_target"] = state["target_covariates"]
+        elif "covariates" in state:
+            payload["X_target"] = state["covariates"]
+    return payload
 
 
 def _build_scm_fit_payload(state: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:

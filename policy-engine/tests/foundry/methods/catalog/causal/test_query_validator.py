@@ -2,11 +2,15 @@
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.query_validator import CausalQueryValidator
+from polisyos.ir.analytics.causal import ProofBundle
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionRef,
     EstimandAST,
+    OperatorApplyNode,
+    OperatorTargetNode,
+    SpaceRef,
     SideCondition,
     SideConditionKind,
     make_backdoor_estimand,
@@ -467,3 +471,95 @@ class TestReportContract:
     def test_import_from_causal_package(self):
         from polisyos.foundry.methods.catalog.causal import CausalQueryValidator as CQV
         assert CQV is CausalQueryValidator
+
+
+def _operator_probe_space(*, kernel_ref: str | None = "gaussian_rbf") -> SpaceRef:
+    return SpaceRef(
+        space_id="outcome-rkhs",
+        kind="rkhs",
+        kernel_ref=kernel_ref,
+        characteristic=True,
+        bounded_evaluation=True,
+    )
+
+
+def _operator_codomain_space() -> SpaceRef:
+    return SpaceRef(
+        space_id="modifier-rkhs",
+        kind="rkhs",
+        kernel_ref="linear_kernel",
+        universal=True,
+        bounded_evaluation=True,
+    )
+
+
+def _operator_ast(*, kernel_ref: str | None = "gaussian_rbf") -> EstimandAST:
+    return EstimandAST(
+        query_str="operator target",
+        root=OperatorTargetNode(
+            treatment="X",
+            outcome="Y",
+            effect_modifier=("V",),
+            probe_space_ref=_operator_probe_space(kernel_ref=kernel_ref),
+            codomain_space_ref=_operator_codomain_space(),
+            operator_semantics="conditional_mean_embedding_operator",
+            identification_scope="backdoor",
+            operator_regularization="ridge",
+        ),
+        treatment="X",
+        outcome="Y",
+        all_variables=("X", "Y", "V"),
+    )
+
+
+class TestOperatorContracts:
+    def test_operator_target_requires_probe_kernel(self):
+        graph = _make_dag(("X", "Y"), ("V", "Y"))
+        report = CausalQueryValidator().validate(graph, _operator_ast(kernel_ref=None))
+        error_codes = [e.code for e in report.errors]
+
+        assert "OPERATOR_KERNEL_MISSING" in error_codes
+
+    def test_full_operator_without_proof_bundle_emits_warning(self):
+        graph = _make_dag(("X", "Y"), ("V", "Y"))
+        report = CausalQueryValidator().validate(graph, _operator_ast())
+        warning_codes = [w.code for w in report.warnings]
+
+        assert "OPERATOR_LIFT_REQUIRES_PROOF" in warning_codes
+
+    def test_full_operator_with_uncertified_proof_bundle_is_error(self):
+        graph = _make_dag(("X", "Y"), ("V", "Y"))
+        proof_bundle = ProofBundle(
+            proof_status="identified",
+            proof_stratum="A0_trusted",
+            theorem_family="id_v1",
+            completeness_regime="complete",
+            implementation_coverage="declared-scope:id_v1",
+        )
+        report = CausalQueryValidator().validate(
+            graph,
+            _operator_ast(),
+            proof_bundle=proof_bundle,
+        )
+        error_codes = [e.code for e in report.errors]
+
+        assert "OPERATOR_LIFT_UNCERTIFIED" in error_codes
+
+    def test_operator_apply_query_can_pass_without_full_operator_lift(self):
+        graph = _make_dag(("X", "Y"), ("V", "Y"))
+        ast = EstimandAST(
+            query_str="operator apply",
+            root=OperatorApplyNode(
+                operator=_operator_ast().root,
+                probe_ref="cdf_probe",
+                evaluation_points_ref="audit_grid",
+            ),
+            treatment="X",
+            outcome="Y",
+            all_variables=("X", "Y", "V"),
+        )
+
+        report = CausalQueryValidator().validate(graph, ast)
+
+        assert report.is_valid is True
+        assert "OPERATOR_LIFT_UNCERTIFIED" not in [e.code for e in report.errors]

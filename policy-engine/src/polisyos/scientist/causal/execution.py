@@ -138,7 +138,8 @@ class BoundsEstimationRunner:
                 for channel in task.bundle.channels
             ),
             "run_all": task.bounds_input.miv_proxy is not None,
-            "use_auto_bounds": False,
+            "use_auto_bounds": True,
+            "tighten_bounds": True,
         }
         return {**inferred, **dict(task.params)}
 

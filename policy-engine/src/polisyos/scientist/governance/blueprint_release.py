@@ -1070,6 +1070,9 @@ def build_interference_evidence(
         supported_query_family="spillover",
         fallback_mode="pairwise",
         reduction_error_bound=max(0.01, 1.0 - _clip01(confidence)),
+        mode_requested="pairwise",
+        mode_used="pairwise",
+        fallback_triggered=False,
     )
     return report, certificate
 

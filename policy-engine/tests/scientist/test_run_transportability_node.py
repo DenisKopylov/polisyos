@@ -31,6 +31,11 @@ from polisyos.ir.analytics.causal_graph import (
     persist_causal_graph_model,
 )
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
+from polisyos.ir.analytics.privacy_transportability import (
+    PrivacyAwareTransportCertificate,
+    PrivacyObservedMode,
+    load_privacy_aware_transport_certificate,
+)
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     StratificationVariable,
@@ -38,7 +43,9 @@ from polisyos.ir.analytics.transportability import (
     TransportabilityStatus,
     TransportFormula,
     TransportMode,
+    load_transportability_result,
 )
+from polisyos.ir.refs import PrivacyAwareTransportCertificateRef
 from polisyos.lex.legal_evaluation.transport_constraints import (
     ConstraintSeverity,
     LegalConstraint,
@@ -63,6 +70,20 @@ def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id=run_id)
     return ExecutionContext(store=store, run=run, logger=logging.getLogger(f"test.{run_id}"))
+
+
+def _blocked_privacy_transport_certificate() -> PrivacyAwareTransportCertificate:
+    return PrivacyAwareTransportCertificate(
+        certificate_id="transport_node_privacy_blocked",
+        query="P*(gdp_growth|do(tax_rate))",
+        selection_diagram_ref="selection_diagram:test",
+        latent_transport_status=TransportabilityStatus.IDENTIFIED,
+        privacy_observed_mode=PrivacyObservedMode.BLOCKED,
+        source_domains=("DE",),
+        target_domain="DE",
+        blocking_reasons=("privacy_transport_blocked",),
+        assumptions=("test_privacy_gate",),
+    )
 
 
 def _base_report() -> CausalEffectReport:
@@ -301,6 +322,30 @@ def test_resolution_loop_data_gap_and_convergence(
     assert "Exact transport identification unavailable; emitted transport-aware bounds fallback." in result.warnings
 
 
+def test_resolution_loop_without_privacy_context_does_not_crash() -> None:
+    loop = TransportabilityResolutionLoop(
+        dataset_registry=_MissingDatasetRegistry(),
+        legal_kg_db_path=None,
+        skg_query=object(),
+    )
+    profile = ContextProfile(
+        context_id="DE",
+        income_level=IncomeLevel.HIGH,
+        institutional_quality=0.8,
+    )
+
+    result = loop.resolve(
+        source_context=profile,
+        target_context=profile,
+        causal_graph=_mediator_graph(),
+        query_treatment="tax_rate",
+        query_outcome="gdp_growth",
+    )
+
+    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert result.metadata.get("privacy_observed_mode") is None
+
+
 def test_run_transportability_node_updates_causal_report(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_transport_ok")
     report_ref = persist_causal_effect_report(ctx.store, _base_report())
@@ -329,6 +374,47 @@ def test_run_transportability_node_updates_causal_report(tmp_path) -> None:
     updated = load_causal_effect_report(ctx.store, updated_ref)
     assert updated.transport_result is not None
     assert updated.transport_result.status is TransportabilityStatus.IDENTIFIED
+
+
+def test_run_transportability_node_applies_store_backed_blocked_privacy_gate(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_transport_privacy_blocked")
+    report_ref = persist_causal_effect_report(ctx.store, _base_report())
+    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+
+    profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
+    state = ExperimentState(
+        run_id="R_transport_privacy_blocked",
+        artifacts_index={
+            ARTIFACT_CAUSAL_REPORT_REF: report_ref,
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref,
+        },
+        params={
+            "source_context": profile,
+            "target_context": profile,
+            "query_treatment": "tax_rate",
+            "query_outcome": "gdp_growth",
+            "privacy_transport_certificate": _blocked_privacy_transport_certificate().model_dump(
+                mode="json"
+            ),
+        },
+    )
+
+    outcome = RunTransportabilityNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    transport_ref = outcome.state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF]
+    transport_result = load_transportability_result(ctx.store, transport_ref)
+    assert transport_result.status is TransportabilityStatus.UNSUPPORTED
+    assert transport_result.transport_mode is TransportMode.NONE
+    assert transport_result.transport_formula is None
+    assert transport_result.unsupported_reason == "privacy_transport_blocked"
+    assert transport_result.metadata["privacy_observed_mode"] == "blocked"
+    privacy_ref_payload = transport_result.metadata["privacy_certificate_ref"]
+    assert privacy_ref_payload is not None
+    privacy_ref = PrivacyAwareTransportCertificateRef.model_validate(privacy_ref_payload)
+    loaded_privacy_certificate = load_privacy_aware_transport_certificate(ctx.store, privacy_ref)
+    assert loaded_privacy_certificate.privacy_observed_mode is PrivacyObservedMode.BLOCKED
+    assert loaded_privacy_certificate.blocking_reasons == ("privacy_transport_blocked",)
 
 
 def test_run_transportability_uses_ensemble_consensus_graph_when_available(

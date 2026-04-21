@@ -11,6 +11,17 @@ Covers:
 import numpy as np
 import pytest
 
+from polisyos.foundry.methods.catalog.causal.missing_data import (
+    AdministrativeMissingnessAssessment,
+    assess_administrative_missingness,
+)
+from polisyos.ir.analytics.administrative_missingness import (
+    AdministrativeMissingnessScenarioFamily,
+    MissingnessAssessmentStatus,
+    build_compliance_based_mgraph,
+    build_registration_based_mgraph,
+    build_system_change_based_mgraph,
+)
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
@@ -309,6 +320,149 @@ def test_build_mgraph_accepts_explicit_missingness_edges():
 
 
 # ---------------------------------------------------------------------------
+# T6c: Administrative missingness taxonomy and assessment
+# ---------------------------------------------------------------------------
+
+
+def test_registration_based_assessment_is_recoverable_when_frame_observed():
+    graph = build_registration_based_mgraph(
+        substantive_vars=["income", "outcome"],
+        directed_edges=[("income", "outcome")],
+        target_variables=["income"],
+        registration_indicator="registration_flag",
+        eligibility_covariates=["eligibility_score"],
+        population_frame_observed=True,
+    )
+
+    assessment = assess_administrative_missingness(graph=graph)
+
+    assert (
+        assessment.scenario_family
+        is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED
+    )
+    assert assessment.status is MissingnessAssessmentStatus.RECOVERABLE
+    assert set(assessment.administrative_covariates_present) == {
+        "registration_flag",
+        "eligibility_score",
+    }
+    assert assessment.recoverability is not None
+    assert assessment.recoverability.blocking_r_nodes == ()
+
+
+def test_registration_based_assessment_marks_selection_only_frame_as_partial():
+    graph = build_registration_based_mgraph(
+        substantive_vars=["income", "outcome"],
+        directed_edges=[("income", "outcome")],
+        target_variables=["income"],
+        registration_indicator="registration_flag",
+        eligibility_covariates=["eligibility_score"],
+        population_frame_observed=False,
+    )
+
+    assessment = assess_administrative_missingness(graph=graph)
+
+    assert assessment.status is MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+    assert any(
+        "non-registered" in recommendation
+        for recommendation in assessment.recommendations
+    )
+
+
+def test_compliance_based_assessment_detects_self_censoring():
+    graph = build_compliance_based_mgraph(
+        substantive_vars=["income", "outcome"],
+        directed_edges=[("income", "outcome")],
+        target_variables=["income"],
+        compliance_indicator="filing_complete",
+        compliance_driver_covariates=["deadline_pressure"],
+        self_censoring_variables=["income"],
+    )
+
+    assessment = assess_administrative_missingness(graph=graph)
+
+    assert (
+        assessment.scenario_family
+        is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED
+    )
+    assert assessment.status is MissingnessAssessmentStatus.NOT_RECOVERABLE
+    assert assessment.recoverability is not None
+    assert "R_income" in assessment.recoverability.blocking_r_nodes
+
+
+def test_system_change_assessment_populates_testability_audit():
+    graph = build_system_change_based_mgraph(
+        substantive_vars=["income", "outcome"],
+        directed_edges=[("income", "outcome")],
+        target_variables=["income"],
+        system_version_variable="system_version",
+        rollout_covariates=["region"],
+        affected_outcomes=["outcome"],
+    )
+    income_star = np.array([10.0, np.nan, 12.0, np.nan, 15.0, 18.0, np.nan, 20.0])
+    data = {
+        "region": np.array([0, 0, 1, 1, 0, 1, 0, 1]),
+        "system_version": np.array([1, 0, 1, 0, 1, 1, 0, 1]),
+        "outcome": np.array([1.2, 0.8, 1.5, 0.7, 1.8, 2.0, 0.9, 2.1]),
+        "R_income": np.array([1, 0, 1, 0, 1, 1, 0, 1]),
+        "income_star": income_star,
+    }
+
+    assessment = assess_administrative_missingness(graph=graph, data=data)
+
+    assert (
+        assessment.scenario_family
+        is AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED
+    )
+    assert assessment.status is MissingnessAssessmentStatus.RECOVERABLE
+    assert assessment.testability_audit is not None
+    assert assessment.testability_audit.implications_tested >= 0
+
+
+def test_assessment_populates_full_law_identification_metadata_for_query():
+    graph = build_registration_based_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        target_variables=["X"],
+        registration_indicator="registration_flag",
+        eligibility_covariates=["eligibility_score"],
+        population_frame_observed=True,
+    )
+
+    assessment = assess_administrative_missingness(
+        graph=graph,
+        treatment="X",
+        outcome="Y",
+    )
+
+    full_law = assessment.metadata.get("full_law_identification")
+    assert isinstance(full_law, dict)
+    assert full_law["status"] == "identified"
+    assert full_law["treatment"] == ["X"]
+    assert full_law["outcome"] == ["Y"]
+
+
+def test_administrative_missingness_assessment_foundry_method_returns_report():
+    graph = build_registration_based_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        target_variables=["X"],
+        registration_indicator="registration_flag",
+        eligibility_covariates=["eligibility_score"],
+        population_frame_observed=True,
+    )
+
+    result = AdministrativeMissingnessAssessment.pure_step(
+        {"mgraph_data": graph.model_dump(mode="json")},
+        {"treatment": ["X"], "outcome": ["Y"]},
+    )
+
+    report = result["assessment_report"]
+    assert report["scenario_family"] == "registration_based"
+    assert report["status"] == "recoverable"
+    assert report["metadata"]["full_law_identification"]["status"] == "identified"
+
+
+# ---------------------------------------------------------------------------
 # T7: ordered_recovery returns EstimandAST with ProductNode root
 # ---------------------------------------------------------------------------
 
@@ -485,6 +639,27 @@ def test_full_law_identify_proof_steps_include_both_stages():
     rule_names = {s.rule_name for s in result.proof_steps}
     assert "FULL_LAW_STAGE1_PASS" in rule_names
     assert "FULL_LAW_STAGE2" in rule_names
+
+
+def test_full_law_identify_soft_policy_routes_through_policy_id():
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import full_law_identify
+    from polisyos.ir.analytics.estimand import StochasticPolicy, StochasticInterventionNode
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = full_law_identify(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        mgraph_meta=meta,
+        policy=StochasticPolicy(policy_type="soft", policy_expr="pi(X)"),
+    )
+
+    assert result.status == IdentificationStatus.IDENTIFIED
+    assert result.estimand_ast is not None
+    assert isinstance(result.estimand_ast.root, StochasticInterventionNode)
+    assert "FULL_LAW_STAGE2" in {step.rule_name for step in result.proof_steps}
 
 
 def test_joint_recoverability_full_law_identified_and_recoverable():
@@ -834,6 +1009,67 @@ def test_mgraph_implications_categorical_route():
     assert report.results[1].passed is False
     assert report.results[1].adjusted_p_value <= 0.05
     assert report.warnings == []
+
+
+def test_mgraph_implications_categorical_route_preserves_dp_calibration(tmp_path):
+    from polisyos.foundry.methods.catalog.causal.missing_data import (
+        ConditionalIndependence,
+        MGraphImplicationTester,
+        test_mgraph_implications,
+    )
+
+    graph = build_mgraph(
+        substantive_vars=["X", "Y_dep", "Z"],
+        directed_edges=[],
+        missingness_map={},
+    )
+    meta = extract_mgraph_metadata(graph)
+    rng = np.random.default_rng(23)
+    n = 600
+    z = rng.integers(0, 2, size=n).astype(str)
+    x = np.where(z == "0", rng.integers(0, 3, size=n), rng.integers(0, 3, size=n)).astype(str)
+    y_dep = x.copy()
+    data = {"X": x, "Y_dep": y_dep, "Z": z}
+
+    implications = [ConditionalIndependence(x="X", y="Y_dep", z=("Z",))]
+    report = test_mgraph_implications(
+        graph=graph,
+        mgraph_meta=meta,
+        data=data,
+        implications=implications,
+        alpha=0.05,
+        dp_context={
+            "mechanism": "gaussian_counts",
+            "epsilon": 0.7,
+            "delta": 1e-6,
+        },
+        judge_threshold_registry_root=str(tmp_path),
+    )
+
+    result = report.results[0]
+    assert result.test_name == "conditional_g_test"
+    assert result.metadata["route"] == "conditional_g_test"
+    assert result.metadata["ci_test_impl"] == "categorical_ci"
+    assert result.metadata["calibration_mode"] == "analytic_weighted_chi2"
+    assert result.metadata["dp_context_summary"]["mechanism"] == "gaussian_counts"
+    assert result.metadata["threshold_registry_scope"]["family"] == "categorical_ci"
+
+    out = MGraphImplicationTester.pure_step(
+        {"mgraph_data": graph.model_dump(mode="json"), "data": data},
+        {
+            "implications": implications,
+            "alpha": 0.05,
+            "dp_context": {
+                "mechanism": "gaussian_counts",
+                "epsilon": 0.7,
+                "delta": 1e-6,
+            },
+            "judge_threshold_registry_root": str(tmp_path),
+        },
+    )
+    result_payload = out["test_report"]["results"][0]["metadata"]
+    assert result_payload["dp_context_summary"]["mechanism"] == "gaussian_counts"
+    assert result_payload["threshold_registry_scope"]["family"] == "categorical_ci"
 
 
 # ---------------------------------------------------------------------------

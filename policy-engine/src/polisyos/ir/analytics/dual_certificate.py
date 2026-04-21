@@ -8,7 +8,7 @@ from itertools import product
 from typing import Annotated, Any, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
@@ -182,6 +182,48 @@ class BoundsDualCertificateBundle(BaseModel):
                 f"({expected} expected for {self.problem.problem_kind})"
             )
         return self
+
+
+class StratifiedLPDualCertificate(BaseModel):
+    """One stratum-specific LP certificate and its aggregation weight."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    stratum_id: str
+    weight: float = Field(ge=0.0, le=1.0)
+    lower_bound: float
+    upper_bound: float
+    certificate: BoundsDualCertificateBundle
+
+
+class StratifiedLPDualCertificateBundle(BaseModel):
+    """Certificate for conditioning-based bounds via weighted LP aggregation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    certificate_family: Literal["stratified_response_function_lp_bounds"] = (
+        "stratified_response_function_lp_bounds"
+    )
+    aggregation_rule: Literal["weighted_sum_over_strata"] = "weighted_sum_over_strata"
+    strata: tuple[StratifiedLPDualCertificate, ...]
+    aggregate_lower_bound: float
+    aggregate_upper_bound: float
+
+    @model_validator(mode="after")
+    def _validate_strata(self) -> "StratifiedLPDualCertificateBundle":
+        if not self.strata:
+            raise ValueError("stratified certificate requires at least one stratum")
+        weight_sum = sum(float(item.weight) for item in self.strata)
+        if abs(weight_sum - 1.0) > 1e-8:
+            raise ValueError("stratified certificate weights must sum to one")
+        return self
+
+
+CertifiedBoundsCertificateBundle = Annotated[
+    BoundsDualCertificateBundle | StratifiedLPDualCertificateBundle,
+    Field(discriminator="certificate_family"),
+]
 
 
 class DualCertificateValidationResult(BaseModel):
@@ -673,9 +715,72 @@ def validate_dual_certificate_bundle(
     )
 
 
+def _validate_stratified_certificate_bundle(
+    bundle: StratifiedLPDualCertificateBundle,
+) -> DualCertificateValidationResult:
+    errors: list[str] = []
+    max_primal = 0.0
+    max_dual = 0.0
+    max_stationarity = 0.0
+    max_slack = 0.0
+    max_gap = 0.0
+    lower = 0.0
+    upper = 0.0
+    for stratum in bundle.strata:
+        validation = validate_dual_certificate_bundle(stratum.certificate)
+        if not validation.ok:
+            errors.extend(f"{stratum.stratum_id}: {error}" for error in validation.errors)
+        max_primal = max(max_primal, validation.max_primal_residual)
+        max_dual = max(max_dual, validation.max_dual_violation)
+        max_stationarity = max(max_stationarity, validation.max_stationarity_residual)
+        max_slack = max(max_slack, validation.max_complementary_slackness)
+        max_gap = max(max_gap, validation.max_duality_gap)
+        lower += float(stratum.weight) * float(stratum.lower_bound)
+        upper += float(stratum.weight) * float(stratum.upper_bound)
+
+    aggregate_residual = max(
+        abs(lower - float(bundle.aggregate_lower_bound)),
+        abs(upper - float(bundle.aggregate_upper_bound)),
+    )
+    if aggregate_residual > 1e-8:
+        errors.append(
+            "stratified aggregate bounds do not match weighted stratum bounds "
+            f"(residual={aggregate_residual:.3e})"
+        )
+    return DualCertificateValidationResult(
+        ok=not errors,
+        errors=tuple(errors),
+        max_primal_residual=max_primal,
+        max_dual_violation=max_dual,
+        max_stationarity_residual=max_stationarity,
+        max_complementary_slackness=max_slack,
+        max_duality_gap=max(max_gap, aggregate_residual),
+    )
+
+
+def validate_bounds_certificate_bundle(
+    bundle: CertifiedBoundsCertificateBundle,
+) -> DualCertificateValidationResult:
+    """Validate either a single-LP or stratified LP certificate bundle."""
+
+    if isinstance(bundle, BoundsDualCertificateBundle):
+        return validate_dual_certificate_bundle(bundle)
+    return _validate_stratified_certificate_bundle(bundle)
+
+
+def coerce_bounds_certificate_bundle(
+    payload: CertifiedBoundsCertificateBundle | dict[str, Any],
+) -> CertifiedBoundsCertificateBundle:
+    """Parse a machine-checkable bounds certificate payload."""
+
+    if isinstance(payload, (BoundsDualCertificateBundle, StratifiedLPDualCertificateBundle)):
+        return payload
+    return TypeAdapter(CertifiedBoundsCertificateBundle).validate_python(payload)
+
+
 def persist_dual_certificate_bundle(
     store: ArtifactStore,
-    bundle: BoundsDualCertificateBundle,
+    bundle: CertifiedBoundsCertificateBundle,
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.dual_certificate",
@@ -698,17 +803,17 @@ def persist_dual_certificate_bundle(
 def load_dual_certificate_bundle(
     store: ArtifactStore,
     ref: DualCertificateRef,
-) -> BoundsDualCertificateBundle:
+) -> CertifiedBoundsCertificateBundle:
     """Load a persisted dual-certificate bundle."""
 
     payload = get_json_artifact(store, ref.artifact_id)
-    return BoundsDualCertificateBundle.model_validate(payload)
+    return coerce_bounds_certificate_bundle(payload)
 
 
 def hydrate_bounds_bundle_with_dual_certificate(
     store: ArtifactStore,
     bundle: Any,
-    certificate_payload: BoundsDualCertificateBundle | dict[str, Any] | None,
+    certificate_payload: CertifiedBoundsCertificateBundle | dict[str, Any] | None,
     *,
     inputs: list[InputRef] | None = None,
 ) -> tuple[Any, list[InputRef]]:
@@ -717,6 +822,7 @@ def hydrate_bounds_bundle_with_dual_certificate(
     from polisyos.ir.analytics.partial_identification import (  # noqa: PLC0415
         BoundsBundle,
         attach_dual_certificate_ref,
+        hydrate_bounds_bundle_with_tightening_log,
     )
 
     resolved_bundle = (
@@ -725,15 +831,19 @@ def hydrate_bounds_bundle_with_dual_certificate(
     resolved_inputs = list(inputs or [])
     bundle_warnings = list(resolved_bundle.warnings)
     if certificate_payload is None:
-        return resolved_bundle, resolved_inputs
+        return hydrate_bounds_bundle_with_tightening_log(
+            store,
+            resolved_bundle,
+            inputs=resolved_inputs,
+        )
 
     try:
         cert_bundle = (
             certificate_payload
-            if isinstance(certificate_payload, BoundsDualCertificateBundle)
-            else BoundsDualCertificateBundle.model_validate(certificate_payload)
+            if isinstance(certificate_payload, (BoundsDualCertificateBundle, StratifiedLPDualCertificateBundle))
+            else coerce_bounds_certificate_bundle(certificate_payload)
         )
-        validation = validate_dual_certificate_bundle(cert_bundle)
+        validation = validate_bounds_certificate_bundle(cert_bundle)
         if validation.ok:
             cert_ref = persist_dual_certificate_bundle(
                 store,
@@ -755,12 +865,18 @@ def hydrate_bounds_bundle_with_dual_certificate(
 
     if bundle_warnings != list(resolved_bundle.warnings):
         resolved_bundle = resolved_bundle.model_copy(update={"warnings": bundle_warnings})
+    resolved_bundle, resolved_inputs = hydrate_bounds_bundle_with_tightening_log(
+        store,
+        resolved_bundle,
+        inputs=resolved_inputs,
+    )
     return resolved_bundle, resolved_inputs
 
 
 __all__ = [
     "BinaryIVLPProblemSpec",
     "BoundsDualCertificateBundle",
+    "CertifiedBoundsCertificateBundle",
     "DualCertificateValidationResult",
     "GeneralIVLPProblemSpec",
     "hydrate_bounds_bundle_with_dual_certificate",
@@ -768,10 +884,14 @@ __all__ = [
     "LPVerificationTolerances",
     "ResponseFunctionLPProblemSpec",
     "SparsePrimalEntry",
+    "StratifiedLPDualCertificate",
+    "StratifiedLPDualCertificateBundle",
     "build_binary_iv_dual_certificate_bundle",
     "build_general_iv_dual_certificate_bundle",
     "build_response_function_dual_certificate_bundle",
+    "coerce_bounds_certificate_bundle",
     "load_dual_certificate_bundle",
     "persist_dual_certificate_bundle",
+    "validate_bounds_certificate_bundle",
     "validate_dual_certificate_bundle",
 ]

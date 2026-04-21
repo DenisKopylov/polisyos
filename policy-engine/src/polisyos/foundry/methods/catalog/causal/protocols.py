@@ -1314,6 +1314,121 @@ class DynamicTreatmentData(BaseModel):
         return int(self.covariate_sequence.shape[2])
 
 
+class EventProcessObservationalData(BaseModel):
+    """Event-process data contract for local-independence weighting estimators.
+
+    Represents discretized counting-process/event-log data on a shared grid.
+    ``policy_weights`` and ``baseline_weights`` carry the likelihood-ratio style
+    reweighting needed to recover marginal policy curves from the observed law.
+    """
+
+    contract_id: ClassVar[str] = "foundry.causal.event_process_observational_data.v1"
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+
+    outcome_events: Any  # shape: (n_units, n_periods), binary event increments
+    censoring_events: Any | None = None  # shape: (n_units, n_periods), binary censoring increments
+    policy_weights: Any | None = None  # shape: (n_units, n_periods), positive
+    baseline_weights: Any | None = None  # shape: (n_units, n_periods), positive
+    at_risk: Any | None = None  # shape: (n_units, n_periods), bool/binary
+    time_index: Any | None = None  # shape: (n_periods,)
+    sample_ids: Any | None = None  # shape: (n_units,)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator(
+        "outcome_events",
+        "censoring_events",
+        "policy_weights",
+        "baseline_weights",
+        "at_risk",
+        "time_index",
+        "sample_ids",
+        mode="before",
+    )
+    @classmethod
+    def _coerce_numpy(cls, value: Any) -> Any:
+        if value is None:
+            return None
+        return _to_numpy(value)
+
+    @model_validator(mode="after")
+    def _validate_shapes(self) -> "EventProcessObservationalData":
+        if not isinstance(self.outcome_events, np.ndarray) or self.outcome_events.ndim != 2:
+            raise ValueError("outcome_events must be a 2D numpy array: (n_units, n_periods)")
+        if self.outcome_events.shape[0] < 2:
+            raise ValueError("EventProcessObservationalData requires at least 2 units")
+        if self.outcome_events.shape[1] < 2:
+            raise ValueError("EventProcessObservationalData requires at least 2 time points")
+        if not np.isin(self.outcome_events, [0, 1]).all():
+            raise ValueError("outcome_events must be binary (0/1)")
+
+        n_units, n_periods = self.outcome_events.shape
+        for field_name in ("censoring_events", "at_risk"):
+            value = getattr(self, field_name)
+            if value is None:
+                continue
+            if not isinstance(value, np.ndarray) or value.ndim != 2:
+                raise ValueError(f"{field_name} must be a 2D numpy array")
+            if value.shape != (n_units, n_periods):
+                raise ValueError(
+                    f"{field_name} shape {value.shape} does not match {(n_units, n_periods)}"
+                )
+            if not np.isin(value, [0, 1, False, True]).all():
+                raise ValueError(f"{field_name} must be binary/bool")
+
+        for field_name in ("policy_weights", "baseline_weights"):
+            value = getattr(self, field_name)
+            if value is None:
+                continue
+            if not isinstance(value, np.ndarray) or value.ndim != 2:
+                raise ValueError(f"{field_name} must be a 2D numpy array")
+            if value.shape != (n_units, n_periods):
+                raise ValueError(
+                    f"{field_name} shape {value.shape} does not match {(n_units, n_periods)}"
+                )
+            if not np.isfinite(value).all():
+                raise ValueError(f"{field_name} contains non-finite values")
+            if np.any(value <= 0.0):
+                raise ValueError(f"{field_name} must be strictly positive")
+
+        if self.time_index is not None:
+            if not isinstance(self.time_index, np.ndarray) or self.time_index.ndim != 1:
+                raise ValueError("time_index must be a 1D array")
+            if self.time_index.shape[0] != n_periods:
+                raise ValueError("time_index length must match n_periods")
+
+        if self.sample_ids is not None:
+            if not isinstance(self.sample_ids, np.ndarray) or self.sample_ids.ndim != 1:
+                raise ValueError("sample_ids must be a 1D array")
+            if self.sample_ids.shape[0] != n_units:
+                raise ValueError("sample_ids length must match n_units")
+
+        return self
+
+    @field_serializer(
+        "outcome_events",
+        "censoring_events",
+        "policy_weights",
+        "baseline_weights",
+        "at_risk",
+        "time_index",
+        "sample_ids",
+        mode="plain",
+        when_used="json",
+    )
+    def _serialize_numpy_fields(self, value: Any) -> Any:
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        return value
+
+    @property
+    def n_units(self) -> int:
+        return int(self.outcome_events.shape[0])
+
+    @property
+    def n_periods(self) -> int:
+        return int(self.outcome_events.shape[1])
+
+
 class NetworkCausalData(BaseModel):
     """Causal data with explicit network structure for interference analysis.
 
@@ -2084,6 +2199,7 @@ __all__ = [
     "envelope_from_report",
     "NCMQueryData",
     "DynamicTreatmentData",
+    "EventProcessObservationalData",
     "NetworkCausalData",
     # Phase-5 additions
     "StochasticInterventionData",

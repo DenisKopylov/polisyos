@@ -1,10 +1,11 @@
 """Describe discovery outputs, latent-assumption disclosures, and algebraic diagnostics."""
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
 from polisyos.ir.analytics.invariance import RegimeShiftIdentificationCertificate
@@ -16,6 +17,14 @@ _ALGEBRAIC_IMPLIED_CONSTRAINTS_KIND = "ir.algebraic_implied_constraints"
 _ALGEBRAIC_IMPLIED_CONSTRAINTS_SCHEMA_NAME = "ir.algebraic_implied_constraints"
 _ALGEBRAIC_VIOLATED_CONSTRAINTS_KIND = "ir.algebraic_violated_constraints"
 _ALGEBRAIC_VIOLATED_CONSTRAINTS_SCHEMA_NAME = "ir.algebraic_violated_constraints"
+_ALGORITHMIC_ALGEBRAIC_GEOMETRY_METHODS = frozenset(
+    {
+        "iv_binary_response_polytope",
+        "iv_binary_instrumental_inequalities",
+    }
+)
+LATENT_CARDINALITY_EVIDENCE_KEY = "latent_cardinality_evidence"
+LATENT_CARDINALITY_FAILURE_REASONS_KEY = "latent_cardinality_failure_reasons"
 
 
 class AlgebraicConstraintFamily(str, Enum):
@@ -342,6 +351,7 @@ class AlgebraicBlockSpec(BaseModel):
                 not self.invariant_polynomials
                 and not self.semi_algebraic_inequalities
                 and self.certificate_ref is None
+                and self.derivation_method not in _ALGORITHMIC_ALGEBRAIC_GEOMETRY_METHODS
             ):
                 raise ValueError(
                     "algebraic_geometry_invariant blocks require at least one invariant statement or certificate_ref"
@@ -414,6 +424,366 @@ class LatentTrustLevel(str, Enum):
     VALIDATED = "validated"
 
 
+class LatentCausalRole(str, Enum):
+    """Classify the causal role claimed for a latent atomic block."""
+
+    CONFOUNDER = "confounder"
+    MEDIATOR = "mediator"
+    MODERATOR = "moderator"
+    UNKNOWN = "unknown"
+
+
+class LatentBlockStatus(str, Enum):
+    """Track whether a latent block is cardinality-identified or only suspected."""
+
+    IDENTIFIED = "identified"
+    PARTIAL = "partial"
+    SUSPECTED_ONLY = "suspected_only"
+
+
+class LatentGraphStatus(str, Enum):
+    """Describe graph placement support for a latent atomic block."""
+
+    IDENTIFIED = "identified"
+    PARTIAL = "partial"
+    UNKNOWN = "unknown"
+
+
+class LatentIdentifiabilityStatus(str, Enum):
+    """Summarize the theorem-backed identification status of a latent proposal set."""
+
+    FULL = "full"
+    PARTIAL = "partial"
+    PARTIAL_OR_FULL = "partial_or_full"
+    SUSPECTED_ONLY = "suspected_only"
+
+
+class LatentBlockEvidence(BaseModel):
+    """Machine-readable evidence for Stage 9.1 latent cardinality claims."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    gin_supported: bool = False
+    atomic_structure_supported: bool = False
+    shift_localized: bool = False
+    minimal_decomposition_supported: bool = False
+    role_rule_supported: bool = False
+    interaction_signature_supported: bool = False
+    pure_child_count: int | None = Field(default=None, ge=0)
+    neighbor_count: int | None = Field(default=None, ge=0)
+    rank: int | None = Field(default=None, ge=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class LatentBlockProposal(BaseModel):
+    """Structured representation of one proposed latent atomic block.
+
+    The public ``LatentDiscoveryBundle`` remains backwards-compatible by keeping
+    ``proposed_latent_nodes`` as ``list[str]``. This model defines the canonical
+    string and metadata payload used when Stage 9.1 cardinality claims are made.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    latent_id: str = Field(min_length=1)
+    block_size: int = Field(ge=1)
+    role: LatentCausalRole = LatentCausalRole.UNKNOWN
+    candidate_role: LatentCausalRole | None = None
+    status: LatentBlockStatus = LatentBlockStatus.PARTIAL
+    graph_status: LatentGraphStatus = LatentGraphStatus.UNKNOWN
+    within_block_order: str | None = None
+    anchor_variables: list[str] = Field(default_factory=list)
+    informative_environment_contrasts: list[str] = Field(default_factory=list)
+    evidence: LatentBlockEvidence = Field(default_factory=LatentBlockEvidence)
+    reason_not_identified: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_identified_claim(self) -> Self:
+        if self.status is not LatentBlockStatus.IDENTIFIED:
+            return self
+
+        missing_evidence = [
+            field
+            for field in (
+                "gin_supported",
+                "atomic_structure_supported",
+                "shift_localized",
+                "minimal_decomposition_supported",
+                "role_rule_supported",
+            )
+            if not bool(getattr(self.evidence, field))
+        ]
+        if missing_evidence:
+            joined = ", ".join(missing_evidence)
+            raise ValueError(f"identified latent block is missing evidence: {joined}")
+        if self.role is LatentCausalRole.UNKNOWN:
+            raise ValueError("identified latent block requires a non-unknown role")
+        if (
+            self.role is LatentCausalRole.MODERATOR
+            and not self.evidence.interaction_signature_supported
+        ):
+            raise ValueError(
+                "identified moderator block requires interaction_signature_supported"
+            )
+        return self
+
+    @classmethod
+    def from_node_label(cls, value: str) -> Self:
+        """Parse the canonical Stage 9.1 node descriptor string."""
+        parts = [part.strip() for part in str(value).split("|") if part.strip()]
+        if len(parts) < 2:
+            raise ValueError("latent node descriptor must include at least one key=value field")
+
+        payload: dict[str, Any] = {"latent_id": parts[0]}
+        for part in parts[1:]:
+            key, separator, raw_value = part.partition("=")
+            if not separator:
+                raise ValueError(f"invalid latent node descriptor field: {part!r}")
+            payload[key.strip()] = raw_value.strip()
+        return cls.model_validate(payload)
+
+    def proposed_node_label(self) -> str:
+        """Return the canonical backwards-compatible node descriptor string."""
+        if self.status is LatentBlockStatus.SUSPECTED_ONLY:
+            raise ValueError(
+                "suspected-only latent blocks must stay out of proposed_latent_nodes"
+            )
+
+        parts = [
+            self.latent_id,
+            f"block_size={self.block_size}",
+            f"role={self.role.value}",
+        ]
+        if self.candidate_role is not None:
+            parts.append(f"candidate_role={self.candidate_role.value}")
+        parts.append(f"status={self.status.value}")
+        return "|".join(parts)
+
+    def canonical_identification_conditions(
+        self,
+        *,
+        treatment_variable: str = "T",
+        outcome_variable: str = "Y",
+    ) -> list[str]:
+        """Emit canonical Stage 9.1 machine-checkable identification conditions."""
+        latent_id = self.latent_id
+        block_size = self.block_size
+        rank = self.evidence.rank or block_size
+        pure_child_threshold = 2 * block_size
+        neighbor_threshold = 2 * block_size + 1
+        conditions = [
+            "class:multi_env_linear_nongaussian_latent_sem",
+            (
+                f"atomic_block:{latent_id}:p={block_size}:"
+                f"pure_children>={pure_child_threshold}:"
+                f"neighbors>={neighbor_threshold}:rank={rank}"
+            ),
+            (
+                f"minimality:{latent_id}:"
+                f"minimal_explanation_across_environments="
+                f"{str(self.evidence.minimal_decomposition_supported).lower()}"
+            ),
+        ]
+        if self.informative_environment_contrasts:
+            for contrast in self.informative_environment_contrasts:
+                conditions.append(
+                    f"env_shift:{latent_id}:contrast={contrast}:"
+                    f"localized={str(self.evidence.shift_localized).lower()}"
+                )
+        else:
+            conditions.append(
+                f"env_shift:{latent_id}:localized="
+                f"{str(self.evidence.shift_localized).lower()}"
+            )
+
+        if self.role is LatentCausalRole.CONFOUNDER:
+            conditions.append(
+                f"role_rule:{latent_id}:"
+                f"ancestor({treatment_variable})&ancestor({outcome_variable})"
+                f"&!descendant({treatment_variable})"
+            )
+        elif self.role is LatentCausalRole.MEDIATOR:
+            conditions.append(
+                f"role_rule:{latent_id}:"
+                f"descendant({treatment_variable})&ancestor({outcome_variable})"
+            )
+        elif self.role is LatentCausalRole.MODERATOR:
+            if self.evidence.interaction_signature_supported:
+                conditions.append(
+                    f"moderator_extension:{latent_id}:interaction_signature=verified"
+                )
+            else:
+                conditions.append(
+                    f"moderator_extension:{latent_id}:"
+                    "failed_no_identified_interaction_signature"
+                )
+        elif self.candidate_role is LatentCausalRole.MODERATOR:
+            conditions.append(
+                f"moderator_extension:{latent_id}:"
+                "failed_no_identified_interaction_signature"
+            )
+
+        return _dedupe_text(conditions)
+
+
+class LatentCardinalityIdentificationSpec(BaseModel):
+    """Stage 9.1 theorem-backed latent-cardinality integration payload."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    model_class: Literal["ME-LiNGLaH-S", "ME-LiNGLaH-S-Int"] = "ME-LiNGLaH-S"
+    identifiability_status: LatentIdentifiabilityStatus = LatentIdentifiabilityStatus.PARTIAL
+    latent_blocks: list[LatentBlockProposal] = Field(default_factory=list)
+    latent_candidates: list[dict[str, Any]] = Field(default_factory=list)
+    ambiguity_notes: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_block_layout(self) -> Self:
+        if any(block.status is LatentBlockStatus.SUSPECTED_ONLY for block in self.latent_blocks):
+            raise ValueError(
+                "suspected-only latent blocks must be stored in latent_candidates, not latent_blocks"
+            )
+        if (
+            self.model_class != "ME-LiNGLaH-S-Int"
+            and any(
+                block.status is LatentBlockStatus.IDENTIFIED
+                and block.role is LatentCausalRole.MODERATOR
+                for block in self.latent_blocks
+            )
+        ):
+            raise ValueError(
+                "identified moderator blocks require the ME-LiNGLaH-S-Int model class"
+            )
+        return self
+
+    @classmethod
+    def from_bundle_metadata(cls, metadata: Mapping[str, Any] | None) -> Self | None:
+        """Recover a Stage 9.1 spec from bundle metadata when present."""
+        if not isinstance(metadata, Mapping):
+            return None
+
+        keys = {
+            "model_class",
+            "identifiability_status",
+            "latent_blocks",
+            "latent_candidates",
+            "ambiguity_notes",
+        }
+        if not any(key in metadata for key in keys):
+            return None
+
+        extra_metadata = {
+            str(key): value for key, value in metadata.items() if str(key) not in keys
+        }
+        return cls.model_validate(
+            {
+                "model_class": metadata.get("model_class", "ME-LiNGLaH-S"),
+                "identifiability_status": metadata.get(
+                    "identifiability_status",
+                    LatentIdentifiabilityStatus.PARTIAL.value,
+                ),
+                "latent_blocks": list(metadata.get("latent_blocks", []) or []),
+                "latent_candidates": list(metadata.get("latent_candidates", []) or []),
+                "ambiguity_notes": list(metadata.get("ambiguity_notes", []) or []),
+                "metadata": extra_metadata,
+            }
+        )
+
+    @classmethod
+    def from_bundle(cls, bundle: LatentDiscoveryBundle | None) -> Self | None:
+        """Recover a Stage 9.1 spec from a latent discovery bundle."""
+        if bundle is None:
+            return None
+        return cls.from_bundle_metadata(bundle.metadata)
+
+    def proposed_latent_nodes(self) -> list[str]:
+        """Return canonical proposed latent node strings for cardinality-backed blocks."""
+        return [
+            block.proposed_node_label()
+            for block in self.latent_blocks
+            if block.status is not LatentBlockStatus.SUSPECTED_ONLY
+        ]
+
+    def canonical_identification_conditions(
+        self,
+        *,
+        treatment_variable: str = "T",
+        outcome_variable: str = "Y",
+    ) -> list[str]:
+        """Return canonical conditions for all structured latent block proposals."""
+        conditions = ["class:multi_env_linear_nongaussian_latent_sem"]
+        for block in self.latent_blocks:
+            if block.status is LatentBlockStatus.SUSPECTED_ONLY:
+                continue
+            conditions.extend(
+                block.canonical_identification_conditions(
+                    treatment_variable=treatment_variable,
+                    outcome_variable=outcome_variable,
+                )
+            )
+        return _dedupe_text(conditions)
+
+    def bundle_metadata(self) -> dict[str, Any]:
+        """Return the backwards-compatible metadata payload for LatentDiscoveryBundle."""
+        payload: dict[str, Any] = dict(self.metadata)
+        payload.update(
+            {
+                "model_class": self.model_class,
+                "identifiability_status": self.identifiability_status.value,
+                "latent_blocks": [
+                    block.model_dump(mode="json") for block in self.latent_blocks
+                ],
+            }
+        )
+        if self.latent_candidates:
+            payload["latent_candidates"] = list(self.latent_candidates)
+        if self.ambiguity_notes:
+            payload["ambiguity_notes"] = list(self.ambiguity_notes)
+        return payload
+
+    def to_bundle(
+        self,
+        *,
+        inducing_environments: list[str],
+        falsification_tests: list[str],
+        assumption_cards: list["LatentAssumptionCard"] | None = None,
+        trust_level: LatentTrustLevel = LatentTrustLevel.RESEARCH,
+        no_promotion_reasons: list[str] | None = None,
+        metadata: Mapping[str, Any] | None = None,
+        treatment_variable: str = "T",
+        outcome_variable: str = "Y",
+    ) -> "LatentDiscoveryBundle":
+        """Materialize the Stage 9.1 spec as a proof-only latent discovery bundle."""
+        bundle_metadata = self.bundle_metadata()
+        if isinstance(metadata, Mapping):
+            bundle_metadata.update(dict(metadata))
+        reasons = _dedupe_text(
+            [
+                *(list(no_promotion_reasons) if no_promotion_reasons is not None else []),
+                "latent_discovery_proof_only",
+            ]
+        )
+        return LatentDiscoveryBundle(
+            proposed_latent_nodes=self.proposed_latent_nodes(),
+            inducing_environments=list(inducing_environments),
+            identification_conditions=self.canonical_identification_conditions(
+                treatment_variable=treatment_variable,
+                outcome_variable=outcome_variable,
+            ),
+            falsification_tests=list(falsification_tests),
+            trust_level=trust_level,
+            assumption_cards=list(assumption_cards or []),
+            readiness_cap="proof_only",
+            human_gate_required=True,
+            promotion_allowed=False,
+            no_promotion_reasons=reasons,
+            not_for_decision_support=True,
+            metadata=bundle_metadata,
+        )
+
+
 class LatentAssumptionCard(BaseModel):
     """Document one latent-variable assumption and its falsification hook."""
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -426,6 +796,86 @@ class LatentAssumptionCard(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class LatentCardinalityEvidencePayload(BaseModel):
+    """Typed Stage 9.1 producer evidence stored in bundle metadata."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    model_class: Literal["ME-LiNGLaH-S", "ME-LiNGLaH-S-Int"] = "ME-LiNGLaH-S"
+    treatment_variable: str = Field(default="T", min_length=1)
+    outcome_variable: str = Field(default="Y", min_length=1)
+    inducing_environments: list[str] = Field(default_factory=list)
+    falsification_tests: list[str] = Field(default_factory=list)
+    assumption_cards: list[LatentAssumptionCard] = Field(default_factory=list)
+    latent_blocks: list[LatentBlockProposal] = Field(default_factory=list)
+    latent_candidates: list[dict[str, Any]] = Field(default_factory=list)
+    ambiguity_notes: list[str] = Field(default_factory=list)
+    prerequisites_missing: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def from_metadata(cls, metadata: Mapping[str, Any] | None) -> Self | None:
+        """Recover the typed Stage 9.1 evidence payload from bundle metadata."""
+
+        if not isinstance(metadata, Mapping):
+            return None
+        payload = metadata.get(LATENT_CARDINALITY_EVIDENCE_KEY)
+        if not isinstance(payload, Mapping):
+            return None
+        return cls.model_validate(payload)
+
+
+class LatentPromotionEvidence(BaseModel):
+    """Stage 9.3 structured evidence supporting a LatentDiscoveryBundle promotion.
+
+    The bundle itself remains a research artifact; promotion above ``proof_only``
+    is judge-derived from this evidence block and never self-certified by the
+    frontier module. Populated refs are pointers to replayable artifacts
+    (tests, audits, benchmark traces, reviewer decisions).
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    observable_implication_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    local_misspecification_test_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    environment_stability_ref: ArtifactRefModel | None = None
+    rival_explanation_audit_ref: ArtifactRefModel | None = None
+    external_evidence_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    replication_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    hidden_benchmark_ref: ArtifactRefModel | None = None
+    reviewer_decision_ref: ArtifactRefModel | None = None
+    exclusion_test_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    external_anchor_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    cross_model_robustness_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    scope_regime: list[str] = Field(default_factory=list)
+    invariance_level: Literal[
+        "none", "configural", "metric", "scalar", "strict", "approximate"
+    ] = "none"
+    measurement_scope: bool = False
+    structural_interpretation_rejected: bool = False
+    notes: list[str] = Field(default_factory=list)
+
+
+class LatentPromotionVerdict(BaseModel):
+    """Machine-readable Stage 9.3 promotion verdict over a latent bundle."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    target_trust_level: LatentTrustLevel
+    derived_trust_level: LatentTrustLevel
+    derived_readiness_cap: Literal["proof_only", "bounds_ready", "estimation_ready"]
+    claim_mode: Literal["proof_only", "bounded_latent", "validated_measurement_latent"]
+    degradation_mode: Literal["research_only", "bounds_only", "measurement_ready"]
+    promotion_allowed: bool = False
+    not_for_decision_support: bool = True
+    human_gate_required: bool = True
+    passed_gates: list[str] = Field(default_factory=list)
+    blockers: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    evidence_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    scope_regime: list[str] = Field(default_factory=list)
+
+
 class LatentDiscoveryBundle(BaseModel):
     """Disclose proposed latent nodes, test hooks, and promotion limits."""
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -436,12 +886,29 @@ class LatentDiscoveryBundle(BaseModel):
     falsification_tests: list[str] = Field(default_factory=list)
     trust_level: LatentTrustLevel = LatentTrustLevel.RESEARCH
     assumption_cards: list[LatentAssumptionCard] = Field(default_factory=list)
-    readiness_cap: Literal["proof_only"] = "proof_only"
+    readiness_cap: Literal["proof_only", "bounds_ready", "estimation_ready"] = "proof_only"
     human_gate_required: bool = True
     promotion_allowed: bool = False
     no_promotion_reasons: list[str] = Field(default_factory=list)
     not_for_decision_support: bool = True
+    promotion_evidence: LatentPromotionEvidence | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    def latent_cardinality_spec(self) -> LatentCardinalityIdentificationSpec | None:
+        """Return the Stage 9.1 cardinality spec when this bundle carries one."""
+        return LatentCardinalityIdentificationSpec.from_bundle(self)
+
+
+def _dedupe_text(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    output: list[str] = []
+    for value in values:
+        text = str(value).strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        output.append(text)
+    return output
 
 
 class CausalDiscoveryReport(BaseModel):
@@ -658,7 +1125,19 @@ __all__ = [
     "DiscoveryPipelineReport",
     "persist_causal_discovery_report",
     "LatentAssumptionCard",
+    "LatentBlockEvidence",
+    "LatentBlockProposal",
+    "LatentBlockStatus",
+    "LatentCardinalityIdentificationSpec",
+    "LatentCardinalityEvidencePayload",
+    "LatentCausalRole",
     "LatentDiscoveryBundle",
+    "LatentGraphStatus",
+    "LatentIdentifiabilityStatus",
+    "LATENT_CARDINALITY_EVIDENCE_KEY",
+    "LATENT_CARDINALITY_FAILURE_REASONS_KEY",
+    "LatentPromotionEvidence",
+    "LatentPromotionVerdict",
     "LatentTrustLevel",
     "NestedMarkovModelFamily",
     "load_causal_discovery_report",

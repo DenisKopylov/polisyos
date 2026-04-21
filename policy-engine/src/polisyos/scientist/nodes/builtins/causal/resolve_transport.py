@@ -45,6 +45,11 @@ from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, load_causal_graph_model
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.partial_identification import compute_manski_bounds
+from polisyos.ir.analytics.privacy_transportability import (
+    TransportPrivacyContext,
+    apply_transport_privacy_context,
+    coerce_transport_privacy_context,
+)
 from polisyos.ir.analytics.transportability import (
     DataGap,
     SelectionDiagram,
@@ -122,6 +127,9 @@ _SPEC = NodeSpec(
         "params.pag_seed",
         "params.transport_solver_mode",
         "params.allow_degraded_transport",
+        "params.privacy_context",
+        "params.dp_utility_manifest",
+        "params.privacy_transport_certificate",
         "params.workflow_id",
         "params.dataset_registry_db_path",
         "params.legal_kg_db_path",
@@ -369,6 +377,7 @@ class TransportabilityResolutionLoop:
         solver_mode: str = "auto",
         allow_degraded_transport: bool = False,
         capability_contract: CausalCapabilityContract | None = None,
+        privacy_context: TransportPrivacyContext | None = None,
     ) -> TransportabilityResult:
         self._cache_clear()
         normalized_solver_mode = (
@@ -404,12 +413,15 @@ class TransportabilityResolutionLoop:
                     causal_graph=causal_graph,
                 )
                 if hard_constraints:
-                    return _build_infeasible_result(
-                        source_context=source_context,
-                        target_context=target_context,
-                        hard_constraints=hard_constraints,
-                        query_treatment=query_treatment,
-                        query_outcome=query_outcome,
+                    return _finalize_transport_loop_result(
+                        _build_infeasible_result(
+                            source_context=source_context,
+                            target_context=target_context,
+                            hard_constraints=hard_constraints,
+                            query_treatment=query_treatment,
+                            query_outcome=query_outcome,
+                        ),
+                        privacy_context=privacy_context,
                     )
 
                 all_s_nodes = context_s_nodes + legal_s_nodes
@@ -434,6 +446,7 @@ class TransportabilityResolutionLoop:
                     pag_max_dag_samples=pag_max_dag_samples,
                     pag_threshold=pag_threshold,
                     pag_seed=pag_seed if pag_seed is not None else 0,
+                    privacy_context=None,
                 )
                 tr_result = TransportabilityResult.model_validate(tr_payload["transport_result"])
 
@@ -587,21 +600,27 @@ class TransportabilityResolutionLoop:
                     break
 
             if tr_result is None or state is None or diagram is None:
-                return TransportabilityResult(
-                    query=f"P*({query_outcome}|do({query_treatment}))",
-                    status=TransportabilityStatus.UNSUPPORTED,
-                    transport_mode=TransportMode.NONE,
-                    base_confidence=0.0,
-                    final_confidence=0.0,
-                    feasible=False,
-                    warnings=["Transportability resolution failed unexpectedly."],
-                    source_context_id=source_context.context_id,
-                    target_context_id=target_context.context_id,
-                    identification_engine="simplified_legacy",
-                    identification_trace=["resolution_loop:unexpected_failure"],
-                    unsupported_reason="resolution_loop_unexpected_failure",
+                return _finalize_transport_loop_result(
+                    TransportabilityResult(
+                        query=f"P*({query_outcome}|do({query_treatment}))",
+                        status=TransportabilityStatus.UNSUPPORTED,
+                        transport_mode=TransportMode.NONE,
+                        base_confidence=0.0,
+                        final_confidence=0.0,
+                        feasible=False,
+                        warnings=["Transportability resolution failed unexpectedly."],
+                        source_context_id=source_context.context_id,
+                        target_context_id=target_context.context_id,
+                        identification_engine="simplified_legacy",
+                        identification_trace=["resolution_loop:unexpected_failure"],
+                        unsupported_reason="resolution_loop_unexpected_failure",
+                    ),
+                    privacy_context=privacy_context,
                 )
-            return _build_final_result(tr_result=tr_result, state=state, diagram=diagram)
+            return _finalize_transport_loop_result(
+                _build_final_result(tr_result=tr_result, state=state, diagram=diagram),
+                privacy_context=privacy_context,
+            )
         finally:
             # Per-run cache isolation.
             self._cache_clear()
@@ -619,6 +638,7 @@ def _run_transport_solver(
     pag_max_dag_samples: int,
     pag_threshold: float,
     pag_seed: int,
+    privacy_context: TransportPrivacyContext | None,
 ) -> dict[str, Any]:
     result = solve_transportability(
         selection_diagram=diagram,
@@ -631,8 +651,31 @@ def _run_transport_solver(
         pag_max_dag_samples=pag_max_dag_samples,
         pag_threshold=pag_threshold,
         pag_seed=pag_seed,
+        privacy_context=privacy_context,
     )
     return {"transport_result": result.model_dump(mode="json")}
+
+
+def _resolve_transport_privacy_context(
+    params: Mapping[str, Any],
+) -> TransportPrivacyContext | None:
+    for candidate in (
+        params.get("privacy_context"),
+        params.get("dp_utility_manifest"),
+        params.get("privacy_transport_certificate"),
+    ):
+        context = coerce_transport_privacy_context(candidate)
+        if context is not None:
+            return context
+    return None
+
+
+def _finalize_transport_loop_result(
+    result: TransportabilityResult,
+    *,
+    privacy_context: TransportPrivacyContext | None,
+) -> TransportabilityResult:
+    return apply_transport_privacy_context(result, privacy_context)
 
 
 @dataclass(frozen=True)
@@ -737,6 +780,15 @@ class RunTransportabilityNode:
                 ),
             )
         capability_contract, capability_ref = _resolve_or_build_capability_contract(ctx, state)
+        input_refs = [InputRef(artifact_id=report_ref.artifact_id, role="causal_report")]
+        privacy_context = _resolve_transport_privacy_context(state.params)
+        if privacy_context is not None:
+            privacy_context = privacy_context.model_copy(
+                update={
+                    "store": ctx.store,
+                    "inputs": tuple([*privacy_context.inputs, *input_refs]),
+                }
+            )
 
         dataset_registry = _build_dataset_registry(state.params.get("dataset_registry_db_path"))
         skg_query = _build_skg_query(
@@ -768,12 +820,12 @@ class RunTransportabilityNode:
                 solver_mode=transport_solver_mode,
                 allow_degraded_transport=allow_degraded_transport,
                 capability_contract=capability_contract,
+                privacy_context=privacy_context,
             )
         finally:
             if isinstance(skg_query, SKGQuery):
                 skg_query.close()
 
-        input_refs = [InputRef(artifact_id=report_ref.artifact_id, role="causal_report")]
         transport_ref = persist_transportability_result(
             ctx.store,
             transport_result,

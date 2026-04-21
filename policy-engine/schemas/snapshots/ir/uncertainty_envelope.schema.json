@@ -1,5 +1,263 @@
 {
   "$defs": {
+    "CertificateKind": {
+      "description": "Machine-readable approximation/error certificate attached to a composition chain.",
+      "enum": [
+        "exact",
+        "kolmogorov",
+        "wasserstein_1",
+        "taylor_remainder",
+        "qmc_variation",
+        "rqmc_replicates"
+      ],
+      "title": "CertificateKind",
+      "type": "string"
+    },
+    "ComposedFlavour": {
+      "description": "Declare the native and composed family used to transport uncertainty.",
+      "enum": [
+        "analytical",
+        "monte_carlo",
+        "delta",
+        "quasi_monte_carlo",
+        "mixed"
+      ],
+      "title": "ComposedFlavour",
+      "type": "string"
+    },
+    "CompositionProvenance": {
+      "additionalProperties": false,
+      "description": "Persist the history, exactness, and certificates behind a composed envelope.",
+      "properties": {
+        "native_flavour": {
+          "$ref": "#/$defs/ComposedFlavour"
+        },
+        "composed_flavour": {
+          "$ref": "#/$defs/ComposedFlavour"
+        },
+        "exactness": {
+          "$ref": "#/$defs/ExactnessKind"
+        },
+        "certificate_kind": {
+          "$ref": "#/$defs/CertificateKind"
+        },
+        "certificate_radius": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Certificate Radius"
+        },
+        "confidence_level": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 1.0,
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence Level"
+        },
+        "scope": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope",
+          "type": "array"
+        },
+        "origin_envelope_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Origin Envelope Ids",
+          "type": "array"
+        },
+        "operator_history": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CompositionStep"
+          },
+          "title": "Operator History",
+          "type": "array"
+        }
+      },
+      "required": [
+        "native_flavour",
+        "composed_flavour",
+        "exactness",
+        "certificate_kind"
+      ],
+      "title": "CompositionProvenance",
+      "type": "object"
+    },
+    "CompositionStep": {
+      "additionalProperties": false,
+      "description": "One explicit transformation applied during uncertainty composition.",
+      "properties": {
+        "op": {
+          "enum": [
+            "join",
+            "push_forward",
+            "pull_back",
+            "compress",
+            "resample"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "stage_name": {
+          "minLength": 1,
+          "title": "Stage Name",
+          "type": "string"
+        },
+        "input_flavours": {
+          "items": {
+            "$ref": "#/$defs/ComposedFlavour"
+          },
+          "title": "Input Flavours",
+          "type": "array"
+        },
+        "output_flavour": {
+          "$ref": "#/$defs/ComposedFlavour"
+        },
+        "map_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Map Name"
+        },
+        "lipschitz_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lipschitz Bound"
+        },
+        "bias_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bias Bound"
+        },
+        "variance_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variance Bound"
+        },
+        "sample_size": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Size"
+        },
+        "replicate_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Replicate Count"
+        },
+        "qmc_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Qmc Method"
+        },
+        "scrambled": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scrambled"
+        },
+        "assumptions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "notes": {
+          "additionalProperties": true,
+          "title": "Notes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "op",
+        "stage_name",
+        "input_flavours",
+        "output_flavour"
+      ],
+      "title": "CompositionStep",
+      "type": "object"
+    },
     "DistributionFamily": {
       "description": "Declare the assumed sampling/posterior family behind an interval estimate.",
       "enum": [
@@ -11,6 +269,17 @@
         "unknown"
       ],
       "title": "DistributionFamily",
+      "type": "string"
+    },
+    "ExactnessKind": {
+      "description": "Disclose whether an envelope is exact, approximated, or only a constraint hull.",
+      "enum": [
+        "exact",
+        "outer_bound",
+        "approximation",
+        "constraint_only"
+      ],
+      "title": "ExactnessKind",
       "type": "string"
     },
     "IntervalSemantics": {
@@ -28,6 +297,11 @@
       "additionalProperties": false,
       "description": "One component of a mixture distribution carrier.",
       "properties": {
+        "weight": {
+          "exclusiveMinimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        },
         "family": {
           "$ref": "#/$defs/DistributionFamily"
         },
@@ -37,11 +311,6 @@
           },
           "title": "Parameters",
           "type": "object"
-        },
-        "weight": {
-          "exclusiveMinimum": 0.0,
-          "title": "Weight",
-          "type": "number"
         }
       },
       "required": [
@@ -80,11 +349,14 @@
       "additionalProperties": false,
       "description": "Explicit numeric policy for envelope canonicalization.",
       "properties": {
-        "absolute_tolerance": {
-          "default": 1e-12,
-          "minimum": 0.0,
-          "title": "Absolute Tolerance",
-          "type": "number"
+        "policy_id": {
+          "default": "bounded_float_v1",
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/NumericToleranceMode",
+          "default": "float_round_12"
         },
         "decimal_places": {
           "default": 12,
@@ -93,14 +365,11 @@
           "title": "Decimal Places",
           "type": "integer"
         },
-        "mode": {
-          "$ref": "#/$defs/NumericToleranceMode",
-          "default": "float_round_12"
-        },
-        "policy_id": {
-          "default": "bounded_float_v1",
-          "title": "Policy Id",
-          "type": "string"
+        "absolute_tolerance": {
+          "default": 1e-12,
+          "minimum": 0.0,
+          "title": "Absolute Tolerance",
+          "type": "number"
         }
       },
       "title": "NumericPolicySpec",
@@ -176,17 +445,17 @@
           "title": "Carrier Type",
           "type": "string"
         },
-        "sample_axis": {
-          "default": "draw",
-          "title": "Sample Axis",
-          "type": "string"
-        },
         "samples": {
           "items": {
             "type": "number"
           },
           "title": "Samples",
           "type": "array"
+        },
+        "sample_axis": {
+          "default": "draw",
+          "title": "Sample Axis",
+          "type": "string"
         },
         "weights": {
           "anyOf": [
@@ -263,6 +532,19 @@
   "additionalProperties": false,
   "description": "Unified uncertainty contract for Policy OS IR layer.",
   "properties": {
+    "schema_version": {
+      "default": "1.1",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "numeric_policy": {
+      "$ref": "#/$defs/NumericPolicySpec"
+    },
+    "point_estimate": {
+      "title": "Point Estimate",
+      "type": "number"
+    },
     "confidence_interval": {
       "maxItems": 2,
       "minItems": 2,
@@ -294,6 +576,17 @@
     "distribution_family": {
       "$ref": "#/$defs/DistributionFamily",
       "default": "unknown"
+    },
+    "source": {
+      "$ref": "#/$defs/UncertaintySource"
+    },
+    "propagation_method": {
+      "$ref": "#/$defs/PropagationMethod",
+      "default": "none"
+    },
+    "interval_semantics": {
+      "$ref": "#/$defs/IntervalSemantics",
+      "default": "confidence_interval"
     },
     "distribution_payload": {
       "anyOf": [
@@ -329,35 +622,16 @@
       "default": null,
       "title": "Distribution Payload"
     },
-    "gate_eligible": {
-      "default": true,
-      "title": "Gate Eligible",
-      "type": "boolean"
-    },
-    "interval_semantics": {
-      "$ref": "#/$defs/IntervalSemantics",
-      "default": "confidence_interval"
-    },
-    "is_heuristic_ci": {
-      "default": false,
-      "title": "Is Heuristic Ci",
-      "type": "boolean"
-    },
-    "metadata": {
-      "additionalProperties": true,
-      "title": "Metadata",
-      "type": "object"
-    },
-    "numeric_policy": {
-      "$ref": "#/$defs/NumericPolicySpec"
-    },
-    "point_estimate": {
-      "title": "Point Estimate",
-      "type": "number"
-    },
-    "propagation_method": {
-      "$ref": "#/$defs/PropagationMethod",
-      "default": "none"
+    "composition_provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CompositionProvenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "sample_size": {
       "anyOf": [
@@ -372,14 +646,20 @@
       "default": null,
       "title": "Sample Size"
     },
-    "schema_version": {
-      "default": "1.0",
-      "pattern": "^\\d+\\.\\d+$",
-      "title": "Schema Version",
-      "type": "string"
+    "is_heuristic_ci": {
+      "default": false,
+      "title": "Is Heuristic Ci",
+      "type": "boolean"
     },
-    "source": {
-      "$ref": "#/$defs/UncertaintySource"
+    "gate_eligible": {
+      "default": true,
+      "title": "Gate Eligible",
+      "type": "boolean"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
     }
   },
   "required": [

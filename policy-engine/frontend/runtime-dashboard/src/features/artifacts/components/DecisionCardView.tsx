@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 
+import MetricValidationComparisonTable from "@/features/artifacts/components/MetricValidationComparisonTable";
 import type { BadgeKind } from "@/shared/ui";
 import { DecisionCard, Select, chartTheme } from "@/shared/ui";
 import type { DecisionCardViewModel } from "@/lib/domain/decision";
@@ -149,6 +150,21 @@ export default function DecisionCardView({
                       : ""}
                   </p>
                 ) : null}
+                {metric.testLabel || metric.pValue !== null || metric.pAdj !== null ? (
+                  <p className="text-muted text-xs">
+                    {metric.testLabel ?? "Stat test"}
+                    {metric.pAdj !== null
+                      ? `, p_adj=${metric.pAdj.toFixed(4)}`
+                      : metric.pValue !== null
+                        ? `, p=${metric.pValue.toFixed(4)}`
+                        : ""}
+                    {metric.significant !== null
+                      ? metric.significant
+                        ? ", significant"
+                        : ", not significant"
+                      : ""}
+                  </p>
+                ) : null}
               </article>
             ))}
           </div>
@@ -158,6 +174,12 @@ export default function DecisionCardView({
           </p>
         )}
       </section>
+
+      <MetricValidationComparisonTable
+        title="Metric validation"
+        comparisons={card.metricComparisons}
+        familyAdjustment={card.metricValidationFamilyAdjustment}
+      />
 
       {card.distributional ? (
         <section className="border-line bg-panel rounded-xl border p-4">

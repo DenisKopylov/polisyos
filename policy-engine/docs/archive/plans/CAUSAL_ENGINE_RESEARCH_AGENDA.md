@@ -27,11 +27,20 @@
 > to Layer D (governance, promotion) until their `required_for_promotion` checklist
 > is satisfied and they graduate to full `FrontierArtifact`. They are never
 > self-certifying. See `CAUSAL_ENGINE_IMPLEMENTATION_PLAN.md` section 3.4.
+>
+> **Dated implementation note (2026-04-21)**: the archival `Status` line above
+> is preserved for historical context. Current completion state is now
+> machine-checked in `src/polisyos/ir/analytics/frontier.py`,
+> `tools/quality/validation/validate_phase_closure.py`, and
+> `tools/quality/validation/run_causal_phase_validation.sh`. The section below
+> summarizes which historically "open" problems are now fully solved versus
+> partially solved.
 
 ---
 
 ## Contents
 
+0. [Dated Implementation Status Update (2026-04-21)](#dated-implementation-status-update-2026-04-21)
 1. [Overview: Why These Tasks Require Research First](#1-overview)
 2. [Research Track 1 — Compositional Causality: Advanced Problems](#2-research-track-1)
 3. [Research Track 2 — Sharp Bounds: Automation and Novel Families](#3-research-track-2)
@@ -51,6 +60,81 @@
 17. [Dependency and Parallelization Map](#17-dependency-and-parallelization-map)
 18. [Anti-Swamp Governance for Research Tracks](#18-anti-swamp-governance)
 19. [Research Economics and Kill Rules](#19-research-economics-and-kill-rules)
+
+---
+
+## Dated Implementation Status Update (2026-04-21)
+
+This archived agenda still records the original research framing, but the
+implementation closure state is no longer informal. It is now tracked by
+checked-in phase manifests and a repo-tracked validator.
+
+For the purposes of this document:
+
+- **Fully solved** means the stage is machine-checked as `execution_grade`:
+  implementation, typed integration, and evidence/tests are in place without an
+  additional scope disclaimer.
+- **Partially solved** means the stage is machine-checked as
+  `narrow_accepted`: the problem is closed only inside an explicit
+  theorem-backed or contract-backed scope, with machine-readable boundary
+  conditions, promotion rules, and kill rules that block stronger claims.
+- **Deferred/refuted** would mean `deferred_or_refuted`. No stages are
+  currently in that category.
+
+**Current closure summary**:
+
+- Total tracked problems: `48`
+- Fully solved: `37`
+- Partially solved: `11`
+- Deferred/refuted: `0`
+
+### Status Summary by Research Track
+
+| Track | Fully solved problems | Partially solved problems | Current interpretation |
+|-------|------------------------|---------------------------|------------------------|
+| Track 1 — Compositional causality | `2.2`, `2.4` | `2.1`, `2.3`, `2.5` | Composition is closed doc-faithfully, but not as a universal completeness story. |
+| Track 2 — Sharp bounds | `3.1`, `3.2` | none | The declared sharpness/tightening lane is fully implemented. |
+| Track 3 — Continuous-time / DSCM semantics | `4.1`, `4.5` | `4.2`, `4.3`, `4.4` | Continuous-time semantics are implemented, but some advanced dynamic subclasses remain explicitly scoped. |
+| Track 4 — Distributional OT under partial identification | `5.3` | `5.1`, `5.2` | The proof-kernel marginal-law path is closed; couplings and bounded distributional functionals remain intentionally scoped. |
+| Track 5 — Strategic causality | `6.1`, `6.2`, `6.3`, `6.4` | none | Strategic equilibrium, convergence, decomposition, and MFG integration are fully implemented. |
+| Track 6 — Causal abstraction | `7.1`, `7.2` | none | Abstraction transport and error-bounding are fully implemented in the declared scope. |
+| Track 7 — Algebraic structure beyond conditional independence | `8.1`, `8.2`, `8.3` | none | The declared algebraic and semialgebraic certificate families are fully implemented. |
+| Track 8 — Latent representation learning | `9.1`, `9.2`, `9.3` | none | Latent promotion and governance criteria are fully implemented. |
+| Track 9 — Hypergraph and topological interference | `10.2`, `10.3` | `10.1` | Estimators and reduction-error bounds are implemented; full identification remains scoped to the accepted topology slice. |
+| Track 10 — Proximal causal inference | `11.1`, `11.3` | `11.2` | Proximal certificates and proximal mediation are implemented; bridge completeness remains a typed fallback ladder, not a universal theorem. |
+| Track 11 — Recoverability and missing-data calculus | `12.1`, `12.2`, `12.3` | none | Recoverability and strategy selection are fully implemented. |
+| Track 12 — Intervention hierarchy | `13.1`, `13.3`, `13.4` | `13.2` | The intervention type system, path/edge-specific effects, and recourse geometry are implemented; stochastic-policy scope remains intentionally narrow. |
+| Track 13 — RKHS and operator-valued causal inference | `14.1`, `14.2` | none | Kernel/operator-valued lanes are implemented and surfaced downstream. |
+| Track 14 — Differential privacy | `15.1`, `15.2`, `15.3` | none | DP robustness, DP-calibrated CI tests, and DP-aware transportability/recoverability are fully implemented. |
+| Track 15 — Nonstationarity and regime shifts | `16.1`, `16.2`, `16.3` | none | ICP-style contraction, shift discrimination, and tractable Foundry integration are fully implemented. |
+
+### Detailed Notes for Partially Solved Problems
+
+| Stage | Problem | What is solved | Why this is only partial |
+|-------|---------|----------------|--------------------------|
+| `2.1` | Identifiability preservation under latent interface variables | The canonical latent-preservation path now emits theorem-backed certificates for supported latent-projection and hedge-detection reconciliation cases, plus explicit negative/frontier witnesses. | The result is not a general latent-interface preservation theorem. Unresolved latent structures remain outside the certified slice and cannot be promoted as preserved. |
+| `2.3` | Cyclic SCM fragment composition | Cyclic composition is implemented for the dynamic-semantics slices that already carry validated upstream witnesses. | The result inherits the dynamic-semantics boundary and therefore does not certify arbitrary cyclic fragment composition. |
+| `2.5` | Category-theoretic completeness | Completeness is now machine-readable and theorem-backed for the accepted subclass `exact_observed_dag_adjustment_v1`. | Broader composition families remain explicitly non-complete. Engineering preservation outside that subclass must not be surfaced as theorem-backed completeness. |
+| `4.2` | Identification theory for neural SDE / neural CDE | Neural continuous-time identification is implemented for the currently certified dynamic model classes. | It is not a theorem for arbitrary neural SDE/CDE architectures or unconstrained neural dynamics. |
+| `4.3` | Conditions for valid discrete-to-continuous causal translation | Translation contracts and blockers are implemented for the supported translation classes with explicit well-posedness checks. | Heuristic or unsupported discretization bridges remain out of scope and cannot be promoted as proof-backed continuous-time translations. |
+| `4.4` | Dynamic SCM semantics and σ-separation for proof kernel | Dynamic semantics are certified for validated linear-unique cyclic reductions with explicit well-posedness witnesses and frontier artifacts for unsupported cycles. | This is not general cyclic σ-separation support; unsupported cycle families remain capped by boundary artifacts. |
+| `5.1` | Causally justified OT couplings under partial identification | OT couplings are implemented as explicit sidecars attached to identified or bounded marginal-law paths. | The system still does not claim full joint-law identification from those couplings, and must keep coupling artifacts separate from joint potential-outcome claims. |
+| `5.2` | Bounded distributional effects for tail risk and subgroup shifts | Distributional bounds are theorem-backed and surfaced downstream for the supported Lee/Makarov families. | Arbitrary distributional functionals are not covered by the theorem-backed contract and must not inherit those guarantees. |
+| `10.1` | Simplicial complex identification theory for interference | The topology lane is theorem-backed for the supported pairwise/cluster slice, with explicit degradation metadata. | Richer full-complex interference structures still degrade honestly to the accepted slice rather than receiving a full identification claim. |
+| `11.2` | Bridge function existence and completeness conditions | The proximal lane now has a typed bridge-plausibility report plus a machine-readable fallback ladder into bounds or negative certificates. | This is not a general completeness theorem for all bridge families; plausibility diagnostics must not be confused with universal proximal identification. |
+| `13.2` | Identification and estimation for stochastic and modified treatment policies | The stochastic-policy lane is fully implemented for the accepted v1 policy scope, with explicit scope encoding and downstream blockers. | Arbitrary multi-target or broader policy families remain outside the theorem-backed scope and must stay capped or blocked. |
+
+### Practical Reading Rule for the Rest of This Archive
+
+The sections below still describe these items as "open problems" because that
+was the correct framing when the agenda was written. When reading them today:
+
+- treat any stage listed above as **fully solved** if it appears in the
+  `execution_grade` set;
+- treat any stage listed above as **partially solved** only within its explicit
+  `narrow_accepted` scope;
+- do not infer that a stage remains unimplemented merely because its historical
+  prose below still says "open problem".
 
 ---
 

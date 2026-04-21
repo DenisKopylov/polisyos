@@ -11,11 +11,23 @@ from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
 )
 from polisyos.ir.analytics.dynamic_regime import (
     ContinuousTimeQuery,
+    EffectTrajectoryBundle,
     InterventionInterpolationPolicy,
+    StrategicAdaptationMode,
+    TemporalIdentificationCertificate,
+    TemporalIdentificationTheoremFamily,
+    TemporalPathRepresentation,
     TemporalSamplingScheme,
     TemporalInterventionTrajectory,
+    TemporalInterventionSemantics,
+    TemporalLawObject,
+    TemporalObservabilityRegime,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.refs import (
+    ArtifactRefModel,
+    ContinuousTimeQueryRef,
+    RoughPathInterventionCertificateRef,
+)
 from polisyos.scientist.backtesting.temporal import (
     TemporalThresholds,
     evaluate_temporal_safe_rejection,
@@ -29,6 +41,18 @@ def _artifact_ref() -> ArtifactRefModel:
         kind="test.intervention_trajectory",
         media_type="application/json",
     )
+
+
+def _json_ref(ch: str, *, kind: str) -> ArtifactRefModel:
+    return ArtifactRefModel(
+        artifact_id=f"sha256:{ch * 64}",
+        kind=kind,
+        media_type="application/json",
+    )
+
+
+def _rough_path_certificate_ref() -> RoughPathInterventionCertificateRef:
+    return RoughPathInterventionCertificateRef(artifact_id=f"sha256:{'b' * 64}")
 
 
 def _query(
@@ -63,6 +87,31 @@ def _intervention(
     )
 
 
+def _certificate(
+    *,
+    theorem_family: TemporalIdentificationTheoremFamily = (
+        TemporalIdentificationTheoremFamily.NSDE_FIXED_OBSERVED_CHANNEL_V1
+    ),
+) -> TemporalIdentificationCertificate:
+    if theorem_family is TemporalIdentificationTheoremFamily.NCDE_FIXED_OBSERVED_CHANNEL_V1:
+        return TemporalIdentificationCertificate(
+            theorem_family=theorem_family,
+            identified_functionals=("effect_path", "integral_effect"),
+            intervention_semantics=TemporalInterventionSemantics.SURGICAL_REPLACEMENT,
+            observability_regime=TemporalObservabilityRegime.FULL_STATE,
+            law_object=TemporalLawObject.CANONICAL_CONTROL_PATH,
+            canonical_control_required=True,
+            control_canonicalization=InterventionInterpolationPolicy.PIECEWISE_CONSTANT,
+        )
+    return TemporalIdentificationCertificate(
+        theorem_family=theorem_family,
+        identified_functionals=("effect_path", "integral_effect"),
+        intervention_semantics=TemporalInterventionSemantics.SURGICAL_REPLACEMENT,
+        observability_regime=TemporalObservabilityRegime.FULL_STATE,
+        law_object=TemporalLawObject.SEMIMARTINGALE_CHARACTERISTICS,
+    )
+
+
 def _plan(horizon_end: float = 3.0, *, preferred_backend: str = "linear_sde"):
     panel = PanelObservationalData(
         outcome=np.vstack([np.linspace(0.0, horizon_end, int(horizon_end) + 1), np.zeros(int(horizon_end) + 1), np.zeros(int(horizon_end) + 1)]),
@@ -93,6 +142,36 @@ def _trajectory(
         plan,
         observed_series=np.asarray(effect_path, dtype=float),
         controls=controls,
+    )
+
+
+def _rough_path_effect_bundle(*, semantics_scope: str = "represented_path") -> EffectTrajectoryBundle:
+    return EffectTrajectoryBundle(
+        query_ref=ContinuousTimeQueryRef(artifact_id=f"sha256:{'c' * 64}"),
+        trajectory_ref=_json_ref("d", kind="test.trajectory"),
+        confidence_band_ref=_json_ref("e", kind="test.confidence_band"),
+        solver_diagnostics_ref=_json_ref("f", kind="test.solver_diagnostics"),
+        discretization_error=0.05,
+        path_representation=TemporalPathRepresentation.GEOMETRIC_ROUGH_PATH,
+        solver_family="rough_solver",
+        time_scale="days",
+        interpolation_policy=InterventionInterpolationPolicy.PIECEWISE_CONSTANT,
+        strategic_adaptation_mode=StrategicAdaptationMode.ABSENT,
+        metadata={
+            "path_semantics": {
+                "semantics_scope": semantics_scope,
+                "lift_method": "lead_lag",
+                "topology": "p_variation",
+                "p_variation_order": 2.0,
+                "interpolation_is_adapted": True,
+                "future_leakage_ruled_out": True,
+                "intervention_type": "policy_override",
+                "graph_criterion": "delta_sep",
+                "proof_artifact_ref": _rough_path_certificate_ref().model_dump(mode="json"),
+                "sampling_ignorability_checked": True,
+                "lift_faithfulness_checked": semantics_scope == "latent_path",
+            }
+        },
     )
 
 
@@ -143,6 +222,32 @@ def test_temporal_evaluator_flags_missing_diagnostics_disclosure() -> None:
     assert result.matches_expected_outcome is True
 
 
+def test_temporal_evaluator_requires_causal_translation_certificate_for_numeric_discretization() -> None:
+    trajectory = _trajectory([0.0, 0.1, 0.2, 0.3])
+    diagnostics = dict(trajectory.diagnostics)
+    diagnostics.pop("causal_translation_certificate", None)
+    malformed = trajectory.model_copy(
+        update={
+            "causal_translation_certificate": None,
+            "diagnostics": diagnostics,
+        }
+    )
+
+    result = evaluate_temporal_trajectory(
+        scenario_id="temporal_missing_causal_translation_certificate",
+        scenario_label="Temporal causal translation omission",
+        trajectory=malformed,
+        expected_effect_path=[0.0, 0.1, 0.2, 0.3],
+        thresholds=TemporalThresholds(max_path_rmse=0.1),
+        expected_outcome="diagnostic_failure",
+    )
+
+    assert result.diagnostics_checks["complete"] is False
+    assert "causal_translation_certificate" in result.diagnostics_checks["missing_fields"]
+    assert result.actual_outcome == "diagnostic_failure"
+    assert result.matches_expected_outcome is True
+
+
 @pytest.mark.parametrize(
     ("sampling_scheme", "preferred_backend", "expected_reason"),
     [
@@ -183,3 +288,77 @@ def test_temporal_evaluator_marks_safe_rejections_machine_readably(
     assert result.actual_outcome == "safe_rejection"
     assert result.matches_expected_outcome is True
     assert result.reason_code == expected_reason
+
+
+def test_temporal_evaluator_reports_unsupported_identification_scope() -> None:
+    panel = PanelObservationalData(
+        outcome=np.vstack([np.linspace(0.0, 3.0, 4), np.zeros(4), np.zeros(4)]),
+        treatment=np.array([1, 0, 0], dtype=int),
+        time_treatment=1,
+        time_index=np.arange(4, dtype=float),
+    )
+    with pytest.raises(TemporalCompileError) as exc_info:
+        compile_temporal_estimand(
+            _query(horizon_end=3.0, preferred_backend="neural_sde"),
+            data=panel,
+            resolved_intervention=_intervention(horizon_end=3.0),
+            identification_certificate=_certificate(
+                theorem_family=TemporalIdentificationTheoremFamily.NCDE_FIXED_OBSERVED_CHANNEL_V1
+            ),
+        )
+
+    result = evaluate_temporal_safe_rejection(
+        scenario_id="temporal_identification_scope_rejection",
+        scenario_label="Temporal identification scope rejection",
+        error=exc_info.value,
+        expected_reason_code="unsupported_identification_scope",
+    )
+
+    assert result.actual_outcome == "safe_rejection"
+    assert result.matches_expected_outcome is True
+    assert result.reason_code == "unsupported_identification_scope"
+
+
+def test_temporal_evaluator_marks_rough_path_without_bundle_as_research_blocked() -> None:
+    trajectory = _trajectory([0.0, 0.1, 0.2, 0.3]).model_copy(
+        update={"path_representation": TemporalPathRepresentation.GEOMETRIC_ROUGH_PATH}
+    )
+
+    result = evaluate_temporal_trajectory(
+        scenario_id="temporal_rough_path_research_blocked",
+        scenario_label="Temporal rough-path gating without bundle semantics",
+        trajectory=trajectory,
+        expected_effect_path=[0.0, 0.1, 0.2, 0.3],
+        thresholds=TemporalThresholds(max_path_rmse=0.1),
+    )
+
+    assert result.gating_checks["runtime_eligible"] is False
+    assert result.gating_checks["runtime_support_status"] == "blocked_research"
+    assert result.gating_checks["path_semantics_present"] is False
+    assert result.gating_checks["path_semantics_scope"] is None
+    assert result.gating_checks["path_semantics_disclosure_notes"] == []
+
+
+def test_temporal_evaluator_discloses_representation_only_scope_for_rough_path_bundle() -> None:
+    trajectory = _trajectory([0.0, 0.1, 0.2, 0.3]).model_copy(
+        update={
+            "path_representation": TemporalPathRepresentation.GEOMETRIC_ROUGH_PATH,
+            "effect_bundle": _rough_path_effect_bundle(),
+        }
+    )
+
+    result = evaluate_temporal_trajectory(
+        scenario_id="temporal_rough_path_scope_disclosure",
+        scenario_label="Temporal rough-path scope disclosure",
+        trajectory=trajectory,
+        expected_effect_path=[0.0, 0.1, 0.2, 0.3],
+        thresholds=TemporalThresholds(max_path_rmse=0.1),
+    )
+
+    assert result.gating_checks["runtime_eligible"] is True
+    assert result.gating_checks["runtime_support_status"] == "supported"
+    assert result.gating_checks["path_semantics_present"] is True
+    assert result.gating_checks["path_semantics_scope"] == "represented_path"
+    assert result.gating_checks["path_semantics_disclosure_notes"] == [
+        "claim_scope_limited_to_represented_path"
+    ]

@@ -21,6 +21,7 @@ __all__ = [
     "FormalizeVerifiedPolicyNode",
     "CompileFoundryNode",
     "RunSimulationNode",
+    "RunMetricValidationNode",
     "BuildLiteraturePriorNode",
     "CounterfactualIdentificationGateNode",
     "ReconcileCausalGraphNode",
@@ -175,6 +176,9 @@ def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis import (
         RunDistributionalAnalysisNode,
     )
+    from polisyos.scientist.nodes.builtins.simulate.run_metric_validation import (
+        RunMetricValidationNode,
+    )
     from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 
     return [
@@ -197,6 +201,7 @@ def builtin_nodes() -> list["Node"]:
         CompileCrossGraphEvidenceNode(),
         RunHierarchicalPolicySearchNode(),
         RunSimulationNode(),
+        RunMetricValidationNode(),
         BuildLiteraturePriorNode(),
         CounterfactualIdentificationGateNode(),
         ReconcileCausalGraphNode(),
@@ -265,6 +270,12 @@ def __getattr__(name: str) -> Any:
         from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 
         return RunSimulationNode
+    if name == "RunMetricValidationNode":
+        from polisyos.scientist.nodes.builtins.simulate.run_metric_validation import (
+            RunMetricValidationNode,
+        )
+
+        return RunMetricValidationNode
     if name == "BuildLiteraturePriorNode":
         from polisyos.scientist.nodes.builtins.causal.build_literature_prior import (
             BuildLiteraturePriorNode,

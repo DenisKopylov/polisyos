@@ -622,6 +622,7 @@ function CausalEffectReportViewer({ preview }: { preview: unknown }) {
 
 const SIMULATION_KINDS = new Set<string>([
   "scientist.decision_packet",
+  "scientist.metric_validation_report",
   "foundry.metrics",
   "foundry.simulation_result",
   "scientist.simulation_results",

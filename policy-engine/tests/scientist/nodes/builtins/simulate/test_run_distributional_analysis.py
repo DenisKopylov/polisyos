@@ -25,8 +25,15 @@ from polisyos.ir.analytics.causal_graph import (
 )
 from polisyos.ir.analytics.distributional import (
     CohortDimension,
+    DistributionalBoundUniformity,
+    DistributionalFunctional,
     DistributionalJustification,
+    DistributionalProofTarget,
+    DistributionalCouplingStatus,
+    load_causal_assumption_card,
+    load_distributional_bounds_bundle,
     load_distributional_effect_bundle,
+    load_distributional_proof_artifact,
     load_distributional_report,
     load_subgroup_distribution_comparison,
 )
@@ -336,6 +343,158 @@ def test_uses_proof_kernel_for_distribution_law_when_graph_and_treatment_availab
     assert bundle.marginal_law_proof_ref == bundle.distributional_proof_ref
     assert bundle.distributional_proof_ref is not None
     assert bundle.coupling_proof_ref is not None
+    assert bundle.causal_assumption_refs
+
+    marginal_proof = load_distributional_proof_artifact(
+        cas_store,
+        bundle.distributional_proof_ref,
+    )
+    coupling_proof = load_distributional_proof_artifact(
+        cas_store,
+        bundle.coupling_proof_ref,
+    )
+    assumption_cards = [
+        load_causal_assumption_card(cas_store, ref)
+        for ref in bundle.causal_assumption_refs
+    ]
+
+    assert marginal_proof.target is DistributionalProofTarget.CDF
+    assert coupling_proof.target is DistributionalProofTarget.COUPLING
+    assert coupling_proof.coupling_status is DistributionalCouplingStatus.SCENARIO_ONLY
+    assert any(card.scope == "coupling" for card in assumption_cards)
+    assert any(card.scope == "estimation" for card in assumption_cards)
+    assert bundle.distributional_bounds_refs == []
+
+
+def test_lee_distributional_bounds_are_wired_into_production_bundle(
+    execution_context,
+    minimal_state,
+    cas_store,
+    artifact_ref_factory,
+):
+    baseline = _state_with_income(
+        list(range(10, 30)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    simulated = _state_with_income(
+        list(range(12, 32)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    baseline_ref = put_state_snapshot(cas_store, state=baseline)
+    simulated_ref = put_state_snapshot(cas_store, state=simulated)
+    sim_result_ref = _simulation_result_ref(
+        cas_store,
+        simulated_ref=simulated_ref,
+        artifact_ref_factory=artifact_ref_factory,
+    )
+
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_STATE_SNAPSHOT_REF] = baseline_ref
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = sim_result_ref
+    state.params["distributional_bounds"] = {
+        "enabled": True,
+        "requests": [
+            {
+                "theorem_family": "lee_trimming_distributional",
+                "assumptions": ["monotone_selection_S1_ge_S0"],
+                "outcome": [10, 11, 12, 13, 14, 15, 16, 17],
+                "treatment": [0, 0, 0, 0, 1, 1, 1, 1],
+                "selected": [1, 1, 0, 0, 1, 1, 1, 0],
+                "tail_thresholds": [14.0],
+                "quantiles": [0.5],
+            }
+        ],
+    }
+
+    outcome = RunDistributionalAnalysisNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    bundle = load_distributional_effect_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
+    )
+    assert bundle.marginal_law_justification is DistributionalJustification.BOUNDED
+    assert bundle.coupling_justification is DistributionalJustification.SCENARIO
+    assert bundle.justification is DistributionalJustification.SCENARIO
+    assert bundle.distributional_bounds_refs
+    assert bundle.distributional_proof_ref is not None
+    assert bundle.metadata["bounded_functionals"] == [
+        DistributionalFunctional.TAIL_DELTA.value,
+        DistributionalFunctional.QUANTILE_SHIFT.value,
+    ]
+    assert bundle.metadata["bounds_theorem_families"] == ["lee_trimming_distributional"]
+
+    proof = load_distributional_proof_artifact(cas_store, bundle.distributional_proof_ref)
+    assert proof.target is DistributionalProofTarget.CDF
+    assert proof.bounded_curve_ref is not None
+    assert proof.bounded_curve_ref.artifact_id == bundle.distributional_bounds_refs[0].artifact_id
+    assert proof.bound_uniformity is DistributionalBoundUniformity.POINTWISE_ONLY
+
+
+def test_makarov_distributional_bounds_require_licensed_marginals_and_warn_pointwise(
+    execution_context,
+    minimal_state,
+    cas_store,
+    artifact_ref_factory,
+):
+    baseline = _state_with_income(
+        list(range(10, 30)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    simulated = _state_with_income(
+        list(range(11, 31)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    baseline_ref = put_state_snapshot(cas_store, state=baseline)
+    simulated_ref = put_state_snapshot(cas_store, state=simulated)
+    sim_result_ref = _simulation_result_ref(
+        cas_store,
+        simulated_ref=simulated_ref,
+        artifact_ref_factory=artifact_ref_factory,
+    )
+
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_STATE_SNAPSHOT_REF] = baseline_ref
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = sim_result_ref
+    state.params["distributional_bounds"] = {
+        "enabled": True,
+        "requests": [
+            {
+                "theorem_family": "makarov_pointwise",
+                "marginal_law_status": "identified",
+                "treated_outcome": [12, 14, 15, 18, 20, 22],
+                "control_outcome": [10, 11, 13, 14, 16, 17],
+                "harm_thresholds": [0.0, 1.0],
+                "quantiles": [0.25, 0.5],
+            }
+        ],
+    }
+
+    outcome = RunDistributionalAnalysisNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    bundle = load_distributional_effect_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
+    )
+    assert bundle.marginal_law_justification is DistributionalJustification.BOUNDED
+    assert bundle.coupling_justification is DistributionalJustification.SCENARIO
+    assert bundle.distributional_bounds_refs
+    assert bundle.distributional_proof_ref is not None
+    assert bundle.metadata["bound_uniformity"] == DistributionalBoundUniformity.POINTWISE_ONLY.value
+    assert bundle.metadata["distributional_bounds"]["pointwise_warning"] is True
+
+    bounds = [
+        load_distributional_bounds_bundle(cas_store, ref)
+        for ref in bundle.distributional_bounds_refs
+    ]
+    assert {item.functional for item in bounds} == {
+        DistributionalFunctional.ITE_TAIL_RISK,
+        DistributionalFunctional.QUANTILE,
+    }
+    proof = load_distributional_proof_artifact(cas_store, bundle.distributional_proof_ref)
+    assert proof.target is DistributionalProofTarget.MARGINAL_PAIR
+    assert proof.bound_uniformity is DistributionalBoundUniformity.POINTWISE_ONLY
 
 
 def test_resolve_baseline_snapshot_ref_assertion_is_not_swallowed(

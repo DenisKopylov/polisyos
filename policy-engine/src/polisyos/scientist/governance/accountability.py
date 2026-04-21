@@ -15,6 +15,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.lex import ComplianceIssue
 from polisyos.core.contracts.scientist import GovernanceAccountabilityArtifactRef
+from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
 from polisyos.ir.analytics.distributional import DistributionalReport, TailRiskDeltaSummary
 from polisyos.ir.analytics.fairness import CausalFairnessReport
 
@@ -342,6 +343,7 @@ class GovernanceAccountabilityInput(BaseModel):
     observed_outcomes: list[float] = Field(default_factory=list)
     protected_attributes: dict[str, list[str]] = Field(default_factory=dict)
     predicted_uncertainties: list[float] = Field(default_factory=list)
+    calibration_diagnostics: CalibrationDiagnosticsReport | None = None
     distributional_report: DistributionalReport | None = None
     causal_fairness_report: CausalFairnessReport | None = None
     tail_risk_summary: TailRiskDeltaSummary | None = None
@@ -662,6 +664,11 @@ def _build_calibration_summary(
     *,
     gaps: list[str],
 ) -> CalibrationMetricsSummary | None:
+    if payload.calibration_diagnostics is not None:
+        projected = _project_calibration_summary(payload.calibration_diagnostics, gaps=gaps)
+        if projected is not None:
+            return projected
+
     if not payload.predicted_scores or not payload.observed_outcomes:
         return None
 
@@ -695,6 +702,56 @@ def _build_calibration_summary(
         mean_observed_rate=sum(outcomes) / max(n_obs, 1),
         reliability_diagram=bins,
         notes=[],
+    )
+
+
+def _project_calibration_summary(
+    report: CalibrationDiagnosticsReport,
+    *,
+    gaps: list[str],
+) -> CalibrationMetricsSummary | None:
+    curve_id = report.primary_curve
+    if curve_id is None and report.curves:
+        curve_id = next(iter(report.curves))
+    reliability_diagram = (
+        []
+        if curve_id is None
+        else [
+            CalibrationCurveBin(
+                lower=item.lower,
+                upper=item.upper,
+                count=item.count,
+                mean_predicted=item.mean_predicted,
+                mean_observed=item.mean_observed,
+                absolute_gap=item.absolute_gap,
+            )
+            for item in report.curves.get(curve_id, ())
+        ]
+    )
+
+    if report.task != "binary":
+        gaps.append(f"accountability_binary_projection_task:{report.task}")
+
+    notes = list(report.warnings)
+    if report.recommended_action:
+        notes.append(f"recommended_action:{report.recommended_action}")
+    notes.extend(f"issue:{issue.code}" for issue in report.issues)
+    notes.extend(
+        f"test_rejected:{test.test_id}"
+        for test in report.tests
+        if test.passed is False
+    )
+
+    return CalibrationMetricsSummary(
+        n_obs=report.metrics.n_obs,
+        brier_score=report.metrics.brier,
+        log_score=report.metrics.log_loss,
+        ece=report.metrics.ece,
+        ence=report.metrics.ence,
+        mean_predicted_score=report.metrics.mean_predicted_score,
+        mean_observed_rate=report.metrics.mean_observed_rate,
+        reliability_diagram=reliability_diagram,
+        notes=sorted(set(notes)),
     )
 
 

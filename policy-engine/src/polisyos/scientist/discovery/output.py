@@ -32,12 +32,13 @@ from polisyos.ir.analytics.causal_discovery import (
     DataCharacteristics,
     LatentAssumptionCard,
     LatentDiscoveryBundle,
+    LatentPromotionEvidence,
     LatentTrustLevel,
     load_causal_discovery_report,
     persist_causal_discovery_report,
 )
-from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.analytics.causal_queries import CausalQuery
+from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.refs import CausalDiscoveryReportRef
 from polisyos.scientist.discovery.active import (
     ActiveDisambiguationConfig,
@@ -50,7 +51,7 @@ from polisyos.scientist.discovery.aggregator import (
     load_edge_confidence_matrix,
     persist_edge_confidence_matrix,
 )
-from polisyos.scientist.discovery.portfolio import PortfolioRunResult, PortfolioRunnerConfig
+from polisyos.scientist.discovery.portfolio import PortfolioRunnerConfig, PortfolioRunResult
 from polisyos.scientist.discovery.priors import (
     GraphPriorBundle,
     PriorKnowledgeBundle,
@@ -85,6 +86,14 @@ from polisyos.scientist.discovery.workers import (
     WorkerExecutionProvenance,
     run_bounded_discovery_workers,
 )
+from polisyos.scientist.latent_separation import (
+    SEPARATION_DIAGNOSTICS_KEY,
+    certify_latent_separation_trust,
+    metadata_with_computed_latent_separation,
+    merge_latent_separation_diagnostics_payloads,
+    separation_diagnostics_payload,
+)
+from polisyos.scientist.search.latent_promotion import evaluate_latent_promotion
 from polisyos.scientist.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
@@ -100,6 +109,13 @@ ACTIVE_DISAMBIGUATION_PLAN_SCHEMA_NAME = (
 )
 DISCOVERY_AUDIT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.discovery.DiscoveryAuditBundle"
 DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.discovery.DiscoveryArtifactBundle"
+_LATENT_CARDINALITY_METADATA_KEYS = {
+    "model_class",
+    "identifiability_status",
+    "latent_blocks",
+    "latent_candidates",
+    "ambiguity_notes",
+}
 
 
 class SeedVariationStatus(str, Enum):
@@ -1009,6 +1025,160 @@ def _merge_proxy_boundary_payloads(values: list[dict[str, Any]]) -> dict[str, An
     return merged
 
 
+def _latent_cardinality_payload(metadata: dict[str, Any]) -> dict[str, Any] | None:
+    payload = {
+        key: metadata[key]
+        for key in _LATENT_CARDINALITY_METADATA_KEYS
+        if key in metadata
+    }
+    return payload or None
+
+
+def _merge_latent_cardinality_payloads(values: list[dict[str, Any]]) -> dict[str, Any]:
+    model_classes: list[str] = []
+    status_values: list[str] = []
+    latent_blocks: list[dict[str, Any]] = []
+    latent_candidates: list[dict[str, Any]] = []
+    ambiguity_notes: list[str] = []
+    seen_blocks: set[str] = set()
+    seen_candidates: set[str] = set()
+
+    for value in values:
+        model_class = str(value.get("model_class", "")).strip()
+        if model_class and model_class not in model_classes:
+            model_classes.append(model_class)
+        status = str(value.get("identifiability_status", "")).strip()
+        if status:
+            status_values.append(status)
+
+        for block in list(value.get("latent_blocks", []) or []):
+            if not isinstance(block, dict):
+                continue
+            key = str(block.get("latent_id") or block)
+            if key in seen_blocks:
+                continue
+            seen_blocks.add(key)
+            latent_blocks.append(dict(block))
+
+        for candidate in list(value.get("latent_candidates", []) or []):
+            if not isinstance(candidate, dict):
+                continue
+            key = str(candidate.get("latent_id") or candidate)
+            if key in seen_candidates:
+                continue
+            seen_candidates.add(key)
+            latent_candidates.append(dict(candidate))
+
+        for note in list(value.get("ambiguity_notes", []) or []):
+            text = str(note).strip()
+            if text and text not in ambiguity_notes:
+                ambiguity_notes.append(text)
+
+    merged: dict[str, Any] = {}
+    if len(model_classes) == 1:
+        merged["model_class"] = model_classes[0]
+    elif model_classes:
+        merged["model_class"] = "mixed"
+        merged["model_classes"] = model_classes
+    status = _conservative_latent_identifiability_status(status_values)
+    if status is not None:
+        merged["identifiability_status"] = status
+    if latent_blocks:
+        merged["latent_blocks"] = latent_blocks
+    if latent_candidates:
+        merged["latent_candidates"] = latent_candidates
+    if ambiguity_notes:
+        merged["ambiguity_notes"] = ambiguity_notes
+    return merged
+
+
+def _conservative_latent_identifiability_status(values: list[str]) -> str | None:
+    if not values:
+        return None
+    rank = {"suspected_only": 0, "partial": 1, "partial_or_full": 1, "full": 2}
+    return min(values, key=lambda value: rank.get(value, 0))
+
+
+def _merge_latent_promotion_evidence(
+    evidences: list[LatentPromotionEvidence],
+) -> LatentPromotionEvidence | None:
+    if not evidences:
+        return None
+
+    invariance_rank = {
+        "none": 0,
+        "configural": 1,
+        "metric": 2,
+        "approximate": 2,
+        "scalar": 3,
+        "strict": 4,
+    }
+
+    def _merge_ref_list(field_name: str) -> list[Any]:
+        seen: set[str] = set()
+        refs: list[Any] = []
+        for evidence in evidences:
+            for ref in getattr(evidence, field_name):
+                key = str(ref.artifact_id)
+                if key in seen:
+                    continue
+                seen.add(key)
+                refs.append(ref)
+        return refs
+
+    def _merge_single_ref(field_name: str) -> Any | None:
+        values = [
+            getattr(evidence, field_name)
+            for evidence in evidences
+            if getattr(evidence, field_name) is not None
+        ]
+        if len(values) != len(evidences):
+            return None
+        return values[0]
+
+    scope_sets = [set(evidence.scope_regime) for evidence in evidences if evidence.scope_regime]
+    if len(scope_sets) == len(evidences) and scope_sets:
+        scope_regime = sorted(set.intersection(*scope_sets))
+    else:
+        scope_regime = _dedupe_preserve_order(
+            [
+                value
+                for evidence in evidences
+                for value in evidence.scope_regime
+            ]
+        )
+
+    invariance_level = min(
+        (evidence.invariance_level for evidence in evidences),
+        key=lambda value: invariance_rank.get(value, 0),
+    )
+
+    return LatentPromotionEvidence(
+        observable_implication_refs=_merge_ref_list("observable_implication_refs"),
+        local_misspecification_test_refs=_merge_ref_list(
+            "local_misspecification_test_refs"
+        ),
+        environment_stability_ref=_merge_single_ref("environment_stability_ref"),
+        rival_explanation_audit_ref=_merge_single_ref("rival_explanation_audit_ref"),
+        external_evidence_refs=_merge_ref_list("external_evidence_refs"),
+        replication_refs=_merge_ref_list("replication_refs"),
+        hidden_benchmark_ref=_merge_single_ref("hidden_benchmark_ref"),
+        reviewer_decision_ref=_merge_single_ref("reviewer_decision_ref"),
+        exclusion_test_refs=_merge_ref_list("exclusion_test_refs"),
+        external_anchor_refs=_merge_ref_list("external_anchor_refs"),
+        cross_model_robustness_refs=_merge_ref_list("cross_model_robustness_refs"),
+        scope_regime=scope_regime,
+        invariance_level=invariance_level,
+        measurement_scope=all(evidence.measurement_scope for evidence in evidences),
+        structural_interpretation_rejected=any(
+            evidence.structural_interpretation_rejected for evidence in evidences
+        ),
+        notes=_dedupe_preserve_order(
+            [note for evidence in evidences for note in evidence.notes]
+        ),
+    )
+
+
 def merge_latent_discovery_hypotheses(
     hypotheses: list[GraphHypothesis],
     *,
@@ -1038,6 +1208,9 @@ def merge_latent_discovery_hypotheses(
     source_hypothesis_ids: list[str] = []
     assumption_cards: list[LatentAssumptionCard] = []
     proxy_boundary_payloads: list[dict[str, Any]] = []
+    latent_cardinality_payloads: list[dict[str, Any]] = []
+    separation_diagnostics_payloads: list[dict[str, Any]] = []
+    separation_diagnostics_trusts: list[LatentTrustLevel] = []
     seen_assumptions: set[str] = set()
     trust_rank = {
         LatentTrustLevel.RESEARCH: 0,
@@ -1045,11 +1218,22 @@ def merge_latent_discovery_hypotheses(
         LatentTrustLevel.VALIDATED: 2,
     }
     trust_level = LatentTrustLevel.VALIDATED
+    component_promotion_evidence: list[LatentPromotionEvidence] = []
+    all_components_have_evidence = True
 
     for hypothesis_id, bundle in selected:
+        bundle_metadata = metadata_with_computed_latent_separation(bundle.metadata)
         source_hypothesis_ids.append(hypothesis_id)
-        if trust_rank[bundle.trust_level] < trust_rank[trust_level]:
-            trust_level = bundle.trust_level
+        effective_trust = certify_latent_separation_trust(
+            bundle_metadata,
+            fallback=bundle.trust_level,
+        )
+        if trust_rank[effective_trust] < trust_rank[trust_level]:
+            trust_level = effective_trust
+        if bundle.promotion_evidence is not None:
+            component_promotion_evidence.append(bundle.promotion_evidence)
+        else:
+            all_components_have_evidence = False
         for value in bundle.proposed_latent_nodes:
             text = str(value).strip()
             if text and text not in proposed_latent_nodes:
@@ -1076,9 +1260,16 @@ def merge_latent_discovery_hypotheses(
                 continue
             seen_assumptions.add(key)
             assumption_cards.append(card)
-        proxy_boundary = bundle.metadata.get("proxy_boundary")
+        proxy_boundary = bundle_metadata.get("proxy_boundary")
         if isinstance(proxy_boundary, dict):
             proxy_boundary_payloads.append(dict(proxy_boundary))
+        latent_cardinality = _latent_cardinality_payload(bundle_metadata)
+        if latent_cardinality is not None:
+            latent_cardinality_payloads.append(latent_cardinality)
+        separation_diagnostics = separation_diagnostics_payload(bundle_metadata)
+        if separation_diagnostics is not None:
+            separation_diagnostics_payloads.append(separation_diagnostics)
+            separation_diagnostics_trusts.append(effective_trust)
 
     metadata: dict[str, Any] = {
         "source_hypothesis_ids": source_hypothesis_ids,
@@ -1086,8 +1277,33 @@ def merge_latent_discovery_hypotheses(
     }
     if proxy_boundary_payloads:
         metadata["proxy_boundary"] = _merge_proxy_boundary_payloads(proxy_boundary_payloads)
+    if latent_cardinality_payloads:
+        metadata.update(_merge_latent_cardinality_payloads(latent_cardinality_payloads))
+    merged_separation_diagnostics = merge_latent_separation_diagnostics_payloads(
+        separation_diagnostics_payloads
+    )
+    if merged_separation_diagnostics is not None:
+        metadata[SEPARATION_DIAGNOSTICS_KEY] = merged_separation_diagnostics
+        diagnostic_trust = certify_latent_separation_trust(
+            metadata,
+            fallback=trust_level,
+        )
+        all_sources_have_diagnostics = len(separation_diagnostics_payloads) == len(selected)
+        all_diagnostic_sources_promotable = all(
+            trust_rank[value] > trust_rank[LatentTrustLevel.RESEARCH]
+            for value in separation_diagnostics_trusts
+        )
+        if trust_rank[diagnostic_trust] < trust_rank[trust_level] or (
+            all_sources_have_diagnostics and all_diagnostic_sources_promotable
+        ):
+            trust_level = diagnostic_trust
 
-    return LatentDiscoveryBundle(
+    merged_promotion_evidence = (
+        _merge_latent_promotion_evidence(component_promotion_evidence)
+        if all_components_have_evidence
+        else None
+    )
+    provisional_bundle = LatentDiscoveryBundle(
         proposed_latent_nodes=proposed_latent_nodes,
         inducing_environments=inducing_environments,
         identification_conditions=identification_conditions,
@@ -1098,10 +1314,39 @@ def merge_latent_discovery_hypotheses(
         human_gate_required=True,
         promotion_allowed=False,
         no_promotion_reasons=_dedupe_preserve_order(
-            [*no_promotion_reasons, "latent_discovery_proof_only"]
+            [
+                reason
+                for reason in no_promotion_reasons
+                if reason != "latent_discovery_proof_only"
+            ]
         ),
         not_for_decision_support=True,
+        promotion_evidence=merged_promotion_evidence,
         metadata=metadata,
+    )
+    promotion_verdict = evaluate_latent_promotion(provisional_bundle)
+    resolved_trust_level = trust_level
+    if trust_rank[promotion_verdict.derived_trust_level] > trust_rank[resolved_trust_level]:
+        resolved_trust_level = promotion_verdict.derived_trust_level
+    derived_no_promotion_reasons = _dedupe_preserve_order(
+        [
+            *provisional_bundle.no_promotion_reasons,
+            *(f"latent_promotion_blocker:{value}" for value in promotion_verdict.blockers),
+            *(
+                ["latent_discovery_proof_only"]
+                if promotion_verdict.derived_readiness_cap == "proof_only"
+                else []
+            ),
+        ]
+    )
+    return provisional_bundle.model_copy(
+        update={
+            "trust_level": resolved_trust_level,
+            "readiness_cap": promotion_verdict.derived_readiness_cap,
+            "promotion_allowed": promotion_verdict.promotion_allowed,
+            "no_promotion_reasons": derived_no_promotion_reasons,
+            "not_for_decision_support": promotion_verdict.not_for_decision_support,
+        }
     )
 
 
@@ -1118,11 +1363,26 @@ def _summarize_latent_discovery_hypotheses(
     )
     if merged is None:
         return {}
+    separation_diagnostics = merged.metadata.get(SEPARATION_DIAGNOSTICS_KEY)
+    resolution_label = None
+    separated_pairs: list[str] = []
+    if isinstance(separation_diagnostics, dict):
+        value = separation_diagnostics.get("resolution_label")
+        if value is not None:
+            resolution_label = str(value)
+        raw_pairs = separation_diagnostics.get("separated_pairs")
+        if isinstance(raw_pairs, list):
+            separated_pairs = [str(item) for item in raw_pairs]
     return {
         "source_hypothesis_ids": list(merged.metadata.get("source_hypothesis_ids", []) or []),
         "proposed_latent_nodes": list(merged.proposed_latent_nodes),
         "inducing_environments": list(merged.inducing_environments),
+        "model_class": merged.metadata.get("model_class"),
+        "identifiability_status": merged.metadata.get("identifiability_status"),
+        "latent_block_count": len(list(merged.metadata.get("latent_blocks", []) or [])),
         "trust_level": merged.trust_level.value,
+        "resolution_label": resolution_label,
+        "separated_pairs": separated_pairs,
         "readiness_cap": merged.readiness_cap,
         "promotion_allowed": merged.promotion_allowed,
         "human_gate_required": merged.human_gate_required,

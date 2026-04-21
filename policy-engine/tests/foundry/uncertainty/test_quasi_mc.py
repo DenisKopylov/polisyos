@@ -5,6 +5,8 @@ import pytest
 from scipy.stats import kstest
 
 from polisyos.ir.analytics.uncertainty import (
+    CertificateKind,
+    ComposedFlavour,
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,
@@ -74,8 +76,7 @@ class TestQuasiMCSampler:
 
 
 class TestQMCVarianceReduction:
-    def test_sobol_variance_reduction(self) -> None:
-        """QMC CI width should be narrower than pseudo-random MC for the same n_samples."""
+    def test_scrambled_rqmc_records_full_certificate(self) -> None:
         envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 0.5)}
         nominal = {"x": 1.0, "z": 2.0}
 
@@ -86,24 +87,48 @@ class TestQMCVarianceReduction:
             mc_n_samples=500,
             mc_sampling_method="sobol",
             mc_seed=42,
-        )
-        random_config = PropagationConfig(
-            mc_n_samples=500,
-            mc_sampling_method="random",
-            mc_seed=42,
+            mc_qmc_scramble=True,
+            mc_qmc_replicates=4,
         )
 
         qmc_results = MonteCarloPropagator(qmc_config).propagate(
             sim, nominal, envelopes, ["y"],
         )
-        random_results = MonteCarloPropagator(random_config).propagate(
+        assert qmc_results[0].envelope.composition_provenance is not None
+        assert (
+            qmc_results[0].envelope.composition_provenance.composed_flavour
+            == ComposedFlavour.QUASI_MONTE_CARLO
+        )
+        assert (
+            qmc_results[0].envelope.composition_provenance.certificate_kind
+            == CertificateKind.RQMC_REPLICATES
+        )
+        assert qmc_results[0].envelope.interval_semantics == IntervalSemantics.CONFIDENCE_INTERVAL
+        assert qmc_results[0].envelope.gate_eligible is True
+
+    def test_deterministic_qmc_is_restricted_scope_only(self) -> None:
+        envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 0.5)}
+        nominal = {"x": 1.0, "z": 2.0}
+
+        def sim(**params: float) -> dict[str, float]:
+            return {"y": 2.0 * params["x"] + 3.0 * params["z"]}
+
+        qmc_config = PropagationConfig(
+            mc_n_samples=256,
+            mc_sampling_method="sobol",
+            mc_seed=42,
+            mc_qmc_scramble=False,
+            mc_qmc_replicates=1,
+        )
+
+        qmc_results = MonteCarloPropagator(qmc_config).propagate(
             sim, nominal, envelopes, ["y"],
         )
 
-        qmc_width = qmc_results[0].envelope.ci_width
-        random_width = random_results[0].envelope.ci_width
-
-        # QMC should produce tighter or comparable CIs
-        assert qmc_width <= random_width * 1.1, (
-            f"QMC width {qmc_width} unexpectedly wider than random {random_width}"
-        )
+        env = qmc_results[0].envelope
+        assert env.composition_provenance is not None
+        assert env.composition_provenance.composed_flavour == ComposedFlavour.QUASI_MONTE_CARLO
+        assert env.composition_provenance.certificate_kind == CertificateKind.QMC_VARIATION
+        assert env.composition_provenance.scope == ("expectation_bv",)
+        assert env.interval_semantics == IntervalSemantics.HEURISTIC_RANGE
+        assert env.gate_eligible is False

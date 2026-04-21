@@ -13,10 +13,12 @@ from polisyos.foundry.methods.catalog.causal.admg_ops import (
     ancestors,
     d_separation,
     descendants,
+    has_directed_cycle,
     induced_subgraph,
     m_separation,
     remove_outgoing_edges,
 )
+from polisyos.foundry.methods.catalog.causal.cyclic_id import sigma_separation
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     IdentificationStatus,
     id_algorithm,
@@ -62,6 +64,7 @@ class GraphicalObligationTrace:
     treatment: str
     outcome: str
     conditioning: tuple[str, ...]
+    criterion: str = ""
     holds_in_source: bool | None = None
     holds_in_composed: bool | None = None
 
@@ -278,6 +281,11 @@ def _evaluate_query_preservation(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> QueryPreservationTrace:
+    fragment_index = {fragment.fragment_id: fragment for fragment in fragments}
+    composed_graph = _attach_cycle_contract_metadata(
+        composed_graph,
+        cycle_contracts=composition_certificate.metadata.get("cycle_contracts", []),
+    )
     fingerprint = _query_fingerprint(
         query=query,
         composed_graph=composed_graph,
@@ -394,11 +402,18 @@ def _evaluate_query_preservation(
                 witness_fragment_ids=witness_fragment_ids,
                 fragment_graphs=fragment_graphs,
                 interface_mapping=interface_mapping,
+                fragments=fragment_index,
             )
             if witness_graph is None:
                 continue
-            holds_in_source = _obligation_holds(witness_graph, composed_obligation)
-            holds_in_composed = _obligation_holds(composed_graph, composed_obligation)
+            holds_in_source, source_criterion = _obligation_evaluation(
+                witness_graph,
+                composed_obligation,
+            )
+            holds_in_composed, composed_criterion = _obligation_evaluation(
+                composed_graph,
+                composed_obligation,
+            )
             evaluated_candidates.append(
                 (
                     witness_fragment_ids,
@@ -407,6 +422,7 @@ def _evaluate_query_preservation(
                         treatment=composed_obligation.treatment,
                         outcome=composed_obligation.outcome,
                         conditioning=tuple(sorted(composed_obligation.conditioning)),
+                        criterion=source_criterion or composed_criterion,
                         holds_in_source=holds_in_source,
                         holds_in_composed=holds_in_composed,
                     ),
@@ -463,10 +479,15 @@ def _evaluate_query_preservation(
 
         if assumption_boundary is not None:
             combined_witness = tuple(sorted({item for group in witness_sets for item in group}))
+            reason_code = (
+                _latent_bridge_boundary_reason(interface_mapping)
+                if assumption_boundary == "latent_bridge"
+                else "latent_bridge_research_boundary"
+            )
             return QueryPreservationTrace(
                 fingerprint=fingerprint,
                 status="unknown",
-                reason_code="latent_bridge_research_boundary",
+                reason_code=reason_code,
                 source_fragment_id=witness_fragment_ids[0] if len(witness_fragment_ids) == 1 else None,
                 query_semantics=_query_semantics(query),
                 obligations_checked=tuple(obligation_traces),
@@ -757,6 +778,74 @@ def _query_semantics(query: CausalQuery) -> str:
     return query.query_type.value
 
 
+def _fragment_cycle_contract_summary(fragment: SCMFragment) -> dict[str, object]:
+    return {
+        "fragment_id": fragment.fragment_id,
+        "cycle_type": fragment.cycle_type.value,
+        "cycle_scope": fragment.cycle_scope.value,
+        "composition_policy": fragment.composition_policy.value,
+        "graph_audit_guarantee": fragment.graph_audit_guarantee.value,
+        "allowed_alignment_types": list(fragment.allowed_alignment_types),
+        "witnesses": [
+            {
+                "scc_id": witness.scc_id,
+                "solver_kind": witness.solver_kind.value,
+                "uniqueness_scope": witness.uniqueness_scope.value,
+                "interventional_closure": witness.interventional_closure.value,
+                "markov_semantics": witness.markov_semantics.value,
+                "initial_condition_dependent": witness.initial_condition_dependent,
+            }
+            for witness in fragment.cycle_witnesses
+        ],
+    }
+
+
+def _cycle_semantics_mode_from_contracts(
+    cycle_contracts: Sequence[Mapping[str, object]],
+) -> str:
+    non_acyclic = [
+        contract
+        for contract in cycle_contracts
+        if str(contract.get("cycle_type", "")).strip() not in {"", "acyclic"}
+    ]
+    if not non_acyclic:
+        return "none"
+    if all(
+        str(witness.get("markov_semantics", "")).strip() == "sigma_separation"
+        for contract in non_acyclic
+        for witness in contract.get("witnesses", [])
+        if isinstance(witness, Mapping)
+    ):
+        return "sigma_separation"
+    return "none"
+
+
+def _attach_cycle_contract_metadata(
+    graph: CausalGraphModel,
+    *,
+    cycle_contracts: Sequence[Mapping[str, object]],
+) -> CausalGraphModel:
+    contracts = [dict(contract) for contract in cycle_contracts if isinstance(contract, Mapping)]
+    if not contracts:
+        return graph
+    metadata = dict(graph.metadata)
+    if not metadata.get("cycle_contracts"):
+        metadata["cycle_contracts"] = contracts
+    metadata.setdefault(
+        "supported_cycle_fragment_ids",
+        sorted(
+            str(contract.get("fragment_id", "")).strip()
+            for contract in contracts
+            if str(contract.get("cycle_type", "")).strip() not in {"", "acyclic"}
+        ),
+    )
+    metadata.setdefault(
+        "cycle_semantics_mode",
+        _cycle_semantics_mode_from_contracts(contracts),
+    )
+    return graph.model_copy(update={"metadata": metadata})
+
+
 def negative_certificate_from_query_preservation_trace(
     query: CausalQuery,
     trace: QueryPreservationTrace,
@@ -842,6 +931,7 @@ def _trace_to_query_certificate(
                 "treatment": obligation.treatment,
                 "outcome": obligation.outcome,
                 "conditioning": list(obligation.conditioning),
+                "criterion": obligation.criterion,
                 "holds_in_source": obligation.holds_in_source,
                 "holds_in_composed": obligation.holds_in_composed,
             }
@@ -881,6 +971,7 @@ def _trace_from_query_certificate(
                 treatment=str(item.get("treatment", "")),
                 outcome=str(item.get("outcome", "")),
                 conditioning=tuple(str(token) for token in item.get("conditioning", [])),
+                criterion=str(item.get("criterion", "")),
                 holds_in_source=(
                     bool(item["holds_in_source"])
                     if item.get("holds_in_source") is not None
@@ -1259,6 +1350,24 @@ def _has_latent_bridge_entries(interface_mapping: InterfaceMapping) -> bool:
     return any(entry.alignment_type == "latent_bridge" for entry in interface_mapping.entries)
 
 
+def _latent_bridge_boundary_reason(interface_mapping: InterfaceMapping) -> str:
+    blockers: set[str] = set()
+    for entry in interface_mapping.entries:
+        if entry.alignment_type != "latent_bridge":
+            continue
+        payload = entry.metadata.get("latent_artifact_blockers")
+        if not isinstance(payload, list):
+            continue
+        blockers.update(str(item).strip() for item in payload if str(item).strip())
+    if "latent_artifact_proof_only" in blockers:
+        return "latent_artifact_proof_only"
+    if "latent_promotion_denied" in blockers:
+        return "latent_promotion_denied"
+    if "latent_promotion_evidence_missing" in blockers:
+        return "latent_promotion_evidence_missing"
+    return "latent_bridge_research_boundary"
+
+
 def _build_composed_latent_projection(
     *,
     fragment_graphs: Mapping[str, CausalGraphModel],
@@ -1496,6 +1605,7 @@ def _build_witness_graph(
     witness_fragment_ids: Sequence[str],
     fragment_graphs: Mapping[str, CausalGraphModel],
     interface_mapping: InterfaceMapping,
+    fragments: Mapping[str, SCMFragment],
 ) -> CausalGraphModel | None:
     if not witness_fragment_ids:
         return None
@@ -1523,10 +1633,22 @@ def _build_witness_graph(
         }
         node_set.update(node_map.values())
         for edge in graph.edges:
+            edge_metadata = dict(edge.metadata)
+            edge_metadata["contributing_fragment_ids"] = sorted(
+                {
+                    fragment_id,
+                    *(
+                        str(item)
+                        for item in edge_metadata.get("contributing_fragment_ids", [])
+                        if str(item).strip()
+                    ),
+                }
+            )
             remapped = edge.model_copy(
                 update={
                     "src": node_map[edge.src],
                     "dst": node_map[edge.dst],
+                    "metadata": edge_metadata,
                 }
             )
             if remapped.src == remapped.dst:
@@ -1534,12 +1656,23 @@ def _build_witness_graph(
             edge_key = _witness_edge_key(remapped)
             merged_edges[edge_key] = _merge_witness_edge(merged_edges.get(edge_key), remapped)
 
-    return CausalGraphModel(
+    witness_graph = CausalGraphModel(
         graph_type=graph_type,
         nodes=sorted(node_set),
         edges=[merged_edges[key] for key in sorted(merged_edges)],
         discovery_method="query_preservation_witness",
-        metadata={"witness_fragment_ids": list(sorted(witness_fragment_ids))},
+        metadata={
+            "witness_fragment_ids": list(sorted(witness_fragment_ids)),
+            "cycle_contracts": [
+                _fragment_cycle_contract_summary(fragments[fragment_id])
+                for fragment_id in sorted(witness_fragment_ids)
+                if fragment_id in fragments
+            ],
+        },
+    )
+    return _attach_cycle_contract_metadata(
+        witness_graph,
+        cycle_contracts=witness_graph.metadata.get("cycle_contracts", []),
     )
 
 
@@ -1645,20 +1778,27 @@ def _obligation_holds(
     graph: CausalGraphModel,
     obligation: _GraphicalObligation,
 ) -> bool:
+    return _obligation_evaluation(graph, obligation)[0]
+
+
+def _obligation_evaluation(
+    graph: CausalGraphModel,
+    obligation: _GraphicalObligation,
+) -> tuple[bool, str]:
     if obligation.kind != "backdoor_adjustment":
-        return False
+        return False, ""
     seed = frozenset(
         {obligation.treatment, obligation.outcome, *obligation.conditioning}
     )
     if not seed.issubset(set(graph.nodes)):
-        return False
+        return False, ""
     forbidden_adjustment = descendants(
         graph,
         frozenset({obligation.treatment}),
         include_self=False,
     )
     if obligation.conditioning & forbidden_adjustment:
-        return False
+        return False, ""
 
     mutilated = remove_outgoing_edges(graph, frozenset({obligation.treatment}))
     relevant_nodes = ancestors(mutilated, seed) | seed
@@ -1688,24 +1828,53 @@ def _separation_holds(
     treatment: str,
     outcome: str,
     conditioning: frozenset[str],
-) -> bool:
+) -> tuple[bool, str]:
     if not {treatment, outcome, *conditioning}.issubset(set(graph.nodes)):
-        return False
+        return False, ""
+    if _should_use_sigma_separation(graph):
+        return (
+            sigma_separation(
+                graph,
+                frozenset({treatment}),
+                frozenset({outcome}),
+                conditioning,
+            ),
+            "sigma_separation",
+        )
     if graph.graph_type is GraphType.DAG:
-        return d_separation(
-            graph,
-            frozenset({treatment}),
-            frozenset({outcome}),
-            conditioning,
+        return (
+            d_separation(
+                graph,
+                frozenset({treatment}),
+                frozenset({outcome}),
+                conditioning,
+            ),
+            "d_separation",
         )
     if graph.graph_type is GraphType.ADMG:
-        return m_separation(
-            graph,
-            frozenset({treatment}),
-            frozenset({outcome}),
-            conditioning,
+        return (
+            m_separation(
+                graph,
+                frozenset({treatment}),
+                frozenset({outcome}),
+                conditioning,
+            ),
+            "m_separation",
         )
     raise ValueError(f"unsupported graph type for query preservation: {graph.graph_type}")
+
+
+def _should_use_sigma_separation(graph: CausalGraphModel) -> bool:
+    cycle_mode = str(graph.metadata.get("cycle_semantics_mode", "")).strip().lower()
+    if cycle_mode == "sigma_separation":
+        return True
+    cycle_contracts = graph.metadata.get("cycle_contracts", [])
+    if (
+        isinstance(cycle_contracts, list)
+        and _cycle_semantics_mode_from_contracts(cycle_contracts) == "sigma_separation"
+    ):
+        return True
+    return graph.graph_type is GraphType.ADMG and has_directed_cycle(graph)
 
 
 def _witness_kind(witness_fragment_ids: Sequence[str]) -> str:
@@ -1730,6 +1899,20 @@ def _query_fingerprint(
             "fragments": [
                 {
                     "fragment_id": fragment.fragment_id,
+                    "cycle_type": fragment.cycle_type.value,
+                    "cycle_scope": fragment.cycle_scope.value,
+                    "composition_policy": fragment.composition_policy.value,
+                    "cycle_witnesses": [
+                        {
+                            "scc_id": witness.scc_id,
+                            "solver_kind": witness.solver_kind.value,
+                            "uniqueness_scope": witness.uniqueness_scope.value,
+                            "interventional_closure": witness.interventional_closure.value,
+                            "markov_semantics": witness.markov_semantics.value,
+                            "initial_condition_dependent": witness.initial_condition_dependent,
+                        }
+                        for witness in fragment.cycle_witnesses
+                    ],
                     "fragment_graph": _graph_signature(fragment_graphs[fragment.fragment_id]),
                 }
                 for fragment in sorted(fragments, key=lambda item: item.fragment_id)
@@ -1740,6 +1923,7 @@ def _query_fingerprint(
                 for fragment_id, graph in sorted(fragment_graphs.items())
             },
             "interface_mapping": interface_mapping.model_dump(mode="json"),
+            "cycle_contracts": list(composition_certificate.metadata.get("cycle_contracts", [])),
         },
     }
     serialized = json.dumps(payload, sort_keys=True, separators=(",", ":"))

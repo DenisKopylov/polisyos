@@ -77,6 +77,14 @@ __all__ = [
     "GateRequest",
     "GateVerdict",
     "DistributionFamily",
+    "ForecastCalibrationMethod",
+    "ForecastCoverageDiagnostic",
+    "ForecastIntervalSemantics",
+    "ForecastingUncertaintyBundle",
+    "ForecastingUncertaintyBundleRef",
+    "FanChartSpec",
+    "HorizonInterval",
+    "HorizonPolicySpec",
     "IntervalSemantics",
     "PropagationMethod",
     "UncertaintyEnvelope",
@@ -300,6 +308,38 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "TransportabilityResultRef": (
         "polisyos.ir.refs",
         "TransportabilityResultRef",
+    ),
+    "ForecastCalibrationMethod": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastCalibrationMethod",
+    ),
+    "ForecastCoverageDiagnostic": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastCoverageDiagnostic",
+    ),
+    "ForecastIntervalSemantics": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastIntervalSemantics",
+    ),
+    "ForecastingUncertaintyBundle": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastingUncertaintyBundle",
+    ),
+    "ForecastingUncertaintyBundleRef": (
+        "polisyos.ir.refs",
+        "ForecastingUncertaintyBundleRef",
+    ),
+    "FanChartSpec": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "FanChartSpec",
+    ),
+    "HorizonInterval": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "HorizonInterval",
+    ),
+    "HorizonPolicySpec": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "HorizonPolicySpec",
     ),
     "CausalDiscoveryReport": (
         "polisyos.ir.analytics.causal_discovery",

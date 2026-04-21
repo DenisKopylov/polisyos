@@ -25,6 +25,13 @@ from polisyos.foundry.methods.catalog.causal.strategic import (
 from polisyos.ir.analytics.abstraction import AbstractionCertificate
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
 from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.privacy_transportability import (
+    DPUtilityManifest,
+    PrivacyObservedMode,
+    TransportPrivacyContext,
+    apply_transport_privacy_context,
+    coerce_dp_utility_manifest,
+)
 from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
     StrategicSCM,
@@ -36,6 +43,7 @@ from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SNode,
     SNodeOrigin,
+    SNodeRole,
     TransportabilityResult,
     TransportabilityStatus,
     TransportMode,
@@ -96,6 +104,37 @@ def _coerce_context(payload: Any) -> ContextProfile:
     if isinstance(payload, ContextProfile):
         return payload
     return ContextProfile.model_validate(payload)
+
+
+def _privacy_s_nodes_from_manifest(manifest: DPUtilityManifest) -> list[SNode]:
+    nodes: list[SNode] = []
+    for variable in manifest.privacy_mismatch_variables:
+        nodes.append(
+            SNode(
+                target_variable=variable,
+                context_dimension="privacy_scope_mismatch",
+                source_value="private_scope_mismatch",
+                target_value="private_scope_mismatch",
+                delta=1.0,
+                severity="high",
+                origin=SNodeOrigin.PRIVACY,
+                role=SNodeRole.PRE_TREATMENT_COVARIATE,
+            )
+        )
+    return nodes
+
+
+def _transport_entry_status(
+    result_model: TransportabilityResult,
+    privacy_mode: PrivacyObservedMode | None,
+) -> str:
+    if result_model.status is TransportabilityStatus.UNSUPPORTED:
+        return "blocked"
+    if privacy_mode in {PrivacyObservedMode.INTERVAL, PrivacyObservedMode.BOUNDS_ONLY}:
+        return "partially_identified"
+    if privacy_mode is PrivacyObservedMode.BLOCKED:
+        return "blocked"
+    return result_model.status.value
 
 
 def _coerce_payoff_tables(payload: Any) -> dict[str, FiniteStrategicPayoffTable]:
@@ -338,6 +377,7 @@ class TransportabilityChecker:
         for check in bundle.checks:
             source_context = _coerce_context(check.source_context)
             target_context = _coerce_context(check.target_context)
+            dp_utility_manifest = coerce_dp_utility_manifest(getattr(check, "dp_utility_manifest", None))
             synthesized = _cross_regime_boundary_s_nodes(
                 check=check,
                 outcome=check.outcome,
@@ -345,7 +385,12 @@ class TransportabilityChecker:
                 schema_regime_registry=schema_regime_registry,
                 shock_calendar=shock_calendar,
             )
-            s_nodes = [*list(check.explicit_s_nodes), *synthesized]
+            privacy_s_nodes = (
+                _privacy_s_nodes_from_manifest(dp_utility_manifest)
+                if dp_utility_manifest is not None
+                else []
+            )
+            s_nodes = [*list(check.explicit_s_nodes), *synthesized, *privacy_s_nodes]
             same_regime = (
                 check.source_regime_id is not None
                 and check.source_regime_id == check.target_regime_id
@@ -356,13 +401,14 @@ class TransportabilityChecker:
                 result_model = TransportabilityResult(
                     query=query,
                     status=TransportabilityStatus.IDENTIFIED,
-                    transport_mode=TransportMode.DIRECT,
-                    identification_engine="same_regime_short_circuit",
-                    identification_trace=["same_regime_short_circuit"],
-                    source_context_id=source_context.context_id,
-                    target_context_id=target_context.context_id,
-                    metadata={"check_id": check.check_id, "cross_regime": False},
-                )
+                        transport_mode=TransportMode.DIRECT,
+                        identification_engine="same_regime_short_circuit",
+                        identification_trace=["same_regime_short_circuit"],
+                        selection_diagram_ref=f"selection_diagram:{check.check_id}:same_regime",
+                        source_context_id=source_context.context_id,
+                        target_context_id=target_context.context_id,
+                        metadata={"check_id": check.check_id, "cross_regime": False},
+                    )
             else:
                 selection_diagram = SelectionDiagram(
                     base_graph=self.graph,
@@ -371,6 +417,7 @@ class TransportabilityChecker:
                     target_context=target_context,
                     context_distance=source_context.distance_to(target_context),
                 )
+                selection_diagram_ref = f"selection_diagram:{check.check_id}"
                 result = tr_algorithm(
                     treatment=frozenset({check.treatment}),
                     outcome=frozenset({check.outcome}),
@@ -384,6 +431,7 @@ class TransportabilityChecker:
                         blocking_s_nodes=[],
                         identification_engine=result.algorithm_version,
                         identification_trace=list(result.trace),
+                        selection_diagram_ref=selection_diagram_ref,
                         source_context_id=source_context.context_id,
                         target_context_id=target_context.context_id,
                         estimand_ast=(
@@ -408,6 +456,7 @@ class TransportabilityChecker:
                         blocking_s_nodes=blocking_nodes,
                         identification_engine=result.algorithm_version,
                         identification_trace=list(result.trace),
+                        selection_diagram_ref=selection_diagram_ref,
                         unsupported_reason=_normalize_reason(
                             status=result.status.value,
                             trace=list(result.trace),
@@ -417,6 +466,24 @@ class TransportabilityChecker:
                         target_context_id=target_context.context_id,
                         metadata={"check_id": check.check_id, "cross_regime": True},
                     )
+            privacy_mode: PrivacyObservedMode | None = None
+            if dp_utility_manifest is not None:
+                result_model = apply_transport_privacy_context(
+                    result_model,
+                    TransportPrivacyContext(
+                        utility_manifest=dp_utility_manifest,
+                        store=self.store,
+                        inputs=tuple(self.base_inputs),
+                        certificate_id=f"{check.check_id}_privacy_transport",
+                        selection_diagram_ref=(
+                            result_model.selection_diagram_ref
+                            or f"selection_diagram:{check.check_id}"
+                        ),
+                    ),
+                )
+                privacy_mode_raw = result_model.metadata.get("privacy_observed_mode")
+                if isinstance(privacy_mode_raw, str):
+                    privacy_mode = PrivacyObservedMode(privacy_mode_raw)
             result_ref = persist_transportability_result(
                 self.store,
                 result_model,
@@ -426,11 +493,7 @@ class TransportabilityChecker:
                 TransportabilityCheckEntry(
                     check_id=check.check_id,
                     family=check.family,
-                    status=(
-                        "blocked"
-                        if result_model.status is TransportabilityStatus.UNSUPPORTED
-                        else result_model.status.value
-                    ),
+                    status=_transport_entry_status(result_model, privacy_mode),
                     cross_regime=not same_regime,
                     result_ref=ArtifactRefModel.model_validate(result_ref.model_dump(mode="json")),
                     blocking_s_nodes=[node.target_variable for node in result_model.blocking_s_nodes],
@@ -571,12 +634,15 @@ class StrategicResponseRunner:
                     baseline_policy_value=baseline_policy_value,
                     abstraction_certificate=abstraction_certificate,
                     macro_payoff_tables=macro_tables,
+                    performative_loop_spec=params.get("performative_loop_spec"),
+                    mean_field_inputs=params.get("mean_field_game"),
                 )
                 bundle, bundle_ref = persist_strategic_solve_artifacts(
                     self.store,
                     causal_component_ref=self.causal_component_ref,
                     result=result,
                     equilibrium_concept=normalized_contract.equilibrium_concept,
+                    equilibrium_descriptor=normalized_contract.equilibrium_descriptor,
                     baseline_policy_value=baseline_policy_value,
                     inputs=self.base_inputs,
                     metadata={
@@ -587,12 +653,21 @@ class StrategicResponseRunner:
                             strategic_scm_ref.model_dump(mode="json")
                         ).model_dump(mode="json"),
                     },
+                    mfg_equilibrium_certificate=result.mfg_equilibrium_certificate,
+                    mfg_macro_simulation_config=result.mfg_macro_simulation_config,
+                    mfg_solver_residual_report=result.mfg_solver_residual_report,
+                    mfg_mass_conservation_report=result.mfg_mass_conservation_report,
                 )
                 summary = strategic_result_summary(result)
                 summary.update(
                     {
                         "strategic_response_bundle_ref": bundle_ref.model_dump(mode="json"),
                         "strategic_scm_ref": strategic_scm_ref.model_dump(mode="json"),
+                        "mfg_equilibrium_ref": (
+                            None
+                            if bundle.mfg_equilibrium_ref is None
+                            else bundle.mfg_equilibrium_ref.model_dump(mode="json")
+                        ),
                     }
                 )
                 entries.append(

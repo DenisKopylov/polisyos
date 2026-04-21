@@ -183,6 +183,13 @@ class CalibrationValidationBundleRef(ScientistArtifactRef):
     media_type: str = "application/json"
 
 
+class MetricValidationReportRef(ScientistArtifactRef):
+    """Reference to a stored formal metric-validation report artifact."""
+
+    kind: str = "scientist.metric_validation_report"
+    media_type: str = "application/json"
+
+
 class GovernanceAccountabilityArtifactRef(ScientistArtifactRef):
     """Reference to a stored governance accountability artifact."""
 
@@ -458,6 +465,7 @@ __all__ = [
     "SensitivityResultRef",
     "StressTestReportRef",
     "CalibrationValidationBundleRef",
+    "MetricValidationReportRef",
     "GovernanceAccountabilityArtifactRef",
     "PlatformMetaEvaluationReportRef",
     "GraphHypothesisRef",

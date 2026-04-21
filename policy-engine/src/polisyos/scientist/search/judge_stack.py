@@ -64,6 +64,8 @@ from polisyos.scientist.search.judge_thresholds import (
     ResolvedThresholdSet,
     ThresholdViolation,
     _check_threshold_violation,
+    bucket_dp_delta,
+    bucket_dp_epsilon,
 )
 from polisyos.scientist.search.latent_governance import (
     LatentGovernanceAssessment,
@@ -221,10 +223,16 @@ class JudgeInputBundle(BaseModel):
         return assess_latent_governance(self.latent_discovery_bundle)
 
     def effective_claim_mode(self) -> Literal["proof_only", "bounds", "estimation"]:
-        if (
-            self.latent_discovery_bundle is not None
-            or isinstance(self.latent_discovery_resolution_error, dict)
-        ):
+        if isinstance(self.latent_discovery_resolution_error, dict):
+            return "proof_only"
+        assessment = self.latent_governance_assessment()
+        if assessment is not None:
+            if assessment.missing_requirements:
+                return "proof_only"
+            if assessment.claim_mode == "bounded_latent":
+                return "bounds"
+            if assessment.claim_mode == "validated_measurement_latent":
+                return "estimation"
             return "proof_only"
         return self.claim_mode
 
@@ -233,6 +241,8 @@ class JudgeInputBundle(BaseModel):
             return "research_only"
         assessment = self.latent_governance_assessment()
         if assessment is not None:
+            if assessment.missing_requirements:
+                return "research_only"
             return assessment.degradation_mode
         return self.evaluation_degradation_mode
 
@@ -307,6 +317,7 @@ class JudgeInputBundle(BaseModel):
             )
         if self.funnel_outcome is not None:
             state.setdefault("funnel_outcome", self.funnel_outcome)
+        dp_summary = _resolve_dp_consumer_summary(self, store=None)
         state.setdefault(
             "evaluation_provenance",
             {
@@ -325,9 +336,18 @@ class JudgeInputBundle(BaseModel):
                 "query_type": self.query_type,
                 "estimator_name": self.estimator_name,
                 "readiness_target": self.readiness_target,
+                "dp_mechanism": (
+                    None if dp_summary is None else str(dp_summary.get("mechanism_family") or "")
+                )
+                or None,
+                "dp_epsilon_bucket": (
+                    None if dp_summary is None else bucket_dp_epsilon(dp_summary.get("epsilon"))
+                ),
+                "dp_delta_bucket": (
+                    None if dp_summary is None else bucket_dp_delta(dp_summary.get("delta"))
+                ),
             },
         )
-        dp_summary = _resolve_dp_consumer_summary(self, store=None)
         if dp_summary is not None:
             state.setdefault("dp_robustness", dp_summary)
         return state
@@ -433,12 +453,16 @@ class JudgeStack:
         judge_name: JudgeName,
         bundle: JudgeInputBundle,
     ) -> ResolvedThresholdSet:
+        dp_summary = _resolve_dp_consumer_summary(bundle, store=self._store)
         return self._threshold_registry.resolve(
             judge_name.value,
             family=bundle.artifact_family,
             query_type=bundle.query_type,
             estimator=bundle.estimator_name,
             readiness_target=bundle.readiness_target,
+            dp_mechanism=None if dp_summary is None else dp_summary.get("mechanism_family"),
+            dp_epsilon=None if dp_summary is None else dp_summary.get("epsilon"),
+            dp_delta=None if dp_summary is None else dp_summary.get("delta"),
         )
 
     def _structural(self, bundle: JudgeInputBundle) -> SingleJudgeVerdict:
@@ -1005,6 +1029,29 @@ class JudgeStack:
                             "identification conditions, falsification tests, and disclosure flags."
                         ),
                         metadata={"missing_requirements": latent_governance.missing_requirements},
+                    )
+                )
+            elif latent_governance.promotion_allowed and not latent_governance.not_for_decision_support:
+                warnings.append(
+                    TypedFailureCard(
+                        judge_name=JudgeName.GOVERNANCE.value,
+                        failure_type="human_gate_required",
+                        severity=FailureSeverity.WARNING,
+                        description=(
+                            "Latent discovery artifacts are promoted above proof-only, but "
+                            "human review remains mandatory before policy promotion."
+                        ),
+                        remediation_hint=(
+                            "Keep automated use within the derived latent readiness cap and "
+                            "complete human review before champion promotion."
+                        ),
+                        metadata={
+                            "claim_mode": latent_governance.claim_mode,
+                            "degradation_mode": latent_governance.degradation_mode,
+                            "readiness_cap": latent_governance.readiness_cap,
+                            "no_promotion_reasons": latent_governance.no_promotion_reasons,
+                            "not_for_decision_support": latent_governance.not_for_decision_support,
+                        },
                     )
                 )
             else:

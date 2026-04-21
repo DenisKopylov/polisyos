@@ -689,6 +689,17 @@ class ShiftInterventionEstimator:
                 X[val_idx], T[val_idx] - delta, beta_t, sigma
             )
 
+        raw_density_ratio = gps_at_t / np.clip(gps_at_t_minus, 1e-12, None)
+        clipped_density_ratio = np.clip(raw_density_ratio, min_dr, max_dr)
+        density_ratio_sum = float(np.sum(clipped_density_ratio))
+        density_ratio_sq_sum = float(np.sum(clipped_density_ratio ** 2))
+        density_ratio_ess = float(
+            density_ratio_sum ** 2 / max(density_ratio_sq_sum, 1e-12)
+        )
+        n_clipped_ratio = int(
+            np.sum((raw_density_ratio < min_dr) | (raw_density_ratio > max_dr))
+        )
+
         # ---- Out-of-fold outcome model ----
         outcome_fn = _build_oof_outcome_fn(Y, T, X, n_folds, seed=seed)
 
@@ -720,6 +731,26 @@ class ShiftInterventionEstimator:
                 "ci_upper": hi,
                 "n_obs": n,
                 "method": "shift_intervention_diaz_vdl_2012",
+                "density_ratio_diagnostics": {
+                    "status": "ok",
+                    "n_obs": n,
+                    "shift_delta": delta,
+                    "min_density_ratio": float(np.min(clipped_density_ratio)),
+                    "max_density_ratio": float(np.max(clipped_density_ratio)),
+                    "p99_density_ratio": float(np.percentile(clipped_density_ratio, 99)),
+                    "p999_density_ratio": float(np.percentile(clipped_density_ratio, 99.9)),
+                    "effective_sample_size": density_ratio_ess,
+                    "ess_fraction": float(density_ratio_ess / max(n, 1)),
+                    "dominant_weight_share": float(
+                        np.max(clipped_density_ratio) / max(density_ratio_sum, 1e-12)
+                    ),
+                    "n_clipped": n_clipped_ratio,
+                    "clip_fraction": float(n_clipped_ratio / max(n, 1)),
+                    "clip_bounds": {
+                        "min": min_dr,
+                        "max": max_dr,
+                    },
+                },
             }
         }
 

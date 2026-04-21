@@ -6,11 +6,20 @@ from statistics import NormalDist
 from typing import Mapping
 
 from polisyos.ir.analytics.uncertainty import (
+    _merge_certificate_kind,
+    _merge_certificate_radii,
+    _propagate_certificate_radius,
+    _worst_exactness,
+    CertificateKind,
+    ComposedFlavour,
     DistributionFamily,
+    ExactnessKind,
     IntervalSemantics,
+    ParametricFitCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    build_composition_provenance,
 )
 
 from .covariance import extract_std
@@ -52,12 +61,28 @@ class AnalyticalPropagator:
         z = NormalDist().inv_cdf((1.0 + confidence_level) / 2.0)
         lo = mean - z * std_out
         hi = mean + z * std_out
+        ordered_inputs = tuple(input_envelopes.values())
+        lipschitz_bound = sum(abs(float(weight)) for weight in weights.values())
+        exactness = _worst_exactness(ordered_inputs)
+        if exactness is ExactnessKind.EXACT:
+            certificate_kind = CertificateKind.EXACT
+            certificate_radius: float | dict[str, float] | None = 0.0
+        else:
+            certificate_kind = _merge_certificate_kind(ordered_inputs)
+            certificate_radius = _propagate_certificate_radius(
+                _merge_certificate_radii(ordered_inputs),
+                lipschitz_bound=lipschitz_bound,
+            )
 
         envelope = UncertaintyEnvelope(
             point_estimate=float(mean),
             confidence_interval=(float(lo), float(hi)),
             confidence_level=confidence_level,
             distribution_family=DistributionFamily.NORMAL,
+            distribution_payload=ParametricFitCarrier(
+                family=DistributionFamily.NORMAL,
+                parameters={"mean": float(mean), "std": float(std_out)},
+            ),
             source=UncertaintySource.ENSEMBLE,
             propagation_method=PropagationMethod.ANALYTICAL,
             interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
@@ -68,6 +93,22 @@ class AnalyticalPropagator:
                 "weights": dict(weights),
                 "output_std": float(std_out),
             },
+            composition_provenance=build_composition_provenance(
+                input_envelopes=ordered_inputs,
+                op="push_forward",
+                stage_name="foundry.analytical.linear_combination",
+                output_flavour=ComposedFlavour.ANALYTICAL,
+                exactness=exactness,
+                certificate_kind=certificate_kind,
+                certificate_radius=certificate_radius,
+                confidence_level=confidence_level,
+                scope=("expectation", "interval", "quantile", "cdf"),
+                map_name="linear_combination",
+                lipschitz_bound=float(lipschitz_bound),
+                variance_bound=float(variance),
+                assumptions=("linear_gaussian_push_forward",),
+                notes={"weights": dict(weights)},
+            ),
         )
 
         return PropagationResult(

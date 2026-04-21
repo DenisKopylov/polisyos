@@ -41,6 +41,13 @@ def build_composition_failure_cards(
     cards: list[TypedFailureCard] = []
     blocking_reasons = [str(reason) for reason in composition_certificate.blocking_reasons]
     lowered_reasons = [reason.lower() for reason in blocking_reasons]
+    non_completeness_reasons = {
+        str(reason).strip().lower()
+        for reason in str(
+            composition_certificate.metadata.get("non_completeness_reason", "") or ""
+        ).split(";")
+        if str(reason).strip()
+    }
     disconnected_fragment_ids = [
         str(fragment_id)
         for fragment_id in composition_certificate.metadata.get("disconnected_fragment_ids", [])
@@ -114,6 +121,81 @@ def build_composition_failure_cards(
                 },
             )
         )
+    if any("research-only cycle semantics" in reason for reason in lowered_reasons):
+        cards.append(
+            TypedFailureCard(
+                judge_name="composition_engine",
+                failure_type="cycle_semantics_research_only",
+                severity=FailureSeverity.BLOCKER,
+                description="The composition references a cyclic semantics family that is still research-only.",
+                remediation_hint="Route the fragment through PROOF_ONLY / FrontierSketch or provide a production-supported cycle contract.",
+                metadata={
+                    "blocking_reasons": [
+                        reason
+                        for reason in blocking_reasons
+                        if "research-only cycle semantics" in reason.lower()
+                    ],
+                },
+            )
+        )
+    if any("initial-condition-dependent cycle witnesses" in reason for reason in lowered_reasons):
+        cards.append(
+            TypedFailureCard(
+                judge_name="composition_engine",
+                failure_type="cycle_initial_condition_dependent",
+                severity=FailureSeverity.BLOCKER,
+                description="The cyclic fragment depends on initial conditions and therefore falls outside the static SCM production scope.",
+                remediation_hint="Escalate to DSCM/CCM semantics or block automatic composition.",
+                metadata={
+                    "blocking_reasons": [
+                        reason
+                        for reason in blocking_reasons
+                        if "initial-condition-dependent cycle witnesses" in reason.lower()
+                    ],
+                },
+            )
+        )
+    if any(
+        "cross-fragment directed cycle scc" in reason or "cross-fragment cyclic scope" in reason
+        for reason in lowered_reasons
+    ):
+        cards.append(
+            TypedFailureCard(
+                judge_name="composition_engine",
+                failure_type="cycle_cross_fragment_scc",
+                severity=FailureSeverity.BLOCKER,
+                description="Composition would create a feedback SCC that spans multiple fragments.",
+                remediation_hint="Keep cycles internal to one fragment or require explicit human-reviewed decomposition before composing.",
+                metadata={
+                    "blocking_reasons": [
+                        reason
+                        for reason in blocking_reasons
+                        if "cross-fragment directed cycle scc" in reason.lower()
+                        or "cross-fragment cyclic scope" in reason.lower()
+                    ],
+                    "cross_fragment_cycle_components": list(
+                        composition_certificate.metadata.get("cross_fragment_cycle_components", [])
+                    ),
+                },
+            )
+        )
+    if any("bounds-only cyclic composition" in reason for reason in lowered_reasons):
+        cards.append(
+            TypedFailureCard(
+                judge_name="composition_engine",
+                failure_type="cycle_bounds_only",
+                severity=FailureSeverity.BLOCKER,
+                description="The fragment only supports bounds-only cyclic composition, which the strict composer does not implement.",
+                remediation_hint="Downgrade to bounds-only reasoning or attach a stronger cycle witness for exact composition.",
+                metadata={
+                    "blocking_reasons": [
+                        reason
+                        for reason in blocking_reasons
+                        if "bounds-only cyclic composition" in reason.lower()
+                    ],
+                },
+            )
+        )
     if any("cycle" in reason or "self-loop" in reason for reason in lowered_reasons):
         cards.append(
             TypedFailureCard(
@@ -142,6 +224,65 @@ def build_composition_failure_cards(
                 metadata={
                     "pairs": latent_pairs,
                 },
+            )
+        )
+    if "latent_bridge_alignment" in non_completeness_reasons:
+        cards.append(
+            TypedFailureCard(
+                judge_name="composition_engine",
+                failure_type="completeness_scope_latent_bridge",
+                severity=FailureSeverity.WARNING,
+                description="Composition falls outside the exact_observed_dag_adjustment_v1 completeness scope because it relies on latent-bridge interfaces.",
+                remediation_hint="Keep the result on the research boundary unless the latent bridge is separately promoted and the completeness theorem is extended.",
+                metadata={"pairs": latent_pairs},
+            )
+        )
+    if "proxy_alignment" in non_completeness_reasons:
+        cards.append(
+            TypedFailureCard(
+                judge_name="composition_engine",
+                failure_type="completeness_scope_proxy",
+                severity=FailureSeverity.WARNING,
+                description="Composition falls outside the narrow completeness scope because it relies on proxy alignments.",
+                remediation_hint="Treat the preserved graph as structurally useful but not completeness-certified.",
+                metadata={"pairs": proxy_pairs},
+            )
+        )
+    if "unobserved_interface_binding" in non_completeness_reasons:
+        cards.append(
+            TypedFailureCard(
+                judge_name="composition_engine",
+                failure_type="completeness_scope_unobserved",
+                severity=FailureSeverity.WARNING,
+                description="Composition falls outside the narrow completeness scope because at least one stitched interface is not fully observed.",
+                remediation_hint="Expose an observed interface before claiming exact_observed_dag_adjustment_v1 completeness.",
+                metadata={
+                    "interface_ids": [
+                        entry.interface_id for entry in interface_mapping.entries if not entry.observed
+                    ]
+                },
+            )
+        )
+    if "cyclic_or_sigma_semantics" in non_completeness_reasons:
+        cards.append(
+            TypedFailureCard(
+                judge_name="composition_engine",
+                failure_type="completeness_scope_cyclic",
+                severity=FailureSeverity.WARNING,
+                description="Composition falls outside the narrow completeness scope because cyclic or sigma-style semantics are involved.",
+                remediation_hint="Do not claim adjustment completeness for cyclic/sigma compositions.",
+                metadata={"non_completeness_reason": "cyclic_or_sigma_semantics"},
+            )
+        )
+    if "non_dag_composition" in non_completeness_reasons:
+        cards.append(
+            TypedFailureCard(
+                judge_name="composition_engine",
+                failure_type="completeness_scope_non_dag",
+                severity=FailureSeverity.WARNING,
+                description="Composition falls outside the narrow completeness scope because the stitched graph is not a DAG.",
+                remediation_hint="Restrict completeness claims to DAG compositions only.",
+                metadata={"non_completeness_reason": "non_dag_composition"},
             )
         )
     if composition_certificate.status == "deferred" and proxy_pairs:

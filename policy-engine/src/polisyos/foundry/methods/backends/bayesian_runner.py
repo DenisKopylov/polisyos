@@ -22,6 +22,7 @@ from polisyos.foundry.methods.backends.protocol import (
     MethodTiming,
     ReproducibilityInfo,
 )
+from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.io import dematerialize_method_output
 
@@ -59,7 +60,7 @@ _RUNTIME_OPTIONS = {
 def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     known = {p.name for p in signature.parameters}
-    unknown = set(params.keys()) - known
+    unknown = set(params.keys()) - known - VALIDATED_EXECUTION_PARAM_NAMES
     if unknown:
         raise ValueError(f"Unknown parameters for {signature.fqn}: {sorted(unknown)}")
     for param in signature.parameters:
@@ -334,6 +335,7 @@ class BayesianRunner(MethodRunner):
             ComputeBackend.BAYESIAN,
             method_class=method_class,
             seed=seed,
+            determinism_tier=determinism_tier,
             runtime_backend=runtime_backend,
             available=health.is_available,
             extra_versions=versions,
@@ -341,6 +343,7 @@ class BayesianRunner(MethodRunner):
         )
         fp_payload = {
             "backend": ComputeBackend.BAYESIAN.value,
+            "determinism_tier": determinism_tier.value,
             "runtime_backend": runtime_backend,
             "seed": seed,
             "versions": versions,
@@ -362,6 +365,7 @@ class BayesianRunner(MethodRunner):
                 seed=seed,
                 library_versions=versions,
                 fingerprint=fingerprint,
+                observed_tolerance_budget=posture.observed_tolerance_budget,
                 note=posture.replay_semantics,
             ),
             slot_outputs=slot_outputs,

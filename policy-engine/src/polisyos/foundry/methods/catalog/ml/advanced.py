@@ -6,6 +6,11 @@ from typing import Any, ClassVar, Mapping
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability.truthfulness import (
+    TruthfulnessReceipt,
+    TruthfulnessScope,
+    TruthfulnessTier,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -173,6 +178,7 @@ class QuantileForestEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Random-forest quantile regression via tree-level predictive distribution.",
         tags=frozenset({"ml", "regression", "quantile-forest"}),
+        truthfulness_scope="predictive_calibration",
         when_to_use="Tabular data; prediction intervals without distributional assumptions; heteroscedastic outcomes",
         citations=(
             "Meinshausen, N. (2006). Quantile regression forests. JMLR, 7, 983-999.",
@@ -231,6 +237,23 @@ class QuantileForestEstimator:
                     )
                 ),
                 alpha=alpha,
+                truthfulness_receipt=TruthfulnessReceipt(
+                    runtime_truthfulness_tier=TruthfulnessTier.UNVERIFIED,
+                    truthfulness_scope=TruthfulnessScope.PREDICTIVE_CALIBRATION,
+                    diagnostics={
+                        "observed_coverage": float(
+                            np.mean(
+                                (np.asarray(data.target, dtype=float) >= lower)
+                                & (np.asarray(data.target, dtype=float) <= upper)
+                            )
+                        ),
+                        "alpha": alpha,
+                        "interval_constructor": "forest_quantiles",
+                    },
+                    degradation_reasons=(
+                        "interval_not_conformally_calibrated",
+                    ),
+                ),
                 metadata={"base_method": "quantile_forest"},
             ),
             "uncertainty_envelope": base["uncertainty_envelope"],

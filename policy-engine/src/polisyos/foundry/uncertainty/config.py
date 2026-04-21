@@ -34,6 +34,8 @@ class PropagationConfig(BaseModel):
         default="random",
         pattern=r"^(random|sobol|halton)$",
     )
+    mc_qmc_scramble: bool = Field(default=True)
+    mc_qmc_replicates: int = Field(default=1, ge=1, le=128)
 
     auto_select_strategy: bool = Field(default=True)
     preferred_method: str = Field(default="auto")

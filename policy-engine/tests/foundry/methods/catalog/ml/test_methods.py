@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.selection_history import get_global_selection_history
 from polisyos.foundry.methods.ml import (
     SurvivalData,
     TabularData,
@@ -16,9 +17,11 @@ from polisyos.foundry.methods.registry import MethodRegistry
 def _reset_globals():
     MethodRegistry.reset_instance()
     MethodDispatcher.reset_instance()
+    get_global_selection_history().clear()
     yield
     MethodRegistry.reset_instance()
     MethodDispatcher.reset_instance()
+    get_global_selection_history().clear()
 
 
 def _make_tabular() -> TabularData:
@@ -94,6 +97,16 @@ def test_conformal_prediction_composes_with_elastic_net() -> None:
 
     assert conformal_result.output["result"].coverage is not None
     assert conformal_result.output["result"].method_name == "conformal_prediction"
+    receipt = conformal_result.output["result"].to_truthfulness_receipt()
+    assert receipt is not None
+    assert receipt.runtime_truthfulness_tier == "exact"
+    assert receipt.truthfulness_scope == "marginal_coverage"
+    history_record = get_global_selection_history().latest_record_for(
+        "ml.uncertainty.conformal_prediction@1.0.0"
+    )
+    assert history_record is not None
+    assert history_record.runtime_truthfulness_tier == "exact"
+    assert history_record.effective_truthfulness_tier == "exact"
 
 
 def test_conformal_prediction_supports_shift_aware_weighting() -> None:
@@ -124,6 +137,33 @@ def test_conformal_prediction_supports_shift_aware_weighting() -> None:
     assert result.metadata["distribution_shift_adjusted"] is True
     assert result.metadata["effective_sample_size"] is not None
     assert result.metadata["residual_quantile"] >= 0.0
+
+
+def test_quantile_forest_emits_conservative_truthfulness_receipt() -> None:
+    pytest.importorskip("sklearn")
+
+    ensure_ml_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+    method_cls = registry.get("ml.regression.quantile_forest@1.0.0")
+
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_tabular(),
+        params={"alpha": 0.1},
+        seed=97,
+    )
+
+    receipt = result.output["prediction_interval"].to_truthfulness_receipt()
+    assert receipt is not None
+    assert receipt.runtime_truthfulness_tier == "unverified"
+    assert receipt.truthfulness_scope == "predictive_calibration"
+    history_record = get_global_selection_history().latest_record_for(
+        "ml.regression.quantile_forest@1.0.0"
+    )
+    assert history_record is not None
+    assert history_record.truthfulness_scope == "predictive_calibration"
 
 
 def test_conformal_prediction_rejects_invalid_shift_weights() -> None:

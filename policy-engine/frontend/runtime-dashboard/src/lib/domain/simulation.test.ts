@@ -47,6 +47,17 @@ describe("simulation domain", () => {
           upper_1sigma: [1.2, 2.2],
         },
       },
+      metric_significance: {
+        gdp_change: {
+          alpha: 0.05,
+          assumption_warnings: ["paired_test"],
+          effect_size: 0.12,
+          p_adj: 0.01,
+          p_value: 0.01,
+          significant: true,
+          test_label: "Paired t-test",
+        },
+      },
       uncertainty_bounds: {
         gdp_change_ci_level: 0.95,
         gdp_change_lower: 0.1,
@@ -101,10 +112,17 @@ describe("simulation domain", () => {
         ciLevel: 0.95,
         ciLower: 0.1,
         ciUpper: 0.14,
+        alpha: 0.05,
+        assumptionWarnings: ["paired_test"],
+        effectSize: 0.12,
         formatted: "+12.00",
         key: "gdp_change",
         label: "GDP Change",
+        pAdj: 0.01,
+        pValue: 0.01,
         severity: "high",
+        significant: true,
+        testLabel: "Paired t-test",
         unit: "%",
         value: 12,
       },
@@ -314,5 +332,86 @@ describe("simulation domain", () => {
       sourceKind: "foundry.simulation_result",
     });
     expect(normalizeSimulationPayload("foundry.metrics", null)).toBeNull();
+  });
+
+  it("normalizes formal metric-validation reports into comparison tables", () => {
+    const model = normalizeSimulationPayload(
+      "scientist.metric_validation_report",
+      {
+        comparisons: [
+          {
+            baseline_model_id: "baseline",
+            baseline_value: 0.71,
+            candidate_model_id: "candidate",
+            candidate_value: 0.76,
+            delta_value: 0.05,
+            family_id: "holdout_v1:baseline_vs_candidate",
+            family_scope: "per_candidate",
+            metric_direction: "higher_is_better",
+            metric_id: "accuracy",
+            significance: {
+              alpha: 0.05,
+              assumption_flags: ["low_discordance"],
+              ci_high: 0.08,
+              ci_level: 0.95,
+              ci_low: 0.01,
+              effect_size: 0.05,
+              p_value_adj: 0.02,
+              p_value_raw: 0.02,
+              reject_null_adj: true,
+              statistic: 0.8,
+              test_id: "mcnemar_exact",
+            },
+          },
+        ],
+        family_adjustment: {
+          alpha: 0.05,
+          dependency_assumption: "arbitrary",
+          error_rate_target: "FWER",
+          hypotheses_total: 1,
+          method: "holm",
+        },
+      },
+    );
+
+    expect(model).toMatchObject({
+      metricComparisons: [
+        {
+          alpha: 0.05,
+          assumptionWarnings: ["low_discordance"],
+          baselineModelId: "baseline",
+          baselineValue: 0.71,
+          candidateModelId: "candidate",
+          candidateValue: 0.76,
+          ciHigh: 0.08,
+          ciLevel: 0.95,
+          ciLow: 0.01,
+          deltaValue: 0.05,
+          effectSize: 0.05,
+          familyId: "holdout_v1:baseline_vs_candidate",
+          familyScope: "per_candidate",
+          metricId: "accuracy",
+          metricLabel: "Accuracy",
+          pAdj: 0.02,
+          pValue: 0.02,
+          significant: true,
+          statistic: 0.8,
+          testId: "mcnemar_exact",
+        },
+      ],
+      metricValidationFamilyAdjustment: {
+        alpha: 0.05,
+        dependencyAssumption: "arbitrary",
+        errorRateTarget: "FWER",
+        hypothesesTotal: 1,
+        method: "holm",
+      },
+      notes: [
+        "Formal metric validation focuses on pairwise comparisons and multiplicity-adjusted significance.",
+        "No time series arrays were detected.",
+      ],
+      sourceKind: "metric_validation_report",
+    });
+    expect(model?.metrics).toEqual([]);
   });
 });

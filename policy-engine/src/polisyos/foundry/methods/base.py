@@ -27,6 +27,10 @@ import numpy as np
 
 from polisyos.core.canon import content_hash
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability.truthfulness import (
+    parse_truthfulness_scope,
+    parse_truthfulness_tier,
+)
 from polisyos.foundry.methods.exceptions import LawViolationError, MethodDefinitionError
 
 _SEMVER_RE = re.compile(
@@ -730,6 +734,8 @@ class MethodMetadata:
     equations: Mapping[str, str] = field(default_factory=dict)
     assumptions: Mapping[str, str] = field(default_factory=dict)
     determinism_tier: DeterminismTier | None = None
+    declared_truthfulness_tier: str | None = None
+    truthfulness_scope: str | None = None
     required_deps: tuple[str, ...] = ()
     optional_deps: tuple[str, ...] = ()
     fallback_policy: str = "none"
@@ -761,6 +767,30 @@ class MethodMetadata:
         object.__setattr__(self, "diagnostic_checks", _normalize_string_tuple(self.diagnostic_checks))
         if self.determinism_tier is not None and not isinstance(self.determinism_tier, DeterminismTier):
             raise TypeError("MethodMetadata.determinism_tier must be a DeterminismTier")
+        parsed_truthfulness_tier = parse_truthfulness_tier(self.declared_truthfulness_tier)
+        if self.declared_truthfulness_tier is not None and parsed_truthfulness_tier is None:
+            normalized_truthfulness_tier = str(self.declared_truthfulness_tier).strip()
+            if normalized_truthfulness_tier:
+                raise ValueError(
+                    "MethodMetadata.declared_truthfulness_tier must be a valid truthfulness tier"
+                )
+        object.__setattr__(
+            self,
+            "declared_truthfulness_tier",
+            None if parsed_truthfulness_tier is None else parsed_truthfulness_tier.value,
+        )
+        parsed_truthfulness_scope = parse_truthfulness_scope(self.truthfulness_scope)
+        if self.truthfulness_scope is not None and parsed_truthfulness_scope is None:
+            normalized_truthfulness_scope = str(self.truthfulness_scope).strip()
+            if normalized_truthfulness_scope:
+                raise ValueError(
+                    "MethodMetadata.truthfulness_scope must be a valid truthfulness scope"
+                )
+        object.__setattr__(
+            self,
+            "truthfulness_scope",
+            None if parsed_truthfulness_scope is None else parsed_truthfulness_scope.value,
+        )
         if not isinstance(self.side_effect_profile, SideEffectProfile):
             object.__setattr__(
                 self,
@@ -788,6 +818,8 @@ class MethodMetadata:
             "determinism_tier": (
                 self.determinism_tier.value if self.determinism_tier is not None else None
             ),
+            "declared_truthfulness_tier": self.declared_truthfulness_tier,
+            "truthfulness_scope": self.truthfulness_scope,
             "required_deps": list(self.required_deps),
             "optional_deps": list(self.optional_deps),
             "fallback_policy": self.fallback_policy,
@@ -808,6 +840,8 @@ class MethodMetadata:
                 self.citations,
                 tuple(self.assumptions.items()),
                 self.determinism_tier,
+                self.declared_truthfulness_tier,
+                self.truthfulness_scope,
                 self.required_deps,
                 self.optional_deps,
                 self.fallback_policy,
@@ -960,6 +994,8 @@ def foundry_method(
                 equations=existing.equations,
                 assumptions=existing.assumptions,
                 determinism_tier=existing.determinism_tier,
+                declared_truthfulness_tier=existing.declared_truthfulness_tier,
+                truthfulness_scope=existing.truthfulness_scope,
                 required_deps=existing.required_deps,
                 optional_deps=existing.optional_deps,
                 fallback_policy=existing.fallback_policy,
@@ -997,6 +1033,8 @@ def foundry_method(
             equations=current_metadata.equations,
             assumptions=current_metadata.assumptions,
             determinism_tier=determinism_tier,
+            declared_truthfulness_tier=current_metadata.declared_truthfulness_tier,
+            truthfulness_scope=current_metadata.truthfulness_scope,
             required_deps=required_deps,
             optional_deps=optional_deps,
             fallback_policy=fallback_policy,

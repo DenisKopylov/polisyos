@@ -241,12 +241,13 @@ def _score_interference(
 ) -> float | None:
     if network_interference_report is None or interference_certificate is None:
         return None
+    effective_mode = interference_certificate.mode_used or interference_certificate.fallback_mode
     if (
         network_interference_report.status != "success"
-        or interference_certificate.fallback_mode == "unsupported"
+        or effective_mode == "unsupported"
     ):
         return 0.0
-    mode_score = 1.0 if interference_certificate.fallback_mode == "pairwise" else 0.85
+    mode_score = 1.0 if effective_mode == "pairwise" else 0.85
     error_bound = interference_certificate.reduction_error_bound
     error_score = 1.0 if error_bound is None else max(0.0, 1.0 - min(float(error_bound), 1.0))
     return _clamp(mode_score * error_score)

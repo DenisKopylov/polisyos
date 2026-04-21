@@ -20,6 +20,7 @@ from polisyos.foundry.methods.backends.protocol import (
     MethodTiming,
     ReproducibilityInfo,
 )
+from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.io import dematerialize_method_output
 
@@ -27,7 +28,7 @@ from polisyos.foundry.methods.io import dematerialize_method_output
 def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     known = {p.name for p in signature.parameters}
-    unknown = set(params.keys()) - known
+    unknown = set(params.keys()) - known - VALIDATED_EXECUTION_PARAM_NAMES
     if unknown:
         raise ValueError(f"Unknown parameters for {signature.fqn}: {sorted(unknown)}")
     for param in signature.parameters:
@@ -106,6 +107,7 @@ class NumpyRunner(MethodRunner):
                 seed=seed,
                 library_versions=versions,
                 fingerprint=fingerprint,
+                observed_tolerance_budget=posture.observed_tolerance_budget,
                 note=(
                     "Statistical reproducibility within fixed dependency versions and seed."
                     if determinism_tier is DeterminismTier.STATISTICAL

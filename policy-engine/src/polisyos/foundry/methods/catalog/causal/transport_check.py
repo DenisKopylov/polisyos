@@ -31,6 +31,10 @@ from polisyos.ir.analytics.causal import ProofBundle
 from polisyos.ir.analytics.negative_certificate import (
     negative_certificate_from_transport_result,
 )
+from polisyos.ir.analytics.privacy_transportability import (
+    TransportPrivacyContext,
+    coerce_transport_privacy_context,
+)
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SNode,
@@ -93,6 +97,7 @@ class CheckTransportability:
             ParameterSpec(name="pag_max_dag_samples", default=100),
             ParameterSpec(name="pag_threshold", default=0.5),
             ParameterSpec(name="pag_seed", default=0),
+            ParameterSpec(name="privacy_context", default=None),
         ),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
@@ -130,6 +135,7 @@ class CheckTransportability:
             pag_max_dag_samples=int(params.get("pag_max_dag_samples", 100) or 100),
             pag_threshold=float(params.get("pag_threshold", 0.5) or 0.5),
             pag_seed=int(params.get("pag_seed", 0) or 0),
+            privacy_context=_resolve_transport_privacy_context(state, params),
         )
         payload: dict[str, Any] = {"transport_result": result.model_dump(mode="json")}
         if result.status is TransportabilityStatus.IDENTIFIED:
@@ -176,6 +182,24 @@ class CheckTransportability:
         if negative_certificate.recovery_plan is not None:
             payload["recovery_plan"] = negative_certificate.recovery_plan.model_dump(mode="json")
         return payload
+
+
+def _resolve_transport_privacy_context(
+    state: Mapping[str, Any],
+    params: Mapping[str, Any],
+) -> TransportPrivacyContext | None:
+    for candidate in (
+        params.get("privacy_context"),
+        state.get("privacy_context"),
+        params.get("dp_utility_manifest"),
+        state.get("dp_utility_manifest"),
+        params.get("privacy_transport_certificate"),
+        state.get("privacy_transport_certificate"),
+    ):
+        context = coerce_transport_privacy_context(candidate)
+        if context is not None:
+            return context
+    return None
 
 
 def _legacy_pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:

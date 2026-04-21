@@ -16,7 +16,8 @@ def _entry(
     variant: str,
     execution_backend: str = "numpy",
     runnable: bool = True,
-    truthfulness_tier: str = "production_method",
+    truthfulness_tier: str = "exact",
+    implementation_depth_tier: str = "production_method",
     data_modalities: list[str] | None = None,
 ) -> MethodCatalogEntry:
     namespace_name, version = fqn.split("@", 1)
@@ -28,6 +29,8 @@ def _entry(
         "runtime_stack": [execution_backend],
         "determinism_tier": "library_deterministic",
         "truthfulness_tier": truthfulness_tier,
+        "implementation_depth_tier": implementation_depth_tier,
+        "effective_truthfulness_tier": truthfulness_tier,
         "backend_available": runnable,
         "runnable": runnable,
         "runtime_posture": {
@@ -58,6 +61,10 @@ def _entry(
         runnable=runnable,
         capability_matrix=capability_matrix,
         truthfulness_tier=truthfulness_tier,
+        implementation_depth_tier=implementation_depth_tier,
+        implementation_depth_notes=f"{implementation_depth_tier} note",
+        effective_truthfulness_tier=truthfulness_tier,
+        truthfulness_status="runtime_only",
         truthfulness_notes=f"{truthfulness_tier} note",
         effect_semantics={"method_kind": "pure"},
         shape_semantics={"input_arity": 1},
@@ -74,13 +81,15 @@ def _snapshot() -> MethodCatalogSnapshot:
                 "causal.treatment_effects.tmle@1.0.0",
                 family="causal.treatment_effects",
                 variant="tmle",
-                truthfulness_tier="production_method",
+                truthfulness_tier="exact",
+                implementation_depth_tier="production_method",
             ),
             _entry(
                 "causal.treatment_effects.proxy_score@1.0.0",
                 family="causal.treatment_effects",
                 variant="proxy_score",
-                truthfulness_tier="heuristic_baseline",
+                truthfulness_tier="unverified",
+                implementation_depth_tier="heuristic_baseline",
             ),
             _entry(
                 "survey.weighting.horvitz_thompson@1.0.0",
@@ -134,8 +143,11 @@ def test_advisor_command_emits_ranked_json(monkeypatch, capsys) -> None:
         "causal.treatment_effects.tmle@1.0.0",
         "causal.treatment_effects.proxy_score@1.0.0",
     ]
-    assert payload["capability_matrix"][0]["truthfulness_tier"] == "production_method"
+    assert payload["capability_matrix"][0]["truthfulness_tier"] == "exact"
+    assert payload["payload"][0]["implementation_depth_tier"] == "production_method"
     assert payload["family_summary"][0]["family"] == "causal.treatment_effects"
+    assert payload["score_trace"][0]["fqn"] == "causal.treatment_effects.tmle@1.0.0"
+    assert payload["calibrated_regret_certificate"]["status"] == "INSUFFICIENT_LOGGING"
 
 
 def test_evidence_command_emits_operator_summary_json(monkeypatch, capsys) -> None:
@@ -146,13 +158,15 @@ def test_evidence_command_emits_operator_summary_json(monkeypatch, capsys) -> No
                 "causal.treatment_effects.tmle@1.0.0",
                 family="causal.treatment_effects",
                 variant="tmle",
-                truthfulness_tier="production_method",
+                truthfulness_tier="exact",
+                implementation_depth_tier="production_method",
             ),
             _entry(
                 "causal.treatment_effects.proxy_score@1.0.0",
                 family="causal.treatment_effects",
                 variant="proxy_score",
-                truthfulness_tier="heuristic_baseline",
+                truthfulness_tier="unverified",
+                implementation_depth_tier="heuristic_baseline",
                 runnable=False,
                 execution_backend="bayesian",
             ),

@@ -100,6 +100,7 @@ _SPEC = NodeSpec(
         "params.strategic_scm",
         "params.strategic_payoff_tables",
         "params.macro_strategic_payoff_tables",
+        "params.performative_loop_spec",
     ],
     state_writes=[
         f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",

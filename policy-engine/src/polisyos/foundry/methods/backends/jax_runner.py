@@ -123,6 +123,7 @@ class JaxRunner(MethodRunner):
                 seed=seed,
                 library_versions=versions,
                 fingerprint=fingerprint,
+                observed_tolerance_budget=posture.observed_tolerance_budget,
                 note=posture.replay_semantics,
             ),
             slot_outputs=slot_outputs,

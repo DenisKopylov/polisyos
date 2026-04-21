@@ -7,7 +7,12 @@ from polisyos.ir.analytics.dual_certificate import (
     load_dual_certificate_bundle,
     validate_dual_certificate_bundle,
 )
-from polisyos.ir.analytics.partial_identification import BoundMethod, load_bounds_bundle
+from polisyos.ir.analytics.partial_identification import (
+    BoundMethod,
+    TighteningStatus,
+    load_bounds_bundle,
+    load_bounds_tightening_log,
+)
 from polisyos.ir.observation.bundles import BoundsChannelSpec, BoundsEstimationBundle
 from polisyos.ir.observation.causal_execution import BoundsEstimationTask
 from polisyos.ir.observation.contract_compilers import (
@@ -243,10 +248,17 @@ def test_bounds_estimation_runner_persists_dual_certificate_for_exact_auto_bound
     bundle = load_bounds_bundle(store, entry.bounds_bundle_ref)
     assert bundle.dual_certificate_ref is not None
     assert bundle.sharpness_status == "sharp"
+    assert bundle.tightening_status is TighteningStatus.IMPROVED
+    assert bundle.best_in_class_claim is not None
+    assert bundle.tightening_log_ref is not None
+    assert bundle.best_in_class_claim.proof_ref == bundle.tightening_log_ref
 
     cert = load_dual_certificate_bundle(store, bundle.dual_certificate_ref)
     validation = validate_dual_certificate_bundle(cert)
     assert validation.ok, validation.errors
+    tightening_log = load_bounds_tightening_log(store, bundle.tightening_log_ref)
+    assert tightening_log.status is TighteningStatus.IMPROVED
+    assert tightening_log.entries
 
 
 def test_bounds_estimation_runner_persists_dual_certificate_for_exact_iv_bounds(tmp_path) -> None:
@@ -272,7 +284,14 @@ def test_bounds_estimation_runner_persists_dual_certificate_for_exact_iv_bounds(
     bundle = load_bounds_bundle(store, entry.bounds_bundle_ref)
     assert bundle.dual_certificate_ref is not None
     assert bundle.sharpness_status == "sharp"
+    assert bundle.tightening_status is TighteningStatus.IMPROVED
+    assert bundle.best_in_class_claim is not None
+    assert bundle.tightening_log_ref is not None
+    assert bundle.best_in_class_claim.proof_ref == bundle.tightening_log_ref
 
     cert = load_dual_certificate_bundle(store, bundle.dual_certificate_ref)
     validation = validate_dual_certificate_bundle(cert)
     assert validation.ok, validation.errors
+    tightening_log = load_bounds_tightening_log(store, bundle.tightening_log_ref)
+    assert tightening_log.status is TighteningStatus.IMPROVED
+    assert tightening_log.entries

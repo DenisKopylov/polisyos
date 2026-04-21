@@ -9,12 +9,13 @@ from __future__ import annotations
 
 import threading
 import time as _time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Mapping, Protocol, runtime_checkable
 
 from polisyos.core.backends import BackendDispatcher
 from polisyos.core.backends import BackendNotAvailableError as CoreBackendNotAvailableError
 from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.core.observability.truthfulness import extract_truthfulness_receipt
 from polisyos.foundry.methods.backends.circuit_breaker import (
     BackendCircuitOpenError,
     CircuitBreaker,
@@ -22,15 +23,33 @@ from polisyos.foundry.methods.backends.circuit_breaker import (
 )
 from polisyos.foundry.methods._logging import _infer_n_obs, get_foundry_logger
 from polisyos.foundry.methods.backends.protocol import MethodResult, MethodRunner, MethodTiming
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    augment_observed_tolerance_budget,
+    capture_backend_runtime_fingerprint,
+)
+from polisyos.foundry.methods.backends.validated import (
+    ValidatedMode,
+    maybe_certify,
+    split_validated_execution_params,
+    validated_bound_to_envelopes,
+)
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.exceptions import FoundryMethodError
+from polisyos.foundry.methods.equivalence import (
+    EquivalenceCertificateResolver,
+    assess_certificate_applicability,
+    attach_equivalence_ref,
+    get_default_equivalence_resolver,
+)
 from polisyos.foundry.methods.output_monitor import _emit_anomaly_metric, get_output_monitor
 from polisyos.foundry.methods.selection_history import (
+    AdvisorExecutionContext,
     MethodExecutionRecord,
     RuntimePredictor,
     SelectionHistoryStore,
     fit_runtime_predictor_from_history,
     get_global_selection_history,
+    split_advisor_execution_params,
 )
 
 _log = get_foundry_logger("foundry.backends.dispatch")
@@ -65,8 +84,14 @@ def _record_execution(
     state: Any,
     failure_type: str | None = None,
     backend_used: ComputeBackend | None = None,
+    result: MethodResult | None = None,
+    advisor_context: AdvisorExecutionContext | None = None,
+    history_store: SelectionHistoryStore | None = None,
 ) -> None:
     try:
+        receipt = extract_truthfulness_receipt(result.artifacts if result is not None else None)
+        if receipt is None and result is not None:
+            receipt = extract_truthfulness_receipt(result.output)
         record = MethodExecutionRecord(
             method_fqn=signature.fqn,
             timestamp=_time.time(),
@@ -77,8 +102,62 @@ def _record_execution(
                 **_infer_data_characteristics(state, n_obs),
                 "backend": (backend_used or signature.backend).value,
             },
+            runtime_truthfulness_tier=(
+                None
+                if receipt is None or receipt.runtime_truthfulness_tier is None
+                else receipt.runtime_truthfulness_tier.value
+            ),
+            effective_truthfulness_tier=(
+                None
+                if receipt is None or receipt.effective_truthfulness_tier is None
+                else receipt.effective_truthfulness_tier.value
+            ),
+            truthfulness_scope=(
+                None
+                if receipt is None or receipt.truthfulness_scope is None
+                else receipt.truthfulness_scope.value
+            ),
+            truthfulness_status=(
+                None
+                if receipt is None or receipt.status is None
+                else receipt.status.value
+            ),
+            truthfulness_evidence_ref=None if receipt is None else receipt.evidence_ref,
+            query_fingerprint=(
+                None if advisor_context is None else advisor_context.query_fingerprint
+            ),
+            loss_profile_id=(
+                None if advisor_context is None else advisor_context.loss_profile_id
+            ),
+            candidate_fqns=(
+                ()
+                if advisor_context is None
+                else tuple(advisor_context.candidate_fqns)
+            ),
+            selected_rank=(
+                None if advisor_context is None else advisor_context.selected_rank
+            ),
+            selection_propensity=(
+                None
+                if advisor_context is None
+                else advisor_context.selection_propensity
+            ),
+            advisor_score_vector=(
+                {}
+                if advisor_context is None
+                else dict(advisor_context.advisor_score_vector)
+            ),
+            realized_loss_components={
+                "failure_penalty": 0.0 if success else 1.0,
+            },
+            shadow_loss_estimates=(
+                {}
+                if advisor_context is None
+                else dict(advisor_context.shadow_loss_estimates)
+            ),
         )
-        get_global_selection_history().record(record)
+        target_history = get_global_selection_history() if history_store is None else history_store
+        target_history.record(record)
     except (AttributeError, TypeError, ValueError, RuntimeError) as exc:
         _log.warning(
             "method_dispatch_record_failed",
@@ -102,6 +181,8 @@ def _build_dispatch_artifacts(
     attempts: list[tuple[ComputeBackend, str]],
     result: MethodResult,
     n_obs: int | None,
+    declared_route_budget: Mapping[str, Any] | None = None,
+    observed_route_budget: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     cost_usd = _estimate_cost_usd(
         backend=result.reproducibility.backend,
@@ -121,6 +202,12 @@ def _build_dispatch_artifacts(
             "predicted_selected_ms": decision.predicted_selected_ms,
             "n_obs": n_obs,
             "degraded": any(outcome != "success" for _, outcome in attempts[:-1]),
+            "declared_route_budget": (
+                None if declared_route_budget is None else dict(declared_route_budget)
+            ),
+            "observed_route_budget": (
+                None if observed_route_budget is None else dict(observed_route_budget)
+            ),
         },
         "cost_attribution": {
             "method_fqn": signature.fqn,
@@ -140,19 +227,90 @@ def _build_dispatch_artifacts(
     }
 
 
+def _apply_dispatch_contract_overlay(
+    *,
+    result: MethodResult,
+    signature: MethodSignature,
+    backend_used: ComputeBackend,
+    declared_tier: str | None,
+    fallback_observed_budget: Mapping[str, Any] | None = None,
+) -> MethodResult:
+    observed_budget = dict(result.reproducibility.observed_tolerance_budget or {})
+    fingerprint_artifact = result.artifacts.get("backend_runtime_fingerprint")
+    if isinstance(fingerprint_artifact, Mapping):
+        observed_budget = dict(
+            fingerprint_artifact.get("observed_tolerance_budget") or observed_budget
+        )
+    if not observed_budget and fallback_observed_budget is not None:
+        observed_budget = dict(fallback_observed_budget)
+
+    if backend_used != signature.backend:
+        observed_budget = augment_observed_tolerance_budget(
+            observed_budget,
+            route_key_updates={
+                "backend_route": f"{signature.backend.value}->{backend_used.value}_fallback",
+            },
+            validation_status="degraded",
+            downgraded_from=declared_tier,
+            downgraded_to=result.reproducibility.determinism_tier.value,
+            failure_reasons=(
+                f"fallback_route:{signature.backend.value}->{backend_used.value}",
+            ),
+            expected_budget_updates={
+                "semantic_mode": (
+                    f"{(observed_budget.get('expected_budget') or {}).get('semantic_mode', 'best_effort')}_fallback"
+                ),
+            },
+        )
+
+    updated_artifacts = dict(result.artifacts)
+    if isinstance(fingerprint_artifact, Mapping):
+        updated_fingerprint = dict(fingerprint_artifact)
+        updated_fingerprint["route_key"] = dict(
+            observed_budget.get("route_key") or updated_fingerprint.get("route_key") or {}
+        )
+        updated_fingerprint["observed_tolerance_budget"] = observed_budget
+        updated_artifacts["backend_runtime_fingerprint"] = updated_fingerprint
+
+    return MethodResult(
+        output=result.output,
+        timing=result.timing,
+        reproducibility=replace(
+            result.reproducibility,
+            observed_tolerance_budget=observed_budget,
+        ),
+        cross_backend_equivalence_ref=result.cross_backend_equivalence_ref,
+        slot_outputs=result.slot_outputs,
+        artifacts=updated_artifacts,
+        warnings=result.warnings,
+        validated_bound=result.validated_bound,
+    )
+
+
 def _merge_dispatch_result(
     *,
     result: MethodResult,
     artifacts: Mapping[str, Any],
     warnings: tuple[str, ...] = (),
 ) -> MethodResult:
+    truthfulness_receipt = extract_truthfulness_receipt(result.artifacts)
+    if truthfulness_receipt is None:
+        truthfulness_receipt = extract_truthfulness_receipt(result.output)
+    merged_artifacts = {**dict(result.artifacts), **dict(artifacts)}
+    if truthfulness_receipt is not None:
+        merged_artifacts.setdefault(
+            "truthfulness_receipt",
+            truthfulness_receipt.model_dump(mode="json"),
+        )
     return MethodResult(
         output=result.output,
         timing=result.timing,
         reproducibility=result.reproducibility,
+        cross_backend_equivalence_ref=result.cross_backend_equivalence_ref,
         slot_outputs=result.slot_outputs,
-        artifacts={**dict(result.artifacts), **dict(artifacts)},
+        artifacts=merged_artifacts,
         warnings=tuple(dict.fromkeys((*result.warnings, *warnings))),
+        validated_bound=result.validated_bound,
     )
 
 
@@ -247,6 +405,7 @@ class MethodDispatcher:
         enable_runtime_selection: bool = True,
         runtime_selection_ratio: float = 0.85,
         runtime_selection_min_delta_ms: float = 2.0,
+        equivalence_resolver: EquivalenceCertificateResolver | None = None,
     ) -> None:
         self._dispatcher = BackendDispatcher[ComputeBackend, MethodRunner](
             factory=self._create_runner,
@@ -261,13 +420,16 @@ class MethodDispatcher:
         self._enable_runtime_selection = bool(enable_runtime_selection)
         self._runtime_selection_ratio = float(runtime_selection_ratio)
         self._runtime_selection_min_delta_ms = float(runtime_selection_min_delta_ms)
+        self._equivalence_resolver = equivalence_resolver
 
     @classmethod
     def get_instance(cls) -> MethodDispatcher:
         if cls._instance is None:
             with cls._instance_lock:
                 if cls._instance is None:
-                    cls._instance = cls()
+                    cls._instance = cls(
+                        equivalence_resolver=get_default_equivalence_resolver(),
+                    )
         return cls._instance
 
     @classmethod
@@ -315,6 +477,8 @@ class MethodDispatcher:
             Exception: Propagates backend execution failures after telemetry is
                 recorded.
         """
+        method_params, advisor_context = split_advisor_execution_params(params)
+        method_params, validated_policy = split_validated_execution_params(method_params)
         n_obs = _infer_n_obs(state)
         decision = self._select_backend(
             method_class=method_class,
@@ -352,7 +516,7 @@ class MethodDispatcher:
                     method_class=method_class,
                     signature=signature,
                     state=state,
-                    params=params,
+                    params=method_params,
                     seed=seed,
                     preferred_backend=decision.selected_backend,
                     attempts=attempts,
@@ -381,6 +545,9 @@ class MethodDispatcher:
                     state=state,
                     failure_type=type(last_exc).__name__,
                     backend_used=backend_used,
+                    result=result if "result" in locals() else None,
+                    advisor_context=advisor_context,
+                    history_store=self._runtime_history,
                 )
                 span.set_attribute("foundry.dispatch_status", "error")
                 span.set_attribute("foundry.elapsed_ms", elapsed_ms)
@@ -396,17 +563,43 @@ class MethodDispatcher:
                 raise last_exc
 
             elapsed_ms = (_time.perf_counter() - t0) * 1000
+            declared_posture = capture_backend_runtime_fingerprint(
+                signature.backend,
+                method_class=method_class,
+                seed=seed,
+            )
+            declared_route_budget = declared_posture.observed_tolerance_budget
+            result = _apply_dispatch_contract_overlay(
+                result=result,
+                signature=signature,
+                backend_used=backend_used,
+                declared_tier=(
+                    None
+                    if declared_posture.determinism_tier is None
+                    else declared_posture.determinism_tier.value
+                ),
+                fallback_observed_budget=capture_backend_runtime_fingerprint(
+                    backend_used,
+                    method_class=method_class,
+                    seed=seed,
+                ).observed_tolerance_budget,
+            )
             dispatch_artifacts = _build_dispatch_artifacts(
                 signature=signature,
                 decision=decision,
                 attempts=attempts,
                 result=result,
                 n_obs=n_obs,
+                declared_route_budget=declared_route_budget,
+                observed_route_budget=result.reproducibility.observed_tolerance_budget,
             )
             extra_warnings: list[str] = []
             if backend_used != signature.backend:
                 extra_warnings.append(
                     f"dispatch_backend_mismatch:{signature.backend.value}->{backend_used.value}"
+                )
+                extra_warnings.append(
+                    f"dispatch_contract_degraded:{signature.backend.value}->{backend_used.value}"
                 )
             if any(outcome != "success" for _, outcome in attempts[:-1]):
                 metrics.record_degraded_path(
@@ -415,11 +608,54 @@ class MethodDispatcher:
                     reason="fallback_recovery",
                     error_type=None,
                 )
+            validated_bound = maybe_certify(
+                signature=signature,
+                state=state,
+                params=method_params,
+                output=result.output,
+                execution_policy=validated_policy,
+            )
+            validated_artifacts: dict[str, Any] = {}
+            if validated_bound is not None:
+                validated_artifacts["validated_bound_certificate"] = validated_bound.as_dict()
+                validated_envelopes = validated_bound_to_envelopes(validated_bound)
+                if validated_envelopes:
+                    serialized_envelopes = [
+                        envelope.model_dump(mode="json")
+                        for envelope in validated_envelopes
+                    ]
+                    validated_artifacts["validated_uncertainty_envelopes"] = serialized_envelopes
+                    if len(serialized_envelopes) == 1:
+                        validated_artifacts["validated_uncertainty_envelope"] = serialized_envelopes[0]
+            if (
+                validated_policy.mode is ValidatedMode.REQUIRED
+                and validated_bound is not None
+                and validated_bound.status.value in {"indeterminate", "not_applicable"}
+            ):
+                extra_warnings.append(
+                    f"validated_bound_{validated_bound.status.value}:{validated_bound.quantity}"
+                )
             result = _merge_dispatch_result(
                 result=result,
-                artifacts=dispatch_artifacts,
+                artifacts={**dispatch_artifacts, **validated_artifacts},
                 warnings=tuple(extra_warnings),
             )
+            result = self._maybe_attach_equivalence_certificate(
+                result=result,
+                signature=signature,
+                backend_used=backend_used,
+            )
+            if validated_bound is not None:
+                result = MethodResult(
+                    output=result.output,
+                    timing=result.timing,
+                    reproducibility=result.reproducibility,
+                    cross_backend_equivalence_ref=result.cross_backend_equivalence_ref,
+                    slot_outputs=result.slot_outputs,
+                    artifacts=result.artifacts,
+                    warnings=result.warnings,
+                    validated_bound=validated_bound,
+                )
             _log.info(
                 "method_dispatch_complete",
                 fqn=signature.fqn,
@@ -437,6 +673,9 @@ class MethodDispatcher:
                 n_obs=n_obs,
                 state=state,
                 backend_used=backend_used,
+                result=result,
+                advisor_context=advisor_context,
+                history_store=self._runtime_history,
             )
             span.set_attribute("foundry.dispatch_status", "success")
             span.set_attribute("foundry.elapsed_ms", elapsed_ms)
@@ -471,6 +710,43 @@ class MethodDispatcher:
             _emit_anomaly_metric(signature.fqn, flags)
 
         return result
+
+    def _maybe_attach_equivalence_certificate(
+        self,
+        *,
+        result: MethodResult,
+        signature: MethodSignature,
+        backend_used: ComputeBackend,
+    ) -> MethodResult:
+        resolver = self._equivalence_resolver or get_default_equivalence_resolver()
+        if resolver is None:
+            return result
+        if result.cross_backend_equivalence_ref is not None:
+            return result
+        if backend_used == signature.backend:
+            return result
+        resolved = resolver.resolve(
+            method_fqn=signature.fqn,
+            source_backend=backend_used,
+            target_backend=signature.backend,
+        )
+        if resolved is None:
+            return result
+        applicability = assess_certificate_applicability(
+            result=result,
+            certificate=resolved.certificate,
+            target_backend=signature.backend,
+            method_fqn=signature.fqn,
+        )
+        if not applicability.applicable:
+            return result
+        return attach_equivalence_ref(
+            result,
+            resolved.certificate_ref,
+            applicability.verdict,
+            report=applicability,
+            attestation_ref=resolved.attestation_ref,
+        )
 
     def _dispatch_with_candidates(
         self,
@@ -647,7 +923,7 @@ class MethodDispatcher:
     def _get_runtime_predictor(self) -> RuntimePredictor | None:
         if self._runtime_predictor is not None:
             return self._runtime_predictor
-        history = self._runtime_history or get_global_selection_history()
+        history = get_global_selection_history() if self._runtime_history is None else self._runtime_history
         if len(history) == 0:
             return None
         return fit_runtime_predictor_from_history(history)

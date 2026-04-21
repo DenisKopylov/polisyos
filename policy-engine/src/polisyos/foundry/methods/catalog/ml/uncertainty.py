@@ -6,6 +6,11 @@ from typing import Any, ClassVar, Mapping
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability.truthfulness import (
+    TruthfulnessReceipt,
+    TruthfulnessScope,
+    TruthfulnessTier,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -123,6 +128,8 @@ class ConformalPredictionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Split-conformal style residual intervals over an upstream prediction result.",
         tags=frozenset({"ml", "uncertainty", "conformal-prediction"}),
+        declared_truthfulness_tier="exact",
+        truthfulness_scope="marginal_coverage",
         when_to_use="Distribution-free prediction intervals with coverage guarantee; any black-box model",
         citations=(
             "Vovk, V., Gammerman, A. & Shafer, G. (2005). Algorithmic Learning in a Random World. Springer.",
@@ -206,6 +213,16 @@ class ConformalPredictionEstimator:
             upper=upper,
             coverage=coverage,
             alpha=alpha,
+            truthfulness_receipt=TruthfulnessReceipt(
+                runtime_truthfulness_tier=TruthfulnessTier.EXACT,
+                truthfulness_scope=TruthfulnessScope.MARGINAL_COVERAGE,
+                diagnostics={
+                    "observed_coverage": coverage,
+                    "alpha": alpha,
+                    "effective_sample_size": ess,
+                    "shift_mode": shift_mode,
+                },
+            ),
             metadata={
                 "base_method": prediction_result.method_name,
                 "residual_quantile": q_hat,

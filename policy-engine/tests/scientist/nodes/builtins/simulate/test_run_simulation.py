@@ -18,7 +18,7 @@ from polisyos.ir.analytics.strategic import (
 from polisyos.ir.refs import ArtifactRefModel, StrategicResponseBundleRef
 from polisyos.scientist.kernel.budgets import ComputeBudget
 from polisyos.scientist.nodes.builtins import errors as node_errors
-from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
+from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode, _SPEC
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_EXEC_PLAN_REF,
@@ -41,6 +41,10 @@ def test_fail_when_foundry_port_missing(execution_context, minimal_state, artifa
     assert outcome.status == "fail"
     assert outcome.error is not None
     assert outcome.error.code == node_errors.ERROR_FOUNDATION_MISSING
+
+
+def test_run_simulation_spec_reads_performative_loop_spec() -> None:
+    assert "params.performative_loop_spec" in _SPEC.state_reads
 
 
 def test_run_simulation_accepts_injected_metrics(

@@ -54,10 +54,31 @@ class UncertaintyEnvelopeRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class ForecastingUncertaintyBundleRef(ArtifactRefModel):
+    """Stable handle for persisted multi-horizon forecasting uncertainty bundles."""
+
+    kind: Literal["ir.forecasting_uncertainty_bundle"] = "ir.forecasting_uncertainty_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class EstimandASTRef(ArtifactRefModel):
     """Stable handle for a persisted normalized estimand AST."""
 
     kind: Literal["ir.estimand_ast"] = "ir.estimand_ast"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class KernelEstimatorSpecRef(ArtifactRefModel):
+    """Stable handle for a persisted kernel-estimator lowering specification."""
+
+    kind: Literal["ir.kernel_estimator_spec"] = "ir.kernel_estimator_spec"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class OperatorEffectBundleRef(ArtifactRefModel):
+    """Stable handle for a persisted operator-valued causal effect bundle."""
+
+    kind: Literal["ir.operator_effect_bundle"] = "ir.operator_effect_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -111,6 +132,13 @@ class BoundsBundleRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class BoundsTighteningLogRef(ArtifactRefModel):
+    """Stable handle for certified bounds-tightening search logs."""
+
+    kind: Literal["ir.bounds_tightening_log"] = "ir.bounds_tightening_log"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class DualCertificateRef(ArtifactRefModel):
     """Stable handle for persisted LP dual certificates consumed by bounds auditing."""
 
@@ -123,6 +151,22 @@ class ProximalIdentificationCertificateRef(ArtifactRefModel):
 
     kind: Literal["ir.proximal_identification_certificate"] = (
         "ir.proximal_identification_certificate"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class BridgePlausibilityReportRef(ArtifactRefModel):
+    """Stable handle for persisted proximal bridge plausibility diagnostics."""
+
+    kind: Literal["ir.bridge_plausibility_report"] = "ir.bridge_plausibility_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class LocalIndependenceWeightingCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted local-independence weighting certificates."""
+
+    kind: Literal["ir.local_independence_weighting_certificate"] = (
+        "ir.local_independence_weighting_certificate"
     )
     media_type: Literal["application/json"] = "application/json"
 
@@ -193,6 +237,15 @@ class TransportabilityResultRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class PrivacyAwareTransportCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted privacy-aware transportability certificates."""
+
+    kind: Literal["ir.privacy_aware_transport_certificate"] = (
+        "ir.privacy_aware_transport_certificate"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
 class CausalCapabilityContractRef(ArtifactRefModel):
     """Stable handle for a persisted causal-capability contract emitted by readiness compilation."""
     kind: Literal["ir.causal_capability_contract"] = "ir.causal_capability_contract"
@@ -223,6 +276,13 @@ class VariableAlignmentCertificateRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class LatentBridgeHypothesisRef(ArtifactRefModel):
+    """Stable handle for persisted automatic latent-bridge hypotheses used by alignment certification."""
+
+    kind: Literal["ir.latent_bridge_hypothesis"] = "ir.latent_bridge_hypothesis"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class AlignmentReportRef(ArtifactRefModel):
     """Stable handle for persisted alignment reports reviewed by governance and composition passes."""
     kind: Literal["ir.alignment_report"] = "ir.alignment_report"
@@ -238,6 +298,20 @@ class InterfaceMappingRef(ArtifactRefModel):
 class CompositionCertificateRef(ArtifactRefModel):
     """Stable handle for persisted composition certificates once interface checks have succeeded."""
     kind: Literal["ir.composition_certificate"] = "ir.composition_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ProofWitnessIndexRef(ArtifactRefModel):
+    """Stable handle for persisted proof-witness indexes used during trace replay."""
+
+    kind: Literal["ir.proof_witness_index"] = "ir.proof_witness_index"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ProofComposabilityCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted proof-composability certificates."""
+
+    kind: Literal["ir.proof_composability_certificate"] = "ir.proof_composability_certificate"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -281,6 +355,24 @@ class DynamicTreatmentRegimeRef(ArtifactRefModel):
 class EffectTrajectoryBundleRef(ArtifactRefModel):
     """Stable handle for persisted effect trajectories used by forecasting and temporal reporting."""
     kind: Literal["ir.effect_trajectory_bundle"] = "ir.effect_trajectory_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class TemporalIdentificationCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted temporal identification certificates."""
+
+    kind: Literal["ir.temporal_identification_certificate"] = (
+        "ir.temporal_identification_certificate"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class RoughPathInterventionCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted rough-path intervention certificates."""
+
+    kind: Literal["ir.rough_path_intervention_certificate"] = (
+        "ir.rough_path_intervention_certificate"
+    )
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -334,6 +426,27 @@ class DistributionalEffectBundleRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class DistributionalBoundsBundleRef(ArtifactRefModel):
+    """Stable handle for persisted distributional partial-identification envelopes."""
+
+    kind: Literal["ir.distributional_bounds_bundle"] = "ir.distributional_bounds_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DistributionalProofArtifactRef(ArtifactRefModel):
+    """Stable handle for persisted distributional proof wrappers over proof-kernel output."""
+
+    kind: Literal["ir.distributional_proof_artifact"] = "ir.distributional_proof_artifact"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class CausalAssumptionCardRef(ArtifactRefModel):
+    """Stable handle for persisted typed causal-assumption cards."""
+
+    kind: Literal["ir.causal_assumption_card"] = "ir.causal_assumption_card"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class StrategicPayoffTableRef(ArtifactRefModel):
     """Stable handle for persisted payoff tables consumed by strategic-response analyzers."""
     kind: Literal["ir.strategic_payoff_table"] = "ir.strategic_payoff_table"
@@ -349,6 +462,31 @@ class StrategicSCMRef(ArtifactRefModel):
 class StrategicResponseBundleRef(ArtifactRefModel):
     """Stable handle for persisted strategic-response bundles reviewed by governance."""
     kind: Literal["ir.strategic_response_bundle"] = "ir.strategic_response_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MeanFieldEquilibriumCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted mean-field equilibrium certificates."""
+
+    kind: Literal["ir.mean_field_equilibrium_certificate"] = (
+        "ir.mean_field_equilibrium_certificate"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MeanFieldPerturbationSpecRef(ArtifactRefModel):
+    """Stable handle for persisted SCM-to-MFG perturbation mappings."""
+
+    kind: Literal["ir.mean_field_perturbation_spec"] = "ir.mean_field_perturbation_spec"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MeanFieldMacroSimulationConfigRef(ArtifactRefModel):
+    """Stable handle for persisted MFG macro-simulation numerics configs."""
+
+    kind: Literal["ir.mean_field_macro_simulation_config"] = (
+        "ir.mean_field_macro_simulation_config"
+    )
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -404,14 +542,57 @@ class CounterfactualResultRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class InterventionCostManifoldRef(ArtifactRefModel):
+    """Stable handle for a persisted ``InterventionCostManifold`` spec."""
+
+    kind: Literal["ir.intervention_cost_manifold"] = "ir.intervention_cost_manifold"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class OptimalRecourseInterventionQueryRef(ArtifactRefModel):
+    """Stable handle for a persisted ``OptimalRecourseInterventionQuery``."""
+
+    kind: Literal["ir.optimal_recourse_intervention_query"] = (
+        "ir.optimal_recourse_intervention_query"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class RecourseProofBundleRef(ArtifactRefModel):
+    """Stable handle for a persisted recourse-specific proof bundle."""
+
+    kind: Literal["ir.recourse_proof_bundle"] = "ir.recourse_proof_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class RecourseFeasibilityCertificateRef(ArtifactRefModel):
+    """Stable handle for a persisted recourse feasibility certificate."""
+
+    kind: Literal["ir.recourse_feasibility_certificate"] = (
+        "ir.recourse_feasibility_certificate"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class OptimalRecourseInterventionBundleRef(ArtifactRefModel):
+    """Stable handle for a persisted optimal-recourse planning result."""
+
+    kind: Literal["ir.optimal_recourse_intervention_bundle"] = (
+        "ir.optimal_recourse_intervention_bundle"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
 __all__ = [
     "AbstractionCertificateRef",
     "ABMAlignmentReportRef",
     "AlignmentReportRef",
     "BacktestReportRef",
     "BoundsBundleRef",
+    "BoundsTighteningLogRef",
     "CompositionCertificateRef",
     "CompositionFailureCardBundleRef",
+    "CausalAssumptionCardRef",
     "CausalDiscoveryReportRef",
     "CausalEffectReportRef",
     "CausalGraphModelRef",
@@ -427,37 +608,58 @@ __all__ = [
     "InteractionComplexRef",
     "InterferenceCertificateRef",
     "InterventionCertificateRef",
+    "InterventionCostManifoldRef",
     "InterventionQueryRef",
+    "OptimalRecourseInterventionBundleRef",
+    "OptimalRecourseInterventionQueryRef",
+    "RecourseFeasibilityCertificateRef",
+    "RecourseProofBundleRef",
+    "LatentBridgeHypothesisRef",
     "SCMFragmentRef",
     "StructuralCausalModelSpecRef",
     "CausalQueryResultRef",
     "TemporalInterventionTrajectoryRef",
+    "TemporalIdentificationCertificateRef",
     "DynamicTreatmentRegimeRef",
     "EffectTrajectoryBundleRef",
     "FiniteStateAbstractionMapRef",
     "FrontierSketchRef",
     "TwinNetworkResultRef",
     "CausalModelEnsembleRef",
+    "DistributionalBoundsBundleRef",
     "DistributionalEffectBundleRef",
+    "DistributionalProofArtifactRef",
     "DistributionalReportRef",
     "DPRobustnessCertificateRef",
     "EstimandASTRef",
     "EvidenceBundleRef",
+    "KernelEstimatorSpecRef",
+    "OperatorEffectBundleRef",
     "ArtifactRefModel",
     "HTEResultRef",
     "NegativeCertificateRef",
     "NormativeArbitrationResultRef",
     "PolicyRecommendationRef",
     "ProofBundleRef",
+    "ProofComposabilityCertificateRef",
+    "ProofWitnessIndexRef",
+    "BridgePlausibilityReportRef",
+    "LocalIndependenceWeightingCertificateRef",
+    "PrivacyAwareTransportCertificateRef",
     "ProximalIdentificationCertificateRef",
     "RegimeShiftIdentificationCertificateRef",
     "RecoverabilityCertificateRef",
+    "RoughPathInterventionCertificateRef",
     "JointDecisionCertificateRef",
     "CausalReadinessBundleRef",
     "CausalExecutionBundleRef",
+    "MeanFieldEquilibriumCertificateRef",
+    "MeanFieldMacroSimulationConfigRef",
+    "MeanFieldPerturbationSpecRef",
     "StrategicPayoffTableRef",
     "StrategicResponseBundleRef",
     "StrategicSCMRef",
+    "ForecastingUncertaintyBundleRef",
     "UncertaintyEnvelopeRef",
     "NCMSpecRef",
     "CounterfactualResultRef",

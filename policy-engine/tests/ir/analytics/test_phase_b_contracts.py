@@ -22,11 +22,21 @@ from polisyos.ir.analytics.alignment_certification import (
     verify_fragment_bundle_alignment,
 )
 from polisyos.ir.analytics.cross_graph import (
+    CompositionPolicy,
     CompositionCertificate,
+    CycleScope,
+    CycleType,
+    CycleWitness,
+    GraphAuditGuarantee,
     InterfaceRole,
+    InterventionalClosure,
+    completeness_scope_for_composition,
     load_composition_certificate,
     load_interface_mapping,
+    MarkovSemantics,
     SCMFragment,
+    SolverKind,
+    UniquenessScope,
     persist_composition_certificate,
     persist_interface_mapping,
     load_scm_fragment,
@@ -63,6 +73,48 @@ def _fragment() -> SCMFragment:
                 "time_window": {"start": "2024-01-01", "end": "2024-12-31"},
             }
         },
+    )
+
+
+def _cycle_witness(*, initial_condition_dependent: bool = False) -> CycleWitness:
+    return CycleWitness(
+        scc_id="wage_price_feedback",
+        solver_kind=SolverKind.LINEAR_SOLVE,
+        uniqueness_scope=UniquenessScope.SCC,
+        interventional_closure=InterventionalClosure.INTERFACE_ONLY,
+        markov_semantics=MarkovSemantics.SIGMA_SEPARATION,
+        initial_condition_dependent=initial_condition_dependent,
+        existence_conditions=["spectral_radius_lt_1"],
+        uniqueness_conditions=["invertible_i_minus_b"],
+        audit_refs=["artifact:witness:cycle:linear"],
+    )
+
+
+def _cyclic_fragment(
+    *,
+    cycle_type: CycleType = CycleType.SIMPLE_CYCLIC,
+    cycle_scope: CycleScope = CycleScope.INTERNAL_SCC,
+    composition_policy: CompositionPolicy = CompositionPolicy.REQUIRE_HUMAN_REVIEW,
+    initial_condition_dependent: bool = False,
+    allowed_alignment_types: list[str] | None = None,
+) -> SCMFragment:
+    return SCMFragment(
+        fragment_id="price_wage",
+        graph_ref="artifact:graph:price_wage",
+        semantic_namespace="policy.labor",
+        interface_variables=["wage_level", "price_index"],
+        exposed_inputs=["wage_level"],
+        exposed_outputs=["price_index"],
+        variable_definitions={
+            "wage_level": "Average wage level",
+            "price_index": "Aggregate price index",
+        },
+        cycle_type=cycle_type,
+        cycle_scope=cycle_scope,
+        cycle_witnesses=[_cycle_witness(initial_condition_dependent=initial_condition_dependent)],
+        allowed_alignment_types=list(allowed_alignment_types or ["exact", "scale_linked"]),
+        graph_audit_guarantee=GraphAuditGuarantee.SEMANTIC_ONLY,
+        composition_policy=composition_policy,
     )
 
 
@@ -104,6 +156,84 @@ def test_scm_fragment_validates_interface_subsets() -> None:
             semantic_namespace="policy.bad",
             interface_variables=["x"],
             exposed_inputs=["missing"],
+        )
+
+
+def test_scm_fragment_accepts_explicit_cycle_contract() -> None:
+    fragment = _cyclic_fragment()
+
+    assert fragment.cycle_type is CycleType.SIMPLE_CYCLIC
+    assert fragment.cycle_scope is CycleScope.INTERNAL_SCC
+    assert fragment.composition_policy is CompositionPolicy.REQUIRE_HUMAN_REVIEW
+    assert fragment.allowed_alignment_types == ["exact", "scale_linked"]
+    assert fragment.cycle_witnesses[0].markov_semantics is MarkovSemantics.SIGMA_SEPARATION
+
+
+def test_scm_fragment_rejects_cross_fragment_cycle_auto_compose() -> None:
+    with pytest.raises(ValueError, match="cross-fragment cycles cannot auto-compose"):
+        _cyclic_fragment(
+            cycle_scope=CycleScope.CROSS_FRAGMENT_SCC,
+            composition_policy=CompositionPolicy.ALLOW,
+        )
+
+
+def test_scm_fragment_rejects_initial_condition_dependent_auto_compose() -> None:
+    with pytest.raises(ValueError, match="initial-condition-dependent cycles cannot auto-compose"):
+        _cyclic_fragment(
+            composition_policy=CompositionPolicy.ALLOW,
+            initial_condition_dependent=True,
+        )
+
+
+def test_scm_fragment_rejects_non_closing_cycle_auto_compose() -> None:
+    with pytest.raises(ValueError, match="requires interventional closure"):
+        SCMFragment(
+            fragment_id="price_wage",
+            graph_ref="artifact:graph:price_wage",
+            semantic_namespace="policy.labor",
+            interface_variables=["wage_level", "price_index"],
+            exposed_inputs=["wage_level"],
+            exposed_outputs=["price_index"],
+            variable_definitions={
+                "wage_level": "Average wage level",
+                "price_index": "Aggregate price index",
+            },
+            cycle_type=CycleType.SIMPLE_CYCLIC,
+            cycle_scope=CycleScope.INTERNAL_SCC,
+            cycle_witnesses=[
+                _cycle_witness().model_copy(
+                    update={"interventional_closure": InterventionalClosure.NONE}
+                )
+            ],
+            allowed_alignment_types=["exact", "scale_linked"],
+            graph_audit_guarantee=GraphAuditGuarantee.SEMANTIC_ONLY,
+            composition_policy=CompositionPolicy.ALLOW,
+        )
+
+
+def test_scm_fragment_rejects_non_sigma_cycle_auto_compose() -> None:
+    with pytest.raises(ValueError, match="requires sigma-separation witnesses"):
+        SCMFragment(
+            fragment_id="price_wage",
+            graph_ref="artifact:graph:price_wage",
+            semantic_namespace="policy.labor",
+            interface_variables=["wage_level", "price_index"],
+            exposed_inputs=["wage_level"],
+            exposed_outputs=["price_index"],
+            variable_definitions={
+                "wage_level": "Average wage level",
+                "price_index": "Aggregate price index",
+            },
+            cycle_type=CycleType.SIMPLE_CYCLIC,
+            cycle_scope=CycleScope.INTERNAL_SCC,
+            cycle_witnesses=[
+                _cycle_witness().model_copy(
+                    update={"markov_semantics": MarkovSemantics.NONE}
+                )
+            ],
+            allowed_alignment_types=["exact", "scale_linked"],
+            graph_audit_guarantee=GraphAuditGuarantee.SEMANTIC_ONLY,
+            composition_policy=CompositionPolicy.ALLOW,
         )
 
 
@@ -231,6 +361,16 @@ def test_phase_b_contracts_round_trip_via_store(tmp_path) -> None:
     assert load_scm_fragment(store, fragment_ref) == fragment
     assert load_variable_alignment_certificate(store, certificate_ref) == certificate
     assert load_alignment_report(store, report_ref) == report
+
+
+def test_cyclic_scm_fragment_round_trip_via_store(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    fragment = _cyclic_fragment()
+
+    fragment_ref = persist_scm_fragment(store, fragment)
+
+    assert isinstance(fragment_ref, SCMFragmentRef)
+    assert load_scm_fragment(store, fragment_ref) == fragment
 
 
 def test_verify_fragment_alignment_returns_exact_mapping() -> None:
@@ -613,6 +753,82 @@ def test_interface_mapping_and_composition_certificate_round_trip(tmp_path) -> N
     assert isinstance(certificate_ref, CompositionCertificateRef)
     assert load_interface_mapping(store, mapping_ref) == mapping
     assert load_composition_certificate(store, certificate_ref) == certificate
+
+
+def test_completeness_scope_is_in_scope_for_exact_observed_dag_adjustment() -> None:
+    fields = completeness_scope_for_composition(
+        graph_type_value="dag",
+        alignment_types=["exact", "exact"],
+        reviewers=["automated", "human_verified"],
+        review_status="clear",
+        structure_status="valid",
+        cycle_semantics_mode=None,
+        directed_cycle_present=False,
+    )
+    assert fields["completeness_scope"] == "exact_observed_dag_adjustment_v1"
+    assert fields["completeness_basis"] == [
+        "structured_cospan_composition",
+        "dag_adjustment_complete",
+    ]
+    assert fields["non_completeness_reason"] is None
+
+
+def test_completeness_scope_out_of_scope_records_proxy_and_latent_bridge_reasons() -> None:
+    proxy_only = completeness_scope_for_composition(
+        graph_type_value="dag",
+        alignment_types=["proxy"],
+        reviewers=["human_verified"],
+        review_status="clear",
+        structure_status="valid",
+    )
+    assert proxy_only["completeness_scope"] is None
+    assert proxy_only["non_completeness_reason"] == "proxy_alignment"
+
+    latent_bridge = completeness_scope_for_composition(
+        graph_type_value="dag",
+        alignment_types=["latent_bridge"],
+        reviewers=["human_verified"],
+        review_status="clear",
+        structure_status="valid",
+    )
+    assert latent_bridge["completeness_scope"] is None
+    assert latent_bridge["non_completeness_reason"] == "latent_bridge_alignment"
+
+
+def test_completeness_scope_out_of_scope_for_admg_and_pending_review_and_cycles() -> None:
+    admg = completeness_scope_for_composition(
+        graph_type_value="admg",
+        alignment_types=["exact"],
+        reviewers=["automated"],
+        review_status="clear",
+        structure_status="valid",
+    )
+    assert admg["completeness_scope"] is None
+    assert "non_dag_composition" in admg["non_completeness_reason"].split(";")
+
+    pending = completeness_scope_for_composition(
+        graph_type_value="dag",
+        alignment_types=["exact"],
+        reviewers=["pending_review"],
+        review_status="pending_review",
+        structure_status="valid",
+    )
+    assert pending["completeness_scope"] is None
+    assert {"pending_review", "pending_review_alignment"}.issubset(
+        set(pending["non_completeness_reason"].split(";"))
+    )
+
+    cyclic = completeness_scope_for_composition(
+        graph_type_value="dag",
+        alignment_types=["exact"],
+        reviewers=["automated"],
+        review_status="clear",
+        structure_status="valid",
+        cycle_semantics_mode="sigma_separation",
+        directed_cycle_present=True,
+    )
+    assert cyclic["completeness_scope"] is None
+    assert "cyclic_or_sigma_semantics" in cyclic["non_completeness_reason"].split(";")
 
 
 def test_alignment_report_type_is_public_contract() -> None:

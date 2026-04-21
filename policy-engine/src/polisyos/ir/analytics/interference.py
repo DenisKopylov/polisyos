@@ -60,6 +60,27 @@ def _coerce_nested_string_tuples(value: Any, *, field_name: str) -> tuple[tuple[
     return tuple(groups)
 
 
+def _coerce_estimability_checks(
+    value: Any,
+    *,
+    field_name: str,
+) -> dict[str, Literal["pass", "fail", "not_applicable"]]:
+    if value in (None, {}):
+        return {}
+    if not isinstance(value, dict):
+        raise ValueError(f"{field_name} must be a dict of gate -> status")
+    normalized: dict[str, Literal["pass", "fail", "not_applicable"]] = {}
+    for raw_key, raw_status in value.items():
+        key = _ensure_non_empty_string(raw_key, field_name=f"{field_name}.key")
+        status = _ensure_non_empty_string(raw_status, field_name=f"{field_name}[{key}]")
+        if status not in {"pass", "fail", "not_applicable"}:
+            raise ValueError(
+                f"{field_name}[{key}] must be one of pass, fail, not_applicable"
+            )
+        normalized[key] = status  # type: ignore[assignment]
+    return normalized
+
+
 class InteractionComplex(BaseModel):
     """Topology contract reserved for future hypergraph interference reasoning."""
 
@@ -113,7 +134,12 @@ class InteractionComplex(BaseModel):
 
 
 class InterferenceCertificate(BaseModel):
-    """Disclosure contract for topology-to-pairwise/cluster reduction behavior."""
+    """Disclosure contract for topology-to-pairwise/cluster reduction behavior.
+
+    ``fallback_mode`` is retained as the legacy degraded-mode signal consumed by
+    older code paths. Stage 10.2 adds ``mode_requested``/``mode_used`` and the
+    estimability metadata below as the source of truth for honest reduction.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -122,6 +148,13 @@ class InterferenceCertificate(BaseModel):
     exposure_assumptions: tuple[str, ...] = ()
     reduction_error_bound: float | None = Field(default=None, ge=0.0)
     fallback_mode: Literal["pairwise", "clustered", "unsupported"]
+    mode_requested: Literal["pairwise", "clustered", "complex"] | None = None
+    mode_used: Literal["pairwise", "clustered", "complex", "unsupported"] | None = None
+    fallback_triggered: bool = False
+    fallback_reason_codes: tuple[str, ...] = ()
+    estimability_checks: dict[str, Literal["pass", "fail", "not_applicable"]] = (
+        Field(default_factory=dict)
+    )
 
     @field_validator("supported_query_family", mode="before")
     @classmethod
@@ -144,6 +177,30 @@ class InterferenceCertificate(BaseModel):
             deduped.append(assumption)
         return tuple(deduped)
 
+    @field_validator("fallback_reason_codes", mode="before")
+    @classmethod
+    def _validate_fallback_reason_codes(cls, value: Any) -> tuple[str, ...]:
+        reasons = _coerce_string_tuple(
+            () if value is None else value,
+            field_name="fallback_reason_codes",
+        )
+        deduped: list[str] = []
+        seen: set[str] = set()
+        for reason in reasons:
+            if reason in seen:
+                continue
+            seen.add(reason)
+            deduped.append(reason)
+        return tuple(deduped)
+
+    @field_validator("estimability_checks", mode="before")
+    @classmethod
+    def _validate_estimability_checks(
+        cls,
+        value: Any,
+    ) -> dict[str, Literal["pass", "fail", "not_applicable"]]:
+        return _coerce_estimability_checks(value, field_name="estimability_checks")
+
     @field_validator("reduction_error_bound", mode="before")
     @classmethod
     def _validate_reduction_error_bound(cls, value: Any) -> float | None:
@@ -153,6 +210,50 @@ class InterferenceCertificate(BaseModel):
         if not math.isfinite(casted):
             raise ValueError("reduction_error_bound must be finite when provided")
         return casted
+
+    @model_validator(mode="after")
+    def _validate_fallback_certificate(self) -> "InterferenceCertificate":
+        if self.fallback_triggered and not self.fallback_reason_codes:
+            raise ValueError(
+                "fallback_reason_codes must be non-empty when fallback_triggered is true"
+            )
+        if not self.fallback_triggered and self.fallback_reason_codes:
+            raise ValueError(
+                "fallback_reason_codes must be empty when fallback_triggered is false"
+            )
+        if (
+            self.mode_requested is not None
+            and self.mode_used is not None
+            and not self.fallback_triggered
+            and self.mode_requested != self.mode_used
+        ):
+            raise ValueError(
+                "mode_requested must equal mode_used when fallback_triggered is false"
+            )
+        if (
+            self.mode_requested is not None
+            and self.mode_used is not None
+            and self.fallback_triggered
+            and self.mode_requested == self.mode_used
+        ):
+            raise ValueError(
+                "mode_requested must differ from mode_used when fallback_triggered is true"
+            )
+        if self.mode_used == "unsupported" and self.fallback_mode != "unsupported":
+            raise ValueError("fallback_mode must be unsupported when mode_used is unsupported")
+        if self.mode_used in {"pairwise", "clustered"} and self.fallback_mode != self.mode_used:
+            raise ValueError(
+                "fallback_mode must match mode_used for pairwise/clustered execution"
+            )
+        if self.mode_used == "complex" and self.fallback_mode != "unsupported":
+            raise ValueError("fallback_mode must be unsupported when mode_used is complex")
+        if self.mode_used == "complex" and any(
+            status == "fail" for status in self.estimability_checks.values()
+        ):
+            raise ValueError(
+                "complex mode cannot be used when any estimability check is marked fail"
+            )
+        return self
 
 
 def persist_interaction_complex(

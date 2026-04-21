@@ -99,6 +99,10 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.distributional",
         "DistributionalReport",
     ),
+    "MetricValidationReport": (
+        "polisyos.ir.analytics.metric_validation_report",
+        "MetricValidationReport",
+    ),
     "EdgeMark": ("polisyos.ir.analytics.causal_graph", "EdgeMark"),
     "EdgeSource": ("polisyos.ir.analytics.causal_graph", "EdgeSource"),
     "EconMLDesignBridge": (
@@ -145,6 +149,22 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "MultiEnvironmentCausalContract": (
         "polisyos.ir.analytics.invariance",
         "MultiEnvironmentCausalContract",
+    ),
+    "DPUtilityManifest": (
+        "polisyos.ir.analytics.privacy_transportability",
+        "DPUtilityManifest",
+    ),
+    "PrivacyAwareTransportCertificate": (
+        "polisyos.ir.analytics.privacy_transportability",
+        "PrivacyAwareTransportCertificate",
+    ),
+    "PrivacyAwareTransportCertificateRef": (
+        "polisyos.ir.refs",
+        "PrivacyAwareTransportCertificateRef",
+    ),
+    "PrivacyObservedMode": (
+        "polisyos.ir.analytics.privacy_transportability",
+        "PrivacyObservedMode",
     ),
     "InterventionSpec": ("polisyos.ir.analytics.causal_queries", "InterventionSpec"),
     "InterventionType": ("polisyos.ir.analytics.causal_queries", "InterventionType"),
@@ -207,6 +227,30 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.recoverability",
         "JointDecisionStatus",
     ),
+    "KernelEstimatorSpec": (
+        "polisyos.ir.analytics.kernel_causal",
+        "KernelEstimatorSpec",
+    ),
+    "KernelEstimatorSpecRef": (
+        "polisyos.ir.refs",
+        "KernelEstimatorSpecRef",
+    ),
+    "KernelEstimatorTemplate": (
+        "polisyos.ir.analytics.kernel_causal",
+        "KernelEstimatorTemplate",
+    ),
+    "KernelLoweringDisposition": (
+        "polisyos.ir.analytics.kernel_causal",
+        "KernelLoweringDisposition",
+    ),
+    "KernelSpec": (
+        "polisyos.ir.analytics.kernel_causal",
+        "KernelSpec",
+    ),
+    "KernelTargetRepresentation": (
+        "polisyos.ir.analytics.kernel_causal",
+        "KernelTargetRepresentation",
+    ),
     "RecoverabilityCertificate": (
         "polisyos.ir.analytics.recoverability",
         "RecoverabilityCertificate",
@@ -228,15 +272,99 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.recourse",
         "ContrastiveExplanation",
     ),
+    "MeanFieldEquilibriumCertificate": (
+        "polisyos.ir.analytics.strategic",
+        "MeanFieldEquilibriumCertificate",
+    ),
+    "MeanFieldMacroSimulationConfig": (
+        "polisyos.ir.analytics.strategic",
+        "MeanFieldMacroSimulationConfig",
+    ),
+    "MeanFieldPerturbationSpec": (
+        "polisyos.ir.analytics.strategic",
+        "MeanFieldPerturbationSpec",
+    ),
+    "PerformativeInstabilityReason": (
+        "polisyos.ir.analytics.strategic",
+        "PerformativeInstabilityReason",
+    ),
+    "PerformativeLoopAnalysisScope": (
+        "polisyos.ir.analytics.strategic",
+        "PerformativeLoopAnalysisScope",
+    ),
+    "PerformativeLoopCertificate": (
+        "polisyos.ir.analytics.strategic",
+        "PerformativeLoopCertificate",
+    ),
+    "PerformativeLoopProofFamily": (
+        "polisyos.ir.analytics.strategic",
+        "PerformativeLoopProofFamily",
+    ),
+    "PerformativeLoopRecommendedAction": (
+        "polisyos.ir.analytics.strategic",
+        "PerformativeLoopRecommendedAction",
+    ),
+    "PerformativeLoopStabilityStatus": (
+        "polisyos.ir.analytics.strategic",
+        "PerformativeLoopStabilityStatus",
+    ),
+    "PerformativeLoopWitnessStrength": (
+        "polisyos.ir.analytics.strategic",
+        "PerformativeLoopWitnessStrength",
+    ),
+    "PerformativeShiftSummary": (
+        "polisyos.ir.analytics.strategic",
+        "PerformativeShiftSummary",
+    ),
+    "StrategicAdmissibilityRecord": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicAdmissibilityRecord",
+    ),
+    "StrategicDecompositionCertificate": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicDecompositionCertificate",
+    ),
+    "StrategicDecompositionFailureCard": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicDecompositionFailureCard",
+    ),
+    "StrategicDecompositionSemantics": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicDecompositionSemantics",
+    ),
+    "StrategicDecompositionStatus": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicDecompositionStatus",
+    ),
+    "StrategicEquilibriumDescriptor": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicEquilibriumDescriptor",
+    ),
     "StrategicEquilibriumConcept": (
         "polisyos.ir.analytics.strategic",
         "StrategicEquilibriumConcept",
+    ),
+    "StrategicFallbackMode": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicFallbackMode",
+    ),
+    "StrategicGameClass": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicGameClass",
     ),
     "StrategicResponseBundle": (
         "polisyos.ir.analytics.strategic",
         "StrategicResponseBundle",
     ),
     "StrategicSCM": ("polisyos.ir.analytics.strategic", "StrategicSCM"),
+    "StrategicSolutionConcept": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicSolutionConcept",
+    ),
+    "StrategicTractabilityClass": (
+        "polisyos.ir.analytics.strategic",
+        "StrategicTractabilityClass",
+    ),
     "StructuralCausalModelSpec": (
         "polisyos.ir.analytics.structural_causal_model",
         "StructuralCausalModelSpec",
@@ -272,6 +400,34 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "TransportabilityResult": (
         "polisyos.ir.analytics.transportability",
         "TransportabilityResult",
+    ),
+    "ForecastCalibrationMethod": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastCalibrationMethod",
+    ),
+    "ForecastCoverageDiagnostic": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastCoverageDiagnostic",
+    ),
+    "ForecastIntervalSemantics": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastIntervalSemantics",
+    ),
+    "ForecastingUncertaintyBundle": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastingUncertaintyBundle",
+    ),
+    "FanChartSpec": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "FanChartSpec",
+    ),
+    "HorizonInterval": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "HorizonInterval",
+    ),
+    "HorizonPolicySpec": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "HorizonPolicySpec",
     ),
     "UncertaintyEnvelope": (
         "polisyos.ir.analytics.uncertainty",

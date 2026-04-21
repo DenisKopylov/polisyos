@@ -6,6 +6,7 @@ from typing import Any, ClassVar
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
 
+from polisyos.core.observability.truthfulness import TruthfulnessReceipt, validate_truthfulness_receipt
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -176,7 +177,9 @@ class PredictionIntervalResult(BaseModel):
     upper: Any
     coverage: float | None = None
     alpha: float = Field(default=0.1, ge=0.0, le=1.0)
+    conditional_coverage_diagnostic: dict[str, Any] | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+    truthfulness_receipt: TruthfulnessReceipt | None = None
 
     @field_validator("predictions", "lower", "upper", mode="before")
     @classmethod
@@ -188,6 +191,14 @@ class PredictionIntervalResult(BaseModel):
         if isinstance(value, np.ndarray):
             return value.tolist()
         return value
+
+    def to_truthfulness_receipt(self) -> TruthfulnessReceipt | None:
+        if self.truthfulness_receipt is not None:
+            return self.truthfulness_receipt
+        candidate = self.metadata.get("truthfulness_receipt")
+        if candidate is not None:
+            return validate_truthfulness_receipt(candidate)
+        return None
 
 
 class ClusteringResult(BaseModel):

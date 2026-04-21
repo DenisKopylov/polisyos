@@ -50,6 +50,8 @@ def main(argv: list[str] | None = None) -> int:
         return _dispatch_private("._cli_components", "_cmd_registry_build", args)
     if args.command == "scholar" and args.scholar_command == "enrich":
         return _dispatch_private("._cli_scholar", "_cmd_scholar_enrich", args)
+    if args.command == "metric-validate":
+        return _dispatch_private("._cli_metric_validation", "_cmd_metric_validate", args)
     if args.command == "lex" and args.lex_command == "normpack" and args.lex_normpack_command == "build":
         return _dispatch_private("._cli_lex", "_cmd_lex_normpack_build", args)
     if args.command == "lex" and args.lex_command == "impact":
@@ -155,6 +157,61 @@ def _build_parser() -> argparse.ArgumentParser:
     enrich.add_argument("--intent", required=True)
     enrich.add_argument("--cas-root", default=".polisyos/cas")
     enrich.add_argument("--fact-log-root", default=".polisyos/facts")
+
+    metric_validate = components.add_parser("metric-validate")
+    metric_validate.add_argument(
+        "--observation-bundle-ref",
+        required=True,
+        help="Observation bundle artifact id (sha256:<hex> or <hex>)",
+    )
+    metric_validate.add_argument("--baseline", required=True, help="Baseline model id")
+    metric_validate.add_argument(
+        "--candidates",
+        nargs="+",
+        required=True,
+        help="Candidate model ids to compare against the baseline",
+    )
+    metric_validate.add_argument(
+        "--metrics",
+        nargs="+",
+        required=True,
+        help="Metric ids to validate (e.g. roc_auc accuracy log_loss f1)",
+    )
+    metric_validate.add_argument("--alpha", type=float, default=0.05)
+    metric_validate.add_argument(
+        "--alternative",
+        choices=["two-sided", "greater", "less"],
+        default="two-sided",
+    )
+    metric_validate.add_argument("--n-resamples", type=int, default=20_000)
+    metric_validate.add_argument("--confidence-level", type=float, default=0.95)
+    metric_validate.add_argument(
+        "--correction",
+        choices=[
+            "none",
+            "bonferroni",
+            "holm",
+            "bh",
+            "by",
+            "westfall_young_maxT",
+            "westfall_young_minP",
+        ],
+        default="holm",
+    )
+    metric_validate.add_argument(
+        "--family-scope",
+        choices=["per_candidate", "per_metric", "all_pairs_all_metrics"],
+        default="all_pairs_all_metrics",
+    )
+    metric_validate.add_argument("--random-seed", type=int, default=None)
+    metric_validate.add_argument("--exact-if-feasible", action="store_true", default=True)
+    metric_validate.add_argument(
+        "--format",
+        choices=["summary-json", "json", "avro-json", "proto-json"],
+        default="summary-json",
+    )
+    metric_validate.add_argument("--output", default=None)
+    metric_validate.add_argument("--cas-root", default=".polisyos")
 
     cmd_lex = components.add_parser("lex")
     lex_sub = cmd_lex.add_subparsers(dest="lex_command")

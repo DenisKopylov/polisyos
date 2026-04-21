@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import Annotated, Any, Literal
+from statistics import NormalDist
+from typing import Annotated, Any, Callable, Iterable, Literal
+
+import numpy as np
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -15,6 +18,10 @@ from polisyos.ir.refs import UncertaintyEnvelopeRef
 
 class UncertaintyCompatibilityError(ValueError):
     """Raised when envelopes with incompatible interval semantics are combined."""
+
+
+class PullBackNotRepresentableError(ValueError):
+    """Raised when a pull-back needs extra structure that the caller did not supply."""
 
 
 class UncertaintySource(str, Enum):
@@ -72,6 +79,36 @@ class EnvelopeCombinationMethod(str, Enum):
     INTERSECTION = "intersection"
     CONSERVATIVE_UNION = "conservative_union"
     PRECISION_WEIGHTED = "precision_weighted"
+
+
+class ComposedFlavour(str, Enum):
+    """Declare the native and composed family used to transport uncertainty."""
+
+    ANALYTICAL = "analytical"
+    MONTE_CARLO = "monte_carlo"
+    DELTA = "delta"
+    QUASI_MONTE_CARLO = "quasi_monte_carlo"
+    MIXED = "mixed"
+
+
+class ExactnessKind(str, Enum):
+    """Disclose whether an envelope is exact, approximated, or only a constraint hull."""
+
+    EXACT = "exact"
+    OUTER_BOUND = "outer_bound"
+    APPROXIMATION = "approximation"
+    CONSTRAINT_ONLY = "constraint_only"
+
+
+class CertificateKind(str, Enum):
+    """Machine-readable approximation/error certificate attached to a composition chain."""
+
+    EXACT = "exact"
+    KOLMOGOROV = "kolmogorov"
+    WASSERSTEIN_1 = "wasserstein_1"
+    TAYLOR_REMAINDER = "taylor_remainder"
+    QMC_VARIATION = "qmc_variation"
+    RQMC_REPLICATES = "rqmc_replicates"
 
 
 class NumericPolicySpec(BaseModel):
@@ -215,6 +252,43 @@ DistributionCarrier = Annotated[
 ]
 
 
+class CompositionStep(BaseModel):
+    """One explicit transformation applied during uncertainty composition."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    op: Literal["join", "push_forward", "pull_back", "compress", "resample"]
+    stage_name: str = Field(min_length=1)
+    input_flavours: tuple[ComposedFlavour, ...]
+    output_flavour: ComposedFlavour
+    map_name: str | None = None
+    lipschitz_bound: float | None = None
+    bias_bound: float | None = None
+    variance_bound: float | None = None
+    sample_size: int | None = Field(default=None, ge=1)
+    replicate_count: int | None = Field(default=None, ge=1)
+    qmc_method: str | None = None
+    scrambled: bool | None = None
+    assumptions: tuple[str, ...] = ()
+    notes: dict[str, Any] = Field(default_factory=dict)
+
+
+class CompositionProvenance(BaseModel):
+    """Persist the history, exactness, and certificates behind a composed envelope."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    native_flavour: ComposedFlavour
+    composed_flavour: ComposedFlavour
+    exactness: ExactnessKind
+    certificate_kind: CertificateKind
+    certificate_radius: float | dict[str, float] | None = None
+    confidence_level: float | None = Field(default=None, gt=0.0, lt=1.0)
+    scope: tuple[str, ...] = ()
+    origin_envelope_ids: tuple[str, ...] = ()
+    operator_history: tuple[CompositionStep, ...] = ()
+
+
 def _canonicalize_distribution_payload(
     payload: dict[str, Any] | BaseModel | None,
     policy: NumericPolicySpec,
@@ -271,6 +345,592 @@ def _canonicalize_distribution_payload(
     return normalized
 
 
+def _canonicalize_nested_numbers(value: Any, policy: NumericPolicySpec) -> Any:
+    if isinstance(value, float):
+        return policy.canonicalize(value)
+    if isinstance(value, list):
+        return [_canonicalize_nested_numbers(item, policy) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_canonicalize_nested_numbers(item, policy) for item in value)
+    if isinstance(value, dict):
+        return {
+            key: _canonicalize_nested_numbers(item, policy)
+            for key, item in value.items()
+        }
+    if isinstance(value, BaseModel):
+        return _canonicalize_nested_numbers(
+            value.model_dump(mode="python", round_trip=True),
+            policy,
+        )
+    return value
+
+
+def _canonicalize_composition_provenance(
+    payload: dict[str, Any] | BaseModel | None,
+    policy: NumericPolicySpec,
+) -> dict[str, Any] | None:
+    if payload is None:
+        return None
+    return _canonicalize_nested_numbers(payload, policy)
+
+
+def _origin_id_for_envelope(envelope: UncertaintyEnvelope, *, idx: int) -> str:
+    for key in ("envelope_id", "artifact_id", "ref_id"):
+        raw = envelope.metadata.get(key)
+        if isinstance(raw, str) and raw:
+            return raw
+    return (
+        f"inline:{idx}:{envelope.source.value}:"
+        f"{envelope.point_estimate}:{envelope.ci_lower}:{envelope.ci_upper}"
+    )
+
+
+def _scope_for_envelope(envelope: UncertaintyEnvelope) -> tuple[str, ...]:
+    scope: list[str] = []
+    if envelope.interval_semantics in {
+        IntervalSemantics.CONFIDENCE_INTERVAL,
+        IntervalSemantics.CREDIBLE_INTERVAL,
+    }:
+        scope.extend(["interval", "quantile"])
+    if envelope.interval_semantics in {
+        IntervalSemantics.DETERMINISTIC_BOUNDS,
+        IntervalSemantics.HEURISTIC_RANGE,
+    }:
+        scope.append("bounds")
+    if envelope.distribution_payload is not None:
+        scope.append("cdf")
+    if "expectation" not in scope:
+        scope.append("expectation")
+    return tuple(dict.fromkeys(scope))
+
+
+def _infer_native_flavour(envelope: UncertaintyEnvelope) -> ComposedFlavour:
+    if envelope.composition_provenance is not None:
+        return envelope.composition_provenance.composed_flavour
+
+    sampling_method = str(envelope.metadata.get("mc_sampling_method", "")).lower()
+    if sampling_method in {"sobol", "halton"}:
+        return ComposedFlavour.QUASI_MONTE_CARLO
+    if envelope.propagation_method is PropagationMethod.MONTE_CARLO:
+        return ComposedFlavour.MONTE_CARLO
+    if envelope.propagation_method is PropagationMethod.DELTA_METHOD:
+        return ComposedFlavour.DELTA
+    if isinstance(envelope.distribution_payload, PosteriorSamplesCarrier):
+        return ComposedFlavour.MONTE_CARLO
+    return ComposedFlavour.ANALYTICAL
+
+
+def _infer_exactness(envelope: UncertaintyEnvelope) -> ExactnessKind:
+    if envelope.composition_provenance is not None:
+        return envelope.composition_provenance.exactness
+    if envelope.is_heuristic_ci:
+        return ExactnessKind.APPROXIMATION
+    if envelope.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS:
+        return ExactnessKind.OUTER_BOUND
+    if envelope.propagation_method in {
+        PropagationMethod.DELTA_METHOD,
+        PropagationMethod.MONTE_CARLO,
+    }:
+        return ExactnessKind.APPROXIMATION
+    if envelope.propagation_method is PropagationMethod.ANALYTICAL:
+        return ExactnessKind.EXACT
+    return ExactnessKind.APPROXIMATION
+
+
+def _infer_certificate_kind(envelope: UncertaintyEnvelope) -> CertificateKind:
+    if envelope.composition_provenance is not None:
+        return envelope.composition_provenance.certificate_kind
+    sampling_method = str(envelope.metadata.get("mc_sampling_method", "")).lower()
+    if sampling_method in {"sobol", "halton"}:
+        return CertificateKind.QMC_VARIATION
+    if envelope.propagation_method is PropagationMethod.MONTE_CARLO:
+        return CertificateKind.KOLMOGOROV
+    if envelope.propagation_method is PropagationMethod.DELTA_METHOD:
+        return CertificateKind.TAYLOR_REMAINDER
+    return CertificateKind.EXACT
+
+
+def _dkw_radius(sample_size: int, confidence_level: float) -> float:
+    alpha = min(max(1.0 - confidence_level, 1e-12), 1.0 - 1e-12)
+    return math.sqrt(math.log(2.0 / alpha) / (2.0 * sample_size))
+
+
+def _infer_certificate_radius(
+    envelope: UncertaintyEnvelope,
+) -> float | dict[str, float] | None:
+    if envelope.composition_provenance is not None:
+        return envelope.composition_provenance.certificate_radius
+    sampling_method = str(envelope.metadata.get("mc_sampling_method", "")).lower()
+    if sampling_method in {"sobol", "halton"} and envelope.sample_size is not None:
+        return {
+            "sample_size": float(envelope.sample_size),
+            "replicate_count": float(envelope.metadata.get("qmc_replicates", 1)),
+        }
+    if (
+        envelope.propagation_method is PropagationMethod.MONTE_CARLO
+        and envelope.sample_size is not None
+        and envelope.confidence_level is not None
+    ):
+        return _dkw_radius(envelope.sample_size, envelope.confidence_level)
+    if envelope.propagation_method is PropagationMethod.DELTA_METHOD:
+        remainder = envelope.metadata.get("taylor_remainder")
+        if isinstance(remainder, (int, float)) and math.isfinite(float(remainder)):
+            return float(remainder)
+        std = envelope.metadata.get("output_std")
+        if isinstance(std, (int, float)) and math.isfinite(float(std)):
+            return float(std)
+    if envelope.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS:
+        return 0.0
+    return None
+
+
+def _base_provenance(
+    envelope: UncertaintyEnvelope,
+    *,
+    idx: int = 0,
+) -> CompositionProvenance:
+    if envelope.composition_provenance is not None:
+        return envelope.composition_provenance
+    flavour = _infer_native_flavour(envelope)
+    return CompositionProvenance(
+        native_flavour=flavour,
+        composed_flavour=flavour,
+        exactness=_infer_exactness(envelope),
+        certificate_kind=_infer_certificate_kind(envelope),
+        certificate_radius=_infer_certificate_radius(envelope),
+        confidence_level=envelope.confidence_level,
+        scope=_scope_for_envelope(envelope),
+        origin_envelope_ids=(_origin_id_for_envelope(envelope, idx=idx),),
+        operator_history=(),
+    )
+
+
+def _merge_certificate_radii(
+    envelopes: Iterable[UncertaintyEnvelope],
+) -> float | dict[str, float] | None:
+    radii = [_base_provenance(envelope).certificate_radius for envelope in envelopes]
+    filtered = [radius for radius in radii if radius is not None]
+    if not filtered:
+        return None
+    if all(isinstance(radius, (int, float)) for radius in filtered):
+        return max(float(radius) for radius in filtered)
+    merged: dict[str, float] = {}
+    for radius in filtered:
+        if isinstance(radius, (int, float)):
+            merged["radius"] = max(merged.get("radius", 0.0), float(radius))
+        else:
+            for key, value in radius.items():
+                merged[key] = max(merged.get(key, 0.0), float(value))
+    return merged
+
+
+def _worst_exactness(
+    envelopes: Iterable[UncertaintyEnvelope],
+) -> ExactnessKind:
+    order = {
+        ExactnessKind.EXACT: 0,
+        ExactnessKind.OUTER_BOUND: 1,
+        ExactnessKind.APPROXIMATION: 2,
+        ExactnessKind.CONSTRAINT_ONLY: 3,
+    }
+    exactnesses = [_base_provenance(envelope).exactness for envelope in envelopes]
+    return max(exactnesses, key=lambda item: order[item])
+
+
+def _merge_certificate_kind(
+    envelopes: Iterable[UncertaintyEnvelope],
+    *,
+    fallback: CertificateKind = CertificateKind.WASSERSTEIN_1,
+) -> CertificateKind:
+    kinds = {_base_provenance(envelope).certificate_kind for envelope in envelopes}
+    if len(kinds) == 1:
+        return next(iter(kinds))
+    return fallback
+
+
+def _propagate_certificate_radius(
+    radius: float | dict[str, float] | None,
+    *,
+    lipschitz_bound: float | None = None,
+    bias_bound: float | None = None,
+) -> float | dict[str, float] | None:
+    if radius is None:
+        if bias_bound is None:
+            return None
+        return float(bias_bound)
+    if isinstance(radius, (int, float)):
+        scale = abs(float(lipschitz_bound)) if lipschitz_bound is not None else 1.0
+        return scale * float(radius) + float(bias_bound or 0.0)
+    propagated = {key: float(value) for key, value in radius.items()}
+    if lipschitz_bound is not None:
+        propagated["lipschitz_bound"] = abs(float(lipschitz_bound))
+    if bias_bound is not None:
+        propagated["bias_bound"] = float(bias_bound)
+    return propagated
+
+
+def _compose_flavour_for_operation(
+    *,
+    op: Literal["join", "push_forward", "pull_back", "compress", "resample"],
+    input_flavours: tuple[ComposedFlavour, ...],
+    output_flavour: ComposedFlavour,
+) -> ComposedFlavour:
+    unique = set(input_flavours)
+    if not unique:
+        return output_flavour
+    if ComposedFlavour.MIXED in unique or len(unique) > 1:
+        return ComposedFlavour.MIXED
+    inherited = next(iter(unique))
+    if op == "join":
+        return inherited
+    if output_flavour is ComposedFlavour.ANALYTICAL:
+        return inherited
+    return output_flavour
+
+
+def _build_composition_provenance(
+    *,
+    input_envelopes: Iterable[UncertaintyEnvelope],
+    op: Literal["join", "push_forward", "pull_back", "compress", "resample"],
+    stage_name: str,
+    output_flavour: ComposedFlavour,
+    exactness: ExactnessKind,
+    certificate_kind: CertificateKind,
+    certificate_radius: float | dict[str, float] | None,
+    confidence_level: float | None,
+    scope: tuple[str, ...],
+    map_name: str | None = None,
+    lipschitz_bound: float | None = None,
+    bias_bound: float | None = None,
+    variance_bound: float | None = None,
+    sample_size: int | None = None,
+    replicate_count: int | None = None,
+    qmc_method: str | None = None,
+    scrambled: bool | None = None,
+    assumptions: tuple[str, ...] = (),
+    notes: dict[str, Any] | None = None,
+) -> CompositionProvenance:
+    normalized = tuple(input_envelopes)
+    base = tuple(_base_provenance(envelope, idx=idx) for idx, envelope in enumerate(normalized))
+    input_flavours = tuple(provenance.composed_flavour for provenance in base)
+    native_flavours = {provenance.native_flavour for provenance in base}
+    native_flavour = (
+        next(iter(native_flavours))
+        if len(native_flavours) == 1
+        else ComposedFlavour.MIXED
+    )
+    operator_history: list[CompositionStep] = []
+    origin_ids: list[str] = []
+    for provenance in base:
+        operator_history.extend(provenance.operator_history)
+        for origin_id in provenance.origin_envelope_ids:
+            if origin_id not in origin_ids:
+                origin_ids.append(origin_id)
+    operator_history.append(
+        CompositionStep(
+            op=op,
+            stage_name=stage_name,
+            input_flavours=input_flavours,
+            output_flavour=_compose_flavour_for_operation(
+                op=op,
+                input_flavours=input_flavours,
+                output_flavour=output_flavour,
+            ),
+            map_name=map_name,
+            lipschitz_bound=lipschitz_bound,
+            bias_bound=bias_bound,
+            variance_bound=variance_bound,
+            sample_size=sample_size,
+            replicate_count=replicate_count,
+            qmc_method=qmc_method,
+            scrambled=scrambled,
+            assumptions=assumptions,
+            notes=dict(notes or {}),
+        )
+    )
+    return CompositionProvenance(
+        native_flavour=native_flavour,
+        composed_flavour=operator_history[-1].output_flavour,
+        exactness=exactness,
+        certificate_kind=certificate_kind,
+        certificate_radius=certificate_radius,
+        confidence_level=confidence_level,
+        scope=tuple(dict.fromkeys(scope)),
+        origin_envelope_ids=tuple(origin_ids),
+        operator_history=tuple(operator_history),
+    )
+
+
+def build_composition_provenance(
+    *,
+    input_envelopes: Iterable[UncertaintyEnvelope],
+    op: Literal["join", "push_forward", "pull_back", "compress", "resample"],
+    stage_name: str,
+    output_flavour: ComposedFlavour,
+    exactness: ExactnessKind,
+    certificate_kind: CertificateKind,
+    certificate_radius: float | dict[str, float] | None,
+    confidence_level: float | None,
+    scope: tuple[str, ...],
+    map_name: str | None = None,
+    lipschitz_bound: float | None = None,
+    bias_bound: float | None = None,
+    variance_bound: float | None = None,
+    sample_size: int | None = None,
+    replicate_count: int | None = None,
+    qmc_method: str | None = None,
+    scrambled: bool | None = None,
+    assumptions: tuple[str, ...] = (),
+    notes: dict[str, Any] | None = None,
+) -> CompositionProvenance:
+    """Public helper for modules that need to attach a composition step."""
+
+    return _build_composition_provenance(
+        input_envelopes=input_envelopes,
+        op=op,
+        stage_name=stage_name,
+        output_flavour=output_flavour,
+        exactness=exactness,
+        certificate_kind=certificate_kind,
+        certificate_radius=certificate_radius,
+        confidence_level=confidence_level,
+        scope=scope,
+        map_name=map_name,
+        lipschitz_bound=lipschitz_bound,
+        bias_bound=bias_bound,
+        variance_bound=variance_bound,
+        sample_size=sample_size,
+        replicate_count=replicate_count,
+        qmc_method=qmc_method,
+        scrambled=scrambled,
+        assumptions=assumptions,
+        notes=notes,
+    )
+
+
+def _std_from_envelope(envelope: UncertaintyEnvelope) -> float:
+    if isinstance(envelope.distribution_payload, ParametricFitCarrier):
+        for key in ("std", "sigma", "scale"):
+            raw = envelope.distribution_payload.parameters.get(key)
+            if raw is not None and math.isfinite(float(raw)):
+                return max(float(raw), envelope.numeric_policy.absolute_tolerance)
+    if envelope.confidence_level is not None:
+        z = NormalDist().inv_cdf((1.0 + envelope.confidence_level) / 2.0)
+        if z > 0.0:
+            return max(
+                envelope.ci_width / (2.0 * z),
+                envelope.numeric_policy.absolute_tolerance,
+            )
+    return max(envelope.ci_width / 4.0, envelope.numeric_policy.absolute_tolerance)
+
+
+def _weighted_mean(values: np.ndarray, weights: np.ndarray | None) -> float:
+    if weights is None:
+        return float(np.mean(values))
+    total = float(np.sum(weights))
+    if total <= 0.0:
+        return float(np.mean(values))
+    return float(np.sum(values * weights) / total)
+
+
+def _weighted_quantile(
+    values: np.ndarray,
+    quantile: float,
+    weights: np.ndarray | None = None,
+) -> float:
+    q = min(max(float(quantile), 0.0), 1.0)
+    if weights is None:
+        return float(np.quantile(values, q))
+    order = np.argsort(values)
+    sorted_values = values[order]
+    sorted_weights = weights[order]
+    total = float(np.sum(sorted_weights))
+    if total <= 0.0:
+        return float(np.quantile(sorted_values, q))
+    cumulative = np.cumsum(sorted_weights)
+    target = q * total
+    return float(np.interp(target, cumulative, sorted_values))
+
+
+def _normal_quantile_grid(mean: float, std: float, size: int) -> np.ndarray:
+    normal = NormalDist(mu=mean, sigma=max(std, 1e-12))
+    grid = np.linspace(0.5 / size, 1.0 - 0.5 / size, size)
+    return np.asarray([normal.inv_cdf(float(level)) for level in grid], dtype=float)
+
+
+def _triangular_quantile_grid(lo: float, mode: float, hi: float, size: int) -> np.ndarray:
+    if hi <= lo:
+        return np.full((size,), mode, dtype=float)
+    c = (mode - lo) / (hi - lo)
+    grid = np.linspace(0.5 / size, 1.0 - 0.5 / size, size)
+    out = np.empty((size,), dtype=float)
+    for idx, u in enumerate(grid):
+        if u < c:
+            out[idx] = lo + math.sqrt(u * (hi - lo) * (mode - lo))
+        else:
+            out[idx] = hi - math.sqrt((1.0 - u) * (hi - lo) * (hi - mode))
+    return out
+
+
+def _particles_from_parametric_fit(payload: ParametricFitCarrier, size: int) -> np.ndarray:
+    family = payload.family
+    if family is DistributionFamily.NORMAL:
+        mean = float(payload.parameters.get("mean", payload.parameters.get("mu", 0.0)))
+        std = float(payload.parameters.get("std", payload.parameters.get("sigma", 1.0)))
+        return _normal_quantile_grid(mean, std, size)
+    if family is DistributionFamily.UNIFORM:
+        if payload.support is not None:
+            lo, hi = payload.support
+        else:
+            lo = float(payload.parameters.get("low", 0.0))
+            hi = float(payload.parameters.get("high", 1.0))
+        return np.linspace(float(lo), float(hi), size)
+    if family is DistributionFamily.TRIANGULAR:
+        if payload.support is not None:
+            lo, hi = payload.support
+        else:
+            lo = float(payload.parameters.get("low", 0.0))
+            hi = float(payload.parameters.get("high", 1.0))
+        mode = float(payload.parameters.get("mode", payload.parameters.get("mean", (lo + hi) / 2.0)))
+        return _triangular_quantile_grid(float(lo), float(mode), float(hi), size)
+    lo, hi = payload.support if payload.support is not None else (0.0, 1.0)
+    return np.linspace(float(lo), float(hi), size)
+
+
+def _particles_from_distribution_payload(
+    envelope: UncertaintyEnvelope,
+    *,
+    size: int,
+) -> tuple[np.ndarray, np.ndarray | None]:
+    payload = envelope.distribution_payload
+    if isinstance(payload, PosteriorSamplesCarrier):
+        samples = np.asarray(payload.samples, dtype=float)
+        weights = None if payload.weights is None else np.asarray(payload.weights, dtype=float)
+        return samples, weights
+    if isinstance(payload, ParametricFitCarrier):
+        return _particles_from_parametric_fit(payload, size), None
+    if isinstance(payload, MixtureDistributionCarrier):
+        component_sizes = _split_component_sizes(size, len(payload.components))
+        parts: list[np.ndarray] = []
+        weights: list[np.ndarray] = []
+        for component, component_size in zip(payload.components, component_sizes, strict=True):
+            component_payload = ParametricFitCarrier(
+                family=component.family,
+                parameters=component.parameters,
+            )
+            component_samples = _particles_from_parametric_fit(component_payload, component_size)
+            parts.append(component_samples)
+            weights.append(np.full((component_size,), float(component.weight), dtype=float))
+        return np.concatenate(parts), np.concatenate(weights)
+    if payload is None and envelope.distribution_family is DistributionFamily.NORMAL:
+        return _normal_quantile_grid(float(envelope.point_estimate), _std_from_envelope(envelope), size), None
+    raise ValueError("compress_envelope(target='particles') requires a representable law payload")
+
+
+def _split_component_sizes(total: int, parts: int) -> list[int]:
+    total = max(int(total), 1)
+    parts = max(int(parts), 1)
+    base = total // parts
+    remainder = total % parts
+    return [base + (1 if idx < remainder else 0) for idx in range(parts)]
+
+
+def _samples_from_payload(
+    payload: DistributionCarrier | None,
+) -> tuple[np.ndarray, np.ndarray | None] | None:
+    if isinstance(payload, PosteriorSamplesCarrier):
+        samples = np.asarray(payload.samples, dtype=float)
+        weights = None if payload.weights is None else np.asarray(payload.weights, dtype=float)
+        return samples, weights
+    return None
+
+
+def _join_distribution_payloads(
+    envelopes: tuple[UncertaintyEnvelope, ...],
+) -> DistributionCarrier | None:
+    payloads = [envelope.distribution_payload for envelope in envelopes]
+    if any(payload is None for payload in payloads):
+        return None
+    if all(isinstance(payload, PosteriorSamplesCarrier) for payload in payloads):
+        samples: list[float] = []
+        weights: list[float] = []
+        saw_weights = False
+        for payload in payloads:
+            assert isinstance(payload, PosteriorSamplesCarrier)
+            samples.extend(float(sample) for sample in payload.samples)
+            if payload.weights is None:
+                weights.extend(1.0 for _ in payload.samples)
+            else:
+                saw_weights = True
+                weights.extend(float(weight) for weight in payload.weights)
+        return PosteriorSamplesCarrier(
+            samples=tuple(samples),
+            weights=tuple(weights) if saw_weights else None,
+        )
+    if all(isinstance(payload, MixtureDistributionCarrier) for payload in payloads):
+        components: list[MixtureComponent] = []
+        for payload in payloads:
+            assert isinstance(payload, MixtureDistributionCarrier)
+            components.extend(payload.components)
+        return MixtureDistributionCarrier(components=tuple(components))
+    if all(isinstance(payload, ParametricFitCarrier) for payload in payloads):
+        n_payloads = float(len(payloads))
+        return MixtureDistributionCarrier(
+            components=tuple(
+                MixtureComponent(
+                    weight=1.0 / n_payloads,
+                    family=payload.family,
+                    parameters=payload.parameters,
+                )
+                for payload in payloads
+                if isinstance(payload, ParametricFitCarrier)
+            )
+        )
+    return None
+
+
+def _resolve_join_semantics(
+    envelopes: tuple[UncertaintyEnvelope, ...],
+) -> tuple[IntervalSemantics, float | None, bool]:
+    semantics = {envelope.interval_semantics for envelope in envelopes}
+    levels = {envelope.confidence_level for envelope in envelopes}
+    if len(semantics) == 1 and len(levels) == 1:
+        representative = envelopes[0]
+        return (
+            representative.interval_semantics,
+            representative.confidence_level,
+            all(envelope.gate_eligible for envelope in envelopes),
+        )
+    if any(envelope.is_heuristic_ci for envelope in envelopes):
+        return IntervalSemantics.HEURISTIC_RANGE, None, False
+    return (
+        IntervalSemantics.DETERMINISTIC_BOUNDS,
+        None,
+        all(envelope.gate_eligible for envelope in envelopes),
+    )
+
+
+def _scope_from_shape(
+    *,
+    interval_semantics: IntervalSemantics,
+    distribution_payload: DistributionCarrier | None,
+) -> tuple[str, ...]:
+    scope: list[str] = ["expectation"]
+    if interval_semantics in {
+        IntervalSemantics.CONFIDENCE_INTERVAL,
+        IntervalSemantics.CREDIBLE_INTERVAL,
+    }:
+        scope.extend(["interval", "quantile"])
+    if interval_semantics in {
+        IntervalSemantics.DETERMINISTIC_BOUNDS,
+        IntervalSemantics.HEURISTIC_RANGE,
+    }:
+        scope.append("bounds")
+    if distribution_payload is not None:
+        scope.append("cdf")
+    return tuple(dict.fromkeys(scope))
+
+
 class UncertaintyEnvelope(BaseModel):
     """Unified uncertainty contract shared across PolicyOS IR artifacts."""
 
@@ -283,7 +943,7 @@ class UncertaintyEnvelope(BaseModel):
         },
     )
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
     numeric_policy: NumericPolicySpec = Field(default_factory=NumericPolicySpec)
 
     point_estimate: float
@@ -295,6 +955,7 @@ class UncertaintyEnvelope(BaseModel):
     propagation_method: PropagationMethod = PropagationMethod.NONE
     interval_semantics: IntervalSemantics = IntervalSemantics.CONFIDENCE_INTERVAL
     distribution_payload: DistributionCarrier | None = None
+    composition_provenance: CompositionProvenance | None = None
 
     sample_size: int | None = Field(default=None, ge=1)
 
@@ -325,6 +986,10 @@ class UncertaintyEnvelope(BaseModel):
             payload["confidence_level"] = policy.canonicalize(float(payload["confidence_level"]))
         payload["distribution_payload"] = _canonicalize_distribution_payload(
             payload.get("distribution_payload"),
+            policy,
+        )
+        payload["composition_provenance"] = _canonicalize_composition_provenance(
+            payload.get("composition_provenance"),
             policy,
         )
         return payload
@@ -415,6 +1080,499 @@ def _require_compatible_envelopes(envelopes: tuple[UncertaintyEnvelope, ...]) ->
         )
 
 
+def join_envelopes(
+    envelopes: Iterable[UncertaintyEnvelope],
+    *,
+    representation: str = "best_available_outer_hull",
+    source: UncertaintySource = UncertaintySource.ENSEMBLE,
+) -> UncertaintyEnvelope:
+    """Build the smallest representable outer hull over several envelopes."""
+
+    normalized = tuple(envelopes)
+    if not normalized:
+        raise ValueError("join_envelopes requires at least one envelope")
+    if len(normalized) == 1:
+        return normalized[0]
+
+    lows = [envelope.ci_lower for envelope in normalized]
+    highs = [envelope.ci_upper for envelope in normalized]
+    lower = min(lows)
+    upper = max(highs)
+    point_estimate = sum(envelope.point_estimate for envelope in normalized) / len(normalized)
+    point_estimate = min(max(point_estimate, lower), upper)
+
+    representative = normalized[0]
+    interval_semantics, confidence_level, gate_eligible = _resolve_join_semantics(normalized)
+    distribution_payload = _join_distribution_payloads(normalized)
+    distribution_family = (
+        representative.distribution_family
+        if len({envelope.distribution_family for envelope in normalized}) == 1
+        else DistributionFamily.UNKNOWN
+    )
+    exactness = (
+        ExactnessKind.EXACT
+        if (
+            distribution_payload is not None
+            and all(_base_provenance(envelope).exactness is ExactnessKind.EXACT for envelope in normalized)
+        )
+        else ExactnessKind.OUTER_BOUND
+    )
+    base_certificate_kinds = {
+        _base_provenance(envelope).certificate_kind for envelope in normalized
+    }
+    certificate_kind = (
+        next(iter(base_certificate_kinds))
+        if len(base_certificate_kinds) == 1
+        else CertificateKind.WASSERSTEIN_1
+    )
+    if exactness is ExactnessKind.EXACT:
+        certificate_kind = CertificateKind.EXACT
+
+    output_flavour = (
+        _base_provenance(representative).composed_flavour
+        if len({_base_provenance(envelope).composed_flavour for envelope in normalized}) == 1
+        else ComposedFlavour.MIXED
+    )
+    scope = _scope_from_shape(
+        interval_semantics=interval_semantics,
+        distribution_payload=distribution_payload,
+    )
+    provenance = _build_composition_provenance(
+        input_envelopes=normalized,
+        op="join",
+        stage_name="join_envelopes",
+        output_flavour=output_flavour,
+        exactness=exactness,
+        certificate_kind=certificate_kind,
+        certificate_radius=_merge_certificate_radii(normalized),
+        confidence_level=confidence_level,
+        scope=scope,
+        assumptions=("outer_hull",),
+        notes={"representation": representation},
+    )
+
+    return UncertaintyEnvelope(
+        numeric_policy=representative.numeric_policy,
+        point_estimate=float(point_estimate),
+        confidence_interval=(float(lower), float(upper)),
+        confidence_level=confidence_level,
+        distribution_family=distribution_family,
+        source=source,
+        propagation_method=representative.propagation_method,
+        interval_semantics=interval_semantics,
+        distribution_payload=distribution_payload,
+        composition_provenance=provenance,
+        sample_size=sum(
+            envelope.sample_size for envelope in normalized if envelope.sample_size is not None
+        )
+        or None,
+        is_heuristic_ci=interval_semantics is IntervalSemantics.HEURISTIC_RANGE,
+        gate_eligible=gate_eligible and interval_semantics is not IntervalSemantics.HEURISTIC_RANGE,
+        metadata={
+            "join_representation": representation,
+            "joined_from": len(normalized),
+        },
+    )
+
+
+def compress_envelope(
+    envelope: UncertaintyEnvelope,
+    *,
+    target: Literal["interval", "moments", "particles"] = "interval",
+) -> UncertaintyEnvelope:
+    """Explicitly compress a law-carrying envelope into a smaller representation."""
+
+    base = _base_provenance(envelope)
+    distribution_payload = envelope.distribution_payload
+    distribution_family = envelope.distribution_family
+    confidence_level = envelope.confidence_level
+    exactness = base.exactness
+    certificate_kind = base.certificate_kind
+    certificate_radius = base.certificate_radius
+
+    if target == "interval":
+        if distribution_payload is not None:
+            exactness = ExactnessKind.OUTER_BOUND
+        distribution_payload = None
+    elif target == "moments":
+        std = _std_from_envelope(envelope)
+        distribution_family = DistributionFamily.NORMAL
+        distribution_payload = ParametricFitCarrier(
+            family=DistributionFamily.NORMAL,
+            parameters={"mean": float(envelope.point_estimate), "std": float(std)},
+        )
+        exactness = ExactnessKind.APPROXIMATION
+        certificate_kind = (
+            CertificateKind.TAYLOR_REMAINDER
+            if base.composed_flavour is ComposedFlavour.DELTA
+            else certificate_kind
+        )
+    elif target == "particles":
+        particle_count = envelope.sample_size or 256
+        particle_values, particle_weights = _particles_from_distribution_payload(
+            envelope,
+            size=particle_count,
+        )
+        distribution_payload = PosteriorSamplesCarrier(
+            samples=tuple(float(value) for value in particle_values),
+            weights=(
+                None
+                if particle_weights is None
+                else tuple(float(weight) for weight in particle_weights)
+            ),
+        )
+        distribution_family = DistributionFamily.BOOTSTRAP
+        exactness = (
+            base.exactness
+            if isinstance(envelope.distribution_payload, PosteriorSamplesCarrier)
+            else ExactnessKind.APPROXIMATION
+        )
+        if not isinstance(envelope.distribution_payload, PosteriorSamplesCarrier):
+            certificate_kind = (
+                CertificateKind.RQMC_REPLICATES
+                if base.certificate_kind is CertificateKind.RQMC_REPLICATES
+                else CertificateKind.KOLMOGOROV
+            )
+    else:
+        raise ValueError(f"Unknown compression target: {target}")
+
+    scope = _scope_from_shape(
+        interval_semantics=envelope.interval_semantics,
+        distribution_payload=distribution_payload,
+    )
+    provenance = _build_composition_provenance(
+        input_envelopes=(envelope,),
+        op="compress",
+        stage_name="compress_envelope",
+        output_flavour=base.composed_flavour,
+        exactness=exactness,
+        certificate_kind=certificate_kind,
+        certificate_radius=certificate_radius,
+        confidence_level=confidence_level,
+        scope=scope,
+        notes={"target": target},
+    )
+    return envelope.model_copy(
+        update={
+            "distribution_family": distribution_family,
+            "distribution_payload": distribution_payload,
+            "composition_provenance": provenance,
+            "sample_size": (
+                len(distribution_payload.samples)
+                if isinstance(distribution_payload, PosteriorSamplesCarrier)
+                else envelope.sample_size
+            ),
+            "metadata": {
+                **envelope.metadata,
+                "compression_target": target,
+            },
+        }
+    )
+
+
+def push_forward_envelope(
+    func: Callable[[float], float],
+    envelope: UncertaintyEnvelope,
+    *,
+    map_name: str | None = None,
+    cert_policy: str = "auto",
+    lipschitz_bound: float | None = None,
+    bias_bound: float | None = None,
+    grid_size: int = 129,
+) -> UncertaintyEnvelope:
+    """Propagate one scalar envelope through a downstream map."""
+
+    base = _base_provenance(envelope)
+    map_label = map_name or getattr(func, "__name__", "anonymous_map")
+
+    extracted = _samples_from_payload(envelope.distribution_payload)
+    if extracted is not None:
+        samples, weights = extracted
+        pushed = np.asarray([float(func(float(sample))) for sample in samples], dtype=float)
+        point_estimate = _weighted_mean(pushed, weights)
+        if (
+            envelope.interval_semantics in {
+                IntervalSemantics.CONFIDENCE_INTERVAL,
+                IntervalSemantics.CREDIBLE_INTERVAL,
+            }
+            and envelope.confidence_level is not None
+        ):
+            alpha = 1.0 - envelope.confidence_level
+            lower = _weighted_quantile(pushed, alpha / 2.0, weights)
+            upper = _weighted_quantile(pushed, 1.0 - alpha / 2.0, weights)
+            interval_semantics = envelope.interval_semantics
+            confidence_level = envelope.confidence_level
+            gate_eligible = envelope.gate_eligible
+        else:
+            lower = float(np.min(pushed))
+            upper = float(np.max(pushed))
+            interval_semantics = IntervalSemantics.DETERMINISTIC_BOUNDS
+            confidence_level = None
+            gate_eligible = envelope.gate_eligible and not envelope.is_heuristic_ci
+        output_payload = PosteriorSamplesCarrier(
+            samples=tuple(float(value) for value in pushed),
+            weights=(
+                None
+                if weights is None
+                else tuple(float(weight) for weight in weights)
+            ),
+        )
+        output_flavour = base.composed_flavour
+        exactness = base.exactness
+        certificate_kind = base.certificate_kind
+        certificate_radius = base.certificate_radius
+        distribution_family = envelope.distribution_family
+        sample_size = len(pushed)
+        assumptions = ("law_preserving_particles",)
+    elif (
+        cert_policy in {"auto", "delta"}
+        and (
+            envelope.distribution_family is DistributionFamily.NORMAL
+            or isinstance(envelope.distribution_payload, ParametricFitCarrier)
+        )
+    ):
+        point = float(envelope.point_estimate)
+        std = _std_from_envelope(envelope)
+        step = max(abs(point), 1.0) * 1e-4
+        fx = float(func(point))
+        fp = float(func(point + step))
+        fm = float(func(point - step))
+        first = (fp - fm) / (2.0 * step)
+        second = (fp - 2.0 * fx + fm) / (step * step)
+        corrected_point = fx + 0.5 * second * std * std
+        propagated_std = max(abs(first) * std, envelope.numeric_policy.absolute_tolerance)
+        if envelope.confidence_level is not None:
+            z = NormalDist().inv_cdf((1.0 + envelope.confidence_level) / 2.0)
+            lower = corrected_point - z * propagated_std
+            upper = corrected_point + z * propagated_std
+            interval_semantics = envelope.interval_semantics
+            confidence_level = envelope.confidence_level
+        else:
+            lower = corrected_point - 2.0 * propagated_std
+            upper = corrected_point + 2.0 * propagated_std
+            interval_semantics = IntervalSemantics.DETERMINISTIC_BOUNDS
+            confidence_level = None
+        output_payload = ParametricFitCarrier(
+            family=DistributionFamily.NORMAL,
+            parameters={"mean": corrected_point, "std": propagated_std},
+        )
+        output_flavour = ComposedFlavour.DELTA
+        exactness = ExactnessKind.APPROXIMATION
+        certificate_kind = CertificateKind.TAYLOR_REMAINDER
+        certificate_radius = abs(0.5 * second * std * std) + float(bias_bound or 0.0)
+        distribution_family = DistributionFamily.NORMAL
+        point_estimate = corrected_point
+        gate_eligible = envelope.gate_eligible
+        sample_size = envelope.sample_size
+        assumptions = ("local_linearization",)
+    else:
+        lower_in, upper_in = envelope.confidence_interval
+        grid = np.linspace(float(lower_in), float(upper_in), max(int(grid_size), 3))
+        pushed = np.asarray([float(func(float(value))) for value in grid], dtype=float)
+        point_estimate = float(func(float(envelope.point_estimate)))
+        lower = float(np.min(pushed))
+        upper = float(np.max(pushed))
+        interval_semantics = IntervalSemantics.DETERMINISTIC_BOUNDS
+        confidence_level = None
+        gate_eligible = False
+        output_payload = None
+        output_flavour = base.composed_flavour
+        exactness = ExactnessKind.APPROXIMATION
+        certificate_kind = (
+            CertificateKind.WASSERSTEIN_1
+            if lipschitz_bound is not None
+            else base.certificate_kind
+        )
+        certificate_radius = (
+            None
+            if base.certificate_radius is None or lipschitz_bound is None
+            else (
+                float(base.certificate_radius) * float(lipschitz_bound) + float(bias_bound or 0.0)
+                if isinstance(base.certificate_radius, (int, float))
+                else {
+                    key: float(value) * float(lipschitz_bound)
+                    for key, value in base.certificate_radius.items()
+                }
+            )
+        )
+        distribution_family = DistributionFamily.UNKNOWN
+        sample_size = None
+        assumptions = ("compressed_interval_input",)
+
+    scope = _scope_from_shape(
+        interval_semantics=interval_semantics,
+        distribution_payload=output_payload,
+    )
+    provenance = _build_composition_provenance(
+        input_envelopes=(envelope,),
+        op="push_forward",
+        stage_name="push_forward_envelope",
+        output_flavour=output_flavour,
+        exactness=exactness,
+        certificate_kind=certificate_kind,
+        certificate_radius=certificate_radius,
+        confidence_level=confidence_level,
+        scope=scope,
+        map_name=map_label,
+        lipschitz_bound=lipschitz_bound,
+        bias_bound=bias_bound,
+        sample_size=sample_size,
+        assumptions=assumptions,
+        notes={"cert_policy": cert_policy},
+    )
+    return UncertaintyEnvelope(
+        numeric_policy=envelope.numeric_policy,
+        point_estimate=float(point_estimate),
+        confidence_interval=(float(min(lower, upper)), float(max(lower, upper))),
+        confidence_level=confidence_level,
+        distribution_family=distribution_family,
+        source=envelope.source,
+        propagation_method=(
+            PropagationMethod.DELTA_METHOD
+            if output_flavour is ComposedFlavour.DELTA
+            else envelope.propagation_method
+        ),
+        interval_semantics=interval_semantics,
+        distribution_payload=output_payload,
+        composition_provenance=provenance,
+        sample_size=sample_size,
+        is_heuristic_ci=interval_semantics is IntervalSemantics.HEURISTIC_RANGE,
+        gate_eligible=gate_eligible,
+        metadata={
+            **envelope.metadata,
+            "push_forward_map": map_label,
+            "push_forward_cert_policy": cert_policy,
+        },
+    )
+
+
+def pull_back_envelope(
+    func: Callable[[float], float],
+    envelope: UncertaintyEnvelope,
+    *,
+    base_measure: tuple[float, float] | None = None,
+    upstream_particles: PosteriorSamplesCarrier | tuple[float, ...] | None = None,
+    local_inverse: Callable[[float], float] | None = None,
+    map_name: str | None = None,
+    grid_size: int = 257,
+) -> UncertaintyEnvelope:
+    """Lift a downstream admissible set back to an upstream constraint-style envelope."""
+
+    if local_inverse is None and upstream_particles is None and base_measure is None:
+        raise PullBackNotRepresentableError(
+            "pull_back_envelope requires base_measure, upstream_particles, or local_inverse"
+        )
+
+    map_label = map_name or getattr(func, "__name__", "anonymous_map")
+    base = _base_provenance(envelope)
+    lower_out, upper_out = envelope.confidence_interval
+
+    if upstream_particles is not None:
+        if isinstance(upstream_particles, PosteriorSamplesCarrier):
+            samples = np.asarray(upstream_particles.samples, dtype=float)
+            weights = (
+                None
+                if upstream_particles.weights is None
+                else np.asarray(upstream_particles.weights, dtype=float)
+            )
+        else:
+            samples = np.asarray(tuple(float(value) for value in upstream_particles), dtype=float)
+            weights = None
+        mask = np.asarray(
+            [
+                float(lower_out) <= float(func(float(sample))) <= float(upper_out)
+                for sample in samples
+            ],
+            dtype=bool,
+        )
+        selected = samples[mask]
+        selected_weights = None if weights is None else weights[mask]
+        if selected.size == 0:
+            raise PullBackNotRepresentableError("pull-back rejected every supplied upstream particle")
+        point_estimate = _weighted_mean(selected, selected_weights)
+        lower = float(np.min(selected))
+        upper = float(np.max(selected))
+        distribution_payload = PosteriorSamplesCarrier(
+            samples=tuple(float(value) for value in selected),
+            weights=(
+                None
+                if selected_weights is None
+                else tuple(float(weight) for weight in selected_weights)
+            ),
+        )
+        notes = {"mode": "particle_reweighting"}
+        sample_size = int(selected.size)
+    elif local_inverse is not None:
+        output_grid = np.linspace(float(lower_out), float(upper_out), max(int(grid_size), 3))
+        pulled = np.asarray([float(local_inverse(float(value))) for value in output_grid], dtype=float)
+        point_estimate = float(local_inverse(float(envelope.point_estimate)))
+        lower = float(np.min(pulled))
+        upper = float(np.max(pulled))
+        distribution_payload = None
+        notes = {"mode": "local_inverse"}
+        sample_size = None
+    else:
+        base_lower, base_upper = base_measure
+        upstream_grid = np.linspace(float(base_lower), float(base_upper), max(int(grid_size), 3))
+        mask = np.asarray(
+            [
+                float(lower_out) <= float(func(float(value))) <= float(upper_out)
+                for value in upstream_grid
+            ],
+            dtype=bool,
+        )
+        selected = upstream_grid[mask]
+        if selected.size == 0:
+            raise PullBackNotRepresentableError("pull-back found no admissible points in base_measure")
+        point_estimate = float(np.mean(selected))
+        lower = float(np.min(selected))
+        upper = float(np.max(selected))
+        distribution_payload = None
+        notes = {"mode": "base_measure_grid"}
+        sample_size = int(selected.size)
+
+    interval_semantics = IntervalSemantics.DETERMINISTIC_BOUNDS
+    confidence_level = None
+    scope = _scope_from_shape(
+        interval_semantics=interval_semantics,
+        distribution_payload=distribution_payload,
+    )
+    provenance = _build_composition_provenance(
+        input_envelopes=(envelope,),
+        op="pull_back",
+        stage_name="pull_back_envelope",
+        output_flavour=base.composed_flavour,
+        exactness=ExactnessKind.CONSTRAINT_ONLY,
+        certificate_kind=base.certificate_kind,
+        certificate_radius=base.certificate_radius,
+        confidence_level=confidence_level,
+        scope=scope,
+        map_name=map_label,
+        sample_size=sample_size,
+        assumptions=("inverse_not_identified_without_structure",),
+        notes=notes,
+    )
+    return UncertaintyEnvelope(
+        numeric_policy=envelope.numeric_policy,
+        point_estimate=float(point_estimate),
+        confidence_interval=(float(min(lower, upper)), float(max(lower, upper))),
+        confidence_level=None,
+        distribution_family=DistributionFamily.UNKNOWN,
+        source=envelope.source,
+        propagation_method=envelope.propagation_method,
+        interval_semantics=interval_semantics,
+        distribution_payload=distribution_payload,
+        composition_provenance=provenance,
+        sample_size=sample_size,
+        is_heuristic_ci=False,
+        gate_eligible=False,
+        metadata={
+            **envelope.metadata,
+            "pull_back_map": map_label,
+        },
+    )
+
+
 def combine_envelopes(
     envelopes: list[UncertaintyEnvelope] | tuple[UncertaintyEnvelope, ...],
     *,
@@ -467,6 +1625,34 @@ def combine_envelopes(
         for envelope in normalized
         if envelope.sample_size is not None
     ]
+    scope = _scope_from_shape(
+        interval_semantics=representative.interval_semantics,
+        distribution_payload=None,
+    )
+    provenance = _build_composition_provenance(
+        input_envelopes=normalized,
+        op="compress",
+        stage_name="combine_envelopes",
+        output_flavour=(
+            _base_provenance(representative).composed_flavour
+            if len({_base_provenance(envelope).composed_flavour for envelope in normalized}) == 1
+            else ComposedFlavour.MIXED
+        ),
+        exactness=(
+            ExactnessKind.OUTER_BOUND
+            if method is EnvelopeCombinationMethod.CONSERVATIVE_UNION
+            else ExactnessKind.APPROXIMATION
+        ),
+        certificate_kind=(
+            CertificateKind.EXACT
+            if method is EnvelopeCombinationMethod.INTERSECTION
+            else CertificateKind.WASSERSTEIN_1
+        ),
+        certificate_radius=_merge_certificate_radii(normalized),
+        confidence_level=representative.confidence_level,
+        scope=scope,
+        notes={"summary_combination_method": method.value},
+    )
     return UncertaintyEnvelope(
         numeric_policy=representative.numeric_policy,
         point_estimate=point_estimate,
@@ -476,6 +1662,7 @@ def combine_envelopes(
         source=source,
         propagation_method=propagation_method,
         interval_semantics=representative.interval_semantics,
+        composition_provenance=provenance,
         sample_size=sum(sample_sizes) if sample_sizes else None,
         is_heuristic_ci=any(envelope.is_heuristic_ci for envelope in normalized),
         gate_eligible=all(envelope.gate_eligible for envelope in normalized),
@@ -506,7 +1693,7 @@ def persist_uncertainty_envelope(
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.uncertainty_envelope",
-    schema_version: str = "1.0",
+    schema_version: str = "1.1",
 ) -> UncertaintyEnvelopeRef:
     """Persist an uncertainty envelope as a typed JSON artifact reference."""
     ref = put_json_artifact(
@@ -531,9 +1718,15 @@ def load_uncertainty_envelope(
 
 
 __all__ = [
+    "build_composition_provenance",
+    "CertificateKind",
+    "ComposedFlavour",
+    "CompositionProvenance",
+    "CompositionStep",
     "DistributionCarrier",
     "DistributionFamily",
     "EnvelopeCombinationMethod",
+    "ExactnessKind",
     "IntervalSemantics",
     "MixtureComponent",
     "MixtureDistributionCarrier",
@@ -542,12 +1735,17 @@ __all__ = [
     "ParametricFitCarrier",
     "PosteriorSamplesCarrier",
     "PropagationMethod",
+    "PullBackNotRepresentableError",
     "QuantileSummaryCarrier",
     "UncertaintyCompatibilityError",
     "UncertaintyEnvelope",
     "UncertaintySource",
     "combine_envelopes",
+    "compress_envelope",
     "envelope_meets_trust_policy",
+    "join_envelopes",
     "persist_uncertainty_envelope",
     "load_uncertainty_envelope",
+    "pull_back_envelope",
+    "push_forward_envelope",
 ]

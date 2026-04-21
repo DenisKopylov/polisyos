@@ -979,6 +979,44 @@ class TestSIDAlgorithm:
         rule_names = [s.rule_name for s in result.proof_steps]
         assert "SID_SHIFT" in rule_names
 
+    def test_sid_dag_policy_fastpath_emits_policy_g_formula_step(self):
+        """DAG soft policies should record the direct policy g-formula fast path."""
+        from polisyos.foundry.methods.catalog.causal.id_engine import sid_algorithm
+        from polisyos.ir.analytics.estimand import StochasticPolicy
+
+        graph = make_dag([("Z", "X"), ("Z", "Y"), ("X", "Y")])
+        policy = StochasticPolicy(policy_type="soft", conditioning_vars=("Z",), policy_expr="pi(X|Z)")
+        result = sid_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            graph=graph,
+            policy=policy,
+        )
+
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.algorithm_version == "sid_v2"
+        rule_names = [getattr(step, "rule_name", "") for step in result.proof_steps]
+        assert "SID_DAG_POLICY" in rule_names
+
+    def test_shift_policy_attaches_policy_side_conditions(self):
+        """Shift policies should carry consistency + shift positivity side-conditions."""
+        from polisyos.foundry.methods.catalog.causal.id_engine import sid_algorithm
+        from polisyos.ir.analytics.estimand import SideConditionKind, StochasticPolicy
+
+        graph = make_dag([("Z", "X"), ("Z", "Y"), ("X", "Y")])
+        policy = StochasticPolicy(policy_type="shift", conditioning_vars=("Z",), shift_delta=0.5)
+        result = sid_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            graph=graph,
+            policy=policy,
+        )
+
+        assert result.estimand_ast is not None
+        condition_kinds = {item.kind for item in result.estimand_ast.side_conditions}
+        assert SideConditionKind.CONSISTENCY in condition_kinds
+        assert SideConditionKind.POSITIVITY in condition_kinds
+
     def test_sid_non_identified_when_base_non_identified(self):
         """When base id_algorithm returns non-ID, sid_algorithm must also be non-ID."""
         from polisyos.foundry.methods.catalog.causal.id_engine import sid_algorithm

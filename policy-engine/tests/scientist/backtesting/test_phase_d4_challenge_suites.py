@@ -93,6 +93,42 @@ def _exact_certificate() -> tuple[AbstractionCertificate, ArtifactRef]:
     return certificate, abstraction_map_ref
 
 
+def _approximate_certificate() -> tuple[AbstractionCertificate, ArtifactRef]:
+    abstraction_map_ref = FiniteStateAbstractionMapRef.model_validate(
+        _ref("ma", kind="ir.finite_state_abstraction_map").model_dump(mode="json")
+    )
+    certificate = AbstractionCertificate(
+        micro_graph_ref=_ref("xa", kind="ir.causal_graph_model").model_dump(mode="json"),
+        macro_graph_ref=_ref("ya", kind="ir.causal_graph_model").model_dump(mode="json"),
+        abstraction_map_ref=abstraction_map_ref,
+        preservation_type=AbstractionPreservationType.APPROXIMATE,
+        preserved_queries=(
+            "mean_potential_outcome:type_mean",
+            "ate:type_mean",
+            "policy_value:weighted_type_mean",
+        ),
+        error_bound=0.05,
+        metadata={
+            "abstraction_family": "type_mean_affine",
+            "allowed_intervention_family": "type_symmetric",
+            "intervention_family_verified": True,
+            "proof_obligations_satisfied": [
+                "within_type_exchangeability",
+                "mean_closure",
+                "admissible_omega_map",
+            ],
+            "estimand_error_bounds": {
+                "mean_potential_outcome:type_mean": 0.03,
+                "ate:type_mean": 0.05,
+                "policy_value:weighted_type_mean": 0.02,
+            },
+            "diagnostics": {"within_type_dispersion": {"max": 0.1}},
+            "non_preserved_queries": ["unit_level_potential_outcome"],
+        },
+    )
+    return certificate, abstraction_map_ref
+
+
 def test_strategic_suites_emit_rotating_challenge_evaluations_for_raw_inputs() -> None:
     contract, tables = _strategic_contract_and_tables()
     results, warnings = run_strategic_challenge_suites(
@@ -190,6 +226,25 @@ def test_abstraction_suite_passes_for_exact_certificate_backed_macro_use() -> No
     assert result.benchmark_evaluation.promotable is True
 
 
+def test_abstraction_suite_passes_for_bounded_approximate_certificate_macro_use() -> None:
+    certificate, abstraction_map_ref = _approximate_certificate()
+    result, warnings = run_abstraction_challenge_suite(
+        candidate_ref=_ref("sa"),
+        loop_id="loop-a",
+        run_id="run-a",
+        params={},
+        strategic_summary={"fallback_mode": "macro_abstracted"},
+        abstraction_certificate=certificate,
+        abstraction_map_ref=abstraction_map_ref,
+        abm_alignment_report=None,
+    )
+
+    assert warnings == ()
+    assert result is not None
+    assert result.benchmark_evaluation.selection_metrics["abstraction_leakage_rate"] == 0.0
+    assert result.benchmark_evaluation.promotable is True
+
+
 def test_abstraction_suite_requires_heuristic_disclaimer_without_certificate() -> None:
     result, warnings = run_abstraction_challenge_suite(
         candidate_ref=_ref("t"),
@@ -212,7 +267,7 @@ def test_abstraction_suite_requires_heuristic_disclaimer_without_certificate() -
     assert result.benchmark_evaluation.promotable is True
 
 
-def test_abstraction_suite_fails_macro_shortcut_without_exact_certificate() -> None:
+def test_abstraction_suite_fails_macro_shortcut_without_supported_certificate() -> None:
     result, _ = run_abstraction_challenge_suite(
         candidate_ref=_ref("u"),
         loop_id="loop-a",

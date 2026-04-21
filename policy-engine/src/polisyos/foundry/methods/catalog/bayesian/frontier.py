@@ -23,7 +23,16 @@ from polisyos.foundry.methods.catalog.ml.protocols import PredictionResult, Tabu
 from polisyos.foundry.methods.catalog.ml.regression import _build_prediction_result, _feature_names
 from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
 
-from .protocols import PosteriorResult, summarize_posterior_samples
+from .protocols import (
+    PosteriorResult,
+    augment_sampler_diagnostics,
+    extract_truthfulness_hints,
+    pareto_tail_shape,
+    relative_interval_shift_max,
+    split_truthfulness_hints,
+    summarize_posterior_samples,
+    weighted_quantile,
+)
 
 
 def _posterior_output_slots() -> frozenset[SlotSpec]:
@@ -149,6 +158,7 @@ def _posterior_from_samples(
     credible_mass: float,
     parameter_names: list[str],
     metadata: Mapping[str, Any],
+    diagnostics: Mapping[str, Any] | None = None,
 ) -> PosteriorResult:
     sample_map = {
         name: samples[:, idx]
@@ -167,9 +177,108 @@ def _posterior_from_samples(
             "credible_mass": float(credible_mass),
             "num_samples": float(samples.shape[0]),
             "num_parameters": float(samples.shape[1]),
+            **{
+                str(key): float(value)
+                for key, value in (diagnostics or {}).items()
+                if np.isfinite(float(value))
+            },
         },
         metadata=dict(metadata),
     )
+
+
+def _apply_truthfulness_hints(
+    *,
+    diagnostics: Mapping[str, Any],
+    metadata: Mapping[str, Any],
+    sources: tuple[Mapping[str, Any], ...],
+) -> tuple[dict[str, float], dict[str, Any]]:
+    hints = extract_truthfulness_hints(*sources)
+    hint_diagnostics, hint_metadata = split_truthfulness_hints(hints)
+    merged_diagnostics = dict(diagnostics)
+    merged_diagnostics.update(hint_diagnostics)
+    merged_metadata = dict(metadata)
+    merged_metadata.update(hint_metadata)
+    return merged_diagnostics, merged_metadata
+
+
+def _sample_intervals(
+    *,
+    samples: np.ndarray,
+    parameter_names: list[str],
+    credible_mass: float,
+    weights: np.ndarray | None = None,
+) -> dict[str, tuple[float, float]]:
+    alpha = max(1e-6, 1.0 - float(credible_mass))
+    intervals: dict[str, tuple[float, float]] = {}
+    for idx, name in enumerate(parameter_names):
+        lower, upper = weighted_quantile(
+            samples[:, idx],
+            [alpha / 2.0, 1.0 - alpha / 2.0],
+            sample_weight=weights,
+        )
+        intervals[str(name)] = (float(lower), float(upper))
+    return intervals
+
+
+def _normalized_mean_shift(reference: np.ndarray, candidate: np.ndarray) -> float:
+    ref_mean = np.mean(reference, axis=0)
+    cand_mean = np.mean(candidate, axis=0)
+    ref_scale = np.std(reference, axis=0, ddof=1)
+    ref_scale = np.where(ref_scale > 1e-9, ref_scale, 1.0)
+    return float(np.max(np.abs(cand_mean - ref_mean) / ref_scale))
+
+
+def _relative_covariance_error(reference: np.ndarray, candidate: np.ndarray) -> float:
+    ref_cov = np.atleast_2d(np.cov(reference, rowvar=False))
+    cand_cov = np.atleast_2d(np.cov(candidate, rowvar=False))
+    denominator = max(float(np.linalg.norm(ref_cov)), 1e-12)
+    return float(np.linalg.norm(cand_cov - ref_cov) / denominator)
+
+
+def _split_interval_shift_max(
+    *,
+    samples: np.ndarray,
+    parameter_names: list[str],
+    credible_mass: float,
+) -> float:
+    if samples.shape[0] < 8:
+        return float("inf")
+    midpoint = samples.shape[0] // 2
+    first = _sample_intervals(
+        samples=samples[:midpoint],
+        parameter_names=parameter_names,
+        credible_mass=credible_mass,
+    )
+    second = _sample_intervals(
+        samples=samples[midpoint:],
+        parameter_names=parameter_names,
+        credible_mass=credible_mass,
+    )
+    return relative_interval_shift_max(first, second)
+
+
+def _stein_ksd_rbf(
+    *,
+    particles: np.ndarray,
+    scores: np.ndarray,
+    bandwidth: float,
+) -> float:
+    if particles.shape[0] < 2:
+        return float("inf")
+    safe_bandwidth = max(float(bandwidth), 1e-6)
+    diffs = particles[:, None, :] - particles[None, :, :]
+    dist_sq = np.sum(diffs * diffs, axis=-1)
+    kernel = np.exp(-dist_sq / safe_bandwidth)
+    score_dot = scores @ scores.T
+    score_grad_y = (2.0 / safe_bandwidth) * np.einsum("id,ijd->ij", scores, diffs)
+    score_grad_x = -(2.0 / safe_bandwidth) * np.einsum("jd,ijd->ij", scores, diffs)
+    trace_term = (
+        (2.0 * particles.shape[1] / safe_bandwidth)
+        - (4.0 * dist_sq / (safe_bandwidth * safe_bandwidth))
+    ) * kernel
+    stein_kernel = kernel * score_dot + kernel * score_grad_y + kernel * score_grad_x + trace_term
+    return float(np.sqrt(max(float(np.mean(stein_kernel)), 0.0)))
 
 
 def _logsumexp(values: np.ndarray, axis: int | None = None) -> np.ndarray:
@@ -294,6 +403,39 @@ class ExpectationPropagationGaussianEstimator:
             prior_mean_arr / prior_var_arr + np.sum(site_means / site_vars, axis=0)
         )
         credible_mass = min(max(float(params.get("credible_mass", 0.9)), 0.5), 0.99)
+        site_precision = 1.0 / site_vars
+        cavity_precision = precision[None, :] - site_precision
+        site_residual = (site_means - posterior_mean[None, :]) / np.sqrt(
+            np.maximum(site_vars + posterior_var[None, :], 1e-12)
+        )
+        site_centered = site_residual - np.mean(site_residual, axis=0, keepdims=True)
+        site_scale = np.std(site_centered, axis=0, ddof=1)
+        site_scale = np.where(site_scale > 1e-9, site_scale, 1.0)
+        standardized = site_centered / site_scale
+        site_skewness_proxy = float(np.max(np.abs(np.mean(standardized**3, axis=0))))
+        site_kurtosis_proxy = float(np.max(np.abs(np.mean(standardized**4, axis=0) - 3.0)))
+        base_diagnostics = {
+            "num_sites": float(site_means.shape[0]),
+            "cavity_precision_min": float(np.min(cavity_precision)),
+            "site_precision_cv": float(
+                np.max(
+                    np.std(site_precision, axis=0, ddof=1)
+                    / np.maximum(np.mean(site_precision, axis=0), 1e-9)
+                )
+            ) if site_precision.shape[0] > 1 else 0.0,
+            "site_mean_z_residual_max": float(np.max(np.abs(site_residual))),
+            "site_skewness_proxy": site_skewness_proxy,
+            "site_kurtosis_proxy": site_kurtosis_proxy,
+        }
+        base_metadata = {
+            "approximation_family": "gaussian_site_product",
+            "num_sites": int(site_means.shape[0]),
+        }
+        diagnostics, metadata = _apply_truthfulness_hints(
+            diagnostics=base_diagnostics,
+            metadata=base_metadata,
+            sources=(state, params),
+        )
         rng = np.random.default_rng(int(params.get("__seed__", 0)))
         samples = rng.normal(
             loc=posterior_mean,
@@ -308,11 +450,8 @@ class ExpectationPropagationGaussianEstimator:
             samples=samples,
             credible_mass=credible_mass,
             parameter_names=names,
-            metadata={
-                "approximation_family": "gaussian_site_product",
-                "num_sites": int(site_means.shape[0]),
-                "truthfulness_tier": "gaussian_ep_site_approximation",
-            },
+            metadata=metadata,
+            diagnostics=diagnostics,
         )
         return {
             "result": posterior,
@@ -413,16 +552,71 @@ class SVGDRegressionEstimator:
             particles = particles + (step_size / num_particles) * (attraction + repulsion)
         posterior_samples = np.column_stack([particles[:, :-1], np.exp(particles[:, -1])])
         parameter_names = ["intercept", *(_feature_names(data)), "sigma"]
+        final_gradients = _linear_regression_grad_particles(
+            particles,
+            x=x,
+            y=y,
+            prior_scale=prior_scale,
+        )
+        def _particle_log_posterior(theta: np.ndarray) -> float:
+            intercept = float(theta[0])
+            beta = theta[1:-1]
+            log_sigma = float(theta[-1])
+            sigma = float(np.exp(np.clip(log_sigma, -20.0, 20.0)))
+            residual = y - (intercept + x @ beta)
+            prior_var = max(prior_scale * prior_scale, 1e-9)
+            return float(
+                -float(y.shape[0]) * np.log(max(sigma, 1e-12))
+                - 0.5 * float(np.sum(residual**2)) / max(sigma * sigma, 1e-12)
+                - 0.5 * float(intercept * intercept + np.sum(beta**2) + log_sigma * log_sigma) / prior_var
+            )
+        log_weights = np.asarray([_particle_log_posterior(theta) for theta in particles], dtype=float)
+        normalized_weights = np.exp(log_weights - float(np.max(log_weights)))
+        normalized_weights = normalized_weights / np.maximum(np.sum(normalized_weights), 1e-12)
+        raw_intervals = _sample_intervals(
+            samples=posterior_samples,
+            parameter_names=parameter_names,
+            credible_mass=credible_mass,
+        )
+        weighted_intervals = _sample_intervals(
+            samples=posterior_samples,
+            parameter_names=parameter_names,
+            credible_mass=credible_mass,
+            weights=normalized_weights,
+        )
+        base_diagnostics = {
+            "num_particles": float(num_particles),
+            "num_steps": float(num_steps),
+            "ksd_rbf": _stein_ksd_rbf(
+                particles=particles,
+                scores=final_gradients,
+                bandwidth=_median_bandwidth(particles),
+            ),
+            "unique_particle_fraction": float(
+                np.unique(np.round(particles, decimals=4), axis=0).shape[0] / max(num_particles, 1)
+            ),
+            "split_interval_shift_max": _split_interval_shift_max(
+                samples=posterior_samples,
+                parameter_names=parameter_names,
+                credible_mass=credible_mass,
+            ),
+            "posthoc_interval_shift_max": relative_interval_shift_max(raw_intervals, weighted_intervals),
+        }
+        diagnostics, metadata = _apply_truthfulness_hints(
+            diagnostics=base_diagnostics,
+            metadata={
+                "num_particles": num_particles,
+                "num_steps": num_steps,
+            },
+            sources=((state if isinstance(state, Mapping) else {}), params),
+        )
         posterior = _posterior_from_samples(
             method_name="svgd_regression",
             samples=posterior_samples,
             credible_mass=credible_mass,
             parameter_names=parameter_names,
-            metadata={
-                "num_particles": num_particles,
-                "num_steps": num_steps,
-                "truthfulness_tier": "particle_variational_approximation",
-            },
+            metadata=metadata,
+            diagnostics=diagnostics,
         )
         coefficients = np.asarray(
             [posterior.posterior_means.get(name, 0.0) for name in _feature_names(data)],
@@ -515,16 +709,41 @@ class AffineNormalizingFlowPosteriorAdapter:
         names = [str(item) for item in state.get("parameter_names", [f"theta_{idx}" for idx in range(samples.shape[1])])]
         if len(names) != samples.shape[1]:
             names = [f"theta_{idx}" for idx in range(samples.shape[1])]
+        source_intervals = _sample_intervals(
+            samples=samples,
+            parameter_names=names,
+            credible_mass=credible_mass,
+        )
+        generated_intervals = _sample_intervals(
+            samples=generated,
+            parameter_names=names,
+            credible_mass=credible_mass,
+        )
+        base_metadata = {
+            "flow_family": "affine_gaussian",
+            "source_num_samples": int(samples.shape[0]),
+        }
+        for key in ("source_truthfulness_tier", "source_truthfulness_receipt"):
+            if key in state:
+                base_metadata[key] = state[key]
+        base_diagnostics = {
+            "source_mean_shift_max": _normalized_mean_shift(samples, generated),
+            "source_covariance_error_fro": _relative_covariance_error(samples, generated),
+            "source_interval_shift_max": relative_interval_shift_max(source_intervals, generated_intervals),
+            "jacobian_condition_number": float(np.linalg.cond(cov)),
+        }
+        diagnostics, metadata = _apply_truthfulness_hints(
+            diagnostics=base_diagnostics,
+            metadata=base_metadata,
+            sources=(state, params),
+        )
         posterior = _posterior_from_samples(
             method_name="affine_normalizing_flow",
             samples=generated,
             credible_mass=credible_mass,
             parameter_names=names,
-            metadata={
-                "flow_family": "affine_gaussian",
-                "truthfulness_tier": "baseline_affine_flow_adapter",
-                "source_num_samples": int(samples.shape[0]),
-            },
+            metadata=metadata,
+            diagnostics=diagnostics,
         )
         return {
             "result": posterior,
@@ -615,6 +834,22 @@ class FactorGraphBeliefPropagationEstimator:
         for edge_idx, (src, dst) in enumerate(edges):
             incident[int(src)].append((edge_idx, 1))
             incident[int(dst)].append((edge_idx, -1))
+        visited = set()
+        agenda = [0] if unary.shape[0] else []
+        while agenda:
+            node = agenda.pop()
+            if node in visited:
+                continue
+            visited.add(node)
+            for edge_idx, direction in incident[node]:
+                neighbour = int(edges[edge_idx, 1] if direction == 1 else edges[edge_idx, 0])
+                if neighbour not in visited:
+                    agenda.append(neighbour)
+        graph_exact_regime = bool(
+            unary.shape[0] > 0
+            and n_edges == unary.shape[0] - 1
+            and len(visited) == unary.shape[0]
+        )
         delta = float("inf")
         iterations = 0
         for iterations in range(1, max_iter + 1):
@@ -683,8 +918,14 @@ class FactorGraphBeliefPropagationEstimator:
                 "final_delta": float(delta),
                 "num_edges": float(n_edges),
                 "num_states": float(n_states),
+                **split_truthfulness_hints(extract_truthfulness_hints(state, params))[0],
             },
-            metadata={"inference_family": "loopy_sum_product", "truthfulness_tier": "approximate_factor_graph"},
+            metadata={
+                "inference_family": "loopy_sum_product",
+                "graph_exact_regime": graph_exact_regime,
+                "graph_exact_tolerance": float(tol),
+                **split_truthfulness_hints(extract_truthfulness_hints(state, params))[1],
+            },
         )
         return {
             "result": posterior,
@@ -764,11 +1005,30 @@ class _SBIBase:
         ]
         if len(parameter_names) != samples.shape[1]:
             parameter_names = [f"theta_{idx}" for idx in range(samples.shape[1])]
-        posterior = _posterior_from_samples(
-            method_name=f"simulation_based_{algorithm}",
-            samples=samples,
-            credible_mass=credible_mass,
-            parameter_names=parameter_names,
+        simulation_scale = np.std(simulations, axis=0, ddof=1)
+        simulation_scale = np.where(simulation_scale > 1e-9, simulation_scale, 1.0)
+        standardized_distances = np.linalg.norm((simulations - observed_summary[None, :]) / simulation_scale[None, :], axis=1)
+        neighborhood_count = min(max(16, int(np.sqrt(simulations.shape[0]))), simulations.shape[0])
+        nearest = np.argsort(standardized_distances)[:neighborhood_count]
+        local_parameters = parameter_draws[nearest]
+        local_mean = np.mean(local_parameters, axis=0)
+        local_std = np.std(local_parameters, axis=0, ddof=1)
+        local_std = np.where(local_std > 1e-9, local_std, 1.0)
+        sample_mean = np.mean(samples, axis=0)
+        sample_std = np.std(samples, axis=0, ddof=1)
+        sample_std = np.where(sample_std > 1e-9, sample_std, 1.0)
+        base_diagnostics = {
+            "observed_neighborhood_count": float(neighborhood_count),
+            "observed_neighborhood_radius_quantile": float(
+                np.mean(standardized_distances[nearest]) / max(float(np.mean(standardized_distances)), 1e-12)
+            ),
+            "local_reference_mean_shift_max": float(np.max(np.abs(sample_mean - local_mean) / local_std)),
+            "local_reference_std_ratio_max": float(
+                np.max(np.maximum(sample_std / local_std, local_std / sample_std))
+            ),
+        }
+        diagnostics, metadata = _apply_truthfulness_hints(
+            diagnostics=base_diagnostics,
             metadata={
                 "sbi_algorithm": algorithm.upper(),
                 "runtime_backend_used": "sbi",
@@ -776,6 +1036,15 @@ class _SBIBase:
                 "summary_dimension": int(simulations.shape[1]),
                 "observed_summary": observed_summary.tolist(),
             },
+            sources=(state, params),
+        )
+        posterior = _posterior_from_samples(
+            method_name=f"simulation_based_{algorithm}",
+            samples=samples,
+            credible_mass=credible_mass,
+            parameter_names=parameter_names,
+            metadata=metadata,
+            diagnostics=diagnostics,
         )
         return {
             "result": posterior,
@@ -992,11 +1261,11 @@ class BayesianBARTRegressorEstimator:
                 "runtime_backend_used": "pymc_bart",
             },
         )
-        posterior = PosteriorResult(
-            method_name="bayesian_bart_regression",
-            posterior_means=posterior_means,
-            posterior_stds=posterior_stds,
-            credible_intervals=credible_intervals,
+        diagnostics = augment_sampler_diagnostics(
+            {
+                "posterior_predictive_mean": np.mean(np.asarray(idata.posterior["mu"], dtype=float), axis=2),
+                "sigma": np.asarray(idata.posterior["sigma"], dtype=float),
+            },
             diagnostics={
                 "credible_mass": float(credible_mass),
                 "num_warmup": float(num_warmup),
@@ -1004,6 +1273,18 @@ class BayesianBARTRegressorEstimator:
                 "num_chains": float(num_chains),
                 "num_trees": float(num_trees),
             },
+            num_chains=num_chains,
+            num_samples=num_samples,
+            credible_mass=credible_mass,
+        )
+        posterior = PosteriorResult(
+            method_name="bayesian_bart_regression",
+            posterior_means=posterior_means,
+            posterior_stds=posterior_stds,
+            credible_intervals=credible_intervals,
+            diagnostics=diagnostics,
+            sampler_family="mcmc",
+            sampler_kernel="bart",
             metadata={
                 "feature_names": _feature_names(data),
                 "uncertainty_decomposition": decomposition.as_dict(),

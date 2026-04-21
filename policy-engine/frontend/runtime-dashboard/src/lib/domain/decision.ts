@@ -5,6 +5,12 @@ import {
   asString,
   toDisplayLabel,
 } from "../parsing";
+import {
+  type MetricValidationComparisonRow,
+  type MetricValidationFamilyAdjustment,
+  parseMetricValidationComparisonRows,
+  parseMetricValidationFamilyAdjustment,
+} from "./metricValidation";
 
 export type DecisionVerdict = "APPROVE" | "REJECT" | "REVIEW";
 export type DecisionConfidence = "HIGH" | "MEDIUM" | "LOW";
@@ -17,6 +23,13 @@ export type DecisionMetric = {
   ciLower: number | null;
   ciUpper: number | null;
   ciLevel: number | null;
+  pValue?: number | null;
+  pAdj?: number | null;
+  alpha?: number | null;
+  significant?: boolean | null;
+  testLabel?: string | null;
+  effectSize?: number | null;
+  assumptionWarnings?: string[];
 };
 
 export type DecisionDiagnosticBadge = {
@@ -64,6 +77,8 @@ export type DecisionCardViewModel = {
   policySummary: string;
   interventionCount: number;
   keyMetrics: DecisionMetric[];
+  metricComparisons: MetricValidationComparisonRow[];
+  metricValidationFamilyAdjustment: MetricValidationFamilyAdjustment | null;
   diagnosticsBadges: DecisionDiagnosticBadge[];
   issues: DecisionIssues;
   distributional: DecisionDistributional | null;
@@ -147,15 +162,55 @@ function buildIssues(value: unknown): DecisionIssues {
   };
 }
 
+function metricSignificanceFields(
+  value: Record<string, unknown> | null,
+): Partial<DecisionMetric> {
+  if (!value) {
+    return {};
+  }
+  const warnings = asArray(value.assumption_warnings)
+    .map((item) => asString(item))
+    .filter((item): item is string => Boolean(item));
+  const hasAnyField =
+    "p_value" in value ||
+    "p_adj" in value ||
+    "alpha" in value ||
+    typeof value.significant === "boolean" ||
+    "test_label" in value ||
+    "effect_size" in value ||
+    warnings.length > 0;
+  if (!hasAnyField) {
+    return {};
+  }
+  const pValue = asNumber(value.p_value);
+  const pAdj = asNumber(value.p_adj);
+  const alpha = asNumber(value.alpha);
+  const significant =
+    typeof value.significant === "boolean" ? value.significant : undefined;
+  const testLabel = asString(value.test_label) ?? undefined;
+  const effectSize = asNumber(value.effect_size);
+  return {
+    ...(pValue !== null ? { pValue } : {}),
+    ...(pAdj !== null ? { pAdj } : {}),
+    ...(alpha !== null ? { alpha } : {}),
+    ...(significant !== undefined ? { significant } : {}),
+    ...(testLabel ? { testLabel } : {}),
+    ...(effectSize !== null ? { effectSize } : {}),
+    ...(warnings.length > 0 ? { assumptionWarnings: warnings } : {}),
+  };
+}
+
 function extractMetrics(
   simulationResults: Record<string, unknown> | null,
   uncertaintyBounds: Record<string, unknown> | null,
+  significanceByMetric: Record<string, unknown> | null,
 ): DecisionMetric[] {
   if (!simulationResults) {
     return [];
   }
 
   const bounds = uncertaintyBounds ?? {};
+  const significance = significanceByMetric ?? {};
 
   const specs: Array<{
     key: string;
@@ -186,6 +241,7 @@ function extractMetrics(
       continue;
     }
     const value = raw * spec.scale;
+    const significanceEntry = asRecord(significance[spec.key]);
     primary.push({
       name: spec.name,
       value,
@@ -194,6 +250,7 @@ function extractMetrics(
       ciLower: asNumber(bounds[`${spec.key}_lower`]),
       ciUpper: asNumber(bounds[`${spec.key}_upper`]),
       ciLevel: asNumber(bounds[`${spec.key}_ci_level`]),
+      ...metricSignificanceFields(significanceEntry),
     });
   }
 
@@ -207,6 +264,7 @@ function extractMetrics(
       if (numeric === null) {
         return null;
       }
+      const significanceEntry = asRecord(significance[key]);
       return {
         name: toDisplayLabel(key),
         value: numeric,
@@ -215,6 +273,7 @@ function extractMetrics(
         ciLower: asNumber(bounds[`${key}_lower`]),
         ciUpper: asNumber(bounds[`${key}_upper`]),
         ciLevel: asNumber(bounds[`${key}_ci_level`]),
+        ...metricSignificanceFields(significanceEntry),
       };
     })
     .filter((item): item is DecisionMetric => item !== null)
@@ -505,19 +564,23 @@ function parseDecisionCardRecord(
         if (numeric === null) {
           return null;
         }
+        const metricRecord = asRecord(value);
         return {
-          name: asString(metric.name) ?? "Metric",
+          name: asString(metricRecord?.name) ?? "Metric",
           value: numeric,
           formatted:
-            asString(metric.formatted) ??
+            asString(metricRecord?.formatted) ??
             `${numeric >= 0 ? "+" : ""}${numeric.toFixed(2)}`,
-          unit: asString(metric.unit) ?? "",
-          ciLower: asNumber(metric.ci_lower),
-          ciUpper: asNumber(metric.ci_upper),
-          ciLevel: asNumber(metric.ci_level),
+          unit: asString(metricRecord?.unit) ?? "",
+          ciLower: asNumber(metricRecord?.ci_lower),
+          ciUpper: asNumber(metricRecord?.ci_upper),
+          ciLevel: asNumber(metricRecord?.ci_level),
+          ...metricSignificanceFields(metricRecord),
         };
       })
       .filter((item): item is DecisionMetric => item !== null),
+    metricComparisons: [],
+    metricValidationFamilyAdjustment: null,
     diagnosticsBadges: deriveDiagnosticBadges(record),
     issues,
     distributional: distributional
@@ -540,6 +603,7 @@ function parseDecisionPacketRecord(
 
   const simulationResults = asRecord(record.simulation_results);
   const uncertaintyBounds = asRecord(record.uncertainty_bounds);
+  const significanceByMetric = asRecord(record.metric_significance);
 
   let duration = 0;
   const runTimeline = asRecord(record.run_timeline);
@@ -560,7 +624,17 @@ function parseDecisionPacketRecord(
     confidence: normalizeConfidence(null, issues),
     policySummary: policy.summary,
     interventionCount: policy.interventionCount,
-    keyMetrics: extractMetrics(simulationResults, uncertaintyBounds),
+    keyMetrics: extractMetrics(
+      simulationResults,
+      uncertaintyBounds,
+      significanceByMetric,
+    ),
+    metricComparisons: parseMetricValidationComparisonRows(
+      record.metric_validation_comparisons,
+    ),
+    metricValidationFamilyAdjustment: parseMetricValidationFamilyAdjustment(
+      record.metric_validation_family_adjustment,
+    ),
     diagnosticsBadges: deriveDiagnosticBadges(record),
     issues,
     distributional,

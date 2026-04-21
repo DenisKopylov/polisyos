@@ -1,25 +1,103 @@
 {
   "family": "interaction_contracts",
   "visibility": "public",
-  "revision": "2.1",
+  "revision": "2.2",
   "cases": [
     {
-      "case_id": "interaction_contracts::pairwise_projection_public",
-      "case_class": "pairwise_projection",
-      "inputs_ref": "fixture://interaction_contracts/pairwise_projection_public",
-      "oracle_ref": "oracle://interaction_contracts/pairwise_projection_public",
+      "case_id": "interaction_contracts::pairwise_exact_reduction_public",
+      "case_class": "pairwise_exact_reduction",
+      "inputs_ref": "fixture://interaction_contracts/pairwise_exact_reduction_public",
+      "oracle_ref": "oracle://interaction_contracts/pairwise_exact_reduction_public",
       "baseline_overlap": [],
       "gates": {
         "claim_eligible": true,
         "unsupported_is_valid": false
       },
-      "tags": ["pairwise", "certificate"],
+      "tags": ["pairwise", "exact_reduction"],
       "nodes": ["a", "b", "c"],
-      "hyperedges": [["a", "b"]],
-      "simplices": [["a", "b", "c"]],
-      "supported_query_family": "pairwise_spillover",
-      "exposure_assumptions": ["pairwise_projection_is_lossless"],
+      "hyperedges": [["a", "b"], ["b", "c"]],
+      "simplices": [],
+      "reduction_policy": "full_complex",
+      "supported_query_family": "pairwise_projection_queries",
+      "exposure_assumptions": ["pairwise_reduction_exact"],
+      "reduction_error_bound": 0.0,
       "fallback_mode": "pairwise",
+      "expected_metrics": {
+        "certificate_completeness_rate": 1.0,
+        "unsupported_failure_correctness": 1.0,
+        "interference_regression_rate": 1.0
+      }
+    },
+    {
+      "case_id": "interaction_contracts::cluster_exact_reduction_public",
+      "case_class": "cluster_exact_reduction",
+      "inputs_ref": "fixture://interaction_contracts/cluster_exact_reduction_public",
+      "oracle_ref": "oracle://interaction_contracts/cluster_exact_reduction_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true,
+        "unsupported_is_valid": false
+      },
+      "tags": ["cluster", "exact_reduction"],
+      "nodes": ["a", "b", "c", "d", "e", "f"],
+      "hyperedges": [],
+      "simplices": [
+        ["a", "b"],
+        ["a", "c"],
+        ["b", "c"],
+        ["d", "e"],
+        ["d", "f"],
+        ["e", "f"],
+        ["a", "b", "c"],
+        ["d", "e", "f"]
+      ],
+      "reduction_policy": "full_complex",
+      "supported_query_family": "cluster_projection_queries",
+      "exposure_assumptions": ["cluster_reduction_exact"],
+      "reduction_error_bound": 0.0,
+      "fallback_mode": "clustered",
+      "expected_metrics": {
+        "certificate_completeness_rate": 1.0,
+        "unsupported_failure_correctness": 1.0,
+        "interference_regression_rate": 1.0
+      }
+    },
+    {
+      "case_id": "interaction_contracts::simplicial_star_local_public",
+      "case_class": "simplicial_star_local",
+      "inputs_ref": "fixture://interaction_contracts/simplicial_star_local_public",
+      "oracle_ref": "oracle://interaction_contracts/simplicial_star_local_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true,
+        "unsupported_is_valid": false
+      },
+      "tags": ["simplicial", "star_local", "certificate"],
+      "nodes": ["A", "B", "C", "D", "E", "F", "G", "U", "V", "W"],
+      "hyperedges": [["C", "D"], ["G", "A"]],
+      "simplices": [
+        ["A", "B"],
+        ["A", "C"],
+        ["B", "C"],
+        ["D", "E"],
+        ["D", "F"],
+        ["E", "F"],
+        ["A", "B", "C"],
+        ["D", "E", "F"]
+      ],
+      "reduction_policy": "full_complex",
+      "supported_query_family": "simplicial_star_local_queries",
+      "exposure_assumptions": [
+        "known_simplicial_complex",
+        "downward_closure_verified",
+        "finite_star_local_exposure_mapping",
+        "exposure_consistency",
+        "randomized_assignment",
+        "design_positivity",
+        "bounded_star_overlap"
+      ],
+      "reduction_error_bound": null,
+      "fallback_mode": "unsupported",
       "expected_metrics": {
         "certificate_completeness_rate": 1.0,
         "unsupported_failure_correctness": 1.0,
@@ -37,8 +115,17 @@
         "unsupported_is_valid": true
       },
       "tags": ["unsupported", "hypergraph"],
-      "supported_query_family": "hypergraph_exposure",
-      "exposure_assumptions": ["unsupported_full_complex"],
+      "nodes": ["a", "b", "c"],
+      "hyperedges": [["a", "b", "c"]],
+      "simplices": [],
+      "reduction_policy": "full_complex",
+      "supported_query_family": "unsupported_complex_queries",
+      "exposure_assumptions": [
+        "hypergraph_identification_not_claimed",
+        "simplicial_identification_gates_failed",
+        "downward_closure_missing"
+      ],
+      "reduction_error_bound": null,
       "fallback_mode": "unsupported",
       "expected_metrics": {
         "certificate_completeness_rate": 1.0,

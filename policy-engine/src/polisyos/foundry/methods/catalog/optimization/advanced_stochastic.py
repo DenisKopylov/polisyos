@@ -88,6 +88,9 @@ class BilevelOptimizationEstimator:
         step = float(params.get("step_size", 0.1))
 
         x = np.zeros(n)
+        iterations_run = 0
+        converged = False
+        last_residual = np.full(n, np.inf, dtype=float)
 
         def project_feasible(x_in: np.ndarray, A: np.ndarray, b: np.ndarray) -> np.ndarray:
             x_out = x_in.copy()
@@ -100,16 +103,22 @@ class BilevelOptimizationEstimator:
                         x_out -= (violations[i] / norm_sq) * a_i
             return np.maximum(x_out, 0.0)
 
-        for _ in range(max_iter):
+        for iteration in range(max_iter):
             # Lower level: gradient step on c_lower, project onto lower feasible
             x_lower = project_feasible(x - step * c_l, A_l, b_l)
             # Upper level: gradient step on c_upper, project onto upper feasible
             x_upper = project_feasible(x_lower - step * c_u, A_u, b_u)
+            last_residual = x_upper - x
+            iterations_run = iteration + 1
 
-            if np.max(np.abs(x_upper - x)) < 1e-8:
+            if np.max(np.abs(last_residual)) < 1e-8:
                 x = x_upper
+                converged = True
                 break
             x = x_upper
+
+        upper_constraint_slacks = (b_u - A_u @ x).astype(float)
+        lower_constraint_slacks = (b_l - A_l @ x).astype(float)
 
         return {
             "result": {
@@ -118,6 +127,14 @@ class BilevelOptimizationEstimator:
                 "lower_objective": float(c_l @ x),
                 "upper_feasible": bool(np.all(A_u @ x <= b_u + 1e-6)),
                 "lower_feasible": bool(np.all(A_l @ x <= b_l + 1e-6)),
+                "fixed_point_residual": last_residual.astype(float).tolist(),
+                "fixed_point_residual_inf": float(np.max(np.abs(last_residual))),
+                "upper_constraint_slacks": upper_constraint_slacks.tolist(),
+                "lower_constraint_slacks": lower_constraint_slacks.tolist(),
+                "min_upper_slack": float(np.min(upper_constraint_slacks)),
+                "min_lower_slack": float(np.min(lower_constraint_slacks)),
+                "iterations_run": iterations_run,
+                "converged": converged,
                 "n_vars": n,
             }
         }

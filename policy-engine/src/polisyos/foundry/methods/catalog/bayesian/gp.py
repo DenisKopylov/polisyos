@@ -189,6 +189,8 @@ class GaussianProcessRegressionEstimator:
             "Returns posterior predictive mean, variance, and credible intervals."
         ),
         tags=frozenset({"bayesian", "gaussian-process", "regression", "uncertainty"}),
+        declared_truthfulness_tier="exact",
+        truthfulness_scope="posterior",
         when_to_use="Nonparametric regression/classification; spatial kriging; Bayesian optimization acquisition functions",
         citations=(
             "Rasmussen, C. & Williams, C. (2006). Gaussian Processes for Machine Learning. MIT Press.",
@@ -350,6 +352,7 @@ class SparseGPRegressionEstimator:
             "O(n·m²) complexity where m = n_inducing."
         ),
         tags=frozenset({"bayesian", "gaussian-process", "regression", "sparse", "scalable"}),
+        truthfulness_scope="posterior",
         when_to_use="Large-scale GP regression (n > 5000); spatial interpolation at scale; surrogate model for expensive simulations",
         when_not_to_use="Small dataset where exact GP is feasible; very high inducing point count negates speed benefit",
         typical_min_obs=200,

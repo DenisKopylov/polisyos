@@ -8,11 +8,16 @@ import jax
 import jax.numpy as jnp
 
 from polisyos.ir.analytics.uncertainty import (
+    CertificateKind,
+    ComposedFlavour,
     DistributionFamily,
+    ExactnessKind,
     IntervalSemantics,
+    ParametricFitCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    build_composition_provenance,
 )
 
 from .config import PropagationConfig
@@ -91,6 +96,10 @@ class DeltaMethodPropagator:
                 confidence_interval=(float(lo), float(hi)),
                 confidence_level=level,
                 distribution_family=DistributionFamily.NORMAL,
+                distribution_payload=ParametricFitCarrier(
+                    family=DistributionFamily.NORMAL,
+                    parameters={"mean": float(point), "std": float(std)},
+                ),
                 source=UncertaintySource.ENSEMBLE,
                 propagation_method=PropagationMethod.DELTA_METHOD,
                 interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
@@ -103,6 +112,23 @@ class DeltaMethodPropagator:
                     "used_full_covariance": bool(self._config.delta_use_full_covariance),
                     "output_std": std,
                 },
+                composition_provenance=build_composition_provenance(
+                    input_envelopes=tuple(input_envelopes.values()),
+                    op="push_forward",
+                    stage_name="foundry.delta.push_forward",
+                    output_flavour=ComposedFlavour.DELTA,
+                    exactness=ExactnessKind.APPROXIMATION,
+                    certificate_kind=CertificateKind.TAYLOR_REMAINDER,
+                    certificate_radius=std,
+                    confidence_level=level,
+                    scope=("expectation", "interval", "quantile", "cdf"),
+                    map_name=metric_id,
+                    variance_bound=float(output_var[idx]),
+                    assumptions=("jax_jacobian_linearization",),
+                    notes={
+                        "used_full_covariance": bool(self._config.delta_use_full_covariance),
+                    },
+                ),
             )
             out.append(
                 PropagationResult(

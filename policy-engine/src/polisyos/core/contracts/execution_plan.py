@@ -5,12 +5,20 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.common.timestamps import ensure_utc, utc_now
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import fingerprint
 from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.observability.truthfulness import (
+    TruthfulnessStatus,
+    TruthfulnessTier,
+    parse_truthfulness_scope,
+    parse_truthfulness_status,
+    parse_truthfulness_tier,
+    reconcile_truthfulness_tiers,
+)
 
 DiagnosticSeverity = Literal["info", "warning", "error", "blocker"]
 EvaluatorVerdict = Literal[
@@ -228,7 +236,15 @@ class MethodCatalogEntry(BaseModel):
     causal_capability_requirements: list[str] = Field(default_factory=list)
     causal_available: bool | None = None
     causal_disabled_reasons: list[str] = Field(default_factory=list)
-    truthfulness_tier: str = Field(default="production_method")
+    truthfulness_tier: str = Field(default=TruthfulnessTier.UNVERIFIED.value)
+    implementation_depth_tier: str = Field(default="production_method")
+    implementation_depth_notes: str = Field(default="")
+    declared_truthfulness_tier: str | None = None
+    runtime_truthfulness_tier: str | None = None
+    effective_truthfulness_tier: str | None = None
+    truthfulness_scope: str | None = None
+    truthfulness_status: str | None = None
+    truthfulness_evidence_ref: str | None = None
     truthfulness_notes: str = Field(default="")
     effect_semantics: dict[str, Any] = Field(default_factory=dict)
     shape_semantics: dict[str, Any] = Field(default_factory=dict)
@@ -243,6 +259,45 @@ class MethodCatalogEntry(BaseModel):
     diagnostic_checks: list[str] = Field(default_factory=list)
     typical_min_obs: int | None = Field(default=None)
     output_interpretation: str = Field(default="")
+
+    @model_validator(mode="after")
+    def _synchronize_truthfulness_fields(self) -> "MethodCatalogEntry":
+        legacy_depth_tiers = {
+            "heuristic_baseline",
+            "structural_scoring",
+            "frontier_trainable",
+            "production_method",
+        }
+        alias_value = str(self.truthfulness_tier or "").strip().lower()
+        implementation_depth = str(self.implementation_depth_tier or "").strip().lower()
+        if alias_value in legacy_depth_tiers:
+            implementation_depth = alias_value
+        if not implementation_depth:
+            implementation_depth = "production_method"
+
+        declared = parse_truthfulness_tier(self.declared_truthfulness_tier)
+        runtime = parse_truthfulness_tier(self.runtime_truthfulness_tier)
+        effective = parse_truthfulness_tier(self.effective_truthfulness_tier)
+        if effective is None:
+            alias_tier = parse_truthfulness_tier(alias_value)
+            if alias_tier is not None and (
+                alias_tier is not TruthfulnessTier.UNVERIFIED or (declared is None and runtime is None)
+            ):
+                effective = alias_tier
+            else:
+                effective, _ = reconcile_truthfulness_tiers(declared, runtime)
+
+        status = parse_truthfulness_status(self.truthfulness_status)
+        if status is None:
+            _, status = reconcile_truthfulness_tiers(declared, runtime)
+        scope = parse_truthfulness_scope(self.truthfulness_scope)
+
+        self.truthfulness_tier = effective.value
+        self.effective_truthfulness_tier = effective.value
+        self.truthfulness_status = status.value
+        self.truthfulness_scope = None if scope is None else scope.value
+        self.implementation_depth_tier = implementation_depth
+        return self
 
 
 class MethodCatalogSnapshot(BaseModel):

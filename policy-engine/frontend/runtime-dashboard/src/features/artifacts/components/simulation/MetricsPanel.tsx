@@ -11,12 +11,19 @@ import {
   YAxis,
 } from "recharts";
 
+import MetricValidationComparisonTable from "@/features/artifacts/components/MetricValidationComparisonTable";
 import { Select, chartTheme } from "@/shared/ui";
 import type { SimulationMetric, TimeSeries } from "@/lib/domain/simulation";
+import type {
+  MetricValidationComparisonRow,
+  MetricValidationFamilyAdjustment,
+} from "@/lib/domain/metricValidation";
 import { clamp } from "@/lib/parsing";
 
 type MetricsPanelProps = {
   metrics: SimulationMetric[];
+  metricComparisons: MetricValidationComparisonRow[];
+  metricValidationFamilyAdjustment: MetricValidationFamilyAdjustment | null;
   timeSeries: TimeSeries[];
   showUncertainty: boolean;
 };
@@ -40,6 +47,8 @@ function normalizeMagnitude(value: number, max: number): number {
 
 export default function MetricsPanel({
   metrics,
+  metricComparisons,
+  metricValidationFamilyAdjustment,
   timeSeries,
   showUncertainty,
 }: MetricsPanelProps) {
@@ -68,7 +77,9 @@ export default function MetricsPanel({
         <h3 className="mb-2 text-lg font-semibold">Key Metrics</h3>
         {metrics.length === 0 ? (
           <p className="text-muted text-sm">
-            No numeric metrics in this artifact.
+            {metricComparisons.length > 0
+              ? "No summary metrics in this artifact; inspect the formal comparison table below."
+              : "No numeric metrics in this artifact."}
           </p>
         ) : (
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
@@ -93,6 +104,26 @@ export default function MetricsPanel({
                         : ""}
                     </p>
                   ) : null}
+                  {metric.testLabel || metric.pValue !== null || metric.pAdj !== null ? (
+                    <p className="text-muted text-xs">
+                      {metric.testLabel ?? "Stat test"}
+                      {metric.pAdj !== null
+                        ? `, p_adj=${metric.pAdj.toFixed(4)}`
+                        : metric.pValue !== null
+                          ? `, p=${metric.pValue.toFixed(4)}`
+                          : ""}
+                      {metric.significant !== null
+                        ? metric.significant
+                          ? ", significant"
+                          : ", not significant"
+                        : ""}
+                    </p>
+                  ) : null}
+                  {metric.assumptionWarnings && metric.assumptionWarnings.length > 0 ? (
+                    <p className="text-warning text-xs">
+                      {metric.assumptionWarnings.join(", ")}
+                    </p>
+                  ) : null}
                   <div className="bg-line mt-2 h-1.5 rounded-full">
                     <div
                       className={`h-1.5 rounded-full ${barClass(metric.severity)}`}
@@ -105,6 +136,11 @@ export default function MetricsPanel({
           </div>
         )}
       </section>
+
+      <MetricValidationComparisonTable
+        comparisons={metricComparisons}
+        familyAdjustment={metricValidationFamilyAdjustment}
+      />
 
       <section>
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">

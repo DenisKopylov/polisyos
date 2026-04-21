@@ -31,17 +31,31 @@ from polisyos.ir.analytics.cross_graph import (
     InterfaceVariableSchema,
     SCMFragment,
 )
+from polisyos.ir.analytics.latent_bridge_synthesis import (
+    LatentBridgeEvidence,
+    LatentBridgeHypothesis,
+    LatentBridgeHypothesisRef,
+    LatentBridgeStatus,
+    LatentBridgeSynthesisPolicy,
+    load_latent_bridge_hypothesis,
+    persist_latent_bridge_hypothesis,
+    synthesize_latent_bridge,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import AlignmentReportRef, VariableAlignmentCertificateRef
 from polisyos.scientist.cross_graph.compiler import (
     build_fragment_alignment_ontology_warnings,
 )
+from polisyos.scientist.search.latent_governance import (
+    assess_latent_bridge_governance,
+    materialize_latent_bridge_governance,
+)
 
 _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_NAME = "ir.variable_alignment_certificate"
-_VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_VERSION = "1.1"
+_VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_VERSION = "1.2"
 _ALIGNMENT_REPORT_SCHEMA_NAME = "ir.alignment_report"
-_ALIGNMENT_REPORT_SCHEMA_VERSION = "1.1"
+_ALIGNMENT_REPORT_SCHEMA_VERSION = "1.2"
 _EXPECTED_ONTOLOGY_WARNING_ERRORS = (AttributeError, KeyError, TypeError, ValueError)
 logger = logging.getLogger(__name__)
 
@@ -138,10 +152,14 @@ class AlignmentVerificationConfig(BaseModel):
             "ratio->percent": "artifact:transform:ratio_to_percent",
         }
     )
-    explicit_latent_bridges: dict[str, str] = Field(default_factory=dict)
+    explicit_latent_bridges: dict[str, Any] = Field(default_factory=dict)
     human_verified_pairs: list[str] = Field(default_factory=list)
     metadata_comparator_overrides: dict[str, str] = Field(default_factory=dict)
     seed_alignments_path: str | None = None
+    latent_bridge_policy: LatentBridgeSynthesisPolicy = Field(
+        default_factory=LatentBridgeSynthesisPolicy
+    )
+    latent_bridge_evidence: dict[str, LatentBridgeEvidence] = Field(default_factory=dict)
 
 
 class AlignmentCertificate(BaseModel):
@@ -172,7 +190,7 @@ class VariableAlignmentCertificate(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.2", pattern=r"^\d+\.\d+$")
     variable_a: str = Field(min_length=1)
     fragment_a_id: str = Field(min_length=1)
     variable_b: str = Field(min_length=1)
@@ -182,11 +200,24 @@ class VariableAlignmentCertificate(BaseModel):
     measurement_model_b_ref: str | None = None
     transform_ref: str | None = None
     proxy_evidence_ref: str | None = None
+    latent_bridge_hypothesis_ref: LatentBridgeHypothesisRef | None = None
     latent_bridge_ref: str | None = None
     assumptions_introduced: list[str] = Field(default_factory=list)
     reviewer: AlignmentReviewerState = AlignmentReviewerState.AUTOMATED
     metadata_checks: list["VariableMetadataCheck"] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _enforce_latent_bridge_invariants(self) -> "VariableAlignmentCertificate":
+        if self.alignment_type is AlignmentType.LATENT_BRIDGE:
+            if self.latent_bridge_hypothesis_ref is None and not (
+                self.latent_bridge_ref and str(self.latent_bridge_ref).strip()
+            ):
+                raise ValueError(
+                    "latent_bridge_hypothesis_ref or latent_bridge_ref must be non-empty "
+                    "when alignment_type is LATENT_BRIDGE"
+                )
+        return self
 
 
 class VariableMetadataCheck(BaseModel):
@@ -206,7 +237,7 @@ class AlignmentReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.2", pattern=r"^\d+\.\d+$")
     fragment_ids: list[str] = Field(default_factory=list)
     per_variable_certificates: list[VariableAlignmentCertificate] = Field(default_factory=list)
     overall_status: AlignmentOverallStatus
@@ -309,12 +340,14 @@ def verify_fragment_alignment(
     *,
     config: AlignmentVerificationConfig | None = None,
     ontology: Sequence[Any] | None = None,
+    artifact_store: ArtifactStore | None = None,
 ) -> tuple[AlignmentReport, InterfaceMapping]:
     """Verify fragment alignment helper."""
     return _verify_fragment_bundle_alignment_impl(
         [fragment_a, fragment_b],
         config=config,
         ontology=ontology,
+        artifact_store=artifact_store,
         stitch_pairs=[(fragment_a.fragment_id, fragment_b.fragment_id)],
         topology_mode="direct",
         preserve_fragment_order=True,
@@ -327,12 +360,14 @@ def verify_fragment_bundle_alignment(
     config: AlignmentVerificationConfig | None = None,
     ontology: Sequence[Any] | None = None,
     stitch_pairs: Sequence[tuple[str, str]] | None = None,
+    artifact_store: ArtifactStore | None = None,
 ) -> tuple[AlignmentReport, InterfaceMapping]:
     """Verify fragment bundle alignment helper."""
     return _verify_fragment_bundle_alignment_impl(
         fragments,
         config=config,
         ontology=ontology,
+        artifact_store=artifact_store,
         stitch_pairs=stitch_pairs,
         topology_mode="auto",
     )
@@ -353,6 +388,7 @@ def _verify_fragment_bundle_alignment_impl(
     *,
     config: AlignmentVerificationConfig | None,
     ontology: Sequence[Any] | None,
+    artifact_store: ArtifactStore | None,
     stitch_pairs: Sequence[tuple[str, str]] | None,
     topology_mode: Literal["auto", "direct"],
     preserve_fragment_order: bool = False,
@@ -388,6 +424,7 @@ def _verify_fragment_bundle_alignment_impl(
                 schema_a=schemas[fragment_a.fragment_id],
                 schema_b=schemas[fragment_b.fragment_id],
                 config=verification_config,
+                artifact_store=artifact_store,
                 seed_alignments=seed_alignments,
             )
 
@@ -490,6 +527,7 @@ def _build_pair_candidates(
     schema_a: Sequence[InterfaceVariableSchema],
     schema_b: Sequence[InterfaceVariableSchema],
     config: AlignmentVerificationConfig,
+    artifact_store: ArtifactStore | None,
     seed_alignments: Sequence[VariableAlignment],
 ) -> list[_PairCandidate]:
     candidates: list[_PairCandidate] = []
@@ -503,6 +541,7 @@ def _build_pair_candidates(
                 variable_a=variable_a,
                 variable_b=variable_b,
                 config=config,
+                artifact_store=artifact_store,
                 seed_alignments=seed_alignments,
             )
             candidates.append(
@@ -829,6 +868,109 @@ def _parse_iso_date(value: str) -> date:
     return date.fromisoformat(value)
 
 
+def _coerce_latent_bridge_hypothesis_ref(
+    payload: Any,
+) -> LatentBridgeHypothesisRef | None:
+    if payload in (None, ""):
+        return None
+    candidate = payload
+    if isinstance(candidate, LatentBridgeHypothesisRef):
+        return candidate
+    if hasattr(candidate, "model_dump") and not isinstance(candidate, dict):
+        candidate = candidate.model_dump(mode="json")
+    try:
+        return LatentBridgeHypothesisRef.model_validate(candidate)
+    except (TypeError, ValueError):
+        return None
+
+
+def _load_governed_latent_bridge_hypothesis(
+    *,
+    artifact_store: ArtifactStore | None,
+    hypothesis_ref: LatentBridgeHypothesisRef | None,
+) -> LatentBridgeHypothesis | None:
+    if artifact_store is None or hypothesis_ref is None:
+        return None
+    try:
+        hypothesis = load_latent_bridge_hypothesis(artifact_store, hypothesis_ref)
+    except Exception:
+        return None
+    return materialize_latent_bridge_governance(hypothesis)
+
+
+def _legacy_latent_bridge_governance_metadata(
+    *,
+    latent_bridge_ref: str | None,
+    extra_blockers: Sequence[str] = (),
+) -> dict[str, Any]:
+    blockers = _dedupe_strings(
+        [
+            "latent_promotion_evidence_missing",
+            "latent_artifact_proof_only",
+            *(
+                ["latent_bridge_legacy_ref_only"]
+                if latent_bridge_ref
+                else []
+            ),
+            *list(extra_blockers),
+        ]
+    )
+    return {
+        "active": True,
+        "valid": False,
+        "claim_mode": "proof_only",
+        "degradation_mode": "research_only",
+        "readiness_cap": "proof_only",
+        "promotion_allowed": False,
+        "human_gate_required": True,
+        "not_for_decision_support": True,
+        "missing_requirements": list(blockers),
+        "surfaced_assumptions": [],
+        "surfaced_falsification_tests": [],
+        "no_promotion_reasons": list(blockers),
+        "promotion_verdict": None,
+        "metadata": {
+            "latent_artifact_kind": "latent_bridge",
+            "latent_artifact_blockers": list(blockers),
+            "legacy_latent_bridge_ref": latent_bridge_ref,
+        },
+    }
+
+
+def _latent_bridge_governance_metadata(
+    hypothesis: LatentBridgeHypothesis | None,
+    *,
+    fallback_legacy_ref: str | None = None,
+    extra_blockers: Sequence[str] = (),
+) -> dict[str, Any]:
+    if hypothesis is None:
+        return _legacy_latent_bridge_governance_metadata(
+            latent_bridge_ref=fallback_legacy_ref,
+            extra_blockers=extra_blockers,
+        )
+    assessment = assess_latent_bridge_governance(hypothesis)
+    if assessment is None:
+        return _legacy_latent_bridge_governance_metadata(
+            latent_bridge_ref=fallback_legacy_ref,
+            extra_blockers=extra_blockers,
+        )
+    metadata = dict(assessment.model_dump(mode="json"))
+    metadata["metadata"] = dict(metadata.get("metadata", {}))
+    metadata["metadata"]["latent_artifact_blockers"] = _dedupe_strings(
+        [
+            *(
+                metadata["metadata"].get("latent_artifact_blockers", [])
+                if isinstance(metadata.get("metadata"), dict)
+                else []
+            ),
+            *list(extra_blockers),
+        ]
+    )
+    if fallback_legacy_ref:
+        metadata["metadata"]["legacy_latent_bridge_ref"] = fallback_legacy_ref
+    return metadata
+
+
 def _classify_pair(
     *,
     fragment_a: SCMFragment,
@@ -836,6 +978,7 @@ def _classify_pair(
     variable_a: InterfaceVariableSchema,
     variable_b: InterfaceVariableSchema,
     config: AlignmentVerificationConfig,
+    artifact_store: ArtifactStore | None,
     seed_alignments: Sequence[VariableAlignment],
 ) -> tuple[VariableAlignmentCertificate, bool, float, int]:
     pair_score = score_variable_pair(
@@ -853,7 +996,24 @@ def _classify_pair(
         fragment_b.fragment_id,
         variable_b.variable_name,
     )
-    latent_bridge_ref = config.explicit_latent_bridges.get(pair_key)
+    explicit_latent_bridge_payload = config.explicit_latent_bridges.get(pair_key)
+    latent_bridge_ref: str | None = None
+    latent_bridge_hypothesis_ref = _coerce_latent_bridge_hypothesis_ref(
+        explicit_latent_bridge_payload
+    )
+    explicit_latent_bridge_blockers: list[str] = []
+    if latent_bridge_hypothesis_ref is None and explicit_latent_bridge_payload not in (None, ""):
+        token = str(explicit_latent_bridge_payload).strip()
+        if token:
+            latent_bridge_ref = token
+        else:
+            explicit_latent_bridge_blockers.append("latent_bridge_ref_unresolvable")
+    explicit_latent_bridge_hypothesis = _load_governed_latent_bridge_hypothesis(
+        artifact_store=artifact_store,
+        hypothesis_ref=latent_bridge_hypothesis_ref,
+    )
+    if latent_bridge_hypothesis_ref is not None and explicit_latent_bridge_hypothesis is None:
+        explicit_latent_bridge_blockers.append("latent_bridge_hypothesis_unresolved")
     measurement_models_compatible = _measurement_models_compatible(
         variable_a.measurement_model_ref,
         variable_b.measurement_model_ref,
@@ -863,6 +1023,21 @@ def _classify_pair(
         variable_b=variable_b,
         config=config,
     )
+    auto_latent_bridge_hypothesis: LatentBridgeHypothesis | None = None
+    if (
+        latent_bridge_ref is None
+        and latent_bridge_hypothesis_ref is None
+        and pair_key in config.latent_bridge_evidence
+        and config.latent_bridge_policy.enable_auto_latent_bridge
+    ):
+        evidence = config.latent_bridge_evidence[pair_key]
+        if metadata_hard_mismatch_keys:
+            evidence = evidence.model_copy(update={"hard_metadata_mismatch": True})
+        auto_latent_bridge_hypothesis = synthesize_latent_bridge(
+            pair_key=pair_key,
+            evidence=evidence,
+            policy=config.latent_bridge_policy,
+        )
     transform_ref = _known_transform_ref(variable_a.unit, variable_b.unit, config)
     definitions_present = bool(str(variable_a.definition).strip() and str(variable_b.definition).strip())
     definition_overlap_sufficient = pair_score.definition_score >= config.min_definition_overlap
@@ -904,6 +1079,7 @@ def _classify_pair(
             and hard_conflict_reasons
             and not canonical_evidence
             and not latent_bridge_ref
+            and latent_bridge_hypothesis_ref is None
         )
     )
     exact_match = bool(
@@ -934,11 +1110,21 @@ def _classify_pair(
             pair_score.overall_score >= config.min_proxy_score
             or canonical_evidence
             or semantic_construct_evidence
+            or (
+                definition_overlap_sufficient
+                and pair_score.semantic_score >= 0.35
+            )
         )
     )
     plausible = bool(
         not hard_conflict
-        and (latent_bridge_ref or exact_match or scale_link_supported or proxy_supported)
+        and (
+            latent_bridge_ref
+            or latent_bridge_hypothesis_ref is not None
+            or exact_match
+            or scale_link_supported
+            or proxy_supported
+        )
     )
     reviewer = _reviewer_state_for_pair(
         alignment_type=AlignmentType.EXACT,
@@ -966,6 +1152,56 @@ def _classify_pair(
             )
         ],
     }
+    if auto_latent_bridge_hypothesis is not None:
+        metadata["latent_bridge_status_snapshot"] = auto_latent_bridge_hypothesis.model_dump(
+            mode="json"
+        )
+    auto_latent_bridge_hypothesis_ref: LatentBridgeHypothesisRef | None = None
+    if (
+        auto_latent_bridge_hypothesis is not None
+        and auto_latent_bridge_hypothesis.status is LatentBridgeStatus.PROPOSED
+        and not hard_conflict
+    ):
+        if artifact_store is None:
+            raise ValueError(
+                "artifact_store is required to persist automatic latent bridge hypotheses"
+            )
+        auto_latent_bridge_hypothesis = materialize_latent_bridge_governance(
+            auto_latent_bridge_hypothesis
+        )
+        auto_latent_bridge_hypothesis_ref = persist_latent_bridge_hypothesis(
+            artifact_store,
+            auto_latent_bridge_hypothesis,
+        )
+        metadata["latent_bridge_status_snapshot"] = auto_latent_bridge_hypothesis.model_dump(
+            mode="json"
+        )
+        metadata["latent_bridge_hypothesis_ref"] = auto_latent_bridge_hypothesis_ref.model_dump(
+            mode="json"
+        )
+
+    resolved_latent_bridge_hypothesis = (
+        auto_latent_bridge_hypothesis
+        if auto_latent_bridge_hypothesis_ref is not None
+        else explicit_latent_bridge_hypothesis
+    )
+    if latent_bridge_hypothesis_ref is not None:
+        metadata["latent_bridge_hypothesis_ref"] = latent_bridge_hypothesis_ref.model_dump(
+            mode="json"
+        )
+    if explicit_latent_bridge_hypothesis is not None:
+        metadata["latent_bridge_status_snapshot"] = explicit_latent_bridge_hypothesis.model_dump(
+            mode="json"
+        )
+    if latent_bridge_ref:
+        metadata["legacy_latent_bridge_ref"] = latent_bridge_ref
+    if explicit_latent_bridge_blockers:
+        metadata["latent_bridge_resolution_blockers"] = list(explicit_latent_bridge_blockers)
+    metadata["latent_bridge_governance"] = _latent_bridge_governance_metadata(
+        resolved_latent_bridge_hypothesis,
+        fallback_legacy_ref=latent_bridge_ref,
+        extra_blockers=explicit_latent_bridge_blockers,
+    )
 
     if hard_conflict:
         reviewer = _reviewer_state_for_pair(
@@ -982,6 +1218,30 @@ def _classify_pair(
             config=config,
         )
         assumptions.append("latent_bridge_evidence_required")
+        priority = 1
+    elif latent_bridge_hypothesis_ref is not None and not hard_conflict:
+        alignment_type = AlignmentType.LATENT_BRIDGE
+        reviewer = _reviewer_state_for_pair(
+            alignment_type=alignment_type,
+            pair_key=pair_key,
+            config=config,
+        )
+        assumptions.append("latent_bridge_evidence_required")
+        priority = 1
+    elif (
+        auto_latent_bridge_hypothesis_ref is not None
+        and auto_latent_bridge_hypothesis is not None
+    ):
+        alignment_type = AlignmentType.LATENT_BRIDGE
+        latent_bridge_hypothesis_ref = auto_latent_bridge_hypothesis_ref
+        reviewer = _reviewer_state_for_pair(
+            alignment_type=alignment_type,
+            pair_key=pair_key,
+            config=config,
+        )
+        assumptions.append(
+            f"latent_bridge:auto:{auto_latent_bridge_hypothesis.synthesis_mode.value}"
+        )
         priority = 1
     elif exact_match:
         alignment_type = AlignmentType.EXACT
@@ -1031,6 +1291,11 @@ def _classify_pair(
         measurement_model_b_ref=variable_b.measurement_model_ref,
         transform_ref=transform_ref if alignment_type is AlignmentType.SCALE_LINKED else None,
         proxy_evidence_ref=proxy_ref if alignment_type is AlignmentType.PROXY else None,
+        latent_bridge_hypothesis_ref=(
+            latent_bridge_hypothesis_ref
+            if alignment_type is AlignmentType.LATENT_BRIDGE
+            else None
+        ),
         latent_bridge_ref=latent_bridge_ref if alignment_type is AlignmentType.LATENT_BRIDGE else None,
         assumptions_introduced=_dedupe_strings(assumptions),
         reviewer=reviewer,
@@ -1199,6 +1464,7 @@ def _build_fragment_pair_summary(
     schema_a: Sequence[InterfaceVariableSchema],
     schema_b: Sequence[InterfaceVariableSchema],
     config: AlignmentVerificationConfig,
+    artifact_store: ArtifactStore | None,
     seed_alignments: Sequence[VariableAlignment],
 ) -> _FragmentPairSummary:
     candidates = tuple(
@@ -1208,6 +1474,7 @@ def _build_fragment_pair_summary(
             schema_a=schema_a,
             schema_b=schema_b,
             config=config,
+            artifact_store=artifact_store,
             seed_alignments=seed_alignments,
         )
     )
@@ -1434,6 +1701,7 @@ def _coverage_incompatible_certificate(
             "alignment_type": AlignmentType.INCOMPATIBLE,
             "transform_ref": None,
             "proxy_evidence_ref": None,
+            "latent_bridge_hypothesis_ref": None,
             "latent_bridge_ref": None,
             "assumptions_introduced": [],
             "reviewer": AlignmentReviewerState.AUTOMATED,
@@ -1523,6 +1791,12 @@ def _build_interface_mapping(
                 for assumption in certificate.assumptions_introduced
             ]
         )
+        entry_metadata: dict[str, Any] = {
+            "fragment_ids": sorted({fragment_id for fragment_id, _ in bindings}),
+            "pair_count": len(component_certs),
+        }
+        if alignment_type is AlignmentType.LATENT_BRIDGE:
+            entry_metadata.update(_component_latent_bridge_metadata(component_certs))
         entries.append(
             InterfaceMappingEntry(
                 interface_id=f"interface::{digest}",
@@ -1543,10 +1817,7 @@ def _build_interface_mapping(
                 alignment_type=alignment_type.value,
                 reviewer=reviewer.value,
                 assumptions_introduced=assumptions,
-                metadata={
-                    "fragment_ids": sorted({fragment_id for fragment_id, _ in bindings}),
-                    "pair_count": len(component_certs),
-                },
+                metadata=entry_metadata,
             )
         )
 
@@ -1574,6 +1845,49 @@ def _component_reviewer(
     if certificates and all(item.reviewer is AlignmentReviewerState.HUMAN_VERIFIED for item in certificates):
         return AlignmentReviewerState.HUMAN_VERIFIED
     return AlignmentReviewerState.AUTOMATED
+
+
+def _component_latent_bridge_metadata(
+    certificates: Sequence[VariableAlignmentCertificate],
+) -> dict[str, Any]:
+    readiness_caps: list[str] = []
+    blockers: list[str] = []
+    promotion_allowed = False
+    for certificate in certificates:
+        governance = certificate.metadata.get("latent_bridge_governance")
+        if not isinstance(governance, dict):
+            continue
+        cap = str(governance.get("readiness_cap", "")).strip().lower()
+        if cap:
+            readiness_caps.append(cap)
+        promotion_allowed = promotion_allowed or bool(governance.get("promotion_allowed", False))
+        payload = governance.get("metadata", {})
+        if isinstance(payload, dict):
+            blockers.extend(
+                str(item)
+                for item in payload.get("latent_artifact_blockers", [])
+                if str(item).strip()
+            )
+        blockers.extend(
+            str(item)
+            for item in governance.get("no_promotion_reasons", [])
+            if str(item).strip()
+        )
+    return {
+        "latent_bridge_readiness_cap": _minimum_readiness_cap(readiness_caps),
+        "latent_bridge_promotion_allowed": promotion_allowed,
+        "latent_artifact_blockers": _dedupe_strings(blockers),
+    }
+
+
+def _minimum_readiness_cap(readiness_caps: Sequence[str]) -> str:
+    if not readiness_caps:
+        return "proof_only"
+    rank = {"proof_only": 0, "bounds_ready": 1, "estimation_ready": 2}
+    normalized = [str(cap).strip().lower() for cap in readiness_caps if str(cap).strip()]
+    if not normalized:
+        return "proof_only"
+    return min(normalized, key=lambda cap: rank.get(cap, 0))
 
 
 def _preferred_component_name(bindings: Sequence[tuple[str, str]]) -> str:

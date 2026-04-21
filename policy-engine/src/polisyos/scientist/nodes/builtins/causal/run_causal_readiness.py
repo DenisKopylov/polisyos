@@ -78,6 +78,7 @@ _SPEC = NodeSpec(
         "params.interference_loss_spec_bundle",
         "params.measurement_model_by_family",
         "params.strategic_channel_inputs",
+        "params.performative_loop_spec",
         "params.regime_calendar",
         "params.schema_regime_registry",
         "params.shock_calendar",

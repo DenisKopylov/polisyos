@@ -8,6 +8,10 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir._validation import ensure_confidence_interval, ensure_finite_numeric
+from polisyos.ir.analytics.administrative_missingness import (
+    MissingnessAssessmentReport,
+    MissingnessAssessmentStatus,
+)
 from polisyos.ir.analytics.dynamic_causal_semantics import (
     DynamicReductionStatus,
     DynamicSemanticsAttachment,
@@ -24,12 +28,16 @@ from polisyos.ir.analytics.uncertainty import (
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import (
+    BridgePlausibilityReportRef,
     CausalEffectReportRef,
     DataReadinessReportRef,
     DPRobustnessCertificateRef,
+    EvidenceBundleRef,
     FrontierSketchRef,
     JointDecisionCertificateRef,
     ProofBundleRef,
+    ProofComposabilityCertificateRef,
+    ProofWitnessIndexRef,
     ProximalIdentificationCertificateRef,
     RecoverabilityCertificateRef,
 )
@@ -37,7 +45,10 @@ from polisyos.ir.refs import (
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from polisyos.ir.analytics.proximal import ProximalIdentificationCertificate
+    from polisyos.ir.analytics.proximal import (
+        ProximalIdentificationCertificate,
+        ProximalMediationCertificate,
+    )
 
 
 class CausalMethod(str, Enum):
@@ -56,6 +67,12 @@ class CausalMethod(str, Enum):
     DOWHY_FRONTDOOR = "dowhy_frontdoor"
     PROXIMAL_BRIDGE = "proximal_bridge"
     DISTRIBUTIONAL_TREATMENT_EFFECT = "distributional_treatment_effect"
+    KERNEL_CME = "kernel_cme"
+    KERNEL_FRONTDOOR = "kernel_frontdoor"
+    KERNEL_TRANSPORT = "kernel_transport"
+    KERNEL_DR_CME = "kernel_dr_cme"
+    KERNEL_IV = "kernel_iv"
+    KERNEL_PROXIMAL_MINIMAX = "kernel_proximal_minimax"
     INTERFERENCE_CATE = "interference_cate"
     CAUSAL_FOREST = "causal_forest"
     FOREST_DR = "forest_dr"
@@ -152,15 +169,27 @@ class ProofBundle(BaseModel):
     implementation_coverage: str
     graph_ref: str | None = None
     query_ref: str | None = None
+    proof_trace_ref: EvidenceBundleRef | None = None
     dp_robustness_ref: DPRobustnessCertificateRef | None = None
     frontier_sketch_ref: FrontierSketchRef | None = None
+    bridge_plausibility_report_ref: BridgePlausibilityReportRef | None = None
     proximal_certificate_ref: ProximalIdentificationCertificateRef | None = None
     recoverability_certificate_ref: RecoverabilityCertificateRef | None = None
     joint_decision_ref: JointDecisionCertificateRef | None = None
+    composability_certificate_ref: ProofComposabilityCertificateRef | None = None
+    witness_index_ref: ProofWitnessIndexRef | None = None
     estimand_ast: dict[str, Any] | None = None
     dynamic_semantics: DynamicSemanticsAttachment | None = None
     negative_certificate_summary: str | None = None
     proof_trace: list[str] = Field(default_factory=list)
+    composability_status: Literal["reusable", "revalidate", "rederive", "unknown"] = "unknown"
+    proof_support_projection_hash: str | None = None
+    invalidated_by_graph_hashes: list[str] = Field(default_factory=list)
+    uniform_probe_class_ref: str | None = None
+    operator_lift_allowed: bool = False
+    operator_lift_scope: Literal["none", "finite_audit_basis", "whole_probe_space"] = "none"
+    operator_lift_reason: str | None = None
+    operator_lift_failure_reason: str | None = None
     assumptions: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -413,6 +442,7 @@ class DataReadinessReport(BaseModel):
     positivity: PositivityDiagnosticReport | None = None
     support_mismatch: dict[str, Any] | None = None
     recoverability: dict[str, Any] | None = None
+    missingness_assessment: MissingnessAssessmentReport | None = None
     recoverability_certificate_ref: RecoverabilityCertificateRef | None = None
     joint_decision_ref: JointDecisionCertificateRef | None = None
     dp_distortion: dict[str, Any] | None = None
@@ -457,9 +487,13 @@ def proof_bundle_from_identification_result(
     graph_ref: str | None = None,
     query_ref: str | None = None,
     negative_certificate_summary: str | None = None,
+    proof_trace_ref: EvidenceBundleRef | None = None,
     recoverability_certificate: Any | None = None,
     recoverability_certificate_ref: RecoverabilityCertificateRef | None = None,
     joint_decision_ref: JointDecisionCertificateRef | None = None,
+    composability_certificate: Any | None = None,
+    composability_certificate_ref: ProofComposabilityCertificateRef | None = None,
+    witness_index_ref: ProofWitnessIndexRef | None = None,
 ) -> ProofBundle:
     """Translate an internal identification result into the canonical proof surface."""
     status_raw = _status_value(getattr(result, "status", "oracle_needed"))
@@ -489,6 +523,10 @@ def proof_bundle_from_identification_result(
     estimand_ast = getattr(result, "estimand_ast", None)
     assumptions = _extract_assumptions_from_estimand(estimand_ast)
     result_metadata = dict(getattr(result, "metadata", {}) or {})
+    resolved_proof_trace_ref = _typed_ref_from_payload(
+        proof_trace_ref or result_metadata.get("proof_trace_ref"),
+        EvidenceBundleRef,
+    )
     resolved_recoverability_ref = _typed_ref_from_payload(
         recoverability_certificate_ref or result_metadata.get("recoverability_certificate_ref"),
         RecoverabilityCertificateRef,
@@ -501,6 +539,46 @@ def proof_bundle_from_identification_result(
         result_metadata.get("frontier_sketch_ref"),
         FrontierSketchRef,
     )
+    resolved_bridge_plausibility_report_ref = _typed_ref_from_payload(
+        result_metadata.get("bridge_plausibility_report_ref"),
+        BridgePlausibilityReportRef,
+    )
+    resolved_composability_ref = _typed_ref_from_payload(
+        composability_certificate_ref or result_metadata.get("composability_certificate_ref"),
+        ProofComposabilityCertificateRef,
+    )
+    resolved_witness_index_ref = _typed_ref_from_payload(
+        witness_index_ref
+        or result_metadata.get("witness_index_ref")
+        or getattr(composability_certificate, "witness_index_ref", None),
+        ProofWitnessIndexRef,
+    )
+    resolved_composability_status = _normalize_composability_status(
+        result_metadata.get("composability_status")
+        or getattr(composability_certificate, "status", None)
+    )
+    proof_support_projection_hash = (
+        str(
+            result_metadata.get("proof_support_projection_hash")
+            or getattr(composability_certificate, "proof_support_projection_hash", "")
+            or ""
+        ).strip()
+        or None
+    )
+    invalidated_by_graph_hashes = _normalize_string_list(
+        result_metadata.get("invalidated_by_graph_hashes")
+        or getattr(composability_certificate, "invalidated_by_graph_hashes", None)
+    )
+    operator_lift_contract = _derive_operator_lift_contract(
+        estimand_ast=estimand_ast,
+        status_raw=status_raw,
+        result_metadata=result_metadata,
+    )
+    uniform_probe_class_ref = operator_lift_contract["uniform_probe_class_ref"]
+    operator_lift_allowed = operator_lift_contract["operator_lift_allowed"]
+    operator_lift_scope = operator_lift_contract["operator_lift_scope"]
+    operator_lift_reason = operator_lift_contract["operator_lift_reason"]
+    operator_lift_failure_reason = operator_lift_contract["operator_lift_failure_reason"]
     recoverability_summary = _recoverability_summary(
         recoverability_certificate
         if recoverability_certificate is not None
@@ -519,9 +597,13 @@ def proof_bundle_from_identification_result(
         ),
         graph_ref=graph_ref,
         query_ref=query_ref or getattr(result, "query_str", None),
+        proof_trace_ref=resolved_proof_trace_ref,
         frontier_sketch_ref=resolved_frontier_sketch_ref,
+        bridge_plausibility_report_ref=resolved_bridge_plausibility_report_ref,
         recoverability_certificate_ref=resolved_recoverability_ref,
         joint_decision_ref=resolved_joint_decision_ref,
+        composability_certificate_ref=resolved_composability_ref,
+        witness_index_ref=resolved_witness_index_ref,
         estimand_ast=(
             estimand_ast.model_dump(mode="json")
             if hasattr(estimand_ast, "model_dump")
@@ -530,12 +612,34 @@ def proof_bundle_from_identification_result(
         dynamic_semantics=dynamic_semantics,
         negative_certificate_summary=negative_certificate_summary,
         proof_trace=list(getattr(result, "trace", []) or []),
+        composability_status=resolved_composability_status,
+        proof_support_projection_hash=proof_support_projection_hash,
+        invalidated_by_graph_hashes=invalidated_by_graph_hashes,
+        uniform_probe_class_ref=uniform_probe_class_ref,
+        operator_lift_allowed=operator_lift_allowed,
+        operator_lift_scope=operator_lift_scope,
+        operator_lift_reason=operator_lift_reason,
+        operator_lift_failure_reason=operator_lift_failure_reason,
         assumptions=assumptions,
         metadata={
             **result_metadata,
             "status": status_raw,
             "required_distributions_count": len(
                 getattr(result, "required_distributions", []) or []
+            ),
+            **(
+                {"proof_trace_ref": resolved_proof_trace_ref.model_dump(mode="json")}
+                if resolved_proof_trace_ref is not None
+                else {}
+            ),
+            **(
+                {
+                    "bridge_plausibility_report_ref": resolved_bridge_plausibility_report_ref.model_dump(
+                        mode="json"
+                    )
+                }
+                if resolved_bridge_plausibility_report_ref is not None
+                else {}
             ),
             **(
                 {"recoverability": recoverability_summary}
@@ -560,6 +664,37 @@ def proof_bundle_from_identification_result(
             **(
                 {"frontier_sketch_ref": resolved_frontier_sketch_ref.model_dump(mode="json")}
                 if resolved_frontier_sketch_ref is not None
+                else {}
+            ),
+            **(
+                {
+                    "composability_certificate_ref": resolved_composability_ref.model_dump(
+                        mode="json"
+                    )
+                }
+                if resolved_composability_ref is not None
+                else {}
+            ),
+            **(
+                {"witness_index_ref": resolved_witness_index_ref.model_dump(mode="json")}
+                if resolved_witness_index_ref is not None
+                else {}
+            ),
+            "composability_status": resolved_composability_status,
+            "proof_support_projection_hash": proof_support_projection_hash,
+            "invalidated_by_graph_hashes": invalidated_by_graph_hashes,
+            "uniform_probe_class_ref": uniform_probe_class_ref,
+            "operator_lift_allowed": operator_lift_allowed,
+            "operator_lift_scope": operator_lift_scope,
+            "operator_lift_reason": operator_lift_reason,
+            "operator_lift_failure_reason": operator_lift_failure_reason,
+            **(
+                {
+                    "operator_audit_basis_probe_refs": operator_lift_contract[
+                        "operator_audit_basis_probe_refs"
+                    ]
+                }
+                if operator_lift_contract["operator_audit_basis_probe_refs"]
                 else {}
             ),
         },
@@ -622,6 +757,10 @@ def proof_bundle_from_negative_certificate(
         metadata.get("frontier_sketch_ref"),
         FrontierSketchRef,
     )
+    bridge_plausibility_report_ref = _typed_ref_from_payload(
+        metadata.get("bridge_plausibility_report_ref"),
+        BridgePlausibilityReportRef,
+    )
     joint_decision_summary = _joint_decision_summary(metadata.get("joint_decision"))
 
     return ProofBundle(
@@ -641,6 +780,7 @@ def proof_bundle_from_negative_certificate(
         graph_ref=graph_ref,
         query_ref=query_ref,
         frontier_sketch_ref=frontier_sketch_ref,
+        bridge_plausibility_report_ref=bridge_plausibility_report_ref,
         recoverability_certificate_ref=recoverability_certificate_ref,
         joint_decision_ref=joint_decision_ref,
         estimand_ast=None,
@@ -656,6 +796,15 @@ def proof_bundle_from_negative_certificate(
             "blocking_type": blocking_type,
             "constructive_message": str(
                 getattr(certificate, "constructive_message", "") or ""
+            ),
+            **(
+                {
+                    "bridge_plausibility_report_ref": bridge_plausibility_report_ref.model_dump(
+                        mode="json"
+                    )
+                }
+                if bridge_plausibility_report_ref is not None
+                else {}
             ),
             **(
                 {"recoverability": recoverability_summary}
@@ -730,6 +879,58 @@ def proof_bundle_from_proximal_certificate(
     )
 
 
+def proof_bundle_from_proximal_mediation_certificate(
+    certificate: "ProximalMediationCertificate",
+    *,
+    graph_ref: str | None = None,
+    query_ref: str | None = None,
+    oracle_assumptions_accepted: bool = False,
+    frontier_sketch_ref: FrontierSketchRef | None = None,
+) -> ProofBundle:
+    """Translate a proximal mediation certificate into the public proof surface."""
+
+    cert_payload = certificate.model_dump(mode="json")
+    proof_status: Literal["identified", "oracle_needed"] = (
+        "identified" if oracle_assumptions_accepted else "oracle_needed"
+    )
+    return ProofBundle(
+        proof_status=proof_status,
+        proof_stratum="A1_extended" if oracle_assumptions_accepted else "A2_oracle_backed",
+        theorem_family="proximal_mediation_thm1_dukes_2023",
+        completeness_regime=(
+            "sound_incomplete" if oracle_assumptions_accepted else "heuristic_backed"
+        ),
+        implementation_coverage="proximal_mediation_v1_single_mediator",
+        graph_ref=graph_ref,
+        query_ref=query_ref,
+        frontier_sketch_ref=frontier_sketch_ref,
+        estimand_ast=None,
+        negative_certificate_summary=None,
+        proof_trace=list(certificate.proof_trace),
+        assumptions=[
+            "consistency",
+            "positivity",
+            "latent_exchangeability_given_U_X",
+            "latent_cross_world_given_U_X",
+            "proximal_mediation_bridge_existence",
+            *[item.name for item in certificate.completeness_conditions],
+        ],
+        metadata={
+            "status": proof_status,
+            "method": "proximal_mediation",
+            "proximal_mediation_certificate": cert_payload,
+            "oracle_assumptions_accepted": oracle_assumptions_accepted,
+            "bridge_equations_count": len(certificate.bridge_equations),
+            "graph_checks_count": len(certificate.graph_checks),
+            **(
+                {"frontier_sketch_ref": frontier_sketch_ref.model_dump(mode="json")}
+                if frontier_sketch_ref is not None
+                else {}
+            ),
+        },
+    )
+
+
 def build_dynamic_proof_bundle(
     *,
     dynamic_semantics: DynamicSemanticsAttachment,
@@ -791,6 +992,7 @@ def build_data_readiness_report(
     positivity: PositivityDiagnosticReport | dict[str, Any] | None = None,
     support_mismatch: dict[str, Any] | None = None,
     recoverability_certificate: Any | None = None,
+    missingness_assessment: MissingnessAssessmentReport | dict[str, Any] | None = None,
     recoverability_certificate_ref: RecoverabilityCertificateRef | dict[str, Any] | None = None,
     joint_decision: Any | None = None,
     joint_decision_ref: JointDecisionCertificateRef | dict[str, Any] | None = None,
@@ -801,11 +1003,16 @@ def build_data_readiness_report(
 ) -> DataReadinessReport:
     """Aggregate existing causal diagnostics into a canonical readiness gate."""
     positivity_report, positivity_warning = _normalize_positivity(positivity)
+    missingness_report, missingness_warning = _normalize_missingness_assessment(
+        missingness_assessment
+    )
     metrics = dict(extra_metrics or {})
     blocking_reasons: list[str] = []
     warnings: list[str] = []
     if positivity_warning is not None:
         warnings.append(positivity_warning)
+    if missingness_warning is not None:
+        warnings.append(missingness_warning)
 
     if positivity_report is not None:
         metrics.setdefault("ess_fraction", positivity_report.ess_fraction)
@@ -871,6 +1078,34 @@ def build_data_readiness_report(
         elif status == "recoverable_under_assumptions":
             warnings.append("assumption_dependent_missingness_recovery")
 
+    if missingness_report is not None:
+        metrics.setdefault("missingness_scenario_confidence", missingness_report.scenario_confidence)
+        metrics.setdefault(
+            "missingness_covariates_present_count",
+            float(len(missingness_report.administrative_covariates_present)),
+        )
+        metrics.setdefault(
+            "missingness_covariates_missing_count",
+            float(len(missingness_report.administrative_covariates_missing)),
+        )
+        if missingness_report.testability_audit is not None:
+            metrics.setdefault(
+                "missingness_implications_tested",
+                float(missingness_report.testability_audit.implications_tested),
+            )
+            metrics.setdefault(
+                "missingness_implications_failed",
+                float(len(missingness_report.testability_audit.implications_failed)),
+            )
+            if not missingness_report.testability_audit.overall_valid:
+                warnings.append("missingness_implications_failed")
+        if missingness_report.status is MissingnessAssessmentStatus.NOT_RECOVERABLE:
+            blocking_reasons.append("missingness_not_recoverable")
+        elif missingness_report.status is MissingnessAssessmentStatus.UNKNOWN:
+            warnings.append("missingness_model_underspecified")
+        elif missingness_report.status is MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE:
+            warnings.append("missingness_partially_recoverable")
+
     if sample_size is not None:
         metrics.setdefault("sample_size", float(sample_size))
         if sample_size < 50:
@@ -889,6 +1124,7 @@ def build_data_readiness_report(
         and positivity is None
         and support_mismatch is None
         and recoverability_summary is None
+        and missingness_report is None
         and sample_size is None
     ):
         decision: Literal["pass", "warn", "block", "unknown"] = "unknown"
@@ -910,6 +1146,7 @@ def build_data_readiness_report(
         positivity=positivity_report,
         support_mismatch=dict(support_mismatch) if support_mismatch is not None else None,
         recoverability=recoverability_summary,
+        missingness_assessment=missingness_report,
         recoverability_certificate_ref=resolved_recoverability_ref,
         joint_decision_ref=resolved_joint_decision_ref,
         blocking_reasons=blocking_reasons,
@@ -948,6 +1185,20 @@ def _recoverability_summary(payload: Any) -> dict[str, Any] | None:
     return candidate
 
 
+def _normalize_missingness_assessment(
+    missingness_assessment: MissingnessAssessmentReport | dict[str, Any] | None,
+) -> tuple[MissingnessAssessmentReport | None, str | None]:
+    if missingness_assessment is None:
+        return None, None
+    if isinstance(missingness_assessment, MissingnessAssessmentReport):
+        return missingness_assessment, None
+    try:
+        return MissingnessAssessmentReport.model_validate(missingness_assessment), None
+    except (TypeError, ValueError) as exc:
+        logger.warning("Failed to parse missingness assessment for readiness report: %s", exc)
+        return None, "missingness_assessment_parse_failed"
+
+
 def _joint_decision_summary(payload: Any) -> dict[str, Any] | None:
     if payload is None:
         return None
@@ -975,6 +1226,136 @@ def _typed_ref_from_payload(payload: Any, ref_cls: type[Any]) -> Any | None:
         return ref_cls.model_validate(payload)
     except (TypeError, ValueError):
         return None
+
+
+def _normalize_composability_status(payload: Any) -> Literal["reusable", "revalidate", "rederive", "unknown"]:
+    candidate = str(getattr(payload, "value", payload) or "").strip().lower()
+    if candidate in {"reusable", "revalidate", "rederive"}:
+        return candidate
+    return "unknown"
+
+
+def _derive_operator_lift_contract(
+    *,
+    estimand_ast: Any,
+    status_raw: str,
+    result_metadata: dict[str, Any],
+) -> dict[str, Any]:
+    operator_target = _extract_operator_target_node(estimand_ast)
+    if operator_target is None:
+        return {
+            "uniform_probe_class_ref": None,
+            "operator_lift_allowed": False,
+            "operator_lift_scope": "none",
+            "operator_lift_reason": None,
+            "operator_lift_failure_reason": None,
+            "operator_audit_basis_probe_refs": [],
+        }
+
+    identification_method = str(
+        getattr(estimand_ast, "identification_method", "")
+        or result_metadata.get("identification_method")
+        or ""
+    ).strip().lower()
+    uniform_probe_class_ref = (
+        str(result_metadata.get("uniform_probe_class_ref") or "").strip()
+        or _default_uniform_probe_class_ref(operator_target)
+    )
+    operator_audit_basis_probe_refs = _normalize_string_list(
+        result_metadata.get("operator_audit_basis_probe_refs")
+    ) or _default_operator_audit_basis(operator_target)
+    probe_contract_declared = (
+        operator_target.probe_space_ref.kind == "rkhs"
+        and bool(operator_target.probe_space_ref.kernel_ref)
+        and operator_target.probe_space_ref.bounded_evaluation is not False
+    )
+    whole_space_allowed = bool(
+        status_raw == "identified"
+        and operator_target.identification_scope == "backdoor"
+        and operator_target.operator_semantics == "conditional_mean_embedding_operator"
+        and identification_method in {"backdoor", "g_formula"}
+        and probe_contract_declared
+        and uniform_probe_class_ref
+    )
+    if whole_space_allowed:
+        return {
+            "uniform_probe_class_ref": uniform_probe_class_ref,
+            "operator_lift_allowed": True,
+            "operator_lift_scope": "whole_probe_space",
+            "operator_lift_reason": "backdoor_uniform_probe_class_identified",
+            "operator_lift_failure_reason": None,
+            "operator_audit_basis_probe_refs": operator_audit_basis_probe_refs,
+        }
+
+    if status_raw != "identified":
+        failure_reason = "operator_lift_requires_identified_proof"
+    elif operator_target.identification_scope != "backdoor":
+        failure_reason = (
+            f"operator_lift_scope_deferred:{operator_target.identification_scope}"
+        )
+    elif operator_target.operator_semantics != "conditional_mean_embedding_operator":
+        failure_reason = (
+            f"operator_lift_semantics_deferred:{operator_target.operator_semantics}"
+        )
+    elif not probe_contract_declared:
+        failure_reason = "operator_probe_contract_missing"
+    else:
+        failure_reason = "operator_lift_degraded_to_audit_basis"
+    return {
+        "uniform_probe_class_ref": uniform_probe_class_ref,
+        "operator_lift_allowed": False,
+        "operator_lift_scope": "finite_audit_basis",
+        "operator_lift_reason": None,
+        "operator_lift_failure_reason": failure_reason,
+        "operator_audit_basis_probe_refs": operator_audit_basis_probe_refs,
+    }
+
+
+def _extract_operator_target_node(estimand_ast: Any) -> Any | None:
+    root = getattr(estimand_ast, "root", None)
+    if root is None:
+        return None
+    node_type = getattr(root, "node_type", None)
+    if node_type == "operator_target":
+        return root
+    if node_type == "operator_apply":
+        operator = getattr(root, "operator", None)
+        if getattr(operator, "node_type", None) == "operator_target":
+            return operator
+    return None
+
+
+def _default_uniform_probe_class_ref(operator_target: Any) -> str | None:
+    probe_space = getattr(operator_target, "probe_space_ref", None)
+    if probe_space is None:
+        return None
+    space_id = str(getattr(probe_space, "space_id", "") or "").strip()
+    if not space_id:
+        return None
+    return f"rkhs://{space_id}/unit-ball"
+
+
+def _default_operator_audit_basis(operator_target: Any) -> list[str]:
+    probe_space = getattr(operator_target, "probe_space_ref", None)
+    space_id = str(getattr(probe_space, "space_id", "") or "").strip() or "probe_space"
+    return [f"{space_id}::audit_basis::coord_0"]
+
+
+def _normalize_operator_lift_scope(
+    payload: Any,
+) -> Literal["none", "finite_audit_basis", "whole_probe_space"]:
+    candidate = str(getattr(payload, "value", payload) or "").strip().lower()
+    if candidate in {"finite_audit_basis", "whole_probe_space"}:
+        return candidate
+    return "none"
+
+
+def _normalize_string_list(payload: Any) -> list[str]:
+    if payload in (None, ""):
+        return []
+    if not isinstance(payload, (list, tuple, set)):
+        return []
+    return sorted({str(item).strip() for item in payload if str(item).strip()})
 
 
 def _status_value(status: Any) -> str:
@@ -1083,6 +1464,14 @@ def _implementation_coverage_for_result(
 def _extract_assumptions_from_estimand(estimand_ast: Any) -> list[str]:
     if estimand_ast is None:
         return []
+    if isinstance(estimand_ast, dict):
+        payload = estimand_ast.get("assumptions")
+        if isinstance(payload, (list, tuple, set)):
+            return [str(item).strip() for item in payload if str(item).strip()]
+        return []
+    payload = getattr(estimand_ast, "assumptions", None)
+    if isinstance(payload, (list, tuple, set)):
+        return [str(item).strip() for item in payload if str(item).strip()]
     side_conditions = getattr(estimand_ast, "side_conditions", None)
     if not side_conditions:
         return []
@@ -1117,5 +1506,6 @@ __all__ = [
     "load_proof_bundle",
     "proof_bundle_from_identification_result",
     "proof_bundle_from_negative_certificate",
+    "proof_bundle_from_proximal_mediation_certificate",
     "proof_bundle_from_proximal_certificate",
 ]

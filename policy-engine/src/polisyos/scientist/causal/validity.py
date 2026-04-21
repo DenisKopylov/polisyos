@@ -393,11 +393,42 @@ def _run_proximal_check(
     output = result.final_state if isinstance(result.final_state, dict) else {}
     report_payload = output.get("report")
     proximal_payload = output.get("proximal_result")
+    bridge_report = output.get("bridge_plausibility_report")
+    if not isinstance(bridge_report, Mapping) and isinstance(proximal_payload, Mapping):
+        nested_bridge_report = proximal_payload.get("bridge_plausibility_report")
+        if isinstance(nested_bridge_report, Mapping):
+            bridge_report = nested_bridge_report
     if not isinstance(report_payload, Mapping) or not isinstance(proximal_payload, Mapping):
+        failure_details = {
+            **payload,
+            "method_status": (
+                _normalize_optional_string(report_payload.get("status"))
+                if isinstance(report_payload, Mapping)
+                else None
+            ),
+            "method_reason": (
+                _normalize_optional_string(report_payload.get("status_reason"))
+                if isinstance(report_payload, Mapping)
+                else None
+            ),
+            "bridge_plausibility_report": (
+                dict(bridge_report) if isinstance(bridge_report, Mapping) else None
+            ),
+            "bounds_bundle": (
+                output.get("bounds_bundle")
+                if isinstance(output.get("bounds_bundle"), Mapping)
+                else None
+            ),
+            "negative_certificate": (
+                output.get("negative_certificate")
+                if isinstance(output.get("negative_certificate"), Mapping)
+                else None
+            ),
+        }
         return _failed_check(
             _PROXIMAL_METHOD_FQN,
-            reason="missing_result_payload",
-            details=payload,
+            reason="proximal_bridge_point_estimate_not_available",
+            details=failure_details,
         )
     confidence_interval = proximal_payload.get("confidence_interval")
     return {
@@ -412,6 +443,41 @@ def _run_proximal_check(
         ),
         "bridge_r_squared": _normalize_optional_float(proximal_payload.get("bridge_r_squared")),
         "proxy_strength": _normalize_optional_float(proximal_payload.get("proxy_strength")),
+        "bridge_plausibility_report": (
+            dict(bridge_report) if isinstance(bridge_report, Mapping) else None
+        ),
+        "bridge_plausibility_severity": _normalize_optional_string(
+            proximal_payload.get("bridge_plausibility_severity")
+            or (bridge_report.get("severity") if isinstance(bridge_report, Mapping) else None)
+        ),
+        "bridge_failure_mode": _normalize_optional_string(
+            proximal_payload.get("bridge_failure_mode")
+            or (
+                bridge_report.get("suspected_failure_mode")
+                if isinstance(bridge_report, Mapping)
+                else None
+            )
+        ),
+        "bridge_fallback_disposition": _normalize_optional_string(
+            proximal_payload.get("bridge_fallback_disposition")
+            or (
+                bridge_report.get("fallback_disposition")
+                if isinstance(bridge_report, Mapping)
+                else None
+            )
+        ),
+        "bridge_residual_r": _normalize_optional_float(
+            bridge_report.get("residual_r") if isinstance(bridge_report, Mapping) else None
+        ),
+        "bridge_effective_rank": _normalize_optional_float(
+            bridge_report.get("effective_rank") if isinstance(bridge_report, Mapping) else None
+        ),
+        "bridge_sigma_min": _normalize_optional_float(
+            bridge_report.get("sigma_min") if isinstance(bridge_report, Mapping) else None
+        ),
+        "bridge_ill_posedness_index": _normalize_optional_float(
+            bridge_report.get("ill_posedness_index") if isinstance(bridge_report, Mapping) else None
+        ),
         "method_status": _normalize_optional_string(report_payload.get("status")),
         "method_reason": _normalize_optional_string(report_payload.get("status_reason")),
     }

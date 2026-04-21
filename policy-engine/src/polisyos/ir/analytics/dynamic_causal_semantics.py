@@ -129,6 +129,13 @@ class LocalIndependenceAttachment(BaseModel):
     graphical_oracle: GraphicalOracleKind
     causal_validity_rule: str | None = None
     eliminable_processes: tuple[str, ...] = ()
+    process_family: str | None = None
+    policy_semantics: str | None = None
+    censoring_mode: str | None = None
+    identification_method: str | None = None
+    weighting_components: tuple[str, ...] = ()
+    independent_censoring_checked: bool | None = None
+    positivity_assumed: bool | None = None
     notes: tuple[str, ...] = ()
 
 

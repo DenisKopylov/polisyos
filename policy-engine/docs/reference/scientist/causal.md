@@ -47,6 +47,51 @@ capability.
 | Transportability, proxy, strategic, interference, and counterfactual readiness are explicit | Readiness entries and `run_causal_readiness` outputs, including blocker summaries where required | `tests/scientist/nodes/builtins/causal/test_run_causal_readiness.py`, `tests/scientist/nodes/builtins/causal/test_counterfactual_identification_gate.py` |
 | Frontier causal methods are not default-on | `FrontierRuntimeReport.capabilities[*].status` plus `offline_validation_ref` and `benchmark_pack_ref` before offline availability | `tests/scientist/test_frontier_runtime.py`, [frontier-runtime.md](frontier-runtime.md) |
 
+## Phase 2 Research-Result Closure Notes
+
+Stage 9.2 latent separation is now computed from raw `separation_diagnostic_inputs`
+when present. The computed payload has precedence over prefilled
+`metadata["separation_diagnostics"]`.
+
+Stage 9.3 adds judge-derived promotion semantics on top of that research lane.
+Bundles without structured `promotion_evidence` still stay
+`readiness_cap="proof_only"` with `claim_mode="proof_only"`. Bundles that pass
+the conditional promotion gate surface `claim_mode="bounded_latent"` /
+`degradation_mode="bounds_only"` and can influence bounds-grade reasoning.
+Only narrow reflective measurement scopes that also pass the validated gate can
+surface `claim_mode="validated_measurement_latent"` /
+`degradation_mode="measurement_ready"`. Human review remains mandatory at every
+latent trust level; the frontier module never self-certifies promotion on its
+own.
+
+Stage 13.2 intentionally keeps multi-target modified treatment policies as a v1
+limitation. Single-target stochastic interventions and single-target MTPs have
+the executable Phase 2 path; multi-target MTP queries return
+`oracle_needed` with an explicit non-executable reason and are deferred to
+post-Phase-2 composition work.
+
+## Phase 4 Stage 2.5 — Composition Completeness Scope
+
+`CompositionCertificate` now carries an explicit completeness-scope annotation.
+The certificate is complete (theorem-backed) only for the
+`exact_observed_dag_adjustment_v1` subclass: DAG fragments, `exact` or
+human-verified `exact` alignments (no proxy / latent-bridge), observed
+bindings, cleared review status, acyclic composition, and single-world
+`INTERVENTIONAL`/`SOFT_INTERVENTION` queries that identify via covariate
+adjustment. Within that scope `status == "preserved"` is an iff statement on
+adjustment preservation (Perković et al.). Outside that scope `preserved` is
+an engineering verdict only, reflecting the general impossibility of
+completeness for a certificate language that checks only
+`backdoor_adjustment` obligations (Shpitser–Pearl ID with hedge
+counter-examples).
+
+The composition node records the classification under
+`metadata.completeness_scope`, `metadata.completeness_basis`, and
+`metadata.non_completeness_reason`; see
+`polisyos.ir.analytics.cross_graph.completeness_scope_for_composition` for the
+classifier and the `CompositionCertificate` docstring for the full theorem
+statement, scope list, and the out-of-scope impossibility result.
+
 ## Validation Commands
 
 ```bash

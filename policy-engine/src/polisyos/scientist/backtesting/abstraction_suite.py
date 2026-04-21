@@ -19,6 +19,14 @@ from polisyos.scientist.backtesting.adversarial import (
 )
 from polisyos.scientist.doe.stress_report import VulnerabilityType
 
+_MACRO_CERTIFICATE_TYPES = frozenset(
+    (
+        AbstractionPreservationType.EXACT,
+        AbstractionPreservationType.APPROXIMATE,
+        AbstractionPreservationType.POLICY_VALUE_ONLY,
+    )
+)
+
 
 def run_abstraction_challenge_suite(
     *,
@@ -51,6 +59,10 @@ def run_abstraction_challenge_suite(
     if abstraction_certificate is None and preservation_type is None:
         warnings.append("phase_d4_abstraction_suite_audit_only")
 
+    macro_shortcut_has_certificate = _has_macro_safe_certificate(
+        abstraction_certificate,
+        abstraction_map_ref,
+    )
     case_results = []
     if preservation_type is AbstractionPreservationType.EXACT:
         case_results.append(
@@ -86,6 +98,27 @@ def run_abstraction_challenge_suite(
                 ),
             )
         )
+    elif preservation_type in {
+        AbstractionPreservationType.APPROXIMATE,
+        AbstractionPreservationType.POLICY_VALUE_ONLY,
+    } and abstraction_certificate is not None:
+        bounded_summary = (
+            "Bounded abstraction certificate carries preserved queries and error bounds."
+            if macro_shortcut_has_certificate
+            else "Bounded abstraction path is missing map evidence, queries, or error bounds."
+        )
+        case_results.append(
+            build_challenge_case_result(
+                case=ChallengeCase(
+                    case_id="bounded_certificate_path",
+                    challenge_family="abstraction_leakage",
+                    expected_outcome="bounded_certificate_with_query_scope",
+                    severity="high",
+                ),
+                passed=macro_shortcut_has_certificate,
+                summary=bounded_summary,
+            )
+        )
     else:
         case_results.append(
             build_challenge_case_result(
@@ -107,20 +140,19 @@ def run_abstraction_challenge_suite(
     case_results.append(
         build_challenge_case_result(
             case=ChallengeCase(
-                case_id="macro_shortcut_requires_exact_certificate",
+                case_id="macro_shortcut_requires_supported_certificate",
                 challenge_family="abstraction_leakage",
-                expected_outcome="macro_only_with_exact_certificate",
+                expected_outcome="macro_only_with_supported_certificate",
                 severity="critical",
             ),
             passed=(
                 not macro_shortcut_used
-                or preservation_type is AbstractionPreservationType.EXACT
+                or macro_shortcut_has_certificate
             ),
             summary=(
-                "Macro shortcut usage is backed by an exact abstraction certificate."
-                if not macro_shortcut_used
-                or preservation_type is AbstractionPreservationType.EXACT
-                else "Macro shortcut usage was observed without an exact abstraction certificate."
+                "Macro shortcut usage is backed by a supported abstraction certificate."
+                if not macro_shortcut_used or macro_shortcut_has_certificate
+                else "Macro shortcut usage was observed without a supported abstraction certificate."
             ),
         )
     )
@@ -185,6 +217,22 @@ def _uses_macro_shortcut(strategic_summary: Mapping[str, Any] | None) -> bool:
         or ""
     ).strip()
     return fallback_mode == "macro_abstracted"
+
+
+def _has_macro_safe_certificate(
+    abstraction_certificate: AbstractionCertificate | None,
+    abstraction_map_ref: ArtifactRef | None,
+) -> bool:
+    if abstraction_certificate is None or abstraction_map_ref is None:
+        return False
+    if abstraction_certificate.preservation_type not in _MACRO_CERTIFICATE_TYPES:
+        return False
+    if abstraction_certificate.preservation_type is AbstractionPreservationType.EXACT:
+        return bool(abstraction_certificate.preserved_queries)
+    return (
+        abstraction_certificate.error_bound is not None
+        and bool(abstraction_certificate.preserved_queries)
+    )
 
 
 __all__ = ["run_abstraction_challenge_suite"]

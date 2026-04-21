@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 
+import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -101,6 +103,63 @@ def _exact_abstraction_map() -> dict[str, object]:
                 "micro_variable": "Y_m",
                 "macro_variable": "Y",
                 "state_map": {"low": "low", "high": "high"},
+            },
+        ]
+    }
+
+
+def _continuous_linear_gaussian_scm(
+    *,
+    macro: bool,
+    outcome_intercept: float,
+    outcome_slope: float,
+    outcome_noise_std: float,
+) -> StructuralCausalModelSpec:
+    treatment = "T" if macro else "T_m"
+    outcome = "Y" if macro else "Y_m"
+    return StructuralCausalModelSpec(
+        graph=CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=[treatment, outcome],
+            edges=[CausalEdge(src=treatment, dst=outcome)],
+            discovery_method="test",
+        ),
+        fitted=True,
+        fit_method="manual",
+        mechanisms=[
+            NodeMechanism(
+                variable=treatment,
+                family=MechanismFamily.EMPIRICAL,
+                family_params={"mean": 0.0, "std": 1.0},
+                source=MechanismSource.DATA_FITTED,
+            ),
+            NodeMechanism(
+                variable=outcome,
+                parents=[treatment],
+                family=MechanismFamily.LINEAR,
+                family_params={
+                    "intercept": outcome_intercept,
+                    "coefficients": {treatment: outcome_slope},
+                    "noise_std": outcome_noise_std,
+                },
+                source=MechanismSource.DATA_FITTED,
+            ),
+        ],
+    )
+
+
+def _continuous_abstraction_map() -> dict[str, object]:
+    return {
+        "variable_maps": [
+            {
+                "micro_variable": "T_m",
+                "macro_variable": "T",
+                "state_map": {"__continuous__": "__continuous__"},
+            },
+            {
+                "micro_variable": "Y_m",
+                "macro_variable": "Y",
+                "state_map": {"__continuous__": "__continuous__"},
             },
         ]
     }
@@ -267,3 +326,58 @@ def test_run_abm_consistency_node_warns_when_only_heuristic_alignment_is_availab
         ctx.store, outcome.state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF]
     )
     assert "heuristic_aggregation_without_abstraction_certificate" in report.warnings
+
+
+def test_run_abm_consistency_node_persists_continuous_abstraction_certificate(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_abm_continuous")
+    state = ExperimentState(
+        run_id="R_abm_continuous",
+        params={
+            "abm_macro_micro_mappings": _single_mapping(),
+            "scm_effects": {"income_level": 1.0},
+            "abm_run_stats": {"income_level": {"effects": [0.95, 1.0, 1.05]}},
+            "continuous_micro_scm": _continuous_linear_gaussian_scm(
+                macro=False,
+                outcome_intercept=0.2,
+                outcome_slope=1.2,
+                outcome_noise_std=0.1,
+            ).model_dump(mode="json"),
+            "continuous_macro_scm": _continuous_linear_gaussian_scm(
+                macro=True,
+                outcome_intercept=0.1,
+                outcome_slope=1.0,
+                outcome_noise_std=0.2,
+            ).model_dump(mode="json"),
+            "continuous_abstraction_map": _continuous_abstraction_map(),
+            "continuous_abstraction_bound_config": {
+                "family": "continuous_linear_gaussian",
+                "preservation_type": "policy_value_only",
+                "intervention_ranges": {"T": [-1.0, 1.0]},
+                "policy_value_weights": {"Y": 1.0},
+                "state_weights": {"T": 1.0, "Y": 1.0},
+                "proof_obligations_satisfied": ["linear_gaussian_closed_form"],
+            },
+            "abstraction_preserved_queries": ["policy_value:planner_welfare"],
+        },
+    )
+
+    outcome = RunABMConsistencyCheckNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    assert ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF in outcome.state.artifacts_index
+    assert ARTIFACT_ABSTRACTION_CERTIFICATE_REF in outcome.state.artifacts_index
+    certificate = load_abstraction_certificate(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_ABSTRACTION_CERTIFICATE_REF],
+    )
+    assert certificate.preservation_type.value == "policy_value_only"
+    assert certificate.error_bound == pytest.approx(0.3)
+    assert certificate.metadata["error_bound_spec"]["recommendation_margin_required"] == (
+        pytest.approx(0.6)
+    )
+    assert outcome.state.params["abstraction_preservation_type"] == "policy_value_only"
+    report = load_abm_alignment_report(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF],
+    )
+    assert "heuristic_aggregation_without_abstraction_certificate" not in report.warnings

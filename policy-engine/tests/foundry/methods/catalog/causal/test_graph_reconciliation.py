@@ -23,7 +23,18 @@ from polisyos.ir.analytics.causal_graph import (
     EdgeSource,
     GraphType,
 )
-from polisyos.ir.analytics.cross_graph import SCMFragment
+from polisyos.ir.analytics.cross_graph import (
+    CompositionPolicy,
+    CycleScope,
+    CycleType,
+    CycleWitness,
+    GraphAuditGuarantee,
+    InterventionalClosure,
+    MarkovSemantics,
+    SCMFragment,
+    SolverKind,
+    UniquenessScope,
+)
 from polisyos.ir.analytics.literature import LiteratureCausalPrior, LiteratureEdgePrior
 
 
@@ -72,6 +83,53 @@ def _fragment(
         variable_definitions=dict(definitions or {}),
         variable_units=dict(units or {}),
         measurement_models=dict(measurement_models or {}),
+    )
+
+
+def _cycle_witness(*, initial_condition_dependent: bool = False) -> CycleWitness:
+    return CycleWitness(
+        scc_id="feedback_scc",
+        solver_kind=SolverKind.LINEAR_SOLVE,
+        uniqueness_scope=UniquenessScope.SCC,
+        interventional_closure=InterventionalClosure.INTERFACE_ONLY,
+        markov_semantics=MarkovSemantics.SIGMA_SEPARATION,
+        initial_condition_dependent=initial_condition_dependent,
+        existence_conditions=["invertible_linear_block"],
+        uniqueness_conditions=["spectral_radius_lt_1"],
+        audit_refs=["artifact:witness:feedback"],
+    )
+
+
+def _cyclic_fragment(
+    fragment_id: str,
+    *,
+    interface_variables: list[str],
+    outputs: list[str] | None = None,
+    inputs: list[str] | None = None,
+    definitions: dict[str, str] | None = None,
+    units: dict[str, str] | None = None,
+    cycle_type: CycleType = CycleType.SIMPLE_CYCLIC,
+    cycle_scope: CycleScope = CycleScope.INTERNAL_SCC,
+    composition_policy: CompositionPolicy = CompositionPolicy.REQUIRE_HUMAN_REVIEW,
+    initial_condition_dependent: bool = False,
+) -> SCMFragment:
+    return SCMFragment(
+        fragment_id=fragment_id,
+        graph_ref=f"artifact:graph:{fragment_id}",
+        semantic_namespace="policy.labor",
+        interface_variables=interface_variables,
+        exposed_inputs=list(inputs or []),
+        exposed_outputs=list(outputs or []),
+        variable_definitions=dict(
+            definitions or {name: name.replace("_", " ").title() for name in interface_variables}
+        ),
+        variable_units=dict(units or {}),
+        cycle_type=cycle_type,
+        cycle_scope=cycle_scope,
+        cycle_witnesses=[_cycle_witness(initial_condition_dependent=initial_condition_dependent)],
+        allowed_alignment_types=["exact", "scale_linked"],
+        graph_audit_guarantee=GraphAuditGuarantee.SEMANTIC_ONLY,
+        composition_policy=composition_policy,
     )
 
 
@@ -286,6 +344,220 @@ def test_compose_scm_fragments_preserves_exact_observed_interface() -> None:
     }
     assert result["composed_graph"] is not None
     assert any(node.startswith("stitched::employment_rate") for node in result["composed_graph"].nodes)
+
+    metadata = result["composition_certificate"].metadata
+    assert metadata["completeness_scope"] == "exact_observed_dag_adjustment_v1"
+    assert metadata["completeness_basis"] == [
+        "structured_cospan_composition",
+        "dag_adjustment_complete",
+    ]
+    assert metadata["non_completeness_reason"] is None
+
+
+def test_compose_scm_fragments_defers_when_cycle_contract_requires_review() -> None:
+    fragment_a = _fragment(
+        "macro",
+        interface_variables=["employment_rate"],
+        outputs=["employment_rate"],
+        definitions={"employment_rate": "Employment rate"},
+        units={"employment_rate": "percent"},
+    )
+    fragment_b = _cyclic_fragment(
+        "feedback",
+        interface_variables=["employment_rate"],
+        inputs=["employment_rate"],
+        definitions={"employment_rate": "Employment rate"},
+        units={"employment_rate": "percent"},
+        composition_policy=CompositionPolicy.REQUIRE_HUMAN_REVIEW,
+    )
+    report, mapping = verify_fragment_bundle_alignment([fragment_a, fragment_b])
+
+    result = ComposeSCMFragments.pure_step(
+        FragmentCompositionData(
+            fragments=[fragment_a, fragment_b],
+            fragment_graphs={
+                "macro": _graph(["employment_rate", "wages"], [_data_edge("employment_rate", "wages", confidence=0.9)]),
+                "feedback": _graph(["employment_rate", "training_slots"], [_data_edge("employment_rate", "training_slots", confidence=0.8)]),
+            },
+            alignment_report=report,
+            interface_mapping=mapping,
+            metadata={
+                "alignment_report_ref": "artifact:alignment:cycle-review",
+                "interface_mapping_ref": "artifact:mapping:cycle-review",
+            },
+        ),
+        params={},
+    )
+
+    certificate = result["composition_certificate"]
+
+    assert certificate.review_status == "pending_review"
+    assert certificate.status == "deferred"
+    assert any(
+        contract["fragment_id"] == "feedback" and contract["cycle_type"] == "simple_cyclic"
+        for contract in certificate.metadata["cycle_contracts"]
+    )
+
+
+def test_compose_scm_fragments_blocks_research_only_cycle_contracts() -> None:
+    fragment_a = _fragment(
+        "macro",
+        interface_variables=["employment_rate"],
+        outputs=["employment_rate"],
+        definitions={"employment_rate": "Employment rate"},
+        units={"employment_rate": "percent"},
+    )
+    fragment_b = _cyclic_fragment(
+        "feedback",
+        interface_variables=["employment_rate"],
+        inputs=["employment_rate"],
+        definitions={"employment_rate": "Employment rate"},
+        units={"employment_rate": "percent"},
+        cycle_type=CycleType.DSCM_SEMANTICS,
+        composition_policy=CompositionPolicy.REQUIRE_HUMAN_REVIEW,
+    )
+    report, mapping = verify_fragment_bundle_alignment([fragment_a, fragment_b])
+
+    result = ComposeSCMFragments.pure_step(
+        FragmentCompositionData(
+            fragments=[fragment_a, fragment_b],
+            fragment_graphs={
+                "macro": _graph(["employment_rate", "wages"], [_data_edge("employment_rate", "wages", confidence=0.9)]),
+                "feedback": _graph(["employment_rate", "training_slots"], [_data_edge("employment_rate", "training_slots", confidence=0.8)]),
+            },
+            alignment_report=report,
+            interface_mapping=mapping,
+            metadata={
+                "alignment_report_ref": "artifact:alignment:cycle-block",
+                "interface_mapping_ref": "artifact:mapping:cycle-block",
+            },
+        ),
+        params={},
+    )
+
+    assert result["composition_certificate"].status == "broken"
+    assert any(
+        "research-only cycle semantics dscm_semantics" in reason
+        for reason in result["blocking_reasons"]
+    )
+
+
+def test_compose_scm_fragments_allows_supported_internal_cyclic_scc() -> None:
+    fragment_a = _fragment(
+        "macro",
+        interface_variables=["employment_rate"],
+        outputs=["employment_rate"],
+        definitions={"employment_rate": "Employment rate"},
+        units={"employment_rate": "percent"},
+    )
+    fragment_b = _cyclic_fragment(
+        "feedback",
+        interface_variables=["employment_rate"],
+        inputs=["employment_rate"],
+        definitions={"employment_rate": "Employment rate"},
+        units={"employment_rate": "percent"},
+        composition_policy=CompositionPolicy.ALLOW,
+    )
+    report, mapping = verify_fragment_bundle_alignment([fragment_a, fragment_b])
+
+    result = ComposeSCMFragments.pure_step(
+        FragmentCompositionData(
+            fragments=[fragment_a, fragment_b],
+            fragment_graphs={
+                "macro": _graph(["tax", "employment_rate"], [_data_edge("tax", "employment_rate", confidence=0.9)]),
+                "feedback": _graph(
+                    ["employment_rate", "wage_pressure"],
+                    [
+                        _data_edge("employment_rate", "wage_pressure", confidence=0.8),
+                        _data_edge("wage_pressure", "employment_rate", confidence=0.8),
+                    ],
+                    graph_type=GraphType.ADMG,
+                ),
+            },
+            alignment_report=report,
+            interface_mapping=mapping,
+            metadata={
+                "alignment_report_ref": "artifact:alignment:cycle-allow",
+                "interface_mapping_ref": "artifact:mapping:cycle-allow",
+            },
+        ),
+        params={},
+    )
+
+    certificate = result["composition_certificate"]
+
+    assert certificate.status == "preserved"
+    assert certificate.structure_status == "valid"
+    assert certificate.review_status == "clear"
+    assert result["composed_graph"] is not None
+    assert result["composed_graph"].graph_type is GraphType.ADMG
+    assert result["composed_graph"].metadata["cycle_semantics_mode"] == "sigma_separation"
+    assert result["composed_graph"].metadata["directed_cycle_present"] is True
+    assert certificate.metadata["cross_fragment_cycle_components"] == []
+    assert not any("directed cycle" in reason.lower() for reason in result["blocking_reasons"])
+
+
+def test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc() -> None:
+    fragment_a = _cyclic_fragment(
+        "macro_feedback",
+        interface_variables=["employment_rate", "inflation"],
+        inputs=["employment_rate", "inflation"],
+        definitions={
+            "employment_rate": "Employment rate",
+            "inflation": "Inflation rate",
+        },
+        units={"employment_rate": "percent", "inflation": "percent"},
+        composition_policy=CompositionPolicy.ALLOW,
+    )
+    fragment_b = _cyclic_fragment(
+        "wage_feedback",
+        interface_variables=["employment_rate", "inflation"],
+        inputs=["employment_rate", "inflation"],
+        definitions={
+            "employment_rate": "Employment rate",
+            "inflation": "Inflation rate",
+        },
+        units={"employment_rate": "percent", "inflation": "percent"},
+        composition_policy=CompositionPolicy.ALLOW,
+    )
+    report, mapping = verify_fragment_bundle_alignment([fragment_a, fragment_b])
+
+    result = ComposeSCMFragments.pure_step(
+        FragmentCompositionData(
+            fragments=[fragment_a, fragment_b],
+            fragment_graphs={
+                "macro_feedback": _graph(
+                    ["employment_rate", "inflation"],
+                    [_data_edge("inflation", "employment_rate", confidence=0.8)],
+                    graph_type=GraphType.ADMG,
+                ),
+                "wage_feedback": _graph(
+                    ["employment_rate", "inflation"],
+                    [_data_edge("employment_rate", "inflation", confidence=0.8)],
+                    graph_type=GraphType.ADMG,
+                ),
+            },
+            alignment_report=report,
+            interface_mapping=mapping,
+            metadata={
+                "alignment_report_ref": "artifact:alignment:cross-cycle",
+                "interface_mapping_ref": "artifact:mapping:cross-cycle",
+            },
+        ),
+        params={},
+    )
+
+    assert result["composition_certificate"].status == "broken"
+    assert result["composed_graph"] is not None
+    assert any(
+        "disconnected" in reason.lower()
+        for reason in result["blocking_reasons"]
+    )
+    assert {card.failure_type for card in result["failure_cards"]} >= {
+        "fragment_topology_disconnected",
+        "completeness_scope_cyclic",
+        "completeness_scope_non_dag",
+    }
 
 
 def test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg() -> None:
@@ -557,6 +829,15 @@ def test_compose_scm_fragments_allows_proxy_but_marks_deferred() -> None:
         "proxy_alignment_pending_review"
     }
 
+    metadata = result["composition_certificate"].metadata
+    assert metadata["completeness_scope"] is None
+    assert metadata["completeness_basis"] == [
+        "structured_cospan_composition",
+        "dag_adjustment_complete",
+    ]
+    non_completeness_codes = set(metadata["non_completeness_reason"].split(";"))
+    assert {"pending_review", "proxy_alignment"}.issubset(non_completeness_codes)
+
 
 def test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved() -> None:
     fragment_a = _fragment(
@@ -598,7 +879,17 @@ def test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved() -> N
     assert result["composition_certificate"].structure_status == "valid"
     assert result["composition_certificate"].review_status == "clear"
     assert result["needs_expert_review"] is False
-    assert result["failure_cards"] == []
+    assert {card.failure_type for card in result["failure_cards"]} == {
+        "completeness_scope_proxy"
+    }
+
+    # Even with human review promoting proxy to `preserved`, the certificate is
+    # engineering-verdict preserved rather than theorem-backed: the alignment
+    # type remains ``proxy`` and therefore falls outside the
+    # ``exact_observed_dag_adjustment_v1`` completeness scope.
+    metadata = result["composition_certificate"].metadata
+    assert metadata["completeness_scope"] is None
+    assert metadata["non_completeness_reason"] == "proxy_alignment"
 
 
 def test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels() -> None:
@@ -761,4 +1052,6 @@ def test_compose_scm_fragments_allows_human_verified_latent_bridge() -> None:
     assert result["composition_certificate"].structure_status == "valid"
     assert result["composition_certificate"].review_status == "clear"
     assert result["needs_expert_review"] is False
-    assert result["failure_cards"] == []
+    assert {card.failure_type for card in result["failure_cards"]} == {
+        "completeness_scope_latent_bridge"
+    }

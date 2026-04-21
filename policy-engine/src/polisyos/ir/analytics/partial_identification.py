@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import BoundsBundleRef, DualCertificateRef
+from polisyos.ir.refs import BoundsBundleRef, BoundsTighteningLogRef, DualCertificateRef
 
 
 class BoundMethod(str, Enum):
@@ -40,6 +40,34 @@ class BoundMethod(str, Enum):
     """Sharp per-γ p-value bounds for matched pairs (Rosenbaum 2002)."""
 
 
+class BoundSoundnessLevel(str, Enum):
+    """Soundness tier for one bounds result."""
+
+    CERTIFIED = "CERTIFIED"
+    ASSUMPTION_ONLY = "ASSUMPTION_ONLY"
+    HEURISTIC = "HEURISTIC"
+
+
+class TighteningStatus(str, Enum):
+    """Outcome of certified bound tightening."""
+
+    NOT_RUN = "not_run"
+    IMPROVED = "improved"
+    EXHAUSTED_NO_IMPROVEMENT = "exhausted_no_improvement"
+    INCOMPLETE = "incomplete"
+    BLOCKED = "blocked"
+
+
+class TighteningStopReason(str, Enum):
+    """Formal stopping reasons for certified tightening."""
+
+    EXHAUSTED_CLASS_NO_IMPROVEMENT = "exhausted_class_no_improvement"
+    CLASS_NOT_CERTIFIABLE_WITH_BACKEND = "class_not_certifiable_with_backend"
+    MODEL_INFEASIBLE_UNDER_ALL_TIGHTENERS = "model_infeasible_under_all_tighteners"
+    BUDGET_EXCEEDED = "budget_exceeded"
+    NOT_RUN = "not_run"
+
+
 class PartialIdentificationResult(BaseModel):
     """Result of partial identification analysis (e.g., Manski bounds on ATE)."""
 
@@ -65,6 +93,10 @@ class PartialIdentificationResult(BaseModel):
     """Human-readable label for UI display, e.g. 'Manski Worst-Case Bounds'."""
     chart_type: str = "interval"
     """Visualization hint: 'interval' | 'density' | 'scatter'."""
+    certificate_ref: DualCertificateRef | BoundsTighteningLogRef | None = None
+    certificate_kind: str | None = None
+    soundness_level: BoundSoundnessLevel | None = None
+    solver_metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _compute_derived(self) -> "PartialIdentificationResult":
@@ -91,6 +123,10 @@ class PartialIdentificationResult(BaseModel):
             "n_refinement_steps": self.n_refinement_steps,
             "display_label": self.display_label or self.method.value,
             "chart_type": self.chart_type,
+            "certificate_kind": self.certificate_kind,
+            "soundness_level": (
+                self.soundness_level.value if self.soundness_level is not None else None
+            ),
         }
 
 
@@ -192,9 +228,74 @@ class BoundsMethodSummary(BaseModel):
     lower_bound: float
     upper_bound: float
     bound_width: float
+    certificate_ref: DualCertificateRef | BoundsTighteningLogRef | None = None
     assumptions_used: list[str] = Field(default_factory=list)
     bounds_type: str = "manski"
     display_label: str = ""
+    certificate_kind: str | None = None
+    soundness_level: BoundSoundnessLevel | None = None
+    solver_metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class BoundTighteningLogEntry(BaseModel):
+    """One candidate evaluation in a certified tightening search."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    method: BoundMethod
+    lower_bound: float | None = None
+    upper_bound: float | None = None
+    bound_width: float | None = None
+    status: Literal[
+        "baseline",
+        "certified_improvement",
+        "certified_no_improvement",
+        "infeasible",
+        "uncertified",
+        "skipped",
+    ]
+    reason: str = ""
+    certificate_kind: str | None = None
+    soundness_level: BoundSoundnessLevel | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class BestInClassClaim(BaseModel):
+    """Certified best-in-class tightening claim over a finite search class."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    class_name: str
+    class_spec_hash: str = ""
+    status: TighteningStatus = TighteningStatus.NOT_RUN
+    stop_reason: TighteningStopReason | None = None
+    baseline_method: BoundMethod | None = None
+    baseline_lower_bound: float | None = None
+    baseline_upper_bound: float | None = None
+    selected_method: BoundMethod | None = None
+    lower_bound: float | None = None
+    upper_bound: float | None = None
+    certified_width_reduction: float | None = None
+    proof_ref: BoundsTighteningLogRef | None = None
+    proof_note: str = ""
+    log: list[BoundTighteningLogEntry] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class BoundsTighteningLog(BaseModel):
+    """Persisted proof-of-stopping log for a certified tightening search."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    class_name: str
+    class_spec_hash: str
+    status: TighteningStatus
+    stop_reason: TighteningStopReason | None = None
+    proof_note: str = ""
+    entries: list[BoundTighteningLogEntry] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class BoundsBundle(BaseModel):
@@ -211,6 +312,10 @@ class BoundsBundle(BaseModel):
     consensus_upper: float | None = None
     dual_certificate_ref: DualCertificateRef | None = None
     sharpness_status: Literal["sharp", "inner_approx", "outer_approx", "unknown"] = "unknown"
+    tightening_status: TighteningStatus = TighteningStatus.NOT_RUN
+    tightening_stop_reason: TighteningStopReason | None = None
+    tightening_log_ref: BoundsTighteningLogRef | None = None
+    best_in_class_claim: BestInClassClaim | None = None
     method_summaries: list[BoundsMethodSummary] = Field(default_factory=list)
     rescue_actions: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
@@ -246,9 +351,13 @@ def bounds_bundle_from_partial_identification_result(
                 lower_bound=result.lower_bound,
                 upper_bound=result.upper_bound,
                 bound_width=result.bound_width,
+                certificate_ref=result.certificate_ref,
                 assumptions_used=list(result.assumptions_used),
                 bounds_type=result.bounds_type,
                 display_label=result.display_label,
+                certificate_kind=result.certificate_kind,
+                soundness_level=result.soundness_level,
+                solver_metadata=dict(result.solver_metadata),
             )
         ],
         rescue_actions=list(rescue_actions or []),
@@ -271,9 +380,13 @@ def bounds_bundle_from_bounds_report(
             lower_bound=result.lower_bound,
             upper_bound=result.upper_bound,
             bound_width=result.bound_width,
+            certificate_ref=result.certificate_ref,
             assumptions_used=list(result.assumptions_used),
             bounds_type=result.bounds_type,
             display_label=result.display_label,
+            certificate_kind=result.certificate_kind,
+            soundness_level=result.soundness_level,
+            solver_metadata=dict(result.solver_metadata),
         )
         for result in report.results
     ]
@@ -311,6 +424,81 @@ def bounds_bundle_from_bounds_report(
     )
 
 
+def annotate_bounds_bundle_for_proximal_bridge_failure(
+    bundle: BoundsBundle,
+    report: "BridgePlausibilityReport",
+    *,
+    rescue_actions: list[str] | None = None,
+    warnings: list[str] | None = None,
+) -> BoundsBundle:
+    """Attach proximal bridge failure metadata to a fallback bounds bundle."""
+
+    from polisyos.ir.analytics.proximal import (
+        BridgeFailureMode,
+        BridgeFallbackDisposition,
+        BridgePlausibilityReport,
+    )
+
+    resolved_report = (
+        report
+        if isinstance(report, BridgePlausibilityReport)
+        else BridgePlausibilityReport.model_validate(report)
+    )
+
+    marker_by_mode = {
+        BridgeFailureMode.INFEASIBLE_EQUATION: "proximal_bridge_equation_infeasible",
+        BridgeFailureMode.WEAK_COMPLETENESS: "proximal_completeness_unlikely",
+        BridgeFailureMode.ILL_POSED: "proximal_bridge_ill_posed",
+        BridgeFailureMode.NONUNIQUE_SOLUTION: "proximal_bridge_nonunique",
+        BridgeFailureMode.UNKNOWN: "proximal_bridge_unresolved",
+        BridgeFailureMode.NONE: "proximal_bridge_warning",
+    }
+
+    bundle_warnings = list(bundle.warnings)
+    for warning in warnings or ():
+        if warning not in bundle_warnings:
+            bundle_warnings.append(warning)
+
+    mode_warning = marker_by_mode[resolved_report.suspected_failure_mode]
+    if mode_warning not in bundle_warnings:
+        bundle_warnings.append(mode_warning)
+
+    if resolved_report.fallback_disposition is BridgeFallbackDisposition.REQUIRE_BOUNDS:
+        marker = "proximal_bounds_required"
+        if marker not in bundle_warnings:
+            bundle_warnings.append(marker)
+    elif resolved_report.fallback_disposition is BridgeFallbackDisposition.BLOCK_POINT_ESTIMATE:
+        marker = "proximal_point_estimate_blocked"
+        if marker not in bundle_warnings:
+            bundle_warnings.append(marker)
+    elif resolved_report.fallback_disposition is BridgeFallbackDisposition.PROCEED_WITH_WARNING:
+        marker = "proximal_point_estimate_warned"
+        if marker not in bundle_warnings:
+            bundle_warnings.append(marker)
+
+    next_actions = list(bundle.rescue_actions)
+    for action in (*resolved_report.recommended_rescue_actions, *(rescue_actions or ())):
+        if action not in next_actions:
+            next_actions.append(action)
+
+    metadata = dict(bundle.metadata)
+    metadata["proximal_bridge_plausibility"] = resolved_report.model_dump(mode="json")
+    metadata["proximal_bridge_failure_mode"] = resolved_report.suspected_failure_mode.value
+    metadata["proximal_fallback_disposition"] = (
+        resolved_report.fallback_disposition.value
+        if resolved_report.fallback_disposition is not None
+        else None
+    )
+
+    return bundle.model_copy(
+        update={
+            "rescue_actions": next_actions,
+            "warnings": bundle_warnings,
+            "metadata": metadata,
+        }
+    )
+
+
 def _sharpness_from_bounds_type(
     bounds_type: str,
     *,
@@ -334,10 +522,28 @@ def _tightest_method_summary(
     return min(method_summaries, key=lambda item: item.bound_width)
 
 
+def _headline_method_summary(bundle: BoundsBundle) -> BoundsMethodSummary | None:
+    claim = bundle.best_in_class_claim
+    if (
+        claim is not None
+        and claim.selected_method is not None
+        and claim.lower_bound is not None
+        and claim.upper_bound is not None
+    ):
+        for summary in bundle.method_summaries:
+            if (
+                summary.method is claim.selected_method
+                and abs(summary.lower_bound - claim.lower_bound) <= 1e-12
+                and abs(summary.upper_bound - claim.upper_bound) <= 1e-12
+            ):
+                return summary
+    return _tightest_method_summary(bundle.method_summaries)
+
+
 def refresh_bounds_bundle_sharpness(bundle: BoundsBundle) -> BoundsBundle:
     """Recompute bundle sharpness from the tightest method and certificate availability."""
 
-    tightest = _tightest_method_summary(bundle.method_summaries)
+    tightest = _headline_method_summary(bundle)
     sharpness_status = (
         "unknown"
         if tightest is None
@@ -355,8 +561,46 @@ def attach_dual_certificate_ref(
 ) -> BoundsBundle:
     """Attach a persisted dual-certificate ref and recompute sharpness."""
 
+    method_summaries = list(bundle.method_summaries)
+    headline = _headline_method_summary(bundle)
+    if dual_certificate_ref is not None and headline is not None:
+        method_summaries = [
+            summary.model_copy(
+                update={
+                    "certificate_ref": dual_certificate_ref,
+                    "certificate_kind": summary.certificate_kind or "lp_primal_dual",
+                    "soundness_level": summary.soundness_level or BoundSoundnessLevel.CERTIFIED,
+                }
+            )
+            if summary == headline
+            else summary
+            for summary in method_summaries
+        ]
     return refresh_bounds_bundle_sharpness(
-        bundle.model_copy(update={"dual_certificate_ref": dual_certificate_ref})
+        bundle.model_copy(
+            update={
+                "dual_certificate_ref": dual_certificate_ref,
+                "method_summaries": method_summaries,
+            }
+        )
+    )
+
+
+def attach_tightening_log_ref(
+    bundle: BoundsBundle,
+    tightening_log_ref: BoundsTighteningLogRef | None,
+) -> BoundsBundle:
+    """Attach a persisted certified-tightening log ref to the bundle and claim."""
+
+    claim = bundle.best_in_class_claim
+    updated_claim = (
+        None if claim is None else claim.model_copy(update={"proof_ref": tightening_log_ref})
+    )
+    return bundle.model_copy(
+        update={
+            "tightening_log_ref": tightening_log_ref,
+            "best_in_class_claim": updated_claim,
+        }
     )
 
 
@@ -379,6 +623,69 @@ def persist_bounds_bundle(
         canon_spec=CanonSpec(forbid_floats=False),
     )
     return BoundsBundleRef.model_validate(ref)
+
+
+def persist_bounds_tightening_log(
+    store: ArtifactStore,
+    log: BoundsTighteningLog,
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = "ir.bounds_tightening_log",
+    schema_version: str = "1.0",
+) -> BoundsTighteningLogRef:
+    """Persist certified bounds-tightening proof-of-stopping log."""
+
+    ref = put_json_artifact(
+        store,
+        log.model_dump(mode="json"),
+        kind="ir.bounds_tightening_log",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return BoundsTighteningLogRef.model_validate(ref)
+
+
+def load_bounds_tightening_log(
+    store: ArtifactStore,
+    ref: BoundsTighteningLogRef,
+) -> BoundsTighteningLog:
+    """Load certified bounds-tightening proof-of-stopping log."""
+
+    payload = get_json_artifact(store, ref.artifact_id)
+    return BoundsTighteningLog.model_validate(payload)
+
+
+def bounds_tightening_log_from_claim(claim: BestInClassClaim) -> BoundsTighteningLog:
+    """Build a persisted-log payload from an inline best-in-class claim."""
+
+    return BoundsTighteningLog(
+        class_name=claim.class_name,
+        class_spec_hash=claim.class_spec_hash,
+        status=claim.status,
+        stop_reason=claim.stop_reason,
+        proof_note=claim.proof_note,
+        entries=list(claim.log),
+        metadata=dict(claim.metadata),
+    )
+
+
+def hydrate_bounds_bundle_with_tightening_log(
+    store: ArtifactStore,
+    bundle: BoundsBundle,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> tuple[BoundsBundle, list[InputRef]]:
+    """Persist an inline best-in-class claim log and attach its ref."""
+
+    resolved_inputs = list(inputs or [])
+    if bundle.best_in_class_claim is None or bundle.tightening_log_ref is not None:
+        return bundle, resolved_inputs
+    log = bounds_tightening_log_from_claim(bundle.best_in_class_claim)
+    log_ref = persist_bounds_tightening_log(store, log, inputs=resolved_inputs)
+    resolved_inputs.append(InputRef(artifact_id=log_ref.artifact_id, role="bounds_tightening_log"))
+    return attach_tightening_log_ref(bundle, log_ref), resolved_inputs
 
 
 def load_bounds_bundle(
@@ -436,16 +743,28 @@ def compute_manski_bounds(
 
 __all__ = [
     "BoundMethod",
+    "BoundSoundnessLevel",
+    "BestInClassClaim",
+    "BoundTighteningLogEntry",
+    "BoundsTighteningLog",
     "BoundsBundle",
     "BoundsMethodSummary",
     "BoundsReport",
     "PartialIdentificationResult",
     "SensitivitySweepResult",
+    "TighteningStatus",
+    "TighteningStopReason",
     "attach_dual_certificate_ref",
+    "attach_tightening_log_ref",
+    "annotate_bounds_bundle_for_proximal_bridge_failure",
+    "bounds_tightening_log_from_claim",
     "bounds_bundle_from_bounds_report",
     "bounds_bundle_from_partial_identification_result",
     "compute_manski_bounds",
+    "hydrate_bounds_bundle_with_tightening_log",
     "load_bounds_bundle",
+    "load_bounds_tightening_log",
     "persist_bounds_bundle",
+    "persist_bounds_tightening_log",
     "refresh_bounds_bundle_sharpness",
 ]

@@ -5,6 +5,9 @@ import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
+    ModelClassCompatibilityReport,
+    ModelClassConstraintResult,
+    ModelClassFiniteSampleTest,
     NegativeCertificate,
     SuggestedExperiment,
     load_negative_certificate,
@@ -12,7 +15,10 @@ from polisyos.ir.analytics.negative_certificate import (
 )
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
+    BoundsBundle,
     PartialIdentificationResult,
+    TighteningStatus,
+    TighteningStopReason,
 )
 
 
@@ -35,6 +41,7 @@ class TestBlockingType:
             "hedge_structure", "s_node_unresolved", "positivity_violation",
             "support_mismatch", "missing_distribution",
             "missingness_not_recoverable",
+            "model_class_incompatible",
         }
         actual = {bt.value for bt in BlockingType}
         assert expected <= actual
@@ -132,6 +139,62 @@ class TestNegativeCertificate:
         assert cert.partial_bounds is None
         assert cert.constructive_message == ""
         assert cert.recovery_plan is not None
+
+    def test_recovery_plan_carries_bounds_tightening_stop_reason(self):
+        cert = NegativeCertificate(
+            blocking_type=BlockingType.HEDGE_STRUCTURE,
+            blocking_description="hedge test",
+            bounds_bundle=BoundsBundle(
+                lower_bound=-0.2,
+                upper_bound=0.5,
+                tightening_status=TighteningStatus.BLOCKED,
+                tightening_stop_reason=TighteningStopReason.CLASS_NOT_CERTIFIABLE_WITH_BACKEND,
+            ),
+        )
+
+        assert cert.recovery_plan is not None
+        assert cert.recovery_plan.stop_reason == "class_not_certifiable_with_backend"
+        assert any(
+            "solver/backend" in action for action in cert.recovery_plan.candidate_actions
+        )
+
+    def test_model_class_compatibility_payload_round_trips(self):
+        compatibility = ModelClassCompatibilityReport(
+            compatibility_status="incompatible",
+            model_class_id="iv.binary.unconditional",
+            observed_variables=("Z", "D", "Y"),
+            constraint_family_name="instrumental_inequalities_wang_robins_richardson_2017",
+            constraints=(
+                ModelClassConstraintResult(
+                    constraint_id="iv_binary:d0:y0",
+                    expression_ast="P(D=0,Y=0|Z=1) + P(D=0,Y=1|Z=0) <= 1",
+                    lhs_estimate=1.25,
+                    violation_margin=0.25,
+                    p_value=0.001,
+                    adjusted_p_value=0.004,
+                    rejected=True,
+                ),
+            ),
+            finite_sample_test=ModelClassFiniteSampleTest(
+                test_name="fisher_exact_one_sided",
+                alpha=0.05,
+                multiple_testing="holm",
+                rejection_set=("iv_binary:d0:y0",),
+            ),
+            evidence_summary={"n": 800, "max_violation_margin": 0.25},
+        )
+        cert = NegativeCertificate(
+            blocking_type=BlockingType.MODEL_CLASS_INCOMPATIBLE,
+            blocking_description="binary IV class falsified",
+            model_class_compatibility=compatibility,
+        )
+
+        restored = NegativeCertificate.model_validate(cert.model_dump(mode="json"))
+
+        assert restored.model_class_compatibility is not None
+        assert restored.model_class_compatibility.model_class_id == "iv.binary.unconditional"
+        assert restored.model_class_compatibility.constraints[0].rejected is True
+        assert restored.model_class_compatibility.finite_sample_test.test_name == "fisher_exact_one_sided"
 
 
 class TestSuggestedExperiment:
@@ -257,6 +320,14 @@ class TestTrack6Additions:
             BlockingType.SUPPORT_MISMATCH
         )
         assert suggestions == ()
+
+    def test_auto_suggest_model_class_incompatible(self):
+        suggestions = NegativeCertificate.auto_suggest_experiments(
+            BlockingType.MODEL_CLASS_INCOMPATIBLE,
+            missing_vars=("Z", "D", "Y"),
+        )
+        assert len(suggestions) == 1
+        assert "Re-specify the causal design" in suggestions[0].description
 
     def test_quantitative_diagnostics_field(self):
         cert = NegativeCertificate(

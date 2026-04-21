@@ -5,6 +5,12 @@ import {
   asString,
   toDisplayLabel,
 } from "../parsing";
+import {
+  type MetricValidationComparisonRow,
+  type MetricValidationFamilyAdjustment,
+  parseMetricValidationComparisonRows,
+  parseMetricValidationFamilyAdjustment,
+} from "./metricValidation";
 
 export type SimulationMetric = {
   key: string;
@@ -16,6 +22,13 @@ export type SimulationMetric = {
   ciLower: number | null;
   ciUpper: number | null;
   ciLevel: number | null;
+  pValue?: number | null;
+  pAdj?: number | null;
+  alpha?: number | null;
+  significant?: boolean | null;
+  testLabel?: string | null;
+  effectSize?: number | null;
+  assumptionWarnings?: string[];
 };
 
 export type TimeSeriesPoint = {
@@ -121,9 +134,21 @@ export type MetricBound = {
   ciLevel: number | null;
 };
 
+export type MetricSignificance = {
+  pValue: number | null;
+  pAdj: number | null;
+  alpha: number | null;
+  significant: boolean | null;
+  testLabel: string | null;
+  effectSize: number | null;
+  assumptionWarnings: string[];
+};
+
 export type SimulationViewModel = {
   sourceKind: string;
   metrics: SimulationMetric[];
+  metricComparisons: MetricValidationComparisonRow[];
+  metricValidationFamilyAdjustment: MetricValidationFamilyAdjustment | null;
   timeSeries: TimeSeries[];
   distributional: DistributionalModel | null;
   calibration: CalibrationModel | null;
@@ -171,6 +196,7 @@ function formatMetric(
   key: string,
   value: number,
   bounds: MetricBound | null,
+  significance: MetricSignificance | null,
 ): SimulationMetric {
   const spec = KEY_TO_LABEL[key] ?? {
     label: toDisplayLabel(key),
@@ -179,6 +205,18 @@ function formatMetric(
   };
   const scaled = value * spec.scale;
   const maxFraction = Math.abs(scaled) >= 100 ? 1 : 2;
+
+  const significanceFields = significance
+    ? {
+        pValue: significance.pValue,
+        pAdj: significance.pAdj,
+        alpha: significance.alpha,
+        significant: significance.significant,
+        testLabel: significance.testLabel,
+        effectSize: significance.effectSize,
+        assumptionWarnings: significance.assumptionWarnings,
+      }
+    : {};
 
   return {
     key,
@@ -190,6 +228,7 @@ function formatMetric(
     ciLower: bounds?.lower ?? null,
     ciUpper: bounds?.upper ?? null,
     ciLevel: bounds?.ciLevel ?? null,
+    ...significanceFields,
   };
 }
 
@@ -251,10 +290,42 @@ function collectNumericMetrics(
     );
 }
 
+function parseMetricSignificance(
+  record: Record<string, unknown> | null,
+): Record<string, MetricSignificance> {
+  if (!record) {
+    return {};
+  }
+
+  const out: Record<string, MetricSignificance> = {};
+  for (const [metricId, value] of Object.entries(record)) {
+    const entry = asRecord(value);
+    if (!entry) {
+      continue;
+    }
+    out[metricId] = {
+      pValue: asNumber(entry.p_value),
+      pAdj: asNumber(entry.p_adj),
+      alpha: asNumber(entry.alpha),
+      significant:
+        typeof entry.significant === "boolean"
+          ? entry.significant
+          : null,
+      testLabel: asString(entry.test_label),
+      effectSize: asNumber(entry.effect_size),
+      assumptionWarnings: asArray(entry.assumption_warnings)
+        .map((item) => asString(item))
+        .filter((item): item is string => Boolean(item)),
+    };
+  }
+  return out;
+}
+
 function parseMetrics(
   payload: Record<string, unknown>,
   artifactKind: string,
   boundsByMetric: Record<string, MetricBound>,
+  significanceByMetric: Record<string, MetricSignificance>,
 ): SimulationMetric[] {
   const candidates: Array<{ key: string; value: number }> = [];
 
@@ -292,7 +363,12 @@ function parseMetrics(
   }
 
   const metrics = Array.from(deduped.entries()).map(([key, value]) =>
-    formatMetric(key, value, boundsByMetric[key] ?? null),
+    formatMetric(
+      key,
+      value,
+      boundsByMetric[key] ?? null,
+      significanceByMetric[key] ?? null,
+    ),
   );
 
   const maxAbs = Math.max(
@@ -687,6 +763,9 @@ function detectSourceKind(
   if (artifactKind === "ir.uncertainty_envelope") {
     return "uncertainty_envelope";
   }
+  if (artifactKind === "scientist.metric_validation_report") {
+    return "metric_validation_report";
+  }
   if (asRecord(payload.simulation_results)) {
     return "simulation_bundle";
   }
@@ -703,7 +782,21 @@ export function normalizeSimulationPayload(
   }
 
   const boundsByMetric = parseBounds(asRecord(payload.uncertainty_bounds));
-  const metrics = parseMetrics(payload, artifactKind, boundsByMetric);
+  const significanceByMetric = parseMetricSignificance(
+    asRecord(payload.metric_significance),
+  );
+  const metricComparisons = parseMetricValidationComparisonRows(
+    payload.metric_validation_comparisons ?? payload.comparisons,
+  );
+  const metricValidationFamilyAdjustment = parseMetricValidationFamilyAdjustment(
+    payload.metric_validation_family_adjustment ?? payload.family_adjustment,
+  );
+  const metrics = parseMetrics(
+    payload,
+    artifactKind,
+    boundsByMetric,
+    significanceByMetric,
+  );
   const timeSeries = parseTimeSeries(payload);
   const distributional = parseDistributional(payload, artifactKind);
   const calibration = parseCalibration(payload, artifactKind);
@@ -715,7 +808,12 @@ export function normalizeSimulationPayload(
       "SimulationResult mostly stores refs; inspect linked artifacts for full metrics and charts.",
     );
   }
-  if (metrics.length === 0) {
+  if (artifactKind === "scientist.metric_validation_report") {
+    notes.push(
+      "Formal metric validation focuses on pairwise comparisons and multiplicity-adjusted significance.",
+    );
+  }
+  if (metrics.length === 0 && metricComparisons.length === 0) {
     notes.push("No numeric metrics were detected in this payload.");
   }
   if (timeSeries.length === 0) {
@@ -725,6 +823,8 @@ export function normalizeSimulationPayload(
   return {
     sourceKind: detectSourceKind(artifactKind, payload),
     metrics,
+    metricComparisons,
+    metricValidationFamilyAdjustment,
     timeSeries,
     distributional,
     calibration,

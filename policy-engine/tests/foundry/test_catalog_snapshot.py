@@ -169,7 +169,8 @@ def test_method_catalog_snapshot_exposes_v2_capability_matrix_fields() -> None:
     assert entry.capability_matrix["execution_backend"] == "numpy"
     assert entry.capability_matrix["required_deps"] == ["numpy"]
     assert entry.capability_matrix["runnable"] is True
-    assert entry.truthfulness_tier == "production_method"
+    assert entry.truthfulness_tier == "unverified"
+    assert entry.implementation_depth_tier == "production_method"
     assert entry.effect_semantics["method_kind"] == "pure"
     assert entry.shape_semantics["input_arity"] >= 0
     assert entry.dependency_semantics["hard_requires"] == []
@@ -180,6 +181,8 @@ def test_method_catalog_snapshot_exposes_v2_capability_matrix_fields() -> None:
     assert entry.capability_matrix["runtime_posture"]["backend"] == "numpy"
     assert entry.capability_matrix["runtime_posture"]["available"] is True
     assert entry.capability_matrix["runtime_posture"]["fingerprint"]
+    assert entry.capability_matrix["effective_truthfulness_tier"] == "unverified"
+    assert entry.capability_matrix["implementation_depth_tier"] == "production_method"
 
 
 def test_method_catalog_snapshot_uses_conservative_effective_determinism_tier() -> None:
@@ -196,6 +199,38 @@ def test_method_catalog_snapshot_uses_conservative_effective_determinism_tier() 
     assert entry.capability_matrix["replay_semantics"].startswith("Replay is seed-stable")
 
 
+def test_method_catalog_snapshot_exposes_declared_truthfulness_scope_from_metadata() -> None:
+    ensure_all_methods_registered()
+    snapshot = build_method_catalog_snapshot(run_id="R_catalog")
+
+    entry = next(
+        item for item in snapshot.entries if item.fqn == "bayesian.regression.linear_regression@1.0.0"
+    )
+
+    assert entry.declared_truthfulness_tier == "asymptotic"
+    assert entry.truthfulness_scope == "posterior"
+    assert entry.truthfulness_tier == "asymptotic"
+    assert entry.truthfulness_status == "catalog_only"
+
+
+def test_method_catalog_snapshot_marks_hmc_and_nuts_as_catalog_only_asymptotic() -> None:
+    ensure_all_methods_registered()
+    snapshot = build_method_catalog_snapshot(run_id="R_catalog")
+
+    for fqn in (
+        "bayesian.sampling.hmc@1.0.0",
+        "bayesian.sampling.nuts@1.0.0",
+    ):
+        entry = next(item for item in snapshot.entries if item.fqn == fqn)
+        assert entry.declared_truthfulness_tier == "asymptotic"
+        assert entry.truthfulness_scope == "posterior"
+        assert entry.truthfulness_tier == "asymptotic"
+        assert entry.truthfulness_status == "catalog_only"
+        assert entry.capability_matrix["declared_truthfulness_tier"] == "asymptotic"
+        assert entry.capability_matrix["truthfulness_tier"] == "asymptotic"
+        assert entry.capability_matrix["truthfulness_status"] == "catalog_only"
+
+
 def test_method_catalog_snapshot_marks_tabular_transformer_as_heuristic_baseline() -> None:
     ensure_all_methods_registered()
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
@@ -204,8 +239,9 @@ def test_method_catalog_snapshot_marks_tabular_transformer_as_heuristic_baseline
         item for item in snapshot.entries if item.fqn == "ml.deep.tabular_transformer@1.0.0"
     )
 
-    assert entry.truthfulness_tier == "heuristic_baseline"
-    assert "baseline" in entry.truthfulness_notes.lower()
+    assert entry.truthfulness_tier == "unverified"
+    assert entry.implementation_depth_tier == "heuristic_baseline"
+    assert "baseline" in entry.implementation_depth_notes.lower()
 
 
 def test_method_capability_matrix_exports_truthfulness_and_semantics() -> None:
@@ -217,6 +253,7 @@ def test_method_capability_matrix_exports_truthfulness_and_semantics() -> None:
         item for item in matrix if item["fqn"] == "survey.weighting.horvitz_thompson@1.0.0"
     )
 
-    assert row["truthfulness_tier"] == "production_method"
+    assert row["truthfulness_tier"] == "unverified"
+    assert row["implementation_depth_tier"] == "production_method"
     assert row["effect_semantics"]["method_kind"] == "pure"
     assert row["dependency_semantics"]["hard_requires"] == []

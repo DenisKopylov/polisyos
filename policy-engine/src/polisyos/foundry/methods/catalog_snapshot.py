@@ -16,6 +16,13 @@ from polisyos.core.observability.determinism import (
     DeterminismTier,
     parse_determinism_tier,
 )
+from polisyos.core.observability.truthfulness import (
+    TruthfulnessStatus,
+    TruthfulnessTier,
+    parse_truthfulness_scope,
+    parse_truthfulness_tier,
+    reconcile_truthfulness_tiers,
+)
 from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.backends.dispatch import (
@@ -94,7 +101,15 @@ def build_method_catalog_snapshot(
         shape_semantics = _shape_semantics(sig)
         effect_semantics = _effect_semantics(sig, entry)
         dependency_semantics = _dependency_semantics(sig, entry)
-        truthfulness_tier, truthfulness_notes = _truthfulness_profile(sig, entry)
+        implementation_depth_tier, implementation_depth_notes = _truthfulness_profile(sig, entry)
+        declared_truthfulness_tier = _declared_truthfulness_tier(entry)
+        declared_truthfulness_scope = _declared_truthfulness_scope(entry)
+        runtime_truthfulness_tier = None
+        effective_truthfulness_tier, truthfulness_status = reconcile_truthfulness_tiers(
+            declared_truthfulness_tier,
+            runtime_truthfulness_tier,
+        )
+        truthfulness_notes = _truthfulness_notes_for_status(truthfulness_status)
         declared_determinism_tier = None
         if entry is not None and entry.metadata.determinism_tier is not None:
             declared_determinism_tier = entry.metadata.determinism_tier.value
@@ -120,6 +135,7 @@ def build_method_catalog_snapshot(
             ),
             "replay_semantics": runtime_posture.replay_semantics,
             "tolerance_budget": runtime_posture.tolerance_budget,
+            "observed_tolerance_budget": runtime_posture.observed_tolerance_budget,
             "runtime_posture": runtime_posture.as_dict(),
             "required_deps": list(entry.metadata.required_deps) if entry is not None else [],
             "optional_deps": list(entry.metadata.optional_deps) if entry is not None else [],
@@ -127,7 +143,15 @@ def build_method_catalog_snapshot(
             "side_effect_profile": (
                 entry.metadata.side_effect_profile.value if entry is not None else "none"
             ),
-            "truthfulness_tier": truthfulness_tier,
+            "truthfulness_tier": effective_truthfulness_tier.value,
+            "implementation_depth_tier": implementation_depth_tier,
+            "implementation_depth_notes": implementation_depth_notes,
+            "declared_truthfulness_tier": declared_truthfulness_tier,
+            "runtime_truthfulness_tier": runtime_truthfulness_tier,
+            "effective_truthfulness_tier": effective_truthfulness_tier.value,
+            "truthfulness_status": truthfulness_status.value,
+            "truthfulness_scope": declared_truthfulness_scope,
+            "truthfulness_evidence_ref": None,
             "effect_semantics": effect_semantics,
             "shape_semantics": shape_semantics,
             "dependency_semantics": dependency_semantics,
@@ -198,7 +222,15 @@ def build_method_catalog_snapshot(
                 causal_capability_requirements=[item.value for item in requirements],
                 causal_available=causal_available,
                 causal_disabled_reasons=sorted(set(causal_disabled_reasons)),
-                truthfulness_tier=truthfulness_tier,
+                truthfulness_tier=effective_truthfulness_tier.value,
+                implementation_depth_tier=implementation_depth_tier,
+                implementation_depth_notes=implementation_depth_notes,
+                declared_truthfulness_tier=declared_truthfulness_tier,
+                runtime_truthfulness_tier=runtime_truthfulness_tier,
+                effective_truthfulness_tier=effective_truthfulness_tier.value,
+                truthfulness_status=truthfulness_status.value,
+                truthfulness_scope=declared_truthfulness_scope,
+                truthfulness_evidence_ref=None,
                 truthfulness_notes=truthfulness_notes,
                 effect_semantics=effect_semantics,
                 shape_semantics=shape_semantics,
@@ -271,6 +303,14 @@ def build_method_capability_matrix(
                 "variant": entry.variant,
                 **dict(entry.capability_matrix),
                 "truthfulness_tier": entry.truthfulness_tier,
+                "implementation_depth_tier": entry.implementation_depth_tier,
+                "implementation_depth_notes": entry.implementation_depth_notes,
+                "declared_truthfulness_tier": entry.declared_truthfulness_tier,
+                "runtime_truthfulness_tier": entry.runtime_truthfulness_tier,
+                "effective_truthfulness_tier": entry.effective_truthfulness_tier,
+                "truthfulness_status": entry.truthfulness_status,
+                "truthfulness_scope": entry.truthfulness_scope,
+                "truthfulness_evidence_ref": entry.truthfulness_evidence_ref,
                 "truthfulness_notes": entry.truthfulness_notes,
             }
         )
@@ -324,6 +364,10 @@ def build_method_operator_evidence(
             "fqn": row["fqn"],
             "execution_backend": row.get("execution_backend"),
             "truthfulness_tier": row.get("truthfulness_tier"),
+            "implementation_depth_tier": row.get("implementation_depth_tier"),
+            "declared_truthfulness_tier": row.get("declared_truthfulness_tier"),
+            "runtime_truthfulness_tier": row.get("runtime_truthfulness_tier"),
+            "truthfulness_status": row.get("truthfulness_status"),
             "determinism_tier": row.get("determinism_tier"),
             "disabled_reasons": list(
                 next(
@@ -363,6 +407,9 @@ def build_method_operator_evidence(
         "backend_summary": _summarize("execution_backend"),
         "determinism_summary": _summarize("determinism_tier"),
         "truthfulness_summary": _summarize("truthfulness_tier"),
+        "declared_truthfulness_summary": _summarize("declared_truthfulness_tier"),
+        "runtime_truthfulness_summary": _summarize("runtime_truthfulness_tier"),
+        "implementation_depth_summary": _summarize("implementation_depth_tier"),
         "replay_contracts": sorted(
             replay_contracts.values(),
             key=lambda item: str(item["determinism_tier"]),
@@ -520,6 +567,38 @@ def _dependency_semantics(sig: Any, entry: Any) -> dict[str, Any]:
         "recommended_prerequisites": list(getattr(metadata, "prerequisites", ())),
         "diagnostic_checks": list(getattr(metadata, "diagnostic_checks", ())),
     }
+
+
+def _declared_truthfulness_tier(entry: Any) -> str | None:
+    metadata = entry.metadata if entry is not None else None
+    candidate = getattr(metadata, "declared_truthfulness_tier", None)
+    parsed = parse_truthfulness_tier(candidate)
+    if parsed is None:
+        return None
+    return parsed.value
+
+
+def _declared_truthfulness_scope(entry: Any) -> str | None:
+    metadata = entry.metadata if entry is not None else None
+    candidate = getattr(metadata, "truthfulness_scope", None)
+    parsed = parse_truthfulness_scope(candidate)
+    if parsed is None:
+        return None
+    return parsed.value
+
+
+def _truthfulness_notes_for_status(status: TruthfulnessStatus) -> str:
+    if status is TruthfulnessStatus.CATALOG_ONLY:
+        return "Catalog declares a truthfulness tier, but no runtime certificate has been observed yet."
+    if status is TruthfulnessStatus.RUNTIME_ONLY:
+        return "Runtime produced a truthfulness certificate without a catalog declaration."
+    if status is TruthfulnessStatus.RUNTIME_DOWNGRADED:
+        return "Runtime evidence downgraded the catalog truthfulness claim."
+    if status is TruthfulnessStatus.RUNTIME_CONSISTENT:
+        return "Runtime evidence matched the catalog truthfulness claim."
+    if status is TruthfulnessStatus.CATALOG_UNDERCLAIMS:
+        return "Catalog remains the conservative bound even though runtime evidence was stronger."
+    return "No runtime truthfulness certificate available; advisor should treat this method as unverified."
 
 
 def _truthfulness_profile(sig: Any, entry: Any) -> tuple[str, str]:

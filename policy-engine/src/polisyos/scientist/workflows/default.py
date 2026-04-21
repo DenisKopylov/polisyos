@@ -96,6 +96,11 @@ def default_workflow_spec() -> WorkflowSpec:
                 ],
             ),
             NodeInvocation(
+                alias="run_metric_validation",
+                node_id="scientist.node_run_metric_validation@1.0.0",
+                depends_on=["run_simulation"],
+            ),
+            NodeInvocation(
                 alias="legal_check",
                 node_id="scientist.node_legal_check@1.0.1",
                 depends_on=["run_simulation"],
@@ -144,7 +149,12 @@ def default_workflow_spec() -> WorkflowSpec:
             NodeInvocation(
                 alias="build_decision_packet",
                 node_id="scientist.node_build_decision_packet@1.5.0",
-                depends_on=["run_governance", "run_causal_evaluation", "run_evaluator"],
+                depends_on=[
+                    "run_governance",
+                    "run_causal_evaluation",
+                    "run_evaluator",
+                    "run_metric_validation",
+                ],
             ),
         ],
         notes=[
@@ -154,7 +164,7 @@ def default_workflow_spec() -> WorkflowSpec:
             "Cross-graph evidence profile is compiled before parameter resolution and governance.",
             "LegalCheckNode executes after simulation and may skip when legal context is unavailable.",
             "Normative arbitration executes before governance and formalizes proposal-vs-baseline tradeoffs.",
-            "Decision packet is generated after governance, evaluation, and uncertainty propagation.",
+            "Decision packet is generated after governance, evaluation, uncertainty propagation, and metric validation.",
         ],
     )
 

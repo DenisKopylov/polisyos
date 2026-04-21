@@ -1,0 +1,555 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    },
+    "FanChartSpec": {
+      "additionalProperties": false,
+      "description": "Machine-readable fan chart surface used to render nested forecast bands.",
+      "properties": {
+        "horizons": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/HorizonQuantileSet"
+          },
+          "title": "Horizons",
+          "type": "array"
+        },
+        "quantile_levels": {
+          "default": [],
+          "items": {
+            "type": "number"
+          },
+          "title": "Quantile Levels",
+          "type": "array"
+        }
+      },
+      "title": "FanChartSpec",
+      "type": "object"
+    },
+    "ForecastCalibrationMethod": {
+      "description": "Construction family used to populate the bundle.",
+      "enum": [
+        "none",
+        "parametric",
+        "bootstrap",
+        "conformal",
+        "bayesian",
+        "bayesian_plus_conformal",
+        "gaussian_reconciliation",
+        "coherent_bootstrap"
+      ],
+      "title": "ForecastCalibrationMethod",
+      "type": "string"
+    },
+    "ForecastCoverageDiagnostic": {
+      "additionalProperties": false,
+      "description": "Coverage and calibration diagnostics attached to the bundle.",
+      "properties": {
+        "calibration_window": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Calibration Window",
+          "type": "integer"
+        },
+        "conditional_coverage_pvalue_by_horizon": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Conditional Coverage Pvalue By Horizon",
+          "type": "object"
+        },
+        "coverage_gap_by_horizon": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Coverage Gap By Horizon",
+          "type": "object"
+        },
+        "empirical_coverage_by_horizon": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Empirical Coverage By Horizon",
+          "type": "object"
+        },
+        "independence_pvalue_by_horizon": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Independence Pvalue By Horizon",
+          "type": "object"
+        },
+        "last_recalibrated_at": {
+          "format": "date-time",
+          "title": "Last Recalibrated At",
+          "type": "string"
+        },
+        "nominal_coverage": {
+          "exclusiveMaximum": 1.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Nominal Coverage",
+          "type": "number"
+        },
+        "pit_summary_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRefModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "recommended_fallback": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ForecastCalibrationMethod"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "regime_flags": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Regime Flags",
+          "type": "array"
+        },
+        "sample_count_by_horizon": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Sample Count By Horizon",
+          "type": "object"
+        },
+        "wis_by_horizon": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Wis By Horizon",
+          "type": "object"
+        }
+      },
+      "required": [
+        "nominal_coverage",
+        "last_recalibrated_at"
+      ],
+      "title": "ForecastCoverageDiagnostic",
+      "type": "object"
+    },
+    "ForecastIntervalSemantics": {
+      "description": "Semantic meaning of the multi-horizon interval surface.",
+      "enum": [
+        "prediction_interval",
+        "credible_interval",
+        "conformalized_prediction_interval",
+        "heuristic_range"
+      ],
+      "title": "ForecastIntervalSemantics",
+      "type": "string"
+    },
+    "HorizonDiagnosticState": {
+      "description": "Health state for one horizon block.",
+      "enum": [
+        "green",
+        "amber",
+        "red"
+      ],
+      "title": "HorizonDiagnosticState",
+      "type": "string"
+    },
+    "HorizonInterval": {
+      "additionalProperties": false,
+      "description": "One forecast horizon with point and interval endpoints.",
+      "properties": {
+        "constructor": {
+          "$ref": "#/$defs/ForecastCalibrationMethod"
+        },
+        "coverage_target": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 1.0,
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coverage Target"
+        },
+        "diagnostics": {
+          "additionalProperties": true,
+          "title": "Diagnostics",
+          "type": "object"
+        },
+        "horizon": {
+          "minimum": 1,
+          "title": "Horizon",
+          "type": "integer"
+        },
+        "lower": {
+          "title": "Lower"
+        },
+        "point": {
+          "title": "Point"
+        },
+        "sample_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Count"
+        },
+        "upper": {
+          "title": "Upper"
+        }
+      },
+      "required": [
+        "horizon",
+        "point",
+        "lower",
+        "upper",
+        "constructor"
+      ],
+      "title": "HorizonInterval",
+      "type": "object"
+    },
+    "HorizonPolicyRule": {
+      "additionalProperties": false,
+      "description": "Routing policy for a contiguous horizon block.",
+      "properties": {
+        "allowed_methods": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ForecastCalibrationMethod"
+          },
+          "title": "Allowed Methods",
+          "type": "array"
+        },
+        "diagnostic_state": {
+          "$ref": "#/$defs/HorizonDiagnosticState"
+        },
+        "fallback": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ForecastCalibrationMethod"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "gate_eligible": {
+          "default": true,
+          "title": "Gate Eligible",
+          "type": "boolean"
+        },
+        "horizon_end": {
+          "minimum": 1,
+          "title": "Horizon End",
+          "type": "integer"
+        },
+        "horizon_start": {
+          "minimum": 1,
+          "title": "Horizon Start",
+          "type": "integer"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "regime": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Regime"
+        }
+      },
+      "required": [
+        "horizon_start",
+        "horizon_end",
+        "diagnostic_state"
+      ],
+      "title": "HorizonPolicyRule",
+      "type": "object"
+    },
+    "HorizonPolicySpec": {
+      "additionalProperties": false,
+      "description": "Bundle-level routing policy across forecast horizons.",
+      "properties": {
+        "default_method": {
+          "$ref": "#/$defs/ForecastCalibrationMethod"
+        },
+        "gate_eligible": {
+          "default": true,
+          "title": "Gate Eligible",
+          "type": "boolean"
+        },
+        "rules": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/HorizonPolicyRule"
+          },
+          "title": "Rules",
+          "type": "array"
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Summary"
+        }
+      },
+      "required": [
+        "default_method"
+      ],
+      "title": "HorizonPolicySpec",
+      "type": "object"
+    },
+    "HorizonQuantileSet": {
+      "additionalProperties": false,
+      "description": "Fan-chart quantiles for one forecast horizon.",
+      "properties": {
+        "horizon": {
+          "minimum": 1,
+          "title": "Horizon",
+          "type": "integer"
+        },
+        "quantiles": {
+          "additionalProperties": true,
+          "title": "Quantiles",
+          "type": "object"
+        }
+      },
+      "required": [
+        "horizon",
+        "quantiles"
+      ],
+      "title": "HorizonQuantileSet",
+      "type": "object"
+    },
+    "NumericPolicySpec": {
+      "additionalProperties": false,
+      "description": "Explicit numeric policy for envelope canonicalization.",
+      "properties": {
+        "absolute_tolerance": {
+          "default": 1e-12,
+          "minimum": 0.0,
+          "title": "Absolute Tolerance",
+          "type": "number"
+        },
+        "decimal_places": {
+          "default": 12,
+          "maximum": 15,
+          "minimum": 0,
+          "title": "Decimal Places",
+          "type": "integer"
+        },
+        "mode": {
+          "$ref": "#/$defs/NumericToleranceMode",
+          "default": "float_round_12"
+        },
+        "policy_id": {
+          "default": "bounded_float_v1",
+          "title": "Policy Id",
+          "type": "string"
+        }
+      },
+      "title": "NumericPolicySpec",
+      "type": "object"
+    },
+    "NumericToleranceMode": {
+      "description": "How float payloads are canonicalized before persistence and composition.",
+      "enum": [
+        "decimal_exact",
+        "float_round_12",
+        "hybrid"
+      ],
+      "title": "NumericToleranceMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Forecasting-specific specialization of PolicyOS uncertainty artifacts.",
+  "properties": {
+    "calibration_method": {
+      "$ref": "#/$defs/ForecastCalibrationMethod"
+    },
+    "coverage_diagnostic": {
+      "$ref": "#/$defs/ForecastCoverageDiagnostic"
+    },
+    "fan_chart": {
+      "$ref": "#/$defs/FanChartSpec"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "horizon_policy": {
+      "$ref": "#/$defs/HorizonPolicySpec"
+    },
+    "interval_semantics": {
+      "$ref": "#/$defs/ForecastIntervalSemantics"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "method_fqn": {
+      "title": "Method Fqn",
+      "type": "string"
+    },
+    "nominal_coverage": {
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Nominal Coverage",
+      "type": "number"
+    },
+    "numeric_policy": {
+      "$ref": "#/$defs/NumericPolicySpec"
+    },
+    "posterior_predictive_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRefModel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "prediction_interval": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/HorizonInterval"
+      },
+      "title": "Prediction Interval",
+      "type": "array"
+    },
+    "regime_assumption": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Regime Assumption"
+    },
+    "sample_size_assumption": {
+      "title": "Sample Size Assumption",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "target_id": {
+      "title": "Target Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "method_fqn",
+    "target_id",
+    "generated_at",
+    "fan_chart",
+    "coverage_diagnostic",
+    "horizon_policy",
+    "interval_semantics",
+    "calibration_method",
+    "nominal_coverage",
+    "sample_size_assumption"
+  ],
+  "title": "ForecastingUncertaintyBundle",
+  "type": "object"
+}

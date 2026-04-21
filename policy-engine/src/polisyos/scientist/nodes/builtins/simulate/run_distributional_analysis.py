@@ -25,6 +25,10 @@ from polisyos.foundry.methods.catalog.causal.density_ratio import (
     ScalarOTDistributionalResult,
     compute_scalar_distributional_effect,
 )
+from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
+    POINTWISE_NON_UNIFORM_WARNING,
+    DistributionalBoundsEngineMethod,
+)
 from polisyos.ir.analytics.causal import (
     ProofBundle,
     persist_proof_bundle,
@@ -33,11 +37,18 @@ from polisyos.ir.analytics.causal import (
 )
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
 from polisyos.ir.analytics.distributional import (
+    CausalAssumptionCard,
     CohortDimension,
     CouplingDiagnostics,
     DiscreteDistributionSummary,
     DistributionalEffectBundle,
+    DistributionalBoundUniformity,
+    DistributionalBoundsBundle,
+    DistributionalCouplingStatus,
+    DistributionalFunctional,
     DistributionalJustification,
+    DistributionalProofArtifact,
+    DistributionalProofTarget,
     DistributionBin,
     OTCouplingSummary,
     QuantileShiftEntry,
@@ -45,21 +56,32 @@ from polisyos.ir.analytics.distributional import (
     SubgroupDistributionComparison,
     TailRiskDeltaEntry,
     TailRiskDeltaSummary,
+    persist_causal_assumption_card,
     persist_discrete_distribution_summary,
+    persist_distributional_bounds_bundle,
     persist_distributional_effect_bundle,
+    persist_distributional_proof_artifact,
     persist_distributional_report,
     persist_ot_coupling_summary,
     persist_quantile_shift_summary,
     persist_subgroup_distribution_comparison,
     persist_tail_risk_delta_summary,
 )
-from polisyos.ir.analytics.estimand import DistributionLawQuery
+from polisyos.ir.analytics.estimand import DistributionLawQuery, EstimandAST, persist_estimand_ast
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
     NegativeCertificate,
     persist_negative_certificate,
 )
-from polisyos.ir.refs import CausalGraphModelRef
+from polisyos.ir.refs import (
+    CausalAssumptionCardRef,
+    CausalGraphModelRef,
+    DistributionalBoundsBundleRef,
+    DistributionalProofArtifactRef,
+    EstimandASTRef,
+    NegativeCertificateRef,
+    ProofBundleRef,
+)
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
@@ -79,6 +101,40 @@ _BASE_CAUSAL_ASSUMPTIONS = [
     "scenario_level_ot_coupling",
     "sinkhorn_regularized_discrete_measure_approximation",
 ]
+_ASSUMPTION_DESCRIPTIONS = {
+    "distributional_estimand_not_proof_kernel_identified": (
+        "No proof-kernel identification result is attached for the counterfactual marginal law "
+        "on this path, so the distributional claim must remain below identified/bounded status."
+    ),
+    "scenario_level_ot_coupling": (
+        "The OT coupling is rendered as a scenario object unless a separate joint-law "
+        "identification or set-identification argument is supplied."
+    ),
+    "sinkhorn_regularized_discrete_measure_approximation": (
+        "The transport plan is a Sinkhorn-regularized discrete approximation used for "
+        "numerical stability and visualization, not a proof of a structural joint law."
+    ),
+    "uniform_weighting_used": (
+        "Distributional summaries use uniform unit weights rather than density-ratio "
+        "reweighting."
+    ),
+    "positivity": "Positivity / overlap must hold on the support of the interventional query.",
+    "overlap": "Source and target supports must overlap on the covariate region used by the query.",
+    "sutva": "SUTVA must hold so each unit's potential outcome is well defined.",
+    "consistency": "Consistency must link the observed outcome to the potential outcome under the realized treatment.",
+    "no_interference": "No interference must hold unless the query explicitly models spillovers.",
+    "time_stationarity": "Time-stationarity assumptions must hold for longitudinal identification formulas.",
+    "selection": "Selection assumptions must justify the observed conditioning event used by the query.",
+    "exclusion_restriction": "Exclusion restriction must hold for IV-style distributional identification claims.",
+}
+_TESTABLE_ASSUMPTIONS = {
+    "positivity",
+    "overlap",
+    "time_stationarity",
+    "selection",
+    "uniform_weighting_used",
+    "sinkhorn_regularized_discrete_measure_approximation",
+}
 _GEOGRAPHY_MIN_GROUP_SIZE = 10
 _DISTRIBUTIONAL_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _DISTRIBUTIONAL_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
@@ -137,6 +193,13 @@ class _PersistedScalarArtifacts:
 
 
 @dataclass(frozen=True)
+class _PersistedAssumptionCards:
+    all_refs: list[CausalAssumptionCardRef]
+    marginal_refs: list[CausalAssumptionCardRef]
+    coupling_refs: list[CausalAssumptionCardRef]
+
+
+@dataclass(frozen=True)
 class _DistributionalJustificationResolution:
     marginal_justification: DistributionalJustification
     coupling_justification: DistributionalJustification | None
@@ -145,6 +208,17 @@ class _DistributionalJustificationResolution:
     metadata: dict[str, Any]
     proof_bundle: ProofBundle | None = None
     coupling_negative_certificate: NegativeCertificate | None = None
+
+
+@dataclass(frozen=True)
+class _DistributionalBoundsResolution:
+    refs: list[DistributionalBoundsBundleRef]
+    assumptions: list[str]
+    metadata: dict[str, Any]
+    theorem_families: list[str]
+    functionals: list[str]
+    bound_uniformity: DistributionalBoundUniformity
+    proof_target: DistributionalProofTarget
 
 
 @dataclass(frozen=True)
@@ -252,7 +326,47 @@ class RunDistributionalAnalysisNode:
                 outcome_name="income",
                 weighting_mode=overall_result.weighting_mode,
             )
-            causal_assumptions = justification_resolution.causal_assumptions
+            bounds_resolution = _resolve_distributional_bounds(
+                ctx,
+                state,
+                baseline_values=incomes_before,
+                counterfactual_values=incomes_after,
+                inputs=artifact_inputs,
+            )
+            if (
+                bounds_resolution.refs
+                and justification_resolution.marginal_justification
+                is not DistributionalJustification.IDENTIFIED
+            ):
+                bounded_assumptions = [
+                    assumption
+                    for assumption in justification_resolution.causal_assumptions
+                    if assumption != "distributional_estimand_not_proof_kernel_identified"
+                ]
+                justification_resolution = _DistributionalJustificationResolution(
+                    marginal_justification=DistributionalJustification.BOUNDED,
+                    coupling_justification=justification_resolution.coupling_justification,
+                    causal_assumptions=_merge_assumptions(
+                        bounded_assumptions,
+                        bounds_resolution.assumptions,
+                    ),
+                    coupling_assumptions=justification_resolution.coupling_assumptions,
+                    metadata={
+                        **justification_resolution.metadata,
+                        "marginal_law_justification": DistributionalJustification.BOUNDED.value,
+                        "distributional_bounds": bounds_resolution.metadata,
+                        "bounded_functionals": bounds_resolution.functionals,
+                        "bounds_theorem_families": bounds_resolution.theorem_families,
+                        "bound_uniformity": bounds_resolution.bound_uniformity.value,
+                    },
+                    proof_bundle=justification_resolution.proof_bundle,
+                    coupling_negative_certificate=justification_resolution.coupling_negative_certificate,
+                )
+            marginal_assumptions = list(justification_resolution.causal_assumptions)
+            causal_assumptions = _merge_assumptions(
+                marginal_assumptions,
+                justification_resolution.coupling_assumptions,
+            )
             overall_refs = _persist_scalar_artifacts(
                 ctx,
                 outcome_name="income",
@@ -268,28 +382,36 @@ class RunDistributionalAnalysisNode:
                 incomes_before=incomes_before,
                 incomes_after=incomes_after,
                 inputs=artifact_inputs,
-                base_assumptions=causal_assumptions,
+                base_assumptions=marginal_assumptions,
                 coupling_assumptions=justification_resolution.coupling_assumptions,
                 geography_groups=geography_groups,
                 geography_skip_reasons=geography_skipped_reasons,
             )
-            distributional_proof_ref = (
-                persist_proof_bundle(
-                    ctx.store,
-                    justification_resolution.proof_bundle,
-                    inputs=artifact_inputs,
-                )
-                if justification_resolution.proof_bundle is not None
-                else None
+            assumption_cards = _persist_distributional_assumption_cards(
+                ctx,
+                inputs=artifact_inputs,
+                marginal_assumptions=justification_resolution.causal_assumptions,
+                coupling_assumptions=justification_resolution.coupling_assumptions,
+                marginal_justification=justification_resolution.marginal_justification,
+                default_theorem_family=_distributional_theorem_family(
+                    proof_bundle=justification_resolution.proof_bundle,
+                    metadata=justification_resolution.metadata,
+                ),
             )
-            coupling_proof_ref = (
-                persist_negative_certificate(
-                    ctx.store,
-                    justification_resolution.coupling_negative_certificate,
-                    inputs=artifact_inputs,
-                )
-                if justification_resolution.coupling_negative_certificate is not None
-                else None
+            distributional_proof_ref, coupling_proof_ref = _persist_distributional_proof_artifacts(
+                ctx,
+                inputs=artifact_inputs,
+                proof_bundle=justification_resolution.proof_bundle,
+                metadata=justification_resolution.metadata,
+                marginal_justification=justification_resolution.marginal_justification,
+                coupling_justification=justification_resolution.coupling_justification,
+                marginal_assumption_refs=assumption_cards.marginal_refs,
+                coupling_assumption_refs=assumption_cards.coupling_refs,
+                coupling_negative_certificate=justification_resolution.coupling_negative_certificate,
+                distributional_bounds_refs=bounds_resolution.refs,
+                distributional_bounds_metadata=bounds_resolution.metadata,
+                distributional_bounds_uniformity=bounds_resolution.bound_uniformity,
+                distributional_bounds_target=bounds_resolution.proof_target,
             )
             bundle = DistributionalEffectBundle(
                 outcome_name="income",
@@ -309,6 +431,8 @@ class RunDistributionalAnalysisNode:
                 marginal_law_proof_ref=distributional_proof_ref,
                 distributional_proof_ref=distributional_proof_ref,
                 coupling_proof_ref=coupling_proof_ref,
+                distributional_bounds_refs=bounds_resolution.refs,
+                causal_assumption_refs=assumption_cards.all_refs,
                 causal_assumptions=causal_assumptions,
                 readiness_cap="simulation_ready",
                 metadata={
@@ -537,7 +661,7 @@ def _resolve_distributional_justification(
         proof_bundle = proof_bundle_from_negative_certificate(
             result,
             graph_ref=str(graph_ref.artifact_id),
-            query_ref=f"P({outcome_name} in · | do({treatment}))",
+            query_ref=f"P({outcome_name} in A | do({treatment}))",
             theorem_family="negative_distribution_law",
             status_raw="hedge_found",
         ).model_copy(
@@ -612,6 +736,340 @@ def _resolve_distributional_justification(
     )
 
 
+def _resolve_distributional_bounds(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    baseline_values: np.ndarray,
+    counterfactual_values: np.ndarray,
+    inputs: list[InputRef],
+) -> _DistributionalBoundsResolution:
+    config = _distributional_bounds_config(state)
+    if config is None:
+        return _empty_distributional_bounds_resolution({"status": "not_requested"})
+
+    refs: list[DistributionalBoundsBundleRef] = []
+    theorem_families: list[str] = []
+    functionals: list[str] = []
+    assumptions: list[str] = []
+    skipped: list[str] = []
+    bundle_summaries: list[dict[str, Any]] = []
+
+    for index, request in enumerate(_distributional_bounds_requests(config)):
+        family = str(request.get("theorem_family", request.get("method_family", ""))).strip()
+        if family not in {"lee_trimming_distributional", "makarov_pointwise"}:
+            skipped.append(f"request_{index}:unsupported_theorem_family")
+            continue
+        request_assumptions = _string_list(
+            request.get("assumptions")
+            or config.get("assumptions")
+            or state.params.get("distributional_bound_assumptions")
+        )
+        state_payload = _distributional_bounds_state_payload(
+            request,
+            family=family,
+            baseline_values=baseline_values,
+            counterfactual_values=counterfactual_values,
+        )
+        if state_payload is None:
+            skipped.append(f"request_{index}:missing_required_data")
+            continue
+        if family == "lee_trimming_distributional" and "monotone_selection_S1_ge_S0" not in request_assumptions:
+            skipped.append(f"request_{index}:missing_monotone_selection_assumption")
+            continue
+        if family == "makarov_pointwise" and not _makarov_marginals_licensed(request, config):
+            skipped.append(f"request_{index}:marginal_laws_not_licensed")
+            continue
+
+        for functional, axis_values in _distributional_bounds_functional_axes(
+            request,
+            family=family,
+            baseline_values=baseline_values,
+            counterfactual_values=counterfactual_values,
+        ):
+            try:
+                output = DistributionalBoundsEngineMethod.pure_step(
+                    state_payload,
+                    {
+                        "theorem_family": family,
+                        "functional": functional.value,
+                        "axis_values": axis_values,
+                        "outcome_unit": request.get("outcome_unit", "income"),
+                    },
+                )
+                bundle_payload = output["result"]["distributional_bounds_bundle"]
+                bundle = DistributionalBoundsBundle.model_validate(bundle_payload)
+                ref = persist_distributional_bounds_bundle(ctx.store, bundle, inputs=inputs)
+            except _DISTRIBUTIONAL_EXECUTION_ERRORS as exc:
+                skipped.append(f"request_{index}:{functional.value}:{exc.__class__.__name__}")
+                continue
+            refs.append(ref)
+            theorem_families.append(str(bundle.metadata.get("theorem_family") or family))
+            functionals.append(bundle.functional.value)
+            assumptions.extend(request_assumptions)
+            if bundle.method_summaries:
+                assumptions.extend(str(item) for item in bundle.method_summaries[0].assumptions_used)
+            bundle_summaries.append(
+                {
+                    "ref": ref.model_dump(mode="json"),
+                    "functional": bundle.functional.value,
+                    "estimand_type": bundle.estimand_type,
+                    "theorem_family": bundle.metadata.get("theorem_family") or family,
+                    "sharpness_status": bundle.sharpness_status,
+                    "warnings": list(bundle.warnings),
+                    "pointwise_not_uniform": bool(bundle.metadata.get("pointwise_not_uniform")),
+                }
+            )
+
+    if not refs:
+        return _empty_distributional_bounds_resolution(
+            {
+                "status": "requested_but_not_applicable",
+                "skipped_reasons": skipped,
+            }
+        )
+
+    unique_theorems = _stable_unique(theorem_families)
+    unique_functionals = _stable_unique(functionals)
+    uniformity = _distributional_bounds_uniformity(bundle_summaries)
+    return _DistributionalBoundsResolution(
+        refs=refs,
+        assumptions=_stable_unique(
+            [
+                *assumptions,
+                "distributional_bounds_theorem_family",
+                "bounded_distributional_functional",
+            ]
+        ),
+        metadata={
+            "status": "bounded",
+            "primary_theorem_family": unique_theorems[0] if unique_theorems else "distributional_bounds",
+            "theorem_families": unique_theorems,
+            "functionals": unique_functionals,
+            "bound_uniformity": uniformity.value,
+            "bounds": bundle_summaries,
+            "skipped_reasons": skipped,
+            "pointwise_warning": any(
+                POINTWISE_NON_UNIFORM_WARNING in summary.get("warnings", ())
+                for summary in bundle_summaries
+            ),
+        },
+        theorem_families=unique_theorems,
+        functionals=unique_functionals,
+        bound_uniformity=uniformity,
+        proof_target=(
+            DistributionalProofTarget.MARGINAL_PAIR
+            if "makarov_pointwise" in unique_theorems
+            else DistributionalProofTarget.CDF
+        ),
+    )
+
+
+def _empty_distributional_bounds_resolution(
+    metadata: dict[str, Any] | None = None,
+) -> _DistributionalBoundsResolution:
+    return _DistributionalBoundsResolution(
+        refs=[],
+        assumptions=[],
+        metadata=dict(metadata or {}),
+        theorem_families=[],
+        functionals=[],
+        bound_uniformity=DistributionalBoundUniformity.NOT_APPLICABLE,
+        proof_target=DistributionalProofTarget.CDF,
+    )
+
+
+def _distributional_bounds_config(state: ExperimentState) -> dict[str, Any] | None:
+    raw = state.params.get("distributional_bounds")
+    if raw is None:
+        raw = state.params.get("distributional_bounds_config")
+    if not isinstance(raw, dict):
+        return None
+    if raw.get("enabled") is False:
+        return None
+    return dict(raw)
+
+
+def _distributional_bounds_requests(config: dict[str, Any]) -> list[dict[str, Any]]:
+    requests = config.get("requests")
+    if isinstance(requests, list):
+        return [dict(item) for item in requests if isinstance(item, dict)]
+    return [dict(config)]
+
+
+def _distributional_bounds_state_payload(
+    request: dict[str, Any],
+    *,
+    family: str,
+    baseline_values: np.ndarray,
+    counterfactual_values: np.ndarray,
+) -> dict[str, Any] | None:
+    data = request.get("data") if isinstance(request.get("data"), dict) else request
+    if family == "lee_trimming_distributional":
+        outcome = _numeric_array(data.get("outcome"))
+        treatment = _numeric_array(data.get("treatment"))
+        selected = _numeric_array(data.get("selected"))
+        if outcome is None or treatment is None or selected is None:
+            return None
+        return {"outcome": outcome, "treatment": treatment, "selected": selected}
+
+    treated = _numeric_array(data.get("treated_outcome"))
+    control = _numeric_array(data.get("control_outcome"))
+    if treated is None and bool(request.get("use_distributional_samples_as_marginals")):
+        treated = np.asarray(counterfactual_values, dtype=float)
+    if control is None and bool(request.get("use_distributional_samples_as_marginals")):
+        control = np.asarray(baseline_values, dtype=float)
+    if treated is None or control is None:
+        return None
+    return {"treated_outcome": treated, "control_outcome": control}
+
+
+def _distributional_bounds_functional_axes(
+    request: dict[str, Any],
+    *,
+    family: str,
+    baseline_values: np.ndarray,
+    counterfactual_values: np.ndarray,
+) -> list[tuple[DistributionalFunctional, tuple[float, ...]]]:
+    if family == "lee_trimming_distributional":
+        return [
+            (
+                DistributionalFunctional.TAIL_DELTA,
+                _axis_values_from_request(
+                    request,
+                    keys=("tail_thresholds", "thresholds"),
+                    default=(float(np.median(baseline_values)),),
+                ),
+            ),
+            (
+                DistributionalFunctional.QUANTILE_SHIFT,
+                _axis_values_from_request(
+                    request,
+                    keys=("quantiles",),
+                    default=(0.25, 0.5, 0.75),
+                ),
+            ),
+        ]
+    return [
+        (
+            DistributionalFunctional.ITE_TAIL_RISK,
+            _axis_values_from_request(
+                request,
+                keys=("harm_thresholds", "thresholds"),
+                default=(0.0,),
+            ),
+        ),
+        (
+            DistributionalFunctional.QUANTILE,
+            _axis_values_from_request(
+                request,
+                keys=("quantiles",),
+                default=(0.25, 0.5, 0.75),
+            ),
+        ),
+    ]
+
+
+def _axis_values_from_request(
+    request: dict[str, Any],
+    *,
+    keys: tuple[str, ...],
+    default: tuple[float, ...],
+) -> tuple[float, ...]:
+    axis_payload = request.get("axis_values")
+    if isinstance(axis_payload, dict):
+        for key in keys:
+            values = _float_tuple(axis_payload.get(key))
+            if values:
+                return values
+    for key in keys:
+        values = _float_tuple(request.get(key))
+        if values:
+            return values
+    return default
+
+
+def _makarov_marginals_licensed(
+    request: dict[str, Any],
+    config: dict[str, Any],
+) -> bool:
+    status = str(
+        request.get("marginal_law_status")
+        or config.get("marginal_law_status")
+        or ""
+    ).strip().lower()
+    if status in {"identified", "bounded", "licensed"}:
+        return True
+    return bool(
+        request.get("marginal_laws_licensed")
+        or config.get("marginal_laws_licensed")
+    )
+
+
+def _distributional_bounds_uniformity(
+    summaries: list[dict[str, Any]],
+) -> DistributionalBoundUniformity:
+    if any(summary.get("pointwise_not_uniform") for summary in summaries):
+        return DistributionalBoundUniformity.POINTWISE_ONLY
+    if any(POINTWISE_NON_UNIFORM_WARNING in summary.get("warnings", ()) for summary in summaries):
+        return DistributionalBoundUniformity.POINTWISE_ONLY
+    statuses = {str(summary.get("sharpness_status", "")) for summary in summaries}
+    if statuses == {"sharp"}:
+        return DistributionalBoundUniformity.UNIFORM_SHARP
+    return DistributionalBoundUniformity.UNIFORM_OUTER
+
+
+def _numeric_array(value: Any) -> np.ndarray | None:
+    if value is None:
+        return None
+    try:
+        array = np.asarray(value, dtype=float)
+    except (TypeError, ValueError):
+        return None
+    if array.ndim != 1 or array.size == 0 or not np.all(np.isfinite(array)):
+        return None
+    return array
+
+
+def _float_tuple(value: Any) -> tuple[float, ...]:
+    if value is None:
+        return ()
+    if isinstance(value, (int, float)):
+        return (float(value),)
+    if not isinstance(value, (list, tuple)):
+        return ()
+    output: list[float] = []
+    for item in value:
+        try:
+            number = float(item)
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(number):
+            output.append(number)
+    return tuple(output)
+
+
+def _string_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value] if value.strip() else []
+    if not isinstance(value, (list, tuple, set, frozenset)):
+        return []
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
+def _stable_unique(values: list[str]) -> list[str]:
+    output: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        candidate = str(value).strip()
+        if candidate and candidate not in seen:
+            seen.add(candidate)
+            output.append(candidate)
+    return output
+
+
 def _coupling_assumptions(*, weighting_mode: str) -> list[str]:
     assumptions = [
         assumption
@@ -634,7 +1092,7 @@ def _coupling_negative_certificate(
     return NegativeCertificate(
         blocking_type=BlockingType.COUPLING_NOT_IDENTIFIED,
         blocking_description=(
-            f"Marginal counterfactual law P({outcome_name} in · | do({treatment})) is certified, "
+            f"Marginal counterfactual law P({outcome_name} in A | do({treatment})) is certified, "
             "but the OT coupling / joint counterfactual law is not identified from current assumptions."
         ),
         technical_detail=(
@@ -657,6 +1115,334 @@ def _coupling_negative_certificate(
             "separate coupling identification theorem is supplied."
         ),
     )
+
+
+def _merge_assumptions(*groups: list[str]) -> list[str]:
+    merged: list[str] = []
+    seen: set[str] = set()
+    for group in groups:
+        for assumption in group:
+            candidate = str(assumption).strip()
+            if not candidate or candidate in seen:
+                continue
+            seen.add(candidate)
+            merged.append(candidate)
+    return merged
+
+
+def _distributional_theorem_family(
+    *,
+    proof_bundle: ProofBundle | None,
+    metadata: dict[str, Any],
+) -> str:
+    if proof_bundle is not None:
+        return proof_bundle.theorem_family
+    proof_kernel = metadata.get("proof_kernel")
+    if isinstance(proof_kernel, dict):
+        status = str(proof_kernel.get("status", "") or "").strip().lower()
+        if status:
+            return f"distribution_law_{status}"
+    return "distribution_law_scenario"
+
+
+def _assumption_scope(assumption: str, *, default_scope: str) -> str:
+    if assumption == "scenario_level_ot_coupling":
+        return "coupling"
+    if assumption in {
+        "sinkhorn_regularized_discrete_measure_approximation",
+        "uniform_weighting_used",
+    }:
+        return "estimation"
+    return default_scope
+
+
+def _assumption_status(
+    assumption: str,
+    *,
+    marginal_justification: DistributionalJustification,
+    default_scope: str,
+) -> str:
+    scope = _assumption_scope(assumption, default_scope=default_scope)
+    if scope in {"coupling", "estimation"}:
+        return "scenario_only"
+    if marginal_justification is DistributionalJustification.BOUNDED:
+        return "bound_needed"
+    return "identified_needed"
+
+
+def _assumption_theorem_family(
+    assumption: str,
+    *,
+    default_theorem_family: str,
+) -> str:
+    if assumption == "scenario_level_ot_coupling":
+        return "ot_coupling_scenario"
+    if assumption == "sinkhorn_regularized_discrete_measure_approximation":
+        return "ot_sinkhorn_transport"
+    if assumption == "uniform_weighting_used":
+        return "distributional_weighting_mode"
+    if assumption == "distributional_estimand_not_proof_kernel_identified":
+        return "distribution_law_unavailable"
+    return default_theorem_family
+
+
+def _assumption_description(assumption: str) -> str:
+    description = _ASSUMPTION_DESCRIPTIONS.get(assumption)
+    if description is not None:
+        return description
+    return assumption.replace("_", " ")
+
+
+def _persist_distributional_assumption_cards(
+    ctx: ExecutionContext,
+    *,
+    inputs: list[InputRef],
+    marginal_assumptions: list[str],
+    coupling_assumptions: list[str],
+    marginal_justification: DistributionalJustification,
+    default_theorem_family: str,
+) -> _PersistedAssumptionCards:
+    seen: set[str] = set()
+    all_refs: list[CausalAssumptionCardRef] = []
+    marginal_refs: list[CausalAssumptionCardRef] = []
+    coupling_refs: list[CausalAssumptionCardRef] = []
+
+    def _persist_group(assumptions: list[str], *, default_scope: str) -> None:
+        for assumption in assumptions:
+            candidate = str(assumption).strip()
+            if not candidate or candidate in seen:
+                continue
+            seen.add(candidate)
+            scope = _assumption_scope(candidate, default_scope=default_scope)
+            ref = persist_causal_assumption_card(
+                ctx.store,
+                CausalAssumptionCard(
+                    scope=scope,
+                    status=_assumption_status(
+                        candidate,
+                        marginal_justification=marginal_justification,
+                        default_scope=default_scope,
+                    ),
+                    theorem_family=_assumption_theorem_family(
+                        candidate,
+                        default_theorem_family=default_theorem_family,
+                    ),
+                    assumption_type=candidate,
+                    description=_assumption_description(candidate),
+                    testable=candidate in _TESTABLE_ASSUMPTIONS,
+                ),
+                inputs=inputs,
+            )
+            all_refs.append(ref)
+            if scope == "coupling":
+                coupling_refs.append(ref)
+            elif scope == "estimation":
+                marginal_refs.append(ref)
+                coupling_refs.append(ref)
+            else:
+                marginal_refs.append(ref)
+
+    _persist_group(marginal_assumptions, default_scope="marginal")
+    _persist_group(coupling_assumptions, default_scope="coupling")
+    return _PersistedAssumptionCards(
+        all_refs=all_refs,
+        marginal_refs=marginal_refs,
+        coupling_refs=coupling_refs,
+    )
+
+
+def _maybe_persist_distributional_estimand_ast(
+    ctx: ExecutionContext,
+    *,
+    proof_bundle: ProofBundle | None,
+    inputs: list[InputRef],
+) -> EstimandASTRef | None:
+    if proof_bundle is None or proof_bundle.estimand_ast is None:
+        return None
+    try:
+        estimand_ast = (
+            proof_bundle.estimand_ast
+            if isinstance(proof_bundle.estimand_ast, EstimandAST)
+            else EstimandAST.model_validate(proof_bundle.estimand_ast)
+        )
+    except _DISTRIBUTIONAL_VALIDATION_ERRORS:
+        return None
+    return persist_estimand_ast(ctx.store, estimand_ast, inputs=inputs)
+
+
+def _bound_uniformity_for_justification(
+    justification: DistributionalJustification,
+) -> DistributionalBoundUniformity:
+    if justification is DistributionalJustification.IDENTIFIED:
+        return DistributionalBoundUniformity.IDENTIFIED
+    if justification is DistributionalJustification.BOUNDED:
+        return DistributionalBoundUniformity.UNIFORM_OUTER
+    return DistributionalBoundUniformity.NOT_APPLICABLE
+
+
+def _coupling_status_for_justification(
+    justification: DistributionalJustification | None,
+) -> DistributionalCouplingStatus:
+    if justification is DistributionalJustification.IDENTIFIED:
+        return DistributionalCouplingStatus.IDENTIFIED
+    if justification is DistributionalJustification.BOUNDED:
+        return DistributionalCouplingStatus.SET_IDENTIFIED
+    if justification is DistributionalJustification.SCENARIO:
+        return DistributionalCouplingStatus.SCENARIO_ONLY
+    return DistributionalCouplingStatus.NOT_USED
+
+
+def _persist_distributional_proof_artifacts(
+    ctx: ExecutionContext,
+    *,
+    inputs: list[InputRef],
+    proof_bundle: ProofBundle | None,
+    metadata: dict[str, Any],
+    marginal_justification: DistributionalJustification,
+    coupling_justification: DistributionalJustification | None,
+    marginal_assumption_refs: list[CausalAssumptionCardRef],
+    coupling_assumption_refs: list[CausalAssumptionCardRef],
+    coupling_negative_certificate: NegativeCertificate | None,
+    distributional_bounds_refs: list[DistributionalBoundsBundleRef] | None = None,
+    distributional_bounds_metadata: dict[str, Any] | None = None,
+    distributional_bounds_uniformity: DistributionalBoundUniformity | None = None,
+    distributional_bounds_target: DistributionalProofTarget | None = None,
+) -> tuple[DistributionalProofArtifactRef | None, DistributionalProofArtifactRef | None]:
+    proof_bundle_ref: ProofBundleRef | None = None
+    if proof_bundle is not None:
+        proof_bundle_ref = persist_proof_bundle(ctx.store, proof_bundle, inputs=inputs)
+    estimand_ast_ref = _maybe_persist_distributional_estimand_ast(
+        ctx,
+        proof_bundle=proof_bundle,
+        inputs=inputs,
+    )
+    theorem_family = _distributional_theorem_family(
+        proof_bundle=proof_bundle,
+        metadata=metadata,
+    )
+    marginal_ref: DistributionalProofArtifactRef | None = None
+    bounds_refs = list(distributional_bounds_refs or [])
+    if proof_bundle_ref is not None:
+        marginal_ref = persist_distributional_proof_artifact(
+            ctx.store,
+            DistributionalProofArtifact(
+                base_proof_ref=proof_bundle_ref,
+                estimand_ast_ref=estimand_ast_ref,
+                target=(
+                    distributional_bounds_target
+                    if (
+                        marginal_justification is DistributionalJustification.BOUNDED
+                        and distributional_bounds_target is not None
+                    )
+                    else DistributionalProofTarget.CDF
+                ),
+                bounded_curve_ref=(
+                    bounds_refs[0]
+                    if (
+                        marginal_justification is DistributionalJustification.BOUNDED
+                        and bounds_refs
+                    )
+                    else None
+                ),
+                bound_uniformity=(
+                    distributional_bounds_uniformity
+                    if (
+                        marginal_justification is DistributionalJustification.BOUNDED
+                        and distributional_bounds_uniformity is not None
+                    )
+                    else _bound_uniformity_for_justification(marginal_justification)
+                ),
+                coupling_status=DistributionalCouplingStatus.NOT_USED,
+                theorem_family=theorem_family,
+                assumption_card_refs=marginal_assumption_refs,
+                metadata={
+                    "distributional_query_kind": metadata.get("distributional_query_kind"),
+                    "proof_kernel": metadata.get("proof_kernel"),
+                    "proof_status": proof_bundle.proof_status,
+                    "justification": marginal_justification.value,
+                    "distributional_bounds_refs": [
+                        ref.model_dump(mode="json") for ref in bounds_refs
+                    ],
+                },
+            ),
+            inputs=inputs,
+        )
+    if marginal_ref is None and bounds_refs:
+        bounds_metadata = dict(distributional_bounds_metadata or {})
+        first_bounds_ref = bounds_refs[0]
+        marginal_ref = persist_distributional_proof_artifact(
+            ctx.store,
+            DistributionalProofArtifact(
+                target=distributional_bounds_target or DistributionalProofTarget.CDF,
+                bounded_curve_ref=first_bounds_ref,
+                bound_uniformity=(
+                    distributional_bounds_uniformity
+                    or DistributionalBoundUniformity.UNIFORM_OUTER
+                ),
+                coupling_status=DistributionalCouplingStatus.NOT_USED,
+                theorem_family=str(
+                    bounds_metadata.get("primary_theorem_family")
+                    or bounds_metadata.get("theorem_family")
+                    or theorem_family
+                    or "distributional_bounds"
+                ),
+                assumption_card_refs=marginal_assumption_refs,
+                metadata={
+                    "distributional_query_kind": metadata.get("distributional_query_kind"),
+                    "justification": marginal_justification.value,
+                    "distributional_bounds_refs": [
+                        ref.model_dump(mode="json") for ref in bounds_refs
+                    ],
+                    **bounds_metadata,
+                },
+            ),
+            inputs=[
+                *inputs,
+                *(
+                    InputRef(artifact_id=str(ref.artifact_id), role="distributional_bounds_bundle")
+                    for ref in bounds_refs
+                ),
+            ],
+        )
+
+    coupling_negative_ref: NegativeCertificateRef | None = None
+    if coupling_negative_certificate is not None:
+        coupling_negative_ref = persist_negative_certificate(
+            ctx.store,
+            coupling_negative_certificate,
+            inputs=inputs,
+        )
+    coupling_ref: DistributionalProofArtifactRef | None = None
+    coupling_status = _coupling_status_for_justification(coupling_justification)
+    if coupling_status is not DistributionalCouplingStatus.NOT_USED:
+        coupling_ref = persist_distributional_proof_artifact(
+            ctx.store,
+            DistributionalProofArtifact(
+                base_proof_ref=proof_bundle_ref,
+                estimand_ast_ref=estimand_ast_ref,
+                target=DistributionalProofTarget.COUPLING,
+                bound_uniformity=DistributionalBoundUniformity.NOT_APPLICABLE,
+                coupling_status=coupling_status,
+                theorem_family=(
+                    theorem_family
+                    if coupling_status is not DistributionalCouplingStatus.SCENARIO_ONLY
+                    else "ot_coupling_scenario"
+                ),
+                assumption_card_refs=coupling_assumption_refs,
+                metadata={
+                    "distributional_query_kind": metadata.get("distributional_query_kind"),
+                    "proof_kernel": metadata.get("proof_kernel"),
+                    "negative_certificate_ref": (
+                        coupling_negative_ref.model_dump(mode="json")
+                        if coupling_negative_ref is not None
+                        else None
+                    ),
+                    "justification": coupling_justification.value if coupling_justification is not None else None,
+                },
+            ),
+            inputs=inputs,
+        )
+    return marginal_ref, coupling_ref
 
 
 def _recommended_n_bins(sample_size: int) -> int:

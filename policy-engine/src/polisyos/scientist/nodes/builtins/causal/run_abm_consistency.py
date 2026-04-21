@@ -21,10 +21,12 @@ from polisyos.ir.analytics.abm_bridge import (
     persist_abm_alignment_report,
 )
 from polisyos.ir.analytics.abstraction import (
+    ContinuousApproximateAbstractionConfig,
     FiniteStateAbstractionMap,
     load_finite_state_abstraction_map,
     persist_abstraction_certificate,
     persist_finite_state_abstraction_map,
+    verify_continuous_approximate_abstraction,
     verify_finite_state_exact_abstraction,
 )
 from polisyos.ir.analytics.causal import load_causal_effect_report
@@ -73,6 +75,13 @@ _SPEC = NodeSpec(
         "params.finite_state_macro_scm_ref",
         "params.finite_state_abstraction_map",
         "params.finite_state_abstraction_map_ref",
+        "params.continuous_micro_scm",
+        "params.continuous_micro_scm_ref",
+        "params.continuous_macro_scm",
+        "params.continuous_macro_scm_ref",
+        "params.continuous_abstraction_map",
+        "params.continuous_abstraction_map_ref",
+        "params.continuous_abstraction_bound_config",
         "params.abstraction_preserved_queries",
         f"artifacts_index.{ARTIFACT_CAUSAL_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF}",
@@ -170,6 +179,15 @@ class _ExactAbstractionInputs:
     macro_scm: StructuralCausalModelSpec
     abstraction_map: FiniteStateAbstractionMap
     abstraction_map_ref: FiniteStateAbstractionMapRef | None
+
+
+@dataclass(frozen=True)
+class _ContinuousAbstractionInputs:
+    micro_scm: StructuralCausalModelSpec
+    macro_scm: StructuralCausalModelSpec
+    abstraction_map: FiniteStateAbstractionMap
+    abstraction_map_ref: FiniteStateAbstractionMapRef | None
+    bound_config: ContinuousApproximateAbstractionConfig
 
 
 def _parse_mappings(raw: Any) -> list[MacroMicroMapping]:
@@ -424,6 +442,80 @@ def _load_exact_abstraction_inputs(
     )
 
 
+def _load_continuous_abstraction_inputs(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> _ContinuousAbstractionInputs | None:
+    any_requested = any(
+        state.params.get(key) is not None
+        for key in (
+            "continuous_micro_scm",
+            "continuous_micro_scm_ref",
+            "continuous_macro_scm",
+            "continuous_macro_scm_ref",
+            "continuous_abstraction_map",
+            "continuous_abstraction_map_ref",
+            "continuous_abstraction_bound_config",
+        )
+    )
+    if not any_requested:
+        return None
+
+    micro_scm = _load_structural_scm_value(
+        ctx,
+        state,
+        payload_key="continuous_micro_scm",
+        ref_key="continuous_micro_scm_ref",
+    )
+    macro_scm = _load_structural_scm_value(
+        ctx,
+        state,
+        payload_key="continuous_macro_scm",
+        ref_key="continuous_macro_scm_ref",
+        artifact_fallback_key=ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
+    )
+    if micro_scm is None or macro_scm is None:
+        raise ValueError(
+            "Continuous abstraction verification requires both continuous_micro_scm "
+            "and continuous_macro_scm"
+        )
+
+    map_payload = state.params.get("continuous_abstraction_map")
+    map_ref = _coerce_abstraction_map_ref(state.params.get("continuous_abstraction_map_ref"))
+    if map_payload is not None:
+        abstraction_map = (
+            map_payload
+            if isinstance(map_payload, FiniteStateAbstractionMap)
+            else FiniteStateAbstractionMap.model_validate(map_payload)
+        )
+    else:
+        if map_ref is None:
+            raise ValueError(
+                "Continuous abstraction verification requires continuous_abstraction_map "
+                "or continuous_abstraction_map_ref"
+            )
+        abstraction_map = load_finite_state_abstraction_map(ctx.store, map_ref)
+
+    raw_bound_config = state.params.get("continuous_abstraction_bound_config")
+    if raw_bound_config is None:
+        raise ValueError(
+            "Continuous abstraction verification requires "
+            "continuous_abstraction_bound_config"
+        )
+    bound_config = (
+        raw_bound_config
+        if isinstance(raw_bound_config, ContinuousApproximateAbstractionConfig)
+        else ContinuousApproximateAbstractionConfig.model_validate(raw_bound_config)
+    )
+    return _ContinuousAbstractionInputs(
+        micro_scm=micro_scm,
+        macro_scm=macro_scm,
+        abstraction_map=abstraction_map,
+        abstraction_map_ref=map_ref,
+        bound_config=bound_config,
+    )
+
+
 @dataclass(frozen=True)
 class RunABMConsistencyCheckNode:
     """Compare SCM effects against ABM aggregates and abstraction evidence.
@@ -483,19 +575,34 @@ class RunABMConsistencyCheckNode:
         abstraction_preservation_type: str | None = None
 
         exact_inputs: _ExactAbstractionInputs | None = None
+        continuous_inputs: _ContinuousAbstractionInputs | None = None
         try:
             exact_inputs = _load_exact_abstraction_inputs(ctx, state)
+            continuous_inputs = _load_continuous_abstraction_inputs(ctx, state)
         except _ABM_CONSISTENCY_RUNTIME_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
                 error=NodeError(
                     code=node_errors.ERROR_INVALID_STATE,
-                    message=f"Invalid finite-state abstraction payload: {exc}",
+                    message=f"Invalid abstraction payload: {exc}",
                 ),
             )
 
-        if exact_inputs is None:
+        if exact_inputs is not None and continuous_inputs is not None:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=(
+                        "Provide either finite-state exact abstraction inputs or continuous "
+                        "approximate abstraction inputs, not both"
+                    ),
+                ),
+            )
+
+        if exact_inputs is None and continuous_inputs is None:
             _append_warning(warnings, "heuristic_aggregation_without_abstraction_certificate")
         else:
             graph_inputs: list[InputRef] = []
@@ -510,38 +617,68 @@ class RunABMConsistencyCheckNode:
                 )
             micro_graph_ref = persist_causal_graph_model(
                 ctx.store,
-                exact_inputs.micro_scm.graph,
+                (
+                    continuous_inputs.micro_scm.graph
+                    if continuous_inputs is not None
+                    else exact_inputs.micro_scm.graph
+                ),
                 inputs=graph_inputs or None,
             )
             macro_graph_ref = persist_causal_graph_model(
                 ctx.store,
-                exact_inputs.macro_scm.graph,
+                (
+                    continuous_inputs.macro_scm.graph
+                    if continuous_inputs is not None
+                    else exact_inputs.macro_scm.graph
+                ),
                 inputs=graph_inputs or None,
             )
-            abstraction_map_ref = exact_inputs.abstraction_map_ref
+            selected_map = (
+                continuous_inputs.abstraction_map
+                if continuous_inputs is not None
+                else exact_inputs.abstraction_map
+            )
+            abstraction_map_ref = (
+                continuous_inputs.abstraction_map_ref
+                if continuous_inputs is not None
+                else exact_inputs.abstraction_map_ref
+            )
             if abstraction_map_ref is None:
                 abstraction_map_ref = persist_finite_state_abstraction_map(
                     ctx.store,
-                    exact_inputs.abstraction_map,
+                    selected_map,
                     inputs=[
                         InputRef(artifact_id=str(micro_graph_ref.artifact_id), role="micro_graph"),
                         InputRef(artifact_id=str(macro_graph_ref.artifact_id), role="macro_graph"),
                     ],
                 )
             preserved_queries = state.params.get("abstraction_preserved_queries")
-            certificate = verify_finite_state_exact_abstraction(
-                exact_inputs.micro_scm,
-                exact_inputs.macro_scm,
-                exact_inputs.abstraction_map,
-                micro_graph_ref=micro_graph_ref,
-                macro_graph_ref=macro_graph_ref,
-                abstraction_map_ref=abstraction_map_ref,
-                preserved_queries=(
-                    tuple(str(item) for item in preserved_queries)
-                    if isinstance(preserved_queries, (tuple, list))
-                    else None
-                ),
+            normalized_preserved_queries = (
+                tuple(str(item) for item in preserved_queries)
+                if isinstance(preserved_queries, (tuple, list))
+                else None
             )
+            if continuous_inputs is not None:
+                certificate = verify_continuous_approximate_abstraction(
+                    continuous_inputs.micro_scm,
+                    continuous_inputs.macro_scm,
+                    continuous_inputs.abstraction_map,
+                    bound_config=continuous_inputs.bound_config,
+                    micro_graph_ref=micro_graph_ref,
+                    macro_graph_ref=macro_graph_ref,
+                    abstraction_map_ref=abstraction_map_ref,
+                    preserved_queries=normalized_preserved_queries,
+                )
+            else:
+                certificate = verify_finite_state_exact_abstraction(
+                    exact_inputs.micro_scm,
+                    exact_inputs.macro_scm,
+                    exact_inputs.abstraction_map,
+                    micro_graph_ref=micro_graph_ref,
+                    macro_graph_ref=macro_graph_ref,
+                    abstraction_map_ref=abstraction_map_ref,
+                    preserved_queries=normalized_preserved_queries,
+                )
             abstraction_certificate_ref = persist_abstraction_certificate(
                 ctx.store,
                 certificate,
@@ -560,6 +697,17 @@ class RunABMConsistencyCheckNode:
                     NodeEvent(
                         level="info",
                         message="Exact finite-state abstraction certificate verified.",
+                    )
+                )
+            elif abstraction_preservation_type in {"approximate", "policy_value_only"}:
+                events.append(
+                    NodeEvent(
+                        level="info",
+                        message=(
+                            "Continuous approximate abstraction certificate verified."
+                            if continuous_inputs is not None
+                            else "Approximate abstraction certificate verified."
+                        ),
                     )
                 )
             else:

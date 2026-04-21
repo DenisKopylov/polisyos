@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any
+from typing import Any, Literal
 
 from collections.abc import Mapping, Sequence
 from datetime import date, datetime
@@ -16,9 +16,18 @@ from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ir.artifacts import (
+    ArtifactStore,
+    InputRef,
+    get_json_artifact,
+    put_json_artifact,
+)
+from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import (
     BoundsBundleRef,
     DataReadinessReportRef,
+    EvidenceBundleRef,
+    KernelEstimatorSpecRef,
     NegativeCertificateRef,
     ProofBundleRef,
 )
@@ -121,6 +130,30 @@ class ProofStep(BaseModel):
 
     graph_state_after: str = ""
     """Compact description of the graph state after this rule was applied."""
+
+    step_id: str = ""
+    """Stable identifier for cross-artifact replay/revalidation of this proof step."""
+
+    theorem_family: str = ""
+    """The theorem family or algorithm regime that licensed this step."""
+
+    input_expr_ref: str | None = None
+    """Artifact or inline ref describing the expression before applying the step."""
+
+    output_expr_ref: str | None = None
+    """Artifact or inline ref describing the expression after applying the step."""
+
+    witness_ids: tuple[str, ...] = ()
+    """Graphical witness ids that license this step under replay."""
+
+    depends_on_steps: tuple[str, ...] = ()
+    """Prior step ids that must still hold for this step to remain reusable."""
+
+    local_status: Literal["valid", "invalid", "unknown"] = "unknown"
+    """Replay status of this step on a composed graph."""
+
+    invalidation_reason: str | None = None
+    """Short machine-readable explanation when replay invalidates the step."""
 
 
 class DataProvenance(BaseModel):
@@ -286,6 +319,9 @@ class EvidenceBundle(BaseModel):
     data_readiness_report_ref: DataReadinessReportRef | None = None
     """CAS-backed reference to the canonical readiness gate, when available."""
 
+    kernel_estimator_spec_ref: KernelEstimatorSpecRef | None = None
+    """CAS-backed reference to the kernel lowering contract, when applicable."""
+
     def to_summary(self) -> str:
         """Return a concise human-readable summary of this bundle."""
         n_steps = len(self.proof_steps)
@@ -311,12 +347,46 @@ class EvidenceBundle(BaseModel):
         )
 
 
+def persist_causal_evidence_bundle(
+    store: ArtifactStore,
+    bundle: EvidenceBundle,
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = "ir.causal_evidence_bundle",
+    schema_version: str = "1.0",
+) -> EvidenceBundleRef:
+    """Persist a causal audit EvidenceBundle and return its typed artifact ref."""
+
+    ref = put_json_artifact(
+        store,
+        bundle.model_dump(mode="json"),
+        kind="fabric.evidence_bundle",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return EvidenceBundleRef.model_validate(ref)
+
+
+def load_causal_evidence_bundle(
+    store: ArtifactStore,
+    ref: EvidenceBundleRef,
+) -> EvidenceBundle:
+    """Load a causal audit EvidenceBundle persisted via `persist_causal_evidence_bundle`."""
+
+    payload = get_json_artifact(store, ref.artifact_id)
+    return EvidenceBundle.model_validate(payload)
+
+
 __all__ = [
-    "_fingerprint",
-    "EvidenceFingerprintError",
-    "ProofStep",
-    "DataProvenance",
     "CompilationStep",
+    "DataProvenance",
     "EstimationStep",
     "EvidenceBundle",
+    "EvidenceFingerprintError",
+    "ProofStep",
+    "_fingerprint",
+    "load_causal_evidence_bundle",
+    "persist_causal_evidence_bundle",
 ]

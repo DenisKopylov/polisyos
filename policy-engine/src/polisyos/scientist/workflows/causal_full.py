@@ -119,6 +119,11 @@ def causal_full_workflow_spec() -> WorkflowSpec:
                 ],
             ),
             NodeInvocation(
+                alias="run_metric_validation",
+                node_id="scientist.node_run_metric_validation@1.0.0",
+                depends_on=["run_simulation"],
+            ),
+            NodeInvocation(
                 alias="run_causal_evaluation",
                 node_id="scientist.node_run_causal_evaluation@1.2.0",
                 depends_on=["build_data_snapshot"],
@@ -187,7 +192,12 @@ def causal_full_workflow_spec() -> WorkflowSpec:
             NodeInvocation(
                 alias="build_decision_packet",
                 node_id="scientist.node_build_decision_packet@1.5.0",
-                depends_on=["run_governance", "run_causal_evaluation", "run_evaluator"],
+                depends_on=[
+                    "run_governance",
+                    "run_causal_evaluation",
+                    "run_evaluator",
+                    "run_metric_validation",
+                ],
             ),
         ],
         notes=[

@@ -1,22 +1,18 @@
 """Discover causal graph structure from conditional-independence or score constraints."""
 from __future__ import annotations
 
-from collections import deque
 import math
 import multiprocessing as mp
 import time
+from collections import deque
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from itertools import combinations
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.catalog.causal.admg_ops import (
-    ancestors,
-    extract_bidirected_edges,
-    extract_directed_edges,
-)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -30,6 +26,18 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal._graph_projection import pag_to_dag_projection
+from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    ancestors,
+    extract_bidirected_edges,
+    extract_directed_edges,
+)
+from polisyos.foundry.methods.catalog.causal.algebraic_calibration import (
+    TetradBlockCalibrationMetrics,
+    decide_tetrad_severity,
+)
+from polisyos.foundry.methods.catalog.causal.model_class_compatibility import (
+    check_model_class_compatibility,
+)
 from polisyos.foundry.methods.catalog.causal.ci_backends import (
     CIBackendSelection,
     ci_backend_metadata,
@@ -281,6 +289,9 @@ def _mixed_kernel_test(
     y: np.ndarray,
     z: np.ndarray | None,
     alpha: float,
+    dp_context: Mapping[str, Any] | None = None,
+    judge_threshold_registry_root: str | None = None,
+    readiness_target: str = "diagnostic",
 ) -> dict[str, Any]:
     from polisyos.foundry.methods.catalog.causal.independence_tests import (
         HSICIndependenceTest,
@@ -292,14 +303,39 @@ def _mixed_kernel_test(
     if z is None or z.size == 0:
         raw = HSICIndependenceTest.pure_step(
             {"X": x_enc, "Y": y_enc},
-            {"alpha": alpha, "n_bootstrap": 99},
+            {
+                "alpha": alpha,
+                "n_bootstrap": 99,
+                "dp_context": dp_context,
+                "judge_threshold_registry_root": judge_threshold_registry_root,
+                "readiness_target": readiness_target,
+            },
         )["result"]
         return {
             "test_name": "hsic_mixed",
             "statistic": float(raw["statistic"]),
             "p_value": float(raw["p_value"]),
+            "passed": bool(raw["passed"]),
+            "critical_value": float(raw["critical_value"]),
+            "alpha": float(raw.get("alpha", alpha)),
+            "critical_statistic_value": float(raw.get("critical_statistic_value", raw["critical_value"])),
+            "calibration_mode": raw.get("calibration_mode"),
+            "dp_context_summary": raw.get("dp_context_summary"),
+            "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
             "metadata": {
                 **dict(raw.get("metadata", {})),
+                **{
+                    key: raw[key]
+                    for key in (
+                        "alpha",
+                        "critical_value",
+                        "critical_statistic_value",
+                        "calibration_mode",
+                        "dp_context_summary",
+                        "naive_fpr_inflation_bound",
+                    )
+                    if raw.get(key) is not None
+                },
                 "route": "hsic_mixed",
                 "approximation": "kernel_mixed_marginal",
             },
@@ -308,14 +344,40 @@ def _mixed_kernel_test(
     z_enc = np.column_stack([_encode_for_kernel(z[:, idx]) for idx in range(z.shape[1])])
     raw = KCIConditionalTest.pure_step(
         {"X": x_enc, "Y": y_enc, "Z": z_enc},
-        {"alpha": alpha, "n_bootstrap": 99, "ridge": 1e-2},
+        {
+            "alpha": alpha,
+            "n_bootstrap": 99,
+            "ridge": 1e-2,
+            "dp_context": dp_context,
+            "judge_threshold_registry_root": judge_threshold_registry_root,
+            "readiness_target": readiness_target,
+        },
     )["result"]
     return {
         "test_name": "kci_mixed",
         "statistic": float(raw["statistic"]),
         "p_value": float(raw["p_value"]),
+        "passed": bool(raw["passed"]),
+        "critical_value": float(raw["critical_value"]),
+        "alpha": float(raw.get("alpha", alpha)),
+        "critical_statistic_value": float(raw.get("critical_statistic_value", raw["critical_value"])),
+        "calibration_mode": raw.get("calibration_mode"),
+        "dp_context_summary": raw.get("dp_context_summary"),
+        "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
         "metadata": {
             **dict(raw.get("metadata", {})),
+            **{
+                key: raw[key]
+                for key in (
+                    "alpha",
+                    "critical_value",
+                    "critical_statistic_value",
+                    "calibration_mode",
+                    "dp_context_summary",
+                    "naive_fpr_inflation_bound",
+                )
+                if raw.get(key) is not None
+            },
             "route": "kci_mixed",
             "approximation": "kernel_conditional_independence",
         },
@@ -328,8 +390,12 @@ def _run_ci_test(
     y: np.ndarray,
     z: np.ndarray | None,
     alpha: float,
+    dp_context: Mapping[str, Any] | None = None,
+    judge_threshold_registry_root: str | None = None,
+    readiness_target: str = "diagnostic",
 ) -> dict[str, Any]:
     from polisyos.foundry.methods.catalog.causal.independence_tests import (
+        CategoricalConditionalIndependenceTest,
         PartialCorrelationTest,
     )
 
@@ -369,16 +435,46 @@ def _run_ci_test(
     try:
         if z_obs is None or z_obs.size == 0:
             if all_categorical:
-                table, _, _ = _build_contingency_table(x_obs, y_obs)
-                statistic, p_value, meta = _g_test_from_table(table)
+                raw = CategoricalConditionalIndependenceTest.pure_step(
+                    {"X": x_obs, "Y": y_obs},
+                    {
+                        "alpha": alpha,
+                        "statistic_family": "g2",
+                        "dp_context": dp_context,
+                        "judge_threshold_registry_root": judge_threshold_registry_root,
+                        "readiness_target": readiness_target,
+                    },
+                )["result"]
                 return {
                     "status": "tested",
                     "test_name": "g_test",
-                    "statistic": float(statistic),
-                    "p_value": float(p_value),
+                    "statistic": float(raw["statistic"]),
+                    "p_value": float(raw["p_value"]),
+                    "passed": bool(raw["passed"]),
+                    "critical_value": float(raw["critical_value"]),
+                    "alpha": float(raw.get("alpha", alpha)),
+                    "critical_statistic_value": float(
+                        raw.get("critical_statistic_value", raw["critical_value"])
+                    ),
+                    "calibration_mode": raw.get("calibration_mode"),
+                    "dp_context_summary": raw.get("dp_context_summary"),
+                    "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
                     "metadata": {
-                        **meta,
+                        **dict(raw.get("metadata", {})),
+                        **{
+                            key: raw[key]
+                            for key in (
+                                "alpha",
+                                "critical_value",
+                                "critical_statistic_value",
+                                "calibration_mode",
+                                "dp_context_summary",
+                                "naive_fpr_inflation_bound",
+                            )
+                            if raw.get(key) is not None
+                        },
                         "route": "g_test",
+                        "ci_test_impl": str(raw["test_name"]),
                         "x_kind": x_kind,
                         "y_kind": y_kind,
                         "conditioning_kinds": (),
@@ -388,7 +484,7 @@ def _run_ci_test(
             if all_continuous:
                 raw = PartialCorrelationTest.pure_step(
                     {"X": x_obs, "Y": y_obs},
-                    {"alpha": alpha},
+                    {"alpha": alpha, "dp_context": dp_context},
                 )["result"]
                 return {
                     "status": "tested",
@@ -404,12 +500,29 @@ def _run_ci_test(
                         "n_complete_cases": n_complete,
                     },
                 }
-            raw = _mixed_kernel_test(x=x_obs, y=y_obs, z=None, alpha=alpha)
+            raw = _mixed_kernel_test(
+                x=x_obs,
+                y=y_obs,
+                z=None,
+                alpha=alpha,
+                dp_context=dp_context,
+                judge_threshold_registry_root=judge_threshold_registry_root,
+                readiness_target=readiness_target,
+            )
             return {
                 "status": "tested",
                 "test_name": str(raw["test_name"]),
                 "statistic": float(raw["statistic"]),
                 "p_value": float(raw["p_value"]),
+                "passed": bool(raw["passed"]),
+                "critical_value": float(raw["critical_value"]),
+                "alpha": float(raw.get("alpha", alpha)),
+                "critical_statistic_value": float(
+                    raw.get("critical_statistic_value", raw["critical_value"])
+                ),
+                "calibration_mode": raw.get("calibration_mode"),
+                "dp_context_summary": raw.get("dp_context_summary"),
+                "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
                 "warnings": [
                     "approximate_ci_route: mixed data used kernel independence approximation"
                 ],
@@ -423,15 +536,46 @@ def _run_ci_test(
             }
 
         if all_categorical:
-            statistic, p_value, meta = _conditional_g_test(x_obs, y_obs, z_obs)
+            raw = CategoricalConditionalIndependenceTest.pure_step(
+                {"X": x_obs, "Y": y_obs, "Z": z_obs},
+                {
+                    "alpha": alpha,
+                    "statistic_family": "g2",
+                    "dp_context": dp_context,
+                    "judge_threshold_registry_root": judge_threshold_registry_root,
+                    "readiness_target": readiness_target,
+                },
+            )["result"]
             return {
                 "status": "tested",
                 "test_name": "conditional_g_test",
-                "statistic": float(statistic),
-                "p_value": float(p_value),
+                "statistic": float(raw["statistic"]),
+                "p_value": float(raw["p_value"]),
+                "passed": bool(raw["passed"]),
+                "critical_value": float(raw["critical_value"]),
+                "alpha": float(raw.get("alpha", alpha)),
+                "critical_statistic_value": float(
+                    raw.get("critical_statistic_value", raw["critical_value"])
+                ),
+                "calibration_mode": raw.get("calibration_mode"),
+                "dp_context_summary": raw.get("dp_context_summary"),
+                "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
                 "metadata": {
-                    **meta,
+                    **dict(raw.get("metadata", {})),
+                    **{
+                        key: raw[key]
+                        for key in (
+                            "alpha",
+                            "critical_value",
+                            "critical_statistic_value",
+                            "calibration_mode",
+                            "dp_context_summary",
+                            "naive_fpr_inflation_bound",
+                        )
+                        if raw.get(key) is not None
+                    },
                     "route": "conditional_g_test",
+                    "ci_test_impl": str(raw["test_name"]),
                     "x_kind": x_kind,
                     "y_kind": y_kind,
                     "conditioning_kinds": conditioning_kinds,
@@ -441,7 +585,7 @@ def _run_ci_test(
         if all_continuous:
             raw = PartialCorrelationTest.pure_step(
                 {"X": x_obs, "Y": y_obs, "Z": z_obs},
-                {"alpha": alpha},
+                {"alpha": alpha, "dp_context": dp_context},
             )["result"]
             return {
                 "status": "tested",
@@ -457,12 +601,29 @@ def _run_ci_test(
                     "n_complete_cases": n_complete,
                 },
             }
-        raw = _mixed_kernel_test(x=x_obs, y=y_obs, z=z_obs, alpha=alpha)
+        raw = _mixed_kernel_test(
+            x=x_obs,
+            y=y_obs,
+            z=z_obs,
+            alpha=alpha,
+            dp_context=dp_context,
+            judge_threshold_registry_root=judge_threshold_registry_root,
+            readiness_target=readiness_target,
+        )
         return {
             "status": "tested",
             "test_name": str(raw["test_name"]),
             "statistic": float(raw["statistic"]),
             "p_value": float(raw["p_value"]),
+            "passed": bool(raw["passed"]),
+            "critical_value": float(raw["critical_value"]),
+            "alpha": float(raw.get("alpha", alpha)),
+            "critical_statistic_value": float(
+                raw.get("critical_statistic_value", raw["critical_value"])
+            ),
+            "calibration_mode": raw.get("calibration_mode"),
+            "dp_context_summary": raw.get("dp_context_summary"),
+            "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
             "warnings": [
                 "approximate_ci_route: mixed data used kernel conditional-independence approximation"
             ],
@@ -593,7 +754,28 @@ def _tetrad_value(
     )
 
 
-def _tetrad_pairings() -> tuple[tuple[str, tuple[tuple[int, int], tuple[int, int]], tuple[tuple[int, int], tuple[int, int]]], ...]:
+def _tetrad_delta(
+    matrix: np.ndarray,
+    *,
+    observed: float,
+    left_pairs: tuple[tuple[int, int], tuple[int, int]],
+    right_pairs: tuple[tuple[int, int], tuple[int, int]],
+) -> float:
+    cov = _covariance(matrix)
+    left_scale = float(abs(cov[left_pairs[0]] * cov[left_pairs[1]]))
+    right_scale = float(abs(cov[right_pairs[0]] * cov[right_pairs[1]]))
+    denominator = max(left_scale, right_scale, 1e-12)
+    return float(abs(observed) / denominator)
+
+
+_TetradPairing = tuple[
+    str,
+    tuple[tuple[int, int], tuple[int, int]],
+    tuple[tuple[int, int], tuple[int, int]],
+]
+
+
+def _tetrad_pairings() -> tuple[_TetradPairing, ...]:
     return (
         ("ab_cd_vs_ac_bd", ((0, 1), (2, 3)), ((0, 2), (1, 3))),
         ("ab_cd_vs_ad_bc", ((0, 1), (2, 3)), ((0, 3), (1, 2))),
@@ -1036,6 +1218,9 @@ def _evaluate_ci_family(
     data: np.ndarray,
     variable_names: list[str],
     alpha: float,
+    dp_context: Mapping[str, Any] | None = None,
+    judge_threshold_registry_root: str | None = None,
+    readiness_target: str = "diagnostic",
 ) -> dict[str, Any]:
     implied_constraints = _implied_ci_constraints(graph)
     index_by_name = {name: idx for idx, name in enumerate(variable_names)}
@@ -1060,7 +1245,15 @@ def _evaluate_ci_family(
             if constraint.conditioning_set
             else None
         )
-        raw = _run_ci_test(x=left, y=right, z=conditioning, alpha=alpha)
+        raw = _run_ci_test(
+            x=left,
+            y=right,
+            z=conditioning,
+            alpha=alpha,
+            dp_context=dp_context,
+            judge_threshold_registry_root=judge_threshold_registry_root,
+            readiness_target=readiness_target,
+        )
         raw_results.append({"constraint": constraint, **raw})
         warnings.extend(raw.get("warnings", []))
 
@@ -1082,12 +1275,28 @@ def _evaluate_ci_family(
             continue
         tested_count += 1
         adjusted_p = float(next(adjusted))
-        route = str(entry.get("metadata", {}).get("route", ""))
+        metadata = dict(entry.get("metadata", {}))
+        route = str(metadata.get("route", ""))
+        calibration_label = str(metadata.get("calibration_mode", "")).strip().lower()
         severity = (
             "blocker"
             if route in {"partial_correlation", "g_test", "conditional_g_test"}
             else "warning"
         )
+        null_distribution = AlgebraicNullDistribution.ASYMPTOTIC
+        calibration_mode = AlgebraicCalibrationMode.ANALYTIC
+        reproducibility_tier = AlgebraicReproducibilityTier.DETERMINISTIC
+        if calibration_label in {"permutation_quantile", "dp_permutation_quantile"}:
+            null_distribution = AlgebraicNullDistribution.BOOTSTRAP
+            calibration_mode = AlgebraicCalibrationMode.BOOTSTRAP
+            reproducibility_tier = AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP
+        elif calibration_label == "mc_null_simulation":
+            null_distribution = AlgebraicNullDistribution.BOOTSTRAP
+            calibration_mode = AlgebraicCalibrationMode.PARAMETRIC_BOOTSTRAP
+            reproducibility_tier = AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP
+        elif calibration_label in {"analytic_weighted_chi2", "classical_chi2_reference"}:
+            null_distribution = AlgebraicNullDistribution.ANALYTIC
+            calibration_mode = AlgebraicCalibrationMode.ANALYTIC
         if adjusted_p < alpha:
             violations.append(
                 ConstraintEvaluationResult(
@@ -1098,13 +1307,13 @@ def _evaluate_ci_family(
                     p_value=float(entry["p_value"]),
                     adjusted_p_value=adjusted_p,
                     severity=severity,
-                    null_distribution=AlgebraicNullDistribution.ASYMPTOTIC,
-                    calibration_mode=AlgebraicCalibrationMode.ANALYTIC,
+                    null_distribution=null_distribution,
+                    calibration_mode=calibration_mode,
                     scope_of_falsification=AlgebraicFalsificationScope.GRAPH_CLASS,
                     ranking_weight=_severity_ranking_weight(severity),
-                    reproducibility_tier=AlgebraicReproducibilityTier.DETERMINISTIC,
+                    reproducibility_tier=reproducibility_tier,
                     warnings=list(entry.get("warnings", [])),
-                    metadata=dict(entry.get("metadata", {})),
+                    metadata=metadata,
                 )
             )
 
@@ -1161,7 +1370,9 @@ def _evaluate_tetrad_family(
             quad_complete = quad_matrix[mask]
             if quad_complete.shape[0] < 8:
                 warnings.append(
-                    f"tetrad_constraint_skipped:{block.block_id}:{','.join(quadruple)}:insufficient_complete_cases"
+                    "tetrad_constraint_skipped:"
+                    f"{block.block_id}:{','.join(quadruple)}:"
+                    "insufficient_complete_cases"
                 )
                 continue
             for label, left_pairs, right_pairs in _tetrad_pairings():
@@ -1196,30 +1407,85 @@ def _evaluate_tetrad_family(
                 std = float(np.std(bootstrap_values, ddof=1))
                 if std <= 1e-12:
                     p_value = 1.0 if abs(observed) <= 1e-12 else 0.0
+                    abs_z = 0.0 if abs(observed) <= 1e-12 else 1e12
                 else:
-                    z_score = abs(float(observed)) / std
-                    p_value = float(math.erfc(z_score / math.sqrt(2.0)))
+                    abs_z = abs(float(observed)) / std
+                    p_value = float(math.erfc(abs_z / math.sqrt(2.0)))
+                support = (
+                    0.0
+                    if abs(observed) <= 1e-12
+                    else float(np.mean((bootstrap_values * float(observed)) > 0.0))
+                )
+                delta = _tetrad_delta(
+                    quad_complete,
+                    observed=float(observed),
+                    left_pairs=left_pairs,
+                    right_pairs=right_pairs,
+                )
                 raw_results.append(
                     {
                         "constraint": spec,
+                        "block_id": block.block_id,
                         "statistic": float(observed),
                         "p_value": max(0.0, min(1.0, float(p_value))),
                         "raw_reject": bool(ci_lower > 0.0 or ci_upper < 0.0),
+                        "complete_cases": int(quad_complete.shape[0]),
+                        "abs_z": float(abs_z),
+                        "delta": delta,
+                        "violation_support": support,
                         "metadata": {
                             "route": "bootstrap_tetrad",
                             "bootstrap_draws": _ALGEBRAIC_BOOTSTRAP_DRAWS,
                             "ci_lower": float(ci_lower),
                             "ci_upper": float(ci_upper),
                             "bootstrap_std": std,
+                            "complete_cases": int(quad_complete.shape[0]),
+                            "abs_z": float(abs_z),
+                            "delta": delta,
+                            "violation_support": support,
                         },
                     }
                 )
                 tested_count += 1
 
     adjusted_values = _bh_adjust([float(entry["p_value"]) for entry in raw_results])
+    for entry, adjusted_p in zip(raw_results, adjusted_values, strict=False):
+        entry["adjusted_p"] = float(adjusted_p)
+        entry["violation_candidate"] = bool(entry["raw_reject"] and adjusted_p < alpha)
+
+    entries_by_block: dict[str, list[dict[str, Any]]] = {}
+    for entry in raw_results:
+        entries_by_block.setdefault(str(entry["block_id"]), []).append(entry)
+
+    block_decisions: dict[str, tuple[TetradBlockCalibrationMetrics, Any]] = {}
+    blocker_conditions_met = False
+    for block_id, block_entries in entries_by_block.items():
+        min_q = min((float(entry["adjusted_p"]) for entry in block_entries), default=1.0)
+        max_abs_z = max((float(entry["abs_z"]) for entry in block_entries), default=0.0)
+        deltas = [float(entry["delta"]) for entry in block_entries]
+        supports = [float(entry["violation_support"]) for entry in block_entries]
+        complete_cases = [int(entry["complete_cases"]) for entry in block_entries]
+        metrics = TetradBlockCalibrationMetrics(
+            min_q=float(min_q),
+            max_abs_z=float(max_abs_z),
+            median_delta=float(np.median(deltas)) if deltas else 0.0,
+            violation_support=max(supports, default=0.0),
+            effective_n=int(np.median(complete_cases)) if complete_cases else 0,
+            n_violations=sum(1 for entry in block_entries if entry["violation_candidate"]),
+            bootstrap_draws=_ALGEBRAIC_BOOTSTRAP_DRAWS,
+            continuous_only=True,
+            route="bootstrap_tetrad",
+            route_calibrated=True,
+        )
+        decision = decide_tetrad_severity(metrics)
+        blocker_conditions_met = blocker_conditions_met or decision.severity == "blocker"
+        block_decisions[block_id] = (metrics, decision)
+
     violations: list[ConstraintEvaluationResult] = []
     for entry, adjusted_p in zip(raw_results, adjusted_values, strict=False):
         if entry["raw_reject"] and adjusted_p < alpha:
+            block_metrics, severity_decision = block_decisions[str(entry["block_id"])]
+            severity = severity_decision.severity
             violations.append(
                 ConstraintEvaluationResult(
                     constraint_id=entry["constraint"].constraint_id,
@@ -1228,13 +1494,18 @@ def _evaluate_tetrad_family(
                     statistic=float(entry["statistic"]),
                     p_value=float(entry["p_value"]),
                     adjusted_p_value=float(adjusted_p),
-                    severity="warning",
+                    severity=severity,
                     null_distribution=AlgebraicNullDistribution.BOOTSTRAP,
                     calibration_mode=AlgebraicCalibrationMode.BOOTSTRAP,
                     scope_of_falsification=AlgebraicFalsificationScope.MEASUREMENT_BLOCK,
-                    ranking_weight=_severity_ranking_weight("warning") * 0.7,
+                    ranking_weight=_severity_ranking_weight(severity) * 0.7,
                     reproducibility_tier=AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP,
-                    metadata=dict(entry["metadata"]),
+                    warnings=list(severity_decision.blocker_eligibility_failures),
+                    metadata={
+                        **dict(entry["metadata"]),
+                        "block_calibration_metrics": block_metrics.model_dump(mode="json"),
+                        "severity_decision": severity_decision.model_dump(mode="json"),
+                    },
                 )
             )
 
@@ -1244,6 +1515,7 @@ def _evaluate_tetrad_family(
         "violations": violations,
         "tested_count": tested_count,
         "warnings": warnings,
+        "blocker_conditions_met": blocker_conditions_met,
     }
 
 
@@ -1677,15 +1949,119 @@ def _evaluate_nested_verma_family(
     }
 
 
+def _is_binary_iv_semialgebraic_route(block: AlgebraicBlockSpec) -> bool:
+    return (
+        block.family is AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT
+        and block.derivation_method in {
+            "iv_binary_response_polytope",
+            "iv_binary_instrumental_inequalities",
+        }
+        and len(block.variables) >= 3
+    )
+
+
 def _evaluate_algebraic_geometry_invariant_family(
     *,
     blocks: list[AlgebraicBlockSpec],
+    data: np.ndarray,
+    variable_names: list[str],
+    alpha: float,
 ) -> dict[str, Any]:
     implied_constraints: list[ImpliedConstraintSpec] = []
     violations: list[ConstraintEvaluationResult] = []
     warnings: list[str] = []
+    tested_count = 0
+    blocker_conditions_met = False
 
     for block in blocks:
+        if _is_binary_iv_semialgebraic_route(block):
+            try:
+                compatibility = check_model_class_compatibility(
+                    model_class_id=(
+                        "iv.binary.conditional_on_v"
+                        if len(block.variables) > 3
+                        else "iv.binary.unconditional"
+                    ),
+                    data=data,
+                    variable_names=variable_names,
+                    observed_variables=block.variables,
+                    alpha=alpha,
+                    multiple_testing="holm",
+                )
+            except ValueError as exc:
+                warnings.append(
+                    "algebraic_geometry_binary_iv_unsupported:"
+                    f"{block.block_id}:{type(exc).__name__}:{exc}"
+                )
+                compatibility = None
+
+            if compatibility is not None:
+                report = compatibility.report
+                tested_count += len(report.constraints)
+                blocker_conditions_met = (
+                    blocker_conditions_met or compatibility.status == "incompatible"
+                )
+                warnings.extend(report.warnings)
+                for constraint in report.constraints:
+                    implied_constraints.append(
+                        ImpliedConstraintSpec(
+                            constraint_id=constraint.constraint_id,
+                            family=AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT,
+                            statement=constraint.expression_ast,
+                            variables=tuple(block.variables),
+                            source_block_id=block.block_id,
+                            metadata={
+                                "statement_kind": "semi_algebraic_inequality",
+                                "derivation_method": block.derivation_method,
+                                "model_class_id": report.model_class_id,
+                                "scope": dict(constraint.scope),
+                                "finite_sample_test": report.finite_sample_test.model_dump(
+                                    mode="json"
+                                ),
+                            },
+                        )
+                    )
+
+                if compatibility.status == "incompatible":
+                    for constraint in report.constraints:
+                        if not constraint.rejected:
+                            continue
+                        violations.append(
+                            ConstraintEvaluationResult(
+                                constraint_id=constraint.constraint_id,
+                                family=AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT,
+                                status="violated",
+                                statistic=float(constraint.violation_margin or 0.0),
+                                p_value=constraint.p_value,
+                                adjusted_p_value=constraint.adjusted_p_value,
+                                severity="blocker",
+                                assumption_status=AlgebraicAssumptionStatus.VALIDATED,
+                                regularity_status=AlgebraicRegularityStatus.REGULAR,
+                                null_distribution=AlgebraicNullDistribution.ANALYTIC,
+                                calibration_mode=AlgebraicCalibrationMode.ANALYTIC,
+                                scope_of_falsification=AlgebraicFalsificationScope.GRAPH_CLASS,
+                                ranking_weight=_severity_ranking_weight("blocker"),
+                                reproducibility_tier=AlgebraicReproducibilityTier.DETERMINISTIC,
+                                metadata={
+                                    "route": "binary_iv_instrumental_inequalities",
+                                    "model_class_id": report.model_class_id,
+                                    "constraint_expression": constraint.expression_ast,
+                                    "constraint_scope": dict(constraint.scope),
+                                    "finite_sample_test": report.finite_sample_test.model_dump(
+                                        mode="json"
+                                    ),
+                                    "model_class_compatibility": report.model_dump(mode="json"),
+                                    "negative_certificate": (
+                                        compatibility.negative_certificate.model_dump(mode="json")
+                                        if compatibility.negative_certificate is not None
+                                        else None
+                                    ),
+                                    "constraint_metadata": dict(constraint.metadata),
+                                },
+                            )
+                        )
+                continue
+
         statement_specs = [
             ("polynomial_equality", f"{statement} = 0")
             for statement in block.invariant_polynomials
@@ -1768,9 +2144,9 @@ def _evaluate_algebraic_geometry_invariant_family(
         "family": AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT,
         "implied_constraints": implied_constraints,
         "violations": violations,
-        "tested_count": 0,
+        "tested_count": tested_count,
         "warnings": warnings,
-        "blocker_conditions_met": False,
+        "blocker_conditions_met": blocker_conditions_met,
     }
 
 
@@ -1829,6 +2205,9 @@ def _stamp_algebraic_constraint_audit(
     seed: int,
     algebraic_blocks: list[AlgebraicBlockSpec] | None = None,
     degraded_reason: str | None = None,
+    dp_context: Mapping[str, Any] | None = None,
+    judge_threshold_registry_root: str | None = None,
+    readiness_target: str = "diagnostic",
 ) -> CausalDiscoveryReport:
     graph = _inject_algebraic_blocks_metadata(
         report.graph,
@@ -1854,6 +2233,9 @@ def _stamp_algebraic_constraint_audit(
                 variable_names=variable_names,
                 significance_level=significance_level,
                 seed=seed,
+                dp_context=dp_context,
+                judge_threshold_registry_root=judge_threshold_registry_root,
+                readiness_target=readiness_target,
             )
         except Exception as exc:
             warning = f"algebraic_audit_failed:{type(exc).__name__}:{exc}"
@@ -1888,6 +2270,9 @@ def _run_algebraic_constraint_audit(
     variable_names: list[str],
     significance_level: float,
     seed: int,
+    dp_context: Mapping[str, Any] | None = None,
+    judge_threshold_registry_root: str | None = None,
+    readiness_target: str = "diagnostic",
 ) -> AlgebraicConstraintReport:
     implied_constraints: list[ImpliedConstraintSpec] = []
     violations: list[ConstraintEvaluationResult] = []
@@ -1902,6 +2287,9 @@ def _run_algebraic_constraint_audit(
         data=data,
         variable_names=variable_names,
         alpha=significance_level,
+        dp_context=dp_context,
+        judge_threshold_registry_root=judge_threshold_registry_root,
+        readiness_target=readiness_target,
     )
     families_run.append(AlgebraicConstraintFamily.CI)
     implied_constraints.extend(ci_result["implied_constraints"])
@@ -1942,7 +2330,9 @@ def _run_algebraic_constraint_audit(
         violated_by_family[AlgebraicConstraintFamily.TETRAD.value] = len(
             tetrad_result["violations"]
         )
-        blocker_conditions_met_by_family[AlgebraicConstraintFamily.TETRAD.value] = False
+        blocker_conditions_met_by_family[AlgebraicConstraintFamily.TETRAD.value] = bool(
+            tetrad_result.get("blocker_conditions_met", False)
+        )
 
     overcomplete_blocks = [
         block
@@ -2021,7 +2411,10 @@ def _run_algebraic_constraint_audit(
     ]
     if algebraic_geometry_blocks:
         algebraic_geometry_result = _evaluate_algebraic_geometry_invariant_family(
-            blocks=algebraic_geometry_blocks
+            blocks=algebraic_geometry_blocks,
+            data=data,
+            variable_names=variable_names,
+            alpha=significance_level,
         )
         families_run.append(AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT)
         implied_constraints.extend(algebraic_geometry_result["implied_constraints"])
@@ -2035,7 +2428,7 @@ def _run_algebraic_constraint_audit(
         ] = len(algebraic_geometry_result["violations"])
         blocker_conditions_met_by_family[
             AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT.value
-        ] = False
+        ] = bool(algebraic_geometry_result.get("blocker_conditions_met", False))
 
     return AlgebraicConstraintReport(
         severity=_max_severity([violation.severity for violation in violations]),
@@ -2603,6 +2996,9 @@ def _run_constraint_discovery(
     timeout_seconds = max(1.0, float(params.get("timeout_seconds", 600.0)))
     seed = int(params.get("__seed__", 0) or 0)
     algebraic_blocks = _validate_algebraic_blocks(params.get("algebraic_blocks"))
+    dp_context = params.get("dp_context")
+    judge_threshold_registry_root = params.get("judge_threshold_registry_root")
+    readiness_target = str(params.get("readiness_target", "diagnostic"))
     ci_backend = _resolve_constraint_ci_backend(params.get("discovery_ci_backend"))
     scale_backend = _resolve_scale_backend(
         params.get("discovery_scale_backend"),
@@ -2686,6 +3082,9 @@ def _run_constraint_discovery(
             significance_level=significance_level,
             seed=seed,
             algebraic_blocks=algebraic_blocks,
+            dp_context=dp_context,
+            judge_threshold_registry_root=judge_threshold_registry_root,
+            readiness_target=readiness_target,
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -2720,6 +3119,9 @@ def _run_constraint_discovery(
             significance_level=significance_level,
             seed=seed,
             algebraic_blocks=algebraic_blocks,
+            dp_context=dp_context,
+            judge_threshold_registry_root=judge_threshold_registry_root,
+            readiness_target=readiness_target,
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -2819,6 +3221,9 @@ def _run_constraint_discovery(
         significance_level=significance_level,
         seed=seed,
         algebraic_blocks=algebraic_blocks,
+        dp_context=dp_context,
+        judge_threshold_registry_root=judge_threshold_registry_root,
+        readiness_target=readiness_target,
     )
     return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -2862,6 +3267,9 @@ class PCDiscovery:
             ParameterSpec(name="uc_rule", default=0),
             ParameterSpec(name="uc_priority", default=2),
             ParameterSpec(name="algebraic_blocks", default=[]),
+            ParameterSpec(name="dp_context", default=None),
+            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="readiness_target", default="diagnostic"),
             ParameterSpec(name="discovery_scale_backend", default="auto"),
             ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=0),
@@ -2934,6 +3342,9 @@ class FCIDiscovery:
             ParameterSpec(name="depth", default=-1),
             ParameterSpec(name="max_path_length", default=-1),
             ParameterSpec(name="algebraic_blocks", default=[]),
+            ParameterSpec(name="dp_context", default=None),
+            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="readiness_target", default="diagnostic"),
             ParameterSpec(name="discovery_scale_backend", default="auto"),
             ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=0),
@@ -3006,6 +3417,9 @@ class GESDiscovery:
             ParameterSpec(name="score_func", default="local_score_BIC"),
             ParameterSpec(name="max_parents", default=None),
             ParameterSpec(name="algebraic_blocks", default=[]),
+            ParameterSpec(name="dp_context", default=None),
+            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="readiness_target", default="diagnostic"),
             ParameterSpec(name="discovery_scale_backend", default="auto"),
             ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=0),

@@ -12,6 +12,7 @@ import jax.numpy as jnp
 import numpy as np
 from pydantic import TypeAdapter, ValidationError
 
+from polisyos.core.canon import CanonSpec
 from polisyos.core.artifacts.environment import (
     EnvironmentManifest,
     EnvironmentManifestRef,
@@ -457,6 +458,7 @@ def execute_program_graph(
             schema=SchemaInfo(name="polisyos.core.Metrics", version="0.1.0"),
             inputs=inputs,
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
 
     constraint_report_ref = None

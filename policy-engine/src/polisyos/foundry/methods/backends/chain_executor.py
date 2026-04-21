@@ -5,7 +5,7 @@ import asyncio
 import threading
 from collections import OrderedDict
 import time as _time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import re
 from typing import Any, Callable, Mapping, Literal, Protocol
 from uuid import UUID
@@ -32,6 +32,8 @@ from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     capture_backend_runtime_fingerprint,
     capture_versions,
+    compose_observed_tolerance_budgets,
+    meet_determinism_tiers,
     runtime_stack_for,
     safe_version,
 )
@@ -177,10 +179,99 @@ class ChainExecutionResult:
     """Collect the final composed state plus per-node backend results."""
     final_state: Any
     node_results: tuple[tuple[UUID, MethodResult], ...]
+    reproducibility_contract: Mapping[str, Any] = field(default_factory=dict)
 
     @property
     def total_wall_time_ms(self) -> float:
         return sum(result.timing.wall_time_ms for _, result in self.node_results)
+
+
+def _build_chain_reproducibility_contract(
+    node_results: list[tuple[UUID, MethodResult]] | tuple[tuple[UUID, MethodResult], ...],
+    *,
+    composition_kind: str,
+) -> dict[str, Any]:
+    budgets = [
+        dict(result.reproducibility.observed_tolerance_budget or {})
+        for _, result in node_results
+    ]
+    tiers = [result.reproducibility.determinism_tier for _, result in node_results]
+    composed_budget = compose_observed_tolerance_budgets(
+        budgets,
+        determinism_tiers=tiers,
+        composition_kind=composition_kind,
+    )
+    observed_tier = (
+        composed_budget.get("downgraded_to")
+        or (
+            None
+            if meet_determinism_tiers(tiers) is None
+            else meet_determinism_tiers(tiers).value
+        )
+    )
+    executed_backends = list(
+        dict.fromkeys(result.reproducibility.backend.value for _, result in node_results)
+    )
+    return {
+        "determinism_tier": observed_tier,
+        "observed_tolerance_budget": composed_budget,
+        "executed_backends": executed_backends,
+        "node_count": len(node_results),
+        "composition_kind": composition_kind,
+    }
+
+
+def _build_level_parallel_reproducibility_contract(
+    levels: list[list[UUID]],
+    node_results: list[tuple[UUID, MethodResult]] | tuple[tuple[UUID, MethodResult], ...],
+) -> dict[str, Any]:
+    result_by_node = {node_id: result for node_id, result in node_results}
+    level_budgets: list[Mapping[str, Any]] = []
+    level_tiers: list[DeterminismTier | None] = []
+    for level in levels:
+        level_results = [
+            (node_id, result_by_node[node_id])
+            for node_id in level
+            if node_id in result_by_node
+        ]
+        if not level_results:
+            continue
+        level_contract = _build_chain_reproducibility_contract(
+            level_results,
+            composition_kind="concat",
+        )
+        level_budgets.append(
+            dict(level_contract.get("observed_tolerance_budget") or {})
+        )
+        level_tiers.append(
+            meet_determinism_tiers(
+                [result.reproducibility.determinism_tier for _, result in level_results]
+            )
+        )
+    composed_budget = compose_observed_tolerance_budgets(
+        level_budgets,
+        determinism_tiers=level_tiers,
+        composition_kind="serial",
+    )
+    observed_tier = (
+        composed_budget.get("downgraded_to")
+        or (
+            None
+            if meet_determinism_tiers(level_tiers) is None
+            else meet_determinism_tiers(level_tiers).value
+        )
+    )
+    executed_backends = list(
+        dict.fromkeys(result.reproducibility.backend.value for _, result in node_results)
+    )
+    return {
+        "determinism_tier": observed_tier,
+        "observed_tolerance_budget": composed_budget,
+        "executed_backends": executed_backends,
+        "node_count": len(node_results),
+        "composition_kind": "level_parallel",
+        "level_count": len(levels),
+    }
 
 
 @dataclass(frozen=True)
@@ -448,6 +539,7 @@ def _build_fused_result(
         seed=seed,
         library_versions={k: v for k, v in versions.items() if v},
         fingerprint=reproducibility_fingerprint,
+        observed_tolerance_budget=posture.observed_tolerance_budget,
         note=posture.replay_semantics if posture.available else deterministic_note,
     )
     return MethodResult(
@@ -828,6 +920,10 @@ def _execute_sequential_chain(
     return ChainExecutionResult(
         final_state=current_state,
         node_results=tuple(node_results),
+        reproducibility_contract=_build_chain_reproducibility_contract(
+            node_results,
+            composition_kind="serial",
+        ),
     )
 
 

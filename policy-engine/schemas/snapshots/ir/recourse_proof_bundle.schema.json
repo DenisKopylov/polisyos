@@ -1,0 +1,200 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "OptimalRecourseInterventionQueryRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for a persisted ``OptimalRecourseInterventionQuery``.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.optimal_recourse_intervention_query",
+          "default": "ir.optimal_recourse_intervention_query",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "OptimalRecourseInterventionQueryRef",
+      "type": "object"
+    },
+    "RecourseReadinessCap": {
+      "description": "Readiness cap inherited from the recoverability status.",
+      "enum": [
+        "PROOF_ONLY",
+        "BOUNDS_READY",
+        "ESTIMATION_READY"
+      ],
+      "title": "RecourseReadinessCap",
+      "type": "string"
+    },
+    "RecourseRecoverabilityStatus": {
+      "description": "Outcome of proof-kernel identification for the success functional.",
+      "enum": [
+        "identified",
+        "bounded",
+        "nonrecoverable"
+      ],
+      "title": "RecourseRecoverabilityStatus",
+      "type": "string"
+    },
+    "RecourseSemantics": {
+      "description": "Recourse semantic regime selected by the query.\n\nDistinguishes individualized counterfactual semantics from weaker\nprobabilistic / subpopulation / bounded regimes. The proof kernel uses\nthis field to choose identification pathways and refuse requests that\ncannot be supported under the selected regime.",
+      "enum": [
+        "counterfactual_unit",
+        "probabilistic_counterfactual_unit",
+        "interventional_subpopulation",
+        "bounded_recourse"
+      ],
+      "title": "RecourseSemantics",
+      "type": "string"
+    },
+    "RecourseSuccessMode": {
+      "description": "How ``g(a) >= tau`` is evaluated by the planner.",
+      "enum": [
+        "point_probability",
+        "lower_confidence_bound",
+        "lower_identification_bound"
+      ],
+      "title": "RecourseSuccessMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Proof-side bundle for a recourse query.\n\nWraps the success functional's recoverability status, the mutability\npolicy, and a pointer back to the query. It is separate from the generic\n``ProofBundle`` because recourse adds semantics-specific fields (mutable\nsupport, semantics regime, readiness cap) and feeds the planner directly.",
+  "properties": {
+    "assumptions": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "graph_scope_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Graph Scope Ref"
+    },
+    "immutable_nodes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Immutable Nodes",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "mutability_policy_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mutability Policy Ref"
+    },
+    "mutable_nodes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Mutable Nodes",
+      "type": "array"
+    },
+    "negative_certificate_summary": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Negative Certificate Summary"
+    },
+    "proof_trace": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Proof Trace",
+      "type": "array"
+    },
+    "query_ref": {
+      "$ref": "#/$defs/OptimalRecourseInterventionQueryRef"
+    },
+    "readiness_cap": {
+      "$ref": "#/$defs/RecourseReadinessCap"
+    },
+    "recoverability_status": {
+      "$ref": "#/$defs/RecourseRecoverabilityStatus"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scm_ref": {
+      "title": "Scm Ref",
+      "type": "string"
+    },
+    "semantics": {
+      "$ref": "#/$defs/RecourseSemantics"
+    },
+    "success_functional_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Success Functional Ref"
+    },
+    "success_mode": {
+      "$ref": "#/$defs/RecourseSuccessMode"
+    }
+  },
+  "required": [
+    "query_ref",
+    "scm_ref",
+    "semantics",
+    "success_mode",
+    "recoverability_status",
+    "readiness_cap",
+    "mutable_nodes"
+  ],
+  "title": "RecourseProofBundle",
+  "type": "object"
+}

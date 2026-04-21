@@ -37,6 +37,7 @@ Bareinboim, E., Pearl, J. (2012). "Transportability of Causal Effects: Completen
 from __future__ import annotations
 
 import dataclasses
+import hashlib
 from enum import Enum
 from typing import Any, Literal
 
@@ -1819,6 +1820,14 @@ def _internal_proof_step_to_ir(step: "ProofStep") -> "Any":
             "σ-calculus Rule 3: Deletion of actions under selection S",
             "Correa & Bareinboim (2020), NeurIPS — Theorem 3",
         ),
+        "SID_DAG_POLICY": (
+            "Policy g-formula fast path: replace P(X|Pa_X) with the policy factor inside a DAG truncated factorization",
+            "Robins (1986); Díaz & van der Laan (2012)",
+        ),
+        "SID_SIGMA_FALLBACK": (
+            "Stochastic intervention σ-calculus fallback after atomic ID failed",
+            "Correa & Bareinboim (2020), NeurIPS",
+        ),
         # M-graph recoverability rule names (Mohan & Pearl 2021)
         "MGRAPH_TRIVIALLY_OBSERVED": (
             "M-graph: variable has no R-node and is fully observed",
@@ -1852,10 +1861,23 @@ def _internal_proof_step_to_ir(step: "ProofStep") -> "Any":
     # Safely get graph_state_before (may be absent on legacy/mock ProofStep objects)
     gsb = getattr(step, "graph_state_before", "")
     graph_state_before = gsb if isinstance(gsb, str) else ""
+    step_id_payload = "|".join(
+        (
+            step.rule_name,
+            str(getattr(step, "depth", 0)),
+            ",".join(step.antecedent_vars),
+            ",".join(step.consequent_vars),
+            graph_state_before,
+            step.applied_to_graph_state,
+        )
+    )
+    step_id = f"{step.rule_name.lower()}_{hashlib.sha256(step_id_payload.encode()).hexdigest()[:12]}"
     return IRProofStep(
         rule_name=step.rule_name,
         description=step.applied_to_graph_state,
         variables_affected=step.antecedent_vars + step.consequent_vars,
+        step_id=step_id,
+        theorem_family="id_engine",
         rule_formal_name=formal,
         applicable_theorem=theorem,
         graph_state_before=graph_state_before,
@@ -2759,9 +2781,212 @@ def mz_id_algorithm(
 _SID_POLICY_WRAP = "SID_POLICY_WRAP"
 _SID_SHIFT = "SID_SHIFT"
 _SID_CONDITIONAL = "SID_CONDITIONAL"
+_SID_DAG_POLICY = "SID_DAG_POLICY"
+_SID_SIGMA_FALLBACK = "SID_SIGMA_FALLBACK"
 _DYNAMIC_GFORMULA = "DYNAMIC_GFORMULA"
 _JOINT_FACTOR_DECOMPOSE = "JOINT_FACTOR_DECOMPOSE"
 _MULTI_OUTCOME_SHARED_CCOMP = "MULTI_OUTCOME_SHARED_CCOMP"
+
+
+def _policy_side_conditions(
+    *,
+    treatment: frozenset[str],
+    policy: StochasticPolicy,
+) -> tuple[SideCondition, ...]:
+    """Return the core side-conditions required for policy identification."""
+    treatment_vars = tuple(sorted(treatment))
+    support_vars = tuple(sorted(treatment | frozenset(policy.conditioning_vars)))
+    positivity_description = (
+        "Shift positivity required: the shifted treatment support must remain inside "
+        "the observed treatment mechanism support, i.e. f(A-delta|L) > 0 wherever "
+        "the policy is evaluated."
+        if policy.policy_type == "shift"
+        else "Policy support / positivity required: the stochastic policy may only "
+        "assign treatment values with non-zero observed support under the natural "
+        "assignment mechanism."
+    )
+    return (
+        SideCondition(
+            kind=SideConditionKind.CONSISTENCY,
+            variables=treatment_vars,
+            description=(
+                "Consistency for policy interventions: the observed outcome equals the "
+                "counterfactual policy outcome whenever the realized treatment follows "
+                "the policy-assigned regime."
+            ),
+        ),
+        SideCondition(
+            kind=SideConditionKind.POSITIVITY,
+            variables=support_vars,
+            description=positivity_description,
+        ),
+    )
+
+
+def _policy_metadata(policy: StochasticPolicy) -> dict[str, Any]:
+    return {
+        "policy_type": policy.policy_type,
+        "policy_conditioning_vars": list(policy.conditioning_vars),
+        "policy_expr": policy.policy_expr,
+        "shift_delta": policy.shift_delta,
+    }
+
+
+def _resolve_selection_targets(raw_s_nodes: Any) -> frozenset[str]:
+    """Resolve selection-node targets to substantive variable names."""
+    if raw_s_nodes is None:
+        return frozenset()
+    resolved: set[str] = set()
+    for node in raw_s_nodes or ():
+        target = getattr(node, "target_variable", None)
+        if target:
+            resolved.add(str(target))
+        elif isinstance(node, str) and node.startswith("S_") and len(node) > 2:
+            resolved.add(node[2:])
+        elif isinstance(node, str):
+            resolved.add(node)
+    return frozenset(resolved)
+
+
+def _make_policy_estimand_ast(
+    *,
+    treatment: frozenset[str],
+    outcome: frozenset[str],
+    policy: StochasticPolicy,
+    inner_do_node: object,
+    domain: DistributionDomain,
+    dataset_ref: str | None,
+    identification_method: str,
+    side_conditions: tuple[SideCondition, ...],
+) -> EstimandAST:
+    """Build the policy estimand AST for a stochastic or shift intervention."""
+    t_str = next(iter(sorted(treatment))) if len(treatment) == 1 else str(sorted(treatment))
+    y_str = next(iter(sorted(outcome))) if len(outcome) == 1 else str(sorted(outcome))
+    all_variables = tuple(sorted(treatment | outcome | frozenset(policy.conditioning_vars)))
+
+    if policy.policy_type == "shift":
+        policy_expr = policy.policy_expr or (
+            f"{t_str}+{policy.shift_delta}"
+            if policy.shift_delta is not None
+            else f"shift({t_str})"
+        )
+        root_node = ModifiedTreatmentPolicyNode(
+            treatment_var=t_str,
+            policy_expr=policy_expr,
+            natural_treatment_var=t_str,
+            covariates=tuple(policy.conditioning_vars),
+            inner_node=inner_do_node,  # type: ignore[arg-type]
+            domain=domain,
+            dataset_ref=dataset_ref,
+        )
+        query_str = f"E_d[{y_str}|mtp({t_str})]"
+    else:
+        integration_var = t_str if len(treatment) == 1 else sorted(treatment)[0]
+        root_node = StochasticInterventionNode(
+            treatment_var=t_str,
+            policy=policy,
+            inner_do_node=inner_do_node,  # type: ignore[arg-type]
+            integration_var=integration_var,
+            domain=domain,
+        )
+        query_str = f"E_π[{y_str}|do({t_str})]"
+
+    return EstimandAST(
+        query_str=query_str,
+        root=root_node,  # type: ignore[arg-type]
+        treatment=t_str,
+        outcome=y_str,
+        all_variables=all_variables,
+        side_conditions=side_conditions,
+        identification_method=identification_method,
+    )
+
+
+def _attempt_sigma_policy_identification(
+    *,
+    treatment: frozenset[str],
+    outcome: frozenset[str],
+    graph: CausalGraphModel,
+    policy: StochasticPolicy,
+    dataset_ref: str | None,
+    domain: DistributionDomain,
+    selection_targets: frozenset[str],
+    trace: list[str],
+) -> IdentificationResult | None:
+    """Attempt a conservative sigma-calculus fallback for soft policies."""
+    from polisyos.foundry.methods.catalog.causal.sigma_calculus import sigma_identify
+
+    if policy.policy_type != "soft":
+        return None
+
+    selection_vars = selection_targets or frozenset(treatment)
+    atomic_ast = _wrap_root(
+        DistributionRef(
+            domain=domain,
+            variables=tuple(sorted(outcome)),
+            intervention_set=tuple(sorted(treatment)),
+            dataset_ref=dataset_ref,
+        ),
+        treatment=treatment,
+        outcome=outcome,
+        method="sid_sigma_seed",
+    )
+    sigma_ast, sigma_steps = sigma_identify(
+        atomic_ast,
+        graph,
+        selection_vars=selection_vars,
+    )
+    sigma_refs = sigma_ast.collect_distribution_refs()
+    if not sigma_refs:
+        trace.append("[SID] sigma fallback produced no observable distribution leaves")
+        return None
+    if any(frozenset(ref.intervention_set) & treatment for ref in sigma_refs):
+        trace.append(
+            "[SID] sigma fallback left treatment interventions in observable leaves "
+            f"for selection vars={sorted(selection_vars)}"
+        )
+        return None
+
+    trace.append(
+        "[SID] sigma fallback identified the atomic policy kernel via "
+        f"selection vars={sorted(selection_vars)}"
+    )
+    ast = _make_policy_estimand_ast(
+        treatment=treatment,
+        outcome=outcome,
+        policy=policy,
+        inner_do_node=sigma_ast.root,
+        domain=domain,
+        dataset_ref=dataset_ref,
+        identification_method="sid_sigma_soft",
+        side_conditions=_policy_side_conditions(treatment=treatment, policy=policy),
+    )
+    return IdentificationResult(
+        status=IdentificationStatus.IDENTIFIED,
+        estimand_ast=ast,
+        hedge_certificate=None,
+        trace=list(trace),
+        required_distributions=sigma_refs,
+        algorithm_version="sid_sigma_v2",
+        proof_steps=[
+            ProofStep(
+                rule_name=_SID_SIGMA_FALLBACK,
+                antecedent_vars=tuple(sorted(treatment)),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state=(
+                    f"sigma-calculus fallback succeeded under selection vars="
+                    f"{sorted(selection_vars)}"
+                ),
+                depth=0,
+            ),
+            *sigma_steps,
+        ],
+        metadata={
+            **_policy_metadata(policy),
+            "sigma_selection_vars": sorted(selection_vars),
+            "policy_semantics": "sigma_calculus",
+        },
+    )
 
 
 def sid_algorithm(
@@ -2849,24 +3074,64 @@ def sid_algorithm(
                 algorithm_version="sid_conditional_v1",
                 metadata={
                     **dict(getattr(cond_result, "metadata", {}) or {}),
-                    "policy_type": policy.policy_type,
-                    "policy_conditioning_vars": list(policy.conditioning_vars),
-                    "policy_expr": policy.policy_expr,
+                    **_policy_metadata(policy),
                 },
             )
 
-    # Standard path: run base ID algorithm to get P(Y|do(X=x))
-    base_result = id_algorithm(
-        treatment=treatment,
-        outcome=outcome,
-        graph=graph,
-        dataset_ref=dataset_ref,
-        domain=domain,
-        available_vars=available_vars,
-    )
-    _trace.extend(base_result.trace)
+    available = available_vars if available_vars is not None else frozenset(graph.nodes)
+
+    # Unconfounded DAG fast path: directly use the policy g-formula/truncated
+    # factorization instead of routing through the full recursive ID kernel.
+    if graph.graph_type is GraphType.DAG:
+        dag_trace = list(_trace)
+        base_result = _dag_g_formula(
+            treatment=treatment,
+            outcome=outcome,
+            graph=graph,
+            available_vars=available,
+            dataset_ref=dataset_ref,
+            domain=domain,
+            depth=0,
+            trace=dag_trace,
+        )
+        _trace = list(base_result.trace)
+        if base_result.status is IdentificationStatus.IDENTIFIED:
+            _steps.append(ProofStep(
+                rule_name=_SID_DAG_POLICY,
+                antecedent_vars=tuple(sorted(treatment)),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state=(
+                    "Policy g-formula fast path: replaced the treatment mechanism "
+                    "with the policy factor inside the DAG truncated factorization."
+                ),
+                depth=0,
+            ))
+    else:
+        # General fallback: use the recursive ID kernel for P(Y|do(X=x)).
+        base_result = id_algorithm(
+            treatment=treatment,
+            outcome=outcome,
+            graph=graph,
+            dataset_ref=dataset_ref,
+            domain=domain,
+            available_vars=available_vars,
+        )
+        _trace.extend(base_result.trace)
 
     if base_result.status is not IdentificationStatus.IDENTIFIED:
+        sigma_result = _attempt_sigma_policy_identification(
+            treatment=treatment,
+            outcome=outcome,
+            graph=graph,
+            policy=policy,
+            dataset_ref=dataset_ref,
+            domain=domain,
+            selection_targets=_resolve_selection_targets(s_nodes),
+            trace=_trace,
+        )
+        if sigma_result is not None:
+            return sigma_result
+
         _trace.append(
             f"[SID] Base ID returned {base_result.status.value} — "
             "stochastic ID inherits non-identifiability"
@@ -2874,19 +3139,15 @@ def sid_algorithm(
         return dataclasses.replace(
             base_result,
             trace=_trace,
-            algorithm_version="sid_v1",
+            algorithm_version="sid_v2",
             metadata={
                 **dict(getattr(base_result, "metadata", {}) or {}),
-                "policy_type": policy.policy_type,
-                "policy_conditioning_vars": list(policy.conditioning_vars),
-                "policy_expr": policy.policy_expr,
-                "shift_delta": policy.shift_delta,
+                **_policy_metadata(policy),
             },
         )
 
     # Base ID succeeded — wrap the inner estimand in a stochastic node
     inner_do_node = base_result.estimand_ast.root  # type: ignore[union-attr]
-    integration_var = t_str if len(treatment) == 1 else sorted(treatment)[0]
 
     rule = _SID_SHIFT if policy.policy_type == "shift" else _SID_POLICY_WRAP
     _steps.append(ProofStep(
@@ -2909,41 +3170,24 @@ def sid_algorithm(
         f"(policy_type={policy.policy_type})"
     )
 
-    if policy.policy_type == "shift":
-        policy_expr = policy.policy_expr or (
-            f"{t_str}+{policy.shift_delta}"
-            if policy.shift_delta is not None
-            else f"shift({t_str})"
-        )
-        root_node = ModifiedTreatmentPolicyNode(
-            treatment_var=t_str,
-            policy_expr=policy_expr,
-            natural_treatment_var=t_str,
-            covariates=tuple(policy.conditioning_vars),
-            inner_node=inner_do_node,
-            domain=domain,
-            dataset_ref=dataset_ref,
-        )
-        query_str = f"E_d[{y_str}|mtp({t_str})]"
-        identification_method = "mtp_shift"
-    else:
-        root_node = StochasticInterventionNode(
-            treatment_var=t_str,
-            policy=policy,
-            inner_do_node=inner_do_node,
-            integration_var=integration_var,
-            domain=domain,
-        )
-        query_str = f"E_π[{y_str}|do({t_str})]"
-        identification_method = f"sid_{policy.policy_type}"
-
-    ast = EstimandAST(
-        query_str=query_str,
-        root=root_node,
-        treatment=t_str,
-        outcome=y_str,
-        all_variables=tuple(sorted(treatment | outcome)),
+    identification_method = "sid_shift" if policy.policy_type == "shift" else f"sid_{policy.policy_type}"
+    base_side_conditions = (
+        tuple(base_result.estimand_ast.side_conditions)
+        if base_result.estimand_ast is not None
+        else ()
+    )
+    ast = _make_policy_estimand_ast(
+        treatment=treatment,
+        outcome=outcome,
+        policy=policy,
+        inner_do_node=inner_do_node,
+        domain=domain,
+        dataset_ref=dataset_ref,
         identification_method=identification_method,
+        side_conditions=base_side_conditions + _policy_side_conditions(
+            treatment=treatment,
+            policy=policy,
+        ),
     )
     return IdentificationResult(
         status=IdentificationStatus.IDENTIFIED,
@@ -2951,14 +3195,11 @@ def sid_algorithm(
         hedge_certificate=None,
         trace=_trace,
         required_distributions=base_result.required_distributions,
-        algorithm_version="sid_v1",
+        algorithm_version="sid_v2",
         proof_steps=_steps + list(base_result.proof_steps),
         metadata={
             **dict(getattr(base_result, "metadata", {}) or {}),
-            "policy_type": policy.policy_type,
-            "policy_conditioning_vars": list(policy.conditioning_vars),
-            "policy_expr": policy.policy_expr,
-            "shift_delta": policy.shift_delta,
+            **_policy_metadata(policy),
         },
     )
 

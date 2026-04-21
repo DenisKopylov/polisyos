@@ -5,6 +5,7 @@ from types import SimpleNamespace
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
 from polisyos.ir.analytics.causal import (
+    ProofBundle,
     build_data_readiness_report,
     load_data_readiness_report,
     load_proof_bundle,
@@ -13,19 +14,27 @@ from polisyos.ir.analytics.causal import (
     proof_bundle_from_identification_result,
     proof_bundle_from_proximal_certificate,
 )
+from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
 from polisyos.ir.analytics.frontier import (
     PHASE1_CLOSURE_MANIFEST,
     load_frontier_sketch,
     materialize_phase1_frontier_sketch,
     persist_frontier_sketch,
 )
+from polisyos.ir.analytics.invariance import RegimeShiftIdentificationCertificate
 from polisyos.ir.analytics.proximal import (
+    BridgeFailureMode,
     BridgeFunctionSpec,
+    BridgePlausibilityReport,
+    BridgePlausibilitySeverity,
+    BridgeFallbackDisposition,
     IdentifiedFunctional,
     ProximalGraphCheck,
     ProximalIdentificationCertificate,
     ProximalQuerySpec,
     ProxyAnnotation,
+    load_bridge_plausibility_report,
+    persist_bridge_plausibility_report,
     load_proximal_identification_certificate,
     persist_proximal_identification_certificate,
 )
@@ -107,16 +116,52 @@ def _recoverability_certificate() -> RecoverabilityCertificate:
     )
 
 
-def test_phase1_manifest_declares_all_backbone_stages() -> None:
-    expected_stage_ids = {"2.1", "3.1", "4.4", "5.3", "11.1", "12.1", "13.1", "15.1", "16.1"}
+def test_phase1_manifest_declares_all_phase1_stages_and_backbone_subset() -> None:
+    expected_stage_ids = {
+        "2.1",
+        "3.1",
+        "4.4",
+        "5.3",
+        "8.1",
+        "11.1",
+        "11.2",
+        "12.1",
+        "13.1",
+        "15.1",
+        "16.1",
+    }
+    expected_backbone_ids = {"2.1", "3.1", "4.4", "5.3", "11.1", "12.1", "13.1", "15.1", "16.1"}
     actual_stage_ids = {stage.stage_id for stage in PHASE1_CLOSURE_MANIFEST.stages}
+    actual_backbone_ids = {
+        stage.stage_id for stage in PHASE1_CLOSURE_MANIFEST.stages if stage.backbone
+    }
 
     assert actual_stage_ids == expected_stage_ids
+    assert actual_backbone_ids == expected_backbone_ids
     for stage in PHASE1_CLOSURE_MANIFEST.stages:
         assert stage.benchmark_proxy
         assert stage.typed_integration_target
         assert stage.required_for_promotion
         assert stage.canonical_contract_surface
+
+
+def test_phase1_closure_summary_has_machine_checkable_consumer_paths() -> None:
+    closure_summary = {
+        stage.stage_id: {
+            "typed_target": stage.typed_integration_target,
+            "surface": stage.canonical_contract_surface,
+            "backbone": stage.backbone,
+        }
+        for stage in PHASE1_CLOSURE_MANIFEST.stages
+    }
+
+    assert len(closure_summary) == 11
+    assert closure_summary["8.1"]["typed_target"] == "CausalDiscoveryReport.algebraic_constraints"
+    assert closure_summary["11.2"]["typed_target"] == "ProofBundle.bridge_plausibility_report_ref"
+    assert closure_summary["16.1"]["typed_target"] == "RegimeShiftIdentificationCertificateRef"
+    assert "algebraic_constraints" in CausalDiscoveryReport.model_fields
+    assert "bridge_plausibility_report_ref" in ProofBundle.model_fields
+    assert "identifiability_witness" in RegimeShiftIdentificationCertificate.model_fields
 
 
 def test_frontier_sketch_round_trip_via_store(tmp_path) -> None:
@@ -236,4 +281,47 @@ def test_proximal_certificate_ref_attaches_to_proof_bundle(tmp_path) -> None:
     )
     assert load_recoverability_certificate(store, recoverability_ref).status is (
         RecoverabilityCertificateStatus.RECOVERABLE_UNDER_ASSUMPTIONS
+    )
+
+
+def test_bridge_plausibility_ref_attaches_to_proof_bundle(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    report = BridgePlausibilityReport(
+        equation_type="outcome_bridge",
+        residual_r=0.42,
+        effective_rank=1.0,
+        sigma_min=0.002,
+        ill_posedness_index=140.0,
+        proxy_association_score=0.08,
+        bridge_existence_supported=True,
+        completeness_plausible=False,
+        functional_invariant_to_nonuniqueness=True,
+        suspected_failure_mode=BridgeFailureMode.WEAK_COMPLETENESS,
+        severity=BridgePlausibilitySeverity.YELLOW,
+        fallback_disposition=BridgeFallbackDisposition.REQUIRE_BOUNDS,
+        reasons=("proxy_association_or_effective_rank_weak",),
+    )
+    report_ref = persist_bridge_plausibility_report(store, report)
+
+    bundle = proof_bundle_from_identification_result(
+        SimpleNamespace(
+            status=IdentificationStatus.IDENTIFIED,
+            algorithm_version="proximal_id_pci_core",
+            estimand_ast=None,
+            trace=["proximal bridge diagnostics available"],
+            query_str="P(Y|do(A))",
+            required_distributions=[],
+            metadata={
+                "bridge_plausibility_report": report.model_dump(mode="json"),
+                "bridge_plausibility_report_ref": report_ref.model_dump(mode="json"),
+            },
+        )
+    )
+    proof_ref = persist_proof_bundle(store, bundle)
+    loaded_bundle = load_proof_bundle(store, proof_ref)
+
+    assert load_bridge_plausibility_report(store, report_ref) == report
+    assert loaded_bundle.bridge_plausibility_report_ref == report_ref
+    assert loaded_bundle.metadata["bridge_plausibility_report_ref"]["artifact_id"] == str(
+        report_ref.artifact_id
     )

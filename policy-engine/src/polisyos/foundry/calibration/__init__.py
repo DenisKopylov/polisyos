@@ -32,6 +32,20 @@ from .measurement import (
     compute_effective_weight,
 )
 from .uncertainty_adapter import envelope_from_calibration_param, envelopes_from_calibration
+from .dp_ci import (
+    CIFPRInflationBound,
+    CISampleSizeRequirement,
+    CITestCalibration,
+    CITestThresholdPolicy,
+    DPContext,
+    calibrate_discrete_ci,
+    calibrate_kernel_ci,
+    coerce_dp_context,
+    effective_privacy_xi,
+    required_n_chi2,
+    required_n_kernel,
+    resolve_ci_threshold_policy,
+)
 
 try:  # pragma: no cover - optional JAX dependency
     from .bijectors import (
@@ -46,7 +60,7 @@ try:  # pragma: no cover - optional JAX dependency
     from .hessian import HessianResult, compute_hessian
     from .multi_start import MultiStartResult, SingleRunResult
     from .pure_executor import StaticBundle, compile_program, run_pure_scan
-except (ModuleNotFoundError, SyntaxError, IndentationError):  # pragma: no cover
+except (ImportError, ModuleNotFoundError, SyntaxError, IndentationError):  # pragma: no cover
     Calibrator = None  # type: ignore[assignment]
     CalibratorInputs = None  # type: ignore[assignment]
     StaticBundle = None  # type: ignore[assignment]
@@ -95,6 +109,18 @@ __all__ = [
     "diagnose_identifiability",
     "MultiStartResult",
     "SingleRunResult",
+    "CIFPRInflationBound",
+    "CISampleSizeRequirement",
+    "CITestCalibration",
+    "CITestThresholdPolicy",
+    "DPContext",
+    "calibrate_discrete_ci",
+    "calibrate_kernel_ci",
+    "coerce_dp_context",
+    "effective_privacy_xi",
+    "required_n_chi2",
+    "required_n_kernel",
+    "resolve_ci_threshold_policy",
     "log_bijector",
     "logit_bijector",
     "softplus_bijector",

@@ -3,10 +3,20 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from polisyos.foundry.methods import ComputeBackend
+from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability.truthfulness import (
+    TruthfulnessReceipt,
+    TruthfulnessScope,
+    TruthfulnessTier as ReceiptTruthfulnessTier,
+)
+from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.foundry.methods.backends.bayesian_runner import bayesian_backend_health
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.bayesian import PosteriorResult, ensure_bayesian_methods_registered
+from polisyos.foundry.methods.bayesian import (
+    PosteriorResult,
+    TruthfulnessTier,
+    ensure_bayesian_methods_registered,
+)
 from polisyos.foundry.methods.catalog.econometrics.protocols import TimeSeriesData
 from polisyos.foundry.methods.ml import TabularData
 from polisyos.foundry.methods.registry import MethodRegistry
@@ -76,6 +86,25 @@ def _make_sbi_state() -> dict[str, object]:
     }
 
 
+def _pin_single_thread_env(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    keys: tuple[str, ...] | None = None,
+) -> None:
+    all_keys = (
+        "OMP_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "VECLIB_MAXIMUM_THREADS",
+        "BLIS_NUM_THREADS",
+    )
+    for key in all_keys:
+        monkeypatch.delenv(key, raising=False)
+    for key in all_keys if keys is None else keys:
+        monkeypatch.setenv(key, "1")
+
+
 def test_bayesian_linear_regression_runs() -> None:
     ensure_bayesian_methods_registered()
     registry = MethodRegistry.get_instance()
@@ -98,6 +127,11 @@ def test_bayesian_linear_regression_runs() -> None:
     assert result.output["uncertainty_envelope"] is not None
     assert result.reproducibility.backend is ComputeBackend.BAYESIAN
     assert 0.0 <= posterior.diagnostics["acceptance_rate"] <= 1.0
+    assert posterior.truthfulness.basis == "asymptotic_sampler_runtime_diagnostics"
+    assert posterior.truthfulness_tier in {
+        TruthfulnessTier.ASYMPTOTIC,
+        TruthfulnessTier.APPROXIMATE_UNCALIBRATED,
+    }
 
 
 def test_bayesian_autoregression_runs() -> None:
@@ -121,6 +155,11 @@ def test_bayesian_autoregression_runs() -> None:
     assert result.output["prediction_result"].method_name == "bayesian_autoregression"
     assert result.output["uncertainty_envelope"] is not None
     assert result.reproducibility.backend is ComputeBackend.BAYESIAN
+    assert posterior.truthfulness.basis == "asymptotic_sampler_runtime_diagnostics"
+    assert posterior.truthfulness_tier in {
+        TruthfulnessTier.ASYMPTOTIC,
+        TruthfulnessTier.APPROXIMATE_UNCALIBRATED,
+    }
 
 
 def test_bayesian_hierarchical_regression_runs() -> None:
@@ -146,6 +185,11 @@ def test_bayesian_hierarchical_regression_runs() -> None:
     assert posterior.metadata["partial_pooling"] is True
     assert posterior.metadata["runtime_backend_used"] in {"numpy", "numpyro"}
     assert "uncertainty_decomposition" in posterior.metadata
+    assert posterior.truthfulness.basis == "asymptotic_sampler_runtime_diagnostics"
+    assert posterior.truthfulness_tier in {
+        TruthfulnessTier.ASYMPTOTIC,
+        TruthfulnessTier.APPROXIMATE_UNCALIBRATED,
+    }
 
 
 def test_bayesian_hmc_regression_runs() -> None:
@@ -171,6 +215,13 @@ def test_bayesian_hmc_regression_runs() -> None:
     assert result.output["uncertainty_envelope"] is not None
     assert posterior.metadata["runtime_backend_used"] in {"numpy", "numpyro"}
     assert "uncertainty_decomposition" in posterior.metadata
+    assert posterior.truthfulness.basis == "asymptotic_sampler_runtime_diagnostics"
+    assert posterior.truthfulness_tier in {
+        TruthfulnessTier.ASYMPTOTIC,
+        TruthfulnessTier.APPROXIMATE_UNCALIBRATED,
+    }
+    assert posterior.sampler_kernel == "hmc"
+    assert posterior.reproducibility["effective_runtime_backend"] in {"numpy", "numpyro"}
 
 
 def test_bayesian_nuts_regression_runs() -> None:
@@ -197,6 +248,320 @@ def test_bayesian_nuts_regression_runs() -> None:
     assert result.output["uncertainty_envelope"] is not None
     assert posterior.metadata["runtime_backend_used"] in {"numpy", "numpyro"}
     assert "uncertainty_decomposition" in posterior.metadata
+    assert posterior.truthfulness.basis == "asymptotic_sampler_runtime_diagnostics"
+    assert posterior.truthfulness_tier in {
+        TruthfulnessTier.ASYMPTOTIC,
+        TruthfulnessTier.APPROXIMATE_UNCALIBRATED,
+    }
+    assert posterior.sampler_kernel == "nuts"
+    assert posterior.reproducibility["effective_runtime_backend"] in {"numpy", "numpyro"}
+
+
+def test_bayesian_hmc_reference_numpy_backend_emits_replay_contract(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _pin_single_thread_env(monkeypatch)
+    ensure_bayesian_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    method_cls = registry.get("bayesian.sampling.hmc@1.0.0")
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_tabular(),
+        params={
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 48,
+            "num_chains": 4,
+            "step_size": 0.015,
+            "n_leapfrog": 10,
+        },
+        seed=1314,
+    )
+
+    posterior = result.output["result"]
+    assert isinstance(posterior, PosteriorResult)
+    assert result.reproducibility.determinism_tier is DeterminismTier.LIBRARY_DETERMINISTIC
+    assert result.artifacts["backend_runtime_fingerprint"]["determinism_tier"] == "library_deterministic"
+    assert posterior.draws_ref == result.artifacts["posterior_draws"]["artifact_ref"]
+    assert posterior.warmup_draws_ref == result.artifacts["warmup_draws"]["artifact_ref"]
+    assert posterior.reproducibility["effective_runtime_backend"] == "numpy"
+    assert posterior.reproducibility["effective_determinism_tier"] == "library_deterministic"
+    assert posterior.reproducibility["route_key"]["backend_route"] == "bayesian:numpy"
+    assert (
+        posterior.reproducibility["observed_tolerance_budget"]["route_key"]["backend_route"]
+        == "bayesian:numpy"
+    )
+    assert posterior.reproducibility["observed_tolerance_budget"]["budget_source"] == "seed_prior"
+    assert posterior.reproducibility["replay_output_hash"].startswith("sha256:")
+    assert posterior.reproducibility["determinism_envelope"]["thread_configuration"]["single_thread_pinned"] is True
+    assert posterior.reproducibility["determinism_envelope"]["rng_partitioning"]["scheme"] == "seedsequence_substreams"
+    assert posterior.sampler_family == "mcmc"
+    assert "minimum_chains" in posterior.diagnostic_gates
+
+
+def test_bayesian_hmc_reference_numpy_backend_replays_identical_artifacts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _pin_single_thread_env(monkeypatch)
+    ensure_bayesian_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    method_cls = registry.get("bayesian.sampling.hmc@1.0.0")
+    params = {
+        "runtime_backend": "numpy",
+        "num_warmup": 32,
+        "num_samples": 48,
+        "num_chains": 4,
+        "step_size": 0.015,
+        "n_leapfrog": 10,
+    }
+
+    first = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_tabular(),
+        params=params,
+        seed=1316,
+    )
+    second = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_tabular(),
+        params=params,
+        seed=1316,
+    )
+
+    first_posterior = first.output["result"]
+    second_posterior = second.output["result"]
+    assert isinstance(first_posterior, PosteriorResult)
+    assert isinstance(second_posterior, PosteriorResult)
+    assert first_posterior.reproducibility["replay_output_hash"] == second_posterior.reproducibility["replay_output_hash"]
+    assert first.artifacts["posterior_draws"]["payload"] == second.artifacts["posterior_draws"]["payload"]
+    assert first.artifacts["warmup_draws"]["payload"] == second.artifacts["warmup_draws"]["payload"]
+
+
+def test_bayesian_hmc_reference_numpy_requires_full_thread_envelope(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _pin_single_thread_env(monkeypatch, keys=("OMP_NUM_THREADS",))
+    ensure_bayesian_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    method_cls = registry.get("bayesian.sampling.hmc@1.0.0")
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_tabular(),
+        params={
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 48,
+            "num_chains": 4,
+            "step_size": 0.015,
+            "n_leapfrog": 10,
+        },
+        seed=1317,
+    )
+
+    posterior = result.output["result"]
+    assert isinstance(posterior, PosteriorResult)
+    assert result.reproducibility.determinism_tier is DeterminismTier.STATISTICAL
+    assert posterior.degradation_reason == "thread_configuration_not_pinned_single_thread"
+    assert "determinism_degraded:thread_configuration_not_pinned_single_thread" in posterior.warnings
+
+
+def test_bayesian_hmc_reference_contract_marks_gate_failures_in_status(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _pin_single_thread_env(monkeypatch)
+    ensure_bayesian_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    method_cls = registry.get("bayesian.sampling.hmc@1.0.0")
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_tabular(),
+        params={
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 48,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 10,
+        },
+        seed=1318,
+    )
+
+    posterior = result.output["result"]
+    assert isinstance(posterior, PosteriorResult)
+    assert posterior.status == "diagnostics_failed"
+    assert posterior.diagnostic_gates["minimum_chains"] is False
+    assert "diagnostic_gate_failed:minimum_chains" in posterior.warnings
+
+
+def test_bayesian_nuts_auto_backend_degrades_from_exact_contract(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _pin_single_thread_env(monkeypatch)
+    ensure_bayesian_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    method_cls = registry.get("bayesian.sampling.nuts@1.0.0")
+    health = bayesian_backend_health(method_cls)
+    if health.default_runtime != "numpy":
+        pytest.skip("Auto backend resolves to an accelerated runtime in this environment")
+
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=_make_tabular(),
+        params={
+            "runtime_backend": "auto",
+            "num_warmup": 32,
+            "num_samples": 40,
+            "num_chains": 4,
+            "max_depth": 4,
+            "step_size": 0.012,
+        },
+        seed=1315,
+    )
+
+    posterior = result.output["result"]
+    assert isinstance(posterior, PosteriorResult)
+    assert posterior.metadata["runtime_backend_used"] == "numpy"
+    assert result.reproducibility.determinism_tier is DeterminismTier.STATISTICAL
+    assert result.artifacts["backend_runtime_fingerprint"]["determinism_tier"] == "statistical"
+    assert posterior.degradation_reason == "runtime_backend_auto_not_allowed"
+    assert posterior.reproducibility["route_key"]["backend_route"] == "bayesian:numpy"
+    assert posterior.reproducibility["observed_tolerance_budget"]["mode"] == "distributional"
+    assert "determinism_degraded:runtime_backend_auto_not_allowed" in posterior.warnings
+
+
+def test_posterior_result_exposes_truthfulness_receipt_from_metadata() -> None:
+    posterior = PosteriorResult(
+        method_name="toy_posterior",
+        metadata={
+            "truthfulness_receipt": TruthfulnessReceipt(
+                runtime_truthfulness_tier=ReceiptTruthfulnessTier.ASYMPTOTIC,
+                truthfulness_scope=TruthfulnessScope.POSTERIOR,
+            ).model_dump(mode="json")
+        },
+    )
+
+    receipt = posterior.to_truthfulness_receipt()
+    assert receipt is not None
+    assert receipt.runtime_truthfulness_tier == "asymptotic"
+    assert receipt.truthfulness_scope == "posterior"
+
+
+def test_mean_field_vi_earns_runtime_calibrated_tier_on_conjugate_case() -> None:
+    ensure_bayesian_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+    calibrated_state = TabularData(
+        features=np.array([[0.0], [0.5], [1.0], [1.5], [2.0], [2.5], [3.0], [3.5]], dtype=float),
+        target=np.array([1.0, 2.0, 2.7, 3.75, 4.55, 5.5, 6.5, 7.2], dtype=float),
+        feature_names=["x"],
+    )
+
+    method_cls = registry.get("bayesian.variational.mean_field_vi@1.0.0")
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=calibrated_state,
+        params={"prior_scale": 1.0, "noise_variance": 0.1, "max_iter": 200, "tol": 1e-8},
+        seed=42,
+    )
+
+    posterior = result.output["result"]
+    assert posterior.truthfulness_tier is TruthfulnessTier.APPROXIMATE_CALIBRATED
+    assert posterior.truthfulness.basis == "variational_reference_posterior_calibration"
+    assert posterior.diagnostics["joint_psis_pareto_k"] < 0.7
+    assert posterior.diagnostics["offline_coverage_error_max"] <= 1e-8
+
+
+def test_posterior_result_infers_family_specific_approximate_calibration() -> None:
+    benchmark_metadata = {"benchmark_regime": "phase0_suite", "coverage_tolerance": 0.05, "offline_calibration_passed": True}
+    cases = [
+        (
+            "expectation_propagation_gaussian",
+            {
+                "cavity_precision_min": 0.2,
+                "site_precision_cv": 0.5,
+                "site_mean_z_residual_max": 0.25,
+                "site_skewness_proxy": 0.1,
+                "site_kurtosis_proxy": 0.2,
+            },
+            benchmark_metadata,
+        ),
+        (
+            "svgd_regression",
+            {
+                "ksd_rbf": 0.05,
+                "unique_particle_fraction": 0.95,
+                "split_interval_shift_max": 0.01,
+                "posthoc_interval_shift_max": 0.01,
+            },
+            benchmark_metadata,
+        ),
+        (
+            "affine_normalizing_flow",
+            {
+                "source_mean_shift_max": 0.05,
+                "source_covariance_error_fro": 0.1,
+                "source_interval_shift_max": 0.01,
+                "jacobian_condition_number": 12.0,
+            },
+            {"source_truthfulness_tier": "exact"},
+        ),
+        (
+            "simulation_based_npe",
+            {
+                "observed_neighborhood_count": 32.0,
+                "observed_neighborhood_radius_quantile": 0.1,
+                "posterior_sbc_error": 0.02,
+                "local_c2st_score": 0.55,
+                "ppc_mahalanobis": 1.2,
+            },
+            benchmark_metadata,
+        ),
+        (
+            "bayesian_gaussian_mixture",
+            {
+                "multistart_weight_shift_max": 0.01,
+                "multistart_mean_shift_max": 0.1,
+                "component_collapse_fraction": 0.0,
+                "entropy": 0.2,
+            },
+            benchmark_metadata,
+        ),
+        (
+            "factor_graph_belief_propagation",
+            {
+                "final_delta": 1e-8,
+                "message_residual_tolerance": 1e-6,
+                "subgraph_crosscheck_max_error": 0.01,
+            },
+            benchmark_metadata,
+        ),
+    ]
+
+    for method_name, diagnostics, metadata in cases:
+        posterior = PosteriorResult(
+            method_name=method_name,
+            diagnostics=diagnostics,
+            metadata=metadata,
+        )
+        assert posterior.truthfulness_tier is TruthfulnessTier.APPROXIMATE_CALIBRATED
+        assert posterior.truthfulness.downgrade_reasons == []
 
 
 def test_bayesian_hmc_explicit_numpyro_request_fails_closed_when_unavailable() -> None:
@@ -270,7 +635,7 @@ def test_ep_svgd_flow_and_factor_graph_frontier_methods_run() -> None:
         seed=331,
     )
     assert isinstance(ep_result.output["result"], PosteriorResult)
-    assert ep_result.output["result"].metadata["truthfulness_tier"] == "gaussian_ep_site_approximation"
+    assert ep_result.output["result"].truthfulness_tier is TruthfulnessTier.APPROXIMATE_UNCALIBRATED
 
     svgd_cls = registry.get("bayesian.variational.svgd_regression@1.0.0")
     svgd_result = dispatcher.dispatch(
@@ -282,6 +647,7 @@ def test_ep_svgd_flow_and_factor_graph_frontier_methods_run() -> None:
     )
     assert svgd_result.output["result"].method_name == "svgd_regression"
     assert svgd_result.output["prediction_result"].method_name == "svgd_regression"
+    assert svgd_result.output["result"].truthfulness_tier is TruthfulnessTier.APPROXIMATE_UNCALIBRATED
 
     flow_cls = registry.get("bayesian.flow.affine_normalizing_flow@1.0.0")
     rng = np.random.default_rng(335)
@@ -297,6 +663,7 @@ def test_ep_svgd_flow_and_factor_graph_frontier_methods_run() -> None:
     )
     assert flow_result.output["result"].metadata["flow_family"] == "affine_gaussian"
     assert np.asarray(flow_result.output["posterior_samples"]).shape == (40, 2)
+    assert flow_result.output["result"].truthfulness_tier is TruthfulnessTier.APPROXIMATE_UNCALIBRATED
 
     factor_cls = registry.get("bayesian.graphical.factor_graph_belief_propagation@1.0.0")
     factor_result = dispatcher.dispatch(
@@ -322,6 +689,7 @@ def test_ep_svgd_flow_and_factor_graph_frontier_methods_run() -> None:
     assert factor_result.output["result"].method_name == "factor_graph_belief_propagation"
     assert marginals.shape == (3, 2)
     assert np.allclose(np.sum(marginals, axis=1), np.ones(3))
+    assert factor_result.output["result"].truthfulness_tier is TruthfulnessTier.EXACT
 
 
 @pytest.mark.parametrize(

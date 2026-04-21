@@ -9,12 +9,13 @@ import importlib
 import json
 import os
 import statistics
+import subprocess
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
-import subprocess
 from tempfile import TemporaryDirectory
-from typing import Any, Callable
+from typing import Any
 
 _BENCH_ROOT = Path(__file__).resolve().parents[2]
 _SRC = _BENCH_ROOT / "src"
@@ -22,6 +23,7 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+import polisyos.runtime.replay as runtime_replay  # noqa: E402
 from benchmarks.advanced.manifests import (  # noqa: E402
     ManifestBundle,
     ManifestCase,
@@ -50,7 +52,6 @@ from benchmarks.runtime import (  # noqa: E402
 from benchmarks.suite_registry import spec_by_suite_id  # noqa: E402
 from polisyos.core.artifacts.ids import ArtifactID  # noqa: E402
 from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: E402
-import polisyos.runtime.replay as runtime_replay  # noqa: E402
 from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry  # noqa: E402
 
 
@@ -2121,7 +2122,7 @@ def _interaction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
         quiet=quiet,
         dataset_family="interaction_contracts",
     )
-    from polisyos.ir.analytics.interference import InterferenceCertificate, InteractionComplex
+    from polisyos.ir.analytics.interference import InteractionComplex, InterferenceCertificate
     harness = BenchmarkHarness()
 
     def _interaction_case_payload(case: ManifestCase) -> dict[str, Any]:
@@ -2134,7 +2135,7 @@ def _interaction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
                     "simplices": case.payload.get("simplices", []),
                     "exposure_operator_ref": {
                         "artifact_id": "sha256:" + "1" * 64,
-                        "kind": "ir.exposure_operator",
+                        "kind": "ir.interference_exposure_operator",
                         "media_type": "application/json",
                     },
                     "reduction_policy": case.payload.get("reduction_policy", "pairwise_projection"),
@@ -2144,6 +2145,7 @@ def _interaction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
             {
                 "supported_query_family": case.payload.get("supported_query_family", "unknown"),
                 "exposure_assumptions": case.payload.get("exposure_assumptions", []),
+                "reduction_error_bound": case.payload.get("reduction_error_bound"),
                 "fallback_mode": case.payload.get("fallback_mode", "unsupported"),
             }
         )

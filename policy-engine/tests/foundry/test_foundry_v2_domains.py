@@ -63,6 +63,7 @@ def test_foundry_v2_forecasting_validation_and_sensitivity_methods_dispatch() ->
         seed=5,
     )
     assert len(ets_result.output["result"]["forecast"]) == 3
+    assert ets_result.output["forecasting_uncertainty_bundle"] is not None
 
     scoring_cls = registry.get("validation.probabilistic.normal_scores@1.0.0")
     scoring_result = dispatcher.dispatch(

@@ -25,7 +25,12 @@ from polisyos.foundry.methods.catalog.ml.regression import (
     _tabular_payload,
 )
 
-from .protocols import PosteriorResult, metropolis_sample, summarize_posterior_samples
+from .protocols import (
+    PosteriorResult,
+    augment_sampler_diagnostics,
+    metropolis_sample,
+    summarize_posterior_samples,
+)
 
 
 def _prediction_output_slots() -> frozenset[SlotSpec]:
@@ -89,6 +94,8 @@ class BayesianLinearRegressionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Sampling-based Bayesian linear regression with posterior predictive summaries.",
         tags=frozenset({"bayesian", "sampling", "regression"}),
+        declared_truthfulness_tier="asymptotic",
+        truthfulness_scope="posterior",
         when_to_use="Regression with prior information; uncertainty quantification; small samples where frequentist CI unreliable",
         citations=(
             "Gelman, A. et al. (2013). Bayesian Data Analysis. 3rd ed. CRC Press.",
@@ -155,14 +162,20 @@ class BayesianLinearRegressionEstimator:
             posterior,
             credible_mass=credible_mass,
         )
-        diagnostics = {
-            "num_warmup": float(num_warmup),
-            "num_samples": float(num_samples),
-            "num_chains": float(num_chains),
-            "credible_mass": float(credible_mass),
-            "acceptance_rate": float(accept_rate),
-            "proposal_scale": float(proposal_scale),
-        }
+        diagnostics = augment_sampler_diagnostics(
+            posterior,
+            diagnostics={
+                "num_warmup": float(num_warmup),
+                "num_samples": float(num_samples),
+                "num_chains": float(num_chains),
+                "credible_mass": float(credible_mass),
+                "acceptance_rate": float(accept_rate),
+                "proposal_scale": float(proposal_scale),
+            },
+            num_chains=num_chains,
+            num_samples=num_samples,
+            credible_mass=credible_mass,
+        )
 
         prediction_output = _build_prediction_result(
             method_name="bayesian_linear_regression",
@@ -188,6 +201,8 @@ class BayesianLinearRegressionEstimator:
             posterior_stds=posterior_stds,
             credible_intervals=credible_intervals,
             diagnostics=diagnostics,
+            sampler_family="mcmc",
+            sampler_kernel="metropolis",
             metadata={"feature_names": _feature_names(data)},
         )
         return {

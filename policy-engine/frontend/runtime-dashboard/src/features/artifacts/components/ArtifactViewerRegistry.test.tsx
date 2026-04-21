@@ -116,6 +116,17 @@ describe("ArtifactViewerRegistry", () => {
     expect(screen.queryByText("pages.artifacts.title")).not.toBeInTheDocument();
   });
 
+  it("routes metric-validation reports to the simulation viewer", async () => {
+    renderViewer("scientist.metric_validation_report", {
+      comparisons: [],
+      family_adjustment: { method: "holm" },
+    });
+
+    expect(await screen.findByTestId("simulation-results-viewer")).toHaveTextContent(
+      "scientist.metric_validation_report",
+    );
+  });
+
   it("renders the preflight report viewer with diagnostics, hints, notes, and related refs", () => {
     renderViewer("scientist.preflight_report", {
       decision_packet_ref: {

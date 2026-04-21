@@ -10,14 +10,24 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.foundry.methods.catalog.causal.protocols import (
     DynamicTreatmentData,
+    EventProcessObservationalData,
     PanelObservationalData,
 )
 from polisyos.ir.analytics.dynamic_regime import (
     ContinuousTimeQuery,
     InterventionInterpolationPolicy,
     TemporalSamplingScheme,
+    TemporalIdentificationCertificate,
+    TemporalIdentificationTheoremFamily,
     TemporalInterventionTrajectory,
+    TemporalInterventionSemantics,
+    TemporalLawObject,
+    TemporalObservabilityRegime,
+    TemporalQueryMode,
     TemporalTargetFunctional,
+    _rough_path_attachment_from_metadata,
+    _rough_path_certificate_from_metadata,
+    _rough_path_scope_errors,
 )
 
 
@@ -25,13 +35,21 @@ class TemporalBackendTarget(str, Enum):
     """Declare which temporal backend should execute a compiled causal plan."""
     LINEAR_SDE = "linear_sde"
     ODE = "ode"
+    NEURAL_SDE = "neural_sde"
+    NEURAL_CDE = "neural_cde"
     DISCRETE_FALLBACK = "discrete_fallback"
+    EVENT_PROCESS_WEIGHTING = "event_process_weighting"
+    GEOMETRIC_ROUGH_PATH = "geometric_rough_path"
+    CADLAG_ROUGH_PATH = "cadlag_rough_path"
+    TRUNCATED_SIGNATURE = "truncated_signature"
+    HYBRID_ROUGH_EVENT = "hybrid_rough_event"
 
 
 class TemporalComparatorSemantics(str, Enum):
     """Capture how untreated comparators and event-time baselines are interpreted."""
     UNTREATED_COUNTERFACTUAL = "untreated_counterfactual"
     NEVER_TREAT_BASELINE = "never_treat_baseline"
+    POLICY_BASELINE = "policy_baseline"
 
 
 class TemporalFallbackMode(str, Enum):
@@ -44,6 +62,7 @@ class TemporalDataContract(str, Enum):
     """Declare which temporal data bundle a compiled causal plan expects at execution time."""
     PANEL_OBSERVATIONAL = "panel_observational_data"
     DYNAMIC_TREATMENT = "dynamic_treatment_data"
+    EVENT_PROCESS_OBSERVATIONAL = "event_process_observational_data"
 
 
 class TemporalCompileError(RuntimeError):
@@ -135,10 +154,157 @@ class TemporalExecutionPlan(BaseModel):
         diffs = np.diff(np.asarray(self.time_grid, dtype=float))
         if np.any(diffs <= 0):
             raise ValueError("time_grid must be strictly increasing")
-        if self.backend_target is not TemporalBackendTarget.DISCRETE_FALLBACK:
+        if self.backend_target not in {
+            TemporalBackendTarget.DISCRETE_FALLBACK,
+            TemporalBackendTarget.EVENT_PROCESS_WEIGHTING,
+            TemporalBackendTarget.GEOMETRIC_ROUGH_PATH,
+            TemporalBackendTarget.CADLAG_ROUGH_PATH,
+            TemporalBackendTarget.TRUNCATED_SIGNATURE,
+            TemporalBackendTarget.HYBRID_ROUGH_EVENT,
+        }:
             if not np.allclose(diffs, diffs[0], atol=1e-8, rtol=1e-8):
                 raise ValueError("non-fallback temporal plans require a regular time grid")
         return self
+
+
+def _validate_neural_identification_scope(
+    query: ContinuousTimeQuery,
+    *,
+    preferred_backend: str,
+    certificate: TemporalIdentificationCertificate,
+) -> None:
+    errors: dict[str, Any] = {}
+
+    if query.query_mode is not TemporalQueryMode.FIXED_INTERVENTION:
+        errors["query_mode"] = query.query_mode.value
+
+    strategic_mode = str(query.metadata.get("strategic_adaptation_mode", "absent")).strip().lower()
+    if strategic_mode not in {"", "absent"}:
+        errors["strategic_adaptation_mode"] = strategic_mode
+
+    if query.target_functional not in set(certificate.identified_functionals):
+        errors["identified_functionals"] = [item.value for item in certificate.identified_functionals]
+
+    if certificate.intervention_semantics is not TemporalInterventionSemantics.SURGICAL_REPLACEMENT:
+        errors["intervention_semantics"] = certificate.intervention_semantics.value
+
+    if certificate.observability_regime is not TemporalObservabilityRegime.FULL_STATE:
+        errors["observability_regime"] = certificate.observability_regime.value
+
+    if not certificate.law_invariant:
+        errors["law_invariant"] = False
+
+    if preferred_backend == "neural_sde":
+        if (
+            certificate.theorem_family
+            is not TemporalIdentificationTheoremFamily.NSDE_FIXED_OBSERVED_CHANNEL_V1
+        ):
+            errors["theorem_family"] = certificate.theorem_family.value
+        if certificate.law_object not in {
+            TemporalLawObject.GENERATOR,
+            TemporalLawObject.SEMIMARTINGALE_CHARACTERISTICS,
+        }:
+            errors["law_object"] = certificate.law_object.value
+    else:
+        if (
+            certificate.theorem_family
+            is not TemporalIdentificationTheoremFamily.NCDE_FIXED_OBSERVED_CHANNEL_V1
+        ):
+            errors["theorem_family"] = certificate.theorem_family.value
+        if certificate.law_object is not TemporalLawObject.CANONICAL_CONTROL_PATH:
+            errors["law_object"] = certificate.law_object.value
+        if not certificate.canonical_control_required:
+            errors["canonical_control_required"] = False
+        if query.interpolation_policy not in {
+            InterventionInterpolationPolicy.PIECEWISE_CONSTANT,
+            InterventionInterpolationPolicy.LINEAR,
+        }:
+            errors["interpolation_policy"] = query.interpolation_policy.value
+        elif certificate.control_canonicalization is not query.interpolation_policy:
+            errors["control_canonicalization"] = (
+                None
+                if certificate.control_canonicalization is None
+                else certificate.control_canonicalization.value
+            )
+
+    if errors:
+        raise TemporalCompileError(
+            "unsupported_identification_scope",
+            "The supplied temporal identification certificate does not cover this neural temporal query.",
+            details={
+                "preferred_backend": preferred_backend,
+                "theorem_family": certificate.theorem_family.value,
+                "errors": errors,
+            },
+        )
+
+
+def _validate_event_process_identification_scope(
+    query: ContinuousTimeQuery,
+    *,
+    certificate: TemporalIdentificationCertificate,
+) -> None:
+    errors: dict[str, Any] = {}
+    if (
+        certificate.theorem_family
+        is not TemporalIdentificationTheoremFamily.LOCAL_INDEPENDENCE_WEIGHTING_V1
+    ):
+        errors["theorem_family"] = certificate.theorem_family.value
+    if query.query_mode is not TemporalQueryMode.FIXED_INTERVENTION:
+        errors["query_mode"] = query.query_mode.value
+    if query.target_functional not in set(certificate.identified_functionals):
+        errors["identified_functionals"] = [item.value for item in certificate.identified_functionals]
+    if certificate.intervention_semantics is not TemporalInterventionSemantics.INTENSITY_REPLACEMENT:
+        errors["intervention_semantics"] = certificate.intervention_semantics.value
+    if certificate.observability_regime is not TemporalObservabilityRegime.OBSERVED_FILTRATION:
+        errors["observability_regime"] = certificate.observability_regime.value
+    if certificate.law_object is not TemporalLawObject.INTENSITY_COMPENSATOR:
+        errors["law_object"] = certificate.law_object.value
+    if errors:
+        raise TemporalCompileError(
+            "unsupported_identification_scope",
+            "The supplied temporal identification certificate does not cover this event-process query.",
+            details={
+                "preferred_backend": "event_process_weighting",
+                "theorem_family": certificate.theorem_family.value,
+                "errors": errors,
+            },
+        )
+
+
+def _identification_scope_snapshot(
+    query: ContinuousTimeQuery,
+    *,
+    certificate: TemporalIdentificationCertificate,
+) -> dict[str, Any]:
+    notes = dict(certificate.notes or {})
+    strategic_mode = str(query.metadata.get("strategic_adaptation_mode", "absent")).strip().lower()
+    return {
+        "theorem_family": certificate.theorem_family.value,
+        "identified_functionals": [
+            item.value for item in certificate.identified_functionals
+        ],
+        "intervention_semantics": certificate.intervention_semantics.value,
+        "observability_regime": certificate.observability_regime.value,
+        "law_object": certificate.law_object.value,
+        "law_invariant": bool(certificate.law_invariant),
+        "canonical_control_required": bool(certificate.canonical_control_required),
+        "control_canonicalization": (
+            None
+            if certificate.control_canonicalization is None
+            else certificate.control_canonicalization.value
+        ),
+        "support_status": certificate.support_status.value,
+        "query_mode": query.query_mode.value,
+        "sampling_scheme": query.sampling_scheme.value,
+        "target_functional": query.target_functional.value,
+        "interpolation_policy": query.interpolation_policy.value,
+        "strategic_adaptation_mode": strategic_mode or "absent",
+        "scope_covered": True,
+        "tree_like_invariant_estimand": bool(
+            notes.get("tree_like_invariant_estimand", False)
+        ),
+    }
 
 
 def compile_temporal_estimand(
@@ -146,6 +312,7 @@ def compile_temporal_estimand(
     *,
     data: Any,
     resolved_intervention: TemporalInterventionTrajectory | dict[str, Any] | None,
+    identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
     intervention_contract_status: str = "resolved_artifact",
     allow_discrete_fallback: bool = True,
 ) -> TemporalExecutionPlan:
@@ -180,38 +347,140 @@ def compile_temporal_estimand(
             },
         )
 
-    if query.sampling_scheme is not TemporalSamplingScheme.REGULAR_GRID:
+    preferred_backend = str(query.metadata.get("preferred_backend", "linear_sde")).strip().lower()
+    event_process_backend = preferred_backend == "event_process_weighting"
+    neural_backend = preferred_backend in {"neural_sde", "neural_cde"}
+    rough_backend = preferred_backend in {
+        TemporalBackendTarget.GEOMETRIC_ROUGH_PATH.value,
+        TemporalBackendTarget.CADLAG_ROUGH_PATH.value,
+        TemporalBackendTarget.TRUNCATED_SIGNATURE.value,
+        TemporalBackendTarget.HYBRID_ROUGH_EVENT.value,
+    }
+    identification_scope: dict[str, Any] | None = None
+
+    if (
+        not event_process_backend
+        and not rough_backend
+        and query.sampling_scheme is not TemporalSamplingScheme.REGULAR_GRID
+    ):
         raise TemporalCompileError(
             "research_gated_sampling_scheme",
             "Only regular-grid ContinuousTimeQuery objects are executable in Phase C.",
             details={"sampling_scheme": query.sampling_scheme.value},
         )
 
-    if query.target_functional not in {
-        TemporalTargetFunctional.EFFECT_PATH,
-        TemporalTargetFunctional.INTEGRAL_EFFECT,
-    }:
+    supported_functionals = (
+        {
+            TemporalTargetFunctional.CUMULATIVE_INCIDENCE,
+            TemporalTargetFunctional.SURVIVAL_CURVE,
+        }
+        if event_process_backend
+        else {
+            TemporalTargetFunctional.EFFECT_PATH,
+            TemporalTargetFunctional.INTEGRAL_EFFECT,
+        }
+    )
+    if query.target_functional not in supported_functionals:
+        allowed = ", ".join(item.value for item in sorted(supported_functionals, key=lambda item: item.value))
         raise TemporalCompileError(
             "unsupported_target_functional",
-            "Only effect_path and integral_effect are implemented in Phase C.",
+            f"Only {allowed} are implemented for the selected temporal backend.",
             details={"target_functional": query.target_functional.value},
         )
 
-    preferred_backend = str(query.metadata.get("preferred_backend", "linear_sde")).strip().lower()
-    if preferred_backend in {"neural_sde", "neural_cde"}:
+    if event_process_backend and query.query_mode is not TemporalQueryMode.FIXED_INTERVENTION:
         raise TemporalCompileError(
-            "research_gated_backend",
-            "Neural temporal backends remain research-gated in Phase C.",
-            details={"preferred_backend": preferred_backend},
+            "unsupported_query_mode",
+            "Event-process weighting currently supports fixed-intervention queries only.",
+            details={"query_mode": query.query_mode.value},
         )
-    if preferred_backend not in {"linear_sde", "ode"}:
+
+    rough_path_attachment = None
+    rough_path_certificate = None
+    if rough_backend:
+        rough_path_attachment = _rough_path_attachment_from_metadata(query.metadata)
+        rough_path_certificate = _rough_path_certificate_from_metadata(query.metadata)
+        scope_errors = _rough_path_scope_errors(
+            preferred_backend=preferred_backend,
+            attachment=rough_path_attachment,
+            certificate=rough_path_certificate,
+        )
+        if scope_errors:
+            reason_code = (
+                "unsupported_rough_path_scope"
+                if len(scope_errors) > 1
+                else scope_errors[0]
+            )
+            raise TemporalCompileError(
+                reason_code,
+                "The supplied rough-path proof artifacts do not cover this irregular-grid temporal query.",
+                details={
+                    "preferred_backend": preferred_backend,
+                    "scope_errors": list(scope_errors),
+                    "sampling_scheme": query.sampling_scheme.value,
+                },
+            )
+        assert rough_path_attachment is not None
+        assert rough_path_certificate is not None
+        identification_scope = {
+            "theorem_family": "rough_path_irregular_sampling_v1",
+            "semantics_scope": rough_path_attachment.semantics_scope.value,
+            "topology": rough_path_attachment.topology.value,
+            "graph_criterion": rough_path_attachment.graph_criterion.value,
+            "intervention_type": rough_path_attachment.intervention_type.value,
+            "sampling_scheme": query.sampling_scheme.value,
+            "target_functional": query.target_functional.value,
+            "identification_strategy": rough_path_certificate.identification_strategy.value,
+            "identification_status": rough_path_certificate.status.value,
+            "support_status": (
+                "degraded"
+                if rough_path_certificate.status.value
+                in {"identified_representation_only", "partially_identified"}
+                else "on_support"
+            ),
+        }
+
+    if preferred_backend in {"neural_sde", "neural_cde"}:
+        if identification_certificate is None:
+            raise TemporalCompileError(
+                "research_gated_backend",
+                "Neural temporal backends require a temporal identification certificate before execution can proceed.",
+                details={"preferred_backend": preferred_backend},
+            )
+        certificate = (
+            identification_certificate
+            if isinstance(identification_certificate, TemporalIdentificationCertificate)
+            else TemporalIdentificationCertificate.model_validate(identification_certificate)
+        )
+        _validate_neural_identification_scope(
+            query,
+            preferred_backend=preferred_backend,
+            certificate=certificate,
+        )
+        identification_scope = _identification_scope_snapshot(
+            query,
+            certificate=certificate,
+        )
+    if event_process_backend:
+        if identification_certificate is not None:
+            certificate = (
+                identification_certificate
+                if isinstance(identification_certificate, TemporalIdentificationCertificate)
+                else TemporalIdentificationCertificate.model_validate(identification_certificate)
+            )
+            _validate_event_process_identification_scope(
+                query,
+                certificate=certificate,
+            )
+        materialized, contract, observed_grid, grid_source = _coerce_event_process_data(data)
+    elif not rough_backend and preferred_backend not in {"linear_sde", "ode", "neural_sde", "neural_cde"}:
         raise TemporalCompileError(
             "unsupported_backend_target",
             "Unsupported temporal backend target.",
             details={"preferred_backend": preferred_backend},
         )
-
-    materialized, contract, observed_grid, grid_source = _coerce_temporal_data(data)
+    else:
+        materialized, contract, observed_grid, grid_source = _coerce_temporal_data(data)
     data_time_scale = _extract_data_time_scale(materialized)
     if data_time_scale is not None and data_time_scale != query.time_scale:
         raise TemporalCompileError(
@@ -243,22 +512,113 @@ def compile_temporal_estimand(
         intervention,
         clipped_grid,
     )
+    if event_process_backend:
+        diffs = np.diff(clipped_grid)
+        positive_diffs = diffs[diffs > 0]
+        step_size = float(np.median(positive_diffs)) if positive_diffs.size else 1.0
+        return TemporalExecutionPlan(
+            query=query,
+            data_contract=contract,
+            backend_target=TemporalBackendTarget.EVENT_PROCESS_WEIGHTING,
+            target_functional=query.target_functional,
+            interpolation_policy=query.interpolation_policy,
+            comparator_semantics=_comparator_for_contract(contract),
+            resolved_intervention=intervention,
+            materialized_intervention_values=tuple(float(value) for value in materialized_intervention.tolist()),
+            time_grid=tuple(float(value) for value in clipped_grid),
+            time_index_positions=tuple(int(value) for value in in_horizon.tolist()),
+            step_size=step_size,
+            grid_source=grid_source,
+            time_scale_validation="strict_match",
+            intervention_contract_status=intervention_contract_status,
+            fallback_mode=TemporalFallbackMode.NONE,
+            solver_config=_default_solver_config(
+                backend_target=TemporalBackendTarget.EVENT_PROCESS_WEIGHTING,
+                step_size=step_size,
+                n_grid_points=int(clipped_grid.size),
+            ),
+            metadata={
+                "preferred_backend": preferred_backend,
+                "process_family": str(materialized.metadata.get("process_family", "counting_process")),
+                "grid_aligned": True,
+                "materialized_contract_id": getattr(materialized, "contract_id", ""),
+                "data_time_scale": data_time_scale or query.time_scale,
+                "intervention_time_scale": intervention.time_scale,
+                "execution_contract_kind": query.query_mode.value,
+                "identification_certificate_supplied": identification_certificate is not None,
+            },
+        )
     if contract is TemporalDataContract.PANEL_OBSERVATIONAL:
         _validate_panel_intervention(
             materialized_intervention,
             time_index_positions=in_horizon,
             time_treatment=int(materialized.time_treatment),
         )
+    if rough_backend:
+        diffs = np.diff(clipped_grid)
+        positive_diffs = diffs[diffs > 0]
+        step_size = float(np.median(positive_diffs)) if positive_diffs.size else 1.0
+        backend_target = TemporalBackendTarget(preferred_backend)
+        return TemporalExecutionPlan(
+            query=query,
+            data_contract=contract,
+            backend_target=backend_target,
+            target_functional=query.target_functional,
+            interpolation_policy=query.interpolation_policy,
+            comparator_semantics=_comparator_for_contract(contract),
+            resolved_intervention=intervention,
+            materialized_intervention_values=tuple(float(value) for value in materialized_intervention.tolist()),
+            time_grid=tuple(float(value) for value in clipped_grid),
+            time_index_positions=tuple(int(value) for value in in_horizon.tolist()),
+            step_size=step_size,
+            grid_source=grid_source,
+            time_scale_validation="strict_match",
+            intervention_contract_status=intervention_contract_status,
+            fallback_mode=TemporalFallbackMode.NONE,
+            solver_config=_default_solver_config(
+                backend_target=backend_target,
+                step_size=step_size,
+                n_grid_points=int(clipped_grid.size),
+            ),
+            metadata={
+                "preferred_backend": preferred_backend,
+                "grid_aligned": False,
+                "materialized_contract_id": getattr(materialized, "contract_id", ""),
+                "data_time_scale": data_time_scale or query.time_scale,
+                "intervention_time_scale": intervention.time_scale,
+                "execution_contract_kind": query.query_mode.value,
+                "path_semantics": rough_path_attachment.model_dump(mode="json"),
+                "rough_path_certificate": rough_path_certificate.model_dump(mode="json"),
+                "rough_path_identification_status": rough_path_certificate.status.value,
+                "rough_path_runtime_support": identification_scope.get("support_status"),
+                "identification_scope": identification_scope,
+                "identification_support_status": identification_scope.get("support_status"),
+            },
+        )
     horizon_start_aligned = np.any(np.isclose(clipped_grid, query.horizon_start, atol=1e-8))
     horizon_end_aligned = np.any(np.isclose(clipped_grid, query.horizon_end, atol=1e-8))
     regular_grid = _is_regular_grid(clipped_grid)
+    if neural_backend and not (regular_grid and horizon_start_aligned and horizon_end_aligned):
+        raise TemporalCompileError(
+            "time_grid_mismatch",
+            "Neural temporal backends require a horizon-aligned regular grid inside the certified theorem scope.",
+            details={
+                "grid_regular": regular_grid,
+                "horizon_start_aligned": horizon_start_aligned,
+                "horizon_end_aligned": horizon_end_aligned,
+                "preferred_backend": preferred_backend,
+            },
+        )
 
     if regular_grid and horizon_start_aligned and horizon_end_aligned:
-        backend_target = (
-            TemporalBackendTarget.ODE
-            if preferred_backend == "ode"
-            else TemporalBackendTarget.LINEAR_SDE
-        )
+        if preferred_backend == "ode":
+            backend_target = TemporalBackendTarget.ODE
+        elif preferred_backend == "neural_sde":
+            backend_target = TemporalBackendTarget.NEURAL_SDE
+        elif preferred_backend == "neural_cde":
+            backend_target = TemporalBackendTarget.NEURAL_CDE
+        else:
+            backend_target = TemporalBackendTarget.LINEAR_SDE
         step_size = float(np.diff(clipped_grid)[0])
         return TemporalExecutionPlan(
             query=query,
@@ -288,6 +648,12 @@ def compile_temporal_estimand(
                 "data_time_scale": data_time_scale or query.time_scale,
                 "intervention_time_scale": intervention.time_scale,
                 "execution_contract_kind": query.query_mode.value,
+                "identification_scope": identification_scope,
+                "identification_support_status": (
+                    None
+                    if identification_scope is None
+                    else identification_scope.get("support_status")
+                ),
             },
         )
 
@@ -386,6 +752,38 @@ def _coerce_temporal_data(
     )
 
 
+def _coerce_event_process_data(
+    data: Any,
+) -> tuple[
+    EventProcessObservationalData,
+    TemporalDataContract,
+    np.ndarray,
+    str,
+]:
+    if isinstance(data, EventProcessObservationalData):
+        grid = _extract_numeric_grid(
+            data.time_index,
+            length=data.n_periods,
+            default_name="event_process_time_index",
+        )
+        return data, TemporalDataContract.EVENT_PROCESS_OBSERVATIONAL, grid, "time_index"
+
+    if isinstance(data, dict):
+        event_process = EventProcessObservationalData.model_validate(data)
+        grid = _extract_numeric_grid(
+            event_process.time_index,
+            length=event_process.n_periods,
+            default_name="event_process_time_index",
+        )
+        return event_process, TemporalDataContract.EVENT_PROCESS_OBSERVATIONAL, grid, "time_index"
+
+    raise TemporalCompileError(
+        "unsupported_temporal_data_contract",
+        "Expected EventProcessObservationalData or a compatible mapping.",
+        details={"type": type(data).__name__},
+    )
+
+
 def _extract_numeric_grid(values: Any, *, length: int, default_name: str) -> np.ndarray:
     if values is None:
         return np.arange(length, dtype=float)
@@ -417,7 +815,9 @@ def _extract_numeric_grid(values: Any, *, length: int, default_name: str) -> np.
     return numeric
 
 
-def _extract_data_time_scale(data: PanelObservationalData | DynamicTreatmentData) -> str | None:
+def _extract_data_time_scale(
+    data: PanelObservationalData | DynamicTreatmentData | EventProcessObservationalData,
+) -> str | None:
     metadata = getattr(data, "metadata", {}) or {}
     value = metadata.get("time_scale")
     if value is None:
@@ -490,6 +890,8 @@ def _is_regular_grid(grid: np.ndarray) -> bool:
 def _comparator_for_contract(contract: TemporalDataContract) -> TemporalComparatorSemantics:
     if contract is TemporalDataContract.PANEL_OBSERVATIONAL:
         return TemporalComparatorSemantics.UNTREATED_COUNTERFACTUAL
+    if contract is TemporalDataContract.EVENT_PROCESS_OBSERVATIONAL:
+        return TemporalComparatorSemantics.POLICY_BASELINE
     return TemporalComparatorSemantics.NEVER_TREAT_BASELINE
 
 
@@ -504,6 +906,23 @@ def _default_solver_config(
     if backend_target is TemporalBackendTarget.DISCRETE_FALLBACK:
         diffusion_mode = "zero"
         solver_family = "discrete_replay"
+    elif backend_target is TemporalBackendTarget.EVENT_PROCESS_WEIGHTING:
+        diffusion_mode = "not_applicable"
+        solver_family = "local_independence_weighting"
+    elif backend_target is TemporalBackendTarget.NEURAL_CDE:
+        diffusion_mode = "zero"
+        solver_family = "canonical_control_ncde"
+    elif backend_target is TemporalBackendTarget.NEURAL_SDE:
+        diffusion_mode = "estimated"
+        solver_family = "law_invariant_nsde"
+    elif backend_target in {
+        TemporalBackendTarget.GEOMETRIC_ROUGH_PATH,
+        TemporalBackendTarget.CADLAG_ROUGH_PATH,
+        TemporalBackendTarget.TRUNCATED_SIGNATURE,
+        TemporalBackendTarget.HYBRID_ROUGH_EVENT,
+    }:
+        diffusion_mode = "estimated"
+        solver_family = backend_target.value
     return {
         "solver_family": solver_family,
         "dt": float(step_size),

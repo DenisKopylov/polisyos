@@ -10,6 +10,8 @@ from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (
+    CertificateKind,
+    ComposedFlavour,
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,
@@ -79,6 +81,9 @@ def test_delta_uses_full_covariance_when_available() -> None:
 
     expected_std = math.sqrt(10.0)
     assert std_out == pytest.approx(expected_std, rel=1e-3)
+    assert env.composition_provenance is not None
+    assert env.composition_provenance.composed_flavour == ComposedFlavour.DELTA
+    assert env.composition_provenance.certificate_kind == CertificateKind.TAYLOR_REMAINDER
 
 
 def test_dispatcher_falls_back_to_monte_carlo_for_non_differentiable_function() -> None:
@@ -123,3 +128,5 @@ def test_monte_carlo_uses_heuristic_envelope_when_samples_fail() -> None:
     assert env.gate_eligible is False
     assert env.interval_semantics == IntervalSemantics.HEURISTIC_RANGE
     assert env.confidence_interval == (env.point_estimate, env.point_estimate)
+    assert env.composition_provenance is not None
+    assert env.composition_provenance.composed_flavour == ComposedFlavour.MONTE_CARLO

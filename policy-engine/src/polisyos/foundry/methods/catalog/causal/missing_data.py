@@ -30,6 +30,17 @@ from pydantic import BaseModel, ConfigDict, Field
 
 _logger = logging.getLogger(__name__)
 
+from polisyos.ir.analytics.administrative_missingness import (
+    AdministrativeMissingnessMetadata,
+    AdministrativeMissingnessScenarioFamily,
+    MissingnessAssessmentReport,
+    MissingnessAssessmentStatus,
+    MissingnessImplicationFailure,
+    MissingnessProofStep,
+    MissingnessRecoverabilitySummary,
+    MissingnessTestabilityAudit,
+    extract_administrative_missingness_metadata,
+)
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -87,6 +98,576 @@ class TestReport(BaseModel):
     test_method: str = "adaptive_mgraph_ci"
     results: list[ImplicationTestResult] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
+
+
+_REGISTRATION_KEYWORDS = (
+    "register",
+    "registration",
+    "apply",
+    "application",
+    "enroll",
+    "enrol",
+    "eligib",
+)
+_COMPLIANCE_KEYWORDS = (
+    "compliance",
+    "report",
+    "filing",
+    "submit",
+    "submission",
+    "deadline",
+    "sanction",
+    "document",
+    "attest",
+)
+_SYSTEM_CHANGE_KEYWORDS = (
+    "system",
+    "version",
+    "release",
+    "regime",
+    "rollout",
+    "migration",
+    "office",
+    "downtime",
+    "period",
+    "date",
+    "time",
+)
+
+
+def _scenario_requirements(
+    metadata: AdministrativeMissingnessMetadata | None,
+    scenario_family: AdministrativeMissingnessScenarioFamily,
+) -> tuple[tuple[str, ...], dict[str, tuple[str, ...]]]:
+    if scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED:
+        requirement_names = (
+            "registration_indicator",
+            "population_frame_observed",
+            "eligibility_covariates",
+        )
+        requirement_vars = {
+            "registration_indicator": (
+                metadata.registration_indicator,
+            )
+            if metadata and metadata.registration_indicator
+            else (),
+            "eligibility_covariates": (
+                tuple(metadata.eligibility_covariates) if metadata else ()
+            ),
+        }
+        return requirement_names, requirement_vars
+
+    if scenario_family is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED:
+        requirement_names = (
+            "compliance_indicator",
+            "compliance_driver_covariates",
+        )
+        requirement_vars = {
+            "compliance_indicator": (
+                metadata.compliance_indicator,
+            )
+            if metadata and metadata.compliance_indicator
+            else (),
+            "compliance_driver_covariates": (
+                tuple(metadata.compliance_driver_covariates) if metadata else ()
+            ),
+        }
+        return requirement_names, requirement_vars
+
+    if scenario_family is AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED:
+        requirement_names = (
+            "system_version_or_time",
+            "rollout_covariates",
+        )
+        system_vars: tuple[str, ...] = ()
+        if metadata is not None:
+            system_vars = tuple(
+                item
+                for item in (metadata.system_version_variable, metadata.time_variable)
+                if item
+            )
+        requirement_vars = {
+            "system_version_or_time": system_vars,
+            "rollout_covariates": tuple(metadata.rollout_covariates) if metadata else (),
+        }
+        return requirement_names, requirement_vars
+
+    if scenario_family is AdministrativeMissingnessScenarioFamily.HYBRID:
+        names: list[str] = []
+        variables: dict[str, tuple[str, ...]] = {}
+        for component in (
+            AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED,
+            AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED,
+            AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED,
+        ):
+            component_names, component_vars = _scenario_requirements(metadata, component)
+            for name in component_names:
+                if name not in names:
+                    names.append(name)
+            variables.update(component_vars)
+        return tuple(names), variables
+
+    return (), {}
+
+
+def _infer_scenario_family(
+    *,
+    graph: Any,
+    metadata: AdministrativeMissingnessMetadata | None,
+) -> tuple[AdministrativeMissingnessScenarioFamily, float, tuple[str, ...]]:
+    if metadata is not None:
+        return metadata.scenario_family, 1.0, metadata.administrative_covariates
+
+    nodes = tuple(str(node) for node in getattr(graph, "nodes", ()))
+    lowered = {node: node.lower() for node in nodes}
+    registration_hits = tuple(
+        node for node, label in lowered.items() if any(token in label for token in _REGISTRATION_KEYWORDS)
+    )
+    compliance_hits = tuple(
+        node for node, label in lowered.items() if any(token in label for token in _COMPLIANCE_KEYWORDS)
+    )
+    system_hits = tuple(
+        node for node, label in lowered.items() if any(token in label for token in _SYSTEM_CHANGE_KEYWORDS)
+    )
+    scores = {
+        AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED: len(registration_hits),
+        AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED: len(compliance_hits),
+        AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED: len(system_hits),
+    }
+    non_zero = {
+        family: score
+        for family, score in scores.items()
+        if score > 0
+    }
+    if not non_zero:
+        return AdministrativeMissingnessScenarioFamily.UNKNOWN, 0.0, ()
+    sorted_scores = sorted(non_zero.items(), key=lambda item: item[1], reverse=True)
+    top_family, top_score = sorted_scores[0]
+    if len(sorted_scores) > 1 and sorted_scores[1][1] == top_score:
+        all_hits = tuple(
+            _stable_names([*registration_hits, *compliance_hits, *system_hits])
+        )
+        confidence = min(0.75, 0.35 + 0.1 * float(top_score))
+        return AdministrativeMissingnessScenarioFamily.HYBRID, confidence, all_hits
+    hits_map = {
+        AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED: registration_hits,
+        AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED: compliance_hits,
+        AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED: system_hits,
+    }
+    confidence = min(0.85, 0.35 + 0.15 * float(top_score))
+    return top_family, confidence, tuple(_stable_names(hits_map[top_family]))
+
+
+def _recommendations_for_assessment(
+    *,
+    metadata: AdministrativeMissingnessMetadata | None,
+    scenario_family: AdministrativeMissingnessScenarioFamily,
+    missing_requirement_names: tuple[str, ...],
+    recoverability_status: str,
+    selection_only_registration: bool,
+    testability_invalid: bool,
+) -> tuple[str, ...]:
+    recommendations: list[str] = []
+    if scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED:
+        if "registration_indicator" in missing_requirement_names:
+            recommendations.append(
+                "Add a fully observed registration/apply flag and declare registration_flag -> R_X."
+            )
+        if "population_frame_observed" in missing_requirement_names or selection_only_registration:
+            recommendations.append(
+                "Log registration status for non-registered units to distinguish missing objects from missing attributes."
+            )
+        if "eligibility_covariates" in missing_requirement_names:
+            recommendations.append(
+                "Record eligibility or queue covariates that drive registration before treating the pattern as recoverable."
+            )
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED:
+        if "compliance_indicator" in missing_requirement_names:
+            recommendations.append(
+                "Model compliance status C explicitly and declare C -> R_X for affected fields."
+            )
+        if "compliance_driver_covariates" in missing_requirement_names:
+            recommendations.append(
+                "Add deadlines, sanctions, or service-access covariates that explain compliance."
+            )
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED:
+        if "system_version_or_time" in missing_requirement_names:
+            recommendations.append(
+                "Add a system_version or time variable and declare it as a parent of the affected R-nodes."
+            )
+        if "rollout_covariates" in missing_requirement_names:
+            recommendations.append(
+                "Record rollout covariates such as region or office type to separate migration effects from latent selection."
+            )
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.UNKNOWN:
+        recommendations.append(
+            "Annotate the M-graph with administrative missingness metadata to classify registration, compliance, or system-change processes."
+        )
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.HYBRID:
+        recommendations.append(
+            "Decompose the hybrid missingness process into explicit registration/compliance/system-change components in graph metadata."
+        )
+
+    if recoverability_status == "not_recoverable":
+        recommendations.append(
+            "Remove or justify self-censoring paths X -> ... -> R_X, or collect administrative drivers that block those paths."
+        )
+    if metadata is not None and metadata.notes:
+        recommendations.append(f"Documented administrative note: {metadata.notes}")
+    if testability_invalid:
+        recommendations.append(
+            "Revisit the administrative M-graph: one or more testable missingness implications failed on observed data."
+        )
+
+    return tuple(_stable_names(recommendations))
+
+
+def _stable_names(values: list[str] | tuple[str, ...]) -> list[str]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for value in values:
+        item = str(value).strip()
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        ordered.append(item)
+    return ordered
+
+
+def _normalize_var_set(payload: Any) -> frozenset[str]:
+    if payload in (None, "", ()):
+        return frozenset()
+    if isinstance(payload, (list, tuple, set, frozenset)):
+        return frozenset(str(item) for item in payload if str(item).strip())
+    text = str(payload).strip()
+    if not text:
+        return frozenset()
+    return frozenset({text})
+
+
+def assess_administrative_missingness(
+    *,
+    graph: Any,
+    data: Mapping[str, Any] | np.ndarray | None = None,
+    mgraph_meta: Any | None = None,
+    query_variables: frozenset[str] | None = None,
+    treatment: Any | None = None,
+    outcome: Any | None = None,
+    max_conditioning_set_size: int = 2,
+    dp_context: Mapping[str, Any] | None = None,
+    judge_threshold_registry_root: str | None = None,
+    readiness_target: str = "diagnostic",
+) -> MissingnessAssessmentReport:
+    """Assess recoverability/testability for common administrative missingness patterns."""
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        full_law_identify,
+        test_recoverability,
+    )
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir.analytics.mgraph import extract_mgraph_metadata
+
+    parsed_graph = (
+        CausalGraphModel.model_validate(graph)
+        if isinstance(graph, dict)
+        else graph
+    )
+    meta = mgraph_meta or extract_mgraph_metadata(parsed_graph)
+    administrative_meta = extract_administrative_missingness_metadata(parsed_graph)
+    scenario_family, scenario_confidence, inferred_covariates = _infer_scenario_family(
+        graph=parsed_graph,
+        metadata=administrative_meta,
+    )
+    requirement_names, requirement_vars = _scenario_requirements(
+        administrative_meta,
+        scenario_family,
+    )
+    available_nodes = set(parsed_graph.nodes)
+    if isinstance(data, Mapping):
+        available_nodes.update(str(key) for key in data.keys())
+
+    present_covariates: list[str] = []
+    missing_covariates: list[str] = []
+    missing_requirement_names: list[str] = []
+    for requirement in requirement_names:
+        if requirement == "population_frame_observed":
+            if administrative_meta is None or administrative_meta.population_frame_observed is not True:
+                missing_requirement_names.append(requirement)
+            continue
+        required_vars = tuple(requirement_vars.get(requirement, ()))
+        if not required_vars:
+            missing_requirement_names.append(requirement)
+            continue
+        present = [var for var in required_vars if var in available_nodes]
+        absent = [var for var in required_vars if var not in available_nodes]
+        if not present and required_vars:
+            missing_requirement_names.append(requirement)
+        present_covariates.extend(present)
+        missing_covariates.extend(absent)
+
+    if not present_covariates:
+        present_covariates.extend(str(item) for item in inferred_covariates if item)
+
+    resolved_query_vars = (
+        frozenset(query_variables)
+        if query_variables is not None
+        else frozenset(meta.substantive_vars)
+    )
+    recoverability_result = test_recoverability(
+        query_vars=resolved_query_vars,
+        graph=parsed_graph,
+        mgraph_meta=meta,
+    )
+    recoverability_summary = MissingnessRecoverabilitySummary(
+        status=recoverability_result.status.value,
+        query_variables=tuple(sorted(recoverability_result.query_variables)),
+        blocking_r_nodes=tuple(sorted(recoverability_result.blocking_r_nodes)),
+        proof_steps=tuple(
+            MissingnessProofStep(
+                rule_name=str(step.rule_name),
+                antecedent_vars=tuple(str(item) for item in getattr(step, "antecedent_vars", ())),
+                consequent_vars=tuple(str(item) for item in getattr(step, "consequent_vars", ())),
+                applied_to_graph_state=str(getattr(step, "applied_to_graph_state", "")),
+                depth=int(getattr(step, "depth", 0)),
+            )
+            for step in recoverability_result.proof_steps
+        ),
+        algorithm_version=str(recoverability_result.algorithm_version),
+    )
+
+    testability_audit: MissingnessTestabilityAudit | None = None
+    testability_invalid = False
+    if data is not None:
+        try:
+            test_report = test_mgraph_implications(
+                graph=parsed_graph,
+                mgraph_meta=meta,
+                data=data,
+                max_conditioning_set_size=max_conditioning_set_size,
+                dp_context=dp_context,
+                judge_threshold_registry_root=judge_threshold_registry_root,
+                readiness_target=readiness_target,
+            )
+            testability_invalid = not bool(test_report.overall_valid)
+            testability_audit = MissingnessTestabilityAudit(
+                overall_valid=bool(test_report.overall_valid),
+                implications_tested=int(test_report.implications_tested),
+                implications_failed=tuple(
+                    MissingnessImplicationFailure(
+                        x=item.x,
+                        y=item.y,
+                        z=item.z,
+                        adjusted_p_value=float(adj_p),
+                    )
+                    for item, adj_p in test_report.implications_failed
+                ),
+                warnings=tuple(str(item) for item in test_report.warnings),
+            )
+        except Exception as exc:
+            testability_audit = MissingnessTestabilityAudit(
+                overall_valid=False,
+                implications_tested=0,
+                implications_failed=(),
+                warnings=(f"implication_test_failed:{exc}",),
+            )
+            testability_invalid = True
+
+    treatment_set = _normalize_var_set(treatment)
+    outcome_set = _normalize_var_set(outcome)
+    if treatment_set and outcome_set:
+        try:
+            full_law_result = full_law_identify(
+                treatment=treatment_set,
+                outcome=outcome_set,
+                graph=parsed_graph,
+                mgraph_meta=meta,
+            )
+            metadata_payload_full_law = {
+                "status": str(getattr(getattr(full_law_result, "status", None), "value", getattr(full_law_result, "status", ""))),
+                "treatment": sorted(treatment_set),
+                "outcome": sorted(outcome_set),
+                "algorithm_version": str(getattr(full_law_result, "algorithm_version", "") or ""),
+                "trace": list(getattr(full_law_result, "trace", []) or []),
+                "proof_steps": [
+                    {
+                        "rule_name": str(getattr(step, "rule_name", "")),
+                        "depth": int(getattr(step, "depth", 0)),
+                    }
+                    for step in list(getattr(full_law_result, "proof_steps", []) or [])
+                ],
+                "identified": (
+                    str(getattr(getattr(full_law_result, "status", None), "value", getattr(full_law_result, "status", ""))).strip().lower()
+                    == "identified"
+                ),
+            }
+        except Exception as exc:
+            metadata_payload_full_law = {
+                "status": "assessment_failed",
+                "treatment": sorted(treatment_set),
+                "outcome": sorted(outcome_set),
+                "identified": False,
+                "error": str(exc),
+            }
+    else:
+        metadata_payload_full_law = None
+
+    selection_only_registration = (
+        scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED
+        and administrative_meta is not None
+        and administrative_meta.population_frame_observed is False
+    )
+
+    if recoverability_result.status.value == "not_recoverable":
+        status = MissingnessAssessmentStatus.NOT_RECOVERABLE
+    elif scenario_family is AdministrativeMissingnessScenarioFamily.UNKNOWN:
+        status = MissingnessAssessmentStatus.UNKNOWN
+    elif selection_only_registration:
+        status = MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
+    elif missing_requirement_names:
+        status = MissingnessAssessmentStatus.UNKNOWN
+    else:
+        status = MissingnessAssessmentStatus.RECOVERABLE
+
+    recommendations = _recommendations_for_assessment(
+        metadata=administrative_meta,
+        scenario_family=scenario_family,
+        missing_requirement_names=tuple(_stable_names(missing_requirement_names)),
+        recoverability_status=recoverability_result.status.value,
+        selection_only_registration=selection_only_registration,
+        testability_invalid=testability_invalid,
+    )
+
+    metadata_payload: dict[str, Any] = {
+        "mgraph_fingerprint": parsed_graph.metadata.get("mgraph_fingerprint"),
+        "selection_only_registration": selection_only_registration,
+    }
+    if metadata_payload_full_law is not None:
+        metadata_payload["full_law_identification"] = metadata_payload_full_law
+    if administrative_meta is not None:
+        metadata_payload["administrative_missingness"] = administrative_meta.model_dump(mode="json")
+
+    return MissingnessAssessmentReport(
+        status=status,
+        scenario_family=scenario_family,
+        scenario_confidence=scenario_confidence,
+        administrative_covariates_present=tuple(_stable_names(present_covariates)),
+        administrative_covariates_missing=tuple(_stable_names(missing_covariates)),
+        key_variables=tuple(sorted(resolved_query_vars)),
+        proof_kernel_requirements=tuple(requirement_names),
+        mgraph_ref=str(
+            parsed_graph.metadata.get("mgraph_fingerprint")
+            or parsed_graph.metadata.get("graph_ref")
+            or ""
+        )
+        or None,
+        recoverability=recoverability_summary,
+        testability_audit=testability_audit,
+        recommendations=recommendations,
+        metadata=metadata_payload,
+    )
+
+
+# ---------------------------------------------------------------------------
+# AdministrativeMissingnessAssessment
+# ---------------------------------------------------------------------------
+
+
+@foundry_method(
+    namespace="causal.missing_data",
+    version="1.0.0",
+    tags={"causal", "missing-data", "administrative-missingness", "m-graph"},
+)
+class AdministrativeMissingnessAssessment:
+    """Assess administrative missingness patterns and recoverability for an M-graph."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="administrative_missingness_assessment",
+        namespace="",
+        version="0.0.0",
+        input_slots=frozenset({_json_slot("mgraph_data")}),
+        output_slots=frozenset({_json_slot("assessment_report")}),
+        parameters=(
+            ParameterSpec(name="query_variables", default=[]),
+            ParameterSpec(name="treatment", default=[]),
+            ParameterSpec(name="outcome", default=[]),
+            ParameterSpec(name="max_conditioning_set_size", default=2),
+            ParameterSpec(name="dp_context", default=None),
+            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="readiness_target", default="diagnostic"),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Classify registration/compliance/system-change missingness patterns, "
+            "run M-graph recoverability, and optionally audit testable implications."
+        ),
+        tags=frozenset({
+            "causal",
+            "missing-data",
+            "administrative-missingness",
+            "recoverability",
+            "m-graph",
+            "readiness",
+        }),
+        citations=(
+            "Mohan, K. & Pearl, J. (2021). Graphical Models for Processing Missing Data.",
+            "Nabi, R., Bhattacharya, R. & Shpitser, I. (2020). Full law identification in graphical models of missing data.",
+        ),
+        equations={
+            "recoverability": "P(S) recoverable iff R_{V_i} ∉ desc(V_i) for all V_i in S",
+        },
+        determinism_tier=DeterminismTier.STRICT_CPU,
+        required_deps=("numpy",),
+        when_to_use=(
+            "When administrative data missingness needs a typed scenario assessment "
+            "before causal execution or governance gating."
+        ),
+        when_not_to_use="When the graph is not an M-graph or no missingness modeling is intended.",
+        output_interpretation=(
+            "assessment_report summarizes the scenario family, proof-kernel requirements, "
+            "recoverability status, and optional testability/full-law diagnostics."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        from polisyos.ir.analytics.causal_graph import CausalGraphModel
+        from polisyos.ir.analytics.mgraph import extract_mgraph_metadata
+
+        raw = state["mgraph_data"]
+        graph = (
+            CausalGraphModel.model_validate(raw)
+            if isinstance(raw, dict)
+            else raw
+        )
+        data = state.get("data")
+        meta = extract_mgraph_metadata(graph)
+        report = assess_administrative_missingness(
+            graph=graph,
+            data=data,
+            mgraph_meta=meta,
+            query_variables=(
+                frozenset(params.get("query_variables", ()))
+                if params.get("query_variables")
+                else None
+            ),
+            treatment=params.get("treatment"),
+            outcome=params.get("outcome"),
+            max_conditioning_set_size=int(params.get("max_conditioning_set_size", 2)),
+            dp_context=params.get("dp_context"),
+            judge_threshold_registry_root=params.get("judge_threshold_registry_root"),
+            readiness_target=str(params.get("readiness_target", "diagnostic")),
+        )
+        return {"assessment_report": report.model_dump(mode="json")}
 
 
 def _observed_nodes(graph: Any, mgraph_meta: Any) -> list[str]:
@@ -270,6 +851,9 @@ def _mixed_kernel_test(
     y: np.ndarray,
     z: np.ndarray | None,
     alpha: float,
+    dp_context: Mapping[str, Any] | None = None,
+    judge_threshold_registry_root: str | None = None,
+    readiness_target: str = "diagnostic",
 ) -> dict[str, Any]:
     """Approximate mixed-data CI via kernel tests on encoded columns."""
     from polisyos.foundry.methods.catalog.causal.independence_tests import (
@@ -281,15 +865,41 @@ def _mixed_kernel_test(
     y_enc = _encode_for_kernel(y)
 
     if z is None or z.size == 0:
-        raw = HSICIndependenceTest.pure_step({"X": x_enc, "Y": y_enc}, {"alpha": alpha, "n_bootstrap": 99})["result"]
+        raw = HSICIndependenceTest.pure_step(
+            {"X": x_enc, "Y": y_enc},
+            {
+                "alpha": alpha,
+                "n_bootstrap": 99,
+                "dp_context": dp_context,
+                "judge_threshold_registry_root": judge_threshold_registry_root,
+                "readiness_target": readiness_target,
+            },
+        )["result"]
         return {
             "test_name": "hsic_mixed",
             "statistic": float(raw["statistic"]),
             "p_value": float(raw["p_value"]),
             "passed": bool(raw["passed"]),
-            "critical_value": alpha,
+            "critical_value": float(raw["critical_value"]),
+            "alpha": float(raw.get("alpha", alpha)),
+            "critical_statistic_value": float(raw.get("critical_statistic_value", raw["critical_value"])),
+            "calibration_mode": raw.get("calibration_mode"),
+            "dp_context_summary": raw.get("dp_context_summary"),
+            "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
             "metadata": {
                 **dict(raw.get("metadata", {})),
+                **{
+                    key: raw[key]
+                    for key in (
+                        "alpha",
+                        "critical_value",
+                        "critical_statistic_value",
+                        "calibration_mode",
+                        "dp_context_summary",
+                        "naive_fpr_inflation_bound",
+                    )
+                    if raw.get(key) is not None
+                },
                 "route": "hsic_mixed",
                 "approximation": "kernel_mixed_marginal",
             },
@@ -298,16 +908,40 @@ def _mixed_kernel_test(
     z_enc = np.column_stack([_encode_for_kernel(z[:, idx]) for idx in range(z.shape[1])])
     raw = KCIConditionalTest.pure_step(
         {"X": x_enc, "Y": y_enc, "Z": z_enc},
-        {"alpha": alpha, "n_bootstrap": 99, "ridge": 1e-2},
+        {
+            "alpha": alpha,
+            "n_bootstrap": 99,
+            "ridge": 1e-2,
+            "dp_context": dp_context,
+            "judge_threshold_registry_root": judge_threshold_registry_root,
+            "readiness_target": readiness_target,
+        },
     )["result"]
     return {
         "test_name": "kci_mixed",
         "statistic": float(raw["statistic"]),
         "p_value": float(raw["p_value"]),
         "passed": bool(raw["passed"]),
-        "critical_value": alpha,
+        "critical_value": float(raw["critical_value"]),
+        "alpha": float(raw.get("alpha", alpha)),
+        "critical_statistic_value": float(raw.get("critical_statistic_value", raw["critical_value"])),
+        "calibration_mode": raw.get("calibration_mode"),
+        "dp_context_summary": raw.get("dp_context_summary"),
+        "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
         "metadata": {
             **dict(raw.get("metadata", {})),
+            **{
+                key: raw[key]
+                for key in (
+                    "alpha",
+                    "critical_value",
+                    "critical_statistic_value",
+                    "calibration_mode",
+                    "dp_context_summary",
+                    "naive_fpr_inflation_bound",
+                )
+                if raw.get(key) is not None
+            },
             "route": "kci_mixed",
             "approximation": "kernel_conditional_independence",
         },
@@ -417,9 +1051,13 @@ def test_mgraph_implications(
     alpha: float = 0.05,
     max_conditioning_set_size: int = 2,
     variable_order: tuple[str, ...] | None = None,
+    dp_context: Mapping[str, Any] | None = None,
+    judge_threshold_registry_root: str | None = None,
+    readiness_target: str = "diagnostic",
 ) -> TestReport:
     """Run CI tests for all supplied or graph-derived M-graph implications."""
     from polisyos.foundry.methods.catalog.causal.independence_tests import (
+        CategoricalConditionalIndependenceTest,
         PartialCorrelationTest,
     )
 
@@ -445,6 +1083,13 @@ def test_mgraph_implications(
         if not np.any(mask):
             raise ValueError("Implication test has no complete cases")
 
+        raw_x_obs = raw_x[mask]
+        raw_y_obs = raw_y[mask]
+        z_raw = (
+            np.column_stack([col[mask] for col in raw_z_cols])
+            if raw_z_cols
+            else None
+        )
         x = _get_column(data, implication.x, variable_order)[mask]
         y = _get_column(data, implication.y, variable_order)[mask]
         z_numeric = (
@@ -463,17 +1108,38 @@ def test_mgraph_implications(
         route: str
         if not implication.z:
             if all_categorical:
-                table, _, _ = _build_contingency_table(x, y)
-                statistic, p_value, meta = _g_test_from_table(table)
+                categorical = CategoricalConditionalIndependenceTest.pure_step(
+                    {"X": raw_x_obs, "Y": raw_y_obs},
+                    {
+                        "alpha": alpha,
+                        "statistic_family": "g2",
+                        "dp_context": dp_context,
+                        "judge_threshold_registry_root": judge_threshold_registry_root,
+                        "readiness_target": readiness_target,
+                    },
+                )["result"]
                 raw = {
                     "test_name": "g_test",
-                    "statistic": statistic,
-                    "p_value": p_value,
-                    "passed": p_value >= alpha,
-                    "critical_value": alpha,
+                    "statistic": float(categorical["statistic"]),
+                    "p_value": float(categorical["p_value"]),
+                    "passed": bool(categorical["passed"]),
+                    "critical_value": float(categorical["critical_value"]),
                     "metadata": {
-                        **meta,
+                        **dict(categorical.get("metadata", {})),
+                        **{
+                            key: categorical[key]
+                            for key in (
+                                "alpha",
+                                "critical_value",
+                                "critical_statistic_value",
+                                "calibration_mode",
+                                "dp_context_summary",
+                                "naive_fpr_inflation_bound",
+                            )
+                            if categorical.get(key) is not None
+                        },
                         "route": "g_test",
+                        "ci_test_impl": str(categorical["test_name"]),
                         "x_kind": x_kind,
                         "y_kind": y_kind,
                         "conditioning_kinds": (),
@@ -483,7 +1149,10 @@ def test_mgraph_implications(
                 route = "g_test"
             elif all_continuous:
                 state = {"X": x, "Y": y}
-                raw = PartialCorrelationTest.pure_step(state, {"alpha": alpha})["result"]
+                raw = PartialCorrelationTest.pure_step(
+                    state,
+                    {"alpha": alpha, "dp_context": dp_context},
+                )["result"]
                 raw = {
                     **raw,
                     "metadata": {
@@ -497,7 +1166,15 @@ def test_mgraph_implications(
                 }
                 route = "partial_correlation"
             else:
-                raw = _mixed_kernel_test(x=x, y=y, z=None, alpha=alpha)
+                raw = _mixed_kernel_test(
+                    x=x,
+                    y=y,
+                    z=None,
+                    alpha=alpha,
+                    dp_context=dp_context,
+                    judge_threshold_registry_root=judge_threshold_registry_root,
+                    readiness_target=readiness_target,
+                )
                 raw["metadata"] = {
                     **dict(raw.get("metadata", {})),
                     "x_kind": x_kind,
@@ -508,16 +1185,38 @@ def test_mgraph_implications(
                 route = raw["test_name"]
         else:
             if all_categorical:
-                table_stat, p_value, meta = _conditional_g_test(x, y, z_numeric)
+                categorical = CategoricalConditionalIndependenceTest.pure_step(
+                    {"X": raw_x_obs, "Y": raw_y_obs, "Z": z_raw},
+                    {
+                        "alpha": alpha,
+                        "statistic_family": "g2",
+                        "dp_context": dp_context,
+                        "judge_threshold_registry_root": judge_threshold_registry_root,
+                        "readiness_target": readiness_target,
+                    },
+                )["result"]
                 raw = {
                     "test_name": "conditional_g_test",
-                    "statistic": table_stat,
-                    "p_value": p_value,
-                    "passed": p_value >= alpha,
-                    "critical_value": alpha,
+                    "statistic": float(categorical["statistic"]),
+                    "p_value": float(categorical["p_value"]),
+                    "passed": bool(categorical["passed"]),
+                    "critical_value": float(categorical["critical_value"]),
                     "metadata": {
-                        **meta,
+                        **dict(categorical.get("metadata", {})),
+                        **{
+                            key: categorical[key]
+                            for key in (
+                                "alpha",
+                                "critical_value",
+                                "critical_statistic_value",
+                                "calibration_mode",
+                                "dp_context_summary",
+                                "naive_fpr_inflation_bound",
+                            )
+                            if categorical.get(key) is not None
+                        },
                         "route": "conditional_g_test",
+                        "ci_test_impl": str(categorical["test_name"]),
                         "x_kind": x_kind,
                         "y_kind": y_kind,
                         "conditioning_kinds": z_kinds,
@@ -527,7 +1226,10 @@ def test_mgraph_implications(
                 route = "conditional_g_test"
             elif all_continuous:
                 state = {"X": x, "Y": y, "Z": z_numeric}
-                raw = PartialCorrelationTest.pure_step(state, {"alpha": alpha})["result"]
+                raw = PartialCorrelationTest.pure_step(
+                    state,
+                    {"alpha": alpha, "dp_context": dp_context},
+                )["result"]
                 raw = {
                     **raw,
                     "metadata": {
@@ -541,7 +1243,15 @@ def test_mgraph_implications(
                 }
                 route = "partial_correlation"
             else:
-                raw = _mixed_kernel_test(x=x, y=y, z=z_numeric, alpha=alpha)
+                raw = _mixed_kernel_test(
+                    x=x,
+                    y=y,
+                    z=z_numeric,
+                    alpha=alpha,
+                    dp_context=dp_context,
+                    judge_threshold_registry_root=judge_threshold_registry_root,
+                    readiness_target=readiness_target,
+                )
                 raw["metadata"] = {
                     **dict(raw.get("metadata", {})),
                     "x_kind": x_kind,
@@ -1056,6 +1766,9 @@ class MGraphImplicationTester:
             ParameterSpec(name="max_conditioning_set_size", default=2),
             ParameterSpec(name="implications", default=[]),
             ParameterSpec(name="variable_order", default=[]),
+            ParameterSpec(name="dp_context", default=None),
+            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="readiness_target", default="diagnostic"),
         ),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
@@ -1132,6 +1845,9 @@ class MGraphImplicationTester:
             alpha=float(params.get("alpha", 0.05)),
             max_conditioning_set_size=int(params.get("max_conditioning_set_size", 2)),
             variable_order=tuple(params.get("variable_order", ())) or None,
+            dp_context=params.get("dp_context"),
+            judge_threshold_registry_root=params.get("judge_threshold_registry_root"),
+            readiness_target=str(params.get("readiness_target", "diagnostic")),
         )
         return {"test_report": report.model_dump(mode="json")}
 
@@ -1140,8 +1856,10 @@ __all__ = [
     "ConditionalIndependence",
     "ImplicationTestResult",
     "TestReport",
+    "assess_administrative_missingness",
     "testable_implications",
     "test_mgraph_implications",
+    "AdministrativeMissingnessAssessment",
     "RecoverabilityTest",
     "OrderedRecovery",
     "FullLawIdentify",

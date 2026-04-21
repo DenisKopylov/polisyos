@@ -14,6 +14,7 @@ from typing import Any, Mapping, Protocol
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+from polisyos.foundry.methods.backends.validated import ValidatedBound
 
 
 class SolverStatus(str, Enum):
@@ -48,6 +49,7 @@ class ReproducibilityInfo:
     solver_gap: float | None = None
     solver_iterations: int | None = None
     fingerprint: str | None = None
+    observed_tolerance_budget: Mapping[str, Any] = field(default_factory=dict)
     note: str = ""
 
 
@@ -59,14 +61,19 @@ class MethodResult:
     `slot_outputs` is the optional dematerialized view aligned to
     `MethodSignature.output_slots`. `artifacts` carries backend-specific
     sidecar payloads that can later be persisted as provenance evidence.
+    `cross_backend_equivalence_ref` points at an external certificate artifact
+    that captures the runtime-specific backend-equivalence contract, while
+    `validated_bound` carries the complementary critical-numerics certificate.
     """
 
     output: Any
     timing: MethodTiming
     reproducibility: ReproducibilityInfo
+    cross_backend_equivalence_ref: str | None = None
     slot_outputs: Mapping[str, Any] = field(default_factory=dict)
     artifacts: Mapping[str, Any] = field(default_factory=dict)
     warnings: tuple[str, ...] = ()
+    validated_bound: ValidatedBound | None = None
 
 
 class MethodRunner(Protocol):

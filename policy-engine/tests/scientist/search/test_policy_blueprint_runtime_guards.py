@@ -20,7 +20,9 @@ from polisyos.ir.analytics.cross_graph import (
 from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
     StrategicSCM,
+    load_performative_shift_summary,
     load_strategic_payoff_table,
+    load_strategic_response_bundle,
     load_strategic_scm,
     persist_strategic_payoff_table,
 )
@@ -257,6 +259,7 @@ def test_runtime_spec_declares_strategic_phase_d_reads_and_writes() -> None:
     assert "params.strategic_scm" in _SPEC.state_reads
     assert "params.strategic_payoff_tables" in _SPEC.state_reads
     assert "params.macro_strategic_payoff_tables" in _SPEC.state_reads
+    assert "params.performative_loop_spec" in _SPEC.state_reads
     assert "params.strategic_response" in _SPEC.state_writes
 
 
@@ -281,6 +284,13 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
             "strategic_payoff_tables": {
                 agent: table.model_dump(mode="json") for agent, table in tables.items()
             },
+            "performative_loop_spec": {
+                "analysis_scope": "iterated_loop",
+                "proof_family": "rrm_parametric",
+                "beta": 2.0,
+                "gamma": 4.0,
+                "epsilon": 1.0,
+            },
         },
         artifacts_index={ARTIFACT_CAUSAL_REPORT_REF: causal_report_ref},
     )
@@ -303,6 +313,13 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
     assert output.strategic_response_summary["causal_component_ref"]["artifact_id"] == str(
         causal_report_ref.artifact_id
     )
+    assert output.strategic_response_summary["performative_loop"]["stability_status"] == (
+        "certified_convergent"
+    )
+    bundle = load_strategic_response_bundle(ctx.store, output.strategic_response_bundle_ref)
+    assert bundle.performative_shift_ref is not None
+    shift_summary = load_performative_shift_summary(ctx.store, bundle.performative_shift_ref)
+    assert shift_summary.analysis_scope.value == "iterated_loop"
 
 
 def test_runtime_strategic_helper_blocks_when_causal_report_is_missing(tmp_path) -> None:

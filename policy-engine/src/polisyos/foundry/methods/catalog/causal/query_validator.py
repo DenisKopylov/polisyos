@@ -18,9 +18,15 @@ from polisyos.ir.analytics.query_validation_report import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.ir.analytics.causal import ProofBundle
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
     from polisyos.ir.analytics.estimand import EstimandAST
     from polisyos.ir.analytics.knowledge_base import DataKnowledgeBase
+    from polisyos.ir.analytics.recourse_manifold import (
+        InterventionCostManifold,
+        OptimalRecourseInterventionQuery,
+        RecourseReadinessCap,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -64,6 +70,7 @@ class CausalQueryValidator:
         graph: "CausalGraphModel",
         estimand_ast: "EstimandAST",
         knowledge_base: "DataKnowledgeBase | None" = None,
+        proof_bundle: "ProofBundle | None" = None,
     ) -> QueryValidationReport:
         """Run all validation checks and return a structured report.
 
@@ -85,6 +92,7 @@ class CausalQueryValidator:
         self._check_outcome_in_graph(graph, estimand_ast, errors)
         self._check_treatment_not_equals_outcome(estimand_ast, errors)
         self._check_all_vars_in_graph(graph, estimand_ast, warnings)
+        self._check_operator_contracts(estimand_ast, proof_bundle, errors, warnings)
 
         # F2 + F3 — KB-gated checks
         if knowledge_base is not None:
@@ -99,6 +107,93 @@ class CausalQueryValidator:
             errors=tuple(errors),
             warnings=tuple(warnings),
             query_str=estimand_ast.query_str if hasattr(estimand_ast, "query_str") else "",
+            checked_at=datetime.now(tz=timezone.utc).isoformat(),
+        )
+
+    def validate_optimal_recourse_query(
+        self,
+        graph: "CausalGraphModel",
+        query: "OptimalRecourseInterventionQuery",
+        manifold: "InterventionCostManifold",
+        proof_bundle: "ProofBundle | None" = None,
+    ) -> QueryValidationReport:
+        """Validate the Stage 13.4 recourse query surface against graph/manifold contracts."""
+        errors: list[ValidationError] = []
+        warnings: list[ValidationWarning] = []
+
+        self._check_graph_acyclicity(graph, errors, warnings)
+        if query.target_outcome not in graph.nodes:
+            errors.append(
+                ValidationError(
+                    code="RECOURSE_OUTCOME_MISSING",
+                    message=(
+                        f"Recourse target outcome '{query.target_outcome}' is not in the graph nodes."
+                    ),
+                    context={"variable": query.target_outcome},
+                )
+            )
+
+        query_mutable = set(query.mutable_nodes)
+        query_immutable = set(query.immutable_nodes)
+        manifold_mutable = set(manifold.mutable_nodes)
+        manifold_immutable = set(manifold.immutable_nodes)
+
+        missing_query_nodes = sorted((query_mutable | query_immutable) - set(graph.nodes))
+        if missing_query_nodes:
+            errors.append(
+                ValidationError(
+                    code="RECOURSE_NODE_MISSING",
+                    message="Recourse mutable/immutable nodes must be present in the graph.",
+                    context={"missing_nodes": missing_query_nodes},
+                )
+            )
+        if query_mutable - manifold_mutable:
+            errors.append(
+                ValidationError(
+                    code="RECOURSE_MUTABLE_SCOPE_MISMATCH",
+                    message="Query mutable_nodes must be covered by the intervention cost manifold.",
+                    context={"missing_from_manifold": sorted(query_mutable - manifold_mutable)},
+                )
+            )
+        if query_immutable - manifold_immutable:
+            warnings.append(
+                ValidationWarning(
+                    code="RECOURSE_IMMUTABLE_SCOPE_MISMATCH",
+                    message="Query immutable_nodes are not fully declared on the intervention cost manifold.",
+                    context={"missing_from_manifold": sorted(query_immutable - manifold_immutable)},
+                )
+            )
+        if query.semantics is not manifold.semantics:
+            errors.append(
+                ValidationError(
+                    code="RECOURSE_SEMANTICS_MISMATCH",
+                    message="Recourse query semantics must match the intervention cost manifold.",
+                    context={
+                        "query_semantics": query.semantics.value,
+                        "manifold_semantics": manifold.semantics.value,
+                    },
+                )
+            )
+        if proof_bundle is not None and str(proof_bundle.readiness_cap) == "PROOF_ONLY":
+            warnings.append(
+                ValidationWarning(
+                    code="RECOURSE_PROOF_ONLY",
+                    message=(
+                        "The recourse proof surface is capped at PROOF_ONLY; treat the query as "
+                        "frontier/research-only even if the solver returns a candidate action."
+                    ),
+                    context={
+                        "kill_rule_decision": getattr(proof_bundle, "kill_rule_decision", None),
+                        "complexity_class": getattr(proof_bundle, "complexity_class", None),
+                    },
+                )
+            )
+
+        return QueryValidationReport(
+            is_valid=len(errors) == 0,
+            errors=tuple(errors),
+            warnings=tuple(warnings),
+            query_str=f"recourse:{query.target_outcome}",
             checked_at=datetime.now(tz=timezone.utc).isoformat(),
         )
 
@@ -421,6 +516,167 @@ class CausalQueryValidator:
                     )
                 )
 
+    def _check_operator_contracts(
+        self,
+        estimand_ast: "EstimandAST",
+        proof_bundle: "ProofBundle | None",
+        errors: list[ValidationError],
+        warnings: list[ValidationWarning],
+    ) -> None:
+        """Validate operator-valued estimand scaffolding before compilation."""
+        from polisyos.ir.analytics.estimand import OperatorApplyNode, OperatorTargetNode
+
+        operator_targets = _collect_operator_targets(estimand_ast.root)
+        operator_applies = _collect_operator_applies(estimand_ast.root)
+        if not operator_targets and not operator_applies:
+            return
+
+        allowed_scopes: dict[str, set[str]] = {
+            "conditional_mean_embedding_operator": {"backdoor", "frontdoor", "iv", "proximal"},
+            "counterfactual_probe_operator": {"backdoor", "frontdoor"},
+            "policy_derivative_operator": set(),
+        }
+
+        for node in operator_targets:
+            if node.probe_space_ref.kind == "rkhs" and not node.probe_space_ref.kernel_ref:
+                errors.append(
+                    ValidationError(
+                        code="OPERATOR_KERNEL_MISSING",
+                        message=(
+                            "Operator-valued targets with RKHS probe spaces require "
+                            "`probe_space_ref.kernel_ref`."
+                        ),
+                        context={"space_id": node.probe_space_ref.space_id},
+                    )
+                )
+            if node.codomain_space_ref.kind == "rkhs" and not node.codomain_space_ref.kernel_ref:
+                errors.append(
+                    ValidationError(
+                        code="OPERATOR_CODOMAIN_KERNEL_MISSING",
+                        message=(
+                            "Operator-valued targets with RKHS codomain spaces require "
+                            "`codomain_space_ref.kernel_ref`."
+                        ),
+                        context={"space_id": node.codomain_space_ref.space_id},
+                    )
+                )
+            if node.probe_space_ref.bounded_evaluation is False:
+                errors.append(
+                    ValidationError(
+                        code="OPERATOR_UNBOUNDED_PROBE_SPACE",
+                        message=(
+                            "Operator-valued targets require probe spaces with bounded "
+                            "evaluation for the current compiler scaffold."
+                        ),
+                        context={"space_id": node.probe_space_ref.space_id},
+                    )
+                )
+            if node.operator_regularization is None:
+                warnings.append(
+                    ValidationWarning(
+                        code="OPERATOR_REGULARIZATION_MISSING",
+                        message=(
+                            "Operator-valued target does not declare `operator_regularization`; "
+                            "rate guarantees will remain under-specified."
+                        ),
+                        context={"operator_semantics": node.operator_semantics},
+                    )
+                )
+            if (
+                node.operator_semantics == "conditional_mean_embedding_operator"
+                and node.probe_space_ref.characteristic is not True
+            ):
+                warnings.append(
+                    ValidationWarning(
+                        code="OPERATOR_CHARACTERISTIC_PROBE_RECOMMENDED",
+                        message=(
+                            "Conditional mean embedding operators are safest with a "
+                            "characteristic probe-space kernel."
+                        ),
+                        context={"space_id": node.probe_space_ref.space_id},
+                    )
+                )
+            if (
+                node.operator_semantics in {
+                    "conditional_mean_embedding_operator",
+                    "counterfactual_probe_operator",
+                }
+                and node.codomain_space_ref.universal is False
+            ):
+                warnings.append(
+                    ValidationWarning(
+                        code="OPERATOR_CODOMAIN_UNIVERSALITY_MISSING",
+                        message=(
+                            "The selected codomain space is not marked universal; "
+                            "approximation guarantees may degrade."
+                        ),
+                        context={"space_id": node.codomain_space_ref.space_id},
+                    )
+                )
+            if node.identification_scope not in allowed_scopes.get(node.operator_semantics, set()):
+                errors.append(
+                    ValidationError(
+                        code="OPERATOR_SCOPE_UNSUPPORTED",
+                        message=(
+                            f"operator_semantics='{node.operator_semantics}' is not currently "
+                            f"supported for identification_scope='{node.identification_scope}'."
+                        ),
+                        context={
+                            "operator_semantics": node.operator_semantics,
+                            "identification_scope": node.identification_scope,
+                        },
+                    )
+                )
+
+        if getattr(estimand_ast, "object_kind", "scalar") == "operator":
+            if proof_bundle is None:
+                warnings.append(
+                    ValidationWarning(
+                        code="OPERATOR_LIFT_REQUIRES_PROOF",
+                        message=(
+                            "Full operator targets require a ProofBundle with a uniform probe-class "
+                            "contract before B-layer compilation can claim a whole-space lift."
+                        ),
+                        context={"object_kind": estimand_ast.object_kind},
+                    )
+                )
+            elif not proof_bundle.operator_lift_allowed:
+                errors.append(
+                    ValidationError(
+                        code="OPERATOR_LIFT_UNCERTIFIED",
+                        message=(
+                            "The provided ProofBundle does not certify operator lift for the "
+                            "requested probe class. Compile an audit-basis `operator_apply` "
+                            "query instead."
+                        ),
+                        context={
+                            "operator_lift_scope": proof_bundle.operator_lift_scope,
+                            "failure_reason": proof_bundle.operator_lift_failure_reason,
+                        },
+                    )
+                )
+            elif not proof_bundle.uniform_probe_class_ref:
+                warnings.append(
+                    ValidationWarning(
+                        code="OPERATOR_PROBE_CLASS_MISSING",
+                        message=(
+                            "The ProofBundle allows operator lift but does not declare "
+                            "`uniform_probe_class_ref`; audit replay will be weaker."
+                        ),
+                        context={"operator_lift_scope": proof_bundle.operator_lift_scope},
+                    )
+                )
+
+        for node in operator_applies:
+            if not node.probe_ref.strip():
+                errors.append(
+                    ValidationError(
+                        code="OPERATOR_PROBE_REF_EMPTY",
+                        message="Operator applications require a non-empty `probe_ref`.",
+                        context={},
+                    )
+                )
+
 
 # ---------------------------------------------------------------------------
 # Private helpers
@@ -437,6 +693,145 @@ def _treatment_covered_in_kb(treatment: str, knowledge_base: "DataKnowledgeBase"
         if entry.domain is DistributionDomain.SOURCE and treatment in entry.variables:
             return True
     return False
+
+
+def _collect_operator_targets(node) -> list:
+    from polisyos.ir.analytics.estimand import (
+        ConditionalInterventionNode,
+        CounterfactualNode,
+        CtfInterventionNode,
+        CrossWorldNode,
+        DistributionLawNode,
+        DistributionRef,
+        EdgeInterventionNode,
+        ExpectationNode,
+        IntegralNode,
+        ModifiedTreatmentPolicyNode,
+        NestedCounterfactualNode,
+        NuisanceNode,
+        OperatorApplyNode,
+        OperatorTargetNode,
+        PathSpecificNode,
+        ProductNode,
+        ProxyAdjustmentNode,
+        RatioNode,
+        RecoveredDistNode,
+        StochasticInterventionNode,
+        SumNode,
+    )
+
+    if isinstance(node, OperatorTargetNode):
+        return [node]
+    if isinstance(node, OperatorApplyNode):
+        return _collect_operator_targets(node.operator)
+    if isinstance(node, SumNode):
+        return _collect_operator_targets(node.operand)
+    if isinstance(node, ProductNode):
+        collected: list = []
+        for factor in node.factors:
+            collected.extend(_collect_operator_targets(factor))
+        return collected
+    if isinstance(node, RatioNode):
+        return _collect_operator_targets(node.numerator) + _collect_operator_targets(node.denominator)
+    if isinstance(node, IntegralNode):
+        return _collect_operator_targets(node.operand)
+    if isinstance(node, EdgeInterventionNode):
+        return _collect_operator_targets(node.inner_node) if node.inner_node is not None else []
+    if isinstance(node, ModifiedTreatmentPolicyNode):
+        return _collect_operator_targets(node.inner_node) if node.inner_node is not None else []
+    if isinstance(node, (StochasticInterventionNode, ConditionalInterventionNode, ProxyAdjustmentNode)):
+        return _collect_operator_targets(node.inner_do_node)
+    if isinstance(node, NestedCounterfactualNode):
+        return _collect_operator_targets(node.inner_counterfactual)
+    if isinstance(node, CrossWorldNode):
+        collected = []
+        for world in node.worlds:
+            collected.extend(_collect_operator_targets(world))
+        return collected
+    if isinstance(node, CtfInterventionNode):
+        return _collect_operator_targets(node.ctf_context)
+    if isinstance(
+        node,
+        (
+            DistributionRef,
+            NuisanceNode,
+            ExpectationNode,
+            DistributionLawNode,
+            PathSpecificNode,
+            RecoveredDistNode,
+            CounterfactualNode,
+        ),
+    ):
+        return []
+    return []
+
+
+def _collect_operator_applies(node) -> list:
+    from polisyos.ir.analytics.estimand import (
+        ConditionalInterventionNode,
+        CounterfactualNode,
+        CtfInterventionNode,
+        CrossWorldNode,
+        DistributionLawNode,
+        DistributionRef,
+        EdgeInterventionNode,
+        ExpectationNode,
+        IntegralNode,
+        ModifiedTreatmentPolicyNode,
+        NestedCounterfactualNode,
+        NuisanceNode,
+        OperatorApplyNode,
+        PathSpecificNode,
+        ProductNode,
+        ProxyAdjustmentNode,
+        RatioNode,
+        RecoveredDistNode,
+        StochasticInterventionNode,
+        SumNode,
+    )
+
+    if isinstance(node, OperatorApplyNode):
+        return [node, *_collect_operator_applies(node.operator)]
+    if isinstance(node, SumNode):
+        return _collect_operator_applies(node.operand)
+    if isinstance(node, ProductNode):
+        collected: list = []
+        for factor in node.factors:
+            collected.extend(_collect_operator_applies(factor))
+        return collected
+    if isinstance(node, RatioNode):
+        return _collect_operator_applies(node.numerator) + _collect_operator_applies(node.denominator)
+    if isinstance(node, IntegralNode):
+        return _collect_operator_applies(node.operand)
+    if isinstance(node, EdgeInterventionNode):
+        return _collect_operator_applies(node.inner_node) if node.inner_node is not None else []
+    if isinstance(node, ModifiedTreatmentPolicyNode):
+        return _collect_operator_applies(node.inner_node) if node.inner_node is not None else []
+    if isinstance(node, (StochasticInterventionNode, ConditionalInterventionNode, ProxyAdjustmentNode)):
+        return _collect_operator_applies(node.inner_do_node)
+    if isinstance(node, NestedCounterfactualNode):
+        return _collect_operator_applies(node.inner_counterfactual)
+    if isinstance(node, CrossWorldNode):
+        collected = []
+        for world in node.worlds:
+            collected.extend(_collect_operator_applies(world))
+        return collected
+    if isinstance(node, CtfInterventionNode):
+        return _collect_operator_applies(node.ctf_context)
+    if isinstance(
+        node,
+        (
+            DistributionRef,
+            NuisanceNode,
+            ExpectationNode,
+            DistributionLawNode,
+            PathSpecificNode,
+            RecoveredDistNode,
+            CounterfactualNode,
+        ),
+    ):
+        return []
+    return []
 
 
 __all__ = ["CausalQueryValidator"]

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Sequence
 from enum import Enum
 from typing import Any, Literal
 
@@ -22,7 +23,7 @@ from polisyos.ir.refs import (
 _SCHEMA_NAME = "ir.cross_graph_evidence_profile"
 _SCHEMA_VERSION = "2.1"
 _SCM_FRAGMENT_SCHEMA_NAME = "ir.scm_fragment"
-_SCM_FRAGMENT_SCHEMA_VERSION = "1.1"
+_SCM_FRAGMENT_SCHEMA_VERSION = "1.2"
 _INTERFACE_MAPPING_SCHEMA_NAME = "ir.interface_mapping"
 _INTERFACE_MAPPING_SCHEMA_VERSION = "1.0"
 _COMPOSITION_CERTIFICATE_SCHEMA_NAME = "ir.composition_certificate"
@@ -65,11 +66,126 @@ class FragmentInterfaceSchema(BaseModel):
         return self
 
 
+AllowedAlignmentType = Literal["exact", "scale_linked", "proxy", "latent_bridge", "incompatible"]
+_DEFAULT_ACYCLIC_ALIGNMENT_TYPES: tuple[AllowedAlignmentType, ...] = (
+    "exact",
+    "scale_linked",
+    "proxy",
+    "latent_bridge",
+    "incompatible",
+)
+_DEFAULT_CYCLIC_ALIGNMENT_TYPES: tuple[AllowedAlignmentType, ...] = (
+    "exact",
+    "scale_linked",
+)
+
+
+class CycleType(str, Enum):
+    """Declared cycle semantics for one SCM fragment."""
+
+    ACYCLIC = "acyclic"
+    SIMPLE_CYCLIC = "simple_cyclic"
+    EQUILIBRIUM_CONTRACTIVE = "equilibrium_contractive"
+    EQUILIBRIUM_LINEAR_STABLE = "equilibrium_linear_stable"
+    DSCM_SEMANTICS = "dscm_semantics"
+    FINITE_P_SEPARATION = "finite_p_separation"
+    UNSUPPORTED = "unsupported"
+
+
+class CycleScope(str, Enum):
+    """Where cyclic structure appears relative to the fragment boundary."""
+
+    NONE = "none"
+    INTERNAL_SCC = "internal_scc"
+    CROSS_FRAGMENT_SCC = "cross_fragment_scc"
+
+
+class SolverKind(str, Enum):
+    """Witness family used to justify well-posedness for a cyclic SCC."""
+
+    CLOSED_FORM = "closed_form"
+    LINEAR_SOLVE = "linear_solve"
+    CONTRACTIVE_FIXED_POINT = "contractive_fixed_point"
+    ODE_EQUILIBRIUM = "ode_equilibrium"
+
+
+class UniquenessScope(str, Enum):
+    """Declared uniqueness scope for a cycle witness."""
+
+    SCC = "scc"
+    ALL_SCC = "all_scc"
+    EVERY_SUBSET = "every_subset"
+
+
+class InterventionalClosure(str, Enum):
+    """How much of the declared intervention family preserves the witness class."""
+
+    FULL = "full"
+    INTERFACE_ONLY = "interface_only"
+    OBSERVED_ONLY = "observed_only"
+    NONE = "none"
+
+
+class MarkovSemantics(str, Enum):
+    """Graphical Markov semantics associated with the cycle witness."""
+
+    D_SEPARATION = "d_separation"
+    SIGMA_SEPARATION = "sigma_separation"
+    P_SEPARATION = "p_separation"
+    NONE = "none"
+
+
+class GraphAuditGuarantee(str, Enum):
+    """Strength of the graphical audit claim carried by the fragment."""
+
+    NONE = "none"
+    SEMANTIC_ONLY = "semantic_only"
+    LATENT_PROJECTION_RESPECTED = "latent_projection_respected"
+
+
+class CompositionPolicy(str, Enum):
+    """Declared automation policy for fragment composition."""
+
+    ALLOW = "allow"
+    ALLOW_BOUNDS_ONLY = "allow_bounds_only"
+    REQUIRE_HUMAN_REVIEW = "require_human_review"
+    BLOCK = "block"
+
+
+class CycleWitness(BaseModel):
+    """Machine-auditable witness for one cyclic SCC."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    scc_id: str = Field(min_length=1)
+    solver_kind: SolverKind
+    uniqueness_scope: UniquenessScope
+    interventional_closure: InterventionalClosure
+    markov_semantics: MarkovSemantics
+    initial_condition_dependent: bool = False
+    existence_conditions: list[str] = Field(default_factory=list)
+    uniqueness_conditions: list[str] = Field(default_factory=list)
+    audit_refs: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_lists(self) -> "CycleWitness":
+        for field_name, values in (
+            ("existence_conditions", self.existence_conditions),
+            ("uniqueness_conditions", self.uniqueness_conditions),
+            ("audit_refs", self.audit_refs),
+        ):
+            if any(not value.strip() for value in values):
+                raise ValueError(f"{field_name} must not contain empty strings")
+            if len(set(values)) != len(values):
+                raise ValueError(f"{field_name} must be unique")
+        return self
+
+
 class SCMFragment(BaseModel):
     """SCM fragment public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.2", pattern=r"^\d+\.\d+$")
     fragment_id: str = Field(min_length=1)
     graph_ref: str = Field(min_length=1)
     semantic_namespace: str = Field(min_length=1)
@@ -81,6 +197,38 @@ class SCMFragment(BaseModel):
     variable_definitions: dict[str, str] = Field(default_factory=dict)
     variable_units: dict[str, str] = Field(default_factory=dict)
     variable_metadata: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    cycle_type: CycleType = CycleType.ACYCLIC
+    cycle_scope: CycleScope = CycleScope.NONE
+    cycle_witnesses: list[CycleWitness] = Field(default_factory=list)
+    allowed_alignment_types: list[AllowedAlignmentType] = Field(default_factory=list)
+    graph_audit_guarantee: GraphAuditGuarantee = GraphAuditGuarantee.NONE
+    composition_policy: CompositionPolicy = CompositionPolicy.ALLOW
+
+    @model_validator(mode="before")
+    @classmethod
+    def _backfill_cycle_contract_defaults(cls, payload: Any) -> Any:
+        if not isinstance(payload, dict):
+            return payload
+
+        normalized = dict(payload)
+        cycle_type = str(normalized.get("cycle_type", CycleType.ACYCLIC.value)).strip().lower()
+        if not cycle_type:
+            cycle_type = CycleType.ACYCLIC.value
+
+        if "allowed_alignment_types" not in normalized or not normalized["allowed_alignment_types"]:
+            normalized["allowed_alignment_types"] = list(
+                _DEFAULT_CYCLIC_ALIGNMENT_TYPES
+                if cycle_type != CycleType.ACYCLIC.value
+                else _DEFAULT_ACYCLIC_ALIGNMENT_TYPES
+            )
+
+        if "composition_policy" not in normalized or normalized["composition_policy"] in (None, ""):
+            normalized["composition_policy"] = (
+                CompositionPolicy.ALLOW.value
+                if cycle_type == CycleType.ACYCLIC.value
+                else CompositionPolicy.BLOCK.value
+            )
+        return normalized
 
     @model_validator(mode="after")
     def _validate_interfaces(self) -> "SCMFragment":
@@ -112,6 +260,72 @@ class SCMFragment(BaseModel):
             if unknown:
                 raise ValueError(
                     f"{field_name} keys must be a subset of interface_variables: {unknown}"
+                )
+
+        if len(set(self.allowed_alignment_types)) != len(self.allowed_alignment_types):
+            raise ValueError("allowed_alignment_types must be unique")
+        if not self.allowed_alignment_types:
+            raise ValueError("allowed_alignment_types must not be empty")
+
+        witness_ids = [witness.scc_id for witness in self.cycle_witnesses]
+        if len(set(witness_ids)) != len(witness_ids):
+            raise ValueError("cycle_witnesses must have unique scc_id values")
+
+        if self.cycle_type is CycleType.ACYCLIC:
+            if self.cycle_scope is not CycleScope.NONE:
+                raise ValueError("acyclic fragments must declare cycle_scope='none'")
+            if self.cycle_witnesses:
+                raise ValueError("acyclic fragments must not declare cycle_witnesses")
+        else:
+            if self.cycle_scope is CycleScope.NONE:
+                raise ValueError("cyclic fragments must declare a non-empty cycle_scope")
+            if not self.cycle_witnesses:
+                raise ValueError("cyclic fragments must declare at least one cycle witness")
+            if (
+                self.cycle_type
+                in {
+                    CycleType.DSCM_SEMANTICS,
+                    CycleType.FINITE_P_SEPARATION,
+                    CycleType.UNSUPPORTED,
+                }
+                and self.composition_policy is CompositionPolicy.ALLOW
+            ):
+                raise ValueError("research-only or unsupported cycle types cannot auto-compose")
+            if (
+                self.cycle_scope is CycleScope.CROSS_FRAGMENT_SCC
+                and self.composition_policy is CompositionPolicy.ALLOW
+            ):
+                raise ValueError("cross-fragment cycles cannot auto-compose")
+            if (
+                any(witness.initial_condition_dependent for witness in self.cycle_witnesses)
+                and self.composition_policy is CompositionPolicy.ALLOW
+            ):
+                raise ValueError("initial-condition-dependent cycles cannot auto-compose")
+            if (
+                self.composition_policy is CompositionPolicy.ALLOW
+                and any(
+                    witness.interventional_closure is InterventionalClosure.NONE
+                    for witness in self.cycle_witnesses
+                )
+            ):
+                raise ValueError("cyclic auto-composition requires interventional closure")
+            if (
+                self.composition_policy is CompositionPolicy.ALLOW
+                and any(
+                    witness.markov_semantics is not MarkovSemantics.SIGMA_SEPARATION
+                    for witness in self.cycle_witnesses
+                )
+            ):
+                raise ValueError("cyclic auto-composition requires sigma-separation witnesses")
+            if (
+                self.composition_policy is CompositionPolicy.ALLOW
+                and any(
+                    alignment_type not in _DEFAULT_CYCLIC_ALIGNMENT_TYPES
+                    for alignment_type in self.allowed_alignment_types
+                )
+            ):
+                raise ValueError(
+                    "cyclic auto-composition only supports exact or scale_linked interfaces"
                 )
         return self
 
@@ -232,8 +446,159 @@ class QueryPreservationCertificate(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+_COMPLETENESS_SCOPE_V1 = "exact_observed_dag_adjustment_v1"
+_COMPLETENESS_BASIS_V1: tuple[str, ...] = (
+    "structured_cospan_composition",
+    "dag_adjustment_complete",
+)
+_NON_COMPLETENESS_REASON_DEFAULT = "engine_checks_only_backdoor_adjustment"
+
+
+def completeness_scope_for_composition(
+    *,
+    graph_type_value: str,
+    alignment_types: Sequence[str],
+    binding_observed_flags: Sequence[bool] = (),
+    reviewers: Sequence[str],
+    review_status: Literal["clear", "pending_review"],
+    structure_status: Literal["valid", "invalid"],
+    cycle_semantics_mode: str | None = None,
+    directed_cycle_present: bool = False,
+) -> dict[str, Any]:
+    """Classify whether a certificate falls inside the in-scope completeness subclass.
+
+    Returns a dict with the keys
+    ``completeness_scope`` / ``completeness_basis`` / ``non_completeness_reason``
+    suitable for merging into ``CompositionCertificate.metadata``. The classifier
+    tracks the research scope described on :class:`CompositionCertificate`:
+    exact or human-verified interface alignments, DAG fragments, observed
+    bindings, and cleared review status. Any departure is marked out of scope
+    with a reason code that mirrors ``non_completeness_reason`` vocabulary.
+    """
+
+    reasons: list[str] = []
+    normalized_alignment_types = tuple(str(entry) for entry in alignment_types)
+    normalized_reviewers = tuple(str(entry) for entry in reviewers)
+    normalized_observed_flags = tuple(bool(flag) for flag in binding_observed_flags)
+
+    if structure_status != "valid":
+        reasons.append("structure_invalid")
+    if review_status != "clear":
+        reasons.append("pending_review")
+    if graph_type_value != "dag":
+        reasons.append("non_dag_composition")
+    if directed_cycle_present or (
+        cycle_semantics_mode is not None
+        and cycle_semantics_mode not in {"", "acyclic", "none"}
+    ):
+        reasons.append("cyclic_or_sigma_semantics")
+    if any(not observed for observed in normalized_observed_flags):
+        reasons.append("unobserved_interface_binding")
+
+    allowed_alignment = {"exact", "scale_linked"}
+    for alignment_type in normalized_alignment_types:
+        if alignment_type in allowed_alignment:
+            continue
+        if alignment_type == "proxy":
+            reasons.append("proxy_alignment")
+        elif alignment_type == "latent_bridge":
+            reasons.append("latent_bridge_alignment")
+        elif alignment_type == "incompatible":
+            reasons.append("incompatible_alignment")
+        else:
+            reasons.append(f"unsupported_alignment_type:{alignment_type}")
+
+    for reviewer in normalized_reviewers:
+        if reviewer == "pending_review":
+            reasons.append("pending_review_alignment")
+
+    deduped_reasons: list[str] = []
+    for reason in reasons:
+        if reason not in deduped_reasons:
+            deduped_reasons.append(reason)
+
+    if not deduped_reasons:
+        return {
+            "completeness_scope": _COMPLETENESS_SCOPE_V1,
+            "completeness_basis": list(_COMPLETENESS_BASIS_V1),
+            "non_completeness_reason": None,
+        }
+
+    return {
+        "completeness_scope": None,
+        "completeness_basis": list(_COMPLETENESS_BASIS_V1),
+        "non_completeness_reason": ";".join(deduped_reasons),
+    }
+
+
 class CompositionCertificate(BaseModel):
-    """Composition certificate public type."""
+    """Composition certificate public type.
+
+    Category-theoretic completeness scope
+    -------------------------------------
+    This certificate is complete only for the subclass
+    ``exact_observed_dag_adjustment_v1``:
+
+      * fragment graphs are DAGs (``graph_type == "dag"``);
+      * interface alignments are ``exact`` or human-verified ``exact``
+        (``scale_linked`` is also admissible);
+      * no ``proxy`` and no ``latent_bridge`` alignments;
+      * all interface bindings are observed;
+      * no alignment entry is ``pending_review``;
+      * no directed cycle (``cycle_semantics_mode`` is ``acyclic``);
+      * checked queries are single-world ``INTERVENTIONAL`` or
+        ``SOFT_INTERVENTION`` queries represented as
+        ``(treatment, outcome, conditioning_set)`` whose source identification
+        is via covariate adjustment.
+
+    Completeness claim
+    ~~~~~~~~~~~~~~~~~~
+    Within this scope, the certificate is complete for
+    *adjustment-identifiability preservation*: if ``status == "preserved"``
+    and the query fingerprint is in-scope, then the recorded conditioning set
+    remains a valid adjustment set for ``P(Y | do(X))`` in the composed DAG
+    — iff. Conversely, if the conditioning set is preserved as an adjustment
+    set after composition, the certificate must return ``preserved``.
+
+    Out of scope
+    ~~~~~~~~~~~~
+    Any of the following puts the certificate outside the completeness scope:
+
+      * front-door-identifiable or general ID-identifiable effects that are
+        not adjustment-identifiable;
+      * counterfactual, nested-counterfactual, or path-specific queries;
+      * proxy or latent-bridge alignments, pending-review alignments;
+      * ADMG, PAG, cyclic, or non-DAG compositions;
+      * global identifiability claims beyond adjustment preservation.
+
+    Rationale
+    ~~~~~~~~~
+    The current query-preservation engine checks only backdoor-adjustment
+    style obligations via descendant exclusion plus d-/m-separation on
+    mutilated relevant subgraphs. Adjustment completeness (Perković et al.)
+    is strictly weaker than full identifiability completeness
+    (Shpitser–Pearl ID with hedge counter-examples); therefore no certificate
+    limited to local ``backdoor_adjustment`` obligations can be complete for
+    all identifiable interventional queries.
+
+    Metadata keys
+    ~~~~~~~~~~~~~
+    The composition pipeline records the classification verdict under
+    :attr:`metadata`:
+
+      * ``completeness_scope`` — either ``"exact_observed_dag_adjustment_v1"``
+        when the case is in scope, or ``None`` when out of scope.
+      * ``completeness_basis`` — list of proof pillars the scope relies on;
+        currently ``["structured_cospan_composition", "dag_adjustment_complete"]``.
+      * ``non_completeness_reason`` — ``None`` inside the scope, otherwise a
+        ``;``-joined list of reason codes explaining which assumption
+        dropped (e.g. ``proxy_alignment``, ``latent_bridge_alignment``,
+        ``non_dag_composition``, ``pending_review``).
+
+    See :func:`completeness_scope_for_composition` for the classifier used by
+    the fragment-composition method.
+    """
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.2", pattern=r"^\d+\.\d+$")
@@ -639,9 +1004,14 @@ def load_cross_graph_evidence_profile(
 
 
 __all__ = [
+    "AllowedAlignmentType",
     "BridgeRelation",
     "CanonicalConcept",
+    "CompositionPolicy",
     "CompositionCertificate",
+    "CycleScope",
+    "CycleType",
+    "CycleWitness",
     "QueryPreservationCertificate",
     "ConceptBridge",
     "ConceptKind",
@@ -657,16 +1027,22 @@ __all__ = [
     "EvidenceNeedType",
     "EvidenceStatus",
     "FragmentInterfaceSchema",
+    "GraphAuditGuarantee",
     "InterfaceRole",
     "InterfaceMapping",
     "InterfaceMappingEntry",
     "InterfaceVariableBinding",
     "InterfaceVariableSchema",
+    "InterventionalClosure",
     "LegalStatus",
+    "MarkovSemantics",
     "ObservabilityStatus",
     "SCMFragment",
+    "SolverKind",
     "TransportStatus",
+    "UniquenessScope",
     "build_evidence_need_id",
+    "completeness_scope_for_composition",
     "load_composition_certificate",
     "load_interface_mapping",
     "load_scm_fragment",

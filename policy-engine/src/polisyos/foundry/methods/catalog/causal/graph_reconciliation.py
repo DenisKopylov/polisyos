@@ -10,6 +10,7 @@ from typing import Any, ClassVar
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.catalog.causal.admg_ops import tarjan_scc
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -44,6 +45,12 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
 )
 from polisyos.ir.analytics.cross_graph import CompositionCertificate
+from polisyos.ir.analytics.cross_graph import (
+    CompositionPolicy,
+    CycleScope,
+    CycleType,
+    completeness_scope_for_composition,
+)
 from polisyos.ir.analytics.literature import (
     LiteratureCausalPrior,
     LiteratureEdgePrior,
@@ -65,6 +72,12 @@ TRIANGLE_BUDGET_MS = 250
 
 RIDGE_EPSILON = 1.0e-6
 
+_SUPPORTED_CYCLE_TYPES = {
+    CycleType.SIMPLE_CYCLIC,
+    CycleType.EQUILIBRIUM_CONTRACTIVE,
+    CycleType.EQUILIBRIUM_LINEAR_STABLE,
+}
+
 
 @dataclass
 class _MergedEdge:
@@ -81,6 +94,198 @@ class _MergedEdge:
     evidence_refs: set[str] = field(default_factory=set)
     metadata: dict[str, Any] = field(default_factory=dict)
     combined_confidence: float = 0.0
+
+
+def _cycle_contract_summary(fragment: Any) -> dict[str, Any]:
+    witness_summary = [
+        {
+            "scc_id": witness.scc_id,
+            "solver_kind": witness.solver_kind.value,
+            "uniqueness_scope": witness.uniqueness_scope.value,
+            "interventional_closure": witness.interventional_closure.value,
+            "markov_semantics": witness.markov_semantics.value,
+            "initial_condition_dependent": witness.initial_condition_dependent,
+        }
+        for witness in fragment.cycle_witnesses
+    ]
+    return {
+        "fragment_id": fragment.fragment_id,
+        "cycle_type": fragment.cycle_type.value,
+        "cycle_scope": fragment.cycle_scope.value,
+        "composition_policy": fragment.composition_policy.value,
+        "graph_audit_guarantee": fragment.graph_audit_guarantee.value,
+        "allowed_alignment_types": list(fragment.allowed_alignment_types),
+        "witnesses": witness_summary,
+    }
+
+
+def _fragment_supports_cycle_aware_composition(fragment: Any) -> bool:
+    if fragment.cycle_type not in _SUPPORTED_CYCLE_TYPES:
+        return False
+    if fragment.cycle_scope is not CycleScope.INTERNAL_SCC:
+        return False
+    if fragment.composition_policy is not CompositionPolicy.ALLOW:
+        return False
+    if not fragment.cycle_witnesses:
+        return False
+    return all(
+        witness.markov_semantics.value == "sigma_separation"
+        and witness.interventional_closure.value != "none"
+        and not witness.initial_condition_dependent
+        for witness in fragment.cycle_witnesses
+    )
+
+
+def _fragments_declare_cycles(fragments: list[Any]) -> bool:
+    return any(fragment.cycle_type is not CycleType.ACYCLIC for fragment in fragments)
+
+
+def _cycle_semantics_mode(fragments: list[Any]) -> str:
+    cyclic_fragments = [fragment for fragment in fragments if fragment.cycle_type is not CycleType.ACYCLIC]
+    if not cyclic_fragments:
+        return "none"
+    if all(
+        witness.markov_semantics.value == "sigma_separation"
+        for fragment in cyclic_fragments
+        for witness in fragment.cycle_witnesses
+    ):
+        return "sigma_separation"
+    return "none"
+
+
+def _effective_composition_graph_type(
+    graphs: dict[str, CausalGraphModel],
+    fragments: list[Any],
+) -> GraphType:
+    if any(graph.graph_type is GraphType.ADMG for graph in graphs.values()):
+        return GraphType.ADMG
+    if _fragments_declare_cycles(fragments):
+        return GraphType.ADMG
+    return GraphType.DAG
+
+
+def _edge_fragment_ids(edge: CausalEdge) -> set[str]:
+    raw = edge.metadata.get("contributing_fragment_ids", [])
+    if not isinstance(raw, list):
+        return set()
+    return {str(item) for item in raw if str(item).strip()}
+
+
+def _directed_sccs(nodes: set[str], edges: list[CausalEdge]) -> list[frozenset[str]]:
+    directed_edges = [
+        edge
+        for edge in edges
+        if edge.mark_src is EdgeMark.TAIL
+        and edge.mark_dst is EdgeMark.ARROW
+        and edge.lag in (None, 0)
+    ]
+    if not directed_edges:
+        return []
+    graph = CausalGraphModel.model_construct(
+        schema_version="1.0",
+        graph_type=GraphType.ADMG,
+        nodes=sorted(nodes),
+        edges=directed_edges,
+        discovery_method="fragment_composition_cycle_check",
+        metadata={},
+    )
+    return [component for component in tarjan_scc(graph) if len(component) > 1]
+
+
+def _cross_fragment_cycle_components(
+    nodes: set[str],
+    edges: list[CausalEdge],
+) -> list[dict[str, list[str]]]:
+    components: list[dict[str, list[str]]] = []
+    for component in _directed_sccs(nodes, edges):
+        contributing_fragments: set[str] = set()
+        for edge in edges:
+            if edge.src in component and edge.dst in component:
+                contributing_fragments.update(_edge_fragment_ids(edge))
+        if len(contributing_fragments) <= 1:
+            continue
+        components.append(
+            {
+                "nodes": sorted(component),
+                "fragment_ids": sorted(contributing_fragments),
+            }
+        )
+    return components
+
+
+def _evaluate_fragment_cycle_contracts(
+    payload: FragmentCompositionData,
+) -> tuple[list[str], bool, list[str], list[dict[str, Any]]]:
+    """Evaluate declared cycle contracts before strict graph composition."""
+
+    binding_alignment_types: dict[str, set[str]] = defaultdict(set)
+    for entry in payload.interface_mapping.entries:
+        for binding in entry.bindings:
+            binding_alignment_types[binding.fragment_id].add(entry.alignment_type)
+
+    blocking_reasons: list[str] = []
+    needs_expert_review = False
+    structural_assumptions: list[str] = []
+    cycle_contracts: list[dict[str, Any]] = []
+    research_only_types = {
+        CycleType.DSCM_SEMANTICS,
+        CycleType.FINITE_P_SEPARATION,
+        CycleType.UNSUPPORTED,
+    }
+
+    for fragment in sorted(payload.fragments, key=lambda item: item.fragment_id):
+        cycle_contracts.append(_cycle_contract_summary(fragment))
+
+        used_alignment_types = binding_alignment_types.get(fragment.fragment_id, set())
+        disallowed_alignment_types = sorted(
+            alignment_type
+            for alignment_type in used_alignment_types
+            if alignment_type not in set(fragment.allowed_alignment_types)
+        )
+        if disallowed_alignment_types:
+            blocking_reasons.append(
+                "Fragment "
+                f"{fragment.fragment_id} forbids alignment types under its declared cycle contract: "
+                + ", ".join(disallowed_alignment_types)
+                + "."
+            )
+
+        if fragment.cycle_type is CycleType.ACYCLIC:
+            continue
+
+        structural_assumptions.append(
+            f"cycle_contract::{fragment.fragment_id}::{fragment.cycle_type.value}"
+        )
+
+        if fragment.composition_policy is CompositionPolicy.BLOCK:
+            blocking_reasons.append(
+                f"Fragment {fragment.fragment_id} declares composition_policy=block for cyclic semantics."
+            )
+        elif fragment.composition_policy is CompositionPolicy.ALLOW_BOUNDS_ONLY:
+            blocking_reasons.append(
+                "Fragment "
+                f"{fragment.fragment_id} only permits bounds-only cyclic composition, which the strict composer "
+                "does not implement."
+            )
+        elif fragment.composition_policy is CompositionPolicy.REQUIRE_HUMAN_REVIEW:
+            needs_expert_review = True
+
+        if fragment.cycle_scope is CycleScope.CROSS_FRAGMENT_SCC:
+            blocking_reasons.append(
+                f"Fragment {fragment.fragment_id} declares cross-fragment cyclic scope, which strict composition does not support."
+            )
+
+        if fragment.cycle_type in research_only_types:
+            blocking_reasons.append(
+                f"Fragment {fragment.fragment_id} declares research-only cycle semantics {fragment.cycle_type.value}."
+            )
+
+        if any(witness.initial_condition_dependent for witness in fragment.cycle_witnesses):
+            blocking_reasons.append(
+                f"Fragment {fragment.fragment_id} has initial-condition-dependent cycle witnesses."
+            )
+
+    return blocking_reasons, needs_expert_review, structural_assumptions, cycle_contracts
 
 
 def _clamp_probability(value: float | None) -> float:
@@ -810,6 +1015,11 @@ def _merge_composed_edge(existing: CausalEdge | None, incoming: CausalEdge) -> C
         combined = incoming.compute_combined_confidence() if incoming.sources else incoming.combined_confidence
         return incoming.model_copy(update={"combined_confidence": combined})
 
+    metadata = {**existing.metadata, **incoming.metadata}
+    contributing_fragment_ids = sorted(_edge_fragment_ids(existing) | _edge_fragment_ids(incoming))
+    if contributing_fragment_ids:
+        metadata["contributing_fragment_ids"] = contributing_fragment_ids
+
     merged = CausalEdge(
         src=existing.src,
         dst=existing.dst,
@@ -854,7 +1064,7 @@ def _merge_composed_edge(existing: CausalEdge | None, incoming: CausalEdge) -> C
         else None,
         unsupported_by_evidence=existing.unsupported_by_evidence and incoming.unsupported_by_evidence,
         evidence_refs=sorted(set(existing.evidence_refs) | set(incoming.evidence_refs)),
-        metadata={**existing.metadata, **incoming.metadata},
+        metadata=metadata,
     )
     combined_confidence = (
         merged.compute_combined_confidence()
@@ -908,14 +1118,20 @@ def _allowed_graph_types(graphs: dict[str, CausalGraphModel]) -> GraphType:
     return GraphType.ADMG if any(graph.graph_type is GraphType.ADMG for graph in graphs.values()) else GraphType.DAG
 
 
-def _structural_assumptions_for_composition(graph_type: GraphType) -> list[str]:
+def _structural_assumptions_for_composition(
+    graph_type: GraphType,
+    *,
+    allow_cycle_aware_sigma: bool = False,
+) -> list[str]:
     assumptions = [
         "observed_interface_stitching_only",
         "namespace_non_interface_nodes_by_fragment",
         "stable_fragment_id_fold_order",
     ]
     if graph_type is GraphType.ADMG:
-        assumptions.append("admg_directed_component_acyclic")
+        assumptions.append(
+            "cycle_aware_sigma_view" if allow_cycle_aware_sigma else "admg_directed_component_acyclic"
+        )
     return assumptions
 
 
@@ -973,11 +1189,11 @@ class ComposeSCMFragments:
     )
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
-        description="Strictly compose verified SCM fragments into a single DAG/ADMG.",
+        description="Strictly compose verified SCM fragments into a single DAG/ADMG, including declared internal cyclic SCCs.",
         tags=frozenset({"causal", "composition", "scm"}),
         assumptions={
             "alignment": "Only verified interface mappings are used to stitch fragments.",
-            "structure": "Composition rejects directed cycles and invalid ADMG/DAG structures.",
+            "structure": "Composition rejects unsupported cross-fragment cycles and only accepts declared internal cyclic SCCs with auditable witnesses.",
             "repair": "No lagging, removal, or latent synthesis fallback is attempted.",
         },
         when_to_use="Compose SCM fragments after semantic alignment has already been verified.",
@@ -986,7 +1202,7 @@ class ComposeSCMFragments:
             "Bareinboim, E. & Pearl, J. (2016). Causal inference and the data-fusion problem. PNAS, 113(27), 7345-7352.",
         ),
         when_not_to_use="Use legacy prior reconciliation for data/literature/LLM edge fusion or any graph repair workflow.",
-        output_interpretation="Returns composed_graph when structure is preserved and a CompositionCertificate describing preserved, deferred, or broken status.",
+        output_interpretation="Returns composed_graph when structure is preserved and a CompositionCertificate describing preserved, deferred, or broken status, including cycle-contract metadata for feedback loops.",
     )
 
     @staticmethod
@@ -999,8 +1215,13 @@ class ComposeSCMFragments:
             if isinstance(state, FragmentCompositionData)
             else FragmentCompositionData.model_validate(state)
         )
-        graph_type = _allowed_graph_types(payload.fragment_graphs)
-        structural_assumptions = _structural_assumptions_for_composition(graph_type)
+        declared_cycle_semantics = _fragments_declare_cycles(payload.fragments)
+        cycle_semantics_mode = _cycle_semantics_mode(payload.fragments)
+        graph_type = _effective_composition_graph_type(payload.fragment_graphs, payload.fragments)
+        structural_assumptions = _structural_assumptions_for_composition(
+            graph_type,
+            allow_cycle_aware_sigma=declared_cycle_semantics and cycle_semantics_mode == "sigma_separation",
+        )
         warnings = list(payload.alignment_report.ontology_mismatch_warnings)
         blocking_reasons: list[str] = []
         needs_expert_review = False
@@ -1076,6 +1297,16 @@ class ComposeSCMFragments:
                     needs_expert_review = True
                     blocking_reasons.append(f"unobserved interface variable: {_var_name}")
 
+        (
+            cycle_blocking_reasons,
+            cycle_review_required,
+            cycle_assumptions,
+            cycle_contracts,
+        ) = _evaluate_fragment_cycle_contracts(payload)
+        blocking_reasons.extend(cycle_blocking_reasons)
+        needs_expert_review = needs_expert_review or cycle_review_required
+        structural_assumptions = _dedupe_preserve([*structural_assumptions, *cycle_assumptions])
+
         structure_status = "valid"
         composed_graph: CausalGraphModel | None = None
         # Always attempt structural composition; only graph-level structural violations (cycles,
@@ -1095,10 +1326,21 @@ class ComposeSCMFragments:
                 node_set.add(node_map[node])
 
             for edge in graph.edges:
+                edge_metadata = dict(edge.metadata)
+                contributing_fragment_ids = {
+                    fragment.fragment_id,
+                    *(
+                        str(item)
+                        for item in edge_metadata.get("contributing_fragment_ids", [])
+                        if str(item).strip()
+                    ),
+                }
+                edge_metadata["contributing_fragment_ids"] = sorted(contributing_fragment_ids)
                 remapped = edge.model_copy(
                     update={
                         "src": node_map[edge.src],
                         "dst": node_map[edge.dst],
+                        "metadata": edge_metadata,
                     }
                 )
                 if remapped.src == remapped.dst:
@@ -1123,8 +1365,31 @@ class ComposeSCMFragments:
             for edge in merged_edge_list
         ):
             structural_violations.append("ADMG composition produced unsupported edge endpoint marks.")
-        if _directed_cycle_present(merged_edge_list):
+        directed_cycle_present = _directed_cycle_present(merged_edge_list)
+        cross_fragment_cycle_components = (
+            _cross_fragment_cycle_components(node_set, merged_edge_list)
+            if directed_cycle_present
+            else []
+        )
+        if cross_fragment_cycle_components:
+            summary = ", ".join(
+                f"{'/'.join(item['fragment_ids'])} via {','.join(item['nodes'])}"
+                for item in cross_fragment_cycle_components
+            )
+            structural_violations.append(
+                "Fragment composition introduces a cross-fragment directed cycle SCC: "
+                f"{summary}."
+            )
+        elif directed_cycle_present and not declared_cycle_semantics:
             structural_violations.append("Fragment composition introduces a directed cycle.")
+        elif directed_cycle_present and cycle_semantics_mode != "sigma_separation":
+            structural_violations.append(
+                "Fragment composition introduces a directed cycle without a sigma-separation-capable cycle contract."
+            )
+        elif directed_cycle_present:
+            structural_assumptions = _dedupe_preserve(
+                [*structural_assumptions, "internal_scc_condensation_acyclic"]
+            )
 
         blocking_reasons.extend(structural_violations)
 
@@ -1139,6 +1404,15 @@ class ComposeSCMFragments:
                     "interface_mapping_entry_ids": [
                         entry.interface_id for entry in payload.interface_mapping.entries
                     ],
+                    "cycle_contracts": cycle_contracts,
+                    "cycle_semantics_mode": cycle_semantics_mode,
+                    "directed_cycle_present": directed_cycle_present,
+                    "cross_fragment_cycle_components": cross_fragment_cycle_components,
+                    "supported_cycle_fragment_ids": sorted(
+                        fragment.fragment_id
+                        for fragment in payload.fragments
+                        if _fragment_supports_cycle_aware_composition(fragment)
+                    ),
                 },
             )
 
@@ -1159,6 +1433,17 @@ class ComposeSCMFragments:
             else "deferred"
             if review_status == "pending_review"
             else "preserved"
+        )
+
+        completeness_fields = completeness_scope_for_composition(
+            graph_type_value=graph_type.value,
+            alignment_types=[entry.alignment_type for entry in payload.interface_mapping.entries],
+            binding_observed_flags=[entry.observed for entry in payload.interface_mapping.entries],
+            reviewers=[entry.reviewer for entry in payload.interface_mapping.entries],
+            review_status=review_status,
+            structure_status=structure_status,
+            cycle_semantics_mode=cycle_semantics_mode,
+            directed_cycle_present=directed_cycle_present,
         )
 
         certificate = CompositionCertificate(
@@ -1189,6 +1474,16 @@ class ComposeSCMFragments:
                 "selected_stitch_pairs": [list(pair) for pair in selected_stitch_pairs],
                 "boundary_interface_variables": boundary_interface_variables,
                 "disconnected_fragment_ids": disconnected_fragment_ids,
+                "cycle_contracts": cycle_contracts,
+                "cycle_semantics_mode": cycle_semantics_mode,
+                "directed_cycle_present": directed_cycle_present,
+                "cross_fragment_cycle_components": cross_fragment_cycle_components,
+                "supported_cycle_fragment_ids": sorted(
+                    fragment.fragment_id
+                    for fragment in payload.fragments
+                    if _fragment_supports_cycle_aware_composition(fragment)
+                ),
+                **completeness_fields,
             },
         )
         failure_cards = build_composition_failure_cards(

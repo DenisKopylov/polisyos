@@ -8,11 +8,15 @@ from polisyos.ir.analytics.estimand import (
     DistributionLawQuery,
     DistributionRef,
     EstimandAST,
+    EventPredicate,
     ExpectationNode,
     IntegralNode,
     make_distribution_law_estimand,
     NuisanceNode,
+    OperatorApplyNode,
+    OperatorTargetNode,
     ProductNode,
+    SpaceRef,
     SumNode,
 )
 
@@ -224,6 +228,38 @@ class TestExpectationNode:
 
 
 class TestDistributionLawNode:
+    def test_distribution_ref_can_encode_cdf_event_query(self):
+        event = EventPredicate(variable="income", relation="le", value_ref=100.0)
+        node = DistributionRef(
+            domain=DistributionDomain.SOURCE,
+            variables=("income",),
+            intervention_set=("tax_policy",),
+            event=event,
+        )
+        ast = EstimandAST(
+            query_str="P(income <= 100 | do(tax_policy))",
+            root=node,
+            treatment="tax_policy",
+            outcome="income",
+            all_variables=("income", "tax_policy"),
+        )
+
+        assert "income \\le 100.0" in node.to_latex()
+        assert ast.collect_distribution_refs()[0].event == event
+        assert ast.normalize().root.event == event  # type: ignore[union-attr]
+
+    def test_distribution_ref_rejects_event_for_unknown_variable(self):
+        with pytest.raises(ValidationError, match="event variable"):
+            DistributionRef(
+                domain=DistributionDomain.SOURCE,
+                variables=("income",),
+                event=EventPredicate(variable="wealth", relation="le", value_ref=100.0),
+            )
+
+    def test_event_predicate_rejects_pointwise_relation_with_tuple_value(self):
+        with pytest.raises(ValidationError, match="scalar"):
+            EventPredicate(variable="income", relation="le", value_ref=(10.0, 20.0))
+
     def test_distribution_query_defaults_to_halfline_cdf(self):
         query = DistributionLawQuery(
             outcome_variables=("income",),
@@ -439,3 +475,100 @@ class TestMixedTrees:
         )
         assert "obs_ds" in ast.required_datasets()
         assert ast.collect_distribution_refs() == []
+
+
+class TestOperatorNodes:
+    def _probe_space(self) -> SpaceRef:
+        return SpaceRef(
+            space_id=" outcome-rkhs ",
+            kind="rkhs",
+            kernel_ref=" gaussian_rbf ",
+            characteristic=True,
+            bounded_evaluation=True,
+        )
+
+    def _codomain_space(self) -> SpaceRef:
+        return SpaceRef(
+            space_id="modifier-rkhs",
+            kind="rkhs",
+            kernel_ref="linear_kernel",
+            universal=True,
+            bounded_evaluation=True,
+        )
+
+    def test_space_ref_normalizes_identifiers(self):
+        space = self._probe_space()
+        assert space.space_id == "outcome-rkhs"
+        assert space.kernel_ref == "gaussian_rbf"
+
+    def test_operator_target_root_infers_operator_object_kind(self):
+        node = OperatorTargetNode(
+            treatment="T",
+            outcome="Y",
+            reference_treatment="T0",
+            effect_modifier=("region", "age_band"),
+            probe_space_ref=self._probe_space(),
+            codomain_space_ref=self._codomain_space(),
+            operator_semantics="conditional_mean_embedding_operator",
+            identification_scope="backdoor",
+            operator_regularization="ridge",
+        )
+        ast = EstimandAST(
+            query_str="T_{1,0}",
+            root=node,
+            treatment="T",
+            outcome="Y",
+            all_variables=("T", "Y", "region", "age_band", "T0"),
+        )
+        normalized = ast.normalize()
+
+        assert ast.object_kind == "operator"
+        assert normalized.object_kind == "operator"
+        assert normalized.all_variables == ("T", "T0", "Y", "age_band", "region")
+        assert normalized.root.effect_modifier == ("age_band", "region")  # type: ignore[union-attr]
+
+    def test_operator_apply_root_infers_function_object_kind(self):
+        operator = OperatorTargetNode(
+            treatment="T",
+            outcome="Y",
+            effect_modifier=("region",),
+            probe_space_ref=self._probe_space(),
+            codomain_space_ref=self._codomain_space(),
+            operator_semantics="conditional_mean_embedding_operator",
+            identification_scope="backdoor",
+            operator_regularization="ridge",
+        )
+        node = OperatorApplyNode(
+            operator=operator,
+            probe_ref=" smooth_threshold_probe ",
+            evaluation_points_ref=" audit_grid ",
+        )
+        ast = EstimandAST(
+            query_str="T[g]",
+            root=node,
+            treatment="T",
+            outcome="Y",
+            all_variables=("T", "Y", "region"),
+        )
+
+        assert ast.object_kind == "function"
+        assert ast.root.probe_ref == "smooth_threshold_probe"  # type: ignore[union-attr]
+        assert ast.root.evaluation_points_ref == "audit_grid"  # type: ignore[union-attr]
+
+    def test_operator_target_round_trip_json(self):
+        node = OperatorTargetNode(
+            treatment="policy",
+            outcome="trajectory",
+            effect_modifier=("region",),
+            probe_space_ref=self._probe_space(),
+            codomain_space_ref=self._codomain_space(),
+            operator_semantics="counterfactual_probe_operator",
+            identification_scope="frontdoor",
+            base_estimand_ref=" est:123 ",
+            operator_regularization=" tikhonov ",
+        )
+        restored = OperatorTargetNode.model_validate(node.model_dump(mode="json"))
+
+        assert restored.base_estimand_ref == "est:123"
+        assert restored.operator_regularization == "tikhonov"
+        assert "\\mathcal{T}" in restored.to_latex()

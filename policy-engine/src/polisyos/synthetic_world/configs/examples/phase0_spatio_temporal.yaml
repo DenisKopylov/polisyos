@@ -1,0 +1,22 @@
+world_id: sw.phase0.spatio_temporal.seed.v1
+family: spatio_temporal
+seed: 20260423
+n_regions: 10
+n_periods: 8
+truth:
+  posterior_mode: reference_posterior
+intervention:
+  style: spatial
+  treatment_start_period: 4
+sampling:
+  kind: bernoulli
+  inclusion_rate: 0.95
+missingness:
+  mechanism: mcar
+  rate: 0.03
+  targets:
+    - outcome
+measurement:
+  kind: none
+metadata:
+  phase: phase0

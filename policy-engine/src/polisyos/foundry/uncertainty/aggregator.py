@@ -7,11 +7,15 @@ from statistics import NormalDist
 from typing import Sequence
 
 from polisyos.ir.analytics.uncertainty import (
+    CertificateKind,
+    ComposedFlavour,
     DistributionFamily,
+    ExactnessKind,
     IntervalSemantics,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    build_composition_provenance,
 )
 
 from .covariance import extract_std
@@ -22,6 +26,32 @@ class AggregationStrategy(str, Enum):
     WIDEST = "widest"
     PRECISION_WEIGHTED = "precision_weighted"
     BAYESIAN_COMBINATION = "bayesian_combination"
+
+
+def _summary_output_flavour(
+    envelopes: Sequence[UncertaintyEnvelope],
+) -> ComposedFlavour:
+    flavours = {
+        (
+            env.composition_provenance.composed_flavour
+            if env.composition_provenance is not None
+            else (
+                ComposedFlavour.QUASI_MONTE_CARLO
+                if str(env.metadata.get("mc_sampling_method", "")).lower() in {"sobol", "halton"}
+                else (
+                    ComposedFlavour.MONTE_CARLO
+                    if env.propagation_method is PropagationMethod.MONTE_CARLO
+                    else (
+                        ComposedFlavour.DELTA
+                        if env.propagation_method is PropagationMethod.DELTA_METHOD
+                        else ComposedFlavour.ANALYTICAL
+                    )
+                )
+            )
+        )
+        for env in envelopes
+    }
+    return next(iter(flavours)) if len(flavours) == 1 else ComposedFlavour.MIXED
 
 
 def aggregate_envelopes(
@@ -91,6 +121,22 @@ def _widest(
         sample_size=len(envelopes),
         is_heuristic_ci=any_heuristic,
         gate_eligible=gate_eligible,
+        composition_provenance=build_composition_provenance(
+            input_envelopes=tuple(envelopes),
+            op="compress",
+            stage_name="foundry.aggregate.widest",
+            output_flavour=_summary_output_flavour(envelopes),
+            exactness=ExactnessKind.OUTER_BOUND,
+            certificate_kind=CertificateKind.WASSERSTEIN_1,
+            certificate_radius=None,
+            confidence_level=level,
+            scope=(
+                ("expectation", "bounds")
+                if level is None
+                else ("expectation", "interval", "quantile")
+            ),
+            notes={"aggregation_method": "widest"},
+        ),
         metadata={
             "aggregation_method": "widest",
             "n_sources": len(envelopes),
@@ -136,6 +182,18 @@ def _precision_weighted(
         sample_size=len(envelopes),
         is_heuristic_ci=False,
         gate_eligible=all(env.gate_eligible for env in envelopes),
+        composition_provenance=build_composition_provenance(
+            input_envelopes=tuple(envelopes),
+            op="compress",
+            stage_name="foundry.aggregate.precision_weighted",
+            output_flavour=_summary_output_flavour(envelopes),
+            exactness=ExactnessKind.APPROXIMATION,
+            certificate_kind=CertificateKind.WASSERSTEIN_1,
+            certificate_radius=float(combined_std),
+            confidence_level=confidence_level,
+            scope=("expectation", "interval", "quantile"),
+            notes={"aggregation_method": "precision_weighted"},
+        ),
         metadata={
             "aggregation_method": "precision_weighted",
             "n_sources": len(envelopes),
@@ -183,6 +241,18 @@ def _bayesian_combination(
         sample_size=len(envelopes),
         is_heuristic_ci=False,
         gate_eligible=all(env.gate_eligible for env in envelopes),
+        composition_provenance=build_composition_provenance(
+            input_envelopes=tuple(envelopes),
+            op="compress",
+            stage_name="foundry.aggregate.bayesian_combination",
+            output_flavour=_summary_output_flavour(envelopes),
+            exactness=ExactnessKind.APPROXIMATION,
+            certificate_kind=CertificateKind.WASSERSTEIN_1,
+            certificate_radius=float(combined_std),
+            confidence_level=confidence_level,
+            scope=("expectation", "interval", "quantile"),
+            notes={"aggregation_method": "bayesian_combination"},
+        ),
         metadata={
             "aggregation_method": "bayesian_combination",
             "n_sources": len(envelopes),

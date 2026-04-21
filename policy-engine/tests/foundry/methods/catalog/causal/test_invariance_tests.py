@@ -3,12 +3,25 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from polisyos.foundry.methods.catalog.causal import invariance_tests as invariance_module
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.invariance_tests import (
     build_environment_audit_report,
+    build_regime_shift_identification_certificate,
 )
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicConstraintFamily,
+    AlgebraicConstraintReport,
+)
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+)
+from polisyos.ir.analytics.invariance import RegimeShiftTrack7Revalidation
 
 
 @pytest.fixture(autouse=True)
@@ -36,6 +49,27 @@ def _dispatch(fqn: str, state: dict, params: dict) -> dict:
         seed=0,
     )
     return result.output["result"]
+
+
+def _make_nonlinear_regime_data(
+    *,
+    seed: int,
+    env_specs: list[tuple[str, float]],
+    n_per_env: int = 180,
+    intercept_shift_envs: set[str] | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    rng = np.random.default_rng(seed)
+    intercept_shift_envs = intercept_shift_envs or set()
+    chunks: list[np.ndarray] = []
+    labels: list[str] = []
+    for env_name, mean_shift in env_specs:
+        x = rng.normal(loc=mean_shift, scale=1.0, size=n_per_env)
+        z = rng.normal(size=n_per_env)
+        intercept = 2.5 if env_name in intercept_shift_envs else 0.0
+        y = x**2 + intercept + 0.08 * rng.normal(size=n_per_env)
+        chunks.append(np.column_stack([x, z, y]))
+        labels.extend([env_name] * n_per_env)
+    return np.vstack(chunks), np.asarray(labels)
 
 
 # ---------------------------------------------------------------------------
@@ -315,4 +349,563 @@ def test_invariant_discovery_from_regimes_emits_certificate_and_orientations() -
     assert certificate["targets"][0]["target"] == "Y"
     assert certificate["targets"][0]["estimated_parents"] == ["X0"]
     assert certificate["targets"][0]["informativeness"]["empty_set_stable"] is False
+    assert certificate["shift_type_assessment"]["overall_label"] == "ambiguous"
+    assert out["computational_feasibility"]["mode"] == "exact"
+    assert out["computational_feasibility"]["exact_mode_possible"] is True
     assert ["X0", "Y"] in out["forced_orientations"]
+
+
+def test_regime_shift_certificate_uses_nonlinear_phase_closing_route_when_auto_is_eligible() -> None:
+    rng = np.random.default_rng(909)
+    env_specs = [("env_a", -2.0, 0.0), ("env_b", 0.0, 0.0), ("env_c", 2.0, 0.0), ("env_d", 0.0, 2.0)]
+    chunks: list[np.ndarray] = []
+    labels: list[str] = []
+    for env_name, mean_x, mean_z in env_specs:
+        x = rng.normal(loc=mean_x, scale=1.0, size=220)
+        z = rng.normal(loc=mean_z, scale=1.0, size=220)
+        w = rng.normal(size=220)
+        y = x**2 + z**2 + 0.08 * rng.normal(size=220)
+        chunks.append(np.column_stack([x, z, w, y]))
+        labels.extend([env_name] * 220)
+    data = np.vstack(chunks)
+    labels = np.asarray(labels)
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["X", "Z", "W", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=2,
+        model_family="auto",
+        context_exogeneity="declared",
+        baseline_covariates=["W"],
+        selection_max_set_size=1,
+        shift_type_repro_splits=1,
+    )
+
+    assert certificate.produced_by.implementation == "mime_icp_nonlinear_additive_noise_sieve_v1"
+    assert certificate.invariance_testing.model_class == "nonlinear_additive_noise_sieve"
+    assert certificate.targets[0].estimated_parents == ("X", "Z")
+    assert certificate.identifiability_witness is not None
+    assert certificate.identifiability_witness.identification_scope == (
+        "phase_closing_nonlinear_additive_noise_icp"
+    )
+    assert certificate.identifiability_witness.diversity_satisfied is True
+    assert len(certificate.identifiability_witness.informative_envs) >= 2
+    assert certificate.shift_type_assessment is not None
+    assert certificate.shift_type_assessment.pipeline_action.allow_icp_graph_contraction is True
+    assert certificate.metadata["phase_closing_stage16_1"] is True
+    assert certificate.mec_contraction.summary.edges_oriented_total >= 1
+
+
+def test_regime_shift_certificate_marks_duplicate_environment_pattern_as_redundant() -> None:
+    rng = np.random.default_rng(910)
+    env_specs = [
+        ("env_a", -2.0, 0.0),
+        ("env_b", 0.0, 0.0),
+        ("env_c", 2.0, 0.0),
+        ("env_d", 0.0, 2.0),
+        ("env_e", 0.0, 2.0),
+    ]
+    chunks: list[np.ndarray] = []
+    labels: list[str] = []
+    for env_name, mean_x, mean_z in env_specs:
+        x = rng.normal(loc=mean_x, scale=1.0, size=180)
+        z = rng.normal(loc=mean_z, scale=1.0, size=180)
+        w = rng.normal(size=180)
+        y = x**2 + z**2 + 0.08 * rng.normal(size=180)
+        chunks.append(np.column_stack([x, z, w, y]))
+        labels.extend([env_name] * 180)
+    data = np.vstack(chunks)
+    labels = np.asarray(labels)
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["X", "Z", "W", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=2,
+        model_family="auto",
+        context_exogeneity="declared",
+        baseline_covariates=["W"],
+        selection_max_set_size=1,
+        shift_type_repro_splits=1,
+    )
+
+    assert certificate.invariance_testing.model_class == "nonlinear_additive_noise_sieve"
+    assert certificate.targets[0].informativeness.redundant_envs
+    assert certificate.identifiability_witness is not None
+    assert certificate.identifiability_witness.redundant_envs
+    assert certificate.identifiability_witness.identification_scope == (
+        "nonlinear_slice_present_but_not_phase_closing"
+    )
+    assert certificate.metadata["phase_closing_stage16_1"] is False
+
+
+def test_regime_shift_certificate_blocks_phase_closing_for_selection_or_mixed_nonlinear_case() -> None:
+    rng = np.random.default_rng(911)
+    chunks: list[np.ndarray] = []
+    labels: list[str] = []
+    for env_name, mean_b in [("pre", -2.0), ("mid", 0.0), ("post", 2.5)]:
+        b = rng.normal(loc=mean_b, scale=1.0, size=240)
+        x = -1.2 * b + 0.05 * rng.normal(size=240)
+        y = 2.4 * b + 0.05 * rng.normal(size=240)
+        chunks.append(np.column_stack([b, x, y]))
+        labels.extend([env_name] * 240)
+    data = np.vstack(chunks)
+    labels = np.asarray(labels)
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["B", "X", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=1,
+        model_family="auto",
+        context_exogeneity="unverified",
+        baseline_covariates=["B"],
+        selection_max_set_size=1,
+        shift_type_repro_splits=1,
+    )
+
+    assert certificate.invariance_testing.model_class == "nonlinear_additive_noise_sieve"
+    assert certificate.shift_type_assessment is not None
+    assert certificate.shift_type_assessment.pipeline_action.allow_icp_graph_contraction is False
+    assert certificate.identifiability_witness is not None
+    assert certificate.identifiability_witness.identification_scope == (
+        "nonlinear_slice_present_but_not_phase_closing"
+    )
+    assert certificate.identifiability_witness.diversity_satisfied is False
+    assert certificate.metadata["phase_closing_stage16_1"] is False
+
+
+def test_regime_shift_certificate_marks_linear_route_as_fallback_when_auto_is_not_eligible() -> None:
+    rng = np.random.default_rng(912)
+    n = 220
+    x0_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    x1_a = rng.normal(size=n)
+    y_a = 2.0 * x0_a + 0.08 * rng.normal(size=n)
+    x0_b = rng.normal(loc=3.0, scale=1.0, size=n)
+    x1_b = rng.normal(size=n)
+    y_b = 2.0 * x0_b + 0.08 * rng.normal(size=n)
+    data = np.column_stack(
+        [
+            np.concatenate([x0_a, x0_b]),
+            np.concatenate([x1_a, x1_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["X0", "X1", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=1,
+        model_family="auto",
+        context_exogeneity="declared",
+        baseline_covariates=["X1"],
+        selection_max_set_size=1,
+        shift_type_repro_splits=1,
+    )
+
+    assert certificate.invariance_testing.model_class == "linear_ols"
+    assert any("fallback" in note for note in certificate.invariance_testing.notes)
+    assert certificate.identifiability_witness is not None
+    assert certificate.identifiability_witness.identification_scope == (
+        "linear_fallback_only_not_phase_closing"
+    )
+    assert certificate.metadata["model_family_resolved"] == "linear"
+    assert certificate.metadata["phase_closing_stage16_1"] is False
+
+
+def test_regime_shift_certificate_marks_structural_only_when_selection_witness_rejected() -> None:
+    rng = np.random.default_rng(1001)
+    n = 220
+    x_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    z_a = rng.normal(size=n)
+    y_a = 2.0 * x_a
+    x_b = rng.normal(loc=3.0, scale=1.0, size=n)
+    z_b = rng.normal(size=n)
+    y_b = 2.0 * x_b
+    data = np.column_stack(
+        [
+            np.concatenate([x_a, x_b]),
+            np.concatenate([z_a, z_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["X", "Z", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=1,
+        context_exogeneity="declared",
+        baseline_covariates=["Z"],
+        selection_max_set_size=1,
+    )
+
+    assessment = certificate.shift_type_assessment
+    assert assessment is not None
+    assert assessment.overall_label.value == "structural_only_consistent"
+    assert assessment.pipeline_action.allow_icp_graph_contraction is True
+    assert assessment.witnesses.selection_only_witness.status.value == "rejected"
+    assert assessment.witnesses.structural_only_witness.status.value == "not_rejected"
+    assert certificate.metadata["shift_type_reproducibility"]["agreement"] == 1.0
+
+
+def test_regime_shift_certificate_marks_selection_only_when_balancing_witness_passes() -> None:
+    rng = np.random.default_rng(3001)
+    n = 240
+    b_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    b_b = rng.normal(loc=3.0, scale=1.0, size=n)
+    x_a = -1.2 * b_a
+    x_b = -1.2 * b_b
+    y_a = 2.4 * b_a
+    y_b = 2.4 * b_b
+    data = np.column_stack(
+        [
+            np.concatenate([b_a, b_b]),
+            np.concatenate([x_a, x_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["B", "X", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=0,
+        context_exogeneity="unverified",
+        baseline_covariates=["B"],
+        selection_max_set_size=1,
+    )
+
+    assessment = certificate.shift_type_assessment
+    assert assessment is not None
+    assert assessment.overall_label.value == "selection_only_consistent"
+    assert assessment.pipeline_action.allow_icp_graph_contraction is False
+    assert assessment.pipeline_action.allow_selection_transport_path is True
+    assert assessment.witnesses.selection_only_witness.status.value == "not_rejected"
+    assert assessment.witnesses.structural_only_witness.status.value == "rejected"
+    assert certificate.metadata["shift_type_reproducibility"]["label_counts"] == {
+        "selection_only_consistent": 3
+    }
+
+
+def test_regime_shift_certificate_marks_mixed_or_latent_when_simple_witnesses_fail() -> None:
+    rng = np.random.default_rng(3002)
+    n = 240
+    x_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    z_a = rng.normal(size=n)
+    y_a = 2.0 * x_a
+    x_b = rng.normal(loc=3.0, scale=1.0, size=n)
+    z_b = rng.normal(size=n)
+    y_b = 2.0 * x_b + 4.0
+    data = np.column_stack(
+        [
+            np.concatenate([x_a, x_b]),
+            np.concatenate([z_a, z_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["X", "Z", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=1,
+        context_exogeneity="declared",
+        baseline_covariates=["Z"],
+        selection_max_set_size=1,
+    )
+
+    assessment = certificate.shift_type_assessment
+    assert assessment is not None
+    assert assessment.overall_label.value == "mixed_or_latent_suspected"
+    assert assessment.pipeline_action.allow_icp_graph_contraction is False
+    assert assessment.pipeline_action.route_to_latent_aware_discovery is True
+    assert assessment.witnesses.selection_only_witness.status.value == "rejected"
+    assert assessment.witnesses.structural_only_witness.status.value == "rejected"
+
+
+def test_regime_shift_certificate_marks_uninformative_when_no_global_shift_detected() -> None:
+    rng = np.random.default_rng(1002)
+    n = 160
+    x_a = rng.normal(size=n)
+    z_a = rng.normal(size=n)
+    y_a = 1.5 * x_a + 0.1 * rng.normal(size=n)
+    x_b = rng.normal(size=n)
+    z_b = rng.normal(size=n)
+    y_b = 1.5 * x_b + 0.1 * rng.normal(size=n)
+    data = np.column_stack(
+        [
+            np.concatenate([x_a, x_b]),
+            np.concatenate([z_a, z_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["X", "Z", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=1,
+        context_exogeneity="declared",
+        baseline_covariates=["Z"],
+        selection_max_set_size=1,
+    )
+
+    assessment = certificate.shift_type_assessment
+    assert assessment is not None
+    assert assessment.overall_label.value == "uninformative_shift"
+    assert assessment.pipeline_action.allow_icp_graph_contraction is False
+
+
+def test_regime_shift_certificate_uses_track7_blocks_to_reduce_search_space() -> None:
+    rng = np.random.default_rng(411)
+    n = 180
+    latent_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    latent_b = rng.normal(loc=1.5, scale=1.0, size=n)
+    x_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    x_b = rng.normal(loc=2.5, scale=1.0, size=n)
+    block_a = np.column_stack(
+        [
+            0.9 * latent_a + 0.1 * rng.normal(size=n),
+            0.8 * latent_a + 0.1 * rng.normal(size=n),
+            1.0 * latent_a + 0.1 * rng.normal(size=n),
+            0.7 * latent_a + 0.1 * rng.normal(size=n),
+        ]
+    )
+    block_b = np.column_stack(
+        [
+            0.9 * latent_b + 0.1 * rng.normal(size=n),
+            0.8 * latent_b + 0.1 * rng.normal(size=n),
+            1.0 * latent_b + 0.1 * rng.normal(size=n),
+            0.7 * latent_b + 0.1 * rng.normal(size=n),
+        ]
+    )
+    y_a = 2.0 * x_a + 0.1 * rng.normal(size=n)
+    y_b = 2.0 * x_b + 0.1 * rng.normal(size=n)
+    data = np.column_stack(
+        [
+            np.vstack([block_a, block_b]),
+            np.concatenate([x_a, x_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+    variable_names = ["B1", "B2", "B3", "B4", "X", "Y"]
+    super_structure = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=variable_names,
+        edges=[
+            CausalEdge(src="B1", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+            CausalEdge(src="B2", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+            CausalEdge(src="B3", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+            CausalEdge(src="B4", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+        ],
+        discovery_method="test_super_structure",
+    )
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=variable_names,
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=2,
+        super_structure=super_structure,
+        algebraic_blocks=[
+            {
+                "block_id": "measurement_block",
+                "family": "tetrad",
+                "variables": ("B1", "B2", "B3", "B4"),
+            }
+        ],
+        max_candidate_parents=6,
+    )
+
+    feasibility = certificate.computational_feasibility
+    assert feasibility is not None
+    assert feasibility.track7.block_lifting_applied is True
+    assert feasibility.track7.candidate_suppression_applied is False
+    assert feasibility.track7.mutually_exclusive_candidate_groups_by_target["Y"] == (
+        ("B1", "B2", "B3", "B4"),
+    )
+    assert ("B1", "B2") in feasibility.track7.hard_forbidden_edges
+    assert feasibility.candidate_parent_sizes["Y"] == 5
+
+
+def test_regime_shift_certificate_reports_partial_mode_when_exact_caps_fail() -> None:
+    rng = np.random.default_rng(412)
+    n = 180
+    x0_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    x0_b = rng.normal(loc=2.5, scale=1.0, size=n)
+    nuisance_a = rng.normal(size=(n, 4))
+    nuisance_b = rng.normal(size=(n, 4))
+    y_a = 2.0 * x0_a + 0.1 * rng.normal(size=n)
+    y_b = 2.0 * x0_b + 0.1 * rng.normal(size=n)
+    data = np.column_stack(
+        [
+            np.concatenate([x0_a, x0_b]),
+            np.vstack([nuisance_a, nuisance_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+    variable_names = ["X0", "N1", "N2", "N3", "N4", "Y"]
+    super_structure = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=variable_names,
+        edges=[
+            CausalEdge(src="X0", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+            CausalEdge(src="N1", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+            CausalEdge(src="N2", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+            CausalEdge(src="N3", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+            CausalEdge(src="N4", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE),
+        ],
+        discovery_method="test_super_structure",
+    )
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=variable_names,
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=1,
+        super_structure=super_structure,
+        max_candidate_parents=5,
+        exact_component_cap=3,
+    )
+
+    feasibility = certificate.computational_feasibility
+    assert feasibility is not None
+    assert feasibility.mode == "partial"
+    assert feasibility.exact_mode_possible is False
+    assert "component_size_cap_exceeded>3" in (feasibility.fallback_reason or "")
+
+
+def test_regime_shift_certificate_downgrades_exact_mode_after_track7_revalidation_blocker(
+    monkeypatch,
+) -> None:
+    rng = np.random.default_rng(413)
+    n = 180
+    x0_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    x0_b = rng.normal(loc=2.0, scale=1.0, size=n)
+    x1_a = rng.normal(size=n)
+    x1_b = rng.normal(size=n)
+    y_a = 2.0 * x0_a + 0.1 * rng.normal(size=n)
+    y_b = 2.0 * x0_b + 0.1 * rng.normal(size=n)
+    data = np.column_stack(
+        [
+            np.concatenate([x0_a, x0_b]),
+            np.concatenate([x1_a, x1_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+
+    monkeypatch.setattr(
+        invariance_module,
+        "_run_track7_revalidation",
+        lambda **kwargs: RegimeShiftTrack7Revalidation(
+            performed=True,
+            severity="blocker",
+            violated_by_family={"trek_rank": 1},
+            blocker_families=("trek_rank",),
+            exact_certificate_valid=False,
+        ),
+    )
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["X0", "X1", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=1,
+        algebraic_blocks=[
+            {
+                "block_id": "trk",
+                "family": "trek_rank",
+                "variables": ("X0", "X1"),
+                "row_variables": ("X0",),
+                "col_variables": ("X1",),
+                "max_rank": 0,
+            }
+        ],
+    )
+
+    feasibility = certificate.computational_feasibility
+    assert feasibility is not None
+    assert feasibility.mode == "partial"
+    assert feasibility.exact_mode_possible is True
+    assert feasibility.exact_mode_applied is False
+    assert "track7_revalidation_blocker:trek_rank" in (feasibility.fallback_reason or "")
+    assert feasibility.track7.revalidation.blocker_families == ("trek_rank",)
+    assert feasibility.track7.revalidation.exact_certificate_valid is False
+
+
+def test_regime_shift_certificate_respects_prior_track7_blocker_reports() -> None:
+    rng = np.random.default_rng(414)
+    n = 180
+    x0_a = rng.normal(loc=0.0, scale=1.0, size=n)
+    x0_b = rng.normal(loc=2.0, scale=1.0, size=n)
+    z_a = rng.normal(size=n)
+    z_b = rng.normal(size=n)
+    y_a = 2.0 * x0_a + 0.1 * rng.normal(size=n)
+    y_b = 2.0 * x0_b + 0.1 * rng.normal(size=n)
+    data = np.column_stack(
+        [
+            np.concatenate([x0_a, x0_b]),
+            np.concatenate([z_a, z_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["pre"] * n + ["post"] * n)
+
+    certificate = build_regime_shift_identification_certificate(
+        data=data,
+        domain_labels=labels,
+        variable_names=["X0", "Z", "Y"],
+        target_cols=["Y"],
+        alpha=0.01,
+        max_set_size=1,
+        prior_algebraic_reports=[
+            AlgebraicConstraintReport(
+                severity="blocker",
+                families_run=[AlgebraicConstraintFamily.TREK_RANK],
+                n_violated_constraints=1,
+                violated_by_family={"trek_rank": 1},
+                blocker_conditions_met_by_family={"trek_rank": True},
+            )
+        ],
+    )
+
+    feasibility = certificate.computational_feasibility
+    assert feasibility is not None
+    assert feasibility.mode == "partial"
+    assert feasibility.exact_mode_possible is False
+    assert feasibility.track7.prior_blocker_families == ("trek_rank",)
+    assert "track7_prior_blocker_conflict:trek_rank" in (feasibility.fallback_reason or "")

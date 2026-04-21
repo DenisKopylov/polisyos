@@ -18,6 +18,7 @@ Each ``EstimandNode`` type is lowered to one or more ``ExecutorNode`` entries:
 - ``RatioNode`` → ``causal.compiler.ratio`` after lowering num/den.
 - ``ExpectationNode`` → ``causal.nuisance.outcome_model`` (is_nuisance=True).
 - ``IntegralNode`` → ``causal.compiler.integrator`` after lowering operand.
+- ``RecoveredDistNode`` → missing-data recovery nuisance + factor estimator.
 
 Usage::
 
@@ -35,12 +36,16 @@ from typing import TYPE_CHECKING
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionRef,
+    EdgeInterventionNode,
     EstimandAST,
     ExpectationNode,
     IntegralNode,
     NuisanceNode,
+    OperatorApplyNode,
+    OperatorTargetNode,
     ProductNode,
     RatioNode,
+    RecoveredDistNode,
     SumNode,
 )
 from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
@@ -144,6 +149,8 @@ def lower_node(
     """Dispatch to the appropriate lowering function.  Returns node_id of result."""
     if isinstance(node, DistributionRef):
         return lower_distribution_ref(node, ctx)
+    if isinstance(node, EdgeInterventionNode):
+        return lower_edge_intervention_node(node, ctx, domain)
     if isinstance(node, NuisanceNode):
         return lower_nuisance_node(node, ctx)
     if isinstance(node, SumNode):
@@ -156,8 +163,35 @@ def lower_node(
         return lower_expectation_node(node, ctx)
     if isinstance(node, IntegralNode):
         return lower_integral_node(node, ctx, domain)
+    if isinstance(node, OperatorTargetNode):
+        return lower_operator_target_node(node, ctx)
+    if isinstance(node, OperatorApplyNode):
+        return lower_operator_apply_node(node, ctx, domain)
+    if isinstance(node, RecoveredDistNode):
+        return lower_recovered_dist_node(node, ctx)
     # Unknown node type — emit a passthrough placeholder
     return ctx.emit("causal.compiler.passthrough@1.0.0")
+
+
+def _operator_target_method_fqn(node: OperatorTargetNode) -> tuple[str, dict[str, str]]:
+    """Resolve the foundry method for a supported operator-valued target."""
+    if node.identification_scope in {"backdoor", "frontdoor"}:
+        if node.operator_semantics == "conditional_mean_embedding_operator":
+            return "causal.operator.cme_krr@1.0.0", {}
+        if node.operator_semantics == "counterfactual_probe_operator":
+            return "causal.operator.operator_r_learner@1.0.0", {}
+    if node.identification_scope == "iv":
+        return "causal.operator.kiv@1.0.0", {}
+    if node.identification_scope == "proximal":
+        return "causal.operator.proximal_minimax@1.0.0", {}
+    return (
+        "causal.operator.unsupported_target@1.0.0",
+        {
+            "degraded_reason": (
+                f"unsupported_operator_combo:{node.operator_semantics}:{node.identification_scope}"
+            )
+        },
+    )
 
 
 def lower_distribution_ref(node: DistributionRef, ctx: LoweringContext) -> str:
@@ -192,6 +226,25 @@ def lower_distribution_ref(node: DistributionRef, ctx: LoweringContext) -> str:
         conditioning=list(node.conditioning),
         intervention_set=list(node.intervention_set),
         domain=node.domain.value,
+    )
+
+
+def lower_edge_intervention_node(
+    node: EdgeInterventionNode,
+    ctx: LoweringContext,
+    domain: DistributionDomain,
+) -> str:
+    """Lower edge intervention annotations as a compiler-stage passthrough wrapper."""
+
+    depends_on: list[str] = []
+    if node.inner_node is not None:
+        depends_on.append(lower_node(node.inner_node, ctx, node.domain or domain))
+    return ctx.emit(
+        "causal.compiler.edge_intervention@1.0.0",
+        depends_on=depends_on,
+        dataset_ref=node.dataset_ref,
+        domain=node.domain.value,
+        assignments=[item.model_dump(mode="json") for item in node.assignments],
     )
 
 
@@ -278,6 +331,40 @@ def lower_expectation_node(node: ExpectationNode, ctx: LoweringContext) -> str:
     )
 
 
+def lower_operator_target_node(node: OperatorTargetNode, ctx: LoweringContext) -> str:
+    """Lower an operator-valued target into an explicit operator method node."""
+    method_fqn, extra_params = _operator_target_method_fqn(node)
+    return ctx.emit(
+        method_fqn,
+        treatment=node.treatment,
+        outcome=node.outcome,
+        reference_treatment=node.reference_treatment,
+        effect_modifier=list(node.effect_modifier),
+        operator_semantics=node.operator_semantics,
+        identification_scope=node.identification_scope,
+        probe_space=node.probe_space_ref.model_dump(mode="json"),
+        codomain_space=node.codomain_space_ref.model_dump(mode="json"),
+        base_estimand_ref=node.base_estimand_ref,
+        operator_regularization=node.operator_regularization,
+        **extra_params,
+    )
+
+
+def lower_operator_apply_node(
+    node: OperatorApplyNode,
+    ctx: LoweringContext,
+    domain: DistributionDomain,
+) -> str:
+    """Lower operator application as an explicit probe-application compiler node."""
+    operator_id = lower_node(node.operator, ctx, domain)
+    return ctx.emit(
+        "causal.operator.apply_probe@1.0.0",
+        depends_on=[operator_id],
+        probe_ref=node.probe_ref,
+        evaluation_points_ref=node.evaluation_points_ref,
+    )
+
+
 def lower_integral_node(
     node: IntegralNode, ctx: LoweringContext, domain: DistributionDomain
 ) -> str:
@@ -288,6 +375,65 @@ def lower_integral_node(
         depends_on=[operand_id],
         integration_vars=list(node.integration_vars),
         measure=node.measure,
+    )
+
+
+def lower_recovered_dist_node(node: RecoveredDistNode, ctx: LoweringContext) -> str:
+    """Lower a recovered conditional factor from ordered missing-data recovery.
+
+    The lowering intentionally mirrors the compile-time selector at a factor level:
+
+    - fully observed factors become empirical conditional densities;
+    - MCAR/MAR factors route through propensity + outcome nuisances and a local
+      doubly-robust recovered-factor estimator;
+    - MNAR-style factors fall back to augmentation-only recovery unless a higher
+      layer already refused compilation.
+    """
+    base_params = {
+        "variable": node.variable,
+        "conditioning": list(node.conditioning),
+        "missingness_indicator": node.missingness_indicator,
+        "proxy_variable": node.proxy_variable,
+        "missingness_kind": node.missingness_kind,
+        "dataset_ref": node.dataset_ref,
+    }
+    if node.missingness_kind == "fully_observed":
+        return ctx.emit(
+            "causal.nuisance.empirical_density@1.0.0",
+            is_nuisance=True,
+            dataset_ref=node.dataset_ref,
+            variables=[node.variable],
+            conditioning=list(node.conditioning),
+            intervention_set=[],
+            domain=node.domain.value,
+        )
+
+    outcome_id = ctx.emit(
+        "causal.nuisance.outcome_model@1.0.0",
+        is_nuisance=True,
+        dataset_ref=node.dataset_ref,
+        target_variable=node.variable,
+        conditioning=list(node.conditioning),
+        domain=node.domain.value,
+    )
+    if node.missingness_kind in {"mcar", "mar"} and node.missingness_indicator:
+        propensity_id = ctx.emit(
+            "causal.nuisance.propensity_model@1.0.0",
+            is_nuisance=True,
+            dataset_ref=node.dataset_ref,
+            target_variable=node.missingness_indicator,
+            conditioning=list(node.conditioning),
+            domain=node.domain.value,
+        )
+        return ctx.emit(
+            "causal.missing_data.recovered_dist_dr@1.0.0",
+            depends_on=[propensity_id, outcome_id],
+            **base_params,
+        )
+    return ctx.emit(
+        "causal.missing_data.recovered_dist_augmentation@1.0.0",
+        depends_on=[outcome_id],
+        **base_params,
     )
 
 
@@ -377,6 +523,9 @@ __all__ = [
     "lower_product_node",
     "lower_ratio_node",
     "lower_expectation_node",
+    "lower_operator_target_node",
+    "lower_operator_apply_node",
     "lower_integral_node",
+    "lower_recovered_dist_node",
     "recursive_compile",
 ]

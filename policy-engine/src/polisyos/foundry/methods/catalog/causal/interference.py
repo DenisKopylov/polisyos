@@ -22,9 +22,12 @@ Verbitsky-Savitz, N. & Raudenbush, S.W. (2012). Causal inference under
 from __future__ import annotations
 
 import hashlib
-import re
 import math
-from typing import Any, ClassVar, Literal, Mapping
+import re
+from collections.abc import Mapping
+from dataclasses import dataclass
+from itertools import combinations
+from typing import Any, ClassVar, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -48,12 +51,17 @@ from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
 from polisyos.ir.analytics.interference import (
     ExposureMappingType,
     InteractionComplex,
-    InterferenceEffectDecomposition,
     InterferenceCertificate,
+    InterferenceEffectDecomposition,
     InterferenceMethod,
     NetworkInterferenceReport,
 )
 from polisyos.ir.refs import ArtifactRefModel
+
+_PAIRWISE_QUERY_FAMILY = "pairwise_projection_queries"
+_CLUSTER_QUERY_FAMILY = "cluster_projection_queries"
+_SIMPLICIAL_STAR_LOCAL_QUERY_FAMILY = "simplicial_star_local_queries"
+_UNSUPPORTED_COMPLEX_QUERY_FAMILY = "unsupported_complex_queries"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Shared output slots
@@ -294,6 +302,42 @@ def _topology_fallback_mode(
     return "unsupported"
 
 
+def _requested_interference_mode(
+    reduction_policy: Literal["pairwise_projection", "cluster_projection", "full_complex"],
+) -> Literal["pairwise", "clustered", "complex"]:
+    if reduction_policy == "pairwise_projection":
+        return "pairwise"
+    if reduction_policy == "cluster_projection":
+        return "clustered"
+    return "complex"
+
+
+@dataclass(frozen=True)
+class _SimplicialSupportGate:
+    supported: bool
+    assumptions: tuple[str, ...]
+    failures: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class _TopologyCertificatePlan:
+    supported_query_family: str
+    fallback_mode: Literal["pairwise", "clustered", "unsupported"]
+    exposure_assumptions: tuple[str, ...]
+    reduction_error_bound: float | None
+    mode_requested: Literal["pairwise", "clustered", "complex"]
+    mode_used: Literal["pairwise", "clustered", "complex", "unsupported"]
+    fallback_triggered: bool
+    fallback_reason_codes: tuple[str, ...]
+    estimability_checks: dict[str, Literal["pass", "fail", "not_applicable"]]
+
+
+@dataclass(frozen=True)
+class _ReductionErrorBoundPlan:
+    reduction_error_bound: float | None
+    assumptions: tuple[str, ...] = ()
+
+
 def _supported_query_family(
     augmented_graph: InterferenceAugmentedGraph,
     *,
@@ -301,12 +345,12 @@ def _supported_query_family(
     fallback_mode: Literal["pairwise", "clustered", "unsupported"],
 ) -> str:
     if reduction_policy == "pairwise_projection" or fallback_mode == "pairwise":
-        return "pairwise_projection_queries"
+        return _PAIRWISE_QUERY_FAMILY
     if reduction_policy == "cluster_projection" or fallback_mode == "clustered":
-        return "cluster_projection_queries"
+        return _CLUSTER_QUERY_FAMILY
     if augmented_graph.cluster_partition:
-        return "cluster_projection_queries"
-    return "pairwise_projection_queries"
+        return _CLUSTER_QUERY_FAMILY
+    return _PAIRWISE_QUERY_FAMILY
 
 
 def _exposure_operator_ref(augmented_graph: InterferenceAugmentedGraph) -> ArtifactRefModel:
@@ -351,14 +395,864 @@ def _metadata_topology_groups(
     return tuple(groups)
 
 
+def _materialize_simplicial_closure(
+    simplices: tuple[tuple[str, ...], ...],
+) -> tuple[tuple[str, ...], ...]:
+    closure: set[tuple[str, ...]] = set()
+    for simplex in simplices:
+        ordered = tuple(simplex)
+        if len(ordered) < 2:
+            continue
+        for size in range(2, len(ordered) + 1):
+            for subset in combinations(ordered, size):
+                closure.add(tuple(subset))
+    return tuple(sorted(closure, key=lambda face: (len(face), face)))
+
+
+def _topology_metadata(augmented_graph: InterferenceAugmentedGraph) -> Mapping[str, Any]:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = metadata.get("topology")
+    if isinstance(topology_metadata, Mapping):
+        return topology_metadata
+    return {}
+
+
+def _exposure_operator_metadata(augmented_graph: InterferenceAugmentedGraph) -> Mapping[str, Any]:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    for source in (
+        topology_metadata.get("exposure_operator"),
+        topology_metadata.get("exposure_operator_metadata"),
+        topology_metadata.get("simplicial_exposure_operator"),
+        metadata.get("exposure_operator"),
+        metadata.get("exposure_operator_metadata"),
+        metadata.get("simplicial_exposure_operator"),
+    ):
+        if isinstance(source, Mapping):
+            return source
+    return {}
+
+
+def _bound_model_metadata(augmented_graph: InterferenceAugmentedGraph) -> Mapping[str, Any]:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    for source in (
+        topology_metadata.get("bound_model"),
+        metadata.get("bound_model"),
+    ):
+        if isinstance(source, Mapping):
+            return source
+    return {}
+
+
+def _truthy(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value) and math.isfinite(float(value))
+    if isinstance(value, str):
+        return value.strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "y",
+            "verified",
+            "satisfied",
+            "supported",
+            "positive",
+            "randomized",
+        }
+    return False
+
+
+def _first_metadata_value(
+    *sources: Mapping[str, object],
+    keys: tuple[str, ...],
+) -> object | None:
+    for source in sources:
+        for key in keys:
+            if key in source:
+                return source[key]
+    return None
+
+
+def _finite_codomain_declared(operator_metadata: Mapping[str, Any]) -> bool:
+    states = _first_metadata_value(
+        operator_metadata,
+        keys=("exposure_states", "states", "codomain", "codomain_states"),
+    )
+    if isinstance(states, (list, tuple, set, frozenset)):
+        return len(states) > 0
+    cardinality = _first_metadata_value(
+        operator_metadata,
+        keys=("codomain_cardinality", "state_count", "finite_codomain_size"),
+    )
+    try:
+        return int(cardinality) > 0
+    except (TypeError, ValueError):
+        return _truthy(operator_metadata.get("finite_codomain"))
+
+
+def _positive_probability_values(value: object) -> bool:
+    if isinstance(value, Mapping):
+        values = value.values()
+    elif isinstance(value, (list, tuple, set, frozenset)):
+        values = value
+    else:
+        return False
+    saw_value = False
+    for item in values:
+        probability = item.get("probability") if isinstance(item, Mapping) else item
+        try:
+            casted = float(probability)
+        except (TypeError, ValueError):
+            return False
+        if not math.isfinite(casted) or casted <= 0.0:
+            return False
+        saw_value = True
+    return saw_value
+
+
+def _randomized_assignment_declared(
+    augmented_graph: InterferenceAugmentedGraph,
+    operator_metadata: Mapping[str, Any],
+) -> bool:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    if _truthy(
+        _first_metadata_value(
+            operator_metadata,
+            topology_metadata,
+            metadata,
+            keys=("randomized_assignment", "known_randomized_design"),
+        )
+    ):
+        return True
+    design = _first_metadata_value(
+        operator_metadata,
+        topology_metadata,
+        metadata,
+        keys=("assignment_design", "design", "treatment_assignment"),
+    )
+    if design is None:
+        return False
+    return str(design).strip().lower() in {
+        "randomized",
+        "known_randomized",
+        "known_design",
+        "bernoulli",
+        "complete_randomization",
+        "two_stage_randomization",
+    }
+
+
+def _design_positivity_declared(
+    augmented_graph: InterferenceAugmentedGraph,
+    operator_metadata: Mapping[str, Any],
+) -> bool:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    if _truthy(
+        _first_metadata_value(
+            operator_metadata,
+            topology_metadata,
+            metadata,
+            keys=("design_positivity", "positivity", "support_positive", "positive_support"),
+        )
+    ):
+        return True
+    probabilities = _first_metadata_value(
+        operator_metadata,
+        topology_metadata,
+        metadata,
+        keys=("exposure_probabilities", "induced_exposure_probabilities"),
+    )
+    return _positive_probability_values(probabilities)
+
+
+def _higher_order_separability_declared(
+    augmented_graph: InterferenceAugmentedGraph,
+    operator_metadata: Mapping[str, Any],
+) -> bool:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    if _truthy(
+        _first_metadata_value(
+            operator_metadata,
+            topology_metadata,
+            metadata,
+            keys=(
+                "higher_order_separability_verified",
+                "separability_verified",
+                "complex_separability_verified",
+            ),
+        )
+    ):
+        return True
+
+    sigma_min = _first_metadata_value(
+        operator_metadata,
+        topology_metadata,
+        metadata,
+        keys=("design_matrix_sigma_min", "min_singular_value", "sigma_min"),
+    )
+    threshold = _first_metadata_value(
+        operator_metadata,
+        topology_metadata,
+        metadata,
+        keys=("separability_threshold", "kappa_min"),
+    )
+    try:
+        sigma = float(sigma_min)
+    except (TypeError, ValueError):
+        return False
+    if not math.isfinite(sigma) or sigma <= 0.0:
+        return False
+    if threshold is None:
+        return True
+    try:
+        required = float(threshold)
+    except (TypeError, ValueError):
+        return False
+    return math.isfinite(required) and required > 0.0 and sigma >= required
+
+
+def _inference_regime_declared(
+    augmented_graph: InterferenceAugmentedGraph,
+    operator_metadata: Mapping[str, Any],
+) -> bool:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    if _truthy(
+        _first_metadata_value(
+            operator_metadata,
+            topology_metadata,
+            metadata,
+            keys=("inference_regime_verified", "variance_certificate_present"),
+        )
+    ):
+        return True
+
+    regime = _first_metadata_value(
+        operator_metadata,
+        topology_metadata,
+        metadata,
+        keys=("inference_regime", "variance_regime", "uncertainty_regime"),
+    )
+    if regime is None:
+        return False
+    return str(regime).strip().lower() in {
+        "randomization_based",
+        "conditional_randomization",
+        "conditioning_mechanism",
+        "ani",
+        "local_dependence",
+        "cluster_robust",
+        "design_based",
+    }
+
+
+def _pre_outcome_selection_declared(
+    augmented_graph: InterferenceAugmentedGraph,
+    operator_metadata: Mapping[str, Any],
+) -> bool:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    if _truthy(
+        _first_metadata_value(
+            operator_metadata,
+            topology_metadata,
+            metadata,
+            keys=("pre_outcome_selection", "mode_selection_pre_outcome"),
+        )
+    ):
+        return True
+
+    selection_stage = _first_metadata_value(
+        operator_metadata,
+        topology_metadata,
+        metadata,
+        keys=("selection_stage", "mode_selection_stage", "fallback_selection_stage"),
+    )
+    if selection_stage is None:
+        return False
+    return str(selection_stage).strip().lower() in {
+        "pre_outcome",
+        "pre-treatment",
+        "pre_treatment",
+        "sample_split",
+        "split_sample",
+        "cross_fit",
+        "cross_fitted",
+    }
+
+
+def _normalized_metadata_token(value: object) -> str | None:
+    if value is None:
+        return None
+    token = re.sub(r"[^a-z0-9]+", "_", str(value).strip().lower()).strip("_")
+    return token or None
+
+
+def _topology_evidence_assumptions(
+    augmented_graph: InterferenceAugmentedGraph,
+    interaction_complex: InteractionComplex | None,
+) -> tuple[bool, tuple[str, ...]]:
+    if interaction_complex is None:
+        return False, ()
+
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    direct_sources = {
+        "administrative",
+        "administrative_records",
+        "audited",
+        "clinical_roster",
+        "contract",
+        "directly_observed",
+        "documented",
+        "observed",
+        "roster",
+    }
+    controlled_tokens = {
+        "audited",
+        "audited_or_directly_observed",
+        "audited_or_fdr_controlled",
+        "directly_observed",
+        "documented",
+        "fdr_controlled",
+        "posterior_threshold_passed",
+        "stability_threshold_passed",
+    }
+
+    candidate_topology = _normalized_metadata_token(
+        _first_metadata_value(
+            topology_metadata,
+            metadata,
+            keys=(
+                "candidate_topology",
+                "candidate_topology_evidence",
+                "topology_evidence",
+                "topology_evidence_mode",
+            ),
+        )
+    )
+    if candidate_topology in controlled_tokens:
+        assumptions = ["candidate_topology:audited_or_fdr_controlled"]
+        if candidate_topology not in {
+            "audited_or_directly_observed",
+            "audited_or_fdr_controlled",
+        }:
+            assumptions.append(f"topology_evidence:{candidate_topology}")
+        return True, tuple(assumptions)
+
+    if _truthy(
+        _first_metadata_value(
+            topology_metadata,
+            metadata,
+            keys=(
+                "topology_audited",
+                "candidate_topology_audited",
+                "directly_observed_topology",
+                "documented_group_structure",
+                "documented_topology",
+                "topology_documented",
+            ),
+        )
+    ):
+        return True, (
+            "candidate_topology:audited_or_fdr_controlled",
+            "topology_evidence:directly_observed",
+        )
+
+    topology_source = _normalized_metadata_token(
+        _first_metadata_value(
+            topology_metadata,
+            metadata,
+            keys=("topology_source", "candidate_topology_source", "group_structure_source"),
+        )
+    )
+    if topology_source in direct_sources:
+        return True, (
+            "candidate_topology:audited_or_fdr_controlled",
+            f"topology_source:{topology_source}",
+        )
+
+    if _truthy(
+        _first_metadata_value(
+            topology_metadata,
+            metadata,
+            keys=(
+                "topology_fdr_controlled",
+                "candidate_topology_fdr_controlled",
+                "hyperedge_fdr_controlled",
+            ),
+        )
+    ):
+        return True, (
+            "candidate_topology:audited_or_fdr_controlled",
+            "topology_evidence:fdr_controlled",
+        )
+
+    if _truthy(
+        _first_metadata_value(
+            topology_metadata,
+            metadata,
+            keys=(
+                "topology_posterior_threshold_passed",
+                "candidate_topology_posterior_threshold_passed",
+            ),
+        )
+    ):
+        return True, (
+            "candidate_topology:audited_or_fdr_controlled",
+            "topology_evidence:posterior_threshold_passed",
+        )
+
+    posterior = _first_metadata_value(
+        topology_metadata,
+        metadata,
+        keys=(
+            "topology_posterior_inclusion",
+            "hyperedge_posterior_inclusion",
+            "posterior_inclusion",
+        ),
+    )
+    posterior_threshold = _first_metadata_value(
+        topology_metadata,
+        metadata,
+        keys=("topology_posterior_threshold", "posterior_inclusion_threshold"),
+    )
+    try:
+        posterior_score = float(posterior)
+        required_posterior = float(posterior_threshold)
+    except (TypeError, ValueError):
+        posterior_score = float("nan")
+        required_posterior = float("nan")
+    if (
+        math.isfinite(posterior_score)
+        and math.isfinite(required_posterior)
+        and 0.0 < required_posterior <= posterior_score <= 1.0
+    ):
+        return True, (
+            "candidate_topology:audited_or_fdr_controlled",
+            "topology_evidence:posterior_threshold_passed",
+        )
+
+    if _truthy(
+        _first_metadata_value(
+            topology_metadata,
+            metadata,
+            keys=(
+                "topology_stability_threshold_passed",
+                "candidate_topology_stability_threshold_passed",
+            ),
+        )
+    ):
+        return True, (
+            "candidate_topology:audited_or_fdr_controlled",
+            "topology_evidence:stability_threshold_passed",
+        )
+
+    stability = _first_metadata_value(
+        topology_metadata,
+        metadata,
+        keys=("topology_stability_score", "stability_score"),
+    )
+    stability_threshold = _first_metadata_value(
+        topology_metadata,
+        metadata,
+        keys=("topology_stability_threshold", "stability_threshold"),
+    )
+    try:
+        stability_score = float(stability)
+        required_stability = float(stability_threshold)
+    except (TypeError, ValueError):
+        return False, ()
+    if (
+        math.isfinite(stability_score)
+        and math.isfinite(required_stability)
+        and 0.0 < required_stability <= stability_score <= 1.0
+    ):
+        return True, (
+            "candidate_topology:audited_or_fdr_controlled",
+            "topology_evidence:stability_threshold_passed",
+        )
+    return False, ()
+
+
+def _selection_stage_assumption(
+    augmented_graph: InterferenceAugmentedGraph,
+    operator_metadata: Mapping[str, Any],
+) -> str | None:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    selection_stage = _normalized_metadata_token(
+        _first_metadata_value(
+            operator_metadata,
+            topology_metadata,
+            metadata,
+            keys=("selection_stage", "mode_selection_stage", "fallback_selection_stage"),
+        )
+    )
+    if selection_stage is None:
+        return None
+    if selection_stage in {
+        "pre_outcome",
+        "pre_treatment",
+        "sample_split",
+        "split_sample",
+        "cross_fit",
+        "cross_fitted",
+    }:
+        return f"selection_stage:{selection_stage}"
+    return None
+
+
+def _inference_regime_assumption(
+    augmented_graph: InterferenceAugmentedGraph,
+    operator_metadata: Mapping[str, Any],
+) -> str | None:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    regime = _normalized_metadata_token(
+        _first_metadata_value(
+            operator_metadata,
+            topology_metadata,
+            metadata,
+            keys=("inference_regime", "variance_regime", "uncertainty_regime"),
+        )
+    )
+    if regime is None:
+        return None
+    if regime in {
+        "randomization_based",
+        "conditional_randomization",
+        "conditioning_mechanism",
+        "ani",
+        "local_dependence",
+        "cluster_robust",
+        "design_based",
+    }:
+        return f"inference_regime:{regime}"
+    return None
+
+
+def _canonical_faces(contract: InteractionComplex) -> frozenset[frozenset[str]]:
+    faces: set[frozenset[str]] = {frozenset((node,)) for node in contract.nodes}
+    materialized_simplices = _materialize_simplicial_closure(contract.simplices)
+    for group in contract.hyperedges + materialized_simplices:
+        faces.add(frozenset(group))
+    return frozenset(face for face in faces if face)
+
+
+def _missing_downward_faces(contract: InteractionComplex) -> tuple[tuple[str, ...], ...]:
+    faces = _canonical_faces(contract)
+    missing: set[tuple[str, ...]] = set()
+    for face in faces:
+        if len(face) <= 1:
+            continue
+        ordered = tuple(sorted(face))
+        for size in range(1, len(ordered)):
+            for subset in combinations(ordered, size):
+                if frozenset(subset) not in faces:
+                    missing.add(tuple(subset))
+    return tuple(sorted(missing))
+
+
+def _downward_closure_verified(contract: InteractionComplex) -> bool:
+    return not _missing_downward_faces(contract)
+
+
+def _maximal_faces(contract: InteractionComplex) -> tuple[frozenset[str], ...]:
+    faces = _canonical_faces(contract)
+    maximal = [
+        face
+        for face in faces
+        if not any(face < candidate for candidate in faces)
+    ]
+    return tuple(sorted(maximal, key=lambda face: (len(face), tuple(sorted(face)))))
+
+
+def _maximal_face_size(contract: InteractionComplex) -> int:
+    return max((len(face) for face in _canonical_faces(contract)), default=0)
+
+
+def _maximal_faces_partition_nodes(contract: InteractionComplex) -> bool:
+    maximal = _maximal_faces(contract)
+    seen: set[str] = set()
+    for face in maximal:
+        overlap = seen.intersection(face)
+        if overlap:
+            return False
+        seen.update(face)
+    return seen == set(contract.nodes)
+
+
+def _operator_factorizes_through_within_facet_summary(
+    operator_metadata: Mapping[str, Any],
+) -> bool:
+    if _truthy(operator_metadata.get("factorizes_through_within_facet_summary")):
+        return True
+    factorization = _first_metadata_value(
+        operator_metadata,
+        keys=("factorizes_through", "factorization", "summary_scope", "reduction_scope"),
+    )
+    if factorization is None:
+        return False
+    return str(factorization).strip().lower() in {
+        "within_facet_summary",
+        "within_simplex_summary",
+        "within_cluster_summary",
+        "cluster_summary",
+        "facet_summary",
+    }
+
+
+def _closed_star_vertex_supports(contract: InteractionComplex) -> dict[str, set[str]]:
+    supports: dict[str, set[str]] = {node: {node} for node in contract.nodes}
+    for face in _canonical_faces(contract):
+        for node in face:
+            supports.setdefault(node, {node}).update(face)
+    return supports
+
+
+def _star_overlap_max_degree(contract: InteractionComplex) -> int:
+    supports = _closed_star_vertex_supports(contract)
+    max_degree = 0
+    nodes = tuple(supports)
+    for node in nodes:
+        degree = sum(
+            1
+            for other in nodes
+            if other != node and bool(supports[node].intersection(supports[other]))
+        )
+        max_degree = max(max_degree, degree)
+    return max_degree
+
+
+def _bounded_star_overlap_declared(
+    augmented_graph: InterferenceAugmentedGraph,
+    operator_metadata: Mapping[str, Any],
+    contract: InteractionComplex,
+) -> bool:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = _topology_metadata(augmented_graph)
+    if _truthy(
+        _first_metadata_value(
+            operator_metadata,
+            topology_metadata,
+            metadata,
+            keys=("bounded_star_overlap", "bounded_star_overlap_verified"),
+        )
+    ):
+        return True
+    bound = _first_metadata_value(
+        operator_metadata,
+        topology_metadata,
+        metadata,
+        keys=("max_star_overlap_degree", "star_overlap_max_degree"),
+    )
+    try:
+        return _star_overlap_max_degree(contract) <= int(bound)
+    except (TypeError, ValueError):
+        return False
+
+
+def _simplicial_star_local_support_gate(
+    augmented_graph: InterferenceAugmentedGraph,
+    contract: InteractionComplex,
+) -> _SimplicialSupportGate:
+    operator_metadata = _exposure_operator_metadata(augmented_graph)
+    assumptions: list[str] = []
+    failures: list[str] = []
+
+    if _downward_closure_verified(contract):
+        assumptions.extend(("known_simplicial_complex", "downward_closure_verified"))
+    else:
+        failures.append("downward_closure_missing")
+
+    locality_scope = str(operator_metadata.get("locality_scope", "")).strip().lower()
+    if locality_scope == "closed_star" and _finite_codomain_declared(operator_metadata):
+        assumptions.append("finite_star_local_exposure_mapping")
+    else:
+        failures.append("finite_star_local_exposure_mapping_missing")
+
+    if _truthy(operator_metadata.get("exposure_consistency")):
+        assumptions.append("exposure_consistency")
+    else:
+        failures.append("exposure_consistency_missing")
+
+    if _randomized_assignment_declared(augmented_graph, operator_metadata):
+        assumptions.append("randomized_assignment")
+    else:
+        failures.append("randomized_assignment_missing")
+
+    if _design_positivity_declared(augmented_graph, operator_metadata):
+        assumptions.append("design_positivity")
+    else:
+        failures.append("design_positivity_missing")
+
+    if _bounded_star_overlap_declared(augmented_graph, operator_metadata, contract):
+        assumptions.append("bounded_star_overlap")
+    else:
+        failures.append("bounded_star_overlap_missing")
+
+    return _SimplicialSupportGate(
+        supported=not failures,
+        assumptions=tuple(assumptions),
+        failures=tuple(failures),
+    )
+
+
+def _complex_estimability_checks(
+    augmented_graph: InterferenceAugmentedGraph,
+    interaction_complex: InteractionComplex | None,
+) -> dict[str, Literal["pass", "fail", "not_applicable"]]:
+    operator_metadata = _exposure_operator_metadata(augmented_graph)
+    if interaction_complex is None:
+        return {
+            "topology_evidence": "fail",
+            "simplicial_closure": "not_applicable",
+            "exposure_positivity": (
+                "pass" if _design_positivity_declared(augmented_graph, operator_metadata) else "fail"
+            ),
+            "higher_order_separability": "not_applicable",
+            "inference_regime": (
+                "pass" if _inference_regime_declared(augmented_graph, operator_metadata) else "fail"
+            ),
+            "pre_outcome_selection": (
+                "pass"
+                if _pre_outcome_selection_declared(augmented_graph, operator_metadata)
+                else "fail"
+            ),
+        }
+
+    has_higher_order = _maximal_face_size(interaction_complex) > 2
+    topology_evidence_supported, _ = _topology_evidence_assumptions(
+        augmented_graph,
+        interaction_complex,
+    )
+    exact_cluster_projection = (
+        has_higher_order
+        and _maximal_faces_partition_nodes(interaction_complex)
+        and _operator_factorizes_through_within_facet_summary(operator_metadata)
+    )
+    return {
+        "topology_evidence": (
+            "pass"
+            if has_higher_order and topology_evidence_supported
+            else ("fail" if has_higher_order else "not_applicable")
+        ),
+        "simplicial_closure": (
+            "pass"
+            if has_higher_order and _downward_closure_verified(interaction_complex)
+            else ("fail" if has_higher_order else "not_applicable")
+        ),
+        "exposure_positivity": (
+            "pass" if _design_positivity_declared(augmented_graph, operator_metadata) else "fail"
+        ),
+        "higher_order_separability": (
+            "not_applicable"
+            if not has_higher_order
+            else (
+                "fail"
+                if exact_cluster_projection
+                else (
+                    "pass"
+                    if _higher_order_separability_declared(augmented_graph, operator_metadata)
+                    else "fail"
+                )
+            )
+        ),
+        "inference_regime": (
+            "pass" if _inference_regime_declared(augmented_graph, operator_metadata) else "fail"
+        ),
+        "pre_outcome_selection": (
+            "pass"
+            if _pre_outcome_selection_declared(augmented_graph, operator_metadata)
+            else "fail"
+        ),
+    }
+
+
+def _complex_estimator_admissible(
+    estimability_checks: Mapping[str, Literal["pass", "fail", "not_applicable"]],
+) -> bool:
+    required = (
+        "topology_evidence",
+        "simplicial_closure",
+        "exposure_positivity",
+        "higher_order_separability",
+        "inference_regime",
+        "pre_outcome_selection",
+    )
+    return all(estimability_checks.get(key) == "pass" for key in required)
+
+
+def _coarsened_estimator_admissible(
+    estimability_checks: Mapping[str, Literal["pass", "fail", "not_applicable"]],
+) -> bool:
+    required = (
+        "exposure_positivity",
+        "inference_regime",
+        "pre_outcome_selection",
+    )
+    return all(estimability_checks.get(key) == "pass" for key in required)
+
+
+def _cluster_fallback_available(augmented_graph: InterferenceAugmentedGraph) -> bool:
+    return bool(augmented_graph.cluster_partition)
+
+
+def _complex_fallback_reason_codes(
+    *,
+    interaction_complex: InteractionComplex | None,
+    estimability_checks: Mapping[str, Literal["pass", "fail", "not_applicable"]],
+    mode_used: Literal["pairwise", "clustered", "complex", "unsupported"],
+    exact_pairwise_reduction: bool = False,
+    exact_cluster_reduction: bool = False,
+) -> tuple[str, ...]:
+    reasons: list[str] = []
+    if interaction_complex is None or estimability_checks.get("topology_evidence") == "fail":
+        reasons.append("topology_not_estimable")
+    if exact_pairwise_reduction:
+        reasons.append("complex_reduces_exactly_to_pairwise")
+    if exact_cluster_reduction:
+        reasons.append("complex_reduces_exactly_to_clustered")
+    if estimability_checks.get("simplicial_closure") == "fail":
+        reasons.append("simplicial_closure_failed")
+    if estimability_checks.get("exposure_positivity") == "fail":
+        reasons.append("complex_exposure_support_too_low")
+    if estimability_checks.get("higher_order_separability") == "fail":
+        reasons.append("higher_order_separability_failed")
+    if estimability_checks.get("inference_regime") == "fail":
+        reasons.append("inference_regime_failed")
+    if estimability_checks.get("pre_outcome_selection") == "fail":
+        reasons.append("selection_not_pre_outcome")
+    if mode_used == "unsupported":
+        reasons.append("no_safe_fallback_available")
+
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for reason in reasons:
+        if reason in seen:
+            continue
+        seen.add(reason)
+        deduped.append(reason)
+    return tuple(deduped)
+
+
 def _interaction_complex_from_augmented_graph(
     augmented_graph: InterferenceAugmentedGraph,
     *,
     reduction_policy: Literal["pairwise_projection", "cluster_projection", "full_complex"],
 ) -> InteractionComplex | None:
     hyperedges = _metadata_topology_groups(augmented_graph, key="hyperedges")
-    simplices = _metadata_topology_groups(augmented_graph, key="simplices")
-    if not hyperedges and augmented_graph.cluster_partition:
+    simplices = _materialize_simplicial_closure(
+        _metadata_topology_groups(augmented_graph, key="simplices")
+    )
+    if not hyperedges and not simplices and augmented_graph.cluster_partition:
         hyperedges = tuple(tuple(group) for group in augmented_graph.cluster_partition)
     if not hyperedges and not simplices:
         return None
@@ -403,6 +1297,515 @@ def _topology_exposure_assumptions(
     return tuple(deduped)
 
 
+def _dedupe_assumptions(assumptions: list[str]) -> tuple[str, ...]:
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for assumption in assumptions:
+        if assumption in seen:
+            continue
+        seen.add(assumption)
+        deduped.append(assumption)
+    return tuple(deduped)
+
+
+def _canonical_triangle(value: object) -> tuple[str, str, str] | None:
+    if isinstance(value, str):
+        raw_nodes = [
+            node.strip()
+            for node in re.split(r"[|,;]", value)
+            if node.strip()
+        ]
+    elif isinstance(value, (list, tuple, set, frozenset)):
+        raw_nodes = [str(node).strip() for node in value if str(node).strip()]
+    else:
+        return None
+    if len(raw_nodes) != 3 or len(set(raw_nodes)) != 3:
+        return None
+    return tuple(sorted(raw_nodes))
+
+
+def _linear_2complex_triangles(
+    contract: InteractionComplex,
+) -> tuple[tuple[str, str, str], ...] | None:
+    if any(len(hyperedge) > 2 for hyperedge in contract.hyperedges):
+        return None
+    if any(len(simplex) > 3 for simplex in contract.simplices):
+        return None
+
+    triangles = {
+        canonical
+        for simplex in contract.simplices
+        if len(simplex) == 3 and (canonical := _canonical_triangle(simplex)) is not None
+    }
+    if not triangles:
+        return None
+
+    edge_to_triangle: dict[tuple[str, str], tuple[str, str, str]] = {}
+    for triangle in triangles:
+        for edge in combinations(triangle, 2):
+            if edge in edge_to_triangle:
+                return None
+            edge_to_triangle[edge] = triangle
+    return tuple(sorted(triangles))
+
+
+def _bernoulli_iid_rate(bound_model: Mapping[str, Any]) -> float | None:
+    design = bound_model.get("design")
+    if not isinstance(design, Mapping):
+        return None
+
+    kind = str(design.get("kind", "")).strip().lower()
+    if kind == "bernoulli":
+        if not _truthy(design.get("iid")):
+            return None
+    elif kind != "bernoulli_iid":
+        return None
+
+    try:
+        rate = float(design["p"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    if not math.isfinite(rate) or rate <= 0.0 or rate >= 1.0:
+        return None
+    return rate
+
+
+def _bound_model_uses_count_exposure(
+    augmented_graph: InterferenceAugmentedGraph,
+    bound_model: Mapping[str, Any],
+) -> bool:
+    if augmented_graph.exposure_mapping != ExposureMappingType.COUNT:
+        return False
+    declared_mapping = bound_model.get("exposure_mapping")
+    if declared_mapping is None:
+        return True
+    return str(declared_mapping).strip().lower() == ExposureMappingType.COUNT.value
+
+
+def _triangle_response_kind(bound_model: Mapping[str, Any]) -> Literal["linear", "lipschitz"] | None:
+    candidate = str(bound_model.get("triangle_response", "")).strip().lower()
+    if candidate in {"linear", "lipschitz"}:
+        return candidate
+    return None
+
+
+def _triangle_weight_sums_by_node(
+    bound_model: Mapping[str, Any],
+    *,
+    triangles: tuple[tuple[str, str, str], ...],
+) -> dict[str, float] | None:
+    payload = bound_model.get("triangle_weights")
+    if payload is None:
+        return None
+
+    triangle_set = set(triangles)
+    expected_nodes = {node for triangle in triangles for node in triangle}
+    sums_by_node: dict[str, float] = {node: 0.0 for node in expected_nodes}
+    seen_triangles: set[tuple[str, str, str]] = set()
+
+    if isinstance(payload, Mapping):
+        raw_entries = tuple(payload.items())
+    elif isinstance(payload, (list, tuple)):
+        raw_entries = tuple((entry, None) for entry in payload)
+    else:
+        return None
+
+    for raw_key, raw_value in raw_entries:
+        if raw_value is None:
+            if not isinstance(raw_key, Mapping):
+                return None
+            simplex_value = raw_key.get("simplex", raw_key.get("triangle", raw_key.get("nodes")))
+            weights_value = raw_key.get("weights", raw_key.get("gamma_by_target"))
+        else:
+            simplex_value = raw_key
+            weights_value = raw_value
+
+        triangle = _canonical_triangle(simplex_value)
+        if triangle is None or triangle not in triangle_set or triangle in seen_triangles:
+            return None
+        if not isinstance(weights_value, Mapping):
+            return None
+
+        canonical_weights: dict[str, float] = {}
+        for node in triangle:
+            if node not in weights_value:
+                return None
+            try:
+                weight = float(weights_value[node])
+            except (TypeError, ValueError):
+                return None
+            if not math.isfinite(weight):
+                return None
+            canonical_weights[node] = abs(weight)
+
+        extra_nodes = {str(node) for node in weights_value if str(node) not in triangle}
+        if extra_nodes:
+            return None
+
+        for node, weight in canonical_weights.items():
+            sums_by_node[node] += weight
+        seen_triangles.add(triangle)
+
+    if seen_triangles != triangle_set:
+        return None
+    return sums_by_node
+
+
+def _lipschitz_constants_by_node(
+    bound_model: Mapping[str, Any],
+    *,
+    relevant_nodes: set[str],
+) -> dict[str, float] | None:
+    payload = bound_model.get("lipschitz_by_node")
+    if not isinstance(payload, Mapping):
+        return None
+
+    constants: dict[str, float] = {}
+    for node in relevant_nodes:
+        if node not in payload:
+            return None
+        try:
+            constant = float(payload[node])
+        except (TypeError, ValueError):
+            return None
+        if not math.isfinite(constant) or constant < 0.0:
+            return None
+        constants[node] = constant
+    return constants
+
+
+def _pairwise_projection_reduction_error_bound(
+    augmented_graph: InterferenceAugmentedGraph,
+    interaction_complex: InteractionComplex | None,
+    *,
+    reduction_policy: Literal["pairwise_projection", "cluster_projection", "full_complex"],
+) -> _ReductionErrorBoundPlan:
+    if reduction_policy != "pairwise_projection" or interaction_complex is None:
+        return _ReductionErrorBoundPlan(reduction_error_bound=None)
+
+    triangles = _linear_2complex_triangles(interaction_complex)
+    if triangles is None:
+        return _ReductionErrorBoundPlan(reduction_error_bound=None)
+
+    bound_model = _bound_model_metadata(augmented_graph)
+    if not bound_model or not _bound_model_uses_count_exposure(augmented_graph, bound_model):
+        return _ReductionErrorBoundPlan(reduction_error_bound=None)
+
+    design_p = _bernoulli_iid_rate(bound_model)
+    if design_p is None:
+        return _ReductionErrorBoundPlan(reduction_error_bound=None)
+
+    triangle_response = _triangle_response_kind(bound_model)
+    if triangle_response is None:
+        return _ReductionErrorBoundPlan(reduction_error_bound=None)
+
+    assumptions = (
+        "bound_scope:bernoulli_mean_rate_contrasts_only",
+        "design:bernoulli_iid",
+        "linear_2complex_required",
+        "triangle_projection:design_calibrated",
+        f"triangle_response:{triangle_response}",
+    )
+    if triangle_response == "linear":
+        return _ReductionErrorBoundPlan(reduction_error_bound=0.0, assumptions=assumptions)
+
+    weight_sums_by_node = _triangle_weight_sums_by_node(bound_model, triangles=triangles)
+    if weight_sums_by_node is None:
+        return _ReductionErrorBoundPlan(reduction_error_bound=None)
+
+    lipschitz_by_node = _lipschitz_constants_by_node(
+        bound_model,
+        relevant_nodes=set(weight_sums_by_node),
+    )
+    if lipschitz_by_node is None:
+        return _ReductionErrorBoundPlan(reduction_error_bound=None)
+
+    total_weight = sum(
+        lipschitz_by_node[node] * weight_sums_by_node[node]
+        for node in weight_sums_by_node
+    )
+    bound = (2.0 * design_p ** 2 * (1.0 - design_p) * total_weight) / len(interaction_complex.nodes)
+    return _ReductionErrorBoundPlan(reduction_error_bound=bound, assumptions=assumptions)
+
+
+def _full_complex_certificate_plan(
+    augmented_graph: InterferenceAugmentedGraph,
+    interaction_complex: InteractionComplex | None,
+    *,
+    result: InterferenceIdentificationResult | None,
+) -> _TopologyCertificatePlan:
+    mode_requested = _requested_interference_mode("full_complex")
+    assumptions = [
+        f"exposure_mapping:{augmented_graph.exposure_mapping.value}",
+        "reduction_policy:full_complex",
+    ]
+    if augmented_graph.cross_unit_edges:
+        assumptions.append("cross_unit_edges_detected")
+    if augmented_graph.exposure_nodes:
+        assumptions.append("exposure_nodes_materialized")
+    if result is not None and result.sutva_violated:
+        assumptions.append("sutva_violation_detected")
+    if result is not None and result.base_identification_status:
+        assumptions.append(f"base_identification_status:{result.base_identification_status}")
+
+    operator_metadata = _exposure_operator_metadata(augmented_graph)
+    _, topology_evidence_assumptions = _topology_evidence_assumptions(
+        augmented_graph,
+        interaction_complex,
+    )
+    assumptions.extend(topology_evidence_assumptions)
+    selection_stage_assumption = _selection_stage_assumption(augmented_graph, operator_metadata)
+    if selection_stage_assumption is not None:
+        assumptions.append(selection_stage_assumption)
+    inference_regime_assumption = _inference_regime_assumption(
+        augmented_graph,
+        operator_metadata,
+    )
+    if inference_regime_assumption is not None:
+        assumptions.append(inference_regime_assumption)
+
+    estimability_checks = _complex_estimability_checks(augmented_graph, interaction_complex)
+    pairwise_admissible = _coarsened_estimator_admissible(estimability_checks)
+    clustered_admissible = _cluster_fallback_available(augmented_graph) and pairwise_admissible
+    if interaction_complex is None:
+        assumptions.extend(
+            (
+                "hypergraph_identification_not_claimed",
+                "simplicial_identification_gates_failed",
+                "interaction_complex_missing",
+                "support_limited_to_pairwise_or_cluster_reduction",
+            )
+        )
+        mode_used: Literal["pairwise", "clustered", "complex", "unsupported"]
+        if clustered_admissible:
+            mode_used = "clustered"
+        elif pairwise_admissible:
+            mode_used = "pairwise"
+        else:
+            mode_used = "unsupported"
+        return _TopologyCertificatePlan(
+            supported_query_family=(
+                _CLUSTER_QUERY_FAMILY
+                if mode_used == "clustered"
+                else (
+                    _PAIRWISE_QUERY_FAMILY
+                    if mode_used == "pairwise"
+                    else _UNSUPPORTED_COMPLEX_QUERY_FAMILY
+                )
+            ),
+            fallback_mode=(
+                mode_used if mode_used in {"pairwise", "clustered"} else "unsupported"
+            ),
+            exposure_assumptions=_dedupe_assumptions(assumptions),
+            reduction_error_bound=None,
+            mode_requested=mode_requested,
+            mode_used=mode_used,
+            fallback_triggered=mode_used != "complex",
+            fallback_reason_codes=_complex_fallback_reason_codes(
+                interaction_complex=interaction_complex,
+                estimability_checks=estimability_checks,
+                mode_used=mode_used,
+            ),
+            estimability_checks=estimability_checks,
+        )
+
+    if _maximal_face_size(interaction_complex) <= 2:
+        assumptions.extend(
+            (
+                "pairwise_reduction_exact",
+                "hypergraph_identification_not_claimed",
+                "support_limited_to_pairwise_or_cluster_reduction",
+            )
+        )
+        mode_used: Literal["pairwise", "clustered", "complex", "unsupported"]
+        if pairwise_admissible:
+            fallback_mode: Literal["pairwise", "clustered", "unsupported"] = "pairwise"
+            supported_query_family = _PAIRWISE_QUERY_FAMILY
+            reduction_error_bound = 0.0
+            mode_used = "pairwise"
+        else:
+            fallback_mode = "unsupported"
+            supported_query_family = _UNSUPPORTED_COMPLEX_QUERY_FAMILY
+            reduction_error_bound = None
+            mode_used = "unsupported"
+        return _TopologyCertificatePlan(
+            supported_query_family=supported_query_family,
+            fallback_mode=fallback_mode,
+            exposure_assumptions=_dedupe_assumptions(assumptions),
+            reduction_error_bound=reduction_error_bound,
+            mode_requested=mode_requested,
+            mode_used=mode_used,
+            fallback_triggered=True,
+            fallback_reason_codes=_complex_fallback_reason_codes(
+                interaction_complex=interaction_complex,
+                estimability_checks=estimability_checks,
+                mode_used=mode_used,
+                exact_pairwise_reduction=True,
+            ),
+            estimability_checks=estimability_checks,
+        )
+
+    if (
+        _maximal_faces_partition_nodes(interaction_complex)
+        and _operator_factorizes_through_within_facet_summary(operator_metadata)
+    ):
+        assumptions.extend(
+            (
+                "cluster_reduction_exact",
+                "hypergraph_identification_not_claimed",
+                "support_limited_to_pairwise_or_cluster_reduction",
+            )
+        )
+        mode_used: Literal["pairwise", "clustered", "complex", "unsupported"]
+        fallback_mode: Literal["pairwise", "clustered", "unsupported"]
+        supported_query_family: str
+        reduction_error_bound: float | None
+        exact_cluster_admissible = pairwise_admissible and (
+            _cluster_fallback_available(augmented_graph)
+            or _maximal_faces_partition_nodes(interaction_complex)
+        )
+        if exact_cluster_admissible:
+            fallback_mode = "clustered"
+            supported_query_family = _CLUSTER_QUERY_FAMILY
+            reduction_error_bound = 0.0
+            mode_used = "clustered"
+        elif pairwise_admissible:
+            fallback_mode = "pairwise"
+            supported_query_family = _PAIRWISE_QUERY_FAMILY
+            reduction_error_bound = None
+            mode_used = "pairwise"
+        else:
+            fallback_mode = "unsupported"
+            supported_query_family = _UNSUPPORTED_COMPLEX_QUERY_FAMILY
+            reduction_error_bound = None
+            mode_used = "unsupported"
+        return _TopologyCertificatePlan(
+            supported_query_family=supported_query_family,
+            fallback_mode=fallback_mode,
+            exposure_assumptions=_dedupe_assumptions(assumptions),
+            reduction_error_bound=reduction_error_bound,
+            mode_requested=mode_requested,
+            mode_used=mode_used,
+            fallback_triggered=True,
+            fallback_reason_codes=_complex_fallback_reason_codes(
+                interaction_complex=interaction_complex,
+                estimability_checks=estimability_checks,
+                mode_used=mode_used,
+                exact_cluster_reduction=True,
+            ),
+            estimability_checks=estimability_checks,
+        )
+
+    gate = _simplicial_star_local_support_gate(augmented_graph, interaction_complex)
+    if gate.supported and _complex_estimator_admissible(estimability_checks):
+        assumptions.extend(gate.assumptions)
+        return _TopologyCertificatePlan(
+            supported_query_family=_SIMPLICIAL_STAR_LOCAL_QUERY_FAMILY,
+            fallback_mode="unsupported",
+            exposure_assumptions=_dedupe_assumptions(assumptions),
+            reduction_error_bound=None,
+            mode_requested=mode_requested,
+            mode_used="complex",
+            fallback_triggered=False,
+            fallback_reason_codes=(),
+            estimability_checks=estimability_checks,
+        )
+    if gate.supported:
+        assumptions.extend(gate.assumptions)
+
+    assumptions.extend(
+        (
+            "hypergraph_identification_not_claimed",
+            "simplicial_identification_gates_failed",
+            "support_limited_to_pairwise_or_cluster_reduction",
+        )
+    )
+    assumptions.extend(gate.failures)
+    fallback_mode: Literal["pairwise", "clustered", "unsupported"]
+    if clustered_admissible:
+        fallback_mode = "clustered"
+        supported_query_family = _CLUSTER_QUERY_FAMILY
+        reduction_error_bound = None
+        mode_used = "clustered"
+    elif pairwise_admissible:
+        fallback_mode = "pairwise"
+        supported_query_family = _PAIRWISE_QUERY_FAMILY
+        reduction_bound_plan = _pairwise_projection_reduction_error_bound(
+            augmented_graph,
+            interaction_complex,
+            reduction_policy="pairwise_projection",
+        )
+        reduction_error_bound = reduction_bound_plan.reduction_error_bound
+        assumptions.extend(reduction_bound_plan.assumptions)
+        mode_used = "pairwise"
+    else:
+        fallback_mode = "unsupported"
+        supported_query_family = _UNSUPPORTED_COMPLEX_QUERY_FAMILY
+        reduction_error_bound = None
+        mode_used = "unsupported"
+    return _TopologyCertificatePlan(
+        supported_query_family=supported_query_family,
+        fallback_mode=fallback_mode,
+        exposure_assumptions=_dedupe_assumptions(assumptions),
+        reduction_error_bound=reduction_error_bound,
+        mode_requested=mode_requested,
+        mode_used=mode_used,
+        fallback_triggered=True,
+        fallback_reason_codes=_complex_fallback_reason_codes(
+            interaction_complex=interaction_complex,
+            estimability_checks=estimability_checks,
+            mode_used=mode_used,
+        ),
+        estimability_checks=estimability_checks,
+    )
+
+
+def _topology_certificate_plan(
+    augmented_graph: InterferenceAugmentedGraph,
+    interaction_complex: InteractionComplex | None,
+    *,
+    reduction_policy: Literal["pairwise_projection", "cluster_projection", "full_complex"],
+    result: InterferenceIdentificationResult | None,
+) -> _TopologyCertificatePlan:
+    if reduction_policy == "full_complex":
+        return _full_complex_certificate_plan(
+            augmented_graph,
+            interaction_complex,
+            result=result,
+        )
+
+    mode_requested = _requested_interference_mode(reduction_policy)
+    fallback_mode = _topology_fallback_mode(reduction_policy)
+    reduction_bound_plan = _pairwise_projection_reduction_error_bound(
+        augmented_graph,
+        interaction_complex,
+        reduction_policy=reduction_policy,
+    )
+    exposure_assumptions = list(
+        _topology_exposure_assumptions(
+            augmented_graph,
+            reduction_policy=reduction_policy,
+            result=result,
+        )
+    )
+    exposure_assumptions.extend(reduction_bound_plan.assumptions)
+    return _TopologyCertificatePlan(
+        supported_query_family=_supported_query_family(
+            augmented_graph,
+            reduction_policy=reduction_policy,
+            fallback_mode=fallback_mode,
+        ),
+        fallback_mode=fallback_mode,
+        exposure_assumptions=_dedupe_assumptions(exposure_assumptions),
+        reduction_error_bound=reduction_bound_plan.reduction_error_bound,
+        mode_requested=mode_requested,
+        mode_used=fallback_mode,
+        fallback_triggered=False,
+        fallback_reason_codes=(),
+        estimability_checks={},
+    )
+
+
 def build_interference_topology_contracts(
     payload: InterferenceAugmentedGraph | InterferenceIdentificationResult | Mapping[str, Any],
     *,
@@ -415,24 +1818,26 @@ def build_interference_topology_contracts(
     """Adapt current interference artifacts into the Phase F.1 topology surface."""
     augmented_graph, result = _coerce_topology_contract_source(payload)
     resolved_policy = _resolved_topology_reduction_policy(augmented_graph, reduction_policy)
-    fallback_mode = _topology_fallback_mode(resolved_policy)
     interaction_complex = _interaction_complex_from_augmented_graph(
         augmented_graph,
         reduction_policy=resolved_policy,
     )
+    certificate_plan = _topology_certificate_plan(
+        augmented_graph,
+        interaction_complex,
+        reduction_policy=resolved_policy,
+        result=result,
+    )
     certificate = InterferenceCertificate(
-        supported_query_family=_supported_query_family(
-            augmented_graph,
-            reduction_policy=resolved_policy,
-            fallback_mode=fallback_mode,
-        ),
-        exposure_assumptions=_topology_exposure_assumptions(
-            augmented_graph,
-            reduction_policy=resolved_policy,
-            result=result,
-        ),
-        reduction_error_bound=None,
-        fallback_mode=fallback_mode,
+        supported_query_family=certificate_plan.supported_query_family,
+        exposure_assumptions=certificate_plan.exposure_assumptions,
+        reduction_error_bound=certificate_plan.reduction_error_bound,
+        fallback_mode=certificate_plan.fallback_mode,
+        mode_requested=certificate_plan.mode_requested,
+        mode_used=certificate_plan.mode_used,
+        fallback_triggered=certificate_plan.fallback_triggered,
+        fallback_reason_codes=certificate_plan.fallback_reason_codes,
+        estimability_checks=certificate_plan.estimability_checks,
     )
     return interaction_complex, certificate
 

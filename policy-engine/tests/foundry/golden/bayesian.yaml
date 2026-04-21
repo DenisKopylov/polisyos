@@ -25,6 +25,7 @@ cases:
     expected_output:
       result:
         method_name: "bayesian_linear_regression"
+        truthfulness_tier: "APPROXIMATE_UNCALIBRATED"
         posterior_means:
           intercept: 1.0230870561676961
           coefficients_0: 1.767748721817261
@@ -65,6 +66,7 @@ cases:
     expected_output:
       result:
         method_name: "bayesian_hierarchical_regression"
+        truthfulness_tier: "APPROXIMATE_UNCALIBRATED"
         posterior_means:
           global_intercept: 0.9917818367970183
           coefficients: 1.7631019436890163
@@ -106,6 +108,7 @@ cases:
     expected_output:
       result:
         method_name: "gp_regression"
+        truthfulness_tier: "EXACT"
         posterior_means:
           mean: -0.10113553387350116
           std: 0.3177780462316725
@@ -146,6 +149,7 @@ cases:
     expected_output:
       result:
         method_name: "mean_field_vi"
+        truthfulness_tier: "APPROXIMATE_CALIBRATED"
         posterior_means:
           beta_0: 2.19017094017094
         posterior_stds:
@@ -177,6 +181,7 @@ cases:
     expected_output:
       result:
         method_name: "bayesian_autoregression"
+        truthfulness_tier: "APPROXIMATE_UNCALIBRATED"
         posterior_means:
           intercept: 0.13688920148247993
           phi: 0.4384544010073029

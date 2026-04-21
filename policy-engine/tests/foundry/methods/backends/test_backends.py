@@ -34,6 +34,9 @@ from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     BackendRuntimeFingerprint,
     capture_backend_runtime_fingerprint,
+    compose_observed_tolerance_budgets,
+    validate_observed_tolerance_budget,
+    validate_observed_tolerance_budget_metrics,
 )
 from polisyos.foundry.methods.backends.solver_runner import SolverRunner
 from polisyos.foundry.methods.exceptions import BackendAdaptationError
@@ -286,6 +289,8 @@ def test_numpy_runner_executes():
     assert result.reproducibility.backend == ComputeBackend.NUMPY
     assert result.artifacts["backend_runtime_fingerprint"]["backend"] == "numpy"
     assert result.artifacts["backend_runtime_fingerprint"]["tolerance_budget"]["semantic_mode"] == "library_exact_cpu"
+    assert result.reproducibility.observed_tolerance_budget["budget_source"] == "seed_prior"
+    assert result.artifacts["backend_runtime_fingerprint"]["observed_tolerance_budget"]["route_key"]["backend_route"] == "numpy"
 
 
 def test_solver_runner_extracts_status():
@@ -424,7 +429,29 @@ def test_backend_runtime_fingerprint_exposes_replay_contract() -> None:
     assert posture.backend == ComputeBackend.NUMPY
     assert posture.replay_semantics
     assert posture.tolerance_budget["semantic_mode"] == "library_exact_cpu"
+    assert posture.observed_tolerance_budget["route_key"]["backend_route"] == "numpy"
+    assert posture.observed_tolerance_budget["validation_status"] == "compatible"
     assert posture.as_dict()["fingerprint"]
+
+
+def test_backend_runtime_fingerprint_degrades_jax_ray_route() -> None:
+    posture = BackendRuntimeFingerprint(
+        backend=ComputeBackend.JAX,
+        available=True,
+        determinism_tier=DeterminismTier.STRICT_CPU,
+        execution_device="cpu:test",
+        runtime_stack=("jax", "ray"),
+        library_versions={"jax": "1.0", "jaxlib": "1.0"},
+        route_key={
+            "backend_route": "jax+ray",
+            "arch_family": "x86_64",
+            "device_family": "cpu",
+        },
+    )
+
+    assert posture.observed_tolerance_budget["downgraded_from"] == "strict_cpu"
+    assert posture.observed_tolerance_budget["downgraded_to"] == "library_deterministic"
+    assert "ray_serialization_boundary" in posture.observed_tolerance_budget["failure_reasons"]
 
 
 def test_execute_heterogeneous_chain_numpy_to_jax():
@@ -441,6 +468,173 @@ def test_execute_heterogeneous_chain_numpy_to_jax():
     assert np.allclose(np.asarray(result.final_state), np.array([4.0]))
     assert result.node_results[0][0] == node_np.id
     assert result.node_results[1][0] == node_jax.id
+    assert result.reproducibility_contract["determinism_tier"] == "library_deterministic"
+    assert (
+        result.reproducibility_contract["observed_tolerance_budget"]["route_key"]["backend_route"]
+        == "numpy->jax"
+    )
+    assert result.reproducibility_contract["observed_tolerance_budget"]["budget_source"] == "seed_prior"
+
+
+def test_validate_observed_tolerance_budget_degrades_when_runtime_drift_exceeds_cpu_budget() -> None:
+    posture = capture_backend_runtime_fingerprint(ComputeBackend.NUMPY, seed=7)
+
+    validated = validate_observed_tolerance_budget(
+        reference=np.array([1.0, 2.0]),
+        candidate=np.array([1.0 + 5.0e-7, 2.0 + 5.0e-7]),
+        budget=posture.observed_tolerance_budget,
+        current_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+    )
+
+    assert validated["validation_status"] == "degraded"
+    assert validated["budget_source"] == "runtime_measured"
+    assert validated["downgraded_from"] == "library_deterministic"
+    assert validated["downgraded_to"] == "best_effort_gpu"
+    assert "runtime_drift_exceeded_expected_budget" in validated["failure_reasons"]
+    assert validated["abs_tol_p99"] == pytest.approx(5.0e-7)
+
+
+def test_validate_observed_tolerance_budget_validates_statistical_same_fingerprint_replay() -> None:
+    posture = BackendRuntimeFingerprint(
+        backend=ComputeBackend.BAYESIAN,
+        available=True,
+        determinism_tier=DeterminismTier.STATISTICAL,
+        execution_device="cpu:test",
+        runtime_stack=("numpy", "numpyro"),
+        library_versions={"numpy": "1.0"},
+        route_key={
+            "backend_route": "bayesian:numpy",
+            "arch_family": "x86_64",
+            "device_family": "cpu",
+        },
+    )
+
+    reference = np.linspace(-1.0, 1.0, 128, dtype=float).reshape(64, 2)
+    validated = validate_observed_tolerance_budget(
+        reference=reference,
+        candidate=reference.copy(),
+        budget=posture.observed_tolerance_budget,
+        current_tier=DeterminismTier.STATISTICAL,
+    )
+
+    assert validated["mode"] == "distributional"
+    assert validated["validation_status"] == "validated"
+    assert validated["scope"] == "same_fingerprint"
+    assert validated["distributional_metrics"]["ks_statistic"] == pytest.approx(0.0)
+    assert validated["distributional_metrics"]["q50_abs_error"] == pytest.approx(0.0)
+    assert validated["distributional_metrics"]["q90_width_abs_error"] == pytest.approx(0.0)
+
+
+def test_validate_observed_tolerance_budget_marks_statistical_cross_architecture_as_compatible() -> None:
+    posture = BackendRuntimeFingerprint(
+        backend=ComputeBackend.BAYESIAN,
+        available=True,
+        determinism_tier=DeterminismTier.STATISTICAL,
+        execution_device="cpu:test",
+        runtime_stack=("numpy", "numpyro"),
+        library_versions={"numpy": "1.0"},
+        route_key={
+            "backend_route": "bayesian:numpy",
+            "arch_family": "x86_64",
+            "device_family": "cpu",
+        },
+    )
+
+    validated = validate_observed_tolerance_budget_metrics(
+        metrics={
+            "ks_statistic": 0.09,
+            "q50_abs_error": 0.04,
+            "q90_width_abs_error": 0.06,
+        },
+        budget=posture.observed_tolerance_budget,
+        current_tier=DeterminismTier.STATISTICAL,
+    )
+
+    assert validated["mode"] == "distributional"
+    assert validated["validation_status"] == "compatible"
+    assert validated["scope"] == "cross_architecture"
+    assert "distributional_runtime_validation_not_implemented" not in validated["failure_reasons"]
+
+
+def test_validate_observed_tolerance_budget_marks_excessive_statistical_drift_unknown() -> None:
+    posture = BackendRuntimeFingerprint(
+        backend=ComputeBackend.BAYESIAN,
+        available=True,
+        determinism_tier=DeterminismTier.STATISTICAL,
+        execution_device="cpu:test",
+        runtime_stack=("numpy", "numpyro"),
+        library_versions={"numpy": "1.0"},
+        route_key={
+            "backend_route": "bayesian:numpy",
+            "arch_family": "x86_64",
+            "device_family": "cpu",
+        },
+    )
+
+    validated = validate_observed_tolerance_budget_metrics(
+        metrics={
+            "ks_statistic": 0.20,
+            "q50_abs_error": 0.20,
+            "q90_width_abs_error": 0.20,
+        },
+        budget=posture.observed_tolerance_budget,
+        current_tier=DeterminismTier.STATISTICAL,
+    )
+
+    assert validated["validation_status"] == "unknown"
+    assert "runtime_drift_exceeded_expected_budget" in validated["failure_reasons"]
+
+
+def test_compose_observed_tolerance_budgets_preserves_distributional_metrics() -> None:
+    posture = BackendRuntimeFingerprint(
+        backend=ComputeBackend.BAYESIAN,
+        available=True,
+        determinism_tier=DeterminismTier.STATISTICAL,
+        execution_device="cpu:test",
+        runtime_stack=("numpy", "numpyro"),
+        library_versions={"numpy": "1.0"},
+        route_key={
+            "backend_route": "bayesian:numpy",
+            "arch_family": "x86_64",
+            "device_family": "cpu",
+        },
+    )
+    budget_a = validate_observed_tolerance_budget_metrics(
+        metrics={
+            "ks_statistic": 0.00,
+            "q50_abs_error": 0.00,
+            "q90_width_abs_error": 0.00,
+        },
+        budget=posture.observed_tolerance_budget,
+        current_tier=DeterminismTier.STATISTICAL,
+    )
+    budget_b = validate_observed_tolerance_budget_metrics(
+        metrics={
+            "ks_statistic": 0.09,
+            "q50_abs_error": 0.04,
+            "q90_width_abs_error": 0.06,
+        },
+        budget=posture.observed_tolerance_budget,
+        current_tier=DeterminismTier.STATISTICAL,
+    )
+
+    composed = compose_observed_tolerance_budgets(
+        [budget_a, budget_b],
+        determinism_tiers=[DeterminismTier.STATISTICAL, DeterminismTier.STATISTICAL],
+        composition_kind="parallel",
+    )
+    revalidated = validate_observed_tolerance_budget_metrics(
+        metrics=composed["distributional_metrics"],
+        budget=composed,
+        current_tier=DeterminismTier.STATISTICAL,
+    )
+
+    assert composed["mode"] == "distributional"
+    assert composed["distributional_metrics"]["ks_statistic"] == pytest.approx(0.09)
+    assert composed["distributional_metrics"]["q50_abs_error"] == pytest.approx(0.04)
+    assert composed["distributional_metrics"]["q90_width_abs_error"] == pytest.approx(0.06)
+    assert composed["expected_budget"]["same_fingerprint_ks_tol"] == pytest.approx(0.05)
+    assert revalidated["validation_status"] == "compatible"
 
 
 def test_execute_heterogeneous_chain_routes_bound_slot_values():

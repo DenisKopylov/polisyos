@@ -314,12 +314,25 @@ def test_method_metadata_stable_digest_changes_with_typical_min_obs() -> None:
     assert no_min.stable_digest() != with_min.stable_digest()
 
 
+def test_method_metadata_stable_digest_changes_with_truthfulness_declarations() -> None:
+    base = MethodMetadata(description="test", when_to_use="when X")
+    declared = MethodMetadata(
+        description="test",
+        when_to_use="when X",
+        declared_truthfulness_tier="exact",
+        truthfulness_scope="posterior",
+    )
+    assert base.stable_digest() != declared.stable_digest()
+
+
 def test_method_metadata_new_fields_have_correct_defaults() -> None:
     metadata = MethodMetadata(description="test")
     assert metadata.when_to_use == ""
     assert metadata.when_not_to_use == ""
     assert metadata.output_interpretation == ""
     assert metadata.typical_min_obs is None
+    assert metadata.declared_truthfulness_tier is None
+    assert metadata.truthfulness_scope is None
 
 
 def test_method_metadata_new_fields_appear_in_stable_dict() -> None:
@@ -328,11 +341,15 @@ def test_method_metadata_new_fields_appear_in_stable_dict() -> None:
         when_to_use="Use for X",
         output_interpretation="ATT > 0 means positive effect",
         typical_min_obs=50,
+        declared_truthfulness_tier="asymptotic",
+        truthfulness_scope="posterior",
     )
     d = metadata._stable_dict()
     assert d["when_to_use"] == "Use for X"
     assert d["output_interpretation"] == "ATT > 0 means positive effect"
     assert d["typical_min_obs"] == 50
+    assert d["declared_truthfulness_tier"] == "asymptotic"
+    assert d["truthfulness_scope"] == "posterior"
 
 
 # ---------------------------------------------------------------------------

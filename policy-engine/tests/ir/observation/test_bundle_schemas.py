@@ -336,6 +336,37 @@ def _sample_payloads() -> list[object]:
                             "severity": "high",
                         }
                     ],
+                    "dp_utility_manifest": {
+                        "manifest_id": "privacy_transport_procurement",
+                        "query_id": "transport_procurement",
+                        "source_domains": ["PL"],
+                        "target_domain": "UA",
+                        "dp_scope": [
+                            {
+                                "domain_id": "PL",
+                                "mechanism_id": "pl_gaussian",
+                                "mechanism_family": "gaussian",
+                                "privacy_model": "central",
+                                "epsilon": 2.0,
+                                "delta": 1e-6,
+                                "released_statistics": ["P_s(Y|do(X))"],
+                                "public_channel_spec": {
+                                    "query_class": "gaussian_histogram_v1"
+                                },
+                            }
+                        ],
+                        "private_factor_bounds": [
+                            {
+                                "factor_id": "source_kernel",
+                                "factor_expression": "P_s(Y|do(X))",
+                                "domain_id": "PL",
+                                "metric": "linf",
+                                "error_bound": 0.02,
+                                "confidence_level": 0.95,
+                                "estimator_kind": "gaussian_interval",
+                            }
+                        ],
+                    },
                 }
             ]
         ),

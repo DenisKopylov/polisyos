@@ -11,14 +11,25 @@ from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, pu
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import (
     ArtifactRefModel,
+    CausalAssumptionCardRef,
+    DistributionalBoundsBundleRef,
     DistributionalEffectBundleRef,
+    DistributionalProofArtifactRef,
     DistributionalReportRef,
+    EstimandASTRef,
+    ProofBundleRef,
 )
 
 _DISTRIBUTIONAL_REPORT_SCHEMA_NAME = "ir.distributional_report"
 _DISTRIBUTIONAL_REPORT_SCHEMA_VERSION = "1.0"
 _DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_NAME = "ir.distributional_effect_bundle"
 _DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_VERSION = "1.0"
+_DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_NAME = "ir.distributional_bounds_bundle"
+_DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_VERSION = "1.0"
+_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME = "ir.distributional_proof_artifact"
+_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_VERSION = "1.0"
+_CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME = "ir.causal_assumption_card"
+_CAUSAL_ASSUMPTION_CARD_SCHEMA_VERSION = "1.0"
 _DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME = "ir.discrete_distribution_summary"
 _DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_VERSION = "1.0"
 _OT_COUPLING_SUMMARY_SCHEMA_NAME = "ir.ot_coupling_summary"
@@ -80,6 +91,30 @@ def _validate_unique_artifact_refs(
         seen.add(artifact_id)
 
 
+def _validate_ref_kind(
+    ref: ArtifactRefModel | None,
+    *,
+    field_name: str,
+    allowed_kinds: set[str],
+) -> None:
+    if ref is None:
+        return
+    if ref.kind not in allowed_kinds:
+        expected = ", ".join(sorted(allowed_kinds))
+        raise ValueError(f"{field_name} must reference one of [{expected}], got {ref.kind}")
+
+
+def _validate_ref_list_kind(
+    refs: list[ArtifactRefModel],
+    *,
+    field_name: str,
+    allowed_kind: str,
+) -> None:
+    for ref in refs:
+        if ref.kind != allowed_kind:
+            raise ValueError(f"{field_name} entries must reference {allowed_kind}, got {ref.kind}")
+
+
 def _persist_distributional_leaf(
     store: ArtifactStore,
     payload: BaseModel,
@@ -111,6 +146,49 @@ class DistributionalJustification(str, Enum):
     IDENTIFIED = "identified"
     BOUNDED = "bounded"
     SCENARIO = "scenario"
+
+
+class DistributionalFunctional(str, Enum):
+    """Declare which distributional functional is being bounded."""
+
+    TAIL_PROB = "tail_probability"
+    CDF = "cdf"
+    QUANTILE = "quantile"
+    QUANTILE_SHIFT = "quantile_shift"
+    TAIL_DELTA = "tail_probability_change"
+    ITE_CDF = "ite_cdf"
+    ITE_TAIL_RISK = "ite_tail_risk"
+
+
+class DistributionalProofTarget(str, Enum):
+    """Declare which distribution-valued object the proof artifact certifies."""
+
+    CDF = "cdf"
+    SURVIVAL = "survival"
+    QUANTILE = "quantile"
+    TAIL_PROB = "tail_prob"
+    EXPECTED_SHORTFALL = "expected_shortfall"
+    MARGINAL_PAIR = "marginal_pair"
+    COUPLING = "coupling"
+
+
+class DistributionalBoundUniformity(str, Enum):
+    """Describe whether bounds are identified, uniform, pointwise, or not applicable."""
+
+    IDENTIFIED = "identified"
+    UNIFORM_SHARP = "uniform_sharp"
+    UNIFORM_OUTER = "uniform_outer"
+    POINTWISE_ONLY = "pointwise_only"
+    NOT_APPLICABLE = "not_applicable"
+
+
+class DistributionalCouplingStatus(str, Enum):
+    """Describe whether coupling-level claims are identified, set-identified, or scenario-only."""
+
+    NOT_USED = "not_used"
+    IDENTIFIED = "identified"
+    SET_IDENTIFIED = "set_identified"
+    SCENARIO_ONLY = "scenario_only"
 
 
 class CohortDimension(str, Enum):
@@ -174,6 +252,101 @@ class CouplingDiagnostics(BaseModel):
         return self
 
 
+class CausalAssumptionCard(BaseModel):
+    """Typed assumption card attached to distributional proof artifacts and bundles."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    scope: str = Field(pattern=r"^(marginal|coupling|bound|estimation)$")
+    status: str = Field(pattern=r"^(identified_needed|bound_needed|scenario_only)$")
+    theorem_family: str = Field(min_length=1)
+    assumption_type: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    testable: bool
+    evidence_ref: ArtifactRefModel | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_card(self) -> "CausalAssumptionCard":
+        _ensure_non_empty(self.theorem_family, field_name="theorem_family")
+        _ensure_non_empty(self.assumption_type, field_name="assumption_type")
+        _ensure_non_empty(self.description, field_name="description")
+        return self
+
+
+class DistributionalProofArtifact(BaseModel):
+    """Typed proof wrapper for distributional estimands and coupling-level claims."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    base_proof_ref: ProofBundleRef | None = None
+    estimand_ast_ref: EstimandASTRef | None = None
+    target: DistributionalProofTarget
+    support_ref: ArtifactRefModel | None = None
+    grid_ref: ArtifactRefModel | None = None
+    identified_curve_ref: ArtifactRefModel | None = None
+    bounded_curve_ref: ArtifactRefModel | None = None
+    derived_from_target: DistributionalProofTarget | None = None
+    bound_uniformity: DistributionalBoundUniformity = DistributionalBoundUniformity.NOT_APPLICABLE
+    coupling_status: DistributionalCouplingStatus = DistributionalCouplingStatus.NOT_USED
+    theorem_family: str = Field(min_length=1)
+    assumption_card_refs: list[CausalAssumptionCardRef] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_artifact(self) -> "DistributionalProofArtifact":
+        _ensure_non_empty(self.theorem_family, field_name="theorem_family")
+        _validate_unique_artifact_refs(
+            [ArtifactRefModel.model_validate(ref.model_dump(mode="json")) for ref in self.assumption_card_refs],
+            field_name="assumption_card_refs",
+        )
+        if self.target is DistributionalProofTarget.COUPLING:
+            if self.coupling_status is DistributionalCouplingStatus.NOT_USED:
+                raise ValueError("coupling target requires a non-trivial coupling_status")
+        elif self.coupling_status is not DistributionalCouplingStatus.NOT_USED:
+            raise ValueError("non-coupling targets must use coupling_status='not_used'")
+        if self.coupling_status in {
+            DistributionalCouplingStatus.IDENTIFIED,
+            DistributionalCouplingStatus.SET_IDENTIFIED,
+        } and self.base_proof_ref is None:
+            raise ValueError("identified or set-identified coupling claims require base_proof_ref")
+        derived_targets = {
+            DistributionalProofTarget.QUANTILE,
+            DistributionalProofTarget.TAIL_PROB,
+            DistributionalProofTarget.EXPECTED_SHORTFALL,
+        }
+        if self.target in derived_targets:
+            if self.derived_from_target not in {
+                DistributionalProofTarget.CDF,
+                DistributionalProofTarget.SURVIVAL,
+                DistributionalProofTarget.MARGINAL_PAIR,
+            }:
+                raise ValueError("derived distributional targets must cite a CDF/survival source")
+            if self.bound_uniformity is DistributionalBoundUniformity.POINTWISE_ONLY:
+                raise ValueError("derived distributional targets cannot rely on pointwise-only bounds")
+        elif self.derived_from_target is not None:
+            raise ValueError("derived_from_target is only valid for derived functionals")
+        if self.bound_uniformity in {
+            DistributionalBoundUniformity.UNIFORM_SHARP,
+            DistributionalBoundUniformity.UNIFORM_OUTER,
+            DistributionalBoundUniformity.POINTWISE_ONLY,
+        } and self.bounded_curve_ref is None:
+            raise ValueError("bounded proof artifacts require bounded_curve_ref")
+        if self.bound_uniformity is DistributionalBoundUniformity.IDENTIFIED and self.base_proof_ref is None:
+            raise ValueError("identified distributional proof artifacts require base_proof_ref")
+        if (
+            self.target is not DistributionalProofTarget.COUPLING
+            and self.bound_uniformity is DistributionalBoundUniformity.NOT_APPLICABLE
+            and self.base_proof_ref is None
+            and self.identified_curve_ref is None
+            and self.bounded_curve_ref is None
+        ):
+            raise ValueError("marginal distributional proof artifacts require proof or curve refs")
+        return self
+
+
 class DistributionBin(BaseModel):
     """Store one histogram bin in a normalized discrete distribution summary."""
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -226,6 +399,157 @@ class DiscreteDistributionSummary(BaseModel):
             )
         if self.min_value is not None and self.max_value is not None and self.min_value > self.max_value:
             raise ValueError("min_value must be <= max_value")
+        return self
+
+
+class GridAxis(BaseModel):
+    """Describe the grid over which a distributional envelope is reported."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    axis_name: str = Field(min_length=1)
+    values: tuple[float, ...] = Field(min_length=1)
+    unit: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_axis(self) -> "GridAxis":
+        _ensure_non_empty(self.axis_name, field_name="axis_name")
+        _ensure_non_empty(self.unit, field_name="unit")
+        previous: float | None = None
+        for value in self.values:
+            finite_value = _ensure_finite(value, field_name="values")
+            if finite_value is None:
+                raise ValueError("axis values must be finite")
+            if previous is not None and finite_value <= previous:
+                raise ValueError("axis values must be strictly increasing")
+            previous = finite_value
+        return self
+
+
+class FunctionalBounds(BaseModel):
+    """Store lower/upper envelopes for one functional on a fixed grid."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    lower: tuple[float, ...] = Field(min_length=1)
+    upper: tuple[float, ...] = Field(min_length=1)
+    monotone: bool | None = None
+    notes: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_bounds(self) -> "FunctionalBounds":
+        if len(self.lower) != len(self.upper):
+            raise ValueError("lower and upper bounds must have equal length")
+        for lower_value, upper_value in zip(self.lower, self.upper, strict=True):
+            finite_lower = _ensure_finite(lower_value, field_name="lower")
+            finite_upper = _ensure_finite(upper_value, field_name="upper")
+            if finite_lower is None or finite_upper is None:
+                raise ValueError("functional bounds must be finite")
+            if finite_lower > finite_upper:
+                raise ValueError("lower bounds must not exceed upper bounds")
+        return self
+
+
+class DistributionalBoundsMethodSummary(BaseModel):
+    """Summarize one distributional bounds construction on a fixed query grid."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    method: str = Field(min_length=1)
+    functional: DistributionalFunctional
+    axis: GridAxis
+    bounds: FunctionalBounds
+    sharpness: str = Field(default="unknown", pattern=r"^(sharp|inner_approx|outer_approx|unknown)$")
+    assumptions_used: list[str] = Field(default_factory=list)
+    display_label: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_summary(self) -> "DistributionalBoundsMethodSummary":
+        _ensure_non_empty(self.method, field_name="method")
+        if len(self.axis.values) != len(self.bounds.lower):
+            raise ValueError("distributional bounds axis and envelopes must have equal length")
+        return self
+
+
+class DistributionalBoundsBundle(BaseModel):
+    """Canonical bounds contract for partially identified distributional functionals."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    estimand_type: str = Field(min_length=1)
+    functional: DistributionalFunctional
+    axis: GridAxis
+    point_identified: bool = False
+    consensus_bounds: FunctionalBounds | None = None
+    sharpness_status: str = Field(
+        default="unknown",
+        pattern=r"^(sharp|inner_approx|outer_approx|unknown)$",
+    )
+    method_summaries: list[DistributionalBoundsMethodSummary] = Field(default_factory=list)
+    rescue_actions: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_bundle(self) -> "DistributionalBoundsBundle":
+        _ensure_non_empty(self.estimand_type, field_name="estimand_type")
+        warnings = list(self.warnings)
+        for summary in self.method_summaries:
+            if summary.functional is not self.functional:
+                raise ValueError("all method_summaries must target the bundle functional")
+            if summary.axis != self.axis:
+                raise ValueError("all method_summaries must use the bundle axis")
+
+        consensus_bounds = self.consensus_bounds
+        if consensus_bounds is not None and len(consensus_bounds.lower) != len(self.axis.values):
+            raise ValueError("consensus_bounds and axis must have equal length")
+
+        if consensus_bounds is None and self.method_summaries:
+            consensus_lower = tuple(
+                max(summary.bounds.lower[index] for summary in self.method_summaries)
+                for index in range(len(self.axis.values))
+            )
+            consensus_upper = tuple(
+                min(summary.bounds.upper[index] for summary in self.method_summaries)
+                for index in range(len(self.axis.values))
+            )
+            if any(lower > upper for lower, upper in zip(consensus_lower, consensus_upper, strict=True)):
+                warnings.append(
+                    "Consensus envelope is empty at one or more grid points; inspect method-specific bounds."
+                )
+            else:
+                consensus_bounds = FunctionalBounds(
+                    lower=consensus_lower,
+                    upper=consensus_upper,
+                )
+
+        sharpness_status = self.sharpness_status
+        if self.method_summaries:
+            inferred_status = min(
+                (summary.sharpness for summary in self.method_summaries),
+                key=lambda candidate: {
+                    "unknown": 0,
+                    "outer_approx": 1,
+                    "inner_approx": 2,
+                    "sharp": 3,
+                }[candidate],
+            )
+            if sharpness_status == "unknown":
+                sharpness_status = inferred_status
+
+        point_identified = self.point_identified
+        if consensus_bounds is not None:
+            point_identified = all(
+                abs(upper - lower) <= 1e-12
+                for lower, upper in zip(consensus_bounds.lower, consensus_bounds.upper, strict=True)
+            )
+
+        object.__setattr__(self, "consensus_bounds", consensus_bounds)
+        object.__setattr__(self, "sharpness_status", sharpness_status)
+        object.__setattr__(self, "point_identified", point_identified)
+        object.__setattr__(self, "warnings", warnings)
         return self
 
 
@@ -394,6 +718,7 @@ class DistributionalEffectBundle(BaseModel):
     quantile_shift_ref: ArtifactRefModel | None = None
     tail_risk_delta_ref: ArtifactRefModel | None = None
     subgroup_distribution_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    distributional_bounds_refs: list[DistributionalBoundsBundleRef] = Field(default_factory=list)
     marginal_law_proof_ref: ArtifactRefModel | None = None
     distributional_proof_ref: ArtifactRefModel | None = None
     coupling_proof_ref: ArtifactRefModel | None = None
@@ -432,9 +757,68 @@ class DistributionalEffectBundle(BaseModel):
         if self.distributional_proof_ref is None and marginal_law_proof_ref is not None:
             object.__setattr__(self, "distributional_proof_ref", marginal_law_proof_ref)
         object.__setattr__(self, "justification", legacy_justification)
+        _validate_ref_kind(
+            self.distributional_proof_ref,
+            field_name="distributional_proof_ref",
+            allowed_kinds={"ir.distributional_proof_artifact", "ir.proof_bundle"},
+        )
+        _validate_ref_kind(
+            self.coupling_proof_ref,
+            field_name="coupling_proof_ref",
+            allowed_kinds={"ir.distributional_proof_artifact", "ir.negative_certificate"},
+        )
+        _validate_ref_list_kind(
+            self.distributional_bounds_refs,
+            field_name="distributional_bounds_refs",
+            allowed_kind="ir.distributional_bounds_bundle",
+        )
+        _validate_ref_list_kind(
+            self.causal_assumption_refs,
+            field_name="causal_assumption_refs",
+            allowed_kind="ir.causal_assumption_card",
+        )
+        if (
+            marginal_law_justification is DistributionalJustification.BOUNDED
+            and (
+                not self.distributional_bounds_refs
+                or self.distributional_proof_ref is None
+                or self.distributional_proof_ref.kind != "ir.distributional_proof_artifact"
+            )
+        ):
+            raise ValueError(
+                "marginal_law_justification='bounded' requires distributional_bounds_refs "
+                "and distributional_proof_ref"
+            )
+        if (
+            marginal_law_justification is DistributionalJustification.IDENTIFIED
+            and self.distributional_proof_ref is None
+        ):
+            raise ValueError("marginal_law_justification='identified' requires distributional_proof_ref")
+        if (
+            coupling_justification is DistributionalJustification.BOUNDED
+            and (
+                self.coupling_proof_ref is None
+                or self.coupling_proof_ref.kind != "ir.distributional_proof_artifact"
+            )
+        ):
+            raise ValueError(
+                "coupling_justification='bounded' requires coupling_proof_ref"
+            )
+        if (
+            coupling_justification is DistributionalJustification.IDENTIFIED
+            and (
+                self.coupling_proof_ref is None
+                or self.coupling_proof_ref.kind != "ir.distributional_proof_artifact"
+            )
+        ):
+            raise ValueError("coupling_justification='identified' requires coupling_proof_ref")
         _validate_unique_artifact_refs(
             self.subgroup_distribution_refs,
             field_name="subgroup_distribution_refs",
+        )
+        _validate_unique_artifact_refs(
+            self.distributional_bounds_refs,
+            field_name="distributional_bounds_refs",
         )
         _validate_unique_artifact_refs(
             self.causal_assumption_refs,
@@ -655,6 +1039,36 @@ def load_discrete_distribution_summary(
     return _load_distributional_leaf(store, ref, DiscreteDistributionSummary)
 
 
+def persist_distributional_bounds_bundle(
+    store: ArtifactStore,
+    bundle: DistributionalBoundsBundle,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> DistributionalBoundsBundleRef:
+    """Persist a distributional bounds bundle and return its typed artifact ref."""
+
+    ref = put_json_artifact(
+        store,
+        bundle.model_dump(mode="json"),
+        kind="ir.distributional_bounds_bundle",
+        schema_name=_DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_NAME,
+        schema_version=_DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_VERSION,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return DistributionalBoundsBundleRef.model_validate(ref)
+
+
+def load_distributional_bounds_bundle(
+    store: ArtifactStore,
+    ref: DistributionalBoundsBundleRef,
+) -> DistributionalBoundsBundle:
+    """Load distributional bounds bundle."""
+
+    payload = get_json_artifact(store, ref.artifact_id)
+    return DistributionalBoundsBundle.model_validate(payload)
+
+
 def persist_ot_coupling_summary(
     store: ArtifactStore,
     summary: OTCouplingSummary,
@@ -755,6 +1169,58 @@ def load_subgroup_distribution_comparison(
     return _load_distributional_leaf(store, ref, SubgroupDistributionComparison)
 
 
+def persist_causal_assumption_card(
+    store: ArtifactStore,
+    card: CausalAssumptionCard,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> CausalAssumptionCardRef:
+    """Persist one typed causal-assumption card."""
+    ref = _persist_distributional_leaf(
+        store,
+        card,
+        kind="ir.causal_assumption_card",
+        schema_name=_CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME,
+        schema_version=_CAUSAL_ASSUMPTION_CARD_SCHEMA_VERSION,
+        inputs=inputs,
+    )
+    return CausalAssumptionCardRef.model_validate(ref)
+
+
+def load_causal_assumption_card(
+    store: ArtifactStore,
+    ref: CausalAssumptionCardRef,
+) -> CausalAssumptionCard:
+    """Load one causal-assumption card."""
+    return _load_distributional_leaf(store, ref, CausalAssumptionCard)
+
+
+def persist_distributional_proof_artifact(
+    store: ArtifactStore,
+    artifact: DistributionalProofArtifact,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> DistributionalProofArtifactRef:
+    """Persist a typed distributional proof wrapper."""
+    ref = _persist_distributional_leaf(
+        store,
+        artifact,
+        kind="ir.distributional_proof_artifact",
+        schema_name=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME,
+        schema_version=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_VERSION,
+        inputs=inputs,
+    )
+    return DistributionalProofArtifactRef.model_validate(ref)
+
+
+def load_distributional_proof_artifact(
+    store: ArtifactStore,
+    ref: DistributionalProofArtifactRef,
+) -> DistributionalProofArtifact:
+    """Load a typed distributional proof wrapper."""
+    return _load_distributional_leaf(store, ref, DistributionalProofArtifact)
+
+
 def persist_distributional_effect_bundle(
     store: ArtifactStore,
     bundle: DistributionalEffectBundle,
@@ -814,15 +1280,25 @@ def load_distributional_report(
 
 
 __all__ = [
+    "CausalAssumptionCard",
     "CohortDimension",
     "CohortImpact",
     "CouplingDiagnostics",
     "DimensionBreakdown",
     "DiscreteDistributionSummary",
     "DistributionBin",
+    "DistributionalBoundUniformity",
+    "DistributionalBoundsBundle",
+    "DistributionalBoundsMethodSummary",
+    "DistributionalCouplingStatus",
     "DistributionalEffectBundle",
+    "DistributionalFunctional",
     "DistributionalJustification",
+    "DistributionalProofArtifact",
+    "DistributionalProofTarget",
     "DistributionalReport",
+    "FunctionalBounds",
+    "GridAxis",
     "ImpactDirection",
     "MetricUnit",
     "OTCouplingSummary",
@@ -835,14 +1311,20 @@ __all__ = [
     "WinnersLosersTable",
     "persist_discrete_distribution_summary",
     "load_discrete_distribution_summary",
+    "persist_distributional_bounds_bundle",
+    "load_distributional_bounds_bundle",
     "persist_distributional_effect_bundle",
     "load_distributional_effect_bundle",
+    "persist_distributional_proof_artifact",
+    "load_distributional_proof_artifact",
     "persist_distributional_report",
     "load_distributional_report",
     "persist_ot_coupling_summary",
     "load_ot_coupling_summary",
     "persist_quantile_shift_summary",
     "load_quantile_shift_summary",
+    "persist_causal_assumption_card",
+    "load_causal_assumption_card",
     "persist_subgroup_distribution_comparison",
     "load_subgroup_distribution_comparison",
     "persist_tail_risk_delta_summary",

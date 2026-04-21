@@ -7,7 +7,7 @@ Related explanation: [Trinity](../../explanation/trinity.md).
 references. The package is intentionally execution-free: Scientist and Foundry
 consume these models, but business logic lives outside the IR layer.
 
-Freshness: 2026-04-17
+Freshness: 2026-04-20
 Owner: `@ir-owners`
 Source of truth: `src/polisyos/ir/**`, `schemas/abi_models.py`, `tests/ir/**`, `tests/contract/**`, `docs/contracts/E1_*.md`, `docs/contracts/E2_*.md`
 Source plan: `docs/IR_AUDIT_REMEDIATION_PLAN.md`, D1-L4 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
@@ -32,7 +32,10 @@ Source plan: `docs/IR_AUDIT_REMEDIATION_PLAN.md`, D1-L4 section in `docs/DOCUMEN
 | [Compiler Pipeline](compiler-pipeline.md) | Pass manager, analysis cache, estimand normalization, lineage graph, dead-artifact diagnostics | `ir.passes`, `ir.analytics.estimand`, `ir.artifacts.lineage` |
 | [Interoperability](interoperability.md) | Transport contracts, PROV-O mapping, standards bridges, and causal ecosystem exchange | `ir.artifacts.transport`, `ir.world.prov_o`, `ir.observation.bridges`, `ir.analytics.ecosystem_bridges` |
 | [Governance](governance.md) | Policy authoring, governance aliases, gate payloads | `ir.governance.*`, `ir.observation.governance` |
-| [Analytics](analytics.md) | Causal, HTE, backtest, uncertainty, strategic response | `ir.analytics.*` |
+| [Analytics](analytics.md) | Causal, HTE, backtest, uncertainty, strategic response, and typed recourse-manifold contracts | `ir.analytics.*` |
+| [Strategic Admissibility](strategic-admissibility.md) | Game-class registry, tractability tags, and fallback defaults for strategic contracts | `ir.analytics.strategic`, strategic solver fallback policy |
+| [Distributional Proof Artifacts](distributional-proof-artifacts.md) | Proof-carrying contract for marginal laws, bounds, and OT couplings | `ir.analytics.distributional`, `scientist.nodes.builtins.simulate.run_distributional_analysis` |
+| [Temporal Path Semantics](temporal-path-semantics.md) | Rough/signature path semantics, proof artifacts, and support rules for irregular-sampling trajectory bundles | `ir.analytics.dynamic_regime`, `ir.analytics.rough_path_semantics` |
 | [Observation](observation.md) | Records, panels, manifests, routing, readiness, execution | `ir.observation.*` |
 | [Problem Framing](problem-framing.md) | Goals, KPIs, constraints, stakeholders | `ir.governance.problem_frame` |
 
@@ -40,7 +43,7 @@ Source plan: `docs/IR_AUDIT_REMEDIATION_PLAN.md`, D1-L4 section in `docs/DOCUMEN
 
 | Output cluster | Exact files | Source of truth | Validation |
 |---|---|---|---|
-| IR reference set | `docs/reference/ir/index.md`, `docs/reference/ir/public-surface.md`, `docs/reference/ir/schema-catalog.md`, `docs/reference/ir/compiler-pipeline.md`, `docs/reference/ir/interoperability.md`, `docs/reference/ir/governance.md`, `docs/reference/ir/analytics.md`, `docs/reference/ir/observation.md`, `docs/reference/ir/problem-framing.md` | IR facades, schema catalog/reflection layer, pass pipeline, analytics and observation packages, governance models | `uv run pytest tests/ir/test_public_surface.py tests/ir/test_phase2_passes.py tests/ir/test_uncertainty.py tests/ir/test_interoperability_bridges.py -q` |
+| IR reference set | `docs/reference/ir/index.md`, `docs/reference/ir/public-surface.md`, `docs/reference/ir/schema-catalog.md`, `docs/reference/ir/compiler-pipeline.md`, `docs/reference/ir/interoperability.md`, `docs/reference/ir/governance.md`, `docs/reference/ir/analytics.md`, `docs/reference/ir/strategic-admissibility.md`, `docs/reference/ir/distributional-proof-artifacts.md`, `docs/reference/ir/temporal-path-semantics.md`, `docs/reference/ir/observation.md`, `docs/reference/ir/problem-framing.md` | IR facades, schema catalog/reflection layer, pass pipeline, analytics and observation packages, governance models | `uv run pytest tests/ir/test_public_surface.py tests/ir/test_phase2_passes.py tests/ir/test_uncertainty.py tests/ir/test_interoperability_bridges.py -q` |
 | Shared reference surfaces | `docs/reference/schemas.md`, `docs/reference/public-surface.md` | generated schema snapshots, public-surface manifests, architecture guardrails | `uv run --extra ml polisyos-tools diagnostics gen-schema --check` |
 | Contracts | `docs/contracts/TRINITY.md`, `docs/contracts/MERGE_SEMANTICS.md`, `docs/contracts/E1_*.md`, `docs/contracts/E2_*.md` | Trinity/linker contracts, merge semantics, ABI/schema contracts, snapshot-linked tests | `uv run polisyos-tools diagnostics generate-ir-reference-catalog --check` |
 | Package boundary READMEs | `src/polisyos/ir/README.md`, `src/polisyos/ir/trinity/README.md`, `src/polisyos/ir/analytics/README.md`, `src/polisyos/ir/observation/README.md`, `src/polisyos/ir/governance/README.md` | package facades and subsystem boundaries | `uv run pytest tests/ir/governance/test_phase5_governance_contracts.py tests/contract/test_trinity_linker_contract.py -q` |
@@ -96,6 +99,9 @@ Source plan: `docs/IR_AUDIT_REMEDIATION_PLAN.md`, D1-L4 section in `docs/DOCUMEN
 - `docs/reference/ir/schema-catalog.md` is generated from the same reflection layer that powers export/schema inspection.
 - `docs/reference/ir/compiler-pipeline.md` documents the execution-free pass layer introduced for compiler-grade IR validation and normalization.
 - `docs/reference/ir/analytics.md` also documents `polisyos.ir.analytics.strategic`, which is new in code but not yet re-exported from the root `polisyos.ir` facade.
+- `docs/reference/ir/strategic-admissibility.md` is the policy-facing guide to admissible strategic game classes and fallback defaults.
+- `docs/reference/ir/distributional-proof-artifacts.md` documents the Stage 5.1 proof-carrying split between marginal laws, bounds, and OT coupling claims.
+- `docs/reference/ir/temporal-path-semantics.md` documents the Stage 4.1 split between solver-family names and theorem-backed rough/signature path semantics.
 - Package-level facades are audited separately from the root boundary; see [Public Surface](public-surface.md) for lazy-facade policy and naming conventions.
 - Generated schema/reference freshness is checked by `uv run --extra ml polisyos-tools diagnostics gen-schema --check`.
 

@@ -1,0 +1,396 @@
+{
+  "$defs": {
+    "ActionChannel": {
+      "additionalProperties": false,
+      "description": "How a mutable node can actually be acted upon in the real world.",
+      "properties": {
+        "channel": {
+          "title": "Channel",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "latency": {
+          "default": "instantaneous",
+          "enum": [
+            "instantaneous",
+            "short_term",
+            "long_term"
+          ],
+          "title": "Latency",
+          "type": "string"
+        },
+        "node": {
+          "title": "Node",
+          "type": "string"
+        },
+        "prerequisite_refs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Prerequisite Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "node",
+        "channel"
+      ],
+      "title": "ActionChannel",
+      "type": "object"
+    },
+    "ActionDomain": {
+      "additionalProperties": false,
+      "description": "Admissible-values specification for a single action channel.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "kind": {
+          "enum": [
+            "discrete",
+            "interval",
+            "finite_policy"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "node": {
+          "title": "Node",
+          "type": "string"
+        },
+        "policy_refs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Policy Refs",
+          "type": "array"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "values": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "node",
+        "kind"
+      ],
+      "title": "ActionDomain",
+      "type": "object"
+    },
+    "CanonicalizationPolicy": {
+      "description": "Rule that maps an equivalence class to its canonical representative.",
+      "enum": [
+        "quotient_infimum",
+        "minimal_support_repr"
+      ],
+      "title": "CanonicalizationPolicy",
+      "type": "string"
+    },
+    "CouplingCost": {
+      "additionalProperties": false,
+      "description": "Budget / complementarity / sequencing coupling across primitive actions.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "kind": {
+          "default": "budget",
+          "enum": [
+            "budget",
+            "complementarity",
+            "sequencing"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limit"
+        },
+        "nodes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Nodes",
+          "type": "array"
+        }
+      },
+      "title": "CouplingCost",
+      "type": "object"
+    },
+    "EquivalenceMode": {
+      "description": "Equivalence relation used to build the quotient manifold.",
+      "enum": [
+        "same_counterfactual_distribution",
+        "same_interventional_distribution",
+        "same_bounded_effect_class"
+      ],
+      "title": "EquivalenceMode",
+      "type": "string"
+    },
+    "PrimitiveCost": {
+      "additionalProperties": false,
+      "description": "Primitive actuation cost ``c_v(theta_v; x^F)`` for one node.",
+      "properties": {
+        "base_cost": {
+          "minimum": 0.0,
+          "title": "Base Cost",
+          "type": "number"
+        },
+        "cost_kind": {
+          "default": "constant",
+          "enum": [
+            "constant",
+            "linear",
+            "quadratic",
+            "tabular"
+          ],
+          "title": "Cost Kind",
+          "type": "string"
+        },
+        "curvature": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Curvature"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "node": {
+          "title": "Node",
+          "type": "string"
+        },
+        "slope": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slope"
+        },
+        "table": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Table",
+          "type": "object"
+        }
+      },
+      "required": [
+        "node",
+        "base_cost"
+      ],
+      "title": "PrimitiveCost",
+      "type": "object"
+    },
+    "RecourseSemantics": {
+      "description": "Recourse semantic regime selected by the query.\n\nDistinguishes individualized counterfactual semantics from weaker\nprobabilistic / subpopulation / bounded regimes. The proof kernel uses\nthis field to choose identification pathways and refuse requests that\ncannot be supported under the selected regime.",
+      "enum": [
+        "counterfactual_unit",
+        "probabilistic_counterfactual_unit",
+        "interventional_subpopulation",
+        "bounded_recourse"
+      ],
+      "title": "RecourseSemantics",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Quotient cost geometry on the space of mutable interventions.\n\nThe manifold records:\n\n* which nodes are mutable or immutable,\n* how mutable nodes can actually be actuated (``action_channels``),\n* the admissible domain for each channel,\n* programmatic / legal prerequisites,\n* primitive per-node costs ``c_v(theta_v; x^F)``,\n* coupling costs across actions (budget, complementarity, sequencing),\n* the equivalence relation used to form classes ``[a]`` and the rule used\n  to canonicalise each class.\n\nTwo interventions are identified when their post-intervention laws\ncoincide under ``equivalence_mode``; the cost of a class is the infimum of\nbase costs over its representatives. This implements the\nzero-marginal-cost-for-causally-entailed-change property that separates\ncausal manifold recourse from naive feature-space counterfactuals.",
+  "properties": {
+    "action_channels": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ActionChannel"
+      },
+      "title": "Action Channels",
+      "type": "array"
+    },
+    "canonicalization_policy": {
+      "$ref": "#/$defs/CanonicalizationPolicy",
+      "default": "quotient_infimum"
+    },
+    "coupling_costs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CouplingCost"
+      },
+      "title": "Coupling Costs",
+      "type": "array"
+    },
+    "domains": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ActionDomain"
+      },
+      "title": "Domains",
+      "type": "array"
+    },
+    "equivalence_mode": {
+      "$ref": "#/$defs/EquivalenceMode",
+      "default": "same_counterfactual_distribution"
+    },
+    "factual_unit_ref": {
+      "title": "Factual Unit Ref",
+      "type": "string"
+    },
+    "immutable_nodes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Immutable Nodes",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "mutable_nodes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Mutable Nodes",
+      "type": "array"
+    },
+    "prerequisite_refs": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Prerequisite Refs",
+      "type": "array"
+    },
+    "primitive_costs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PrimitiveCost"
+      },
+      "title": "Primitive Costs",
+      "type": "array"
+    },
+    "robustness_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Robustness Ref"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scm_ref": {
+      "title": "Scm Ref",
+      "type": "string"
+    },
+    "semantics": {
+      "$ref": "#/$defs/RecourseSemantics"
+    }
+  },
+  "required": [
+    "scm_ref",
+    "factual_unit_ref",
+    "semantics",
+    "mutable_nodes"
+  ],
+  "title": "InterventionCostManifold",
+  "type": "object"
+}

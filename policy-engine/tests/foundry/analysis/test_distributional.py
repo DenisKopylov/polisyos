@@ -86,6 +86,26 @@ def test_distributional_report_roundtrip_and_negative_flag(tmp_path) -> None:
     assert loaded.winners_losers.total_winners_share >= 0.0
 
 
+def test_distributional_report_carries_ordinal_poverty_summary() -> None:
+    incomes_before = np.array([100.0, 120.0, 150.0, 200.0, 400.0] * 4)
+    incomes_after = incomes_before * np.array([0.9, 0.95, 1.0, 1.05, 1.1] * 4)
+    breakdown = build_income_quintile_breakdown(incomes_before, incomes_after)
+
+    report = build_distributional_report(
+        [breakdown],
+        incomes_before=incomes_before,
+        incomes_after=incomes_after,
+        ordinal_poverty_summary={
+            "status": "included",
+            "baseline": {"ordinal_adjusted_headcount_q": 0.2},
+            "counterfactual": {"ordinal_adjusted_headcount_q": 0.1},
+        },
+    )
+
+    assert report.ordinal_poverty_summary["status"] == "included"
+    assert report.ordinal_poverty_summary["baseline"]["ordinal_adjusted_headcount_q"] == pytest.approx(0.2)
+
+
 def test_income_quintile_breakdown_handles_tied_incomes() -> None:
     incomes_before = np.ones(10)
     incomes_after = np.ones(10) * 2.0

@@ -1317,6 +1317,485 @@
         "title": "CapabilityManifestResponse",
         "type": "object"
       },
+      "CausalFrontierAreaRecord": {
+        "additionalProperties": false,
+        "description": "Inline representation of one area-level SAE row.",
+        "properties": {
+          "area_id": {
+            "minLength": 1,
+            "title": "Area Id",
+            "type": "string"
+          },
+          "covariates": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Covariates",
+            "type": "object"
+          },
+          "direct_estimate": {
+            "title": "Direct Estimate",
+            "type": "number"
+          },
+          "direct_variance": {
+            "exclusiveMinimum": 0.0,
+            "title": "Direct Variance",
+            "type": "number"
+          },
+          "policy_indicator": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Indicator"
+          },
+          "regime_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regime Id"
+          },
+          "sample_size": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Size"
+          }
+        },
+        "required": [
+          "area_id",
+          "direct_estimate",
+          "direct_variance"
+        ],
+        "title": "CausalFrontierAreaRecord",
+        "type": "object"
+      },
+      "CausalFrontierEdgeRecord": {
+        "additionalProperties": false,
+        "description": "Inline representation of one adjacency edge with optional frontier metadata.",
+        "properties": {
+          "adjacency_type": {
+            "default": "custom",
+            "enum": [
+              "contiguity",
+              "distance",
+              "custom"
+            ],
+            "title": "Adjacency Type",
+            "type": "string"
+          },
+          "dst_area_id": {
+            "minLength": 1,
+            "title": "Dst Area Id",
+            "type": "string"
+          },
+          "frontier_flag": {
+            "default": false,
+            "title": "Frontier Flag",
+            "type": "boolean"
+          },
+          "frontier_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frontier Source"
+          },
+          "frontier_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frontier Type"
+          },
+          "src_area_id": {
+            "minLength": 1,
+            "title": "Src Area Id",
+            "type": "string"
+          },
+          "weight": {
+            "default": 1.0,
+            "minimum": 0.0,
+            "title": "Weight",
+            "type": "number"
+          }
+        },
+        "required": [
+          "src_area_id",
+          "dst_area_id"
+        ],
+        "title": "CausalFrontierEdgeRecord",
+        "type": "object"
+      },
+      "CausalFrontierExposureRecord": {
+        "additionalProperties": false,
+        "description": "Optional spillover/exposure row aligned to one area.",
+        "properties": {
+          "area_id": {
+            "minLength": 1,
+            "title": "Area Id",
+            "type": "string"
+          },
+          "exposure_mapping_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exposure Mapping Version"
+          },
+          "spillover_exposure": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spillover Exposure"
+          },
+          "treatment": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Treatment"
+          }
+        },
+        "required": [
+          "area_id"
+        ],
+        "title": "CausalFrontierExposureRecord",
+        "type": "object"
+      },
+      "CausalFrontierOutputRefs": {
+        "additionalProperties": false,
+        "description": "Artifact references emitted by runtime causal-frontier SAE execution.",
+        "properties": {
+          "causal_diagnostics_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dependence_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "governance_artifact_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quality_certificate_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sae_estimates_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "CausalFrontierOutputRefs",
+        "type": "object"
+      },
+      "CausalFrontierSAEEstimate": {
+        "additionalProperties": false,
+        "description": "Output row for `sae_estimates.parquet` and runtime API responses.",
+        "properties": {
+          "area_id": {
+            "title": "Area Id",
+            "type": "string"
+          },
+          "borrow_strength_neighbors": {
+            "title": "Borrow Strength Neighbors",
+            "type": "integer"
+          },
+          "component_id": {
+            "title": "Component Id",
+            "type": "integer"
+          },
+          "mse": {
+            "title": "Mse",
+            "type": "number"
+          },
+          "theta_mean": {
+            "title": "Theta Mean",
+            "type": "number"
+          },
+          "theta_sd": {
+            "title": "Theta Sd",
+            "type": "number"
+          }
+        },
+        "required": [
+          "area_id",
+          "theta_mean",
+          "theta_sd",
+          "mse",
+          "component_id",
+          "borrow_strength_neighbors"
+        ],
+        "title": "CausalFrontierSAEEstimate",
+        "type": "object"
+      },
+      "CausalFrontierSAERequest": {
+        "additionalProperties": false,
+        "description": "Run boundary-constrained small-area estimation from inline rows or one bundle dir.",
+        "properties": {
+          "add_intercept": {
+            "default": true,
+            "title": "Add Intercept",
+            "type": "boolean"
+          },
+          "areas": {
+            "items": {
+              "$ref": "#/components/schemas/CausalFrontierAreaRecord"
+            },
+            "title": "Areas",
+            "type": "array"
+          },
+          "bundle_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bundle Dir"
+          },
+          "calibration_reps": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Calibration Reps",
+            "type": "integer"
+          },
+          "calibration_seed": {
+            "default": 0,
+            "title": "Calibration Seed",
+            "type": "integer"
+          },
+          "component_ridge": {
+            "default": 1e-06,
+            "minimum": 0.0,
+            "title": "Component Ridge",
+            "type": "number"
+          },
+          "contrast_eps": {
+            "default": 1e-08,
+            "exclusiveMinimum": 0.0,
+            "title": "Contrast Eps",
+            "type": "number"
+          },
+          "covariate_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Covariate Columns"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/CausalFrontierEdgeRecord"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "exposure": {
+            "items": {
+              "$ref": "#/components/schemas/CausalFrontierExposureRecord"
+            },
+            "title": "Exposure",
+            "type": "array"
+          },
+          "governance_profile": {
+            "default": "mvp",
+            "enum": [
+              "fast",
+              "mvp",
+              "strict"
+            ],
+            "title": "Governance Profile",
+            "type": "string"
+          },
+          "green_threshold": {
+            "default": 0.05,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Green Threshold",
+            "type": "number"
+          },
+          "lambda_spatial": {
+            "default": 1.0,
+            "minimum": 0.0,
+            "title": "Lambda Spatial",
+            "type": "number"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "output_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Dir"
+          },
+          "persist_artifacts": {
+            "default": false,
+            "title": "Persist Artifacts",
+            "type": "boolean"
+          },
+          "red_threshold": {
+            "default": 0.15,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Red Threshold",
+            "type": "number"
+          }
+        },
+        "title": "CausalFrontierSAERequest",
+        "type": "object"
+      },
+      "CausalFrontierSAEResponse": {
+        "additionalProperties": false,
+        "description": "Runtime response for causal-frontier small-area estimation.",
+        "properties": {
+          "artifact_refs": {
+            "$ref": "#/components/schemas/CausalFrontierOutputRefs"
+          },
+          "diagnostics": {
+            "additionalProperties": true,
+            "title": "Diagnostics",
+            "type": "object"
+          },
+          "estimates": {
+            "items": {
+              "$ref": "#/components/schemas/CausalFrontierSAEEstimate"
+            },
+            "title": "Estimates",
+            "type": "array"
+          },
+          "governance_artifact": {
+            "additionalProperties": true,
+            "title": "Governance Artifact",
+            "type": "object"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "method_name": {
+            "title": "Method Name",
+            "type": "string"
+          },
+          "output_bundle": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Output Bundle",
+            "type": "object"
+          }
+        },
+        "required": [
+          "meta",
+          "method_name"
+        ],
+        "title": "CausalFrontierSAEResponse",
+        "type": "object"
+      },
       "CompareDeltaSection": {
         "additionalProperties": false,
         "description": "Compare delta section public type.",
@@ -5012,6 +5491,475 @@
           "dataset_id"
         ],
         "title": "MetricCandidate",
+        "type": "object"
+      },
+      "MobilityBoundsRequest": {
+        "additionalProperties": false,
+        "description": "Request payload for runtime mobility bounds endpoints.",
+        "properties": {
+          "column_marginals": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column Marginals"
+          },
+          "headline_metric": {
+            "default": "upward_rate",
+            "title": "Headline Metric",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "observed_joint_matrix": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "title": "Observed Joint Matrix",
+            "type": "array"
+          },
+          "persist_artifact": {
+            "default": true,
+            "title": "Persist Artifact",
+            "type": "boolean"
+          },
+          "row_marginals": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Row Marginals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "observed_joint_matrix",
+          "row_marginals"
+        ],
+        "title": "MobilityBoundsRequest",
+        "type": "object"
+      },
+      "MobilityBoundsResponse": {
+        "additionalProperties": false,
+        "description": "Response envelope returned for direct or report-linked mobility bounds.",
+        "properties": {
+          "bounds": {
+            "additionalProperties": true,
+            "title": "Bounds",
+            "type": "object"
+          },
+          "bounds_bundle_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cell_bounds": {
+            "additionalProperties": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "title": "Cell Bounds",
+            "type": "object"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "mobility_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "summary_bounds": {
+            "additionalProperties": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "title": "Summary Bounds",
+            "type": "object"
+          }
+        },
+        "required": [
+          "meta",
+          "bounds"
+        ],
+        "title": "MobilityBoundsResponse",
+        "type": "object"
+      },
+      "MobilityDiagnosticsResponse": {
+        "additionalProperties": false,
+        "description": "Response envelope returned when loading mobility diagnostics only.",
+        "properties": {
+          "diagnostics": {
+            "additionalProperties": true,
+            "title": "Diagnostics",
+            "type": "object"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "mobility_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef"
+          }
+        },
+        "required": [
+          "meta",
+          "diagnostics",
+          "mobility_report_ref"
+        ],
+        "title": "MobilityDiagnosticsResponse",
+        "type": "object"
+      },
+      "MobilityEstimateRequest": {
+        "additionalProperties": false,
+        "description": "Request payload for runtime mobility estimation endpoints.",
+        "properties": {
+          "attrition_features": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attrition Features"
+          },
+          "attrition_features_by_wave": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "items": {
+                      "type": "number"
+                    },
+                    "type": "array"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attrition Features By Wave"
+          },
+          "compute_bounds": {
+            "default": true,
+            "title": "Compute Bounds",
+            "type": "boolean"
+          },
+          "destination_classes": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Destination Classes",
+            "type": "array"
+          },
+          "destination_marginals": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Destination Marginals"
+          },
+          "estimator": {
+            "default": "aipw",
+            "enum": [
+              "ipcw",
+              "aipw"
+            ],
+            "title": "Estimator",
+            "type": "string"
+          },
+          "feature_names": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Feature Names",
+            "type": "array"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "mode": {
+            "default": "attrition_adjusted",
+            "enum": [
+              "complete_case",
+              "attrition_adjusted",
+              "sequential_attrition_adjusted",
+              "refreshment_anchored"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "monotone": {
+            "default": true,
+            "title": "Monotone",
+            "type": "boolean"
+          },
+          "n_classes": {
+            "default": 5,
+            "minimum": 2.0,
+            "title": "N Classes",
+            "type": "integer"
+          },
+          "origin_classes": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Origin Classes",
+            "type": "array"
+          },
+          "panel_length": {
+            "anyOf": [
+              {
+                "minimum": 2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Panel Length"
+          },
+          "persist_artifact": {
+            "default": true,
+            "title": "Persist Artifact",
+            "type": "boolean"
+          },
+          "positivity_floor": {
+            "default": 0.05,
+            "maximum": 0.49,
+            "minimum": 0.0,
+            "title": "Positivity Floor",
+            "type": "number"
+          },
+          "refreshment_destination_classes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refreshment Destination Classes"
+          },
+          "refreshment_weights": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refreshment Weights"
+          },
+          "retention_indicators": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention Indicators"
+          },
+          "retention_indicators_by_wave": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention Indicators By Wave"
+          },
+          "retention_probabilities": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention Probabilities"
+          },
+          "retention_probabilities_by_wave": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention Probabilities By Wave"
+          },
+          "sample_weights": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Weights"
+          },
+          "waves_used": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Waves Used",
+            "type": "array"
+          }
+        },
+        "title": "MobilityEstimateRequest",
+        "type": "object"
+      },
+      "MobilityEstimateResponse": {
+        "additionalProperties": false,
+        "description": "Response envelope returned after estimating a mobility report.",
+        "properties": {
+          "bounds_bundle_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "mobility_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "report": {
+            "additionalProperties": true,
+            "title": "Report",
+            "type": "object"
+          }
+        },
+        "required": [
+          "meta",
+          "report"
+        ],
+        "title": "MobilityEstimateResponse",
+        "type": "object"
+      },
+      "MobilityReportResponse": {
+        "additionalProperties": false,
+        "description": "Response envelope returned when loading one persisted mobility report.",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "mobility_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef"
+          },
+          "report": {
+            "additionalProperties": true,
+            "title": "Report",
+            "type": "object"
+          }
+        },
+        "required": [
+          "meta",
+          "report",
+          "mobility_report_ref"
+        ],
+        "title": "MobilityReportResponse",
         "type": "object"
       },
       "ModelProfileInfo": {
@@ -10053,6 +11001,292 @@
         "summary": "Get Auth Me",
         "tags": [
           "runtime-auth"
+        ]
+      }
+    },
+    "/api/v1/control/analytics/sae/causal-frontier": {
+      "post": {
+        "operationId": "estimate_causal_frontier_sae",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CausalFrontierSAERequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "estimate_causal_frontier_sae response example",
+                    "value": {
+                      "artifact_refs": {
+                        "causal_diagnostics_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "survey.causal_frontier_diagnostics",
+                          "media_type": "application/json"
+                        },
+                        "dependence_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "spatial.dependence_bundle",
+                          "media_type": "application/json"
+                        },
+                        "governance_artifact_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "scientist.governance_report",
+                          "media_type": "application/json"
+                        },
+                        "quality_certificate_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "fabric.quality_report",
+                          "media_type": "application/json"
+                        },
+                        "sae_estimates_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "survey.sae_estimates_bundle",
+                          "media_type": "application/json"
+                        }
+                      },
+                      "diagnostics": {
+                        "green_share": 1.0,
+                        "max_frontier_gap": 0.03,
+                        "n_areas": 1
+                      },
+                      "estimates": [
+                        {
+                          "area_id": "area_001",
+                          "borrow_strength_neighbors": 3,
+                          "component_id": 0,
+                          "mse": 0.0016,
+                          "theta_mean": 0.18,
+                          "theta_sd": 0.04
+                        }
+                      ],
+                      "governance_artifact": {
+                        "issues": [],
+                        "status": "pass",
+                        "summary": {
+                          "amber": 0,
+                          "green": 1,
+                          "red": 0
+                        }
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "method_name": "survey.sae.causal_frontier_fay_herriot",
+                      "output_bundle": {
+                        "diagnostics_path": "artifacts/causal_frontier_sae/diagnostics.json",
+                        "output_dir": "artifacts/causal_frontier_sae"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CausalFrontierSAEResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/analytics/sae/causal-frontier",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/analytics/sae/causal-frontier",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/analytics/sae/causal-frontier",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/analytics/sae/causal-frontier",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/analytics/sae/causal-frontier",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/analytics/sae/causal-frontier",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/analytics/sae/causal-frontier",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Run boundary-constrained causal-frontier small-area estimation",
+        "tags": [
+          "control-plane"
         ]
       }
     },
@@ -18983,6 +20217,1513 @@
         "summary": "Api Health",
         "tags": [
           "runtime-health"
+        ]
+      }
+    },
+    "/api/v1/mobility/bounds": {
+      "post": {
+        "operationId": "compute_mobility_bounds",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobilityBoundsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "compute_mobility_bounds response example",
+                    "value": {
+                      "bounds": {
+                        "best_in_class_claim": null,
+                        "consensus_lower": 0.1,
+                        "consensus_upper": 0.4,
+                        "dual_certificate_ref": null,
+                        "estimand_type": "mobility.upward_rate",
+                        "lower_bound": 0.1,
+                        "metadata": {
+                          "bounds_method": "sharp_transport_bounds_row_marginals",
+                          "headline_metric": "upward_rate",
+                          "summary_bounds": {
+                            "upward_rate": [
+                              0.1,
+                              0.4
+                            ]
+                          }
+                        },
+                        "method_summaries": [
+                          {
+                            "assumptions_used": [
+                              "observed_stayers_are_lower_bounds",
+                              "known_row_marginals"
+                            ],
+                            "bound_width": 0.3,
+                            "bounds_type": "sharp_lp",
+                            "certificate_kind": null,
+                            "certificate_ref": null,
+                            "display_label": "sharp_transport_bounds_row_marginals",
+                            "lower_bound": 0.1,
+                            "method": "transport_bounds",
+                            "solver_metadata": {
+                              "column_marginals_supplied": false,
+                              "headline_metric": "upward_rate",
+                              "n_cols": 2,
+                              "n_rows": 2
+                            },
+                            "soundness_level": null,
+                            "upper_bound": 0.4
+                          }
+                        ],
+                        "point_identified": false,
+                        "rescue_actions": [],
+                        "schema_version": "1.0",
+                        "sharpness_status": "unknown",
+                        "tightening_log_ref": null,
+                        "tightening_status": "not_run",
+                        "tightening_stop_reason": null,
+                        "upper_bound": 0.4,
+                        "warnings": [
+                          "destination_marginals_missing_bounds_may_be_wide"
+                        ]
+                      },
+                      "bounds_bundle_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "ir.bounds_bundle",
+                        "media_type": "application/json"
+                      },
+                      "cell_bounds": {
+                        "0,0": [
+                          0.2,
+                          0.4
+                        ],
+                        "0,1": [
+                          0.1,
+                          0.3
+                        ]
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "mobility_report_ref": null,
+                      "summary_bounds": {
+                        "immobility_rate": [
+                          0.4,
+                          0.9
+                        ],
+                        "upward_rate": [
+                          0.1,
+                          0.4
+                        ]
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MobilityBoundsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/mobility/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/mobility/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/mobility/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/mobility/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/mobility/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/mobility/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/mobility/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Compute Mobility Bounds",
+        "tags": [
+          "runtime-mobility"
+        ]
+      }
+    },
+    "/api/v1/mobility/estimate": {
+      "post": {
+        "operationId": "estimate_mobility",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobilityEstimateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "estimate_mobility response example",
+                    "value": {
+                      "bounds_bundle_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "ir.bounds_bundle",
+                        "media_type": "application/json"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "mobility_report_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "ir.mobility_report",
+                        "media_type": "application/json"
+                      },
+                      "report": {
+                        "analysis_type": "transition_matrix_attrition_adjusted",
+                        "artifact_name": "mobility_report_v2.json",
+                        "assumptions": [
+                          "class_definition_fixed_ex_ante",
+                          "mar_given_observables",
+                          "positivity",
+                          "origin_class_observed_for_all_units"
+                        ],
+                        "attrition": {
+                          "mechanism_assumed": "mar_given_observables",
+                          "monotone": true,
+                          "outcome_model": {
+                            "family": "weighted_linear_probability",
+                            "features": [
+                              "x_0"
+                            ],
+                            "metadata": {}
+                          },
+                          "pattern": "panel_attrition",
+                          "positivity_floor": 0.05,
+                          "refreshment_sample": false,
+                          "weight_model": {
+                            "family": "provided_probabilities",
+                            "features": [],
+                            "metadata": {}
+                          }
+                        },
+                        "bounds": {
+                          "bundle_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "kind": "ir.bounds_bundle",
+                            "media_type": "application/json"
+                          },
+                          "cell_bounds": {
+                            "0,0": [
+                              0.2,
+                              0.4
+                            ]
+                          },
+                          "method": "sharp_transport_bounds_row_marginals",
+                          "sharpness_status": "sharp_with_row_marginals",
+                          "summary_bounds": {
+                            "upward_rate": [
+                              0.1,
+                              0.4
+                            ]
+                          }
+                        },
+                        "diagnostics": {
+                          "balance": {
+                            "max_abs_smd_after": 0.08,
+                            "max_abs_smd_before": 0.4
+                          },
+                          "effective_sample_size": 120.5,
+                          "max_retention_probability": 0.9,
+                          "max_weight": 2.8,
+                          "min_retention_probability": 0.3,
+                          "observed_full_cases": 120,
+                          "observed_retention_rate": 0.6,
+                          "p99_weight": 2.3,
+                          "placebo_checks": {},
+                          "sensitivity_grid": {},
+                          "warnings": []
+                        },
+                        "estimand_id": "mobility.transition_matrix.attrition_adjusted",
+                        "metadata": {
+                          "estimator": "aipw"
+                        },
+                        "point_estimate": {
+                          "col_marginals": [
+                            0.5,
+                            0.5
+                          ],
+                          "joint_matrix": [
+                            [
+                              0.25,
+                              0.25
+                            ],
+                            [
+                              0.25,
+                              0.25
+                            ]
+                          ],
+                          "mobility_stats": {
+                            "downward_rate": 0.25,
+                            "immobility_rate": 0.5,
+                            "shorrocks_index": 0.5,
+                            "upward_rate": 0.25
+                          },
+                          "row_marginals": [
+                            0.5,
+                            0.5
+                          ],
+                          "transition_matrix": [
+                            [
+                              0.5,
+                              0.5
+                            ],
+                            [
+                              0.5,
+                              0.5
+                            ]
+                          ]
+                        },
+                        "population": {
+                          "class_definition": {
+                            "n_classes": 2,
+                            "type": "preclassified"
+                          },
+                          "panel_length": 2,
+                          "target_population": "panel baseline cohort",
+                          "waves_used": [
+                            1,
+                            2
+                          ],
+                          "weights_design": "uniform"
+                        },
+                        "schema_version": "2.0",
+                        "sensitivity_envelope": {
+                          "bounds_method": "sharp_transport_bounds_row_marginals",
+                          "summary_bounds": {
+                            "upward_rate": [
+                              0.1,
+                              0.4
+                            ]
+                          }
+                        },
+                        "status": "ok",
+                        "summary_metrics": {
+                          "downward_mobility_rate": 0.25,
+                          "immobility_rate": 0.5,
+                          "n_classes": 2,
+                          "n_obs": 120,
+                          "transition_matrix": [
+                            [
+                              0.5,
+                              0.5
+                            ],
+                            [
+                              0.5,
+                              0.5
+                            ]
+                          ],
+                          "upward_mobility_rate": 0.25
+                        },
+                        "uncertainty": {
+                          "bootstrap": {},
+                          "confidence_intervals": {},
+                          "covariance_ref": null,
+                          "method": "aipw_point_only",
+                          "standard_errors": {}
+                        },
+                        "upstream_refs": [
+                          "artifact://sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MobilityEstimateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/mobility/estimate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/mobility/estimate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/mobility/estimate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/mobility/estimate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/mobility/estimate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/mobility/estimate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/mobility/estimate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Estimate Mobility",
+        "tags": [
+          "runtime-mobility"
+        ]
+      }
+    },
+    "/api/v1/mobility/reports/{artifact_id}": {
+      "get": {
+        "operationId": "get_mobility_report",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_mobility_report response example",
+                    "value": {
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "mobility_report_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "ir.mobility_report",
+                        "media_type": "application/json"
+                      },
+                      "report": {
+                        "analysis_type": "transition_matrix_attrition_adjusted",
+                        "artifact_name": "mobility_report_v2.json",
+                        "metadata": {
+                          "estimator": "aipw"
+                        },
+                        "schema_version": "2.0",
+                        "sensitivity_envelope": {
+                          "summary_bounds": {
+                            "upward_rate": [
+                              0.1,
+                              0.4
+                            ]
+                          }
+                        },
+                        "status": "ok",
+                        "summary_metrics": {
+                          "n_classes": 2,
+                          "n_obs": 120
+                        },
+                        "upstream_refs": [
+                          "artifact://sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MobilityReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "links": {
+              "mobilityBounds": {
+                "description": "Load the linked bounds bundle for the same mobility report.",
+                "operationId": "get_mobility_report_bounds",
+                "parameters": {
+                  "artifact_id": "$response.body#/mobility_report_ref/artifact_id"
+                }
+              },
+              "mobilityDiagnostics": {
+                "description": "Load diagnostics for the same mobility report.",
+                "operationId": "get_mobility_report_diagnostics",
+                "parameters": {
+                  "artifact_id": "$response.body#/mobility_report_ref/artifact_id"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Mobility Report",
+        "tags": [
+          "runtime-mobility"
+        ]
+      }
+    },
+    "/api/v1/mobility/reports/{artifact_id}/bounds": {
+      "get": {
+        "operationId": "get_mobility_report_bounds",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_mobility_report_bounds response example",
+                    "value": {
+                      "bounds": {
+                        "best_in_class_claim": null,
+                        "consensus_lower": 0.1,
+                        "consensus_upper": 0.4,
+                        "dual_certificate_ref": null,
+                        "estimand_type": "mobility.upward_rate",
+                        "lower_bound": 0.1,
+                        "metadata": {
+                          "headline_metric": "upward_rate"
+                        },
+                        "method_summaries": [],
+                        "point_identified": false,
+                        "rescue_actions": [],
+                        "schema_version": "1.0",
+                        "sharpness_status": "unknown",
+                        "tightening_log_ref": null,
+                        "tightening_status": "not_run",
+                        "tightening_stop_reason": null,
+                        "upper_bound": 0.4,
+                        "warnings": []
+                      },
+                      "bounds_bundle_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "ir.bounds_bundle",
+                        "media_type": "application/json"
+                      },
+                      "cell_bounds": {
+                        "0,0": [
+                          0.2,
+                          0.4
+                        ]
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "mobility_report_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "ir.mobility_report",
+                        "media_type": "application/json"
+                      },
+                      "summary_bounds": {
+                        "upward_rate": [
+                          0.1,
+                          0.4
+                        ]
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MobilityBoundsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/bounds",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Mobility Report Bounds",
+        "tags": [
+          "runtime-mobility"
+        ]
+      }
+    },
+    "/api/v1/mobility/reports/{artifact_id}/diagnostics": {
+      "get": {
+        "operationId": "get_mobility_report_diagnostics",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_mobility_report_diagnostics response example",
+                    "value": {
+                      "diagnostics": {
+                        "balance": {
+                          "max_abs_smd_after": 0.08,
+                          "max_abs_smd_before": 0.4
+                        },
+                        "effective_sample_size": 120.5,
+                        "max_retention_probability": 0.9,
+                        "max_weight": 2.8,
+                        "min_retention_probability": 0.3,
+                        "observed_full_cases": 120,
+                        "observed_retention_rate": 0.6,
+                        "p99_weight": 2.3,
+                        "placebo_checks": {},
+                        "sensitivity_grid": {},
+                        "warnings": []
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "mobility_report_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "ir.mobility_report",
+                        "media_type": "application/json"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MobilityDiagnosticsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/diagnostics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/diagnostics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/diagnostics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/diagnostics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/diagnostics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/diagnostics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/mobility/reports/{artifact_id}/diagnostics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Mobility Report Diagnostics",
+        "tags": [
+          "runtime-mobility"
         ]
       }
     },

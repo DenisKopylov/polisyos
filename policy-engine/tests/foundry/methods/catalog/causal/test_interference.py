@@ -6,6 +6,7 @@ Covers:
 - SpatialInterferenceEstimator (kernel spatial spillover)
 - BipartiteInterferenceEstimator (Zigler & Papadogeorgou 2021)
 """
+
 from __future__ import annotations
 
 import math
@@ -27,6 +28,7 @@ from polisyos.ir.analytics.interference import (
 # Fixture: reset registry / dispatcher before each test
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 @pytest.fixture(autouse=True)
 def _reset_globals():
     MethodRegistry.reset_instance()
@@ -39,6 +41,7 @@ def _reset_globals():
 # ──────────────────────────────────────────────────────────────────────────────
 # Helpers: compute fractional exposure (mirrors production code for data gen)
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def _fractional_exposure(treatment: np.ndarray, cluster_id: np.ndarray) -> np.ndarray:
     clusters = np.unique(cluster_id)
@@ -58,6 +61,7 @@ def _fractional_exposure(treatment: np.ndarray, cluster_id: np.ndarray) -> np.nd
 # ──────────────────────────────────────────────────────────────────────────────
 # Synthetic data generators
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def _clustered_data(
     n_clusters: int = 10,
@@ -122,8 +126,8 @@ def _spatial_data(
 
     def _kernel_weights(coords: np.ndarray, bw: float) -> np.ndarray:
         diff = coords[:, np.newaxis, :] - coords[np.newaxis, :, :]
-        sq_dist = (diff ** 2).sum(axis=-1)
-        W = np.exp(-sq_dist / (2.0 * bw ** 2))
+        sq_dist = (diff**2).sum(axis=-1)
+        W = np.exp(-sq_dist / (2.0 * bw**2))
         np.fill_diagonal(W, 0.0)
         return W
 
@@ -178,6 +182,7 @@ def _bipartite_data(
 # Dispatch helper
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def _dispatch(
     fqn: str,
     data: NetworkCausalData,
@@ -200,6 +205,7 @@ def _dispatch(
 # Registry smoke test
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def test_all_methods_registered():
     ensure_causal_methods_registered()
     reg = MethodRegistry.get_instance()
@@ -216,6 +222,7 @@ def test_all_methods_registered():
 # ──────────────────────────────────────────────────────────────────────────────
 # PartialInterferenceEstimator tests
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def test_partial_interference_status_success():
     data = _clustered_data()
@@ -300,12 +307,13 @@ def test_partial_interference_total_effect():
     se = report.effects.spillover_effect
     te = report.effects.total_effect
     # TE = E[Y(1,α_high)] - E[Y(0,α_low)] = DE(α_high) + SE(α_high, α_low) approximately
-    assert abs(te - (de + se)) < 1.0, f"TE={te:.3f} vs DE+SE={de+se:.3f}"
+    assert abs(te - (de + se)) < 1.0, f"TE={te:.3f} vs DE+SE={de + se:.3f}"
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # NetworkAIPWEstimator tests
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def test_network_aipw_status_success():
     data = _network_data()
@@ -356,6 +364,7 @@ def test_network_aipw_effects_not_none_on_success():
 # SpatialInterferenceEstimator tests
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def test_spatial_interference_status_success():
     data = _spatial_data()
     report = _dispatch("causal.interference.spatial@1.0.0", data)
@@ -403,9 +412,139 @@ def test_spatial_fallback_to_adjacency():
     assert report.is_success
 
 
+def test_spatial_interference_maup_certificate_not_tested_without_partitions():
+    data = _spatial_data(n=120, seed=17)
+    report = _dispatch(
+        "causal.interference.spatial@1.0.0",
+        data,
+        params={"compute_maup_certificate": True, "bandwidth": 0.3},
+    )
+    assert report.maup_invariance_certificate is not None
+    assert report.maup_invariance_certificate.status == "not_tested"
+
+
+def test_spatial_interference_maup_certificate_with_candidate_partitions():
+    data = _spatial_data(n=160, seed=23)
+    coords = np.asarray(data.coordinates, dtype=float)
+    coarse_partition = (coords[:, 0] >= 0.5).astype(int) + 2 * (coords[:, 1] >= 0.5).astype(int)
+    fine_partition = np.floor(coords[:, 0] * 3).astype(int) + 3 * np.floor(coords[:, 1] * 3).astype(
+        int
+    )
+    report = _dispatch(
+        "causal.interference.spatial@1.0.0",
+        data,
+        params={
+            "compute_maup_certificate": True,
+            "bandwidth": 0.3,
+            "candidate_partitions": [
+                {"partition_id": "admin_v1", "block_of_unit": coarse_partition.tolist()},
+                {"partition_id": "hex_3x3", "block_of_unit": fine_partition.tolist()},
+            ],
+        },
+    )
+    certificate = report.maup_invariance_certificate
+    assert certificate is not None
+    assert certificate.partitions_tested == 2
+    assert len(certificate.partition_checks) == 2
+    assert certificate.partition_checks[0].partition_id == "admin_v1"
+    assert certificate.status in {"pass", "warn", "block"}
+
+
+def test_spatial_interference_hodge_diagnostics_attach_multiscale_profile():
+    data = _spatial_data(n=180, seed=29)
+    coords = np.asarray(data.coordinates, dtype=float)
+    coarse_partition = (coords[:, 0] >= 0.5).astype(int) + 2 * (coords[:, 1] >= 0.5).astype(int)
+    strip_partition = np.floor(coords[:, 0] * 5).astype(int)
+    report = _dispatch(
+        "causal.interference.spatial@1.0.0",
+        data,
+        params={
+            "bandwidth": 0.3,
+            "compute_hodge_diagnostics": True,
+            "scale_id": "district",
+            "zoning_id": "observed_admin",
+            "aggregation_rule": "mean",
+            "candidate_partitions": [
+                {
+                    "partition_id": "admin_quadrants",
+                    "scale_label": "region",
+                    "zoning_label": "admin_quadrants",
+                    "block_of_unit": coarse_partition.tolist(),
+                },
+                {
+                    "partition_id": "x_strips",
+                    "scale_label": "region",
+                    "zoning_label": "x_strips",
+                    "block_of_unit": strip_partition.tolist(),
+                },
+            ],
+        },
+    )
+    diagnostics = report.spatial_hodge_diagnostics
+    assert diagnostics is not None
+    assert diagnostics.declared_scale_id == "district"
+    assert diagnostics.declared_zoning_id == "observed_admin"
+    assert len(diagnostics.profiles) == 3
+    assert diagnostics.weight_hash
+    assert diagnostics.zoning_hash
+    assert diagnostics.aggregation_hash
+    assert diagnostics.topology_sensitivity is not None
+    assert diagnostics.max_profile_l1_gap >= 0.0
+    assert diagnostics.scale_instability >= 0.0
+    assert diagnostics.zoning_instability >= 0.0
+    total_eta = diagnostics.eta_grad + diagnostics.eta_curl + diagnostics.eta_harm
+    assert total_eta == pytest.approx(1.0, abs=1e-6) or total_eta == pytest.approx(0.0, abs=1e-6)
+    assert "spatial_hodge_summary" in report.metadata
+    assert report.metadata["spatial_hodge_summary"]["weight_hash"] == diagnostics.weight_hash
+
+
+def test_spatial_interference_maup_certificate_blocks_outcome_leakage():
+    data = _spatial_data(n=120, seed=33)
+    coords = np.asarray(data.coordinates, dtype=float)
+    partition = (coords[:, 0] >= 0.5).astype(int)
+    report = _dispatch(
+        "causal.interference.spatial@1.0.0",
+        data,
+        params={
+            "compute_maup_certificate": True,
+            "candidate_partitions": [
+                {"partition_id": "leaky_admin", "block_of_unit": partition.tolist()}
+            ],
+            "partitions_selected_post_outcome": True,
+        },
+    )
+    certificate = report.maup_invariance_certificate
+    assert certificate is not None
+    assert certificate.status == "block"
+    assert "MAUP_E_OUTCOME_LEAKAGE" in certificate.blocker_codes
+
+
+def test_spatial_interference_maup_certificate_not_identified_without_micro_support():
+    rng = np.random.default_rng(91)
+    n = 80
+    data = NetworkCausalData(
+        outcome=rng.normal(size=n),
+        treatment=rng.binomial(1, 0.5, size=n).astype(float),
+        cluster_id=np.repeat(np.arange(8), 10),
+    )
+    report = _dispatch(
+        "causal.interference.spatial@1.0.0",
+        data,
+        params={
+            "compute_maup_certificate": True,
+            "candidate_partitions": [{"partition_id": "clusters", "block_of_unit": data.cluster_id}],
+        },
+    )
+    certificate = report.maup_invariance_certificate
+    assert certificate is not None
+    assert certificate.status == "not_identified"
+    assert "MAUP_E_NO_MICRODATA" in certificate.blocker_codes
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # BipartiteInterferenceEstimator tests
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def test_bipartite_interference_status_success():
     data = _bipartite_data()
@@ -449,6 +588,7 @@ def test_bipartite_report_schema_version():
 # ──────────────────────────────────────────────────────────────────────────────
 # NetworkCausalData protocol validation tests
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def test_network_causal_data_cluster_id_valid():
     rng = np.random.default_rng(0)

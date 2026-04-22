@@ -314,6 +314,7 @@ ukraine-data = "polisyos.ukraine_data.cli:main"
 
 [project.entry-points."polisyos.scientist_governance_passes"]
 "budget" = "polisyos.scientist.governance.pass_entrypoints:budget_pass_factory"
+"causal_frontier_leakage" = "polisyos.scientist.governance.pass_entrypoints:causal_frontier_leakage_pass_factory"
 "checkpoint" = "polisyos.scientist.governance.pass_entrypoints:checkpoint_pass_factory"
 "schema" = "polisyos.scientist.governance.pass_entrypoints:schema_pass_factory"
 "privacy" = "polisyos.scientist.governance.pass_entrypoints:privacy_pass_factory"

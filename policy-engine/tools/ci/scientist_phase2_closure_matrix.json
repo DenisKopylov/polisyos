@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0",
+  "phase": "phase_2",
+  "blocking_transition": "PROOF_ONLY->ENGINEER_READY",
+  "artifact_families": [
+    {
+      "artifact_family": "econometrics_frontier",
+      "applies_to": ["econometrics_frontier"],
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY",
+      "deliverables": [
+        {
+          "deliverable_id": "post_selection_ci",
+          "typed_surface": "EconometricResult.post_selection_ci",
+          "required_tests": ["phase2_post_selection_ci"],
+          "required_benchmarks": ["high_dimensional_iv_synthetic_world"],
+          "required_synthetic_world_checks": ["post_selection_ci_phase0_world"],
+          "required_judge_verdicts": ["six_judge_post_selection_ci_promote"]
+        },
+        {
+          "deliverable_id": "threshold_state_field",
+          "typed_surface": "EconometricResult.threshold_state_field",
+          "required_tests": ["phase2_threshold_state_field"],
+          "required_benchmarks": ["threshold_kink_state_benchmark"],
+          "required_synthetic_world_checks": ["threshold_state_field_phase0_world"],
+          "required_judge_verdicts": ["six_judge_threshold_state_field_promote"]
+        },
+        {
+          "deliverable_id": "nonstationary_volatility",
+          "typed_surface": "EconometricResult.nonstationary_volatility",
+          "required_tests": ["phase2_nonstationary_volatility"],
+          "required_benchmarks": ["policy_risk_garch_nonstationary"],
+          "required_synthetic_world_checks": ["nonstationary_volatility_phase0_world"],
+          "required_judge_verdicts": ["six_judge_nonstationary_volatility_promote"]
+        }
+      ]
+    },
+    {
+      "artifact_family": "distributional_frontier",
+      "applies_to": ["distributional_frontier"],
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY",
+      "deliverables": [
+        {
+          "deliverable_id": "distributional_bounds_bundle",
+          "typed_surface": "DistributionalBoundsBundle",
+          "required_tests": ["phase2_distributional_bounds_bundle"],
+          "required_benchmarks": ["distributional_bounds_mtr_fosd_frontier"],
+          "required_synthetic_world_checks": ["distributional_bounds_phase0_world"],
+          "required_judge_verdicts": ["six_judge_distributional_bounds_promote"]
+        }
+      ]
+    },
+    {
+      "artifact_family": "network_identification",
+      "applies_to": ["network_identification"],
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY",
+      "deliverables": [
+        {
+          "deliverable_id": "peer_effect_decomposition",
+          "typed_surface": "NetworkResult.peer_effect_decomposition",
+          "required_tests": ["phase2_peer_effect_decomposition"],
+          "required_benchmarks": ["peer_effects_id_benchmark"],
+          "required_synthetic_world_checks": ["peer_effect_decomposition_phase0_world"],
+          "required_judge_verdicts": ["six_judge_peer_effects_promote"]
+        },
+        {
+          "deliverable_id": "formation_diagnostic",
+          "typed_surface": "NetworkResult.formation_diagnostic",
+          "required_tests": ["phase2_formation_diagnostic"],
+          "required_benchmarks": ["strategic_formation_benchmark"],
+          "required_synthetic_world_checks": ["formation_diagnostic_phase0_world"],
+          "required_judge_verdicts": ["six_judge_formation_diagnostic_promote"]
+        },
+        {
+          "deliverable_id": "embedding_fidelity_certificate",
+          "typed_surface": "NetworkResult.embedding_fidelity_certificate",
+          "required_tests": ["phase2_embedding_fidelity_certificate"],
+          "required_benchmarks": ["embedding_fidelity_benchmark"],
+          "required_synthetic_world_checks": ["embedding_fidelity_phase0_world"],
+          "required_judge_verdicts": ["six_judge_embedding_fidelity_promote"]
+        },
+        {
+          "deliverable_id": "network_partial_observability",
+          "typed_surface": "NetworkResult.partial_observability_certificate",
+          "required_tests": ["phase2_network_partial_observability"],
+          "required_benchmarks": ["network_partial_observability_benchmark"],
+          "required_synthetic_world_checks": ["network_partial_observability_phase0_world"],
+          "required_judge_verdicts": ["six_judge_network_partial_observability_promote"]
+        },
+        {
+          "deliverable_id": "ergm_sbm_causal_stratification",
+          "typed_surface": "NetworkResult.causal_stratification",
+          "required_tests": ["phase2_ergm_sbm_causal_stratification"],
+          "required_benchmarks": ["ergm_null_diffusion", "sbm_stratified_interference"],
+          "required_synthetic_world_checks": ["ergm_sbm_causal_stratification_phase0_world"],
+          "required_judge_verdicts": ["six_judge_ergm_sbm_promote"]
+        }
+      ]
+    },
+    {
+      "artifact_family": "spatial_identification",
+      "applies_to": ["spatial_identification"],
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY",
+      "deliverables": [
+        {
+          "deliverable_id": "maup_invariance_certificate",
+          "typed_surface": "SpatialResult.maup_invariance_certificate",
+          "required_tests": ["phase2_maup_invariance_certificate"],
+          "required_benchmarks": ["maup_stress_benchmark"],
+          "required_synthetic_world_checks": ["maup_invariance_phase0_world"],
+          "required_judge_verdicts": ["six_judge_maup_promote"]
+        },
+        {
+          "deliverable_id": "spatial_interference_certificate",
+          "typed_surface": "InterferenceCertificate",
+          "required_tests": ["phase2_spatial_interference_certificate"],
+          "required_benchmarks": ["spatial_interference_identification"],
+          "required_synthetic_world_checks": ["spatial_interference_phase0_world"],
+          "required_judge_verdicts": ["six_judge_spatial_interference_promote"]
+        },
+        {
+          "deliverable_id": "small_area_causal_smoothing",
+          "typed_surface": "SpatialResult.spatial_hodge_diagnostics",
+          "required_tests": ["phase2_small_area_causal_smoothing"],
+          "required_benchmarks": ["survey_causal_frontier_sae"],
+          "required_synthetic_world_checks": ["small_area_causal_smoothing_phase0_world"],
+          "required_judge_verdicts": ["six_judge_small_area_smoothing_promote"]
+        }
+      ]
+    },
+    {
+      "artifact_family": "mobility_frontier",
+      "applies_to": ["mobility_frontier"],
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY",
+      "deliverables": [
+        {
+          "deliverable_id": "mobility_report",
+          "typed_surface": "MobilityReport",
+          "required_tests": ["phase2_mobility_report"],
+          "required_benchmarks": ["mobility_attrition_benchmark"],
+          "required_synthetic_world_checks": ["mobility_report_phase0_world"],
+          "required_judge_verdicts": ["six_judge_mobility_report_promote"]
+        }
+      ]
+    }
+  ]
+}

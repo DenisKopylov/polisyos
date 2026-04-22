@@ -7,6 +7,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
 
 from polisyos.core.observability.truthfulness import TruthfulnessReceipt, validate_truthfulness_receipt
+from polisyos.ir.analytics.network_embedding import NetworkEmbeddingFidelityCertificate
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -117,6 +118,7 @@ class PredictionResult(BaseModel):
     coefficients: dict[str, float] = Field(default_factory=dict)
     metrics: dict[str, float] = Field(default_factory=dict)
     model_info: dict[str, Any] = Field(default_factory=dict)
+    embedding_fidelity_certificate: NetworkEmbeddingFidelityCertificate | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("predictions", "target", mode="before")
@@ -235,6 +237,7 @@ class EmbeddingResult(BaseModel):
     transformed: Any
     components: Any | None = None
     explained_variance_ratio: list[float] = Field(default_factory=list)
+    embedding_fidelity_certificate: NetworkEmbeddingFidelityCertificate | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("transformed", "components", mode="before")

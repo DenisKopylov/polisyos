@@ -1,0 +1,311 @@
+{
+  "phase_id": "foundry.phase2",
+  "blocking_transition": "PROOF_ONLY->ENGINEER_READY",
+  "source_of_truth": {
+    "acceptance_doc": "docs/reference/foundry/phase2-acceptance.md",
+    "validator": "tools/quality/validation/validate_foundry_phase2_closure.py",
+    "wrapper": "tools/quality/validation/run_foundry_phase2_validation.sh",
+    "evidence_generator": "tools/quality/validation/generate_foundry_phase2_evidence.py",
+    "compatibility_gate": "tools/ci/check_scientist_phase2_gate.py"
+  },
+  "tracks": [
+    {
+      "track_id": "P2.01",
+      "artifact_family": "econometrics_frontier",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.econometrics.protocols.EconometricResult.post_selection_ci"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/econometrics/test_iv.py::test_high_dimensional_post_selection_iv_assigns_orthogonal_tier"
+      ],
+      "required_benchmarks": [
+        "phase2_econometrics_frontier"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/econometrics/test_iv.py::test_high_dimensional_post_selection_iv_assigns_orthogonal_tier"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_econometrics_frontier_six_judge_promote"
+      ],
+      "acceptance_predicate": "truth_in_interval_and_coverage_tier_present",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.02",
+      "artifact_family": "econometrics_frontier",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.econometrics.protocols.EconometricResult.threshold_state_field"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/econometrics/test_thresholds.py::test_state_dependent_threshold_runs_with_known_surface"
+      ],
+      "required_benchmarks": [
+        "phase2_econometrics_frontier"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/econometrics/test_thresholds.py::test_state_dependent_threshold_runs_with_known_surface"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_econometrics_frontier_six_judge_promote"
+      ],
+      "acceptance_predicate": "threshold_surface_recovers_regime_structure",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.03",
+      "artifact_family": "econometrics_frontier",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.econometrics.protocols.EconometricResult.nonstationary_volatility"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/test_foundry_v2_domains.py::test_foundry_v2_nonstationary_garch_dispatch"
+      ],
+      "required_benchmarks": [
+        "phase2_econometrics_frontier"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/test_foundry_v2_domains.py::test_foundry_v2_nonstationary_garch_dispatch"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_econometrics_frontier_six_judge_promote"
+      ],
+      "acceptance_predicate": "breakpoints_and_segment_coverage_are_machine_checked",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.04",
+      "artifact_family": "distributional_frontier",
+      "typed_targets": [
+        "polisyos.ir.analytics.distributional.DistributionalBoundsBundle"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/causal/test_distributional_bounds.py::test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families"
+      ],
+      "required_benchmarks": [
+        "phase2_distributional_frontier"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/causal/test_distributional_bounds.py::test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_distributional_frontier_six_judge_promote"
+      ],
+      "acceptance_predicate": "truth_in_envelope_and_sharpness_status_are_consistent",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.05",
+      "artifact_family": "mobility_frontier",
+      "typed_targets": [
+        "polisyos.ir.analytics.mobility.MobilityReport"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/distributional/test_mobility.py::TestTransitionMatrix::test_attrition_adjusted_ipcw_recovers_balanced_rows_and_persists_bounds"
+      ],
+      "required_benchmarks": [
+        "phase2_mobility_frontier"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/distributional/test_mobility.py::TestTransitionMatrix::test_attrition_adjusted_ipcw_recovers_balanced_rows_and_persists_bounds"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_mobility_frontier_six_judge_promote"
+      ],
+      "acceptance_predicate": "attrition_adjustment_restores_transition_balance_and_bounds_linkage",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.06",
+      "artifact_family": "distributional_frontier",
+      "typed_targets": [
+        "polisyos.ir.analytics.distributional.OrdinalPovertyReport"
+      ],
+      "required_acceptance_tests": [
+        "tests/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py::test_ordinal_poverty_config_persists_report_and_summary"
+      ],
+      "required_benchmarks": [
+        "phase2_distributional_frontier"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py::test_ordinal_poverty_config_persists_report_and_summary"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_distributional_frontier_six_judge_promote"
+      ],
+      "acceptance_predicate": "monotone_recoding_and_summary_consistency_hold",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.07",
+      "artifact_family": "network_identification",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.network.protocols.NetworkResult.peer_effect_decomposition"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/network/test_peer_effect_decomposition.py::test_peer_effect_decomposition_identified_route"
+      ],
+      "required_benchmarks": [
+        "phase2_network_identification"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/network/test_peer_effect_decomposition.py::test_peer_effect_decomposition_identified_route"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_network_identification_six_judge_promote"
+      ],
+      "acceptance_predicate": "identified_route_recovers_peer_effect_components",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.08",
+      "artifact_family": "network_identification",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.network.protocols.NetworkResult.formation_diagnostic"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/network/test_analysis.py::TestStrategicNetworkFormation::test_event_history_route_is_used_when_available"
+      ],
+      "required_benchmarks": [
+        "phase2_network_identification"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/network/test_analysis.py::TestStrategicNetworkFormation::test_event_history_route_is_used_when_available"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_network_identification_six_judge_promote"
+      ],
+      "acceptance_predicate": "formation_route_surfaces_identification_status_and_validation_diagnostics",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.09",
+      "artifact_family": "network_identification",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.network.generative_protocols.ERGMResult",
+        "polisyos.foundry.methods.catalog.network.generative_protocols.SBMStratificationResult"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/network/test_ergm.py::test_ergm_null_model_returns_diagnostics",
+        "tests/foundry/methods/catalog/network/test_sbm.py::test_sbm_stratification_bridges_into_network_causal_data"
+      ],
+      "required_benchmarks": [
+        "ergm_null_diffusion",
+        "sbm_stratified_interference"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/network/test_ergm.py::test_ergm_null_model_returns_diagnostics",
+        "tests/foundry/methods/catalog/network/test_sbm.py::test_sbm_stratification_bridges_into_network_causal_data"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_network_identification_six_judge_promote"
+      ],
+      "acceptance_predicate": "ergm_null_and_sbm_bridge_surfaces_are_jointly_green",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.10",
+      "artifact_family": "network_identification",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.network.protocols.NetworkResult.missingness_assessment"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/network/test_missingness.py::test_network_estimator_threads_missingness_assessment_into_result"
+      ],
+      "required_benchmarks": [
+        "phase2_network_identification"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/network/test_missingness.py::test_network_estimator_threads_missingness_assessment_into_result"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_network_identification_six_judge_promote"
+      ],
+      "acceptance_predicate": "partial_observability_regions_are_threaded_into_result_surface",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.11",
+      "artifact_family": "network_identification",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.network.protocols.NetworkResult.embedding_fidelity_certificate"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/network/test_embedding_fidelity.py::test_embedding_fidelity_certificate_green_when_separator_is_recoverable"
+      ],
+      "required_benchmarks": [
+        "phase2_network_identification"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/network/test_embedding_fidelity.py::test_embedding_fidelity_certificate_green_when_separator_is_recoverable"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_network_identification_six_judge_promote"
+      ],
+      "acceptance_predicate": "embedding_certificate_stays_green_only_when_separator_is_recoverable",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.12",
+      "artifact_family": "spatial_identification",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.spatial.protocols.SpatialResult.maup_invariance_certificate"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_maup_certificate_with_candidate_partitions"
+      ],
+      "required_benchmarks": [
+        "phase2_spatial_identification"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_maup_certificate_with_candidate_partitions"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_spatial_identification_six_judge_promote"
+      ],
+      "acceptance_predicate": "maup_certificate_discriminates_invariant_and_non_invariant_partitions",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.13",
+      "artifact_family": "spatial_identification",
+      "typed_targets": [
+        "polisyos.ir.analytics.interference.InterferenceCertificate"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_status_success"
+      ],
+      "required_benchmarks": [
+        "phase2_spatial_identification"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_status_success"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_spatial_identification_six_judge_promote"
+      ],
+      "acceptance_predicate": "spatial_interference_certificate_is_emitted_on_shared_schema",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    },
+    {
+      "track_id": "P2.14",
+      "artifact_family": "spatial_identification",
+      "typed_targets": [
+        "polisyos.foundry.methods.catalog.spatial.protocols.SpatialResult.spatial_hodge_diagnostics"
+      ],
+      "required_acceptance_tests": [
+        "tests/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_hodge_diagnostics_attach_multiscale_profile"
+      ],
+      "required_benchmarks": [
+        "survey_causal_frontier_sae"
+      ],
+      "required_synthetic_world_checks": [
+        "tests/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_hodge_diagnostics_attach_multiscale_profile"
+      ],
+      "required_judge_verdicts": [
+        "tests/foundry/validation/test_phase2_judge_stack.py::test_phase2_spatial_identification_six_judge_promote"
+      ],
+      "acceptance_predicate": "small_area_smoothing_respects_causal_frontier_scale_constraints",
+      "blocking_transition": "PROOF_ONLY->ENGINEER_READY"
+    }
+  ]
+}

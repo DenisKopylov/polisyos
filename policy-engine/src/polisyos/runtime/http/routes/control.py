@@ -10,6 +10,8 @@ from polisyos.core.contracts.control import (
     BindingProfilesListResponse,
     CacheStatusResponse,
     CapabilityManifestResponse,
+    CausalFrontierSAEResponse,
+    CausalFrontierSAERequest,
     ConnectorsListResponse,
     ControlJobResponse,
     ControlOutboxEventsResponse,
@@ -55,6 +57,7 @@ from polisyos.runtime.http.dependencies import (
 )
 from polisyos.runtime.http.errors import bad_request, not_found
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
+from polisyos.runtime.http.services.sae_spatial_service import SAESpatialService
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request
@@ -466,6 +469,39 @@ if router is not None:
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
         return control.data_preview(body, request_id=request_id)
+
+    @router.post(
+        "/analytics/sae/causal-frontier",
+        response_model=CausalFrontierSAEResponse,
+        operation_id="estimate_causal_frontier_sae",
+        summary="Run boundary-constrained causal-frontier small-area estimation",
+    )
+    def estimate_causal_frontier_sae(
+        body: CausalFrontierSAERequest,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> CausalFrontierSAEResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.causal_frontier_sae",
+        )
+        service = SAESpatialService(store=ctx.store)
+        try:
+            payload = service.estimate_causal_frontier(body)
+        except (FileNotFoundError, OSError, KeyError, TypeError, ValueError) as exc:
+            raise bad_request(str(exc), code="causal_frontier_sae_invalid") from exc
+
+        estimates = payload["estimates"].to_dict(orient="records")
+        return CausalFrontierSAEResponse(
+            meta=build_meta(request),
+            method_name=payload["result"].method_name,
+            estimates=estimates,
+            diagnostics=payload["diagnostics"],
+            governance_artifact=payload["governance_artifact"],
+            artifact_refs=payload["output_refs"],
+            output_bundle=payload["output_bundle"],
+        )
 
     @router.get(
         "/capabilities",

@@ -185,6 +185,13 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
                         "adjacency": [[0.0, 1.0], [1.0, 0.0]],
                         "trust_weight": [1.0, 1.0],
                         "coverage_estimate": [1.0, 1.0],
+                        "areal_support": True,
+                        "scale_id": "municipality",
+                        "zoning_id": "admin_v1",
+                        "aggregation_rule": "mean",
+                        "weight_spec": "queen_v1",
+                        "candidate_partition_ids": ["admin_v1", "hex_3x3"],
+                        "measurement_error_bounded": True,
                     }
                 ]
             },
@@ -209,6 +216,9 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
     assert len(bundle.strategic_results) == 1
     assert len(bundle.counterfactual_results) == 1
     assert len(bundle.interference_specs) == 1
+    assert bundle.interference_specs[0].ready is True
+    assert bundle.interference_specs[0].supports_areal_interference is True
+    assert bundle.interference_specs[0].maup_scale_declared is True
 
 
 def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tmp_path) -> None:
@@ -246,9 +256,7 @@ def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tm
                                     "privacy_model": "central",
                                     "epsilon": 2.0,
                                     "released_statistics": ["P_s(Y|do(X))"],
-                                    "public_channel_spec": {
-                                        "query_class": "laplace_histogram_v1"
-                                    },
+                                    "public_channel_spec": {"query_class": "laplace_histogram_v1"},
                                 }
                             ],
                             "private_factor_bounds": [
@@ -277,9 +285,7 @@ def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tm
                                 "factor_metrics": {"source_kernel": "linf"},
                                 "factor_error_bounds": {"source_kernel": 0.03},
                                 "predicate_margins": {"formula_error": 0.03},
-                                "sensitivity_matrix": {
-                                    "formula_error": {"source_kernel": 1.0}
-                                },
+                                "sensitivity_matrix": {"formula_error": {"source_kernel": 1.0}},
                                 "utility_maps": {
                                     "source_a": {
                                         "mechanism_to_error_contract": "laplace_histogram_v1"

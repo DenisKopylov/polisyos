@@ -4,6 +4,7 @@ Covers partial interference (Hudgens & Halloran 2008), general network AIPW
 (Aronow & Samii 2017), spatial spillovers, and bipartite interference
 (Zigler & Papadogeorgou 2021).
 """
+
 from __future__ import annotations
 
 import math
@@ -18,12 +19,18 @@ from polisyos.ir.refs import (
     ArtifactRefModel,
     InteractionComplexRef,
     InterferenceCertificateRef,
+    MAUPInvarianceCertificateRef,
+    SpatialHodgeDiagnosticsRef,
 )
 
 _INTERACTION_COMPLEX_SCHEMA_NAME = "ir.interaction_complex"
 _INTERACTION_COMPLEX_SCHEMA_VERSION = "1.0"
 _INTERFERENCE_CERTIFICATE_SCHEMA_NAME = "ir.interference_certificate"
 _INTERFERENCE_CERTIFICATE_SCHEMA_VERSION = "1.0"
+_MAUP_INVARIANCE_CERTIFICATE_SCHEMA_NAME = "ir.maup_invariance_certificate"
+_MAUP_INVARIANCE_CERTIFICATE_SCHEMA_VERSION = "1.0"
+_SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_NAME = "ir.spatial_hodge_diagnostics"
+_SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_VERSION = "1.0"
 
 
 def _ensure_non_empty_string(value: Any, *, field_name: str) -> str:
@@ -54,9 +61,7 @@ def _coerce_nested_string_tuples(value: Any, *, field_name: str) -> tuple[tuple[
         raise ValueError(f"{field_name} must be a list/tuple of node groups")
     groups: list[tuple[str, ...]] = []
     for index, group in enumerate(value):
-        groups.append(
-            _coerce_string_tuple(group, field_name=f"{field_name}[{index}]")
-        )
+        groups.append(_coerce_string_tuple(group, field_name=f"{field_name}[{index}]"))
     return tuple(groups)
 
 
@@ -74,9 +79,7 @@ def _coerce_estimability_checks(
         key = _ensure_non_empty_string(raw_key, field_name=f"{field_name}.key")
         status = _ensure_non_empty_string(raw_status, field_name=f"{field_name}[{key}]")
         if status not in {"pass", "fail", "not_applicable"}:
-            raise ValueError(
-                f"{field_name}[{key}] must be one of pass, fail, not_applicable"
-            )
+            raise ValueError(f"{field_name}[{key}] must be one of pass, fail, not_applicable")
         normalized[key] = status  # type: ignore[assignment]
     return normalized
 
@@ -152,8 +155,8 @@ class InterferenceCertificate(BaseModel):
     mode_used: Literal["pairwise", "clustered", "complex", "unsupported"] | None = None
     fallback_triggered: bool = False
     fallback_reason_codes: tuple[str, ...] = ()
-    estimability_checks: dict[str, Literal["pass", "fail", "not_applicable"]] = (
-        Field(default_factory=dict)
+    estimability_checks: dict[str, Literal["pass", "fail", "not_applicable"]] = Field(
+        default_factory=dict
     )
 
     @field_validator("supported_query_family", mode="before")
@@ -218,18 +221,14 @@ class InterferenceCertificate(BaseModel):
                 "fallback_reason_codes must be non-empty when fallback_triggered is true"
             )
         if not self.fallback_triggered and self.fallback_reason_codes:
-            raise ValueError(
-                "fallback_reason_codes must be empty when fallback_triggered is false"
-            )
+            raise ValueError("fallback_reason_codes must be empty when fallback_triggered is false")
         if (
             self.mode_requested is not None
             and self.mode_used is not None
             and not self.fallback_triggered
             and self.mode_requested != self.mode_used
         ):
-            raise ValueError(
-                "mode_requested must equal mode_used when fallback_triggered is false"
-            )
+            raise ValueError("mode_requested must equal mode_used when fallback_triggered is false")
         if (
             self.mode_requested is not None
             and self.mode_used is not None
@@ -242,9 +241,7 @@ class InterferenceCertificate(BaseModel):
         if self.mode_used == "unsupported" and self.fallback_mode != "unsupported":
             raise ValueError("fallback_mode must be unsupported when mode_used is unsupported")
         if self.mode_used in {"pairwise", "clustered"} and self.fallback_mode != self.mode_used:
-            raise ValueError(
-                "fallback_mode must match mode_used for pairwise/clustered execution"
-            )
+            raise ValueError("fallback_mode must match mode_used for pairwise/clustered execution")
         if self.mode_used == "complex" and self.fallback_mode != "unsupported":
             raise ValueError("fallback_mode must be unsupported when mode_used is complex")
         if self.mode_used == "complex" and any(
@@ -314,6 +311,66 @@ def load_interference_certificate(
     """Load interference certificate."""
     payload = get_json_artifact(store, ref.artifact_id)
     return InterferenceCertificate.model_validate(payload)
+
+
+def persist_maup_invariance_certificate(
+    store: ArtifactStore,
+    certificate: "MAUPInvarianceCertificate",
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = _MAUP_INVARIANCE_CERTIFICATE_SCHEMA_NAME,
+    schema_version: str = _MAUP_INVARIANCE_CERTIFICATE_SCHEMA_VERSION,
+) -> MAUPInvarianceCertificateRef:
+    """Persist a MAUP invariance certificate helper."""
+    ref = put_json_artifact(
+        store,
+        certificate.model_dump(mode="json"),
+        kind="ir.maup_invariance_certificate",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return MAUPInvarianceCertificateRef.model_validate(ref)
+
+
+def load_maup_invariance_certificate(
+    store: ArtifactStore,
+    ref: MAUPInvarianceCertificateRef,
+) -> "MAUPInvarianceCertificate":
+    """Load a persisted MAUP invariance certificate."""
+    payload = get_json_artifact(store, ref.artifact_id)
+    return MAUPInvarianceCertificate.model_validate(payload)
+
+
+def persist_spatial_hodge_diagnostics(
+    store: ArtifactStore,
+    diagnostics: "SpatialHodgeDiagnostics",
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = _SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_NAME,
+    schema_version: str = _SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_VERSION,
+) -> SpatialHodgeDiagnosticsRef:
+    """Persist multiscale spatial Hodge diagnostics."""
+    ref = put_json_artifact(
+        store,
+        diagnostics.model_dump(mode="json"),
+        kind="ir.spatial_hodge_diagnostics",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return SpatialHodgeDiagnosticsRef.model_validate(ref)
+
+
+def load_spatial_hodge_diagnostics(
+    store: ArtifactStore,
+    ref: SpatialHodgeDiagnosticsRef,
+) -> "SpatialHodgeDiagnostics":
+    """Load persisted multiscale spatial Hodge diagnostics."""
+    payload = get_json_artifact(store, ref.artifact_id)
+    return SpatialHodgeDiagnostics.model_validate(payload)
 
 
 class InterferenceMethod(str, Enum):
@@ -469,15 +526,289 @@ class NetworkInterferenceReport(BaseModel):
         return self.status == "success"
 
 
+class MAUPPartitionCheck(BaseModel):
+    """Per-partition evidence for aggregation-invariance checks."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    partition_id: str = Field(min_length=1)
+    n_blocks: int = Field(ge=0)
+    scale_label: str | None = None
+    zoning_label: str | None = None
+    lumpability_residual: float | None = Field(default=None, ge=0.0)
+    exact_lumpable: bool | None = None
+    theta_partition: float | None = None
+    se_partition: float | None = Field(default=None, ge=0.0)
+    hausman_stat: float | None = Field(default=None, ge=0.0)
+    p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    ess_min: float | None = Field(default=None, ge=0.0)
+    blocker_codes: tuple[str, ...] = ()
+    warnings: tuple[str, ...] = ()
+
+    @field_validator("partition_id", mode="before")
+    @classmethod
+    def _validate_partition_id(cls, value: Any) -> str:
+        return _ensure_non_empty_string(value, field_name="partition_id")
+
+    @field_validator("scale_label", "zoning_label", mode="before")
+    @classmethod
+    def _validate_optional_labels(cls, value: Any, info: Any) -> str | None:
+        if value is None:
+            return None
+        return _ensure_non_empty_string(value, field_name=str(info.field_name))
+
+    @field_validator("blocker_codes", "warnings", mode="before")
+    @classmethod
+    def _validate_string_tuples(cls, value: Any, info: Any) -> tuple[str, ...]:
+        return _coerce_string_tuple(
+            () if value in (None, ()) else value,
+            field_name=str(info.field_name),
+        )
+
+
+class MAUPInvarianceCertificate(BaseModel):
+    """Certificate describing whether spatial effects survive zoning changes."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    status: Literal["pass", "warn", "block", "not_tested", "not_identified"]
+    estimand: Literal["direct", "spillover", "total", "dose_response", "policy_effect"]
+    effect_scale: Literal["risk_difference", "mean_difference", "log_rr", "custom"]
+    micro_effect: float | None = None
+    micro_se: float | None = Field(default=None, ge=0.0)
+    partitions_tested: int = Field(ge=0)
+    max_lumpability_residual: float | None = Field(default=None, ge=0.0)
+    min_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    min_positivity: float | None = Field(default=None, ge=0.0, le=1.0)
+    min_ess: float | None = Field(default=None, ge=0.0)
+    exact_invariance: bool = False
+    near_invariance: bool = False
+    recommended_mode: Literal[
+        "micro_only",
+        "micro_plus_safe_aggregate",
+        "block_aggregate",
+    ]
+    partition_checks: tuple[MAUPPartitionCheck, ...] = ()
+    blocker_codes: tuple[str, ...] = ()
+    warnings: tuple[str, ...] = ()
+    interaction_complex_ref: ArtifactRefModel | None = None
+    interference_certificate_ref: ArtifactRefModel | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("partition_checks", mode="before")
+    @classmethod
+    def _validate_partition_checks(
+        cls,
+        value: Any,
+    ) -> tuple[MAUPPartitionCheck, ...]:
+        if value in (None, ()):
+            return ()
+        if not isinstance(value, (list, tuple)):
+            raise ValueError("partition_checks must be a list/tuple of partition checks")
+        return tuple(
+            item
+            if isinstance(item, MAUPPartitionCheck)
+            else MAUPPartitionCheck.model_validate(item)
+            for item in value
+        )
+
+    @field_validator("blocker_codes", "warnings", mode="before")
+    @classmethod
+    def _validate_string_tuples(cls, value: Any, info: Any) -> tuple[str, ...]:
+        return _coerce_string_tuple(
+            () if value in (None, ()) else value,
+            field_name=str(info.field_name),
+        )
+
+    @field_validator("interaction_complex_ref", "interference_certificate_ref", mode="before")
+    @classmethod
+    def _validate_optional_refs(
+        cls,
+        value: Any,
+        info: Any,
+    ) -> ArtifactRefModel | None:
+        if value is None:
+            return None
+        ref = (
+            value if isinstance(value, ArtifactRefModel) else ArtifactRefModel.model_validate(value)
+        )
+        return _validate_artifact_ref(ref, field_name=str(info.field_name))
+
+    @model_validator(mode="after")
+    def _validate_certificate(self) -> "MAUPInvarianceCertificate":
+        if self.partitions_tested != len(self.partition_checks):
+            raise ValueError("partitions_tested must equal len(partition_checks)")
+        if self.status in {"pass", "warn"} and self.partitions_tested == 0:
+            raise ValueError("pass/warn certificates require at least one partition check")
+        if self.exact_invariance and not self.near_invariance:
+            raise ValueError("exact_invariance implies near_invariance")
+        return self
+
+
+class SpatialHodgeScaleProfile(BaseModel):
+    """Per-scale graph-Hodge energy profile for areal spillover diagnostics."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    scale_id: str = Field(min_length=1)
+    zoning_id: str = Field(min_length=1)
+    aggregation_rule: str = Field(min_length=1)
+    weight_spec: str = Field(min_length=1)
+    zoning_hash: str = Field(min_length=1)
+    weight_hash: str = Field(min_length=1)
+    aggregation_hash: str = Field(min_length=1)
+    n_zones: int = Field(ge=1)
+    n_edges: int = Field(ge=0)
+    n_triangles: int = Field(default=0, ge=0)
+    total_energy: float = Field(ge=0.0)
+    gradient_energy: float = Field(ge=0.0)
+    curl_energy: float = Field(ge=0.0)
+    harmonic_energy: float = Field(ge=0.0)
+    eta_grad: float = Field(ge=0.0, le=1.0)
+    eta_curl: float = Field(ge=0.0, le=1.0)
+    eta_harm: float = Field(ge=0.0, le=1.0)
+    dominant_component: Literal["grad", "curl", "harm", "mixed"] = "mixed"
+    warnings: tuple[str, ...] = ()
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator(
+        "scale_id",
+        "zoning_id",
+        "aggregation_rule",
+        "weight_spec",
+        "zoning_hash",
+        "weight_hash",
+        "aggregation_hash",
+        mode="before",
+    )
+    @classmethod
+    def _validate_required_strings(cls, value: Any, info: Any) -> str:
+        return _ensure_non_empty_string(value, field_name=str(info.field_name))
+
+    @field_validator("warnings", mode="before")
+    @classmethod
+    def _validate_warnings(cls, value: Any) -> tuple[str, ...]:
+        return _coerce_string_tuple(() if value in (None, ()) else value, field_name="warnings")
+
+    @model_validator(mode="after")
+    def _validate_energy_profile(self) -> "SpatialHodgeScaleProfile":
+        total_components = self.gradient_energy + self.curl_energy + self.harmonic_energy
+        if self.total_energy + 1.0e-9 < total_components:
+            raise ValueError("total_energy must dominate component energies")
+        total_eta = self.eta_grad + self.eta_curl + self.eta_harm
+        if total_eta > 1.0 + 1.0e-6:
+            raise ValueError("eta_grad + eta_curl + eta_harm must not exceed 1")
+        return self
+
+
+class SpatialHodgeDiagnostics(BaseModel):
+    """Declared-scale multiscale Hodge diagnostics for spatial interference."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    declared_scale_id: str = Field(min_length=1)
+    declared_zoning_id: str = Field(min_length=1)
+    aggregation_rule: str = Field(min_length=1)
+    weight_spec: str = Field(min_length=1)
+    exposure_mapping: str = Field(min_length=1)
+    zoning_hash: str = Field(min_length=1)
+    weight_hash: str = Field(min_length=1)
+    aggregation_hash: str = Field(min_length=1)
+    eta_grad: float = Field(ge=0.0, le=1.0)
+    eta_curl: float = Field(ge=0.0, le=1.0)
+    eta_harm: float = Field(ge=0.0, le=1.0)
+    dominant_component: Literal["grad", "curl", "harm", "mixed"] = "mixed"
+    max_profile_l1_gap: float = Field(default=0.0, ge=0.0)
+    scale_instability: float = Field(default=0.0, ge=0.0)
+    zoning_instability: float = Field(default=0.0, ge=0.0)
+    topology_sensitivity: float | None = Field(default=None, ge=0.0)
+    candidate_partition_ids: tuple[str, ...] = ()
+    profiles: tuple[SpatialHodgeScaleProfile, ...] = ()
+    blocker_codes: tuple[str, ...] = ()
+    warnings: tuple[str, ...] = ()
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator(
+        "declared_scale_id",
+        "declared_zoning_id",
+        "aggregation_rule",
+        "weight_spec",
+        "exposure_mapping",
+        "zoning_hash",
+        "weight_hash",
+        "aggregation_hash",
+        mode="before",
+    )
+    @classmethod
+    def _validate_required_strings(cls, value: Any, info: Any) -> str:
+        return _ensure_non_empty_string(value, field_name=str(info.field_name))
+
+    @field_validator("candidate_partition_ids", "blocker_codes", "warnings", mode="before")
+    @classmethod
+    def _validate_string_tuples(cls, value: Any, info: Any) -> tuple[str, ...]:
+        return _coerce_string_tuple(
+            () if value in (None, ()) else value,
+            field_name=str(info.field_name),
+        )
+
+    @field_validator("profiles", mode="before")
+    @classmethod
+    def _validate_profiles(cls, value: Any) -> tuple[SpatialHodgeScaleProfile, ...]:
+        if value in (None, ()):
+            return ()
+        if not isinstance(value, (list, tuple)):
+            raise ValueError("profiles must be a list/tuple of SpatialHodgeScaleProfile")
+        return tuple(
+            item
+            if isinstance(item, SpatialHodgeScaleProfile)
+            else SpatialHodgeScaleProfile.model_validate(item)
+            for item in value
+        )
+
+    @model_validator(mode="after")
+    def _validate_diagnostics(self) -> "SpatialHodgeDiagnostics":
+        total_eta = self.eta_grad + self.eta_curl + self.eta_harm
+        if total_eta > 1.0 + 1.0e-6:
+            raise ValueError("eta_grad + eta_curl + eta_harm must not exceed 1")
+        if self.profiles:
+            declared_profile = self.profiles[0]
+            if declared_profile.scale_id != self.declared_scale_id:
+                raise ValueError("profiles[0].scale_id must match declared_scale_id")
+            if declared_profile.zoning_id != self.declared_zoning_id:
+                raise ValueError("profiles[0].zoning_id must match declared_zoning_id")
+        return self
+
+
+class SpatialResult(NetworkInterferenceReport):
+    """Spatial interference report with optional MAUP certificate."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    maup_invariance_certificate: MAUPInvarianceCertificate | None = None
+    spatial_hodge_diagnostics: SpatialHodgeDiagnostics | None = None
+
+
 __all__ = [
     "ExposureMappingType",
+    "MAUPInvarianceCertificate",
+    "MAUPPartitionCheck",
+    "SpatialHodgeDiagnostics",
+    "SpatialHodgeScaleProfile",
     "InteractionComplex",
     "InterferenceEffectDecomposition",
     "InterferenceCertificate",
     "InterferenceMethod",
     "NetworkInterferenceReport",
+    "SpatialResult",
     "load_interaction_complex",
     "load_interference_certificate",
+    "load_maup_invariance_certificate",
+    "load_spatial_hodge_diagnostics",
     "persist_interaction_complex",
     "persist_interference_certificate",
+    "persist_maup_invariance_certificate",
+    "persist_spatial_hodge_diagnostics",
 ]

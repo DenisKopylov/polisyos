@@ -80,7 +80,9 @@ class SutvaCheckPass(ValidatorPass):
                 code="SUTVA_VIOLATION_RISK",
                 suggestion=(
                     "Account for spillovers/general-equilibrium effects; "
-                    "consider ABM bridge coverage when available."
+                    "consider ABM bridge coverage, network.community.sbm_stratification@0.1.0 "
+                    "for design-stage strata, or network.generative.ergm_null@0.1.0 "
+                    "for a structural null diagnostic."
                 ),
             )
         )

@@ -779,6 +779,92 @@ class ArtifactBatchResponse(BaseModel):
     artifacts: list[ArtifactManifestView] = Field(default_factory=list)
 
 
+class MobilityEstimateRequest(BaseModel):
+    """Request payload for runtime mobility estimation endpoints."""
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Literal[
+        "complete_case",
+        "attrition_adjusted",
+        "sequential_attrition_adjusted",
+        "refreshment_anchored",
+    ] = "attrition_adjusted"
+    n_classes: int = Field(default=5, ge=2)
+    origin_classes: list[int] = Field(default_factory=list)
+    destination_classes: list[int | None] = Field(default_factory=list)
+    retention_indicators: list[int] | None = None
+    retention_indicators_by_wave: list[list[int]] | None = None
+    attrition_features: list[list[float]] | None = None
+    attrition_features_by_wave: list[list[list[float]]] | None = None
+    sample_weights: list[float] | None = None
+    retention_probabilities: list[float] | None = None
+    retention_probabilities_by_wave: list[list[float]] | None = None
+    destination_marginals: list[float] | None = None
+    refreshment_destination_classes: list[int] | None = None
+    refreshment_weights: list[float] | None = None
+    feature_names: list[str] = Field(default_factory=list)
+    estimator: Literal["ipcw", "aipw"] = "aipw"
+    positivity_floor: float = Field(default=0.05, ge=0.0, le=0.49)
+    compute_bounds: bool = True
+    monotone: bool = True
+    panel_length: int | None = Field(default=None, ge=2)
+    waves_used: list[int] = Field(default_factory=list)
+    persist_artifact: bool = True
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class MobilityBoundsRequest(BaseModel):
+    """Request payload for runtime mobility bounds endpoints."""
+    model_config = ConfigDict(extra="forbid")
+
+    observed_joint_matrix: list[list[float]]
+    row_marginals: list[float]
+    column_marginals: list[float] | None = None
+    headline_metric: str = "upward_rate"
+    persist_artifact: bool = True
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class MobilityEstimateResponse(BaseModel):
+    """Response envelope returned after estimating a mobility report."""
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    report: dict[str, Any]
+    mobility_report_ref: ArtifactRef | None = None
+    bounds_bundle_ref: ArtifactRef | None = None
+
+
+class MobilityBoundsResponse(BaseModel):
+    """Response envelope returned for direct or report-linked mobility bounds."""
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    bounds: dict[str, Any]
+    bounds_bundle_ref: ArtifactRef | None = None
+    mobility_report_ref: ArtifactRef | None = None
+    cell_bounds: dict[str, list[float]] = Field(default_factory=dict)
+    summary_bounds: dict[str, list[float]] = Field(default_factory=dict)
+
+
+class MobilityReportResponse(BaseModel):
+    """Response envelope returned when loading one persisted mobility report."""
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    report: dict[str, Any]
+    mobility_report_ref: ArtifactRef
+
+
+class MobilityDiagnosticsResponse(BaseModel):
+    """Response envelope returned when loading mobility diagnostics only."""
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    diagnostics: dict[str, Any]
+    mobility_report_ref: ArtifactRef
+
+
 class RunsBatchResponse(BaseModel):
     """Response envelope returned by the run batch endpoint."""
     model_config = ConfigDict(extra="forbid")
@@ -843,6 +929,12 @@ __all__ = [
     "FeedbackActionResponse",
     "GovernanceDebugResponse",
     "GovernanceDebugView",
+    "MobilityBoundsRequest",
+    "MobilityBoundsResponse",
+    "MobilityDiagnosticsResponse",
+    "MobilityEstimateRequest",
+    "MobilityEstimateResponse",
+    "MobilityReportResponse",
     "NodeDebugResponse",
     "NodeDebugView",
     "NodeStatus",

@@ -24,6 +24,19 @@ def test_interference_readiness_rejects_empty_dotted_path_segments() -> None:
         )
 
 
+def test_areal_interference_readiness_requires_structured_maup_flags() -> None:
+    with pytest.raises(
+        ValidationError,
+        match="maup_scale_declared must be set when supports_areal_interference is true",
+    ):
+        InterferenceReadinessEntry(
+            spec_id="spillover_procurement",
+            family=ObservationFamily.PROCUREMENT_FLOWS,
+            predicted_metric_path="metrics.procurement_spillover",
+            supports_areal_interference=True,
+        )
+
+
 def test_causal_readiness_bundle_rejects_duplicate_proxy_rule() -> None:
     with pytest.raises(ValidationError, match="duplicate proxy_results"):
         CausalReadinessBundle(

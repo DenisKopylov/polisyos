@@ -688,21 +688,39 @@ def build_scientist_remediation_status_report() -> ScientistRemediationStatusRep
                 "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py",
                 "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
                 "tests/scientist/test_decision_packet_node_v3.py",
+                "src/polisyos/foundry/validation/phase2_closure.py",
+                "tools/quality/validation/foundry_phase2_manifest.json",
+                "tools/quality/validation/validate_foundry_phase2_closure.py",
+                "tools/quality/validation/generate_foundry_phase2_evidence.py",
+                "tools/quality/validation/run_foundry_phase2_validation.sh",
+                "docs/reference/foundry/phase2-acceptance.md",
                 "tools/ci/check_scientist_phase2_ratchet.py",
+                "tools/ci/check_scientist_phase2_gate.py",
                 "tools/ci/scientist_phase2_ratchet_baseline.toml",
+                "tests/foundry/validation/test_phase2_closure.py",
+                "tests/foundry/validation/test_phase2_judge_stack.py",
+                "tests/tools/test_scientist_phase2_gate.py",
                 "tests/tools/test_scientist_phase2_ratchet.py",
                 ".github/workflows/arch.yml",
+                ".github/workflows/foundry-release-gate.yml",
             ),
             ci_gates=(
                 "pytest tests/scientist/test_import_boundaries.py -q",
                 "pytest tests/scientist/test_feedback_runtime.py -q",
                 "pytest tests/scientist/search/test_policy_blueprint_runtime_guards.py -q",
+                "pytest tests/foundry/validation/test_phase2_closure.py -q",
+                "pytest tests/foundry/validation/test_phase2_judge_stack.py -q",
+                "pytest tests/tools/test_scientist_phase2_gate.py -q",
                 "pytest tests/tools/test_scientist_phase2_ratchet.py -q",
+                "bash tools/quality/validation/run_foundry_phase2_validation.sh",
+                "python tools/ci/check_scientist_phase2_gate.py --junit-xml phase2.xml --benchmark-json phase2-benchmarks.json --evidence-json phase2-evidence.json",
                 "python tools/ci/check_scientist_phase2_ratchet.py",
             ),
             acceptance_signal=(
-                "modular extractions hold and the Phase 2 debt counters never "
-                "grow above the tracked baseline"
+                "modular extractions hold, the Phase 2 debt counters never "
+                "grow above the tracked baseline, and the canonical Phase 2 "
+                "closure validator plus compatibility gate block promotion "
+                "until every enrolled frontier track has complete evidence"
             ),
         ),
         ScientistWorkstreamStatus(
@@ -901,7 +919,7 @@ def build_scientist_remediation_status_report() -> ScientistRemediationStatusRep
         notes=(
             "This report is the repo-tracked closure view for the Scientist remediation plan.",
             "Phase 0 and Phase 1 are accepted only through the dedicated scientist-phase0-gate and scientist-phase1-gate CI barriers.",
-            "Phase 2 through Phase 4 remain subject to the same strict evidence and CI discipline.",
+            "Phase 2 now also requires the dedicated scientist-phase2-gate closure barrier; Phase 3 and Phase 4 remain subject to the same strict evidence and CI discipline.",
         ),
     )
 

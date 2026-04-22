@@ -8,6 +8,7 @@ from .advanced import (
     EventStudyEstimator,
     GARCHEstimator,
     LocalProjectionsEstimator,
+    NonstationaryGARCHEstimator,
     QuantileRegressionEstimator,
 )
 from .diagnostics import (
@@ -40,6 +41,7 @@ from .high_dimensional import (
     PostDoubleSelectionEstimator,
     PostLASSOEstimator,
 )
+from .high_dimensional_iv import HighDimensionalPostSelectionIVEstimator
 from .factor_models import DynamicFactorModelEstimator, PrincipalComponentsEstimator
 from .iv import GMMEstimator, TwoStageLeastSquaresEstimator
 from .panel import FixedEffectsEstimator, RandomEffectsEstimator
@@ -51,6 +53,12 @@ from .selection import (
 from .semiparametric import (
     KernelRegressionEstimator,
     RobinsonEstimator,
+)
+from .thresholds import (
+    StateDependentFRDEstimator,
+    StateDependentFRKDEstimator,
+    StateDependentKinkEstimator,
+    StateDependentThresholdEstimator,
 )
 from .timeseries import ARIMAEstimator, VAREstimator
 
@@ -70,6 +78,7 @@ def register_econometric_methods() -> Sequence[type]:
         EventStudyEstimator,
         LocalProjectionsEstimator,
         GARCHEstimator,
+        NonstationaryGARCHEstimator,
         ChangePointEstimator,
         VECMEstimator,
         BayesianVAREstimator,
@@ -96,6 +105,11 @@ def register_econometric_methods() -> Sequence[type]:
         KernelRegressionEstimator,
         PostLASSOEstimator,
         PostDoubleSelectionEstimator,
+        HighDimensionalPostSelectionIVEstimator,
+        StateDependentThresholdEstimator,
+        StateDependentKinkEstimator,
+        StateDependentFRDEstimator,
+        StateDependentFRKDEstimator,
         # Phase SOTA additions
         PrincipalComponentsEstimator,
         DynamicFactorModelEstimator,

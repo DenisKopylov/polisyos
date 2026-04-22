@@ -32,9 +32,11 @@ from polisyos.ir.analytics.distributional import (
     DistributionalCouplingStatus,
     load_causal_assumption_card,
     load_distributional_bounds_bundle,
+    load_distributional_dual_certificate,
     load_distributional_effect_bundle,
     load_distributional_proof_artifact,
     load_distributional_report,
+    load_ordinal_poverty_report,
     load_subgroup_distribution_comparison,
 )
 from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis import (
@@ -186,6 +188,117 @@ def test_happy_path_writes_report_and_effect_bundle(
     assert report.metadata["geography_group_ids"] == ["region_0", "region_1"]
     assert report.get_breakdown(CohortDimension.GEOGRAPHY) is not None
     assert report.winners_losers.total_winners_share >= 0.0
+
+
+def test_ordinal_poverty_config_persists_report_and_summary(
+    execution_context,
+    minimal_state,
+    cas_store,
+    artifact_ref_factory,
+):
+    baseline = _state_with_income(
+        [10, 12, 15, 18, 20, 22, 24, 26, 28, 30, 35, 40, 45, 50, 55, 60, 65, 72, 80, 90],
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    simulated = _state_with_income(
+        [12, 14, 18, 20, 23, 25, 27, 30, 32, 34, 40, 46, 52, 58, 64, 70, 77, 84, 92, 101],
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    baseline_ref = put_state_snapshot(cas_store, state=baseline)
+    simulated_ref = put_state_snapshot(cas_store, state=simulated)
+    sim_result_ref = _simulation_result_ref(
+        cas_store,
+        simulated_ref=simulated_ref,
+        artifact_ref_factory=artifact_ref_factory,
+    )
+
+    baseline_categories = [
+        [1, 1, 1],
+        [2, 2, 2],
+        [1, 3, 1],
+        [3, 1, 2],
+        [4, 2, 1],
+        [3, 4, 3],
+        [1, 2, 1],
+        [2, 1, 1],
+        [3, 2, 2],
+        [4, 4, 3],
+        [1, 1, 1],
+        [2, 2, 1],
+        [1, 2, 2],
+        [3, 3, 2],
+        [4, 2, 1],
+        [2, 4, 3],
+        [1, 2, 1],
+        [2, 3, 2],
+        [3, 1, 1],
+        [4, 4, 3],
+    ]
+    counterfactual_categories = [
+        [2, 2, 2],
+        [3, 3, 2],
+        [2, 3, 2],
+        [3, 2, 2],
+        [4, 3, 2],
+        [3, 4, 3],
+        [2, 2, 2],
+        [3, 2, 2],
+        [3, 3, 2],
+        [4, 4, 3],
+        [2, 2, 2],
+        [3, 3, 2],
+        [2, 3, 2],
+        [3, 3, 2],
+        [4, 3, 2],
+        [3, 4, 3],
+        [2, 2, 2],
+        [3, 3, 2],
+        [3, 2, 2],
+        [4, 4, 3],
+    ]
+
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_STATE_SNAPSHOT_REF] = baseline_ref
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = sim_result_ref
+    state.params["ordinal_poverty"] = {
+        "enabled": True,
+        "category_orders": [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3]],
+        "deprivation_cutoffs": [2, 2, 1],
+        "dimension_names": ["health", "education", "housing"],
+        "poverty_cutoff_K": 2 / 3,
+        "baseline_category_matrix": baseline_categories,
+        "counterfactual_category_matrix": counterfactual_categories,
+        "comparator_recodings": [
+            {
+                "name": "stretched",
+                "category_orders": [[1, 2, 10, 100], [1, 4, 10, 100], [1, 9, 20]],
+            }
+        ],
+    }
+
+    outcome = RunDistributionalAnalysisNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    bundle = load_distributional_effect_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
+    )
+    report = load_distributional_report(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF],
+    )
+
+    assert bundle.ordinal_poverty_ref is not None
+    ordinal_report = load_ordinal_poverty_report(cas_store, bundle.ordinal_poverty_ref)
+    assert ordinal_report.counterfactual is not None
+    assert ordinal_report.baseline.n_dimensions == 3
+    assert report.ordinal_poverty_summary["status"] == "included"
+    assert (
+        report.ordinal_poverty_summary["counterfactual"]["ordinal_adjusted_headcount_q"]
+        < report.ordinal_poverty_summary["baseline"]["ordinal_adjusted_headcount_q"]
+    )
+    assert bundle.metadata["ordinal_poverty_status"] == "included"
+    assert any("Ordinal multidimensional poverty report generated" in event.message for event in outcome.events)
 
 
 def test_geography_subgroups_require_aligned_employer_ids(
@@ -495,6 +608,174 @@ def test_makarov_distributional_bounds_require_licensed_marginals_and_warn_point
     proof = load_distributional_proof_artifact(cas_store, bundle.distributional_proof_ref)
     assert proof.target is DistributionalProofTarget.MARGINAL_PAIR
     assert proof.bound_uniformity is DistributionalBoundUniformity.POINTWISE_ONLY
+
+
+def test_mtr_headcount_distributional_bounds_persist_dual_certificate(
+    execution_context,
+    minimal_state,
+    cas_store,
+    artifact_ref_factory,
+):
+    baseline = _state_with_income(
+        list(range(10, 30)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    simulated = _state_with_income(
+        list(range(11, 31)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    baseline_ref = put_state_snapshot(cas_store, state=baseline)
+    simulated_ref = put_state_snapshot(cas_store, state=simulated)
+    sim_result_ref = _simulation_result_ref(
+        cas_store,
+        simulated_ref=simulated_ref,
+        artifact_ref_factory=artifact_ref_factory,
+    )
+
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_STATE_SNAPSHOT_REF] = baseline_ref
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = sim_result_ref
+    state.params["distributional_bounds"] = {
+        "enabled": True,
+        "requests": [
+            {
+                "theorem_family": "mtr_headcount",
+                "assumptions": ["monotone_treatment_response_y1_ge_y0"],
+                "outcome": [1.0, 3.0, 2.0, 4.0],
+                "treatment": [1.0, 1.0, 0.0, 0.0],
+                "poverty_lines": [2.5],
+                "target_potential_outcome": "y1",
+            }
+        ],
+    }
+
+    outcome = RunDistributionalAnalysisNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    bundle = load_distributional_effect_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
+    )
+    assert bundle.distributional_bounds_refs
+    bounds = load_distributional_bounds_bundle(cas_store, bundle.distributional_bounds_refs[0])
+    assert bounds.functional is DistributionalFunctional.POVERTY_HEADCOUNT
+    assert bounds.dual_certificate_ref is not None
+    certificate = load_distributional_dual_certificate(cas_store, bounds.dual_certificate_ref)
+    assert certificate.theorem_family == "mtr_headcount"
+    assert certificate.assumption_class == "mtr"
+
+
+def test_sd_headcount_distributional_bounds_persist_dual_certificate(
+    execution_context,
+    minimal_state,
+    cas_store,
+    artifact_ref_factory,
+):
+    baseline = _state_with_income(
+        list(range(10, 30)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    simulated = _state_with_income(
+        list(range(11, 31)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    baseline_ref = put_state_snapshot(cas_store, state=baseline)
+    simulated_ref = put_state_snapshot(cas_store, state=simulated)
+    sim_result_ref = _simulation_result_ref(
+        cas_store,
+        simulated_ref=simulated_ref,
+        artifact_ref_factory=artifact_ref_factory,
+    )
+
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_STATE_SNAPSHOT_REF] = baseline_ref
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = sim_result_ref
+    state.params["distributional_bounds"] = {
+        "enabled": True,
+        "requests": [
+            {
+                "theorem_family": "sd_headcount",
+                "assumptions": ["first_order_stochastic_dominance_y1_ge_y0"],
+                "outcome": [1.0, 3.0, 2.0, 4.0],
+                "treatment": [1.0, 1.0, 0.0, 0.0],
+                "poverty_lines": [2.5],
+                "target_potential_outcome": "y1",
+            }
+        ],
+    }
+
+    outcome = RunDistributionalAnalysisNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    bundle = load_distributional_effect_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
+    )
+    assert bundle.marginal_law_justification is DistributionalJustification.BOUNDED
+    assert bundle.distributional_bounds_refs
+    bounds = load_distributional_bounds_bundle(cas_store, bundle.distributional_bounds_refs[0])
+    assert bounds.functional is DistributionalFunctional.POVERTY_HEADCOUNT
+    assert bounds.dual_certificate_ref is not None
+    certificate = load_distributional_dual_certificate(cas_store, bounds.dual_certificate_ref)
+    assert certificate.theorem_family == "sd_headcount"
+    assert certificate.assumption_class == "stochastic_dominance_fosd"
+
+
+def test_mtr_gini_distributional_bounds_persist_outer_uniform_certificate(
+    execution_context,
+    minimal_state,
+    cas_store,
+    artifact_ref_factory,
+):
+    baseline = _state_with_income(
+        list(range(10, 30)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    simulated = _state_with_income(
+        list(range(11, 31)),
+        employer_ids=[0] * 10 + [1] * 10,
+    )
+    baseline_ref = put_state_snapshot(cas_store, state=baseline)
+    simulated_ref = put_state_snapshot(cas_store, state=simulated)
+    sim_result_ref = _simulation_result_ref(
+        cas_store,
+        simulated_ref=simulated_ref,
+        artifact_ref_factory=artifact_ref_factory,
+    )
+
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_STATE_SNAPSHOT_REF] = baseline_ref
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = sim_result_ref
+    state.params["distributional_bounds"] = {
+        "enabled": True,
+        "requests": [
+            {
+                "theorem_family": "mtr_gini_lorenz",
+                "assumptions": ["monotone_treatment_response_y1_ge_y0"],
+                "outcome": [1.0, 4.0, 2.0, 6.0],
+                "treatment": [1.0, 1.0, 0.0, 0.0],
+                "support_ceiling": 8.0,
+                "target_potential_outcome": "y1",
+            }
+        ],
+    }
+
+    outcome = RunDistributionalAnalysisNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    bundle = load_distributional_effect_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
+    )
+    assert bundle.marginal_law_justification is DistributionalJustification.BOUNDED
+    assert bundle.distributional_bounds_refs
+    bounds = load_distributional_bounds_bundle(cas_store, bundle.distributional_bounds_refs[0])
+    assert bounds.functional is DistributionalFunctional.GINI
+    assert bounds.sharpness_status == "outer_approx"
+    assert bounds.dual_certificate_ref is not None
+    certificate = load_distributional_dual_certificate(cas_store, bounds.dual_certificate_ref)
+    assert certificate.theorem_family == "mtr_gini_lorenz"
+    assert certificate.bound_uniformity is DistributionalBoundUniformity.UNIFORM_OUTER
 
 
 def test_resolve_baseline_snapshot_ref_assertion_is_not_swallowed(

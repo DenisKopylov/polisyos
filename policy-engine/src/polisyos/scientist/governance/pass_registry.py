@@ -37,6 +37,7 @@ _PROVIDER_INIT_ERRORS = (
 
 RUNTIME_ALLOWED_PASS_IDS: frozenset[str] = frozenset(
     {
+        "causal_frontier_leakage",
         "confidence",
         "equity",
         "cross_graph_evidence",

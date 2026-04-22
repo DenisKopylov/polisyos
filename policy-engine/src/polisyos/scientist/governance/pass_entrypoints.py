@@ -9,6 +9,7 @@ from polisyos.core.governance.passes.legal_pass import LegalPass
 from polisyos.core.governance.passes.safety_pass import SafetyPass
 
 from .passes.budget_pass import BudgetPass
+from .passes.causal_frontier_leakage_pass import CausalFrontierLeakagePass
 from .passes.checkpoint_pass import CheckpointPass
 from .passes.confidence_pass import ConfidencePass
 from .passes.cross_graph_evidence_pass import CrossGraphEvidencePass
@@ -35,6 +36,11 @@ def budget_pass_factory() -> ValidatorPass:
 def checkpoint_pass_factory() -> ValidatorPass:
     """Create the pass that verifies checkpoint availability and consistency."""
     return CheckpointPass()
+
+
+def causal_frontier_leakage_pass_factory() -> ValidatorPass:
+    """Create the pass that checks boundary leakage in constrained SAE diagnostics."""
+    return CausalFrontierLeakagePass()
 
 
 def schema_pass_factory() -> ValidatorPass:
@@ -126,6 +132,7 @@ def builtin_governance_pass_factories() -> dict[str, Callable[[], ValidatorPass]
     """Return the stable registry of built-in governance pass factories."""
     return {
         "budget": budget_pass_factory,
+        "causal_frontier_leakage": causal_frontier_leakage_pass_factory,
         "checkpoint": checkpoint_pass_factory,
         "confidence": confidence_pass_factory,
         "cross_graph_evidence": cross_graph_evidence_pass_factory,
@@ -149,6 +156,7 @@ def builtin_governance_pass_factories() -> dict[str, Callable[[], ValidatorPass]
 
 __all__ = [
     "budget_pass_factory",
+    "causal_frontier_leakage_pass_factory",
     "checkpoint_pass_factory",
     "schema_pass_factory",
     "privacy_pass_factory",

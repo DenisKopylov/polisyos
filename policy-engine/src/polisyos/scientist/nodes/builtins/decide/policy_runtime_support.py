@@ -14,6 +14,7 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.contracts.scientist import DiscoveryArtifactBundleRef, PriorKnowledgeBundleRef
+from polisyos.foundry.validation import normalize_phase2_artifact_family
 from polisyos.ir.analytics.causal import CausalEffectReport, load_data_readiness_report
 from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
 from polisyos.ir.analytics.cross_graph import (
@@ -945,7 +946,17 @@ def run_promotion_with_evidence(
     bounds_bundle_ref = maybe_artifact_ref(l2_feedback.get("bounds_bundle_ref"))
     negative_certificate_ref = maybe_artifact_ref(l2_feedback.get("negative_certificate_ref"))
     evidence_metadata = dict(evidence_bundle.metadata)
-    artifact_family = str(evidence_metadata.get("artifact_family") or "causal_core")
+    artifact_family = normalize_phase2_artifact_family(
+        str(evidence_metadata.get("artifact_family") or ""),
+        estimator_name=(
+            None
+            if evidence_metadata.get("estimator_name") is None
+            else str(evidence_metadata.get("estimator_name"))
+        ),
+        query_type=(
+            None if evidence_metadata.get("query_type") is None else str(evidence_metadata.get("query_type"))
+        ),
+    )
     claim_mode = str(evidence_metadata.get("claim_mode") or "estimation").strip().lower() or "estimation"
     query_type = (
         str(evidence_metadata.get("query_type"))

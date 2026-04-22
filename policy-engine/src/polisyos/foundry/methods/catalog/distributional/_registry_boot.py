@@ -15,14 +15,20 @@ from .metrics import (
     LorenzCurveEstimator,
 )
 from .mobility import (
+    AttritionAdjustedMobilityMatrixEstimator,
     IntergenerationalElasticityEstimator,
     MobilityMatrixEstimator,
+    RefreshmentSampleMobilityEstimator,
+    SequentialIPCWLifetimeMobilityEstimator,
 )
 from .polarization import (
     DuclosEstebanRayEstimator,
     EstebanRayEstimator,
 )
-from .poverty_advanced import MultidimensionalPovertyEstimator
+from .poverty_advanced import (
+    MultidimensionalPovertyEstimator,
+    OrdinalMultidimensionalPovertyEstimator,
+)
 
 
 def register_distributional_methods() -> Sequence[type]:
@@ -36,7 +42,11 @@ def register_distributional_methods() -> Sequence[type]:
         PalmaRatioEstimator,
         GeneralizedGiniEstimator,
         MultidimensionalPovertyEstimator,
+        OrdinalMultidimensionalPovertyEstimator,
         MobilityMatrixEstimator,
+        AttritionAdjustedMobilityMatrixEstimator,
+        SequentialIPCWLifetimeMobilityEstimator,
+        RefreshmentSampleMobilityEstimator,
         IntergenerationalElasticityEstimator,
         EstebanRayEstimator,
         DuclosEstebanRayEstimator,

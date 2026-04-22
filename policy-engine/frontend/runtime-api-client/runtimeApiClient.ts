@@ -251,6 +251,90 @@ export type CapabilityManifestResponse = {
   workspaces?: Array<string>;
 };
 
+export type CausalFrontierAreaRecord = {
+  area_id: string;
+  covariates?: {
+  [key: string]: number | null;
+};
+  direct_estimate: number;
+  direct_variance: number;
+  policy_indicator?: number | null;
+  regime_id?: string | null;
+  sample_size?: number | null;
+};
+
+export type CausalFrontierEdgeRecord = {
+  adjacency_type?: "contiguity" | "distance" | "custom";
+  dst_area_id: string;
+  frontier_flag?: boolean;
+  frontier_source?: string | null;
+  frontier_type?: string | null;
+  src_area_id: string;
+  weight?: number;
+};
+
+export type CausalFrontierExposureRecord = {
+  area_id: string;
+  exposure_mapping_version?: string | null;
+  spillover_exposure?: number | null;
+  treatment?: number | null;
+};
+
+export type CausalFrontierOutputRefs = {
+  causal_diagnostics_ref?: ArtifactRef | null;
+  dependence_ref?: ArtifactRef | null;
+  governance_artifact_ref?: ArtifactRef | null;
+  quality_certificate_ref?: ArtifactRef | null;
+  sae_estimates_ref?: ArtifactRef | null;
+};
+
+export type CausalFrontierSAEEstimate = {
+  area_id: string;
+  borrow_strength_neighbors: number;
+  component_id: number;
+  mse: number;
+  theta_mean: number;
+  theta_sd: number;
+};
+
+export type CausalFrontierSAERequest = {
+  add_intercept?: boolean;
+  areas?: Array<CausalFrontierAreaRecord>;
+  bundle_dir?: string | null;
+  calibration_reps?: number;
+  calibration_seed?: number;
+  component_ridge?: number;
+  contrast_eps?: number;
+  covariate_columns?: Array<string> | null;
+  edges?: Array<CausalFrontierEdgeRecord>;
+  exposure?: Array<CausalFrontierExposureRecord>;
+  governance_profile?: "fast" | "mvp" | "strict";
+  green_threshold?: number;
+  lambda_spatial?: number;
+  metadata?: {
+  [key: string]: unknown;
+};
+  output_dir?: string | null;
+  persist_artifacts?: boolean;
+  red_threshold?: number;
+};
+
+export type CausalFrontierSAEResponse = {
+  artifact_refs?: CausalFrontierOutputRefs;
+  diagnostics?: {
+  [key: string]: unknown;
+};
+  estimates?: Array<CausalFrontierSAEEstimate>;
+  governance_artifact?: {
+  [key: string]: unknown;
+};
+  meta: ApiMeta;
+  method_name: string;
+  output_bundle?: {
+  [key: string]: string;
+};
+};
+
 export type CompareDeltaSection = {
   changed?: boolean;
   details?: {
@@ -911,6 +995,85 @@ export type MetricCandidate = {
   rank?: number;
   source_lane?: "fastlane" | "explorelane" | "catalog";
   trust_score?: number;
+};
+
+export type MobilityBoundsRequest = {
+  column_marginals?: Array<number> | null;
+  headline_metric?: string;
+  metadata?: {
+  [key: string]: unknown;
+};
+  observed_joint_matrix: Array<Array<number>>;
+  persist_artifact?: boolean;
+  row_marginals: Array<number>;
+};
+
+export type MobilityBoundsResponse = {
+  bounds: {
+  [key: string]: unknown;
+};
+  bounds_bundle_ref?: ArtifactRef | null;
+  cell_bounds?: {
+  [key: string]: Array<number>;
+};
+  meta: ApiMeta;
+  mobility_report_ref?: ArtifactRef | null;
+  summary_bounds?: {
+  [key: string]: Array<number>;
+};
+};
+
+export type MobilityDiagnosticsResponse = {
+  diagnostics: {
+  [key: string]: unknown;
+};
+  meta: ApiMeta;
+  mobility_report_ref: ArtifactRef;
+};
+
+export type MobilityEstimateRequest = {
+  attrition_features?: Array<Array<number>> | null;
+  attrition_features_by_wave?: Array<Array<Array<number>>> | null;
+  compute_bounds?: boolean;
+  destination_classes?: Array<number | null>;
+  destination_marginals?: Array<number> | null;
+  estimator?: "ipcw" | "aipw";
+  feature_names?: Array<string>;
+  metadata?: {
+  [key: string]: unknown;
+};
+  mode?: "complete_case" | "attrition_adjusted" | "sequential_attrition_adjusted" | "refreshment_anchored";
+  monotone?: boolean;
+  n_classes?: number;
+  origin_classes?: Array<number>;
+  panel_length?: number | null;
+  persist_artifact?: boolean;
+  positivity_floor?: number;
+  refreshment_destination_classes?: Array<number> | null;
+  refreshment_weights?: Array<number> | null;
+  retention_indicators?: Array<number> | null;
+  retention_indicators_by_wave?: Array<Array<number>> | null;
+  retention_probabilities?: Array<number> | null;
+  retention_probabilities_by_wave?: Array<Array<number>> | null;
+  sample_weights?: Array<number> | null;
+  waves_used?: Array<number>;
+};
+
+export type MobilityEstimateResponse = {
+  bounds_bundle_ref?: ArtifactRef | null;
+  meta: ApiMeta;
+  mobility_report_ref?: ArtifactRef | null;
+  report: {
+  [key: string]: unknown;
+};
+};
+
+export type MobilityReportResponse = {
+  meta: ApiMeta;
+  mobility_report_ref: ArtifactRef;
+  report: {
+  [key: string]: unknown;
+};
 };
 
 export type ModelProfileInfo = {
@@ -1791,6 +1954,46 @@ export class RuntimeApiClient {
     return this.request<{
   [key: string]: unknown;
 }>("GET", path, query);
+  }
+
+  async computeMobilityBounds(params: {
+    body: MobilityBoundsRequest;
+  }): Promise<MobilityBoundsResponse> {
+    const path = `/api/v1/mobility/bounds`;
+    const query = undefined;
+    return this.request<MobilityBoundsResponse>("POST", path, query, params.body);
+  }
+
+  async estimateMobility(params: {
+    body: MobilityEstimateRequest;
+  }): Promise<MobilityEstimateResponse> {
+    const path = `/api/v1/mobility/estimate`;
+    const query = undefined;
+    return this.request<MobilityEstimateResponse>("POST", path, query, params.body);
+  }
+
+  async getMobilityReport(params: {
+    artifact_id: string;
+  }): Promise<MobilityReportResponse> {
+    const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}`;
+    const query = undefined;
+    return this.request<MobilityReportResponse>("GET", path, query);
+  }
+
+  async getMobilityReportBounds(params: {
+    artifact_id: string;
+  }): Promise<MobilityBoundsResponse> {
+    const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/bounds`;
+    const query = undefined;
+    return this.request<MobilityBoundsResponse>("GET", path, query);
+  }
+
+  async getMobilityReportDiagnostics(params: {
+    artifact_id: string;
+  }): Promise<MobilityDiagnosticsResponse> {
+    const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/diagnostics`;
+    const query = undefined;
+    return this.request<MobilityDiagnosticsResponse>("GET", path, query);
   }
 
   async listRuns(params: {

@@ -499,6 +499,109 @@ class DataPreviewResponse(BaseModel):
     preview: FetchPreview
 
 
+class CausalFrontierAreaRecord(BaseModel):
+    """Inline representation of one area-level SAE row."""
+    model_config = ConfigDict(extra="forbid")
+
+    area_id: str = Field(..., min_length=1)
+    direct_estimate: float
+    direct_variance: float = Field(..., gt=0.0)
+    sample_size: int | None = Field(default=None, ge=1)
+    regime_id: str | None = None
+    policy_indicator: float | int | None = None
+    covariates: dict[str, float | int | None] = Field(default_factory=dict)
+
+
+class CausalFrontierEdgeRecord(BaseModel):
+    """Inline representation of one adjacency edge with optional frontier metadata."""
+    model_config = ConfigDict(extra="forbid")
+
+    src_area_id: str = Field(..., min_length=1)
+    dst_area_id: str = Field(..., min_length=1)
+    weight: float = Field(default=1.0, ge=0.0)
+    adjacency_type: Literal["contiguity", "distance", "custom"] = "custom"
+    frontier_flag: bool = False
+    frontier_type: str | None = None
+    frontier_source: str | None = None
+
+
+class CausalFrontierExposureRecord(BaseModel):
+    """Optional spillover/exposure row aligned to one area."""
+    model_config = ConfigDict(extra="forbid")
+
+    area_id: str = Field(..., min_length=1)
+    treatment: float | int | None = None
+    spillover_exposure: float | int | None = None
+    exposure_mapping_version: str | None = None
+
+
+class CausalFrontierOutputRefs(BaseModel):
+    """Artifact references emitted by runtime causal-frontier SAE execution."""
+    model_config = ConfigDict(extra="forbid")
+
+    dependence_ref: ArtifactRef | None = None
+    quality_certificate_ref: ArtifactRef | None = None
+    sae_estimates_ref: ArtifactRef | None = None
+    causal_diagnostics_ref: ArtifactRef | None = None
+    governance_artifact_ref: ArtifactRef | None = None
+
+
+class CausalFrontierSAEEstimate(BaseModel):
+    """Output row for `sae_estimates.parquet` and runtime API responses."""
+    model_config = ConfigDict(extra="forbid")
+
+    area_id: str
+    theta_mean: float
+    theta_sd: float
+    mse: float
+    component_id: int
+    borrow_strength_neighbors: int
+
+
+class CausalFrontierSAERequest(BaseModel):
+    """Run boundary-constrained small-area estimation from inline rows or one bundle dir."""
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_dir: str | None = None
+    output_dir: str | None = None
+    areas: list[CausalFrontierAreaRecord] = Field(default_factory=list)
+    edges: list[CausalFrontierEdgeRecord] = Field(default_factory=list)
+    exposure: list[CausalFrontierExposureRecord] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    covariate_columns: list[str] | None = None
+    add_intercept: bool = True
+    lambda_spatial: float = Field(default=1.0, ge=0.0)
+    component_ridge: float = Field(default=1e-6, ge=0.0)
+    contrast_eps: float = Field(default=1e-8, gt=0.0)
+    green_threshold: float = Field(default=0.05, ge=0.0, le=1.0)
+    red_threshold: float = Field(default=0.15, ge=0.0, le=1.0)
+    calibration_reps: int = Field(default=0, ge=0, le=500)
+    calibration_seed: int = 0
+    governance_profile: Literal["fast", "mvp", "strict"] = "mvp"
+    persist_artifacts: bool = False
+
+    @model_validator(mode="after")
+    def _validate_request_shape(self) -> "CausalFrontierSAERequest":
+        if self.bundle_dir is None and (not self.areas or not self.edges):
+            raise ValueError("provide either bundle_dir or both areas and edges")
+        if self.green_threshold > self.red_threshold:
+            raise ValueError("green_threshold must be less than or equal to red_threshold")
+        return self
+
+
+class CausalFrontierSAEResponse(BaseModel):
+    """Runtime response for causal-frontier small-area estimation."""
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    method_name: str
+    estimates: list[CausalFrontierSAEEstimate] = Field(default_factory=list)
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    governance_artifact: dict[str, Any] = Field(default_factory=dict)
+    artifact_refs: CausalFrontierOutputRefs = Field(default_factory=CausalFrontierOutputRefs)
+    output_bundle: dict[str, str] = Field(default_factory=dict)
+
+
 class DataCatalogSearchResponse(BaseModel):
     """Return catalog search matches and the total result count for a query."""
     model_config = ConfigDict(extra="forbid")
@@ -912,6 +1015,13 @@ class LexSearchResponse(BaseModel):
 
 
 __all__ = [
+    "CausalFrontierAreaRecord",
+    "CausalFrontierEdgeRecord",
+    "CausalFrontierExposureRecord",
+    "CausalFrontierOutputRefs",
+    "CausalFrontierSAEEstimate",
+    "CausalFrontierSAERequest",
+    "CausalFrontierSAEResponse",
     "BindingProfileInfo",
     "BindingProfilesListResponse",
     "CandidateLane",

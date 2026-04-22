@@ -31,6 +31,7 @@ from polisyos.runtime.http.routes.auth import router as auth_router
 from polisyos.runtime.http.routes.control import router as control_router
 from polisyos.runtime.http.routes.debug import router as debug_router
 from polisyos.runtime.http.routes.health import router as health_router
+from polisyos.runtime.http.routes.mobility import router as mobility_router
 from polisyos.runtime.http.routes.review import router as review_router
 from polisyos.runtime.http.routes.runs import router as runs_router
 from polisyos.runtime.http.security import RuntimeSecurityConfig, is_fixture_identity_enabled
@@ -216,6 +217,8 @@ def create_runtime_api_app(
         app.include_router(debug_router)
     if artifacts_router is not None:
         app.include_router(artifacts_router)
+    if mobility_router is not None:
+        app.include_router(mobility_router)
     if control_router is not None:
         app.include_router(control_router)
     if review_router is not None:

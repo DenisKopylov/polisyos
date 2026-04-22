@@ -2,7 +2,9 @@
 from polisyos.ir.refs import (
     CausalAssumptionCardRef,
     DistributionalBoundsBundleRef,
+    DistributionalDualCertificateRef,
     DistributionalEffectBundleRef,
+    OrdinalPovertyReportRef,
     DistributionalProofArtifactRef,
     DistributionalReportRef,
 )
@@ -10,7 +12,9 @@ from polisyos.ir.refs import (
 __all__ = [
     "CausalAssumptionCardRef",
     "DistributionalBoundsBundleRef",
+    "DistributionalDualCertificateRef",
     "DistributionalEffectBundleRef",
+    "OrdinalPovertyReportRef",
     "DistributionalProofArtifactRef",
     "DistributionalReportRef",
 ]

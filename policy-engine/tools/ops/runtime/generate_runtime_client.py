@@ -12,7 +12,14 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 _IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
-_GENERATED_POST_OPERATION_IDS = frozenset({"get_artifact_batch", "get_runs_batch"})
+_GENERATED_POST_OPERATION_IDS = frozenset(
+    {
+        "get_artifact_batch",
+        "get_runs_batch",
+        "estimate_mobility",
+        "compute_mobility_bounds",
+    }
+)
 
 
 @dataclass(frozen=True)

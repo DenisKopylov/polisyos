@@ -7,7 +7,7 @@ The broad compatibility boundary remains `polisyos.ir`. The package facades
 below serve a different purpose: predictable tooling/discovery imports that do
 not eagerly load whole dependency trees.
 
-Freshness: 2026-04-20
+Freshness: 2026-04-22
 Owner: `@ir-owners`
 Source of truth: `src/polisyos/ir/public_surface.py`, `src/polisyos/ir/__init__.py`, `src/polisyos/ir/analytics/__init__.py`, `src/polisyos/ir/kernel/__init__.py`, `src/polisyos/ir/world/__init__.py`, `tests/ir/test_public_surface.py`
 Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import optimization.
@@ -16,13 +16,13 @@ Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import opti
 
 | Facade | Symbol count | Import policy |
 |--------|--------------|---------------|
-| `polisyos.ir.analytics` | 143 | curated lazy facade |
+| `polisyos.ir.analytics` | 185 | curated lazy facade |
 | `polisyos.ir.kernel` | 52 | full lazy facade |
 | `polisyos.ir.world` | 54 | full lazy facade |
 
 Advanced or module-specific APIs should be imported from their defining
-submodules, for example `polisyos.ir.analytics.causal_graph` or
-`polisyos.ir.analytics.strategic`.
+submodules, for example `polisyos.ir.analytics.causal_graph`,
+`polisyos.ir.analytics.interference`, or `polisyos.ir.analytics.strategic`.
 
 ## Naming Conventions
 
@@ -43,6 +43,10 @@ submodules, for example `polisyos.ir.analytics.causal_graph` or
   its package facade, import it from the specific analytics submodule instead.
 - The analytics/world counts now also include supported interoperability bridge
   exports (causal ecosystem exchange and PROV-O mapping).
+- The analytics facade now includes the supported spatial interference / MAUP
+  contract family used by phase-2 aggregation-invariance diagnostics.
+- The analytics facade also includes the Phase 2 network-generative block-bridge
+  contracts used to carry SBM design strata into causal estimation.
 - Validation hooks: `tests/ir/test_public_surface.py` for IR package facades and
   the public-surface renderer in `tools/architecture/guardrails.py` for the
   generated repository inventory.

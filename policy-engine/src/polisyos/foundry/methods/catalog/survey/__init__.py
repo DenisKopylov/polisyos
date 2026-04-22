@@ -5,6 +5,7 @@ from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
 from polisyos.foundry.methods.registry import MethodRegistry
 
 from ._registry_boot import register_survey_methods
+from .causal_frontier import CausalFrontierFayHerriotEstimator
 from .demographic_consistency import (
     CCEBEstimator,
     DemographicConsistencyEstimator,
@@ -92,6 +93,7 @@ def ensure_survey_methods_registered(registry: MethodRegistry | None = None) -> 
 __all__ = [
     "AuxiliaryTotalUncertainty",
     "CCEBEstimator",
+    "CausalFrontierFayHerriotEstimator",
     "CalibrationGREGEstimator",
     "CalibrationWeights",
     "ComplexSurveyDesignEstimator",

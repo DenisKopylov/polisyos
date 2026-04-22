@@ -348,6 +348,54 @@ def test_structured_latent_separation_inputs_support_validated_replication() -> 
     )
 
 
+def test_latent_separation_does_not_certify_red_embedding_representation() -> None:
+    payload = compute_latent_separation_diagnostics_from_inputs(
+        LatentSeparationDiagnosticInputs(
+            candidate_latent_nodes=["U_01"],
+            design={
+                "environments": ["region_a", "region_b"],
+                "proxy_blocks": ["W", "Z"],
+                "repeated_indicator_blocks": ["R_block"],
+            },
+            measurement_block=LatentSeparationMeasurementInput(
+                status="passed",
+                tetrad_test="single_signal_tetrad_passed",
+                invariance_test="measurement_invariance_passed",
+                repeated_indicator_blocks=["R_block"],
+            ),
+            proxy_block=LatentSeparationProxyInput(
+                status="passed",
+                bridge_test="proximal_bridge_solved",
+                bridge_stability="cross_environment_stable",
+                proxy_blocks=["W", "Z"],
+                embedding_family="gcn",
+                representation_faithfulness_status="red",
+                separator_recoverability={"community_score": 0.41},
+                collision_rate=0.34,
+                effect_drift_z=2.7,
+                representation_recommended_action="require_raw_graph_summaries",
+            ),
+            environment_block=LatentSeparationEnvironmentInput(
+                status="passed",
+                residual_invariance="post_calibration_residual_invariance_failed",
+                post_calibration_shift="not_restored",
+                environments=["region_a", "region_b"],
+                n_env=2,
+            ),
+        )
+    )
+
+    assert payload["resolution_label"] == "latent_confounding"
+    assert certified_latent_separation_pairs(payload) == []
+    assert (
+        certify_latent_separation_trust(
+            {SEPARATION_DIAGNOSTICS_KEY: payload},
+            fallback=LatentTrustLevel.CONDITIONAL,
+        )
+        is LatentTrustLevel.RESEARCH
+    )
+
+
 def test_latent_separation_keeps_research_when_falsification_payload_is_incomplete() -> None:
     trust = certify_latent_separation_trust(
         {

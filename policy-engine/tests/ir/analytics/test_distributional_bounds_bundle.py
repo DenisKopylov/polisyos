@@ -4,17 +4,24 @@ import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.distributional import (
+    DistributionalDualBoundWitness,
+    DistributionalDualCertificate,
     CouplingDiagnostics,
     DiscreteDistributionSummary,
     DistributionBin,
+    DistributionalBoundUniformity,
     DistributionalBoundsBundle,
     DistributionalBoundsMethodSummary,
     DistributionalEffectBundle,
+    DistributionalFunctionalParameters,
     DistributionalFunctional,
     DistributionalJustification,
     FunctionalBounds,
     GridAxis,
+    attach_distributional_dual_certificate_ref,
+    load_distributional_dual_certificate,
     load_distributional_bounds_bundle,
+    persist_distributional_dual_certificate,
     persist_discrete_distribution_summary,
     persist_distributional_bounds_bundle,
 )
@@ -234,4 +241,82 @@ def test_distributional_effect_bundle_rejects_duplicate_bounds_refs(tmp_path) ->
             distributional_bounds_refs=[bounds_ref, bounds_ref],
             distributional_proof_ref=_distributional_proof_ref(),
             causal_assumptions=["known_marginals_only_no_rank_invariance"],
+        )
+
+
+def test_distributional_bounds_bundle_accepts_functional_parameters_and_dual_ref(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    certificate = DistributionalDualCertificate(
+        theorem_family="mtr_headcount",
+        functional=DistributionalFunctional.POVERTY_HEADCOUNT,
+        axis=GridAxis(axis_name="poverty_line", values=(2.5,), unit="income"),
+        assumption_class="mtr",
+        primal_problem_class="binary_potential_outcome_box",
+        dual_problem_class="indicator_threshold_dual",
+        sharpness_status="sharp",
+        bound_uniformity=DistributionalBoundUniformity.NOT_APPLICABLE,
+        attainment_status="attained",
+        lower_bound_witness=DistributionalDualBoundWitness(
+            bound_direction="lower",
+            primal_objective_values=(0.25,),
+            dual_objective_values=(0.25,),
+            dual_gaps=(0.0,),
+        ),
+        upper_bound_witness=DistributionalDualBoundWitness(
+            bound_direction="upper",
+            primal_objective_values=(0.5,),
+            dual_objective_values=(0.5,),
+            dual_gaps=(0.0,),
+        ),
+    )
+    cert_ref = persist_distributional_dual_certificate(store, certificate)
+    bundle = DistributionalBoundsBundle(
+        estimand_type="poverty_headcount_y1",
+        functional=DistributionalFunctional.POVERTY_HEADCOUNT,
+        axis=GridAxis(axis_name="poverty_line", values=(2.5,), unit="income"),
+        functional_parameters=DistributionalFunctionalParameters(
+            poverty_line=2.5,
+            poverty_lines=(2.5,),
+            normalization_mode="population_share",
+            target_potential_outcome="y1",
+        ),
+        method_summaries=[
+            DistributionalBoundsMethodSummary(
+                method="mtr_headcount",
+                functional=DistributionalFunctional.POVERTY_HEADCOUNT,
+                axis=GridAxis(axis_name="poverty_line", values=(2.5,), unit="income"),
+                bounds=FunctionalBounds(lower=(0.25,), upper=(0.5,)),
+                sharpness="sharp",
+                assumptions_used=["monotone_treatment_response_y1_ge_y0"],
+            )
+        ],
+    )
+
+    attached = attach_distributional_dual_certificate_ref(bundle, cert_ref)
+    persisted_ref = persist_distributional_bounds_bundle(store, attached)
+    loaded_bundle = load_distributional_bounds_bundle(store, persisted_ref)
+    loaded_certificate = load_distributional_dual_certificate(store, cert_ref)
+
+    assert loaded_bundle.dual_certificate_ref == cert_ref
+    assert loaded_bundle.functional_parameters is not None
+    assert loaded_bundle.functional_parameters.poverty_line == pytest.approx(2.5)
+    assert loaded_certificate.theorem_family == "mtr_headcount"
+
+
+def test_distributional_bounds_bundle_requires_atkinson_epsilon() -> None:
+    with pytest.raises(ValueError, match="Atkinson bounds require"):
+        DistributionalBoundsBundle(
+            estimand_type="atkinson_y1",
+            functional=DistributionalFunctional.ATKINSON,
+            axis=GridAxis(axis_name="support", values=(0.0,), unit="income"),
+            method_summaries=[
+                DistributionalBoundsMethodSummary(
+                    method="mtr_atkinson",
+                    functional=DistributionalFunctional.ATKINSON,
+                    axis=GridAxis(axis_name="support", values=(0.0,), unit="income"),
+                    bounds=FunctionalBounds(lower=(0.1,), upper=(0.3,)),
+                    sharpness="outer_approx",
+                    assumptions_used=["monotone_treatment_response_y1_ge_y0"],
+                )
+            ],
         )

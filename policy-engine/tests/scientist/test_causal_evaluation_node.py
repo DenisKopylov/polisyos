@@ -1004,3 +1004,136 @@ def test_causal_evaluation_node_persists_causal_validity_bundle_for_hte_inputs(
         if item["capability_id"] == "proximal_causal"
     )
     assert proximal["status"] == "offline_gated"
+
+
+def test_causal_evaluation_node_surfaces_spatial_interference_validity_check(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_spatial_validity_bundle",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.causal.spatial.validity.bundle"),
+    )
+
+    rng = np.random.default_rng(52)
+    x = rng.normal(size=80)
+    z = rng.normal(size=80)
+    treatment = rng.binomial(1, 0.5, size=80).astype(float)
+    outcome = 1.1 * treatment + 0.5 * x + rng.normal(0.0, 0.2, size=80)
+    data = GraphCausalData(
+        data=np.column_stack([treatment, outcome, x, z]),
+        column_names=["T", "Y", "X", "Z"],
+        treatment="T",
+        outcome="Y",
+        graph_dot="digraph { X -> T; X -> Y; Z -> T; T -> Y; }",
+        covariates=["X", "Z"],
+    )
+    data_ref = store.put_json(
+        data.model_dump(mode="json"),
+        PutOptions(
+            kind="ir.observational_data",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.ObservationalData", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+    def _fake_run_job(spec, *, cas_root, method_state):
+        del cas_root, method_state
+        if spec.method_fqn == "causal.inference.dowhy_identify_estimate@2.0.0":
+            return JobResult(
+                job_key=JobKey(value="job:spatial-validity"),
+                final_state={
+                    "report": CausalEffectReport(
+                        method=CausalMethod.DOWHY_BACKDOOR,
+                        status=EstimationStatus.SUCCESS,
+                        estimand="nonparametric-ate",
+                        point_estimate=1.1,
+                        confidence_interval=(0.8, 1.4),
+                        inference_method="backdoor.linear_regression",
+                        sample_size=80,
+                        n_treated=40,
+                        n_control=40,
+                        pre_periods=0,
+                        post_periods=0,
+                        metadata={
+                            "spatial_hodge_summary": {
+                                "declared_scale_id": "district",
+                                "declared_zoning_id": "admin_v1",
+                                "aggregation_rule": "mean",
+                                "weight_spec": "queen",
+                                "zoning_hash": "zone_hash_1",
+                                "weight_hash": "weight_hash_1",
+                                "aggregation_hash": "agg_hash_1",
+                                "eta_grad": 0.61,
+                                "eta_curl": 0.14,
+                                "eta_harm": 0.25,
+                                "dominant_component": "grad",
+                                "max_profile_l1_gap": 0.33,
+                                "scale_instability": 0.33,
+                                "zoning_instability": 0.18,
+                                "topology_sensitivity": 0.07,
+                                "candidate_partition_ids": ["admin_v2", "hex_2km"],
+                                "warnings": [],
+                                "blocker_codes": [],
+                            },
+                            "maup_invariance_certificate": {
+                                "status": "warn",
+                                "partitions_tested": 2,
+                                "warnings": ["micro_ess_warn"],
+                                "blocker_codes": [],
+                            },
+                        },
+                    )
+                },
+                issues=[],
+            )
+        raise AssertionError(f"unexpected method_fqn: {spec.method_fqn}")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.ensure_causal_methods_registered",
+        lambda: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.run_job",
+        _fake_run_job,
+    )
+    monkeypatch.setattr("polisyos.scientist.causal.validity.run_job", _fake_run_job)
+
+    state = ExperimentState(
+        run_id="R_spatial_validity_bundle",
+        observational_data_ref=data_ref,
+        causal_method_fqn="causal.inference.dowhy_identify_estimate@2.0.0",
+        params={
+            "random_seed": 2,
+            "enable_causal_refutation": False,
+            "enable_causal_sensitivity": False,
+            "causal_validity": {
+                "enable_icp": False,
+                "enable_proximal": False,
+                "enable_recoverability": False,
+                "enable_pag_refinement": False,
+            },
+        },
+    )
+    outcome = RunCausalEvaluationNode().execute(ctx, state)
+    assert outcome.status == "ok"
+    assert ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF in outcome.state.artifacts_index
+
+    bundle_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF]
+    bundle_payload = from_canonical_bytes(store.get_bytes(bundle_ref.artifact_id))
+    spatial_check = bundle_payload["checks"]["spatial_interference"]
+    assert spatial_check["status"] == "success"
+    assert spatial_check["declared_scale_id"] == "district"
+    assert spatial_check["eta_grad"] == pytest.approx(0.61)
+    assert spatial_check["maup_status"] == "warn"
+    assert bundle_payload["capability_matrix"]["spatial_interference_hodge"] == "available"
+    assert bundle_payload["capability_matrix"]["maup_stability_surface"] == "available"

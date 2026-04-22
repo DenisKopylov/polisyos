@@ -21,6 +21,7 @@ from .services.artifact_inspector import ArtifactInspectorService
 from .services.debug import DebugService
 from .services.feedback import FeedbackService
 from .services.lineage import LineageService
+from .services.mobility import MobilityService
 from .services.run_index import IndexedRunRecord, RunIndexService
 from .services.timeline import TimelineService
 
@@ -51,6 +52,7 @@ class RuntimeApiContext:
     feedback: FeedbackService
     lineage: LineageService
     artifacts: ArtifactInspectorService
+    mobility: MobilityService
     max_preview_bytes: int
     lineage_max_depth: int
     lineage_max_nodes: int
@@ -100,6 +102,7 @@ def build_runtime_api_context(
         default_max_preview_bytes=max_preview_bytes,
         redaction_hooks=artifact_redaction_hooks,
     )
+    mobility = MobilityService(store=store)
     return RuntimeApiContext(
         cas_root=cas_root,
         core_runs_root=core_runs_root,
@@ -111,6 +114,7 @@ def build_runtime_api_context(
         feedback=feedback,
         lineage=lineage,
         artifacts=artifacts,
+        mobility=mobility,
         max_preview_bytes=max_preview_bytes,
         lineage_max_depth=lineage_max_depth,
         lineage_max_nodes=lineage_max_nodes,

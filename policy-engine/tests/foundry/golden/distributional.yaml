@@ -163,6 +163,93 @@ cases:
     tolerances: {rtol: 0.001, atol: 0.001}
     tags: [mobility, deterministic]
 
+  - id: mobility_attrition_adjusted_identity
+    method_fqn: "distributional.mobility.transition_matrix_attrition_adjusted@1.0.0"
+    description: "Attrition-adjusted IPCW recovers diagonal mobility in a two-class panel"
+    input_data:
+      origin_classes: [0, 0, 0, 0, 1, 1, 1, 1]
+      destination_classes: [0, 0, -1, -1, 1, 1, -1, -1]
+      retention_indicators: [1, 1, 0, 0, 1, 1, 0, 0]
+      attrition_features:
+        - [0.0]
+        - [0.0]
+        - [1.0]
+        - [1.0]
+        - [0.0]
+        - [0.0]
+        - [1.0]
+        - [1.0]
+      retention_probabilities: [1.0, 1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5]
+    input_params: {n_classes: 2, estimator: ipcw, compute_bounds: true}
+    expected_output:
+      result:
+        analysis_type: "transition_matrix_attrition_adjusted"
+        point_estimate:
+          transition_matrix:
+            - [1.0, 0.0]
+            - [0.0, 1.0]
+        bounds:
+          sharpness_status: "sharp_with_row_marginals"
+    tolerances: {rtol: 0.001, atol: 0.001}
+    tags: [mobility, attrition, deterministic]
+
+  - id: mobility_sequential_attrition_identity
+    method_fqn: "distributional.mobility.sequential_lifetime_transition_matrix@1.0.0"
+    description: "Sequential IPCW emits an identity transition matrix when only diagonal stayers survive"
+    input_data:
+      origin_classes: [0, 0, 1, 1]
+      destination_classes: [0, -1, 1, -1]
+      retention_indicators_by_wave:
+        - [1, 1]
+        - [1, 0]
+        - [1, 1]
+        - [1, 0]
+      attrition_features_by_wave:
+        - [[0.0], [0.0]]
+        - [[1.0], [1.0]]
+        - [[0.0], [0.0]]
+        - [[1.0], [1.0]]
+      retention_probabilities_by_wave:
+        - [1.0, 1.0]
+        - [1.0, 0.5]
+        - [1.0, 1.0]
+        - [1.0, 0.5]
+    input_params: {n_classes: 2, estimator: ipcw, compute_bounds: true}
+    expected_output:
+      result:
+        analysis_type: "sequential_lifetime_transition_matrix"
+        point_estimate:
+          transition_matrix:
+            - [1.0, 0.0]
+            - [0.0, 1.0]
+        attrition:
+          mechanism_assumed: "sequential_mar_given_history"
+    tolerances: {rtol: 0.001, atol: 0.001}
+    tags: [mobility, attrition, sequential, deterministic]
+
+  - id: mobility_refreshment_completion
+    method_fqn: "distributional.mobility.refreshment_transition_matrix@1.0.0"
+    description: "Refreshment mode fits an additive-nonignorable structural selection model"
+    input_data:
+      origin_classes: [0, 0, 1, 1]
+      destination_classes: [0, -1, 1, -1]
+      retention_indicators: [1, 0, 1, 0]
+      refreshment_destination_classes: [0, 0, 1, 1]
+    input_params: {n_classes: 2, compute_bounds: true}
+    expected_output:
+      result:
+        analysis_type: "refreshment_transition_matrix"
+        point_estimate:
+          col_marginals: [0.5, 0.5]
+        attrition:
+          mechanism_assumed: "selection_on_unobservables_refreshment"
+          weight_model:
+            family: "additive_nonignorable_logit_refreshment"
+        bounds:
+          sharpness_status: "sharp_with_known_marginals"
+    tolerances: {rtol: 0.01, atol: 0.01}
+    tags: [mobility, refreshment, deterministic]
+
   - id: ige_perfect_persistence
     method_fqn: "distributional.mobility.intergenerational_elasticity@1.0.0"
     description: "child = parent → IGE = 1.0"
@@ -223,6 +310,36 @@ cases:
         n_poor: 3
     tolerances: {rtol: 0.001, atol: 0.001}
     tags: [poverty, deterministic]
+
+  - id: mpi_ordinal_micro_example
+    method_fqn: "distributional.poverty.ordinal_multidimensional@1.0.0"
+    description: "ORAF micro-example matches reference H, A_ord, Q_ord values"
+    input_data:
+      category_matrix:
+        - [1.0, 1.0, 1.0]
+        - [2.0, 2.0, 2.0]
+        - [1.0, 3.0, 1.0]
+        - [3.0, 1.0, 2.0]
+        - [4.0, 2.0, 1.0]
+        - [3.0, 4.0, 3.0]
+      weights: [0.3333333333, 0.3333333333, 0.3333333333]
+    input_params:
+      category_orders:
+        - [1.0, 2.0, 3.0, 4.0]
+        - [1.0, 2.0, 3.0, 4.0]
+        - [1.0, 2.0, 3.0]
+      deprivation_cutoffs: [2, 2, 1]
+      k_threshold: 0.6666666667
+      dimension_names: [health, education, housing]
+    expected_output:
+      result:
+        headcount_h: 0.6666666667
+        ordinal_intensity_a: 0.375
+        ordinal_adjusted_headcount_q: 0.25
+        af_m0_baseline: 0.5
+        n_poor: 4
+    tolerances: {rtol: 0.001, atol: 0.001}
+    tags: [poverty, ordinal, deterministic]
 
   # --- DER Polarization ---
   - id: der_equal_no_polarization

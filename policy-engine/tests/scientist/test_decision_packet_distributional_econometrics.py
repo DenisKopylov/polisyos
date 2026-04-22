@@ -22,9 +22,12 @@ from polisyos.ir.analytics.distributional import (
     DistributionalReport,
     ImpactDirection,
     MetricUnit,
+    OrdinalPovertyEstimate,
+    OrdinalPovertyReport,
     persist_distributional_effect_bundle,
     persist_distributional_proof_artifact,
     persist_distributional_report,
+    persist_ordinal_poverty_report,
 )
 from polisyos.ir.analytics.evidence_bundle import EvidenceBundle, persist_causal_evidence_bundle
 from polisyos.ir.analytics.kernel_causal import (
@@ -115,7 +118,48 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
                         ),
                     ],
                 )
-            ]
+            ],
+            ordinal_poverty_summary={
+                "status": "included",
+                "baseline": {"ordinal_adjusted_headcount_q": 0.2},
+                "counterfactual": {"ordinal_adjusted_headcount_q": 0.1},
+            },
+        ),
+    )
+    ordinal_poverty_ref = persist_ordinal_poverty_report(
+        store,
+        OrdinalPovertyReport(
+            baseline=OrdinalPovertyEstimate(
+                headcount_h=0.5,
+                ordinal_intensity_a=0.4,
+                ordinal_adjusted_headcount_q=0.2,
+                af_m0_baseline=0.18,
+                beta=1.0,
+                k_threshold=2 / 3,
+                n_agents=10,
+                n_dimensions=3,
+                n_poor=5,
+                dimension_weights=(1 / 3, 1 / 3, 1 / 3),
+                deprivation_cutoffs=(2, 2, 1),
+                dimension_names=("health", "education", "housing"),
+                threshold_weights_basis="equal",
+            ),
+            counterfactual=OrdinalPovertyEstimate(
+                headcount_h=0.3,
+                ordinal_intensity_a=0.33,
+                ordinal_adjusted_headcount_q=0.1,
+                af_m0_baseline=0.12,
+                beta=1.0,
+                k_threshold=2 / 3,
+                n_agents=10,
+                n_dimensions=3,
+                n_poor=3,
+                dimension_weights=(1 / 3, 1 / 3, 1 / 3),
+                deprivation_cutoffs=(2, 2, 1),
+                dimension_names=("health", "education", "housing"),
+                threshold_weights_basis="equal",
+            ),
+            source_simulation_ref="sha256:" + "b" * 64,
         ),
     )
     proof_ref = persist_proof_bundle(
@@ -180,6 +224,7 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
                 weighting_mode="uniform",
                 identifiability_assumptions=["scenario_level_ot_coupling"],
             ),
+            ordinal_poverty_ref=ordinal_poverty_ref,
             marginal_law_proof_ref=marginal_proof_ref,
             distributional_proof_ref=marginal_proof_ref,
             coupling_proof_ref=coupling_proof_ref,
@@ -257,6 +302,10 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
     assert payload["distributional"]["coupling_proof_ref"] == str(coupling_proof_ref.artifact_id)
     assert payload["distributional"]["proof_kernel_status"] == "identified"
     assert payload["distributional"]["proof_kernel_theorem_family"] == "identified_distribution_law"
+    assert payload["distributional"]["ordinal_poverty_ref"] == str(ordinal_poverty_ref.artifact_id)
+    assert payload["distributional"]["ordinal_poverty_methodology"] == "oraf_phase2"
+    assert payload["distributional"]["ordinal_poverty_deltas"]["ordinal_adjusted_headcount_q"] == -0.1
+    assert payload["distributional"]["ordinal_poverty_summary"]["status"] == "included"
     assert payload["econometrics"]["result_ref"] == str(econometric_result_ref.artifact_id)
     assert payload["econometrics"]["envelope_ref"] == str(econometric_envelope_ref.artifact_id)
     assert payload["uncertainty_bounds"]["econometric_effect_point"] == 1.8

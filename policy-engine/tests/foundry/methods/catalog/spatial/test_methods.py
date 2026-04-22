@@ -5,12 +5,19 @@ import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.catalog.spatial.protocols import SpatialResult
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.spatial import (
     AccessibilityData,
     GravityFlowData,
     SpatialData,
     ensure_spatial_methods_registered,
+)
+from polisyos.ir.analytics.interference import (
+    MAUPInvarianceCertificate,
+    MAUPPartitionCheck,
+    SpatialHodgeDiagnostics,
+    SpatialHodgeScaleProfile,
 )
 from polisyos.ir.analytics.dependence_structure import load_dependence_structure
 
@@ -327,6 +334,74 @@ def test_advanced_spatial_methods_run() -> None:
     )
     assert maup_result.output["result"].method_name == "maup_profile"
     assert np.asarray(maup_result.output["result"].scores, dtype=float).shape == (3, 4)
+
+
+def test_spatial_result_accepts_typed_maup_and_hodge_fields() -> None:
+    certificate = MAUPInvarianceCertificate(
+        status="warn",
+        estimand="spillover",
+        effect_scale="mean_difference",
+        micro_effect=0.42,
+        partitions_tested=1,
+        recommended_mode="micro_plus_safe_aggregate",
+        near_invariance=True,
+        partition_checks=(
+            MAUPPartitionCheck(
+                partition_id="district_v2",
+                n_blocks=8,
+                lumpability_residual=0.03,
+                adjusted_p_value=0.61,
+                ess_min=30.0,
+            ),
+        ),
+    )
+    diagnostics = SpatialHodgeDiagnostics(
+        declared_scale_id="district",
+        declared_zoning_id="admin_v1",
+        aggregation_rule="mean",
+        weight_spec="queen",
+        exposure_mapping="kernel",
+        zoning_hash="abc123",
+        weight_hash="def456",
+        aggregation_hash="ghi789",
+        eta_grad=0.6,
+        eta_curl=0.2,
+        eta_harm=0.2,
+        dominant_component="grad",
+        profiles=(
+            SpatialHodgeScaleProfile(
+                scale_id="district",
+                zoning_id="admin_v1",
+                aggregation_rule="mean",
+                weight_spec="queen",
+                zoning_hash="abc123",
+                weight_hash="def456",
+                aggregation_hash="ghi789",
+                n_zones=8,
+                n_edges=12,
+                total_energy=10.0,
+                gradient_energy=6.0,
+                curl_energy=2.0,
+                harmonic_energy=2.0,
+                eta_grad=0.6,
+                eta_curl=0.2,
+                eta_harm=0.2,
+                dominant_component="grad",
+            ),
+        ),
+    )
+
+    result = SpatialResult(
+        method_name="maup_profile",
+        statistics={"instability": 0.12},
+        maup_invariance_certificate=certificate,
+        spatial_hodge_diagnostics=diagnostics,
+    )
+
+    assert result.maup_invariance_certificate is not None
+    assert result.maup_invariance_certificate.status == "warn"
+    assert result.spatial_hodge_diagnostics is not None
+    assert result.spatial_hodge_diagnostics.declared_scale_id == "district"
 
 
 def test_advanced_spatial_methods_emit_dependence_ref(tmp_path) -> None:

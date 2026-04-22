@@ -100,6 +100,12 @@ def persist_causal_validity_bundle(
             sensitivity_ref=sensitivity_ref,
             sensitivity_auto=sensitivity_auto,
         ),
+        "spatial_interference": _build_spatial_interference_check(
+            report=report,
+            method_fqn=method_fqn,
+            method_params=method_params,
+            observational_data=observational_data,
+        ),
         "icp_invariance": _run_icp_check(
             ctx=ctx,
             seed=seed,
@@ -267,6 +273,136 @@ def _build_sensitivity_check(
     if isinstance(sensitivity_auto.get("issues"), list):
         payload["issues"] = list(sensitivity_auto["issues"])
     return payload
+
+
+def _build_spatial_interference_check(
+    *,
+    report: CausalEffectReport,
+    method_fqn: str,
+    method_params: Mapping[str, Any],
+    observational_data: (
+        PanelObservationalData
+        | RDDObservationalData
+        | HTEObservationalData
+        | GraphCausalData
+        | GraphCausalDataV1
+    ),
+) -> dict[str, Any]:
+    def _first_present(*values: object) -> object | None:
+        for value in values:
+            if value is not None:
+                return value
+        return None
+
+    metadata = report.metadata if isinstance(report.metadata, Mapping) else {}
+    typed_diagnostics = _mapping(getattr(report, "spatial_hodge_diagnostics", None))
+    typed_maup = _mapping(getattr(report, "maup_invariance_certificate", None))
+    summary = _mapping(
+        _first_present(
+            getattr(report, "spatial_hodge_summary", None),
+            typed_diagnostics,
+            metadata.get("spatial_hodge_summary"),
+        )
+    )
+    diagnostics = typed_diagnostics or _mapping(metadata.get("spatial_hodge_diagnostics"))
+    maup = typed_maup or _mapping(metadata.get("maup_invariance_certificate"))
+    if not summary and not diagnostics and not maup:
+        return _skipped_check("causal.diagnostics.spatial_interference", reason="missing_spatial_diagnostics")
+
+    observed_metadata = getattr(observational_data, "metadata", None)
+    observed_spatial = _mapping(
+        observed_metadata.get("spatial_interference") if isinstance(observed_metadata, Mapping) else None
+    )
+    declared_scale_id = _normalize_optional_string(
+        summary.get("declared_scale_id")
+        or diagnostics.get("declared_scale_id")
+        or observed_spatial.get("scale_id")
+        or method_params.get("scale_id")
+    )
+    declared_zoning_id = _normalize_optional_string(
+        summary.get("declared_zoning_id")
+        or diagnostics.get("declared_zoning_id")
+        or observed_spatial.get("zoning_id")
+        or method_params.get("zoning_id")
+    )
+    aggregation_rule = _normalize_optional_string(
+        summary.get("aggregation_rule")
+        or diagnostics.get("aggregation_rule")
+        or observed_spatial.get("aggregation_rule")
+        or method_params.get("aggregation_rule")
+    )
+    weight_spec = _normalize_optional_string(
+        summary.get("weight_spec")
+        or diagnostics.get("weight_spec")
+        or observed_spatial.get("weight_spec")
+        or method_params.get("weight_spec")
+    )
+    warnings = _string_list(summary.get("warnings")) + _string_list(maup.get("warnings"))
+    blocker_codes = _string_list(summary.get("blocker_codes")) + _string_list(maup.get("blocker_codes"))
+
+    return {
+        "status": "success",
+        "method_fqn": "causal.diagnostics.spatial_interference",
+        "base_method_fqn": method_fqn,
+        "declared_scale_id": declared_scale_id,
+        "declared_zoning_id": declared_zoning_id,
+        "aggregation_rule": aggregation_rule,
+        "weight_spec": weight_spec,
+        "zoning_hash": _normalize_optional_string(
+            _first_present(summary.get("zoning_hash"), diagnostics.get("zoning_hash"))
+        ),
+        "weight_hash": _normalize_optional_string(
+            _first_present(summary.get("weight_hash"), diagnostics.get("weight_hash"))
+        ),
+        "aggregation_hash": _normalize_optional_string(
+            _first_present(summary.get("aggregation_hash"), diagnostics.get("aggregation_hash"))
+        ),
+        "eta_grad": _normalize_optional_float(
+            _first_present(summary.get("eta_grad"), diagnostics.get("eta_grad"))
+        ),
+        "eta_curl": _normalize_optional_float(
+            _first_present(summary.get("eta_curl"), diagnostics.get("eta_curl"))
+        ),
+        "eta_harm": _normalize_optional_float(
+            _first_present(summary.get("eta_harm"), diagnostics.get("eta_harm"))
+        ),
+        "dominant_component": _normalize_optional_string(
+            _first_present(summary.get("dominant_component"), diagnostics.get("dominant_component"))
+        ),
+        "max_profile_l1_gap": _normalize_optional_float(
+            _first_present(
+                summary.get("max_profile_l1_gap"),
+                diagnostics.get("max_profile_l1_gap"),
+            )
+        ),
+        "scale_instability": _normalize_optional_float(
+            _first_present(summary.get("scale_instability"), diagnostics.get("scale_instability"))
+        ),
+        "zoning_instability": _normalize_optional_float(
+            _first_present(
+                summary.get("zoning_instability"),
+                diagnostics.get("zoning_instability"),
+            )
+        ),
+        "topology_sensitivity": _normalize_optional_float(
+            _first_present(
+                summary.get("topology_sensitivity"),
+                diagnostics.get("topology_sensitivity"),
+            )
+        ),
+        "candidate_partition_ids": list(
+            summary.get("candidate_partition_ids")
+            or diagnostics.get("candidate_partition_ids")
+            or ()
+        ),
+        "maup_status": _normalize_optional_string(maup.get("status")),
+        "maup_partitions_tested": (
+            int(maup.get("partitions_tested", 0) or 0) if maup else None
+        ),
+        "warnings": warnings,
+        "blocker_codes": blocker_codes,
+        "experimental": True,
+    }
 
 
 def _run_icp_check(
@@ -806,6 +942,8 @@ def _build_capability_matrix(
         "e_values": "available",
         "sensitivity_reporting": "available",
         "honest_causal_forest_ci": "available",
+        "spatial_interference_hodge": _capability_state(checks.get("spatial_interference")),
+        "maup_stability_surface": _capability_state(checks.get("spatial_interference")),
         "icp_invariance": _capability_state(checks.get("icp_invariance")),
         "proximal_causal_inference": _capability_state(checks.get("proximal_bridge")),
         "selection_bias_recoverability": _capability_state(checks.get("recoverability")),
@@ -906,6 +1044,11 @@ def _failed_check(
 def _mapping(value: object) -> dict[str, Any]:
     if isinstance(value, Mapping):
         return {str(key): item for key, item in value.items()}
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        payload = model_dump(mode="python")
+        if isinstance(payload, Mapping):
+            return {str(key): item for key, item in payload.items()}
     return {}
 
 

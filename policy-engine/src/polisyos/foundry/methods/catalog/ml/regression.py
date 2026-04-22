@@ -72,6 +72,7 @@ def _build_prediction_result(
     feature_importances: Mapping[str, float] | None = None,
     coefficients: Mapping[str, float] | None = None,
     model_info: Mapping[str, Any] | None = None,
+    embedding_fidelity_certificate: Any | None = None,
     metadata: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     result = PredictionResult(
@@ -82,6 +83,7 @@ def _build_prediction_result(
         coefficients=dict(coefficients or {}),
         metrics=_regression_metrics(np.asarray(target, dtype=float), np.asarray(predictions, dtype=float)),
         model_info=dict(model_info or {}),
+        embedding_fidelity_certificate=embedding_fidelity_certificate,
         metadata=dict(metadata or {}),
     )
     return {

@@ -25,6 +25,7 @@ def test_load_governance_passes_contains_required_passes() -> None:
     pass_ids = {validator.pass_id for validator in load_governance_passes()}
     assert {
         "budget",
+        "causal_frontier_leakage",
         "checkpoint",
         "schema",
         "privacy",
@@ -54,6 +55,7 @@ def test_runtime_profile_filters_to_runtime_allowed_pass_ids() -> None:
     assert filtered.level == strict.level
     assert filtered.short_circuit_on_blocker == strict.short_circuit_on_blocker
     assert filtered.pass_ids.issubset(RUNTIME_ALLOWED_PASS_IDS)
+    assert "causal_frontier_leakage" in filtered.pass_ids
     assert "transportability_required" in filtered.pass_ids
     assert "schema" not in filtered.pass_ids
 

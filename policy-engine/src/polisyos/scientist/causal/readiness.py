@@ -5,6 +5,7 @@ These runners consume typed C4a observation bundles and a reconciled
 emit normalized readiness entries that `RunCausalReadinessNode` stores in
 `CausalReadinessBundle`.
 """
+
 from __future__ import annotations
 
 from dataclasses import asdict
@@ -88,6 +89,18 @@ def _normalize_reason(*, status: str, trace: list[str], default: str) -> str:
     return f"{status}:{default}"[:255]
 
 
+def _dedupe_notes(notes: list[str]) -> list[str]:
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for note in notes:
+        token = str(note).strip()
+        if not token or token in seen:
+            continue
+        seen.add(token)
+        deduped.append(token)
+    return deduped
+
+
 def _proof_steps_payload(proof_steps: list[Any]) -> list[dict[str, Any]]:
     payload: list[dict[str, Any]] = []
     for step in proof_steps:
@@ -142,7 +155,9 @@ def _coerce_payoff_tables(payload: Any) -> dict[str, FiniteStrategicPayoffTable]
         raise ValueError("strategic_payoff_tables must be a non-empty mapping")
     return {
         str(agent): (
-            table if isinstance(table, FiniteStrategicPayoffTable) else FiniteStrategicPayoffTable.model_validate(table)
+            table
+            if isinstance(table, FiniteStrategicPayoffTable)
+            else FiniteStrategicPayoffTable.model_validate(table)
         )
         for agent, table in payload.items()
     }
@@ -178,7 +193,9 @@ def _coerce_counterfactual_query(payload: Any) -> CtfQuery:
         kind=str(payload.get("kind", "generic")),
         mediators=tuple(str(item) for item in payload.get("mediators", ())),
         protected_attribute=(
-            None if payload.get("protected_attribute") is None else str(payload.get("protected_attribute"))
+            None
+            if payload.get("protected_attribute") is None
+            else str(payload.get("protected_attribute"))
         ),
         reference_intervention=_tuple_mapping(payload.get("reference_intervention")),
         outcome_value=(
@@ -377,7 +394,9 @@ class TransportabilityChecker:
         for check in bundle.checks:
             source_context = _coerce_context(check.source_context)
             target_context = _coerce_context(check.target_context)
-            dp_utility_manifest = coerce_dp_utility_manifest(getattr(check, "dp_utility_manifest", None))
+            dp_utility_manifest = coerce_dp_utility_manifest(
+                getattr(check, "dp_utility_manifest", None)
+            )
             synthesized = _cross_regime_boundary_s_nodes(
                 check=check,
                 outcome=check.outcome,
@@ -401,14 +420,14 @@ class TransportabilityChecker:
                 result_model = TransportabilityResult(
                     query=query,
                     status=TransportabilityStatus.IDENTIFIED,
-                        transport_mode=TransportMode.DIRECT,
-                        identification_engine="same_regime_short_circuit",
-                        identification_trace=["same_regime_short_circuit"],
-                        selection_diagram_ref=f"selection_diagram:{check.check_id}:same_regime",
-                        source_context_id=source_context.context_id,
-                        target_context_id=target_context.context_id,
-                        metadata={"check_id": check.check_id, "cross_regime": False},
-                    )
+                    transport_mode=TransportMode.DIRECT,
+                    identification_engine="same_regime_short_circuit",
+                    identification_trace=["same_regime_short_circuit"],
+                    selection_diagram_ref=f"selection_diagram:{check.check_id}:same_regime",
+                    source_context_id=source_context.context_id,
+                    target_context_id=target_context.context_id,
+                    metadata={"check_id": check.check_id, "cross_regime": False},
+                )
             else:
                 selection_diagram = SelectionDiagram(
                     base_graph=self.graph,
@@ -447,7 +466,8 @@ class TransportabilityChecker:
                         for node in s_nodes
                         if not result.hedge_certificate
                         or not result.hedge_certificate.minimal_required_s_nodes
-                        or f"S_{node.target_variable}" in result.hedge_certificate.minimal_required_s_nodes
+                        or f"S_{node.target_variable}"
+                        in result.hedge_certificate.minimal_required_s_nodes
                     ]
                     result_model = TransportabilityResult(
                         query=query,
@@ -496,7 +516,9 @@ class TransportabilityChecker:
                     status=_transport_entry_status(result_model, privacy_mode),
                     cross_regime=not same_regime,
                     result_ref=ArtifactRefModel.model_validate(result_ref.model_dump(mode="json")),
-                    blocking_s_nodes=[node.target_variable for node in result_model.blocking_s_nodes],
+                    blocking_s_nodes=[
+                        node.target_variable for node in result_model.blocking_s_nodes
+                    ],
                     identification_engine=result_model.identification_engine,
                     normalized_reason=result_model.unsupported_reason,
                     trace=list(result_model.identification_trace),
@@ -608,7 +630,9 @@ class StrategicResponseRunner:
                 contract = StrategicSCM.model_validate(params["strategic_scm"])
                 payoff_tables = _coerce_payoff_tables(params.get("strategic_payoff_tables"))
                 macro_payload = params.get("macro_strategic_payoff_tables")
-                macro_tables = None if macro_payload is None else _coerce_payoff_tables(macro_payload)
+                macro_tables = (
+                    None if macro_payload is None else _coerce_payoff_tables(macro_payload)
+                )
                 abstraction_payload = params.get("abstraction_certificate")
                 abstraction_certificate = (
                     None
@@ -616,7 +640,9 @@ class StrategicResponseRunner:
                     else AbstractionCertificate.model_validate(abstraction_payload)
                 )
                 utility_refs = self._persist_tables(payoff_tables)
-                macro_utility_refs = None if macro_tables is None else self._persist_tables(macro_tables)
+                macro_utility_refs = (
+                    None if macro_tables is None else self._persist_tables(macro_tables)
+                )
                 normalized_contract = contract.model_copy(
                     update={
                         "utility_refs": utility_refs,
@@ -813,17 +839,73 @@ def build_interference_readiness_entries(
 
     if bundle is None:
         return []
-    return [
-        InterferenceReadinessEntry(
-            spec_id=spec.spec_id,
-            family=spec.family,
-            predicted_metric_path=spec.predicted_metric_path,
-            ready=True,
-            notes=list(spec.notes),
-            metadata={"graph_layer": spec.graph_layer.value, "loss_kind": spec.loss_kind},
+    entries: list[InterferenceReadinessEntry] = []
+    for spec in bundle.specs:
+        metadata: dict[str, Any] = {
+            "graph_layer": spec.graph_layer.value,
+            "loss_kind": spec.loss_kind,
+            "supports_areal_interference": spec.areal_support,
+        }
+        notes = list(spec.notes)
+        ready = True
+        entry_kwargs: dict[str, Any] = {"supports_areal_interference": spec.areal_support}
+
+        if spec.areal_support:
+            maup_scale_declared = spec.scale_id is not None and spec.zoning_id is not None
+            interference_topology_ready = spec.weight_spec is not None
+            zoning_sensitivity_ready = bool(spec.candidate_partition_ids)
+            aggregation_rule_consistent = spec.aggregation_rule is not None
+            measurement_error_bounded = spec.measurement_error_bounded is True
+            ready = all(
+                (
+                    maup_scale_declared,
+                    interference_topology_ready,
+                    zoning_sensitivity_ready,
+                    aggregation_rule_consistent,
+                    measurement_error_bounded,
+                )
+            )
+            if not maup_scale_declared:
+                notes.append("maup_scale_undeclared")
+            if not interference_topology_ready:
+                notes.append("interference_topology_missing")
+            if not zoning_sensitivity_ready:
+                notes.append("candidate_partitions_missing")
+            if not aggregation_rule_consistent:
+                notes.append("aggregation_rule_missing")
+            if not measurement_error_bounded:
+                notes.append("measurement_error_unbounded")
+            metadata.update(
+                {
+                    "scale_id": spec.scale_id,
+                    "zoning_id": spec.zoning_id,
+                    "aggregation_rule": spec.aggregation_rule,
+                    "weight_spec": spec.weight_spec,
+                    "candidate_partition_ids": list(spec.candidate_partition_ids),
+                }
+            )
+            entry_kwargs.update(
+                {
+                    "interference_topology_ready": interference_topology_ready,
+                    "maup_scale_declared": maup_scale_declared,
+                    "zoning_sensitivity_ready": zoning_sensitivity_ready,
+                    "aggregation_rule_consistent": aggregation_rule_consistent,
+                    "measurement_error_bounded": measurement_error_bounded,
+                }
+            )
+
+        entries.append(
+            InterferenceReadinessEntry(
+                spec_id=spec.spec_id,
+                family=spec.family,
+                predicted_metric_path=spec.predicted_metric_path,
+                ready=ready,
+                notes=_dedupe_notes(notes),
+                metadata=metadata,
+                **entry_kwargs,
+            )
         )
-        for spec in bundle.specs
-    ]
+    return entries
 
 
 __all__ = [

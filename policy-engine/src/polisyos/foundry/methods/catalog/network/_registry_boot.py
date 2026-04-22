@@ -8,8 +8,14 @@ from .analysis import (
     ContagionModelEstimator,
     InputOutputNetworkEstimator,
     MultiplexNetworkEstimator,
+    NetworkMissingnessAssessmentEstimator,
     NetworkDiffusionEstimator,
+    PeerEffectDecompositionEstimator,
 )
+from .ergm import DiffusionNullTestEstimator, ERGMNullModelEstimator
+from .sbm import SBMStratificationEstimator
+from .strategic import StrategicNetworkFormationEstimator
+
 
 def register_network_methods() -> Sequence[type]:
     """Register network methods."""
@@ -17,8 +23,14 @@ def register_network_methods() -> Sequence[type]:
         CommunityDetectionEstimator,
         InputOutputNetworkEstimator,
         NetworkDiffusionEstimator,
+        NetworkMissingnessAssessmentEstimator,
+        PeerEffectDecompositionEstimator,
         ContagionModelEstimator,
         MultiplexNetworkEstimator,
+        SBMStratificationEstimator,
+        ERGMNullModelEstimator,
+        DiffusionNullTestEstimator,
+        StrategicNetworkFormationEstimator,
     )
 
 

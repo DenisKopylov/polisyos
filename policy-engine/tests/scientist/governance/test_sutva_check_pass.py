@@ -37,6 +37,8 @@ def test_sutva_check_warns_for_market_wide_treatment() -> None:
     assert len(issues) == 1
     assert issues[0].code == "SUTVA_VIOLATION_RISK"
     assert issues[0].severity == IssueSeverity.WARNING
+    assert "sbm_stratification" in issues[0].suggestion
+    assert "ergm_null" in issues[0].suggestion
 
 
 def test_sutva_check_no_issue_for_neutral_treatment() -> None:
@@ -67,6 +69,7 @@ def test_sutva_check_uses_report_risk_when_present() -> None:
 
     assert len(issues) == 1
     assert issues[0].code == "SUTVA_VIOLATION_RISK"
+    assert "sbm_stratification" in issues[0].suggestion
 
 
 def test_sutva_check_invalid_report_payload_emits_warning() -> None:

@@ -128,6 +128,9 @@ def test_method_catalog_snapshot_includes_non_causal_families() -> None:
     assert "distributional.inequality.theil@1.0.0" in fqns
     assert "distributional.inequality.palma_ratio@1.0.0" in fqns
     assert "distributional.mobility.transition_matrix@1.0.0" in fqns
+    assert "distributional.mobility.transition_matrix_attrition_adjusted@1.0.0" in fqns
+    assert "distributional.mobility.sequential_lifetime_transition_matrix@1.0.0" in fqns
+    assert "distributional.mobility.refreshment_transition_matrix@1.0.0" in fqns
     assert "distributional.polarization.esteban_ray@1.0.0" in fqns
 
     # Phase 4: Sensitivity expansion
@@ -137,6 +140,7 @@ def test_method_catalog_snapshot_includes_non_causal_families() -> None:
     # Phase 5: Survey expansion
     assert "survey.adaptive.adaptive_calibrated_ipw@1.0.0" in fqns
     assert "survey.adaptive.adaptive_augmented@1.0.0" in fqns
+    assert "survey.estimation.causal_frontier_fay_herriot@1.0.0" in fqns
     assert "survey.estimation.fay_herriot@1.0.0" in fqns
     assert "survey.imputation.mice@1.0.0" in fqns
     assert "survey.design.complex_survey@1.0.0" in fqns

@@ -239,6 +239,36 @@ export class RuntimeApiClient {
     return this.request('GET', path, query);
   }
 
+  async computeMobilityBounds() {
+    const path = `/api/v1/mobility/bounds`;
+    const query = undefined;
+    return this.request('POST', path, query, params?.body);
+  }
+
+  async estimateMobility() {
+    const path = `/api/v1/mobility/estimate`;
+    const query = undefined;
+    return this.request('POST', path, query, params?.body);
+  }
+
+  async getMobilityReport(params) {
+    const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
+  async getMobilityReportBounds(params) {
+    const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/bounds`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
+  async getMobilityReportDiagnostics(params) {
+    const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/diagnostics`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
   async listRuns(params) {
     const path = `/api/v1/runs`;
     const query = this.buildQuery({

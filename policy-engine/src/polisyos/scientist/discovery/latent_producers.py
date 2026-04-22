@@ -503,7 +503,12 @@ def _proxy_input_from_report(
 
     bridge_report = report_metadata.get("bridge_plausibility_report")
     proxy_boundary = report_metadata.get("proxy_boundary")
-    if not isinstance(bridge_report, Mapping) and not isinstance(proxy_boundary, Mapping):
+    fidelity_payload = report_metadata.get("embedding_fidelity_certificate")
+    if (
+        not isinstance(bridge_report, Mapping)
+        and not isinstance(proxy_boundary, Mapping)
+        and not isinstance(fidelity_payload, Mapping)
+    ):
         return None
 
     flagged_proxies: list[str] = []
@@ -523,11 +528,11 @@ def _proxy_input_from_report(
     bridge_test = _bridge_test_from_report_metadata(severity=severity, fallback=fallback)
     if bridge_test is None and flagged_proxies:
         bridge_test = "proximal_bridge_failed"
-    if bridge_test is None:
+    if bridge_test is None and not isinstance(fidelity_payload, Mapping):
         return None
 
     return LatentSeparationProxyInput(
-        bridge_test=bridge_test,
+        bridge_test=bridge_test or "proximal_bridge_unresolved",
         bridge_stability=str(
             report_metadata.get("bridge_stability")
             or ("cross_environment_unstable" if flagged_proxies else "cross_environment_unresolved")
@@ -535,8 +540,76 @@ def _proxy_input_from_report(
         flagged_proxies=_dedupe_strings(flagged_proxies),
         bridge_plausibility_severity=str(severity) if severity is not None else None,
         bridge_fallback_disposition=str(fallback) if fallback is not None else None,
+        embedding_family=(
+            str(fidelity_payload.get("family"))
+            if isinstance(fidelity_payload, Mapping) and fidelity_payload.get("family") is not None
+            else None
+        ),
+        embedding_dim=(
+            int(fidelity_payload.get("metadata", {}).get("embedding_dim"))
+            if isinstance(fidelity_payload, Mapping)
+            and isinstance(fidelity_payload.get("metadata"), Mapping)
+            and fidelity_payload.get("metadata", {}).get("embedding_dim") is not None
+            else None
+        ),
+        representation_faithfulness_status=(
+            str(fidelity_payload.get("status"))
+            if isinstance(fidelity_payload, Mapping) and fidelity_payload.get("status") is not None
+            else None
+        ),
+        separator_recoverability=(
+            {
+                str(key): float(value)
+                for key, value in fidelity_payload.get("recoverability_scores", {}).items()
+            }
+            if isinstance(fidelity_payload, Mapping)
+            and isinstance(fidelity_payload.get("recoverability_scores"), Mapping)
+            else {}
+        ),
+        residual_dependence_scores=(
+            {
+                str(key): float(value)
+                for key, value in fidelity_payload.get("residual_dependence_scores", {}).items()
+            }
+            if isinstance(fidelity_payload, Mapping)
+            and isinstance(fidelity_payload.get("residual_dependence_scores"), Mapping)
+            else {}
+        ),
+        collision_rate=(
+            float(fidelity_payload.get("collision_rate"))
+            if isinstance(fidelity_payload, Mapping) and fidelity_payload.get("collision_rate") is not None
+            else None
+        ),
+        effect_drift_z=(
+            float(fidelity_payload.get("effect_drift_z"))
+            if isinstance(fidelity_payload, Mapping) and fidelity_payload.get("effect_drift_z") is not None
+            else None
+        ),
+        effective_sample_size=(
+            float(fidelity_payload.get("effective_sample_size"))
+            if isinstance(fidelity_payload, Mapping)
+            and fidelity_payload.get("effective_sample_size") is not None
+            else None
+        ),
+        representation_recommended_action=(
+            str(fidelity_payload.get("recommended_action"))
+            if isinstance(fidelity_payload, Mapping)
+            and fidelity_payload.get("recommended_action") is not None
+            else None
+        ),
+        representation_failure_modes=(
+            [str(value) for value in list(fidelity_payload.get("failure_modes", []) or []) if str(value).strip()]
+            if isinstance(fidelity_payload, Mapping)
+            else []
+        ),
         proxy_blocks=_proxy_blocks_from_report_metadata(report_metadata, proxy_boundary),
-        metadata={"source": "bridge_plausibility"},
+        metadata={
+            "source": (
+                "bridge_plausibility+embedding_fidelity"
+                if isinstance(fidelity_payload, Mapping)
+                else "bridge_plausibility"
+            )
+        },
     )
 
 

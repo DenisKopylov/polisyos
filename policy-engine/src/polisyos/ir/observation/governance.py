@@ -88,6 +88,11 @@ class GovernancePassAliasRegistry(KernelModel):
                     runtime_pass_id="checkpoint",
                     status=GovernancePassAliasStatus.RUNTIME,
                 ),
+                "causal_frontier_leakage": GovernancePassAlias(
+                    canonical_pass_id="causal_frontier_leakage",
+                    runtime_pass_id="causal_frontier_leakage",
+                    status=GovernancePassAliasStatus.RUNTIME,
+                ),
                 "confidence": GovernancePassAlias(
                     canonical_pass_id="confidence",
                     runtime_pass_id="confidence",

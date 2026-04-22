@@ -75,6 +75,18 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.ecosystem_bridges",
         "CausalBridgeTarget",
     ),
+    "CausalBlockBridge": (
+        "polisyos.ir.analytics.network_generative",
+        "CausalBlockBridge",
+    ),
+    "BlockSupportReport": (
+        "polisyos.ir.analytics.network_generative",
+        "BlockSupportReport",
+    ),
+    "CausalBlockBridgeRef": (
+        "polisyos.ir.refs",
+        "CausalBlockBridgeRef",
+    ),
     "CausalNexGraphBridge": (
         "polisyos.ir.analytics.ecosystem_bridges",
         "CausalNexGraphBridge",
@@ -216,6 +228,39 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.interventions",
         "InterventionQuery",
     ),
+    "ExposureMappingType": (
+        "polisyos.ir.analytics.interference",
+        "ExposureMappingType",
+    ),
+    "InteractionComplex": ("polisyos.ir.analytics.interference", "InteractionComplex"),
+    "InteractionComplexRef": ("polisyos.ir.refs", "InteractionComplexRef"),
+    "InterferenceCertificate": (
+        "polisyos.ir.analytics.interference",
+        "InterferenceCertificate",
+    ),
+    "InterferenceCertificateRef": (
+        "polisyos.ir.refs",
+        "InterferenceCertificateRef",
+    ),
+    "InterferenceEffectDecomposition": (
+        "polisyos.ir.analytics.interference",
+        "InterferenceEffectDecomposition",
+    ),
+    "InterferenceMethod": ("polisyos.ir.analytics.interference", "InterferenceMethod"),
+    "MAUPInvarianceCertificate": (
+        "polisyos.ir.analytics.interference",
+        "MAUPInvarianceCertificate",
+    ),
+    "MAUPInvarianceCertificateRef": (
+        "polisyos.ir.refs",
+        "MAUPInvarianceCertificateRef",
+    ),
+    "MAUPPartitionCheck": ("polisyos.ir.analytics.interference", "MAUPPartitionCheck"),
+    "NetworkInterferenceReport": (
+        "polisyos.ir.analytics.interference",
+        "NetworkInterferenceReport",
+    ),
+    "SpatialResult": ("polisyos.ir.analytics.interference", "SpatialResult"),
     "ProofKernelInterventionType": (
         "polisyos.ir.analytics.interventions",
         "ProofKernelInterventionType",

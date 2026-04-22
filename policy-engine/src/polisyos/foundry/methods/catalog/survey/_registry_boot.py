@@ -1,6 +1,7 @@
 """Public survey registry boot module API."""
 from __future__ import annotations
 
+from .causal_frontier import CausalFrontierFayHerriotEstimator
 from .demographic_consistency import CCEBEstimator, DemographicConsistencyEstimator
 from .design import ComplexSurveyDesignEstimator
 from .estimation import (
@@ -44,6 +45,7 @@ def register_survey_methods() -> tuple[type, ...]:
         CCEBEstimator,
         FayHerriotEstimator,
         FayHerriotDependenceAwareEstimator,
+        CausalFrontierFayHerriotEstimator,
         CalibrationGREGEstimator,
         MICEEstimator,
         NonresponseAdjustmentEstimator,

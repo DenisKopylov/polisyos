@@ -116,6 +116,28 @@ CROSS_BACKEND_CASES = [
         1e-5,
     ),
     (
+        "distributional.poverty.ordinal_multidimensional@1.0.0",
+        {
+            "category_matrix": np.array(
+                [
+                    [1.0, 1.0, 1.0],
+                    [2.0, 2.0, 2.0],
+                    [1.0, 3.0, 1.0],
+                    [3.0, 1.0, 2.0],
+                ]
+            ),
+            "weights": np.array([1 / 3, 1 / 3, 1 / 3]),
+        },
+        {
+            "category_orders": [[1.0, 2.0, 3.0, 4.0], [1.0, 2.0, 3.0, 4.0], [1.0, 2.0, 3.0]],
+            "deprivation_cutoffs": [2, 2, 1],
+            "k_threshold": 2 / 3,
+            "return_censored_scores": False,
+            "return_cutoff_diagnostics": False,
+        },
+        1e-5,
+    ),
+    (
         "distributional.mobility.intergenerational_elasticity@1.0.0",
         {"parent_values": np.array([10.0, 20.0, 30.0, 40.0, 50.0]),
          "child_values": np.array([15.0, 25.0, 35.0, 45.0, 55.0])},

@@ -200,7 +200,122 @@ sequence = TemporalInterventionSequence(
 )
 ```
 
-## 6. Strategic Response
+## 6. ERGM Structural Null for Diffusion
+
+Use the Phase 2 network-generative surface when you need a pre-treatment
+structural null for diffusion or spillover diagnostics.
+
+```python
+import numpy as np
+
+from polisyos.foundry.methods.network import (
+    DiffusionNullTestEstimator,
+    ERGMNullModelEstimator,
+    NetworkData,
+)
+
+rng = np.random.default_rng(21)
+labels = np.array([0] * 8 + [1] * 8, dtype=int)
+n = labels.shape[0]
+adjacency = np.zeros((n, n), dtype=float)
+for i in range(n):
+    for j in range(i + 1, n):
+        p = 0.65 if labels[i] == labels[j] else 0.10
+        edge = float(rng.uniform() < p)
+        adjacency[i, j] = edge
+        adjacency[j, i] = edge
+
+state = NetworkData(
+    adjacency=adjacency,
+    node_features=np.column_stack([labels.astype(float), rng.normal(size=n)]),
+    node_states=np.where(np.arange(n) < 3, 1.0, 0.0),
+    metadata={"ergm_group_labels": labels.tolist()},
+)
+
+ergm = ERGMNullModelEstimator.pure_step(
+    state,
+    {"n_simulations": 16, "save_graphs": 4, "__seed__": 21},
+)["result"]
+null_test = DiffusionNullTestEstimator.pure_step(
+    state,
+    {"n_simulations": 16, "diffusion_rate": 0.35, "decay": 0.04, "__seed__": 21},
+)["result"]
+
+print(ergm.fit_status)
+print(ergm.degeneracy_alarm)
+print(null_test.p_value)
+```
+
+Treat this as a pre-treatment structural-null workflow. If `degeneracy_alarm` is
+raised, do not interpret the diffusion-null result as strong evidence without
+revisiting the graph specification or fit diagnostics.
+
+## 7. SBM Strata for Interference-Aware Causal Design
+
+Use SBM strata as a design-stage object only: fit on the pre-treatment network
+and pre-treatment node covariates, then bridge the labels into the existing
+`cluster_id`-based interference estimators.
+
+```python
+import numpy as np
+
+from polisyos.foundry.methods.causal import (
+    PartialInterferenceEstimator,
+    build_block_stratified_network_causal_data,
+)
+from polisyos.foundry.methods.network import NetworkData, SBMStratificationEstimator
+
+rng = np.random.default_rng(9)
+truth = np.array([0] * 12 + [1] * 12, dtype=int)
+n = truth.shape[0]
+adjacency = np.zeros((n, n), dtype=float)
+for i in range(n):
+    for j in range(i + 1, n):
+        p = 0.75 if truth[i] == truth[j] else 0.08
+        edge = float(rng.uniform() < p)
+        adjacency[i, j] = edge
+        adjacency[j, i] = edge
+
+node_features = np.column_stack(
+    [truth.astype(float) + rng.normal(scale=0.08, size=n), rng.normal(size=n)]
+)
+treatment = rng.binomial(1, 0.5, size=n).astype(float)
+outcome = 1.1 * treatment + rng.normal(scale=0.25, size=n)
+
+network_state = NetworkData(adjacency=adjacency, node_features=node_features)
+strata = SBMStratificationEstimator.pure_step(
+    network_state,
+    {
+        "n_blocks": 2,
+        "bootstrap_samples": 6,
+        "covariate_scale": 0.5,
+        "min_block_size": 4,
+        "__seed__": 9,
+    },
+)["result"]
+
+causal_data, bridge = build_block_stratified_network_causal_data(
+    outcome=outcome,
+    treatment=treatment,
+    covariates=node_features,
+    adjacency_matrix=adjacency,
+    stratification=strata,
+)
+
+report = PartialInterferenceEstimator.pure_step(
+    causal_data,
+    {"alpha_high": 0.5, "alpha_low": 0.0, "alpha_bandwidth": 0.2},
+)["result"]
+
+print(bridge.positivity_passed)
+print(strata.stability["overall_stability"])
+print(report.direct_effect)
+```
+
+If the bridge reports low support or unstable assignments, merge or simplify the
+design strata before interpreting partial-interference estimates.
+
+## 8. Strategic Response
 
 Strategic-response compute lives in
 `polisyos.foundry.methods.catalog.causal.strategic`; Scientist readiness wraps
@@ -236,9 +351,14 @@ uv run pytest \
   tests/foundry/methods/catalog/causal/test_discovery_pipeline.py \
   tests/foundry/methods/catalog/causal/test_causal_engine.py \
   tests/foundry/methods/catalog/causal/test_bounds_engine.py \
+  tests/foundry/methods/catalog/network/test_ergm.py \
+  tests/foundry/methods/catalog/network/test_sbm.py \
+  tests/foundry/methods/catalog/network/test_diffusion_null.py \
+  tests/foundry/methods/catalog/network/test_block_causal_bridge.py \
   tests/foundry/methods/catalog/causal/test_sensitivity_metrics.py \
   tests/foundry/methods/catalog/causal/test_dtr.py \
-  tests/foundry/methods/catalog/causal/test_strategic.py -q
+  tests/foundry/methods/catalog/causal/test_strategic.py \
+  tests/ir/analytics/test_network_generative.py -q
 ```
 
 For the full architecture rationale, read

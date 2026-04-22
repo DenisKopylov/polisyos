@@ -5,6 +5,7 @@ policy. They describe which persisted payload was materialized, which Foundry
 or Scientist protocol it satisfies, and which lineage/governance metadata must
 travel with the artifact before readiness and execution stages consume it.
 """
+
 from __future__ import annotations
 
 from datetime import date
@@ -200,6 +201,15 @@ class InterferenceLossTargetSpec(KernelModel):
     loss_kind: Literal["mse", "huber"] = "mse"
     huber_delta: float = Field(default=1.0, gt=0.0)
     normalization: Literal["row", "global", "none"] = "row"
+    areal_support: bool = False
+    scale_id: str | None = Field(default=None, min_length=1, max_length=120)
+    zoning_id: str | None = Field(default=None, min_length=1, max_length=120)
+    aggregation_rule: (
+        Literal["sum", "mean", "population_weighted_mean", "rate", "custom"] | None
+    ) = None
+    weight_spec: str | None = Field(default=None, min_length=1, max_length=120)
+    candidate_partition_ids: list[str] = Field(default_factory=list)
+    measurement_error_bounded: bool | None = None
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
@@ -220,6 +230,13 @@ class InterferenceLossTargetSpec(KernelModel):
             values = getattr(self, field_name)
             if values and len(values) != node_count:
                 raise ValueError(f"{field_name} length must match adjacency size when provided")
+        normalized_partition_ids = [value.strip() for value in self.candidate_partition_ids]
+        if any(not value for value in normalized_partition_ids):
+            raise ValueError("candidate_partition_ids must contain non-empty strings")
+        if len(set(normalized_partition_ids)) != len(normalized_partition_ids):
+            raise ValueError("candidate_partition_ids must be unique")
+        if self.areal_support and self.scale_id is None and self.zoning_id is not None:
+            raise ValueError("scale_id must be set when zoning_id is provided for areal_support")
         return self
 
 
@@ -290,7 +307,9 @@ class NetworkCausalContractBundle(KernelModel):
     """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["network_causal_contract_bundle_v1.json"] = "network_causal_contract_bundle_v1.json"
+    artifact_name: Literal["network_causal_contract_bundle_v1.json"] = (
+        "network_causal_contract_bundle_v1.json"
+    )
     contract_target: ContractCompatibilityTarget
     supported_layers: list[MultiplexGraphLayerId] = Field(..., min_length=1)
     exposure_fields: list[str] = Field(
@@ -314,7 +333,9 @@ class CausalPanelBundleManifest(KernelModel):
     """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["causal_panel_bundle_monthly.parquet"] = "causal_panel_bundle_monthly.parquet"
+    artifact_name: Literal["causal_panel_bundle_monthly.parquet"] = (
+        "causal_panel_bundle_monthly.parquet"
+    )
     contract_target: ContractCompatibilityTarget
     required_columns: list[RequiredColumnSpec] = Field(..., min_length=1)
     lineage: list[BundleLineageRef] = Field(default_factory=list)
@@ -343,7 +364,9 @@ class ObservationToContractManifest(KernelModel):
     """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["observation_to_contract_manifest.json"] = "observation_to_contract_manifest.json"
+    artifact_name: Literal["observation_to_contract_manifest.json"] = (
+        "observation_to_contract_manifest.json"
+    )
     routes: list[ObservationContractRoute] = Field(..., min_length=1)
     artifacts: list[ObservationContractArtifact] = Field(default_factory=list)
 
@@ -384,7 +407,9 @@ class ProxyIdentificationBundle(KernelModel):
     """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["proxy_identification_bundle_v1.json"] = "proxy_identification_bundle_v1.json"
+    artifact_name: Literal["proxy_identification_bundle_v1.json"] = (
+        "proxy_identification_bundle_v1.json"
+    )
     contract_target: ContractCompatibilityTarget
     proxy_channels: list[ProxyChannelSpec] = Field(..., min_length=1)
     contract_payload: dict[str, Any] = Field(default_factory=dict)
@@ -400,7 +425,9 @@ class DTRTreatmentSequenceBundleManifest(KernelModel):
     """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["dtr_treatment_sequence_bundle_v1.npz"] = "dtr_treatment_sequence_bundle_v1.npz"
+    artifact_name: Literal["dtr_treatment_sequence_bundle_v1.npz"] = (
+        "dtr_treatment_sequence_bundle_v1.npz"
+    )
     contract_target: ContractCompatibilityTarget
     required_arrays: list[RequiredArraySpec] = Field(..., min_length=1)
     axis_semantics: list[BundleAxisSemantic] = Field(..., min_length=1)
@@ -412,7 +439,9 @@ class PanelEconometricBundleManifest(KernelModel):
     """Describe panel-econometric tables consumed by fixed-effects/IV estimators."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["panel_econometric_bundle_v1.parquet"] = "panel_econometric_bundle_v1.parquet"
+    artifact_name: Literal["panel_econometric_bundle_v1.parquet"] = (
+        "panel_econometric_bundle_v1.parquet"
+    )
     contract_target: ContractCompatibilityTarget
     required_columns: list[RequiredColumnSpec] = Field(..., min_length=1)
     lineage: list[BundleLineageRef] = Field(default_factory=list)
@@ -434,6 +463,7 @@ class SurvivalDataBundleManifest(KernelModel):
 
 class AgentFactorEmbeddingsBundleManifest(KernelModel):
     """Describe latent agent-factor arrays and embedding method provenance."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["agent_factor_embeddings_v1.npz"] = "agent_factor_embeddings_v1.npz"
     required_arrays: list[RequiredArraySpec] = Field(..., min_length=1)
@@ -445,6 +475,7 @@ class AgentFactorEmbeddingsBundleManifest(KernelModel):
 
 class CellPrototypeEmbeddingsBundleManifest(KernelModel):
     """Describe prototype-cell embedding arrays and clustering provenance."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["cell_prototype_embeddings_v1.npz"] = "cell_prototype_embeddings_v1.npz"
     required_arrays: list[RequiredArraySpec] = Field(..., min_length=1)
@@ -456,9 +487,12 @@ class CellPrototypeEmbeddingsBundleManifest(KernelModel):
 
 class BilevelProblemBundle(KernelModel):
     """Persist an optimization-ready bilevel problem snapshot and result summary."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["bilevel_problem_bundle_v1.json"] = "bilevel_problem_bundle_v1.json"
-    optimization_target: str = Field(default="optimization.bilevel.bilevel@1.0.0", min_length=1, max_length=120)
+    optimization_target: str = Field(
+        default="optimization.bilevel.bilevel@1.0.0", min_length=1, max_length=120
+    )
     knob_names: list[str] = Field(..., min_length=1)
     c_upper: list[float] = Field(..., min_length=1)
     c_lower: list[float] = Field(..., min_length=1)
@@ -472,8 +506,11 @@ class BilevelProblemBundle(KernelModel):
 
 class HeckmanCorrectionBundle(KernelModel):
     """Describe selection-correction tables and payloads for Heckman estimators."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["heckman_correction_bundle_v1.parquet"] = "heckman_correction_bundle_v1.parquet"
+    artifact_name: Literal["heckman_correction_bundle_v1.parquet"] = (
+        "heckman_correction_bundle_v1.parquet"
+    )
     contract_target: ContractCompatibilityTarget
     required_columns: list[RequiredColumnSpec] = Field(..., min_length=1)
     lineage: list[BundleLineageRef] = Field(default_factory=list)
@@ -483,8 +520,11 @@ class HeckmanCorrectionBundle(KernelModel):
 
 class SurvivalHazardBundle(KernelModel):
     """Describe hazard-model tables and payloads for survival estimators."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["survival_hazard_bundle_v1.parquet"] = "survival_hazard_bundle_v1.parquet"
+    artifact_name: Literal["survival_hazard_bundle_v1.parquet"] = (
+        "survival_hazard_bundle_v1.parquet"
+    )
     contract_target: ContractCompatibilityTarget
     required_columns: list[RequiredColumnSpec] = Field(..., min_length=1)
     lineage: list[BundleLineageRef] = Field(default_factory=list)
@@ -494,6 +534,7 @@ class SurvivalHazardBundle(KernelModel):
 
 class SobolDiagnosticsBundle(KernelModel):
     """Persist Sobol indices and target/specification axes for sensitivity diagnostics."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["sobol_diagnostics_bundle_v1.json"] = "sobol_diagnostics_bundle_v1.json"
     target_names: list[str] = Field(..., min_length=1)
@@ -505,8 +546,11 @@ class SobolDiagnosticsBundle(KernelModel):
 
 class SpecificationCurveDiagnosticsBundle(KernelModel):
     """Persist sorted estimates and stability metrics for specification-curve review."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["specification_curve_diagnostics_v1.json"] = "specification_curve_diagnostics_v1.json"
+    artifact_name: Literal["specification_curve_diagnostics_v1.json"] = (
+        "specification_curve_diagnostics_v1.json"
+    )
     specification_ids: list[str] = Field(..., min_length=1)
     sorted_estimates: list[float] = Field(..., min_length=1)
     share_significant: float = Field(..., ge=0.0, le=1.0)
@@ -523,7 +567,9 @@ class SpecificationCurveBundle(KernelModel):
     """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["specification_curve_input_v1.json"] = "specification_curve_input_v1.json"
+    artifact_name: Literal["specification_curve_input_v1.json"] = (
+        "specification_curve_input_v1.json"
+    )
     source_specifications: list[SpecificationCurveSource] = Field(..., min_length=1)
     specification_ids: list[str] = Field(default_factory=list)
     estimates: list[float] = Field(default_factory=list)
@@ -563,7 +609,9 @@ class TransportabilityCheckBundle(KernelModel):
     """Bundle of transportability checks queued for readiness validation."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["transportability_check_bundle_v1.json"] = "transportability_check_bundle_v1.json"
+    artifact_name: Literal["transportability_check_bundle_v1.json"] = (
+        "transportability_check_bundle_v1.json"
+    )
     checks: list[TransportabilityCheckSpec] = Field(..., min_length=1)
 
 
@@ -571,7 +619,9 @@ class CounterfactualCheckBundle(KernelModel):
     """Bundle of counterfactual queries queued for readiness validation."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["counterfactual_check_bundle_v1.json"] = "counterfactual_check_bundle_v1.json"
+    artifact_name: Literal["counterfactual_check_bundle_v1.json"] = (
+        "counterfactual_check_bundle_v1.json"
+    )
     queries: list[CounterfactualCheckSpec] = Field(..., min_length=1)
 
 
@@ -579,7 +629,9 @@ class InterferenceLossSpecBundle(KernelModel):
     """Bundle of interference-loss targets for measurement-aware calibration."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["interference_loss_spec_bundle_v1.json"] = "interference_loss_spec_bundle_v1.json"
+    artifact_name: Literal["interference_loss_spec_bundle_v1.json"] = (
+        "interference_loss_spec_bundle_v1.json"
+    )
     specs: list[InterferenceLossTargetSpec] = Field(..., min_length=1)
 
 

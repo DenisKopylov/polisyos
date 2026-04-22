@@ -11,6 +11,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry.validation import normalize_phase2_artifact_family
 from polisyos.foundry.methods.catalog.causal.strategic import (
     build_strategic_response_bundle,
     solve_strategic_response,
@@ -1944,36 +1945,35 @@ def _resolve_benchmark_scope(
 ) -> dict[str, str | None]:
     metadata = dict(selection_vector.metadata or {})
     candidate_metadata = dict(candidate.metadata or {})
-    artifact_family = str(
-        state.params.get("artifact_family")
-        or candidate_metadata.get("artifact_family")
-        or metadata.get("artifact_family")
-        or "causal_core"
-    ).strip() or "causal_core"
+    query_type = str(
+        state.params.get("query_type")
+        or candidate_metadata.get("query_type")
+        or metadata.get("query_type")
+        or "policy"
+    ).strip() or None
+    estimator_name = str(
+        state.params.get("estimator_name")
+        or metadata.get("estimator_name")
+        or candidate_metadata.get("estimator_name")
+        or ""
+    ).strip() or None
+    artifact_family = normalize_phase2_artifact_family(
+        str(
+            state.params.get("artifact_family")
+            or candidate_metadata.get("artifact_family")
+            or metadata.get("artifact_family")
+            or "causal_core"
+        ).strip()
+        or "causal_core",
+        estimator_name=estimator_name,
+        query_type=query_type,
+    )
     claim_mode = str(
         state.params.get("claim_mode")
         or candidate_metadata.get("claim_mode")
         or metadata.get("claim_mode")
         or "estimation"
     ).strip().lower() or "estimation"
-    query_type = (
-        str(
-            state.params.get("query_type")
-            or candidate_metadata.get("query_type")
-            or metadata.get("query_type")
-            or "policy"
-        ).strip()
-        or None
-    )
-    estimator_name = (
-        str(
-            state.params.get("estimator_name")
-            or metadata.get("estimator_name")
-            or candidate_metadata.get("estimator_name")
-            or ""
-        ).strip()
-        or None
-    )
     readiness_target = (
         str(
             state.params.get("readiness_target")

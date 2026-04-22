@@ -5,6 +5,7 @@ import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+from polisyos.foundry.methods.econometrics import PanelData
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
 
@@ -193,6 +194,61 @@ def test_foundry_v2_forecasting_validation_and_sensitivity_methods_dispatch() ->
     )
     assert len(sobol_result.output["result"]["first_order_indices"]) == 2
     assert sobol_result.output["result"]["variance"] > 0.0
+
+
+def test_foundry_v2_nonstationary_garch_dispatch() -> None:
+    pytest.importorskip("arch")
+    pytest.importorskip("ruptures")
+
+    ensure_all_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    rng = np.random.default_rng(22)
+    n_entities = 6
+    n_periods = 36
+    entity_ids = np.repeat(np.arange(n_entities), n_periods)
+    time_ids = np.tile(np.arange(n_periods), n_entities)
+    dependent: list[float] = []
+    exog_rows: list[list[float]] = []
+    for entity_idx in range(n_entities):
+        base_scale = 0.15 if entity_idx < 3 else 0.24
+        stress = np.concatenate([np.zeros(18), np.ones(18)])
+        reserves = rng.normal(scale=0.35, size=n_periods)
+        shocks = np.concatenate(
+            [
+                rng.normal(scale=base_scale, size=18),
+                rng.normal(scale=base_scale * 1.8, size=18),
+            ]
+        )
+        series = np.zeros(n_periods, dtype=float)
+        for t in range(1, n_periods):
+            series[t] = 0.2 * series[t - 1] + shocks[t]
+        dependent.extend(series.tolist())
+        exog_rows.extend(np.column_stack([stress, reserves]).tolist())
+
+    method_cls = registry.get("econometrics.panel.nonstationary_garch@1.0.0")
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=PanelData(
+            dependent=np.asarray(dependent, dtype=float),
+            exog=np.asarray(exog_rows, dtype=float),
+            entity_ids=entity_ids,
+            time_ids=time_ids,
+            feature_names=["stress_window", "reserve_pressure"],
+            metadata={
+                "group_labels": ["managed_float"] * 3 + ["clean_float"] * 3,
+                "target_id": "fx_policy_risk",
+            },
+        ),
+        params={"p": 1, "q": 1, "max_breaks": 1, "min_segment_length": 10, "holdout_periods": 6},
+        seed=17,
+    )
+
+    assert result.output["result"].nonstationary_volatility is not None
+    assert result.output["forecasting_uncertainty_bundle"] is not None
+    assert result.output["result"].diagnostics["policy_risk_benchmark"]["proposed_profile_break_garch"]["status"] == "ok"
 
 
 def test_foundry_v2_registry_excludes_removed_wrapper_fqns() -> None:

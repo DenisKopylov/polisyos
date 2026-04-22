@@ -13,7 +13,9 @@ from polisyos.ir.refs import (
     ArtifactRefModel,
     CausalAssumptionCardRef,
     DistributionalBoundsBundleRef,
+    DistributionalDualCertificateRef,
     DistributionalEffectBundleRef,
+    OrdinalPovertyReportRef,
     DistributionalProofArtifactRef,
     DistributionalReportRef,
     EstimandASTRef,
@@ -24,8 +26,12 @@ _DISTRIBUTIONAL_REPORT_SCHEMA_NAME = "ir.distributional_report"
 _DISTRIBUTIONAL_REPORT_SCHEMA_VERSION = "1.0"
 _DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_NAME = "ir.distributional_effect_bundle"
 _DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_VERSION = "1.0"
+_ORDINAL_POVERTY_REPORT_SCHEMA_NAME = "ir.ordinal_poverty_report"
+_ORDINAL_POVERTY_REPORT_SCHEMA_VERSION = "1.0"
 _DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_NAME = "ir.distributional_bounds_bundle"
 _DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_VERSION = "1.0"
+_DISTRIBUTIONAL_DUAL_CERTIFICATE_SCHEMA_NAME = "ir.distributional_dual_certificate"
+_DISTRIBUTIONAL_DUAL_CERTIFICATE_SCHEMA_VERSION = "1.0"
 _DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME = "ir.distributional_proof_artifact"
 _DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_VERSION = "1.0"
 _CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME = "ir.causal_assumption_card"
@@ -158,6 +164,10 @@ class DistributionalFunctional(str, Enum):
     TAIL_DELTA = "tail_probability_change"
     ITE_CDF = "ite_cdf"
     ITE_TAIL_RISK = "ite_tail_risk"
+    GINI = "gini"
+    THEIL_T = "theil_t"
+    ATKINSON = "atkinson"
+    POVERTY_HEADCOUNT = "poverty_headcount"
 
 
 class DistributionalProofTarget(str, Enum):
@@ -165,6 +175,7 @@ class DistributionalProofTarget(str, Enum):
 
     CDF = "cdf"
     SURVIVAL = "survival"
+    LORENZ = "lorenz"
     QUANTILE = "quantile"
     TAIL_PROB = "tail_prob"
     EXPECTED_SHORTFALL = "expected_shortfall"
@@ -275,6 +286,158 @@ class CausalAssumptionCard(BaseModel):
         return self
 
 
+class DistributionalSupportDomain(BaseModel):
+    """Declare the support over which a distributional theorem family is certified."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    lower: float | None = None
+    upper: float | None = None
+    unit: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_domain(self) -> "DistributionalSupportDomain":
+        lower = _ensure_finite(self.lower, field_name="lower")
+        upper = _ensure_finite(self.upper, field_name="upper")
+        _ensure_non_empty(self.unit, field_name="unit")
+        if lower is not None and upper is not None and lower > upper:
+            raise ValueError("support_domain.lower must be <= support_domain.upper")
+        return self
+
+
+class DistributionalDualBoundWitness(BaseModel):
+    """Store primal/dual objective traces for one side of a distributional bound."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    bound_direction: str = Field(pattern=r"^(lower|upper)$")
+    primal_objective_values: tuple[float, ...] = Field(min_length=1)
+    dual_objective_values: tuple[float, ...] = Field(min_length=1)
+    dual_gaps: tuple[float, ...] = Field(min_length=1)
+    constraint_multipliers_ref: ArtifactRefModel | None = None
+    witness_functions_ref: ArtifactRefModel | None = None
+    truncation_error_bound: float | None = Field(default=None, ge=0.0)
+    approximation_error_bound: float | None = Field(default=None, ge=0.0)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_witness(self) -> "DistributionalDualBoundWitness":
+        lengths = {
+            len(self.primal_objective_values),
+            len(self.dual_objective_values),
+            len(self.dual_gaps),
+        }
+        if len(lengths) != 1:
+            raise ValueError("distributional dual witness vectors must have equal length")
+        for field_name in (
+            "primal_objective_values",
+            "dual_objective_values",
+            "dual_gaps",
+        ):
+            for value in getattr(self, field_name):
+                finite_value = _ensure_finite(value, field_name=field_name)
+                if field_name == "dual_gaps" and finite_value is not None and finite_value < 0.0:
+                    raise ValueError("dual_gaps must be non-negative")
+        _ensure_finite(self.truncation_error_bound, field_name="truncation_error_bound")
+        _ensure_finite(self.approximation_error_bound, field_name="approximation_error_bound")
+        return self
+
+
+class DistributionalDualCertificate(BaseModel):
+    """Machine-checkable certificate for one distributional theorem family."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    theorem_family: str = Field(min_length=1)
+    functional: DistributionalFunctional
+    axis: GridAxis
+    assumption_class: str = Field(min_length=1)
+    primal_problem_class: str = Field(min_length=1)
+    dual_problem_class: str = Field(min_length=1)
+    sharpness_status: str = Field(
+        default="unknown",
+        pattern=r"^(sharp|inner_approx|outer_approx|unknown)$",
+    )
+    bound_uniformity: DistributionalBoundUniformity = DistributionalBoundUniformity.NOT_APPLICABLE
+    attainment_status: str = Field(
+        default="unknown",
+        pattern=r"^(attained|approximated|limit|unknown)$",
+    )
+    support_domain: DistributionalSupportDomain | None = None
+    normalization: dict[str, Any] = Field(default_factory=dict)
+    lower_bound_witness: DistributionalDualBoundWitness
+    upper_bound_witness: DistributionalDualBoundWitness
+    pointwise_not_uniform_warning: bool = False
+    assumptions_used: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_certificate(self) -> "DistributionalDualCertificate":
+        _ensure_non_empty(self.theorem_family, field_name="theorem_family")
+        _ensure_non_empty(self.assumption_class, field_name="assumption_class")
+        _ensure_non_empty(self.primal_problem_class, field_name="primal_problem_class")
+        _ensure_non_empty(self.dual_problem_class, field_name="dual_problem_class")
+        if self.lower_bound_witness.bound_direction != "lower":
+            raise ValueError("lower_bound_witness must have bound_direction='lower'")
+        if self.upper_bound_witness.bound_direction != "upper":
+            raise ValueError("upper_bound_witness must have bound_direction='upper'")
+        axis_length = len(self.axis.values)
+        for witness_name in ("lower_bound_witness", "upper_bound_witness"):
+            witness = getattr(self, witness_name)
+            if len(witness.primal_objective_values) != axis_length:
+                raise ValueError(
+                    f"{witness_name} objective vectors must match certificate axis length"
+                )
+        if self.pointwise_not_uniform_warning and (
+            self.bound_uniformity is not DistributionalBoundUniformity.POINTWISE_ONLY
+        ):
+            raise ValueError(
+                "pointwise_not_uniform_warning requires bound_uniformity='pointwise_only'"
+            )
+        if self.sharpness_status == "sharp":
+            max_gap = max(
+                max(self.lower_bound_witness.dual_gaps),
+                max(self.upper_bound_witness.dual_gaps),
+            )
+            if max_gap > 1e-8:
+                raise ValueError("sharp certificates require numerically zero dual gaps")
+        return self
+
+
+class DistributionalFunctionalParameters(BaseModel):
+    """Typed parameters needed by specific distributional functionals."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    poverty_line: float | None = None
+    poverty_lines: tuple[float, ...] = ()
+    atkinson_epsilon: float | None = Field(default=None, ge=0.0)
+    mean_floor: float | None = Field(default=None, gt=0.0)
+    support_floor: float | None = None
+    support_ceiling: float | None = None
+    normalization_mode: str | None = None
+    target_potential_outcome: str | None = Field(default=None, pattern=r"^(y0|y1)$")
+
+    @model_validator(mode="after")
+    def _validate_parameters(self) -> "DistributionalFunctionalParameters":
+        _ensure_finite(self.poverty_line, field_name="poverty_line")
+        _ensure_finite(self.atkinson_epsilon, field_name="atkinson_epsilon")
+        _ensure_finite(self.mean_floor, field_name="mean_floor")
+        _ensure_finite(self.support_floor, field_name="support_floor")
+        _ensure_finite(self.support_ceiling, field_name="support_ceiling")
+        _ensure_non_empty(self.normalization_mode, field_name="normalization_mode")
+        if (
+            self.support_floor is not None
+            and self.support_ceiling is not None
+            and self.support_floor > self.support_ceiling
+        ):
+            raise ValueError("support_floor must be <= support_ceiling")
+        for value in self.poverty_lines:
+            _ensure_finite(value, field_name="poverty_lines")
+        return self
+
+
 class DistributionalProofArtifact(BaseModel):
     """Typed proof wrapper for distributional estimands and coupling-level claims."""
 
@@ -316,14 +479,23 @@ class DistributionalProofArtifact(BaseModel):
             DistributionalProofTarget.QUANTILE,
             DistributionalProofTarget.TAIL_PROB,
             DistributionalProofTarget.EXPECTED_SHORTFALL,
+            DistributionalProofTarget.LORENZ,
         }
         if self.target in derived_targets:
-            if self.derived_from_target not in {
-                DistributionalProofTarget.CDF,
-                DistributionalProofTarget.SURVIVAL,
-                DistributionalProofTarget.MARGINAL_PAIR,
-            }:
-                raise ValueError("derived distributional targets must cite a CDF/survival source")
+            allowed_sources = (
+                {
+                    DistributionalProofTarget.CDF,
+                    DistributionalProofTarget.SURVIVAL,
+                }
+                if self.target is DistributionalProofTarget.LORENZ
+                else {
+                    DistributionalProofTarget.CDF,
+                    DistributionalProofTarget.SURVIVAL,
+                    DistributionalProofTarget.MARGINAL_PAIR,
+                }
+            )
+            if self.derived_from_target not in allowed_sources:
+                raise ValueError("derived distributional targets must cite a valid upstream source")
             if self.bound_uniformity is DistributionalBoundUniformity.POINTWISE_ONLY:
                 raise ValueError("derived distributional targets cannot rely on pointwise-only bounds")
         elif self.derived_from_target is not None:
@@ -450,6 +622,9 @@ class FunctionalBounds(BaseModel):
         return self
 
 
+DistributionalDualCertificate.model_rebuild()
+
+
 class DistributionalBoundsMethodSummary(BaseModel):
     """Summarize one distributional bounds construction on a fixed query grid."""
 
@@ -481,12 +656,14 @@ class DistributionalBoundsBundle(BaseModel):
     estimand_type: str = Field(min_length=1)
     functional: DistributionalFunctional
     axis: GridAxis
+    functional_parameters: DistributionalFunctionalParameters | None = None
     point_identified: bool = False
     consensus_bounds: FunctionalBounds | None = None
     sharpness_status: str = Field(
         default="unknown",
         pattern=r"^(sharp|inner_approx|outer_approx|unknown)$",
     )
+    dual_certificate_ref: DistributionalDualCertificateRef | None = None
     method_summaries: list[DistributionalBoundsMethodSummary] = Field(default_factory=list)
     rescue_actions: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
@@ -495,6 +672,16 @@ class DistributionalBoundsBundle(BaseModel):
     @model_validator(mode="after")
     def _validate_bundle(self) -> "DistributionalBoundsBundle":
         _ensure_non_empty(self.estimand_type, field_name="estimand_type")
+        parameters = self.functional_parameters
+        if self.functional is DistributionalFunctional.ATKINSON and (
+            parameters is None or parameters.atkinson_epsilon is None
+        ):
+            raise ValueError("Atkinson bounds require functional_parameters.atkinson_epsilon")
+        if self.functional is DistributionalFunctional.POVERTY_HEADCOUNT and self.axis.axis_name not in {
+            "poverty_line",
+            "threshold",
+        }:
+            raise ValueError("poverty_headcount bounds must use a poverty_line axis")
         warnings = list(self.warnings)
         for summary in self.method_summaries:
             if summary.functional is not self.functional:
@@ -551,6 +738,15 @@ class DistributionalBoundsBundle(BaseModel):
         object.__setattr__(self, "point_identified", point_identified)
         object.__setattr__(self, "warnings", warnings)
         return self
+
+
+def attach_distributional_dual_certificate_ref(
+    bundle: DistributionalBoundsBundle,
+    dual_certificate_ref: DistributionalDualCertificateRef | None,
+) -> DistributionalBoundsBundle:
+    """Attach a persisted distributional dual-certificate ref to the bundle."""
+
+    return bundle.model_copy(update={"dual_certificate_ref": dual_certificate_ref})
 
 
 class QuantileShiftEntry(BaseModel):
@@ -699,6 +895,115 @@ class SubgroupDistributionComparison(BaseModel):
         return self
 
 
+class OrdinalPovertyEstimate(BaseModel):
+    """Typed ORAF estimate payload for one population snapshot."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    headcount_h: float = Field(ge=0.0, le=1.0)
+    ordinal_intensity_a: float = Field(ge=0.0)
+    ordinal_adjusted_headcount_q: float = Field(ge=0.0)
+    af_m0_baseline: float = Field(ge=0.0)
+    beta: float = Field(ge=1.0)
+    k_threshold: float = Field(ge=0.0, le=1.0)
+    n_agents: int = Field(ge=1)
+    n_dimensions: int = Field(ge=1)
+    n_poor: int = Field(ge=0)
+    dimension_weights: tuple[float, ...] = ()
+    deprivation_cutoffs: tuple[int, ...] = ()
+    dimension_names: tuple[str, ...] = ()
+    threshold_weights_basis: str = Field(default="equal", min_length=1)
+    dimension_contributions: dict[str, Any] = Field(default_factory=dict)
+    cutoff_diagnostics: dict[str, Any] = Field(default_factory=dict)
+    legacy_gap_envelope: dict[str, Any] = Field(default_factory=dict)
+    poor_mask: tuple[int, ...] = ()
+    breadth_scores: tuple[float, ...] = ()
+    severity_scores: tuple[float, ...] = ()
+    censored_scores: tuple[float, ...] = ()
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_estimate(self) -> "OrdinalPovertyEstimate":
+        _ensure_non_empty(self.threshold_weights_basis, field_name="threshold_weights_basis")
+        if self.n_poor > self.n_agents:
+            raise ValueError("n_poor must not exceed n_agents")
+        if self.dimension_weights and len(self.dimension_weights) != self.n_dimensions:
+            raise ValueError("dimension_weights length must match n_dimensions")
+        if self.deprivation_cutoffs and len(self.deprivation_cutoffs) != self.n_dimensions:
+            raise ValueError("deprivation_cutoffs length must match n_dimensions")
+        if self.dimension_names and len(self.dimension_names) != self.n_dimensions:
+            raise ValueError("dimension_names length must match n_dimensions")
+        for field_name in (
+            "dimension_weights",
+            "breadth_scores",
+            "severity_scores",
+            "censored_scores",
+        ):
+            values = getattr(self, field_name)
+            for value in values:
+                _ensure_finite(value, field_name=field_name)
+        for field_name in ("poor_mask", "deprivation_cutoffs"):
+            values = getattr(self, field_name)
+            for value in values:
+                if int(value) != value:
+                    raise ValueError(f"{field_name} must contain integer-valued entries")
+        for field_name in ("poor_mask", "breadth_scores", "severity_scores", "censored_scores"):
+            values = getattr(self, field_name)
+            if values and len(values) != self.n_agents:
+                raise ValueError(f"{field_name} length must match n_agents")
+        return self
+
+
+class OrdinalPovertyReport(BaseModel):
+    """Persist baseline/counterfactual ORAF summaries for one simulation run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    methodology: str = Field(default="oraf_phase2", min_length=1)
+    baseline: OrdinalPovertyEstimate
+    counterfactual: OrdinalPovertyEstimate | None = None
+    deltas: dict[str, float] = Field(default_factory=dict)
+    source_simulation_ref: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_report(self) -> "OrdinalPovertyReport":
+        _ensure_non_empty(self.methodology, field_name="methodology")
+        _ensure_non_empty(self.source_simulation_ref, field_name="source_simulation_ref")
+        if self.counterfactual is not None:
+            if self.counterfactual.n_dimensions != self.baseline.n_dimensions:
+                raise ValueError("baseline and counterfactual must have matching n_dimensions")
+            if (
+                self.counterfactual.dimension_names
+                and self.baseline.dimension_names
+                and self.counterfactual.dimension_names != self.baseline.dimension_names
+            ):
+                raise ValueError("baseline and counterfactual must use the same dimension_names")
+        if not self.deltas and self.counterfactual is not None:
+            object.__setattr__(
+                self,
+                "deltas",
+                {
+                    "headcount_h": self.counterfactual.headcount_h - self.baseline.headcount_h,
+                    "ordinal_intensity_a": (
+                        self.counterfactual.ordinal_intensity_a - self.baseline.ordinal_intensity_a
+                    ),
+                    "ordinal_adjusted_headcount_q": (
+                        self.counterfactual.ordinal_adjusted_headcount_q
+                        - self.baseline.ordinal_adjusted_headcount_q
+                    ),
+                    "af_m0_baseline": (
+                        self.counterfactual.af_m0_baseline - self.baseline.af_m0_baseline
+                    ),
+                },
+            )
+        for key, value in self.deltas.items():
+            _ensure_non_empty(key, field_name="deltas")
+            _ensure_finite(value, field_name="deltas")
+        return self
+
+
 class DistributionalEffectBundle(BaseModel):
     """Persist the leaf artifact refs that make up a full distributional analysis bundle."""
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -717,6 +1022,7 @@ class DistributionalEffectBundle(BaseModel):
     wasserstein_distance: float | None = Field(default=None, ge=0.0)
     quantile_shift_ref: ArtifactRefModel | None = None
     tail_risk_delta_ref: ArtifactRefModel | None = None
+    ordinal_poverty_ref: OrdinalPovertyReportRef | None = None
     subgroup_distribution_refs: list[ArtifactRefModel] = Field(default_factory=list)
     distributional_bounds_refs: list[DistributionalBoundsBundleRef] = Field(default_factory=list)
     marginal_law_proof_ref: ArtifactRefModel | None = None
@@ -757,6 +1063,11 @@ class DistributionalEffectBundle(BaseModel):
         if self.distributional_proof_ref is None and marginal_law_proof_ref is not None:
             object.__setattr__(self, "distributional_proof_ref", marginal_law_proof_ref)
         object.__setattr__(self, "justification", legacy_justification)
+        _validate_ref_kind(
+            self.ordinal_poverty_ref,
+            field_name="ordinal_poverty_ref",
+            allowed_kinds={"ir.ordinal_poverty_report"},
+        )
         _validate_ref_kind(
             self.distributional_proof_ref,
             field_name="distributional_proof_ref",
@@ -965,6 +1276,7 @@ class DistributionalReport(BaseModel):
     palma_ratio_before: float | None = Field(default=None, ge=0.0)
     palma_ratio_after: float | None = Field(default=None, ge=0.0)
     palma_ratio_delta: float | None = None
+    ordinal_poverty_summary: dict[str, Any] = Field(default_factory=dict)
 
     source_simulation_ref: str | None = None
     methodology: str = "agent_aggregation"
@@ -1067,6 +1379,36 @@ def load_distributional_bounds_bundle(
 
     payload = get_json_artifact(store, ref.artifact_id)
     return DistributionalBoundsBundle.model_validate(payload)
+
+
+def persist_distributional_dual_certificate(
+    store: ArtifactStore,
+    certificate: DistributionalDualCertificate,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> DistributionalDualCertificateRef:
+    """Persist a distributional dual certificate and return its typed ref."""
+
+    ref = put_json_artifact(
+        store,
+        certificate.model_dump(mode="json"),
+        kind="ir.distributional_dual_certificate",
+        schema_name=_DISTRIBUTIONAL_DUAL_CERTIFICATE_SCHEMA_NAME,
+        schema_version=_DISTRIBUTIONAL_DUAL_CERTIFICATE_SCHEMA_VERSION,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return DistributionalDualCertificateRef.model_validate(ref)
+
+
+def load_distributional_dual_certificate(
+    store: ArtifactStore,
+    ref: DistributionalDualCertificateRef,
+) -> DistributionalDualCertificate:
+    """Load distributional dual certificate."""
+
+    payload = get_json_artifact(store, ref.artifact_id)
+    return DistributionalDualCertificate.model_validate(payload)
 
 
 def persist_ot_coupling_summary(
@@ -1221,6 +1563,34 @@ def load_distributional_proof_artifact(
     return _load_distributional_leaf(store, ref, DistributionalProofArtifact)
 
 
+def persist_ordinal_poverty_report(
+    store: ArtifactStore,
+    report: OrdinalPovertyReport,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> OrdinalPovertyReportRef:
+    """Persist an ordinal multidimensional poverty report."""
+    ref = put_json_artifact(
+        store,
+        report.model_dump(mode="json"),
+        kind="ir.ordinal_poverty_report",
+        schema_name=_ORDINAL_POVERTY_REPORT_SCHEMA_NAME,
+        schema_version=_ORDINAL_POVERTY_REPORT_SCHEMA_VERSION,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return OrdinalPovertyReportRef.model_validate(ref)
+
+
+def load_ordinal_poverty_report(
+    store: ArtifactStore,
+    ref: OrdinalPovertyReportRef,
+) -> OrdinalPovertyReport:
+    """Load ordinal multidimensional poverty report."""
+    payload = get_json_artifact(store, ref.artifact_id)
+    return OrdinalPovertyReport.model_validate(payload)
+
+
 def persist_distributional_effect_bundle(
     store: ArtifactStore,
     bundle: DistributionalEffectBundle,
@@ -1288,19 +1658,25 @@ __all__ = [
     "DiscreteDistributionSummary",
     "DistributionBin",
     "DistributionalBoundUniformity",
+    "DistributionalDualBoundWitness",
+    "DistributionalDualCertificate",
     "DistributionalBoundsBundle",
     "DistributionalBoundsMethodSummary",
     "DistributionalCouplingStatus",
     "DistributionalEffectBundle",
     "DistributionalFunctional",
+    "DistributionalFunctionalParameters",
     "DistributionalJustification",
     "DistributionalProofArtifact",
     "DistributionalProofTarget",
     "DistributionalReport",
+    "DistributionalSupportDomain",
     "FunctionalBounds",
     "GridAxis",
     "ImpactDirection",
     "MetricUnit",
+    "OrdinalPovertyEstimate",
+    "OrdinalPovertyReport",
     "OTCouplingSummary",
     "QuantileShiftEntry",
     "QuantileShiftSummary",
@@ -1309,12 +1685,17 @@ __all__ = [
     "TailRiskDeltaSummary",
     "WinnersLosersEntry",
     "WinnersLosersTable",
+    "attach_distributional_dual_certificate_ref",
     "persist_discrete_distribution_summary",
     "load_discrete_distribution_summary",
     "persist_distributional_bounds_bundle",
     "load_distributional_bounds_bundle",
+    "persist_distributional_dual_certificate",
+    "load_distributional_dual_certificate",
     "persist_distributional_effect_bundle",
     "load_distributional_effect_bundle",
+    "persist_ordinal_poverty_report",
+    "load_ordinal_poverty_report",
     "persist_distributional_proof_artifact",
     "load_distributional_proof_artifact",
     "persist_distributional_report",

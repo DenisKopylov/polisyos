@@ -33,6 +33,7 @@ from polisyos.ir.analytics.transportability import (
 )
 from polisyos.ir.observation.bundles import (
     CounterfactualCheckBundle,
+    InterferenceLossSpecBundle,
     ProxyIdentificationBundle,
     StrategicResponseSpecsBundle,
     TransportabilityCheckBundle,
@@ -47,6 +48,7 @@ from polisyos.scientist.causal.readiness import (
     ProxyIdentificationRunner,
     StrategicResponseRunner,
     TransportabilityChecker,
+    build_interference_readiness_entries,
 )
 from polisyos.scientist.kernel.budgets import ComputeBudget
 
@@ -237,7 +239,9 @@ def test_proxy_identification_runner_returns_identified_and_oracle_needed() -> N
     assert invalid[0].normalized_reason is not None
 
 
-def test_transportability_checker_short_circuits_same_regime_and_persists_cross_regime(tmp_path) -> None:
+def test_transportability_checker_short_circuits_same_regime_and_persists_cross_regime(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path)
     checker = TransportabilityChecker(graph=_simple_graph(), store=store)
     bundle = TransportabilityCheckBundle(
@@ -283,7 +287,9 @@ def test_transportability_checker_short_circuits_same_regime_and_persists_cross_
     assert entries[1].result_ref is not None
 
 
-def test_transportability_checker_applies_privacy_bounds_gate_and_persists_certificate(tmp_path) -> None:
+def test_transportability_checker_applies_privacy_bounds_gate_and_persists_certificate(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path)
     checker = TransportabilityChecker(graph=_simple_graph(), store=store)
     bundle = TransportabilityCheckBundle(
@@ -314,9 +320,7 @@ def test_transportability_checker_applies_privacy_bounds_gate_and_persists_certi
     entries = checker.run(bundle)
     result = load_transportability_result(
         store,
-        TransportabilityResultRef.model_validate(
-            entries[0].result_ref.model_dump(mode="json")
-        ),
+        TransportabilityResultRef.model_validate(entries[0].result_ref.model_dump(mode="json")),
     )
     privacy_ref = PrivacyAwareTransportCertificateRef.model_validate(
         result.metadata["privacy_certificate_ref"]
@@ -442,3 +446,68 @@ def test_counterfactual_query_runner_reports_identified_and_blocked() -> None:
     assert entries[0].estimand_ast is not None
     assert entries[1].status != "identified"
     assert entries[1].normalized_reason is not None
+
+
+def test_build_interference_readiness_entries_marks_areal_specs_not_ready_without_declarations() -> (
+    None
+):
+    entries = build_interference_readiness_entries(
+        InterferenceLossSpecBundle(
+            specs=[
+                {
+                    "spec_id": "spatial_spillover",
+                    "family": "procurement_flows",
+                    "graph_layer": "procurement",
+                    "predicted_metric_path": "metrics.procurement_spillover",
+                    "observed_spillover": [0.2, 0.4],
+                    "adjacency": [[0.0, 1.0], [1.0, 0.0]],
+                    "areal_support": True,
+                }
+            ]
+        )
+    )
+
+    assert len(entries) == 1
+    assert entries[0].ready is False
+    assert entries[0].supports_areal_interference is True
+    assert entries[0].maup_scale_declared is False
+    assert entries[0].interference_topology_ready is False
+    assert entries[0].zoning_sensitivity_ready is False
+    assert entries[0].aggregation_rule_consistent is False
+    assert entries[0].measurement_error_bounded is False
+    assert "maup_scale_undeclared" in entries[0].notes
+    assert "candidate_partitions_missing" in entries[0].notes
+
+
+def test_build_interference_readiness_entries_marks_areal_specs_ready_when_declared() -> None:
+    entries = build_interference_readiness_entries(
+        InterferenceLossSpecBundle(
+            specs=[
+                {
+                    "spec_id": "spatial_spillover",
+                    "family": "procurement_flows",
+                    "graph_layer": "procurement",
+                    "predicted_metric_path": "metrics.procurement_spillover",
+                    "observed_spillover": [0.2, 0.4],
+                    "adjacency": [[0.0, 1.0], [1.0, 0.0]],
+                    "areal_support": True,
+                    "scale_id": "municipality",
+                    "zoning_id": "admin_v1",
+                    "aggregation_rule": "population_weighted_mean",
+                    "weight_spec": "queen_v1",
+                    "candidate_partition_ids": ["admin_v1", "hex_3x3"],
+                    "measurement_error_bounded": True,
+                }
+            ]
+        )
+    )
+
+    assert len(entries) == 1
+    assert entries[0].ready is True
+    assert entries[0].maup_scale_declared is True
+    assert entries[0].interference_topology_ready is True
+    assert entries[0].zoning_sensitivity_ready is True
+    assert entries[0].aggregation_rule_consistent is True
+    assert entries[0].measurement_error_bounded is True
+    assert entries[0].metadata["scale_id"] == "municipality"
+    assert entries[0].metadata["candidate_partition_ids"] == ["admin_v1", "hex_3x3"]

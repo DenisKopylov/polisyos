@@ -55,6 +55,54 @@ class TestSurveyAccuracy:
         for mse in result["mse_estimates"]:
             assert mse >= 0.0, f"MSE estimate {mse} should be non-negative"
 
+    def test_causal_frontier_leakage_smoke(self, bench_registry):
+        """Causal-frontier SAE should emit leakage diagnostics and constrained estimates."""
+        n_areas = 8
+        cls = bench_registry.get("survey.estimation.causal_frontier_fay_herriot@1.0.0")
+        result = cls.pure_step(
+            {
+                "y_direct": np.array([0.8, 1.0, 1.2, 1.4, 2.8, 3.0, 3.2, 3.4], dtype=float),
+                "X": np.ones((n_areas, 1), dtype=float),
+                "sampling_var": np.full(n_areas, 0.15, dtype=float),
+                "policy_indicator": np.array([0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0], dtype=float),
+                "graph": {
+                    "graph_id": "bench_chain",
+                    "family": "CAR",
+                    "W": np.array(
+                        [
+                            [0, 1, 0, 0, 0, 0, 0, 0],
+                            [1, 0, 1, 0, 0, 0, 0, 0],
+                            [0, 1, 0, 1, 0, 0, 0, 0],
+                            [0, 0, 1, 0, 1, 0, 0, 0],
+                            [0, 0, 0, 1, 0, 1, 0, 0],
+                            [0, 0, 0, 0, 1, 0, 1, 0],
+                            [0, 0, 0, 0, 0, 1, 0, 1],
+                            [0, 0, 0, 0, 0, 0, 1, 0],
+                        ],
+                        dtype=float,
+                    ).tolist(),
+                },
+                "frontier_mask": np.array(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 0, 0, 0],
+                        [0, 0, 0, 1, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                    ],
+                    dtype=float,
+                ),
+            },
+            {"lambda_spatial": 20.0, "component_ridge": 1e-4},
+        )["result"]
+
+        assert result.statistics["graph"]["n_areas"] == n_areas
+        assert result.statistics["diagnostics"]["frontier_edges_active"] == 1
+        assert result.statistics["diagnostics"]["blr"] >= 0.0
+
     def test_greg_intercept_only(self, bench_registry):
         """GREG with intercept only → GREG total ≈ HT total."""
         data = {

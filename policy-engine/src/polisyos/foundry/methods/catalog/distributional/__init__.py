@@ -17,14 +17,20 @@ from .metrics import (
     LorenzCurveEstimator,
 )
 from .mobility import (
+    AttritionAdjustedMobilityMatrixEstimator,
     IntergenerationalElasticityEstimator,
     MobilityMatrixEstimator,
+    RefreshmentSampleMobilityEstimator,
+    SequentialIPCWLifetimeMobilityEstimator,
 )
 from .polarization import (
     DuclosEstebanRayEstimator,
     EstebanRayEstimator,
 )
-from .poverty_advanced import MultidimensionalPovertyEstimator
+from .poverty_advanced import (
+    MultidimensionalPovertyEstimator,
+    OrdinalMultidimensionalPovertyEstimator,
+)
 
 
 def ensure_distributional_methods_registered(registry: MethodRegistry | None = None) -> None:
@@ -39,6 +45,7 @@ def ensure_distributional_methods_registered(registry: MethodRegistry | None = N
 
 __all__ = [
     "AtkinsonIndexEstimator",
+    "AttritionAdjustedMobilityMatrixEstimator",
     "DuclosEstebanRayEstimator",
     "EstebanRayEstimator",
     "FGTPovertyEstimator",
@@ -48,7 +55,10 @@ __all__ = [
     "LorenzCurveEstimator",
     "MobilityMatrixEstimator",
     "MultidimensionalPovertyEstimator",
+    "OrdinalMultidimensionalPovertyEstimator",
     "PalmaRatioEstimator",
+    "RefreshmentSampleMobilityEstimator",
+    "SequentialIPCWLifetimeMobilityEstimator",
     "TheilIndexEstimator",
     "ensure_distributional_methods_registered",
     "register_distributional_methods",

@@ -5,6 +5,7 @@ execution: they record proxy identification, transportability, strategic
 response, counterfactual, and interference preflight outcomes so downstream
 runners can block, downgrade, or proceed with a causal execution bundle.
 """
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -107,6 +108,12 @@ class InterferenceReadinessEntry(KernelModel):
     family: ObservationFamily
     predicted_metric_path: str = Field(..., min_length=1, max_length=255)
     ready: bool = True
+    supports_areal_interference: bool = False
+    interference_topology_ready: bool | None = None
+    maup_scale_declared: bool | None = None
+    zoning_sensitivity_ready: bool | None = None
+    aggregation_rule_consistent: bool | None = None
+    measurement_error_bounded: bool | None = None
     notes: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -117,6 +124,28 @@ class InterferenceReadinessEntry(KernelModel):
             field_name="predicted_metric_path",
             max_depth=16,
         )
+        if not self.supports_areal_interference:
+            return self
+        if self.maup_scale_declared is None:
+            raise ValueError(
+                "maup_scale_declared must be set when supports_areal_interference is true"
+            )
+        if self.interference_topology_ready is None:
+            raise ValueError(
+                "interference_topology_ready must be set when supports_areal_interference is true"
+            )
+        if self.zoning_sensitivity_ready is None:
+            raise ValueError(
+                "zoning_sensitivity_ready must be set when supports_areal_interference is true"
+            )
+        if self.aggregation_rule_consistent is None:
+            raise ValueError(
+                "aggregation_rule_consistent must be set when supports_areal_interference is true"
+            )
+        if self.measurement_error_bounded is None:
+            raise ValueError(
+                "measurement_error_bounded must be set when supports_areal_interference is true"
+            )
         return self
 
 

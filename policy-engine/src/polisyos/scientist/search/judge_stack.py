@@ -180,6 +180,7 @@ class JudgeInputBundle(BaseModel):
     causal_effect_report: CausalEffectReport | None = None
     data_readiness_report: DataReadinessReport | None = None
     data_readiness_report_ref: ArtifactRef | None = None
+    phase2_closure: dict[str, Any] | None = None
     artifact_family: str = "causal_core"
     claim_mode: Literal["proof_only", "bounds", "estimation"] = "estimation"
     query_type: str | None = None
@@ -1406,6 +1407,7 @@ class PolicyPromotionCoordinator:
         causal_effect_report: CausalEffectReport | None = None,
         data_readiness_report: DataReadinessReport | None = None,
         data_readiness_report_ref: ArtifactRef | None = None,
+        phase2_closure: dict[str, Any] | None = None,
         artifact_family: str = "causal_core",
         claim_mode: Literal["proof_only", "bounds", "estimation"] = "estimation",
         query_type: str | None = None,
@@ -1451,6 +1453,7 @@ class PolicyPromotionCoordinator:
             causal_effect_report=causal_effect_report,
             data_readiness_report=data_readiness_report,
             data_readiness_report_ref=data_readiness_report_ref,
+            phase2_closure=None if phase2_closure is None else dict(phase2_closure),
             artifact_family=artifact_family,
             claim_mode=claim_mode,
             query_type=query_type,
@@ -1543,11 +1546,18 @@ class PolicyPromotionCoordinator:
             data_readiness_report=judge_input.data_readiness_report,
             data_readiness_report_ref=judge_input.data_readiness_report_ref,
             evidence_metadata={
+                "artifact_family": judge_input.artifact_family,
+                "query_type": judge_input.query_type,
+                "estimator_name": judge_input.estimator_name,
+                "readiness_target": judge_input.readiness_target,
                 "backend_kind": judge_input.evaluation_backend_kind,
                 "fidelity_mode": judge_input.evaluation_fidelity_mode,
                 "promotable_source": judge_input.evaluation_promotable_source,
                 "degradation_mode": judge_input.effective_evaluation_degradation_mode(),
                 "notes": list(judge_input.evaluation_provenance_notes),
+                "phase2_closure": (
+                    None if judge_input.phase2_closure is None else dict(judge_input.phase2_closure)
+                ),
                 "latent_discovery_resolution_error": (
                     None
                     if judge_input.latent_discovery_resolution_error is None

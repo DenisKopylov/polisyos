@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Literal
 
@@ -741,6 +742,260 @@ def compute_manski_bounds(
     )
 
 
+def _default_mobility_summary_masks(shape: tuple[int, int]) -> dict[str, np.ndarray]:
+    n_rows, n_cols = shape
+    upward = np.zeros(shape, dtype=bool)
+    downward = np.zeros(shape, dtype=bool)
+    immobility = np.zeros(shape, dtype=bool)
+    for row in range(n_rows):
+        for col in range(n_cols):
+            upward[row, col] = col > row
+            downward[row, col] = col < row
+        if row < n_cols:
+            immobility[row, row] = True
+    return {
+        "upward_rate": upward,
+        "downward_rate": downward,
+        "immobility_rate": immobility,
+    }
+
+
+def _max_transport_mass(
+    row_capacities: np.ndarray,
+    col_capacities: np.ndarray,
+    allowed_edges: np.ndarray,
+) -> float:
+    """Max-flow on a small bipartite transport graph."""
+
+    row_caps = np.clip(np.asarray(row_capacities, dtype=float), 0.0, None)
+    col_caps = np.clip(np.asarray(col_capacities, dtype=float), 0.0, None)
+    allowed = np.asarray(allowed_edges, dtype=bool)
+    if allowed.shape != (row_caps.size, col_caps.size):
+        raise ValueError("allowed_edges shape must match row/column capacities")
+
+    total_capacity = float(min(row_caps.sum(), col_caps.sum()))
+    if total_capacity <= 0.0 or not np.any(allowed):
+        return 0.0
+
+    n_rows = row_caps.size
+    n_cols = col_caps.size
+    source = 0
+    first_row = 1
+    first_col = first_row + n_rows
+    sink = first_col + n_cols
+    n_nodes = sink + 1
+
+    residual = np.zeros((n_nodes, n_nodes), dtype=float)
+    for row in range(n_rows):
+        residual[source, first_row + row] = row_caps[row]
+    for col in range(n_cols):
+        residual[first_col + col, sink] = col_caps[col]
+    for row in range(n_rows):
+        for col in range(n_cols):
+            if allowed[row, col]:
+                residual[first_row + row, first_col + col] = total_capacity
+
+    max_flow = 0.0
+    eps = 1e-12
+    while True:
+        parent = np.full(n_nodes, -1, dtype=int)
+        parent[source] = source
+        queue = [source]
+        head = 0
+        while head < len(queue) and parent[sink] == -1:
+            node = queue[head]
+            head += 1
+            for nxt in np.flatnonzero(residual[node] > eps):
+                if parent[nxt] != -1:
+                    continue
+                parent[nxt] = node
+                if nxt == sink:
+                    break
+                queue.append(int(nxt))
+        if parent[sink] == -1:
+            break
+
+        path_flow = float("inf")
+        node = sink
+        while node != source:
+            prev = parent[node]
+            path_flow = min(path_flow, residual[prev, node])
+            node = prev
+
+        node = sink
+        while node != source:
+            prev = parent[node]
+            residual[prev, node] -= path_flow
+            residual[node, prev] += path_flow
+            node = prev
+        max_flow += float(path_flow)
+    return max_flow
+
+
+def compute_mobility_matrix_bounds(
+    observed_joint: np.ndarray,
+    row_marginals: np.ndarray,
+    *,
+    column_marginals: np.ndarray | None = None,
+    summary_masks: Mapping[str, np.ndarray] | None = None,
+) -> tuple[np.ndarray, np.ndarray, dict[str, tuple[float, float]]]:
+    """Sharp transport bounds for mobility matrices under panel attrition."""
+
+    lower = np.asarray(observed_joint, dtype=float)
+    rows = np.asarray(row_marginals, dtype=float)
+    if lower.ndim != 2:
+        raise ValueError("observed_joint must be a 2D matrix")
+    if rows.ndim != 1 or rows.size != lower.shape[0]:
+        raise ValueError("row_marginals must be a 1D vector matching observed_joint rows")
+    if np.any(~np.isfinite(lower)) or np.any(~np.isfinite(rows)):
+        raise ValueError("bounds inputs must be finite")
+    if np.any(lower < -1e-12) or np.any(rows < -1e-12):
+        raise ValueError("bounds inputs must be non-negative")
+
+    residual_rows = rows - lower.sum(axis=1)
+    if np.any(residual_rows < -1e-9):
+        raise ValueError("observed_joint exceeds row marginals for at least one row")
+
+    masks = dict(summary_masks or _default_mobility_summary_masks(lower.shape))
+
+    if column_marginals is None:
+        lower_bounds = np.maximum(lower, 0.0)
+        upper_bounds = lower + residual_rows[:, None]
+        summary_bounds: dict[str, tuple[float, float]] = {}
+        for name, mask in masks.items():
+            mask_arr = np.asarray(mask, dtype=bool)
+            if mask_arr.shape != lower.shape:
+                raise ValueError(f"summary mask {name!r} has incompatible shape")
+            base_mass = float(lower_bounds[mask_arr].sum())
+            max_extra = float(
+                sum(
+                    residual_rows[row]
+                    for row in range(lower.shape[0])
+                    if np.any(mask_arr[row])
+                )
+            )
+            min_extra = float(
+                sum(
+                    residual_rows[row]
+                    for row in range(lower.shape[0])
+                    if not np.any(~mask_arr[row])
+                )
+            )
+            summary_bounds[name] = (base_mass + min_extra, base_mass + max_extra)
+        return lower_bounds, upper_bounds, summary_bounds
+
+    cols = np.asarray(column_marginals, dtype=float)
+    if cols.ndim != 1 or cols.size != lower.shape[1]:
+        raise ValueError("column_marginals must be a 1D vector matching observed_joint columns")
+    if np.any(~np.isfinite(cols)) or np.any(cols < -1e-12):
+        raise ValueError("column_marginals must be finite and non-negative")
+
+    residual_cols = cols - lower.sum(axis=0)
+    if np.any(residual_cols < -1e-9):
+        raise ValueError("observed_joint exceeds column marginals for at least one column")
+
+    total_residual_rows = float(residual_rows.sum())
+    total_residual_cols = float(residual_cols.sum())
+    if not np.isclose(total_residual_rows, total_residual_cols, atol=1e-8):
+        raise ValueError("row and column residual mass must agree")
+
+    lower_bounds = np.empty_like(lower)
+    upper_bounds = np.empty_like(lower)
+    for row in range(lower.shape[0]):
+        for col in range(lower.shape[1]):
+            slack_lower = max(0.0, residual_rows[row] + residual_cols[col] - total_residual_rows)
+            slack_upper = min(residual_rows[row], residual_cols[col])
+            lower_bounds[row, col] = lower[row, col] + slack_lower
+            upper_bounds[row, col] = lower[row, col] + slack_upper
+
+    summary_bounds = {}
+    complement = np.ones(lower.shape, dtype=bool)
+    total_residual = float(residual_rows.sum())
+    for name, mask in masks.items():
+        mask_arr = np.asarray(mask, dtype=bool)
+        if mask_arr.shape != lower.shape:
+            raise ValueError(f"summary mask {name!r} has incompatible shape")
+        base_mass = float(lower[mask_arr].sum())
+        max_extra = _max_transport_mass(residual_rows, residual_cols, mask_arr)
+        complement[:] = ~mask_arr
+        max_complement = _max_transport_mass(residual_rows, residual_cols, complement)
+        summary_bounds[name] = (base_mass + (total_residual - max_complement), base_mass + max_extra)
+    return lower_bounds, upper_bounds, summary_bounds
+
+
+def build_mobility_bounds_bundle(
+    observed_joint: np.ndarray,
+    row_marginals: np.ndarray,
+    *,
+    column_marginals: np.ndarray | None = None,
+    summary_masks: Mapping[str, np.ndarray] | None = None,
+    headline_metric: str = "upward_rate",
+    metadata: dict[str, Any] | None = None,
+) -> tuple[BoundsBundle, np.ndarray, np.ndarray, dict[str, tuple[float, float]]]:
+    """Create a canonical bounds bundle plus cell/summary details for mobility."""
+
+    cell_lower, cell_upper, summary_bounds = compute_mobility_matrix_bounds(
+        observed_joint,
+        row_marginals,
+        column_marginals=column_marginals,
+        summary_masks=summary_masks,
+    )
+    if headline_metric not in summary_bounds:
+        headline_metric = next(iter(summary_bounds.keys()), "upward_rate")
+    headline_lower, headline_upper = summary_bounds.get(headline_metric, (0.0, 0.0))
+    method_label = (
+        "sharp_transport_bounds_known_marginals"
+        if column_marginals is not None
+        else "sharp_transport_bounds_row_marginals"
+    )
+    bundle = BoundsBundle(
+        estimand_type=f"mobility.{headline_metric}",
+        point_identified=abs(headline_upper - headline_lower) <= 1e-12,
+        lower_bound=headline_lower,
+        upper_bound=headline_upper,
+        consensus_lower=headline_lower,
+        consensus_upper=headline_upper,
+        sharpness_status="unknown",
+        method_summaries=[
+            BoundsMethodSummary(
+                method=BoundMethod.TRANSPORT_BOUNDS,
+                lower_bound=headline_lower,
+                upper_bound=headline_upper,
+                bound_width=headline_upper - headline_lower,
+                assumptions_used=(
+                    ["observed_stayers_are_lower_bounds", "known_row_and_column_marginals"]
+                    if column_marginals is not None
+                    else ["observed_stayers_are_lower_bounds", "known_row_marginals"]
+                ),
+                bounds_type="sharp_lp",
+                display_label=method_label,
+                solver_metadata={
+                    "headline_metric": headline_metric,
+                    "n_rows": int(cell_lower.shape[0]),
+                    "n_cols": int(cell_lower.shape[1]),
+                    "column_marginals_supplied": column_marginals is not None,
+                },
+            )
+        ],
+        warnings=(
+            []
+            if column_marginals is not None
+            else ["destination_marginals_missing_bounds_may_be_wide"]
+        ),
+        metadata={
+            "headline_metric": headline_metric,
+            "bounds_method": method_label,
+            "cell_lower_bounds": cell_lower.tolist(),
+            "cell_upper_bounds": cell_upper.tolist(),
+            "summary_bounds": {key: list(value) for key, value in summary_bounds.items()},
+            "row_marginals": np.asarray(row_marginals, dtype=float).tolist(),
+            "column_marginals": None if column_marginals is None else np.asarray(column_marginals, dtype=float).tolist(),
+            **dict(metadata or {}),
+        },
+    )
+    return bundle, cell_lower, cell_upper, summary_bounds
+
+
 __all__ = [
     "BoundMethod",
     "BoundSoundnessLevel",
@@ -760,7 +1015,9 @@ __all__ = [
     "bounds_tightening_log_from_claim",
     "bounds_bundle_from_bounds_report",
     "bounds_bundle_from_partial_identification_result",
+    "build_mobility_bounds_bundle",
     "compute_manski_bounds",
+    "compute_mobility_matrix_bounds",
     "hydrate_bounds_bundle_with_tightening_log",
     "load_bounds_bundle",
     "load_bounds_tightening_log",

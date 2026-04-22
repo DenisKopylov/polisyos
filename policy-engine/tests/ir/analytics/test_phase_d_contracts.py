@@ -34,16 +34,20 @@ from polisyos.ir.analytics.distributional import (
     DistributionalReport,
     ImpactDirection,
     MetricUnit,
+    OrdinalPovertyEstimate,
+    OrdinalPovertyReport,
     WinnersLosersTable,
     load_causal_assumption_card,
     load_distributional_effect_bundle,
     load_distributional_proof_artifact,
     load_distributional_report,
+    load_ordinal_poverty_report,
     persist_causal_assumption_card,
     persist_discrete_distribution_summary,
     persist_distributional_effect_bundle,
     persist_distributional_proof_artifact,
     persist_distributional_report,
+    persist_ordinal_poverty_report,
 )
 from polisyos.ir.analytics.dynamic_regime import RuntimeSupportStatus
 from polisyos.ir.analytics.strategic import (
@@ -140,12 +144,52 @@ def _distribution_summary(outcome_name: str) -> DiscreteDistributionSummary:
     )
 
 
+def _ordinal_poverty_estimate() -> OrdinalPovertyEstimate:
+    return OrdinalPovertyEstimate(
+        headcount_h=0.5,
+        ordinal_intensity_a=0.4,
+        ordinal_adjusted_headcount_q=0.2,
+        af_m0_baseline=0.18,
+        beta=1.0,
+        k_threshold=2 / 3,
+        n_agents=10,
+        n_dimensions=3,
+        n_poor=5,
+        dimension_weights=(1 / 3, 1 / 3, 1 / 3),
+        deprivation_cutoffs=(2, 2, 1),
+        dimension_names=("health", "education", "housing"),
+        threshold_weights_basis="equal",
+        dimension_contributions={"available": True},
+        cutoff_diagnostics={"recoding_invariance_bound": 0.0},
+        poor_mask=(1, 1, 0, 0, 1, 0, 1, 0, 1, 0),
+        breadth_scores=(1.0, 2 / 3, 1 / 3, 0.0, 2 / 3, 0.0, 1.0, 0.0, 2 / 3, 0.0),
+        severity_scores=(0.6, 0.3, 0.1, 0.0, 0.4, 0.0, 0.7, 0.0, 0.5, 0.0),
+        censored_scores=(0.6, 0.3, 0.0, 0.0, 0.4, 0.0, 0.7, 0.0, 0.5, 0.0),
+    )
+
+
 def test_distributional_effect_bundle_round_trip_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
     counterfactual_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
     quantile_ref = persist_discrete_distribution_summary(store, _distribution_summary("quantile_proxy"))
     tail_ref = persist_discrete_distribution_summary(store, _distribution_summary("tail_proxy"))
+    ordinal_ref = persist_ordinal_poverty_report(
+        store,
+        OrdinalPovertyReport(
+            baseline=_ordinal_poverty_estimate(),
+            counterfactual=_ordinal_poverty_estimate().model_copy(
+                update={
+                    "headcount_h": 0.4,
+                    "ordinal_intensity_a": 0.35,
+                    "ordinal_adjusted_headcount_q": 0.14,
+                    "af_m0_baseline": 0.15,
+                    "n_poor": 4,
+                }
+            ),
+            source_simulation_ref="sha256:" + "f" * 64,
+        ),
+    )
 
     bundle = DistributionalEffectBundle(
         outcome_name="income",
@@ -165,6 +209,7 @@ def test_distributional_effect_bundle_round_trip_via_store(tmp_path) -> None:
         wasserstein_distance=0.5,
         quantile_shift_ref=quantile_ref,
         tail_risk_delta_ref=tail_ref,
+        ordinal_poverty_ref=ordinal_ref,
         subgroup_distribution_refs=[],
         causal_assumptions=["distributional_estimand_not_proof_kernel_identified"],
         readiness_cap="simulation_ready",
@@ -181,6 +226,34 @@ def test_distributional_effect_bundle_round_trip_via_store(tmp_path) -> None:
     assert loaded.distributional_query_kind == "interventional_law"
     assert loaded.distributional_bounds_refs == []
     assert loaded.marginal_law_proof_ref is None
+    assert loaded.ordinal_poverty_ref == ordinal_ref
+
+
+def test_ordinal_poverty_report_round_trip_via_store(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    baseline = _ordinal_poverty_estimate()
+    counterfactual = baseline.model_copy(
+        update={
+            "headcount_h": 0.3,
+            "ordinal_intensity_a": 0.32,
+            "ordinal_adjusted_headcount_q": 0.096,
+            "af_m0_baseline": 0.12,
+            "n_poor": 3,
+        }
+    )
+    report = OrdinalPovertyReport(
+        baseline=baseline,
+        counterfactual=counterfactual,
+        source_simulation_ref="sha256:" + "e" * 64,
+        metadata={"run_id": "R_test"},
+    )
+
+    ref = persist_ordinal_poverty_report(store, report)
+    loaded = load_ordinal_poverty_report(store, ref)
+
+    assert loaded == report
+    assert loaded.deltas["headcount_h"] == pytest.approx(-0.2)
+    assert loaded.deltas["ordinal_adjusted_headcount_q"] == pytest.approx(-0.104)
 
 
 def test_distributional_effect_bundle_uses_weakest_link_semantics(tmp_path) -> None:

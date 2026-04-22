@@ -45,6 +45,7 @@ from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.distributional import (
     load_distributional_effect_bundle,
     load_distributional_report,
+    load_ordinal_poverty_report,
 )
 from polisyos.ir.analytics.evidence_bundle import load_causal_evidence_bundle
 from polisyos.ir.analytics.hte import load_hte_result, load_policy_recommendation
@@ -1902,6 +1903,7 @@ def _build_distributional_section(
                     "neutral_count": len(report.winners_losers.neutral),
                     "winners_share": report.winners_losers.total_winners_share,
                     "losers_share": report.winners_losers.total_losers_share,
+                    "ordinal_poverty_summary": dict(report.ordinal_poverty_summary),
                     "breakdowns": [
                         {
                             "dimension": breakdown.dimension.value,
@@ -1987,8 +1989,32 @@ def _build_distributional_section(
                         if isinstance(proof_kernel, dict) and proof_kernel.get("theorem_family") is not None
                         else None
                     ),
+                    "ordinal_poverty_ref": (
+                        str(bundle.ordinal_poverty_ref.artifact_id)
+                        if bundle.ordinal_poverty_ref is not None
+                        else None
+                    ),
                 }
             )
+            if bundle.ordinal_poverty_ref is not None:
+                try:
+                    ordinal_report = load_ordinal_poverty_report(ctx.store, bundle.ordinal_poverty_ref)
+                    payload.update(
+                        {
+                            "ordinal_poverty_methodology": ordinal_report.methodology,
+                            "ordinal_poverty_deltas": dict(ordinal_report.deltas),
+                        }
+                    )
+                except _DECISION_PACKET_LOAD_ERRORS as exc:
+                    payload["ordinal_poverty_parse_warning"] = "ordinal_poverty_report_load_failed"
+                    _record_decision_packet_section_degraded(
+                        packet_payload,
+                        operation="load_ordinal_poverty_report",
+                        reason="ordinal_poverty_report_load_failed",
+                        exc=exc,
+                        ref=bundle.ordinal_poverty_ref,
+                        artifact_key=ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
+                    )
         except _DECISION_PACKET_LOAD_ERRORS as exc:
             _record_decision_packet_section_degraded(
                 packet_payload,

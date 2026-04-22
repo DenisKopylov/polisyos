@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.foundry.validation import (
+    maybe_load_foundry_phase2_closure_report,
+    normalize_phase2_artifact_family,
+)
 from polisyos.ir.analytics.causal import DataReadinessReport, load_data_readiness_report
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceState
 from polisyos.scientist.discovery.priors import PriorKnowledgeBundle
@@ -202,8 +206,25 @@ class DecisionReadinessEvaluator:
             evidence_support_summary=support_summary,
         )
         runtime_metadata = dict(evidence_metadata or {})
+        resolved_artifact_family = normalize_phase2_artifact_family(
+            str(runtime_metadata.get("artifact_family") or ""),
+            estimator_name=(
+                None
+                if runtime_metadata.get("estimator_name") is None
+                else str(runtime_metadata.get("estimator_name"))
+            ),
+            query_type=(
+                None if runtime_metadata.get("query_type") is None else str(runtime_metadata.get("query_type"))
+            ),
+        )
+        runtime_metadata["artifact_family"] = resolved_artifact_family
         latent_governance = _resolve_latent_governance(runtime_metadata)
         latent_resolution_error = _resolve_latent_discovery_resolution_error(runtime_metadata)
+        phase2_closure = _resolve_phase2_closure(runtime_metadata, store=self._store)
+        phase2_family_summary = _resolve_relevant_phase2_closure_family(
+            phase2_closure,
+            artifact_family=resolved_artifact_family,
+        )
         resolved_data_readiness = data_readiness_report
         if (
             resolved_data_readiness is None
@@ -235,6 +256,8 @@ class DecisionReadinessEvaluator:
             readiness_cap_reason = "evaluation_source_not_promotable"
         elif degradation_mode in {"research_only", "no_promotion"}:
             readiness_cap_reason = "evaluation_degradation_mode"
+        elif _phase2_closure_blocks_readiness(phase2_family_summary):
+            readiness_cap_reason = _phase2_readiness_cap_reason(phase2_family_summary)
         elif claim_mode != "proof_only" and resolved_data_readiness is not None:
             if resolved_data_readiness.decision in {"block", "unknown"}:
                 readiness_cap_reason = _dp_readiness_cap_reason(
@@ -313,6 +336,7 @@ class DecisionReadinessEvaluator:
             "evaluation_promotable_source": runtime_metadata.get("promotable_source", True),
             "evaluation_degradation_mode": runtime_metadata.get("degradation_mode"),
             "evaluation_provenance_notes": list(runtime_metadata.get("notes", []) or []),
+            "artifact_family": resolved_artifact_family,
             "claim_mode": claim_mode,
             "prior_knowledge_status": (
                 prior_knowledge_bundle.status if prior_knowledge_bundle is not None else "missing"
@@ -325,6 +349,19 @@ class DecisionReadinessEvaluator:
                 }
             ),
         }
+        if phase2_closure is not None:
+            metadata["phase2_closure"] = dict(phase2_closure)
+        if phase2_family_summary is not None:
+            metadata["phase2_closure_family"] = str(
+                phase2_family_summary.get("artifact_family")
+                or phase2_family_summary.get("family")
+                or runtime_metadata.get("artifact_family")
+                or ""
+            )
+            metadata["phase2_closure_status"] = str(
+                phase2_family_summary.get("status")
+                or ("pass" if phase2_family_summary.get("passes_all", False) else "fail")
+            )
         if latent_governance is not None:
             metadata["latent_governance"] = dict(latent_governance)
             metadata["latent_falsification_tests"] = list(
@@ -491,6 +528,22 @@ def _resolve_readiness_cap(
         return DecisionReadiness.RESEARCH_ARTIFACT
     if degradation_mode in {"research_only", "no_promotion"}:
         return DecisionReadiness.RESEARCH_ARTIFACT
+    artifact_family = normalize_phase2_artifact_family(
+        str(evidence_metadata.get("artifact_family") or ""),
+        estimator_name=(
+            None if evidence_metadata.get("estimator_name") is None else str(evidence_metadata.get("estimator_name"))
+        ),
+        query_type=(
+            None if evidence_metadata.get("query_type") is None else str(evidence_metadata.get("query_type"))
+        ),
+    )
+    phase2_closure = _resolve_phase2_closure(evidence_metadata)
+    phase2_family_summary = _resolve_relevant_phase2_closure_family(
+        phase2_closure,
+        artifact_family=artifact_family,
+    )
+    if _phase2_closure_blocks_readiness(phase2_family_summary):
+        return DecisionReadiness.RESEARCH_ARTIFACT
     if claim_mode == "proof_only":
         return None
     if data_readiness_report is not None:
@@ -528,6 +581,103 @@ def _resolve_latent_discovery_resolution_error(
     if not isinstance(payload, dict):
         return None
     return payload
+
+
+def _resolve_phase2_closure(
+    evidence_metadata: dict[str, object],
+    *,
+    store: FileSystemCAS | None = None,
+) -> dict[str, Any] | None:
+    payload = evidence_metadata.get("phase2_closure")
+    if isinstance(payload, dict):
+        return {str(key): value for key, value in payload.items()}
+
+    ref_payload = evidence_metadata.get("phase2_closure_report_ref")
+    if ref_payload is not None and store is not None:
+        try:
+            ref = ref_payload if isinstance(ref_payload, ArtifactRef) else ArtifactRef.model_validate(ref_payload)
+            from polisyos.foundry.validation.phase2_closure import load_foundry_phase2_closure_report
+
+            report = load_foundry_phase2_closure_report(store, ref)
+            return {
+                "phase": report.phase_id,
+                "artifact_families": {
+                    key: value.model_dump(mode="json") for key, value in report.artifact_families.items()
+                },
+            }
+        except Exception:
+            return None
+
+    report_path = evidence_metadata.get("phase2_closure_report_path")
+    report = maybe_load_foundry_phase2_closure_report(
+        explicit_path=None if report_path is None else str(report_path),
+    )
+    if report is None:
+        return None
+    return {
+        "phase": report.phase_id,
+        "artifact_families": {
+            key: value.model_dump(mode="json") for key, value in report.artifact_families.items()
+        },
+    }
+
+
+def _resolve_relevant_phase2_closure_family(
+    phase2_closure: dict[str, Any] | None,
+    *,
+    artifact_family: str,
+) -> dict[str, Any] | None:
+    if not isinstance(phase2_closure, dict):
+        return None
+    families = phase2_closure.get("artifact_families")
+    if not isinstance(families, dict):
+        return None
+    normalized_family = artifact_family.strip()
+    exact = families.get(normalized_family)
+    if isinstance(exact, dict):
+        return {"artifact_family": normalized_family, **exact}
+    for family_name, payload in families.items():
+        if not isinstance(payload, dict):
+            continue
+        applies_to = payload.get("applies_to")
+        if isinstance(applies_to, list) and normalized_family in {
+            str(item).strip() for item in applies_to
+        }:
+            return {"artifact_family": str(family_name), **payload}
+    return None
+
+
+def _phase2_closure_blocks_readiness(
+    family_summary: dict[str, Any] | None,
+) -> bool:
+    if not isinstance(family_summary, dict):
+        return False
+    status = str(family_summary.get("status") or "").strip().lower()
+    if status in {"missing", "fail", "failed", "incomplete", "blocked"}:
+        return True
+    if "passes_all" in family_summary:
+        return not bool(family_summary.get("passes_all"))
+    deliverables = family_summary.get("deliverables")
+    if isinstance(deliverables, list) and deliverables:
+        return any(
+            str(item.get("status") or "").strip().lower() not in {"pass", "passed", "green"}
+            for item in deliverables
+            if isinstance(item, dict)
+        )
+    return False
+
+
+def _phase2_readiness_cap_reason(
+    family_summary: dict[str, Any] | None,
+) -> str:
+    if not isinstance(family_summary, dict):
+        return "phase2_closure_incomplete"
+    family = str(
+        family_summary.get("artifact_family")
+        or family_summary.get("family")
+        or "phase2"
+    ).strip()
+    return f"phase2_closure_incomplete:{family}"
 
 
 def _resolve_dp_robustness_summary(

@@ -10,6 +10,7 @@ from .advanced import (
     EventStudyEstimator,
     GARCHEstimator,
     LocalProjectionsEstimator,
+    NonstationaryGARCHEstimator,
     QuantileRegressionEstimator,
 )
 from .diagnostics import (
@@ -42,15 +43,32 @@ from .high_dimensional import (
     PostDoubleSelectionEstimator,
     PostLASSOEstimator,
 )
+from .high_dimensional_iv import HighDimensionalPostSelectionIVEstimator
 from .iv import GMMEstimator, TwoStageLeastSquaresEstimator
 from .panel import FixedEffectsEstimator, RandomEffectsEstimator
 from .protocols import (
+    ConfidenceSetSegment,
     CrossSectionalDependenceDiagnostic,
+    CoverageGuaranteeTier,
     EconometricDiagnosticResult,
     EconometricEstimator,
     EconometricResult,
+    IdentificationDiagnostic,
+    IntervalDisagreementDiagnostic,
+    NonstationaryVolatilitySummary,
+    OrthogonalityNuisanceDiagnostic,
     PanelData,
+    PostSelectionCoverageDiagnostic,
+    PostSelectionInterval,
+    SparsityComplexityDiagnostic,
+    ThresholdRegressionData,
+    ThresholdStateField,
     TimeSeriesData,
+    VolatilityBreak,
+    VolatilityBreakDetectionMethod,
+    VolatilityCoverageSummary,
+    VolatilityLossFamily,
+    VolatilityRegimeSegment,
 )
 from .selection import (
     HeckmanSelectionEstimator,
@@ -60,6 +78,12 @@ from .selection import (
 from .semiparametric import (
     KernelRegressionEstimator,
     RobinsonEstimator,
+)
+from .thresholds import (
+    StateDependentFRDEstimator,
+    StateDependentFRKDEstimator,
+    StateDependentKinkEstimator,
+    StateDependentThresholdEstimator,
 )
 from .timeseries import ARIMAEstimator, VAREstimator
 
@@ -75,24 +99,42 @@ def ensure_econometric_methods_registered(registry: MethodRegistry | None = None
 
 
 __all__ = [
+    "ConfidenceSetSegment",
     "CrossSectionalDependenceDiagnostic",
+    "CoverageGuaranteeTier",
     "EconometricDiagnosticResult",
     "EconometricEstimator",
     "EconometricResult",
+    "IdentificationDiagnostic",
+    "IntervalDisagreementDiagnostic",
+    "NonstationaryVolatilitySummary",
+    "OrthogonalityNuisanceDiagnostic",
     "PanelData",
+    "PostSelectionCoverageDiagnostic",
+    "PostSelectionInterval",
+    "SparsityComplexityDiagnostic",
+    "ThresholdRegressionData",
+    "ThresholdStateField",
     "TimeSeriesData",
+    "VolatilityBreak",
+    "VolatilityBreakDetectionMethod",
+    "VolatilityCoverageSummary",
+    "VolatilityLossFamily",
+    "VolatilityRegimeSegment",
     "FixedEffectsEstimator",
     "RandomEffectsEstimator",
     "DifferenceGMMEstimator",
     "SystemGMMEstimator",
     "TwoStageLeastSquaresEstimator",
     "GMMEstimator",
+    "HighDimensionalPostSelectionIVEstimator",
     "ARIMAEstimator",
     "VAREstimator",
     "QuantileRegressionEstimator",
     "EventStudyEstimator",
     "LocalProjectionsEstimator",
     "GARCHEstimator",
+    "NonstationaryGARCHEstimator",
     "ChangePointEstimator",
     "VECMEstimator",
     "BayesianVAREstimator",
@@ -118,6 +160,10 @@ __all__ = [
     "KernelRegressionEstimator",
     "PostLASSOEstimator",
     "PostDoubleSelectionEstimator",
+    "StateDependentFRDEstimator",
+    "StateDependentFRKDEstimator",
+    "StateDependentThresholdEstimator",
+    "StateDependentKinkEstimator",
     "register_econometric_methods",
     "ensure_econometric_methods_registered",
 ]

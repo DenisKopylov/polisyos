@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import importlib
+import json
 import sys
 from decimal import Decimal
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.validation.phase2_closure import PHASE2_CLOSURE_ENV_VAR
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
@@ -405,6 +407,46 @@ def _benchmark(candidate_ref: ArtifactRef, *, holdout_score: float = 0.94) -> tu
         metadata={"lineage_complete": True},
     )
     return selection, hidden_holdout
+
+
+def _write_phase2_closure_report(
+    path,
+    *,
+    artifact_family: str,
+    passes_all: bool,
+    status: str,
+) -> None:
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "assessment_id": "foundry_phase2_closure",
+                "phase_id": "foundry.phase2",
+                "overall_status": "complete" if passes_all else "incomplete",
+                "manifest_path": "tools/quality/validation/foundry_phase2_manifest.json",
+                "acceptance_junit_xml": "foundry_phase2_acceptance.xml",
+                "benchmark_report": "foundry_phase2_benchmarks.json",
+                "evidence_report": "foundry_phase2_evidence.json",
+                "source_of_truth": {},
+                "tracks": {},
+                "artifact_families": {
+                    artifact_family: {
+                        "artifact_family": artifact_family,
+                        "applies_to": [artifact_family],
+                        "blocking_transition": "PROOF_ONLY->ENGINEER_READY",
+                        "passes_all": passes_all,
+                        "status": status,
+                        "track_ids": ["P2.synthetic"],
+                    }
+                },
+                "notes": [],
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 def _evaluation_vector(candidate: PolicyCandidateSchema):
@@ -1004,6 +1046,229 @@ def test_synthetic_runtime_caps_readiness_and_blocks_promotion(tmp_path) -> None
     assert result.readiness_contract.metadata["readiness_cap"] == "research_artifact"
     assert result.readiness_contract.metadata["evaluation_backend_kind"] == "synthetic"
     assert registry.get("policy_loop") is None
+
+
+def test_phase2_closure_caps_readiness_for_incomplete_relevant_family() -> None:
+    contract = DecisionReadinessEvaluator().evaluate(
+        candidate=_candidate(evidence_depth="replicated"),
+        judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
+        uncertainty_envelope=_uncertainty(0.1),
+        evidence_metadata={
+            "artifact_family": "distributional_frontier",
+            "phase2_closure": {
+                "phase": "phase_2",
+                "artifact_families": {
+                    "distributional_frontier": {
+                        "passes_all": False,
+                        "status": "incomplete",
+                        "deliverables": [
+                            {
+                                "deliverable_id": "distributional_bounds_bundle",
+                                "status": "missing_judge_verdict",
+                            }
+                        ],
+                    }
+                },
+            },
+        },
+    )
+
+    assert contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert contract.metadata["readiness_cap"] == "research_artifact"
+    assert (
+        contract.metadata["readiness_cap_reason"]
+        == "phase2_closure_incomplete:distributional_frontier"
+    )
+    assert contract.metadata["phase2_closure_family"] == "distributional_frontier"
+    assert contract.metadata["phase2_closure_status"] == "incomplete"
+
+
+def test_phase2_closure_summary_flows_through_promotion_runtime(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+    coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+
+    candidate = _candidate(evidence_depth="replicated")
+    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    selection_eval, _ = _benchmark(candidate_ref, holdout_score=0.94)
+    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    replay_ref, replay_verification_ref = _persist_replay_support(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+    )
+
+    bundle = coordinator.build_input_bundle(
+        candidate=candidate,
+        artifact_family="distributional_frontier",
+        benchmark_evaluation=selection_eval,
+        evaluation_vector=_evaluation_vector(candidate),
+        governance_report={"verdict": "approve", "issues": []},
+        phase2_closure={
+            "phase": "phase_2",
+            "artifact_families": {
+                "distributional_frontier": {
+                    "passes_all": False,
+                    "status": "fail",
+                    "deliverables": [
+                        {
+                            "deliverable_id": "distributional_bounds_bundle",
+                            "status": "synthetic_world_missing",
+                        }
+                    ],
+                }
+            },
+        },
+        uncertainty_envelope=_uncertainty(0.1),
+        replay_bundle_ref=replay_ref,
+        replay_verification_ref=replay_verification_ref,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        state={
+            "checkpoints": [{"stage": "done", "timestamp": "2026-03-25T10:00:00Z"}],
+            "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+            "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+            "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+            "audit_lineage_complete": True,
+        },
+    )
+
+    result = coordinator.coordinate_promotion(
+        loop_id="policy_loop",
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+        judge_input=bundle,
+    )
+
+    assert result.readiness_contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert (
+        result.readiness_contract.metadata["readiness_cap_reason"]
+        == "phase2_closure_incomplete:distributional_frontier"
+    )
+    assert result.readiness_contract.metadata["phase2_closure_family"] == "distributional_frontier"
+    assert result.readiness_contract.metadata["phase2_closure_status"] == "fail"
+
+
+def test_phase2_closure_report_env_caps_readiness_without_inline_summary(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    report_path = tmp_path / "foundry_phase2_closure.json"
+    _write_phase2_closure_report(
+        report_path,
+        artifact_family="distributional_frontier",
+        passes_all=False,
+        status="incomplete",
+    )
+    monkeypatch.setenv(PHASE2_CLOSURE_ENV_VAR, str(report_path))
+
+    contract = DecisionReadinessEvaluator().evaluate(
+        candidate=_candidate(evidence_depth="replicated"),
+        judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
+        uncertainty_envelope=_uncertainty(0.1),
+        evidence_metadata={"artifact_family": "distributional_frontier"},
+    )
+
+    assert contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert contract.metadata["readiness_cap"] == "research_artifact"
+    assert (
+        contract.metadata["readiness_cap_reason"]
+        == "phase2_closure_incomplete:distributional_frontier"
+    )
+    assert contract.metadata["phase2_closure_family"] == "distributional_frontier"
+    assert contract.metadata["phase2_closure_status"] == "incomplete"
+
+
+def test_phase2_closure_summary_flows_through_promotion_runtime_via_env_report(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    report_path = tmp_path / "foundry_phase2_closure.json"
+    _write_phase2_closure_report(
+        report_path,
+        artifact_family="distributional_frontier",
+        passes_all=False,
+        status="fail",
+    )
+    monkeypatch.setenv(PHASE2_CLOSURE_ENV_VAR, str(report_path))
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+    coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+
+    candidate = _candidate(evidence_depth="replicated")
+    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    selection_eval, _ = _benchmark(candidate_ref, holdout_score=0.94)
+    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    replay_ref, replay_verification_ref = _persist_replay_support(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+    )
+
+    bundle = coordinator.build_input_bundle(
+        candidate=candidate,
+        artifact_family="distributional_frontier",
+        benchmark_evaluation=selection_eval,
+        evaluation_vector=_evaluation_vector(candidate),
+        governance_report={"verdict": "approve", "issues": []},
+        uncertainty_envelope=_uncertainty(0.1),
+        replay_bundle_ref=replay_ref,
+        replay_verification_ref=replay_verification_ref,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        state={
+            "checkpoints": [{"stage": "done", "timestamp": "2026-03-25T10:00:00Z"}],
+            "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+            "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+            "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+            "audit_lineage_complete": True,
+        },
+    )
+
+    result = coordinator.coordinate_promotion(
+        loop_id="policy_loop",
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+        judge_input=bundle,
+    )
+
+    assert result.readiness_contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert (
+        result.readiness_contract.metadata["readiness_cap_reason"]
+        == "phase2_closure_incomplete:distributional_frontier"
+    )
+    assert result.readiness_contract.metadata["phase2_closure_family"] == "distributional_frontier"
+    assert result.readiness_contract.metadata["phase2_closure_status"] == "fail"
+
+
+def test_phase2_benchmark_scope_normalizes_frontier_family() -> None:
+    runtime_module = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime"
+    )
+    state = type("State", (), {"params": {}})()
+    candidate = type(
+        "Candidate",
+        (),
+        {"metadata": {"artifact_family": "causal_core", "query_type": "partial_observability_bounds"}},
+    )()
+    selection_vector = type(
+        "SelectionVector",
+        (),
+        {"metadata": {"estimator_name": "network_missingness_frontier"}},
+    )()
+
+    scope = runtime_module._resolve_benchmark_scope(
+        state=state,
+        candidate=candidate,
+        selection_vector=selection_vector,
+    )
+
+    assert scope["artifact_family"] == "network_identification"
+    assert scope["query_type"] == "partial_observability_bounds"
+    assert scope["estimator_name"] == "network_missingness_frontier"
 
 
 def test_latent_bundle_forces_research_only_cap_and_human_gate(tmp_path) -> None:

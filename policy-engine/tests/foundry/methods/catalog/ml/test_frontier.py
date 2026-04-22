@@ -68,6 +68,9 @@ def test_graph_conv_runs_on_node_regression() -> None:
 
     assert result.output["result"].metrics["r_squared"] > 0.2
     assert "x0" in result.output["result"].feature_importances
+    assert result.output["result"].embedding_fidelity_certificate is not None
+    assert result.output["result"].embedding_fidelity_certificate.family == "gcn"
+    assert result.output["result"].metadata["embedding_fidelity_certificate"]["status"] == "yellow"
 
 
 def test_masked_autoencoder_returns_embedding() -> None:
@@ -87,3 +90,6 @@ def test_masked_autoencoder_returns_embedding() -> None:
     embedding = result.output["result"]
     assert np.asarray(embedding.transformed).shape[1] == 4
     assert embedding.metadata["reconstruction_rmse"] >= 0.0
+    assert embedding.embedding_fidelity_certificate is not None
+    assert embedding.embedding_fidelity_certificate.family == "masked_autoencoder"
+    assert embedding.metadata["embedding_fidelity_certificate"]["status"] == "yellow"

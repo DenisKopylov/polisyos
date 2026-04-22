@@ -164,6 +164,16 @@ class LatentSeparationProxyInput(BaseModel):
     flagged_proxies: list[str] = Field(default_factory=list)
     bridge_plausibility_severity: str | None = None
     bridge_fallback_disposition: str | None = None
+    embedding_family: str | None = None
+    embedding_dim: int | None = Field(default=None, ge=1)
+    representation_faithfulness_status: str | None = None
+    separator_recoverability: dict[str, float] = Field(default_factory=dict)
+    residual_dependence_scores: dict[str, float] = Field(default_factory=dict)
+    collision_rate: float | None = Field(default=None, ge=0.0, le=1.0)
+    effect_drift_z: float | None = Field(default=None, ge=0.0)
+    effective_sample_size: float | None = Field(default=None, ge=0.0)
+    representation_recommended_action: str | None = None
+    representation_failure_modes: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -503,6 +513,14 @@ def latent_separation_assumption_surfaces(
             surfaces.append("latent_separation_design:two_proxy_blocks")
         if _repeated_indicator_block_count(design) >= 1:
             surfaces.append("latent_separation_design:repeated_indicators")
+    proxy_block = payload.get("proxy_block")
+    if isinstance(proxy_block, Mapping):
+        fidelity_status = _representation_fidelity_status(proxy_block)
+        if fidelity_status:
+            surfaces.append(f"latent_separation_representation:{fidelity_status}")
+        embedding_family = str(proxy_block.get("embedding_family") or "").strip()
+        if embedding_family:
+            surfaces.append(f"latent_separation_embedding_family:{embedding_family}")
     return _dedupe_strings(surfaces)
 
 
@@ -533,6 +551,15 @@ def latent_separation_falsification_surfaces(
                 tests.extend(f"latent_separation:{str(item).strip()}" for item in value)
             elif value is not None:
                 tests.append(f"latent_separation:{str(value).strip()}")
+    proxy_block = payload.get("proxy_block")
+    if isinstance(proxy_block, Mapping) and _representation_fidelity_status(proxy_block):
+        tests.extend(
+            [
+                "latent_separation:embedding_separator_recoverability",
+                "latent_separation:embedding_collision",
+                "latent_separation:embedding_effect_drift",
+            ]
+        )
     return _dedupe_strings(tests)
 
 
@@ -639,6 +666,30 @@ def _structured_proxy_block(
         payload["bridge_plausibility_severity"] = block.bridge_plausibility_severity
     if block.bridge_fallback_disposition is not None:
         payload["bridge_fallback_disposition"] = block.bridge_fallback_disposition
+    if block.embedding_family is not None:
+        payload["embedding_family"] = block.embedding_family
+    if block.embedding_dim is not None:
+        payload["embedding_dim"] = int(block.embedding_dim)
+    if block.representation_faithfulness_status is not None:
+        payload["representation_faithfulness_status"] = block.representation_faithfulness_status
+    if block.separator_recoverability:
+        payload["separator_recoverability"] = {
+            key: float(value) for key, value in block.separator_recoverability.items()
+        }
+    if block.residual_dependence_scores:
+        payload["residual_dependence_scores"] = {
+            key: float(value) for key, value in block.residual_dependence_scores.items()
+        }
+    if block.collision_rate is not None:
+        payload["collision_rate"] = float(block.collision_rate)
+    if block.effect_drift_z is not None:
+        payload["effect_drift_z"] = float(block.effect_drift_z)
+    if block.effective_sample_size is not None:
+        payload["effective_sample_size"] = float(block.effective_sample_size)
+    if block.representation_recommended_action is not None:
+        payload["representation_recommended_action"] = block.representation_recommended_action
+    if block.representation_failure_modes:
+        payload["representation_failure_modes"] = list(block.representation_failure_modes)
     payload.update(dict(block.metadata))
     return payload
 
@@ -841,6 +892,8 @@ def _certifies_measurement_vs_proxy(payload: Mapping[str, Any]) -> bool:
         for block in (measurement_block, proxy_block, environment_block)
     ):
         return False
+    if not _representation_fidelity_supported(proxy_block):
+        return False
     if label == "measurement_error":
         return _measurement_block_supported(measurement_block) and _environment_restored(
             environment_block
@@ -855,6 +908,8 @@ def _certifies_proxy_vs_confounding(payload: Mapping[str, Any]) -> bool:
     measurement_block = payload.get("measurement_block")
     proxy_block = payload.get("proxy_block")
     if not isinstance(measurement_block, Mapping) or not isinstance(proxy_block, Mapping):
+        return False
+    if not _representation_fidelity_supported(proxy_block):
         return False
     if label == "latent_confounding":
         return _measurement_block_supported(measurement_block) and _bridge_supported(
@@ -877,6 +932,8 @@ def _certifies_measurement_vs_confounding(payload: Mapping[str, Any]) -> bool:
         isinstance(block, Mapping)
         for block in (measurement_block, proxy_block, environment_block)
     ):
+        return False
+    if not _representation_fidelity_supported(proxy_block):
         return False
     if label == "latent_confounding":
         return (
@@ -958,6 +1015,18 @@ def _bridge_supported(block: Mapping[str, Any]) -> bool:
 
 def _bridge_not_supported(block: Mapping[str, Any]) -> bool:
     return _matches_any(block, _BRIDGE_NEGATIVE_FRAGMENTS)
+
+
+def _representation_fidelity_status(block: Mapping[str, Any]) -> str:
+    return _normalize_token(
+        block.get("representation_faithfulness_status")
+        or block.get("embedding_fidelity_status")
+    )
+
+
+def _representation_fidelity_supported(block: Mapping[str, Any]) -> bool:
+    status = _representation_fidelity_status(block)
+    return not status or status == "green"
 
 
 def _environment_restored(block: Mapping[str, Any]) -> bool:

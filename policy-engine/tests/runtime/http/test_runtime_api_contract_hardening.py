@@ -27,6 +27,9 @@ def test_openapi_contract_includes_client_navigation_links() -> None:
     artifact_links = schema["paths"]["/api/v1/artifacts/{artifact_id}"]["get"]["responses"][
         "200"
     ]["links"]
+    mobility_links = schema["paths"]["/api/v1/mobility/reports/{artifact_id}"]["get"]["responses"][
+        "200"
+    ]["links"]
 
     assert sorted(run_links) == [
         "runAgents",
@@ -41,6 +44,10 @@ def test_openapi_contract_includes_client_navigation_links() -> None:
         "artifactLineage",
         "artifactPreview",
         "artifactSchema",
+    ]
+    assert sorted(mobility_links) == [
+        "mobilityBounds",
+        "mobilityDiagnostics",
     ]
 
 
@@ -63,6 +70,20 @@ def test_generated_runtime_client_includes_batch_read_wrappers() -> None:
 
     assert "getRunsBatch" in names
     assert "getArtifactBatch" in names
+
+
+def test_generated_runtime_client_includes_mobility_wrappers() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
+    spec = json.loads(spec_path.read_text(encoding="utf-8"))
+    operations = generate_runtime_client._extract_operations(spec)
+    names = {operation.name for operation in operations}
+
+    assert "estimateMobility" in names
+    assert "computeMobilityBounds" in names
+    assert "getMobilityReport" in names
+    assert "getMobilityReportBounds" in names
+    assert "getMobilityReportDiagnostics" in names
 
 
 def test_committed_runtime_client_matches_generator() -> None:

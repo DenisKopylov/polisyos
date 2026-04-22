@@ -47,6 +47,14 @@ from .distributional_bounds import (
     DistributionalBoundsEngineMethod,
     lee_trimming_distributional_bounds,
     makarov_distributional_bounds,
+    mtr_atkinson_distributional_bounds,
+    mtr_gini_lorenz_distributional_bounds,
+    mtr_headcount_distributional_bounds,
+    mtr_theil_distributional_bounds,
+    sd_atkinson_distributional_bounds,
+    sd_gini_lorenz_distributional_bounds,
+    sd_headcount_distributional_bounds,
+    sd_theil_distributional_bounds,
 )
 from .g_computation import estimate_g_computation_trajectory
 from .g_estimation import StructuralNestedMeanModel
@@ -166,6 +174,7 @@ from .interference import (
     NetworkAIPWEstimator,
     PartialInterferenceEstimator,
     SpatialInterferenceEstimator,
+    build_block_stratified_network_causal_data,
 )
 from .protocols import NetworkCausalData
 from .protocols import (
@@ -334,6 +343,14 @@ __all__ = [
     "DistributionalBoundsEngineMethod",
     "lee_trimming_distributional_bounds",
     "makarov_distributional_bounds",
+    "mtr_atkinson_distributional_bounds",
+    "mtr_gini_lorenz_distributional_bounds",
+    "mtr_headcount_distributional_bounds",
+    "mtr_theil_distributional_bounds",
+    "sd_atkinson_distributional_bounds",
+    "sd_gini_lorenz_distributional_bounds",
+    "sd_headcount_distributional_bounds",
+    "sd_theil_distributional_bounds",
     "auto_bounds",
     "CausalMediationEstimator",
     "ControlledDirectEffectEstimator",
@@ -366,6 +383,7 @@ __all__ = [
     "NetworkAIPWEstimator",
     "SpatialInterferenceEstimator",
     "BipartiteInterferenceEstimator",
+    "build_block_stratified_network_causal_data",
     "NetworkHeterogeneousEffectEstimator",
     # Phase 6: Advanced estimation — continuous & multi-valued treatments
     "ContinuousTreatmentData",

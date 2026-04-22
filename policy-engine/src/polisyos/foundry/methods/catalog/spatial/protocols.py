@@ -6,6 +6,7 @@ from typing import Any, ClassVar
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
 
+from polisyos.ir.analytics.interference import MAUPInvarianceCertificate, SpatialHodgeDiagnostics
 from polisyos.ir.refs import DependenceStructureRef
 
 
@@ -195,6 +196,8 @@ class SpatialResult(BaseModel):
     fitted_values: Any | None = None
     scores: Any | None = None
     dependence_ref: DependenceStructureRef | None = None
+    maup_invariance_certificate: MAUPInvarianceCertificate | None = None
+    spatial_hodge_diagnostics: SpatialHodgeDiagnostics | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("local_coefficients", "fitted_values", "scores", mode="before")

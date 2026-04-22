@@ -49,7 +49,9 @@ from polisyos.core.contracts.causal import (
 from polisyos.core.contracts.distributional import (
     CausalAssumptionCardRef as CoreCausalAssumptionCardRef,
     DistributionalBoundsBundleRef as CoreDistributionalBoundsBundleRef,
+    DistributionalDualCertificateRef as CoreDistributionalDualCertificateRef,
     DistributionalEffectBundleRef as CoreDistributionalEffectBundleRef,
+    OrdinalPovertyReportRef as CoreOrdinalPovertyReportRef,
     DistributionalProofArtifactRef as CoreDistributionalProofArtifactRef,
     DistributionalReportRef as CoreDistributionalReportRef,
 )
@@ -88,7 +90,13 @@ from polisyos.ir.refs import (
     DistributionalBoundsBundleRef as IrDistributionalBoundsBundleRef,
 )
 from polisyos.ir.refs import (
+    DistributionalDualCertificateRef as IrDistributionalDualCertificateRef,
+)
+from polisyos.ir.refs import (
     DistributionalEffectBundleRef as IrDistributionalEffectBundleRef,
+)
+from polisyos.ir.refs import (
+    OrdinalPovertyReportRef as IrOrdinalPovertyReportRef,
 )
 from polisyos.ir.refs import (
     DistributionalProofArtifactRef as IrDistributionalProofArtifactRef,
@@ -171,7 +179,9 @@ def test_core_contract_facades_reexport_ir_ref_types() -> None:
     assert CoreStructuralCausalModelSpecRef is IrStructuralCausalModelSpecRef
     assert CoreCausalAssumptionCardRef is IrCausalAssumptionCardRef
     assert CoreDistributionalBoundsBundleRef is IrDistributionalBoundsBundleRef
+    assert CoreDistributionalDualCertificateRef is IrDistributionalDualCertificateRef
     assert CoreDistributionalEffectBundleRef is IrDistributionalEffectBundleRef
+    assert CoreOrdinalPovertyReportRef is IrOrdinalPovertyReportRef
     assert CoreDistributionalProofArtifactRef is IrDistributionalProofArtifactRef
     assert CoreDistributionalReportRef is IrDistributionalReportRef
     assert CoreHTEResultRef is IrHTEResultRef
@@ -205,7 +215,9 @@ def test_core_contract_facades_accept_core_artifact_id_values() -> None:
         CoreStructuralCausalModelSpecRef(artifact_id=core_id),
         CoreCausalAssumptionCardRef(artifact_id=core_id),
         CoreDistributionalBoundsBundleRef(artifact_id=core_id),
+        CoreDistributionalDualCertificateRef(artifact_id=core_id),
         CoreDistributionalEffectBundleRef(artifact_id=core_id),
+        CoreOrdinalPovertyReportRef(artifact_id=core_id),
         CoreDistributionalProofArtifactRef(artifact_id=core_id),
         CoreDistributionalReportRef(artifact_id=core_id),
         CoreHTEResultRef(artifact_id=core_id),

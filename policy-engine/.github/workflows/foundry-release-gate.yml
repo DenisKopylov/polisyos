@@ -4,20 +4,32 @@ on:
   pull_request:
     paths:
       - "src/polisyos/foundry/**"
+      - "src/polisyos/scientist/**"
+      - "src/polisyos/runtime/http/**"
       - "src/polisyos/ukraine_data/**"
+      - "benchmarks/**"
       - "tests/foundry/**"
+      - "tests/runtime/http/**"
+      - "tests/scientist/search/test_phase_b_policy_runtime.py"
       - "tests/ukraine_data/test_builders.py"
       - "docs/reference/foundry/**"
+      - "tools/quality/validation/**"
       - "tools/ci/check_foundry_domain_coverage.py"
       - ".github/workflows/foundry-release-gate.yml"
   push:
     branches: [main]
     paths:
       - "src/polisyos/foundry/**"
+      - "src/polisyos/scientist/**"
+      - "src/polisyos/runtime/http/**"
       - "src/polisyos/ukraine_data/**"
+      - "benchmarks/**"
       - "tests/foundry/**"
+      - "tests/runtime/http/**"
+      - "tests/scientist/search/test_phase_b_policy_runtime.py"
       - "tests/ukraine_data/test_builders.py"
       - "docs/reference/foundry/**"
+      - "tools/quality/validation/**"
       - "tools/ci/check_foundry_domain_coverage.py"
       - ".github/workflows/foundry-release-gate.yml"
   schedule:
@@ -35,6 +47,35 @@ env:
   BLIS_NUM_THREADS: "1"
 
 jobs:
+  phase2-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Sync dependencies
+        run: uv sync --frozen --extra test --extra methods-full --extra runtime-http --extra causal-discovery
+
+      - name: Run Foundry Phase 2 validation
+        run: bash tools/quality/validation/run_foundry_phase2_validation.sh "$RUNNER_TEMP/foundry-phase2-validation"
+
+      - name: Upload Foundry Phase 2 validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: foundry-phase2-validation
+          path: ${{ runner.temp }}/foundry-phase2-validation
+          retention-days: 30
+
   correctness-and-capabilities:
     runs-on: ubuntu-latest
     timeout-minutes: 35

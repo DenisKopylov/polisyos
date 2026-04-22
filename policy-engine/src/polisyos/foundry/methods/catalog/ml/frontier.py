@@ -20,6 +20,7 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 
+from ..network.embedding_fidelity import maybe_compute_embedding_fidelity_certificate
 from .protocols import EmbeddingResult, TabularData
 from .regression import (
     _build_prediction_result,
@@ -80,6 +81,16 @@ def _attention_importance(attention: np.ndarray, feature_names: list[str]) -> di
     if total > 1.0e-12:
         importance = importance / total
     return {name: float(value) for name, value in zip(feature_names, importance)}
+
+
+def _metadata_with_embedding_fidelity(
+    metadata: Mapping[str, Any],
+    embedding_fidelity_certificate: Mapping[str, Any] | None,
+) -> dict[str, Any]:
+    merged = dict(metadata)
+    if embedding_fidelity_certificate is not None:
+        merged.setdefault("embedding_fidelity_certificate", dict(embedding_fidelity_certificate))
+    return merged
 
 
 def _graph_output_slots() -> frozenset[SlotSpec]:
@@ -346,6 +357,12 @@ class GraphNeuralNetworkEstimator:
         feature_importances = {f"x{idx}": float(value) for idx, value in enumerate(loadings)}
         coefficients = {f"latent_{idx}": float(value) for idx, value in enumerate(coef[1:])}
         coefficients["intercept"] = float(coef[0])
+        embedding_fidelity_certificate = maybe_compute_embedding_fidelity_certificate(
+            state,
+            params=params,
+            embedding=embedding,
+            embedding_family="gcn",
+        )
         return _build_prediction_result(
             method_name="graph_conv",
             predictions=predictions,
@@ -353,7 +370,11 @@ class GraphNeuralNetworkEstimator:
             feature_importances=feature_importances,
             coefficients=coefficients,
             model_info={"library": "numpy", "estimator": "GraphConvStyleRegressor"},
-            metadata={"hidden_dim": hidden_dim, "n_nodes": int(x.shape[0])},
+            embedding_fidelity_certificate=embedding_fidelity_certificate,
+            metadata=_metadata_with_embedding_fidelity(
+                {"hidden_dim": hidden_dim, "n_nodes": int(x.shape[0])},
+                embedding_fidelity_certificate,
+            ),
         )
 
 
@@ -430,6 +451,12 @@ class MaskedAutoencoderEmbeddingEstimator:
                 )
             )
         )
+        embedding_fidelity_certificate = maybe_compute_embedding_fidelity_certificate(
+            payload,
+            params=params,
+            embedding=transformed,
+            embedding_family="masked_autoencoder",
+        )
 
         return {
             "result": EmbeddingResult(
@@ -439,11 +466,15 @@ class MaskedAutoencoderEmbeddingEstimator:
                 explained_variance_ratio=[
                     float(value / max(float(np.sum(s ** 2)), 1.0e-12)) for value in (s[:latent_dim] ** 2)
                 ],
-                metadata={
-                    "reconstruction_rmse": reconstruction_rmse,
-                    "augmentation_similarity": similarity,
-                    "mask_fraction": mask_fraction,
-                },
+                embedding_fidelity_certificate=embedding_fidelity_certificate,
+                metadata=_metadata_with_embedding_fidelity(
+                    {
+                        "reconstruction_rmse": reconstruction_rmse,
+                        "augmentation_similarity": similarity,
+                        "mask_fraction": mask_fraction,
+                    },
+                    embedding_fidelity_certificate,
+                ),
             )
         }
 

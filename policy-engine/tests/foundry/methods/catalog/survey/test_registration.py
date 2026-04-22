@@ -20,7 +20,12 @@ def test_register_survey_methods_queryable() -> None:
 
     estimation_names = {sig.name for sig in registry.query(namespace="survey.estimation")}
     assert estimation_names.issuperset(
-        {"fay_herriot", "fay_herriot_dependence_aware", "calibration_greg"}
+        {
+            "fay_herriot",
+            "fay_herriot_dependence_aware",
+            "causal_frontier_fay_herriot",
+            "calibration_greg",
+        }
     )
 
     imputation_names = {sig.name for sig in registry.query(namespace="survey.imputation")}

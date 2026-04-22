@@ -216,6 +216,7 @@ class ComplexityClass(Enum):
     O_LOG_N = auto()   # Logarithmic
     O_N = auto()       # Linear in agents
     O_N2 = auto()      # Quadratic
+    O_N3 = auto()      # Cubic
     O_EXP = auto()     # Exponential
 
 

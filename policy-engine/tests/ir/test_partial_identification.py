@@ -6,7 +6,9 @@ import pytest
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
     PartialIdentificationResult,
+    build_mobility_bounds_bundle,
     compute_manski_bounds,
+    compute_mobility_matrix_bounds,
 )
 
 
@@ -79,3 +81,29 @@ def test_partial_identification_informative_narrow() -> None:
     )
     assert r.bound_width == pytest.approx(0.2)
     assert r.is_informative
+
+
+def test_mobility_matrix_bounds_with_row_marginals_only() -> None:
+    lower, upper, summary = compute_mobility_matrix_bounds(
+        observed_joint=np.array([[0.2, 0.1], [0.0, 0.2]]),
+        row_marginals=np.array([0.5, 0.5]),
+    )
+
+    np.testing.assert_allclose(lower, np.array([[0.2, 0.1], [0.0, 0.2]]))
+    np.testing.assert_allclose(upper, np.array([[0.4, 0.3], [0.3, 0.5]]))
+    assert summary["upward_rate"] == pytest.approx((0.1, 0.3))
+    assert summary["immobility_rate"] == pytest.approx((0.4, 0.9))
+
+
+def test_mobility_bounds_bundle_captures_cell_and_summary_metadata() -> None:
+    bundle, cell_lower, cell_upper, summary = build_mobility_bounds_bundle(
+        observed_joint=np.array([[0.2, 0.0], [0.0, 0.1]]),
+        row_marginals=np.array([0.5, 0.5]),
+        column_marginals=np.array([0.4, 0.6]),
+    )
+
+    assert bundle.method_summaries[0].method == BoundMethod.TRANSPORT_BOUNDS
+    assert bundle.metadata["headline_metric"] == "upward_rate"
+    assert bundle.metadata["summary_bounds"]["upward_rate"] == list(summary["upward_rate"])
+    assert cell_lower[0, 0] == pytest.approx(0.2)
+    assert cell_upper[0, 0] == pytest.approx(0.4)

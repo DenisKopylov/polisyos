@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import polisyos.ir as ir
 import polisyos.ir.analytics as analytics
 import polisyos.ir.kernel as kernel
 import polisyos.ir.world as world
@@ -82,6 +83,46 @@ def test_analytics_facade_exports_privacy_transportability_contracts() -> None:
     assert analytics.PrivacyAwareTransportCertificate.__name__ == (
         "PrivacyAwareTransportCertificate"
     )
+
+
+def test_interference_and_maup_contracts_are_exported_from_ir_surfaces() -> None:
+    analytics_exports = {
+        "ExposureMappingType",
+        "InteractionComplex",
+        "InteractionComplexRef",
+        "InterferenceCertificate",
+        "InterferenceCertificateRef",
+        "InterferenceEffectDecomposition",
+        "InterferenceMethod",
+        "MAUPInvarianceCertificate",
+        "MAUPInvarianceCertificateRef",
+        "MAUPPartitionCheck",
+        "NetworkInterferenceReport",
+        "SpatialResult",
+    }
+    assert analytics_exports <= set(analytics.__all__)
+    assert analytics.MAUPInvarianceCertificate.__name__ == "MAUPInvarianceCertificate"
+    assert analytics.SpatialResult.__name__ == "SpatialResult"
+    assert analytics.InterferenceCertificateRef.__name__ == "InterferenceCertificateRef"
+    assert analytics.InteractionComplexRef.__name__ == "InteractionComplexRef"
+    assert analytics.MAUPInvarianceCertificateRef.__name__ == "MAUPInvarianceCertificateRef"
+    assert analytics_exports <= set(ir.__all__)
+    assert ir.NetworkInterferenceReport.__name__ == "NetworkInterferenceReport"
+
+
+def test_network_generative_block_bridge_contracts_are_exported_from_ir_surfaces() -> None:
+    bridge_exports = {
+        "BlockSupportReport",
+        "CausalBlockBridge",
+        "CausalBlockBridgeRef",
+    }
+    assert bridge_exports <= set(analytics.__all__)
+    assert analytics.BlockSupportReport.__name__ == "BlockSupportReport"
+    assert analytics.CausalBlockBridge.__name__ == "CausalBlockBridge"
+    assert analytics.CausalBlockBridgeRef.__name__ == "CausalBlockBridgeRef"
+    assert bridge_exports <= set(ir.__all__)
+    assert ir.CausalBlockBridge.__name__ == "CausalBlockBridge"
+    assert ir.CausalBlockBridgeRef.__name__ == "CausalBlockBridgeRef"
 
 
 def test_public_surface_docs_counts_match_manifest() -> None:

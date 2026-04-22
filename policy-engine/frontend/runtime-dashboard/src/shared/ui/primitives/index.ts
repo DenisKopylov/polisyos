@@ -20,3 +20,4 @@ export * from "../Skeleton";
 export * from "../Switch";
 export * from "../Tabs";
 export * from "../Tooltip";
+export * from "../ProvenanceStrip";

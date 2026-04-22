@@ -21,6 +21,8 @@ type DecisionCardProps = {
     label: string;
     value: ReactNode;
   }>;
+  eyebrow?: ReactNode;
+  sigil?: ReactNode;
   children?: ReactNode;
 };
 
@@ -29,7 +31,9 @@ export function DecisionCard({
   confidence,
   confidenceKind = "neutral",
   diagnostics = [],
+  eyebrow,
   meta = [],
+  sigil,
   subtitle,
   summary,
   title,
@@ -40,12 +44,14 @@ export function DecisionCard({
     <Card className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
+          {eyebrow ? <div className="mb-1">{eyebrow}</div> : null}
           <h3 className="text-lg font-semibold">{title}</h3>
           {subtitle ? (
             <div className="text-muted text-sm">{subtitle}</div>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {sigil ? <div className="mr-1 shrink-0">{sigil}</div> : null}
           <Badge kind={verdictKind}>{verdict}</Badge>
           {confidence ? (
             <Badge kind={confidenceKind}>{confidence}</Badge>

@@ -10,8 +10,12 @@ import testingLibrary from "eslint-plugin-testing-library";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import tseslint from "typescript-eslint";
+
+const require = createRequire(import.meta.url);
+const localPlugin = require("./eslint-plugin-local/index.cjs");
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const appFiles = ["src/**/*.{ts,tsx}"];
@@ -64,6 +68,7 @@ export default tseslint.config(
     },
     plugins: {
       boundaries,
+      local: localPlugin,
       "testing-library": testingLibrary,
       "unused-imports": unusedImports,
     },
@@ -147,6 +152,7 @@ export default tseslint.config(
       "react-hooks/preserve-manual-memoization": "off",
       "react-hooks/set-state-in-effect": "off",
       "unused-imports/no-unused-imports": "error",
+      "local/no-raw-emoji-in-jsx": "error",
     },
   },
   {

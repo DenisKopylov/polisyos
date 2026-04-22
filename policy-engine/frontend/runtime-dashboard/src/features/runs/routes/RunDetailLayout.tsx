@@ -31,10 +31,53 @@ import {
   PageErrorBoundary,
   PanelErrorBoundary,
 } from "@/shared/components/ErrorBoundary";
-import { ApiErrorAlert, Badge, Button, Card, DetailLayout } from "@/shared/ui";
+import {
+  ApiErrorAlert,
+  Badge,
+  Button,
+  Card,
+  DetailLayout,
+  ProvenanceStrip,
+} from "@/shared/ui";
+import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 
 function badgeKind(kind: ReturnType<typeof getRunBadgeKind>) {
   return kind === "unknown" ? "neutral" : kind;
+}
+
+function runDetailProvenance(
+  summary: ReturnType<typeof useRunInspector>,
+): ProvenanceItem[] {
+  const items: ProvenanceItem[] = [
+    {
+      id: "intervention",
+      glyph: "intervention",
+      label: "Policy run",
+      intent: "default",
+    },
+  ];
+  if (summary.blockerCount > 0) {
+    items.push({
+      id: "governance",
+      glyph: "blocker",
+      label: "Governance blocked",
+      intent: "blocked",
+    });
+  } else {
+    items.push({
+      id: "governance",
+      glyph: "governance-pass",
+      label: "Governance pass",
+      intent: "verified",
+    });
+  }
+  items.push({
+    id: "reproducibility",
+    glyph: "reproducibility",
+    label: "Replayable",
+    intent: "default",
+  });
+  return items;
 }
 
 function RunBootstrapState({ runId }: { runId: string }) {
@@ -254,7 +297,11 @@ function RunInspectorContent() {
             <Card className="space-y-4">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="eyebrow">{t("pages.runs.title")}</p>
+                  <ProvenanceStrip
+                    title={t("pages.runs.title")}
+                    items={runDetailProvenance(summary)}
+                    density="compact"
+                  />
                   <h3>{t("pages.runs.detailTitle", { runId })}</h3>
                   <p className="topbar-subtitle">{t("pages.runs.subtitle")}</p>
                 </div>

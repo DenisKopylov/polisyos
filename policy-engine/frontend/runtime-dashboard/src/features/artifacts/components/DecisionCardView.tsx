@@ -12,7 +12,9 @@ import {
 
 import MetricValidationComparisonTable from "@/features/artifacts/components/MetricValidationComparisonTable";
 import type { BadgeKind } from "@/shared/ui";
-import { DecisionCard, Select, chartTheme } from "@/shared/ui";
+import { DecisionCard, ProvenanceStrip, Select, chartTheme } from "@/shared/ui";
+import { EvidenceSigil } from "@/shared/brand/EvidenceSigil";
+import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 import type { DecisionCardViewModel } from "@/lib/domain/decision";
 import { parseDecisionCardPayload } from "@/lib/domain/decision";
 import { formatDate, formatDuration } from "@/lib/utils";
@@ -49,6 +51,56 @@ function diagnosticBadgeKind(
     return kind;
   }
   return "neutral";
+}
+
+function decisionEyebrowItems(card: DecisionCardViewModel): ProvenanceItem[] {
+  const items: ProvenanceItem[] = [
+    {
+      id: "intervention",
+      glyph: "intervention",
+      label: `${card.interventionCount} interventions`,
+    },
+  ];
+  if (card.issues.blockerCount > 0) {
+    items.push({
+      id: "governance",
+      glyph: "blocker",
+      label: "Blocked",
+      intent: "blocked",
+    });
+  } else {
+    items.push({
+      id: "governance",
+      glyph: "governance-pass",
+      label: "Governance pass",
+      intent: "verified",
+    });
+  }
+  items.push({
+    id: "evidence",
+    glyph: "evidence",
+    label: card.confidence === "HIGH" ? "Strong evidence" : "Weak evidence",
+    intent: card.confidence === "HIGH" ? "verified" : "pending",
+    strokeStyle: card.confidence === "HIGH" ? "solid" : "dashed",
+  });
+  return items;
+}
+
+function identifiabilityFromConfidence(
+  confidence: DecisionCardViewModel["confidence"],
+): number {
+  if (confidence === "HIGH") return 0.85;
+  if (confidence === "LOW") return 0.25;
+  return 0.55;
+}
+
+function bundleHashFromCard(card: DecisionCardViewModel): string {
+  const seed = `${card.runId}:${card.sourceKind}:${card.generatedAt ?? ""}`;
+  let hash = 0n;
+  for (const ch of seed) {
+    hash = (hash * 131n + BigInt(ch.codePointAt(0) ?? 0)) & 0xffffffffffffffffn;
+  }
+  return hash.toString(16).padStart(16, "0");
 }
 
 export default function DecisionCardView({
@@ -95,6 +147,27 @@ export default function DecisionCardView({
             <span className="text-muted mx-2">·</span>
             <span>Generated: {formatDate(card.generatedAt)}</span>
           </>
+        }
+        eyebrow={
+          <ProvenanceStrip
+            title="Decision packet"
+            items={decisionEyebrowItems(card)}
+            density="compact"
+          />
+        }
+        sigil={
+          <EvidenceSigil
+            bundleHash={bundleHashFromCard(card)}
+            frescProfile={
+              card.confidence === "HIGH"
+                ? "replicated"
+                : card.confidence === "LOW"
+                  ? "reconnaissance"
+                  : "corroborated"
+            }
+            identifiability={identifiabilityFromConfidence(card.confidence)}
+            size={48}
+          />
         }
         verdict={card.verdict}
         verdictKind={verdictKind(card.verdict)}

@@ -37,9 +37,32 @@ import {
   Card,
   DataFreshnessBadge,
   EvidenceChain,
+  ProvenanceStrip,
   copyShareLink,
 } from "@/shared/ui";
+import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 import { useIsMobile } from "@/shared/ui/responsive";
+
+const evidenceHeroProvenance: ProvenanceItem[] = [
+  {
+    id: "provenance",
+    glyph: "provenance",
+    label: "Source chain",
+    intent: "default",
+  },
+  {
+    id: "evidence",
+    glyph: "evidence",
+    label: "Observations",
+    intent: "default",
+  },
+  {
+    id: "freshness",
+    glyph: "freshness",
+    label: "Live",
+    intent: "verified",
+  },
+];
 
 export default function EvidenceFabric() {
   const { t, label } = useI18n();
@@ -222,7 +245,11 @@ export default function EvidenceFabric() {
       <div className="panel space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="eyebrow">{t("pages.evidence.title")}</p>
+            <ProvenanceStrip
+              title={t("pages.evidence.title")}
+              items={evidenceHeroProvenance}
+              density="compact"
+            />
             <h3>
               {runId
                 ? t("pages.evidence.contextTitle", { runId })

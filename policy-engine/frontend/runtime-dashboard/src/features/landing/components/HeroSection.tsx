@@ -1,4 +1,5 @@
 import { Button } from "@/shared/ui";
+import { JanusGlyph } from "@/shared/brand/JanusGlyph";
 import { useI18n } from "@/i18n/LocaleProvider";
 
 export function HeroSection() {
@@ -6,6 +7,12 @@ export function HeroSection() {
 
   return (
     <section className="flex flex-col items-center gap-8 px-6 pt-24 pb-16 text-center">
+      <JanusGlyph
+        variant="mark"
+        size={32}
+        decorative
+        className="mb-2 opacity-90"
+      />
       <h1 className="font-sans text-[clamp(40px,6vw,56px)] leading-[1.08] font-extrabold tracking-[-0.04em] text-[var(--ink)]">
         {t("landing.heroTitle")}
       </h1>
